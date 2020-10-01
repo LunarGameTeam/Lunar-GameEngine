@@ -1,0 +1,66 @@
+{
+  "RootSignature": "json\\root_signature\\pbr_root_signature.json",
+  "VertexShader": "shader\\pbr_lighting.hlsl",
+  "VertexShaderFunc": "VSMainPointCatch",
+  "PixelShader": "shader\\pbr_lighting.hlsl",
+  "PixelShaderFunc": "PSMain",
+  "GeometryShader": "0",
+  "GeometryShaderFunc": "0",
+  "HullShader": "0",
+  "HullShaderFunc": "0",
+  "DominShader": "0",
+  "DominShaderFunc": "0",
+  "RasterizerState": {
+    "FILL_MODE": "D3D12_FILL_MODE_SOLID",
+    "CULL_MODE": "D3D12_CULL_MODE_BACK"
+  },
+  "BlendState": {
+    "AlphaToCoverageEnable": true,
+    "IndependentBlendEnable": false,
+    "RenderTarget": [
+      {
+        "BlendEnable": false,
+        "LogicOpEnable": false,
+        "SrcBlend": "D3D12_BLEND_ONE",
+        "DestBlend": "D3D12_BLEND_ZERO",
+        "BlendOp": "D3D12_BLEND_OP_ADD",
+        "SrcBlendAlpha": "D3D12_BLEND_ONE",
+        "DestBlendAlpha": "D3D12_BLEND_ZERO",
+        "BlendOpAlpha": "D3D12_BLEND_OP_ADD",
+        "LogicOp": "D3D12_LOGIC_OP_NOOP",
+        "RenderTargetWriteMask": "D3D12_COLOR_WRITE_ENABLE_ALL"
+      }
+    ]
+  },
+  "DepthStencilState": {
+    "DepthEnable": true,
+    "DepthWriteMask": "D3D12_DEPTH_WRITE_MASK_ALL",
+    "DepthFunc": "D3D12_COMPARISON_FUNC_LESS",
+    "StencilEnable": false,
+    "StencilReadMask": 255,
+    "StencilWriteMask": 255,
+    "FrontFaceDesc": {
+      "StencilFunc": "D3D12_COMPARISON_FUNC_ALWAYS",
+      "StencilDepthFailOp": "D3D12_STENCIL_OP_KEEP",
+      "StencilPassOp": "D3D12_STENCIL_OP_KEEP",
+      "StencilFailOp": "D3D12_STENCIL_OP_KEEP"
+    },
+    "BackFaceDesc": {
+      "StencilFunc": "D3D12_COMPARISON_FUNC_ALWAYS",
+      "StencilDepthFailOp": "D3D12_STENCIL_OP_KEEP",
+      "StencilPassOp": "D3D12_STENCIL_OP_KEEP",
+      "StencilFailOp": "D3D12_STENCIL_OP_KEEP"
+    }
+  },
+  "SampleMask": 4294967295,
+  "PrimitiveTopologyType": "D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE",
+  "NumRenderTargets": 1,
+  "RTVFormats": [
+    "DXGI_FORMAT_R8G8B8A8_UNORM_SRGB"
+  ],
+  "DSVFormat": "DXGI_FORMAT_D24_UNORM_S8_UINT",
+  "SampleDesc": {
+    "Count": 1,
+    "Quality": 0
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "directx_descriptor": {
+    "Flags": "D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE",
+    "NodeMask": 0,
+    "Type": "D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV"
+  },
+  "bind_descriptor_num": 65536,
+  "bindless_descriptor_num": 844800,
+  "per_segmental_num": 256
+}

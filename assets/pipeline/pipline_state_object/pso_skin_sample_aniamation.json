@@ -1,0 +1,24 @@
+{
+  "pipeline_state_type": "PSO_TYPE_COMPUTE",
+  "root_signature_file": "assets\\pipeline\\root_signature\\\\skin_animation_sample_root_signature.json",
+  "compute_shader_file": "assets\\shader\\SkinAniamation.hlsl",
+  "compute_shader_func": "CSMain",
+  "descriptor_type": [
+    {
+      "name": "animation_sample_param",
+      "type": "CbufferPrivate"
+    },
+    {
+      "name": "bone_matrix_output",
+      "type": "SRVGlobel"
+    },
+    {
+      "name": "compute_globel_id_input",
+      "type": "SRVGlobel"
+    },
+    {
+      "name": "animation_data",
+      "type": "SRVBindless"
+    }
+  ]
+}

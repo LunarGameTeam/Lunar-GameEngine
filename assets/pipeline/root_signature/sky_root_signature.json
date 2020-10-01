@@ -1,0 +1,52 @@
+{
+  "D3D12_ROOT_PARAMETER": [
+    {
+      "RangeType": "D3D12_DESCRIPTOR_RANGE_TYPE_CBV",
+      "NumDescriptors": 1,
+      "BaseShaderRegister": 0,
+      "RegisterSpace": 0,
+      "flags": "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC",
+      "numDescriptorRanges": 1,
+      "ShaderVisibility": "D3D12_SHADER_VISIBILITY_ALL"
+    },
+    {
+      "RangeType": "D3D12_DESCRIPTOR_RANGE_TYPE_CBV",
+      "NumDescriptors": 1,
+      "BaseShaderRegister": 1,
+      "RegisterSpace": 0,
+      "flags": "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC",
+      "numDescriptorRanges": 1,
+      "ShaderVisibility": "D3D12_SHADER_VISIBILITY_ALL"
+    },
+    {
+      "RangeType": "D3D12_DESCRIPTOR_RANGE_TYPE_SRV",
+      "NumDescriptors": 1,
+      "BaseShaderRegister": 0,
+      "RegisterSpace": 0,
+      "flags": "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC",
+      "numDescriptorRanges": 1,
+      "ShaderVisibility": "D3D12_SHADER_VISIBILITY_ALL"
+    }
+  ],
+  "NumStaticSamplers": 1,
+  "D3D12_STATIC_SAMPLER_DESC": [
+    {
+      "Filter": "D3D12_FILTER_MIN_MAG_MIP_LINEAR",
+      "AddressU": "D3D12_TEXTURE_ADDRESS_MODE_WRAP",
+      "AddressV": "D3D12_TEXTURE_ADDRESS_MODE_WRAP",
+      "AddressW": "D3D12_TEXTURE_ADDRESS_MODE_BORDER",
+      "MipLODBias": 0.0,
+      "MaxAnisotropy": 8,
+      "ComparisonFunc": "D3D12_COMPARISON_FUNC_NEVER",
+      "BorderColor": "D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK",
+      "MinLOD": 0.0,
+      "MaxLOD": 3.402823466e+38,
+      "ShaderRegister": 0,
+      "RegisterSpace": 0,
+      "ShaderVisibility": "D3D12_SHADER_VISIBILITY_ALL"
+    }
+  ],
+  "RootSignatureFlags": [
+    "D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT"
+  ]
+}

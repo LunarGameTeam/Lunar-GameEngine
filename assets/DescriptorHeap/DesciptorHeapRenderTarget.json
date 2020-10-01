@@ -1,0 +1,10 @@
+{
+  "directx_descriptor": {
+    "Flags": "D3D12_DESCRIPTOR_HEAP_FLAG_NONE",
+    "NodeMask": 0,
+    "Type": "D3D12_DESCRIPTOR_HEAP_TYPE_RTV"
+  },
+  "bind_descriptor_num": 65536,
+  "bindless_descriptor_num": 0,
+  "per_segmental_num": 0
+}

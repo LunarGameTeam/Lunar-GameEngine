@@ -1,0 +1,15 @@
+[submodule "sdk/boost"]
+	path = sdk/boost
+	url = https://github.com/boostorg/boost.git
+[submodule "sdk/jsoncpp"]
+	path = sdk/jsoncpp
+	url = https://github.com/open-source-parsers/jsoncpp.git
+[submodule "sdk/DirectXTK12"]
+	path = sdk/DirectXTK12
+	url = https://github.com/microsoft/DirectXTK12.git
+[submodule "sdk/DirectXTex"]
+	path = sdk/DirectXTex
+	url = https://github.com/microsoft/DirectXTex.git
+[submodule "sdk/googletest"]
+	path = sdk/googletest
+	url = https://github.com/google/googletest.git

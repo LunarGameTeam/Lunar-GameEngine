@@ -1,0 +1,72 @@
+{
+  "pipeline_state_type": "PSO_TYPE_GRAPHIC",
+  "root_signature_file": "assets\\pipeline\\root_signature\\brdfgen_root_signature.json",
+  "vertex_shader_file": "assets\\shader\\BrdfGen.hlsl",
+  "vertex_shader_func": "VSMain",
+  "pixel_shader_file": "assets\\shader\\BrdfGen.hlsl",
+  "pixel_shader_func": "PSMain",
+  "geometry_shader_file": "0",
+  "geometry_shader_func": "0",
+  "hull_shader_file": "0",
+  "hull_shader_func": "0",
+  "domin_shader_file": "0",
+  "domin_shader_func": "0",
+  "pso_desc": {
+    "RasterizerState": {
+      "FillMode": "D3D12_FILL_MODE_SOLID",
+      "CullMode": "D3D12_CULL_MODE_BACK"
+    },
+    "BlendState": {
+      "AlphaToCoverageEnable": 0,
+      "IndependentBlendEnable": 0,
+      "RenderTarget": [
+        {
+          "BlendEnable": 0,
+          "LogicOpEnable": 0,
+          "SrcBlend": "D3D12_BLEND_ONE",
+          "DestBlend": "D3D12_BLEND_ZERO",
+          "BlendOp": "D3D12_BLEND_OP_ADD",
+          "SrcBlendAlpha": "D3D12_BLEND_ONE",
+          "DestBlendAlpha": "D3D12_BLEND_ZERO",
+          "BlendOpAlpha": "D3D12_BLEND_OP_ADD",
+          "LogicOp": "D3D12_LOGIC_OP_NOOP",
+          "RenderTargetWriteMask": 15
+        }
+      ]
+    },
+    "DepthStencilState": {
+      "DepthEnable": 0,
+      "DepthWriteMask": "D3D12_DEPTH_WRITE_MASK_ALL",
+      "DepthFunc": "D3D12_COMPARISON_FUNC_LESS",
+      "StencilEnable": 0,
+      "StencilReadMask": 255,
+      "StencilWriteMask": 255,
+      "FrontFace": {
+        "StencilFunc": "D3D12_COMPARISON_FUNC_ALWAYS",
+        "StencilDepthFailOp": "D3D12_STENCIL_OP_KEEP",
+        "StencilPassOp": "D3D12_STENCIL_OP_KEEP",
+        "StencilFailOp": "D3D12_STENCIL_OP_KEEP"
+      },
+      "BackFace": {
+        "StencilFunc": "D3D12_COMPARISON_FUNC_ALWAYS",
+        "StencilDepthFailOp": "D3D12_STENCIL_OP_KEEP",
+        "StencilPassOp": "D3D12_STENCIL_OP_KEEP",
+        "StencilFailOp": "D3D12_STENCIL_OP_KEEP"
+      }
+    },
+    "SampleMask": 4294967295,
+    "PrimitiveTopologyType": "D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE",
+    "NumRenderTargets": 1,
+    "RTVFormats": [
+      "DXGI_FORMAT_R16G16B16A16_FLOAT"
+    ],
+    "DSVFormat": "DXGI_FORMAT_D24_UNORM_S8_UINT",
+    "SampleDesc": {
+      "Count": 1,
+      "Quality": 0
+    }
+  },
+  "descriptor_type": [
+
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "D3D12_ROOT_PARAMETER": [
+    {
+      "RangeType": "D3D12_DESCRIPTOR_RANGE_TYPE_CBV",
+      "NumDescriptors": 1,
+      "BaseShaderRegister": 0,
+      "RegisterSpace": 0,
+      "flags": "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC",
+      "numDescriptorRanges": 1,
+      "ShaderVisibility": "D3D12_SHADER_VISIBILITY_ALL"
+    },
+    {
+      "RangeType": "D3D12_DESCRIPTOR_RANGE_TYPE_CBV",
+      "NumDescriptors": 1,
+      "BaseShaderRegister": 1,
+      "RegisterSpace": 0,
+      "flags": "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC",
+      "numDescriptorRanges": 1,
+      "ShaderVisibility": "D3D12_SHADER_VISIBILITY_ALL"
+    }
+  ],
+  "NumStaticSamplers": 0,
+  "D3D12_STATIC_SAMPLER_DESC": [
+  ],
+  "RootSignatureFlags": [
+    "D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT"
+  ]
+}

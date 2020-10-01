@@ -1,0 +1,28 @@
+{
+  "pipeline_state_type": "PSO_TYPE_COMPUTE",
+  "root_signature_file": "assets\\pipeline\\root_signature\\skin_bone_tree_root_signature.json",
+  "compute_shader_file": "assets\\shader\\SkinBoneTree.hlsl",
+  "compute_shader_func": "CSMain",
+  "descriptor_type": [
+    {
+      "name": "animation_sample_param",
+      "type": "CbufferPrivate"
+    },
+    {
+      "name": "bone_matrix_input",
+      "type": "SRVPrivate"
+    },
+    {
+      "name": "compute_globel_id",
+      "type": "SRVGlobel"
+    },
+    {
+      "name": "bone_matrix_output",
+      "type": "SRVPrivate"
+    },
+    {
+      "name": "parent_globel_id",
+      "type": "SRVBindless"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "root_parameter_data": [
+    {
+      "range_type": "D3D12_DESCRIPTOR_RANGE_TYPE_CBV",
+      "num_descriptors": 1,
+      "base_shader_register": 0,
+      "register_space": 0,
+      "flags": "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC",
+      "num_descriptor_ranges": 1,
+      "shader_visibility": "D3D12_SHADER_VISIBILITY_ALL"
+    },
+    {
+      "range_type": "D3D12_DESCRIPTOR_RANGE_TYPE_SRV",
+      "num_descriptors": 1,
+      "base_shader_register": 0,
+      "register_space": 0,
+      "flags": "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC",
+      "num_descriptor_ranges": 1,
+      "shader_visibility": "D3D12_SHADER_VISIBILITY_ALL"
+    },
+    {
+      "range_type": "D3D12_DESCRIPTOR_RANGE_TYPE_SRV",
+      "num_descriptors": 1,
+      "base_shader_register": 1,
+      "register_space": 0,
+      "flags": "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC",
+      "num_descriptor_ranges": 1,
+      "shader_visibility": "D3D12_SHADER_VISIBILITY_ALL"
+    },
+    {
+      "range_type": "D3D12_DESCRIPTOR_RANGE_TYPE_UAV",
+      "num_descriptors": 1,
+      "base_shader_register": 0,
+      "register_space": 0,
+      "flags": "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_VOLATILE",
+      "num_descriptor_ranges": 1,
+      "shader_visibility": "D3D12_SHADER_VISIBILITY_ALL"
+    }
+  ],
+  "static_sampler_data": [
+  ],
+  "root_signature_flags": "D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT"
+
+}

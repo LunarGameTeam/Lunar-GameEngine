@@ -1,0 +1,7 @@
+{
+  "root_parameter_data": [
+  ],
+  "static_sampler_data": [
+  ],
+  "root_signature_flags": "D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT"
+}

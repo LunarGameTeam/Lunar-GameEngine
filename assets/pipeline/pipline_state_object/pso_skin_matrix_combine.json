@@ -1,0 +1,28 @@
+{
+  "pipeline_state_type": "PSO_TYPE_COMPUTE",
+  "root_signature_file": "assets\\pipeline\\root_signature\\skin_matrix_combine_root_signature.json",
+  "compute_shader_file": "assets\\shader\\CombineCluster.hlsl",
+  "compute_shader_func": "CSMain",
+  "descriptor_type": [
+    {
+      "name": "animation_sample_param",
+      "type": "CbufferPrivate"
+    },
+    {
+      "name": "bone_matrix_input",
+      "type": "SRVPrivate"
+    },
+    {
+      "name": "compute_globel_id",
+      "type": "SRVGlobel"
+    },
+    {
+      "name": "bone_matrix_output",
+      "type": "SRVGlobel"
+    },
+    {
+      "name": "offset_matrix",
+      "type": "SRVBindless"
+    }
+  ]
+}

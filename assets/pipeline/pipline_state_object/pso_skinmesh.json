@@ -1,0 +1,24 @@
+{
+  "pipeline_state_type": "PSO_TYPE_COMPUTE",
+  "root_signature_file": "assets\\pipeline\\root_signature\\skinmesh_root_signature.json",
+  "compute_shader_file": "assets\\shader\\skinmesh.hlsl",
+  "compute_shader_func": "CSMain",
+  "descriptor_type": [
+    {
+      "name": "per_object",
+      "type": "CbufferPrivate"
+    },
+    {
+      "name": "vertex_data",
+      "type": "SRVPrivate"
+    },
+    {
+      "name": "bone_matrix_buffer",
+      "type": "SRVGlobel"
+    },
+    {
+      "name": "mesh_anim_data",
+      "type": "SRVGlobel"
+    }
+  ]
+}

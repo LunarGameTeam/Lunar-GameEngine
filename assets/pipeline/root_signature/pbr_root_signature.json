@@ -1,0 +1,85 @@
+{
+  "root_parameter_data": [
+    {
+      "range_type": "D3D12_DESCRIPTOR_RANGE_TYPE_CBV",
+      "num_descriptors": 1,
+      "base_shader_register": 0,
+      "register_space": 0,
+      "flags": "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC",
+      "num_descriptor_ranges": 1,
+      "shader_visibility": "D3D12_SHADER_VISIBILITY_ALL"
+    },
+    {
+      "range_type": "D3D12_DESCRIPTOR_RANGE_TYPE_CBV",
+      "num_descriptors": 1,
+      "base_shader_register": 1,
+      "register_space": 0,
+      "flags": "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC",
+      "num_descriptor_ranges": 1,
+      "shader_visibility": "D3D12_SHADER_VISIBILITY_ALL"
+    },
+    {
+      "range_type": "D3D12_DESCRIPTOR_RANGE_TYPE_SRV",
+      "num_descriptors": 1,
+      "base_shader_register": 0,
+      "register_space": 0,
+      "flags": "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC",
+      "num_descriptor_ranges": 1,
+      "shader_visibility": "D3D12_SHADER_VISIBILITY_ALL"
+    },
+    {
+      "range_type": "D3D12_DESCRIPTOR_RANGE_TYPE_SRV",
+      "num_descriptors": 1,
+      "base_shader_register": 1,
+      "register_space": 0,
+      "flags": "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC",
+      "num_descriptor_ranges": 1,
+      "shader_visibility": "D3D12_SHADER_VISIBILITY_ALL"
+    },
+    {
+      "range_type": "D3D12_DESCRIPTOR_RANGE_TYPE_SRV",
+      "num_descriptors": 1,
+      "base_shader_register": 2,
+      "register_space": 0,
+      "flags": "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC",
+      "num_descriptor_ranges": 1,
+      "shader_visibility": "D3D12_SHADER_VISIBILITY_ALL"
+    },
+    {
+      "range_type": "D3D12_DESCRIPTOR_RANGE_TYPE_SRV",
+      "num_descriptors": 1,
+      "base_shader_register": 3,
+      "register_space": 0,
+      "flags": "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC",
+      "num_descriptor_ranges": 1,
+      "shader_visibility": "D3D12_SHADER_VISIBILITY_ALL"
+    },
+    {
+      "range_type": "D3D12_DESCRIPTOR_RANGE_TYPE_SRV",
+      "num_descriptors": 64,
+      "base_shader_register": 4,
+      "register_space": 0,
+      "flags": "D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC",
+      "num_descriptor_ranges": 1,
+      "shader_visibility": "D3D12_SHADER_VISIBILITY_ALL"
+    }
+  ],
+  "static_sampler_data": [
+    {
+      "Filter": "D3D12_FILTER_MIN_MAG_MIP_LINEAR",
+      "AddressU": "D3D12_TEXTURE_ADDRESS_MODE_WRAP",
+      "AddressV": "D3D12_TEXTURE_ADDRESS_MODE_WRAP",
+      "AddressW": "D3D12_TEXTURE_ADDRESS_MODE_BORDER",
+      "MipLODBias": 0.0,
+      "MaxAnisotropy": 8,
+      "ComparisonFunc": "D3D12_COMPARISON_FUNC_NEVER",
+      "BorderColor": "D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK",
+      "MinLOD": 0.0,
+      "MaxLOD": 3.402823466e+38,
+      "ShaderRegister": 0,
+      "RegisterSpace": 0,
+      "ShaderVisibility": "D3D12_SHADER_VISIBILITY_ALL"
+    }
+  ],
+  "root_signature_flags": "D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT"
+}
