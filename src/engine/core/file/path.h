@@ -13,30 +13,34 @@ namespace LunarEngine
  *
  * \author IsakW
  */
-	class LPath
+class LPath
+{
+public:
+	//
+	LPath(const char *str);
+	LPath(const LString &str);
+
+	LString GetFileNameWithoutExt() const;
+	LString GetFileNameWithExt() const;
+	LString GetDirectoryName() const;
+
+	const LString &AsString() const
 	{
-	public:
-		//
-		LPath(const char* str);
-		LPath(const LString& str);
+		return m_Path;
+	}
+	const LString &AsStringAbs() const
+	{
+		return m_AbsPath;
+	}
+	bool IsRelative() const;
 
-		LString GetFileNameWithoutExt() const;
-		LString GetFileNameWithExt() const;
-		LString GetDirectoryName() const;
+	static const LString &EngineDir();
+	static const LPath &EngineDirPath();
 
-		const LString& AsString() const
-		{
-			return m_Path;
-		}
-		bool IsRelative() const;
-
-		static const LString& EngineDir();
-		static const LPath& EngineDirPath();	
-
-	private:
-		LString m_AbsPath;
-		LString m_Path;
+private:
+	LString m_AbsPath;
+	LString m_Path;
 
 
-	};
+};
 }

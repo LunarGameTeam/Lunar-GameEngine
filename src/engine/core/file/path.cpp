@@ -17,7 +17,7 @@ LunarEngine::LString LPath::GetFileNameWithoutExt() const
 
 LPath::LPath(const char* str) : m_Path(str)
 {
-	static FileSubsystem* fileSub = gEngine->GetSubsystem<FileSubsystem>().get();
+	static FileSubsystem* fileSub = gEngine->GetSubsystem<FileSubsystem>();
 	assert(fileSub != nullptr);
 	static IPlatformFileManager* file = fileSub->GetPlatformFileManager();
 	assert(file != nullptr);
@@ -32,7 +32,7 @@ LPath::LPath(const char* str) : m_Path(str)
 
 LPath::LPath(const LString& str) :m_Path(str)
 {
-	static FileSubsystem* fileSub = gEngine->GetSubsystem<FileSubsystem>().get();
+	static FileSubsystem* fileSub = gEngine->GetSubsystem<FileSubsystem>();
 	assert(fileSub != nullptr);
 	static IPlatformFileManager* file = fileSub->GetPlatformFileManager();
 	assert(file != nullptr);

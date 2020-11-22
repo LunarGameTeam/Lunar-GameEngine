@@ -12,14 +12,6 @@
 */
 #pragma once
 
-#define __DLL_H__
-#define __DLL_EXPORTS__
-#ifdef __DLL_EXPORTS__
-#define LunarDLLAPI  __declspec(dllexport)
-#else
-#define LunarDLLAPI __declspec(dllimport)
-#endif
-
 #include "boost/smart_ptr.hpp"
 #include "boost/scoped_ptr.hpp"
 #include "boost/container/string.hpp"

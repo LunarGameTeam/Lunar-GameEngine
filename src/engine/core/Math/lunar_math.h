@@ -6,7 +6,7 @@
 
 namespace LunarEngine
 {
-	class LunarDLLAPI LunarMatrix3x3
+	class LunarMatrix3x3
 	{
 		DirectX::XMFLOAT3X3 matrix_value;
 	public:
@@ -20,7 +20,7 @@ namespace LunarEngine
 		LunarMatrix3x3 InverseMatrix();
 	};
 
-	class LunarDLLAPI LunarMatrix4x4
+	class LunarMatrix4x4
 	{
 		DirectX::XMFLOAT4X4 matrix_value;
 	public:
@@ -34,7 +34,7 @@ namespace LunarEngine
 		LunarMatrix4x4 InverseMatrix();
 	};
 
-	class LunarDLLAPI LunarVector2
+	class LunarVector2
 	{
 		DirectX::XMFLOAT2 vector_value;
 	public:
@@ -53,7 +53,7 @@ namespace LunarEngine
 		}
 	};
 
-	class LunarDLLAPI LunarVector3
+	class LunarVector3
 	{
 		DirectX::XMFLOAT3 vector_value;
 	public:
@@ -75,7 +75,7 @@ namespace LunarEngine
 		}
 	};
 
-	class LunarDLLAPI LunarVector4
+	class LunarVector4
 	{
 		DirectX::XMFLOAT4 vector_value;
 	public:

@@ -4,14 +4,14 @@
 #include "core/object/object.h"
 
 
-#define DEPENDENCY_SUBSYSTEM_DECLARE(SubSystemClass,SystemVarName) \
-	private:\
-	ptr<SubSystemClass> SystemVarName;
+// #define DEPENDENCY_SUBSYSTEM_DECLARE(SubSystemClass,SystemVarName) \
+// 	private:\
+// 	ptr<SubSystemClass> SystemVarName;
+// 
+// #define DEPENDENCY_SUBSYSTEM_IMP(SubSystemClass,SystemVarName) \
+// 	SystemVarName = gEngine->GetSubsystem<SubSystemClass>();
 
-#define DEPENDENCY_SUBSYSTEM_IMP(SubSystemClass,SystemVarName) \
-	SystemVarName = gEngine->GetSubsystem<SubSystemClass>();
-
-class SubSystem : public Object
+class SubSystem
 {
 public:
 	bool Init();

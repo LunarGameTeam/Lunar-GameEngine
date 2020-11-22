@@ -19,7 +19,7 @@
 #include "core/subsystem/sub_system.h"
 #include "core/delegates/delegate.h"
 
-DELEGATE_NO_PARAMS(SubSystemPreInitDone,Object,void)
+DELEGATE_NO_PARAMS(SubSystemPreInitDone, Object, void)
 DELEGATE_NO_PARAMS(SubSystemInitDone, Object, void)
 DELEGATE_NO_PARAMS(SubSystemPostInitDone, Object, void)
 
@@ -34,8 +34,8 @@ public:
 	template<typename T>
 	void RegisterSubsystem()
 	{
-		Ptr<T> subSystem = CreateObject<T>(nullptr);
-		Ptr<SubSystem> sub = static_cast<SubSystem *>(subSystem.get());
+		T *subSystem = new T();
+		SubSystem *sub = static_cast<SubSystem *>(subSystem);
 		mSubSystems[typeid(T).name()] = sub;
 		mOrderedSubSystems.push_back(sub);
 	}
@@ -43,9 +43,9 @@ public:
 
 	//TODO 使用自带反射库，而不是RTTI
 	template<typename T>
-	Ptr<T> GetSubsystem()
+	T *GetSubsystem()
 	{
-		return Ptr<T>(static_cast<T *>(mSubSystems[typeid(T).name()].get()));
+		return static_cast<T *>(mSubSystems[typeid(T).name()]);
 	}
 
 	bool mPendingExit = false;
@@ -57,8 +57,8 @@ public:
 	SubSystemPostInitDone mSubSystemPostInitDoneEvent;
 
 private:
-	boost::container::vector< Ptr<SubSystem> > mOrderedSubSystems;
-	boost::unordered::unordered_map<const char*, Ptr<SubSystem> > mSubSystems;
+	boost::container::vector<SubSystem *> mOrderedSubSystems;
+	boost::unordered::unordered_map<const char *, SubSystem * > mSubSystems;
 };
 
-extern LunarEngineCore* gEngine;
+extern LunarEngineCore *gEngine;
