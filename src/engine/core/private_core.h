@@ -12,49 +12,6 @@
 */
 #pragma once
 
-#include <wtypes.h>
-// C 运行时头文件
-#include <stdlib.h>
-#include <malloc.h>
-#include <memory.h>
-#include <tchar.h>
-#include <time.h>
-//STL容器
-#include <iostream>
-#include <algorithm>
-#include <list>
-#include <map>
-#include <unordered_map>
-#include <set>
-#include <unordered_set>
-#include <vector>
-#include <queue>
-//boost
-#include <boost/array.hpp>
-#include <boost/unordered_map.hpp>
-#include <boost/unordered_set.hpp>
-#include <boost/container/string.hpp>
-//c++运行时
-#include <string>
-#include <fstream>
-#include <typeinfo>
-#include <atomic>
-//内存泄漏检测
-#define CheckWindowMemory
-#ifdef CheckWindowMemory
-#include <crtdbg.h>
- //#ifdef _DEBUG
- //#define new new(_NORMAL_BLOCK, __FILE__, __LINE__)  
- //#endif
-#endif
-#define LunarResourceID uint16_t
-#define LunarObjectID uint32_t
-#define LunarResourceSize uint64_t
-#ifdef  _MSC_VER
-#include<windows.h>
-#define LunarHResult HRESULT
-#endif
-
 #define __DLL_H__
 #define __DLL_EXPORTS__
 #ifdef __DLL_EXPORTS__

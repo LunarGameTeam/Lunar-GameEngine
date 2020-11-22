@@ -25,6 +25,6 @@ public:
 		m_key(key)
 	{
 		if (ConfigManager::s_configs.contains(m_key))
-			m_value = LexicalCast<Type>(ConfigManager::s_configs[m_key]);
+			m_value = FromString<Type>(ConfigManager::s_configs[m_key]);
 	}
 };

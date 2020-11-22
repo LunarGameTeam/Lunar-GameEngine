@@ -169,6 +169,7 @@ LString LunarEngine::operator+(const LString& lValue, const LString& rValue)
 }
 
 
+
 LString LunarEngine::operator+(const char* lValue, const LString& rValue)
 {
 	LString res;

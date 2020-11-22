@@ -111,12 +111,17 @@ namespace LunarEngine
 		// 运算符
 		friend LString operator+(const LString& lValue, const LString& rValue);
 		friend LString operator+(const LString& lValue, const char* rValue);
-		friend LString operator+(const char* lValue, const LString& rValue);
+		friend LString operator+(const char *lValue, const LString &rValue);
+		friend LString& operator<<(LString& out,const char *lValue);
+		friend LString& operator>>(LString& in,const char *lValue);
 
 		LString& operator=(const char* const string_in);
 		LString& operator=(const ContainerType& string_in);
 		LString& operator=(const WStringDataType& string_in);
 		LString& operator=(const wchar_t* const string_in);
+
+		template<typename Target>
+		friend Target FromString(const LString &source);
 
 // 		LString& operator+=(const char* string_in);
 // 		LString& operator+=(const LString& string_in);
@@ -139,9 +144,19 @@ namespace LunarEngine
 	LString::WStringDataType StringToWstring(const LString::ContainerType& string_in);
 	LString::ContainerType WstringToString(const LString::WStringDataType& wstring_in);
 
-	template<typename T, typename Source>
-	inline T LexicalCast(const Source &source)
+	template<typename Source, typename Target>
+	inline Target LexicalCast(const Source &source)
 	{
-		return boost::lexical_cast<T>(source);
+		return boost::lexical_cast<Target>(Source);
+	}
+	template<typename Source>
+	inline LString ToString(const Source &source)
+	{
+		return LString(boost::lexical_cast<LString::ContainerType>(source));
+	}
+	template<typename Target>
+	inline Target FromString(const LString &source)
+	{
+		return boost::lexical_cast<Target>(source.m_Data);
 	}
 }

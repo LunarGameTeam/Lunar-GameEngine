@@ -47,8 +47,8 @@ TEST(GameEngine, Test0)
 
 TEST(GameEngine, String)
 {
-	auto str = LexicalCast<LunarEngine::LString>(1);
-	int i = LexicalCast<int>(str);
+	LString str = ToString(1);
+	int i = FromString<int>(str);
 
 }
 int main(int argc, const char* argv[])
