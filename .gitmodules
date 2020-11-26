@@ -13,3 +13,6 @@
 [submodule "sdk/googletest"]
 	path = sdk/googletest
 	url = https://github.com/google/googletest.git
+[submodule "sdk/rttr"]
+	path = sdk/rttr
+	url = https://github.com/rttrorg/rttr.git
