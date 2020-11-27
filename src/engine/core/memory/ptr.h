@@ -14,17 +14,43 @@ class LSharedObject;
 //{
 //	return boost::make_shared<T>(args...);
 //}
-class LPtr
+class LPtrBasic
 {
 	LSharedObject** m_res_pointer;
+	LSharedObject* parent_pointer;
 public:
-	LPtr(LSharedObject* Parent);
-	LPtr(const LPtr& copy);
-	~LPtr();
+	explicit LPtrBasic(LSharedObject* Parent);
+	LPtrBasic(const LPtrBasic&) = delete;
+	void operator=(const LPtrBasic&) = delete;
+	virtual ~LPtrBasic();
 	LSharedObject* Get()
 	{
 		return *m_res_pointer;
 	}
-	LPtr& operator=(const LPtr& val);
-	LPtr& operator=(LSharedObject* val);
+	void operator=(LSharedObject* val);
+protected:
+	void SetValueToData(LSharedObject* val);
+};
+template<typename ObjectType>
+class LPtr: public LPtrBasic
+{
+	ObjectType* m_res_pointer;
+public:
+	explicit LPtr(LSharedObject* Parent) :LPtrBasic(Parent)
+	{
+	}
+	LPtr(const LPtr&) = delete;
+	LPtr operator=(const LPtr&) = delete;
+	~LPtr()
+	{
+	};
+	ObjectType* Get()
+	{
+		return m_res_pointer;
+	};
+	void operator=(ObjectType* val)
+	{
+		SetValueToData(val);
+		m_res_pointer = val;
+	}
 };

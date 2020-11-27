@@ -60,17 +60,12 @@ LunarEngine::LResult LTemplateAssert<ObjectDescType>::InitCommon()
 }
 
 template<typename ObjectType>
-static LPtr LCreateAssetByJson(const LunarEngine::LString& resource_name_in, const Json::Value& resource_desc)
+static ObjectType* LCreateAssetByJson(const LunarEngine::LString& resource_name_in, const Json::Value& resource_desc)
 {
 	return LResourceController::GetInstance()->CreateObject<ObjectType>(resource_name_in, resource_desc);
 };
 template<typename ObjectType>
-static LPtr LCreateAssetByBinary(const LunarEngine::LString& resource_name_in, const void* resource_desc, const size_t& resource_size)
+static ObjectType* LCreateAssetByBinary(const LunarEngine::LString& resource_name_in, const void* resource_desc, const size_t& resource_size)
 {
 	return LResourceController::GetInstance()->CreateObject<ObjectType>(resource_name_in, resource_desc, resource_size);
-}
-template<typename ObjectType, typename ObjectDescType>
-static LPtr LCreateAssetByBinary(const LunarEngine::LString& resource_name_in, const ObjectDescType &resource_desc)
-{
-	return LResourceController::GetInstance()->CreateObject<ObjectType>(resource_name_in, resource_desc);
 }

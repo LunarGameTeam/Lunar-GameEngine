@@ -2,9 +2,9 @@
 #include"core/memory/ptr.h"
 class LResourceController
 {
-	LUnorderedMap<LUuid, LObject*> m_all_object_member;
+	LUnorderedMap<boost::uuids::uuid, LObject*> m_all_object_member;
 private:
-	LResourceController();
+	LResourceController() {};
 public:
 	static LResourceController* GetInstance()
 	{
@@ -16,21 +16,21 @@ public:
 		return this_instance;
 	}
 	template<typename ObjectType, typename... Args>
-	LPtr CreateObject(Args&&... arg);
+	ObjectType* CreateObject(Args&&... arg);
 };
 template<typename ObjectType, typename... Args>
-LPtr LResourceController::CreateObject(Args&&... arg)
+ObjectType* LResourceController::CreateObject(Args&&... arg)
 {
 	LunarEngine::LResult check_error;
-	LObject* new_object = new ObjectType(arg);
+	ObjectType* new_object = new ObjectType(arg...);
 	check_error = new_object->InitResource();
 	if (!check_error.m_IsOK)
 	{
+		delete new_object;
 		return nullptr;
 	}
-	m_all_object_member.insert(std::pair<LUuid, LObject*>(new_object->GetLUuid(), new_object));
-	LPtr new_ptr = new_object;
-	return new_ptr;
+	m_all_object_member.insert(std::pair<boost::uuids::uuid, LObject*>(new_object->GetLUuid().Get(), new_object));
+	return new_object;
 }
 #pragma once
 

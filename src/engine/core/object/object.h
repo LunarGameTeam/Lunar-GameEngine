@@ -10,7 +10,6 @@
 #include "boost/unordered_set.hpp"
 template<typename T>
 using LSharedPtr = boost::shared_ptr<T>;
-class LPtr;
 //侵入式智能指针
 class LSharedObject
 {
@@ -19,7 +18,7 @@ public:
 	{
 	}
 	LVector<LSharedObject*> sub_object_list;
-	void AddSubObject(LSharedObject* sub_object);
+	LSharedObject*& AddSubObject();
 protected:
 	virtual ~LSharedObject()
 	{

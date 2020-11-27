@@ -2,9 +2,9 @@
 #include "core/memory/ptr.h"
 using namespace boost;
 using namespace LunarEngine;
-void LSharedObject::AddSubObject(LSharedObject* sub_object)
+LSharedObject*& LSharedObject::AddSubObject()
 {
-	sub_object_list.push_back(sub_object);
+	return sub_object_list.emplace_back();
 }
 const LLoadState& LObject::GetLoadState()
 {
