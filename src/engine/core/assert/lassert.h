@@ -62,10 +62,10 @@ LunarEngine::LResult LTemplateAssert<ObjectDescType>::InitCommon()
 template<typename ObjectType>
 static ObjectType* LCreateAssetByJson(const LunarEngine::LString& resource_name_in, const Json::Value& resource_desc)
 {
-	return LResourceController::GetInstance()->CreateObject<ObjectType>(resource_name_in, resource_desc);
+	return GrabageColloector::GetInstance()->CreateObject<ObjectType>(resource_name_in, resource_desc);
 };
 template<typename ObjectType>
 static ObjectType* LCreateAssetByBinary(const LunarEngine::LString& resource_name_in, const void* resource_desc, const size_t& resource_size)
 {
-	return LResourceController::GetInstance()->CreateObject<ObjectType>(resource_name_in, resource_desc, resource_size);
+	return GrabageColloector::GetInstance()->CreateObject<ObjectType>(resource_name_in, resource_desc, resource_size);
 }
