@@ -3,7 +3,6 @@
 
 using namespace LunarEngine;
 
-
 void LFile::Write(const byte* Source, int64_t BytesToWrite)
 {
 	m_File.seekp(m_Pos);

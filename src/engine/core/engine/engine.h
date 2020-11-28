@@ -12,16 +12,17 @@
  * \note
 */
 #pragma once
-
 #include "boost/unordered/unordered_map.hpp"
 #include "boost/container/vector.hpp"
 
 #include "core/subsystem/sub_system.h"
 #include "core/delegates/delegate.h"
 
-DELEGATE_NO_PARAMS(SubSystemPreInitDone, Object, void)
-DELEGATE_NO_PARAMS(SubSystemInitDone, Object, void)
-DELEGATE_NO_PARAMS(SubSystemPostInitDone, Object, void)
+class LObject;
+
+DELEGATE_NO_PARAMS(SubSystemPreInitDone, LObject, void)
+DELEGATE_NO_PARAMS(SubSystemInitDone, LObject, void)
+DELEGATE_NO_PARAMS(SubSystemPostInitDone, LObject, void)
 
 class LunarEngineCore
 {

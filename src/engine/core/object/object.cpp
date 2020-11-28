@@ -25,6 +25,11 @@ LunarEngine::LResult LObject::InitResource()
 }
 
 
+LunarEngine::LResult LObject::InitCommon()
+{
+	return LunarEngine::g_Succeed;
+}
+
 LObject::LObject() :
 	m_uid(LUuid::GenerateUUID())
 {
@@ -34,4 +39,4 @@ LObject::~LObject()
 {
 }
 
-//REGISTER_CLASS_IMP(Object)
+//REGISTER_CLASS_IMP(LObject)

@@ -13,12 +13,8 @@ namespace LunarEngine
 	public:
 		static GrabageColloector* GetInstance()
 		{
-			static GrabageColloector* this_instance;
-			if (this_instance == NULL)
-			{
-				this_instance = new GrabageColloector();
-			}
-			return this_instance;
+			static GrabageColloector this_instance;
+			return &this_instance;
 		}
 		template<typename ObjectType, typename... Args>
 		ObjectType* CreateObject(Args&&... arg);

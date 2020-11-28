@@ -21,8 +21,8 @@ class WindowSubusystem : public SubSystem
 
 public:
 
-	Ptr<LunarWindow> CreateLunarWindow(const LunarEngine::LString& name, int width, int height);
-	Ptr<LunarWindow> GetMainWindow();
+	LunarWindow* CreateLunarWindow(const LunarEngine::LString& name, int width, int height);
+	LunarWindow* GetMainWindow();
 
 
 public:
@@ -40,5 +40,5 @@ public:
 	void Tick() override;
 
 private:
-	Ptr<LunarWindow> mMainWindow;
+	LunarWindow* mMainWindow;
 };

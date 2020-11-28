@@ -9,10 +9,10 @@ int64_t IFile::Size()
 	return 0;
 }
 
-SharedPtr<LunarEngine::LFile> WindowsFileManager::Open(const LPath& path, int mode)
+LSharedPtr<LunarEngine::LFile> WindowsFileManager::Open(const LPath& path, int mode)
 {
 
-	auto file = MakeShared<LFile>();
+	auto file = boost::make_shared<LFile>();
 	file->m_File.open(path.AsString(),mode);
 	if (file->m_File.fail())
 	{

@@ -7,6 +7,7 @@
 
 namespace LunarEngine
 {
+	
 	class IFile
 	{
 	public:
@@ -25,7 +26,7 @@ namespace LunarEngine
 
 	};
 
-	class LFile : public Object, public IFile
+	class LFile : public IFile
 	{
 
 	public:

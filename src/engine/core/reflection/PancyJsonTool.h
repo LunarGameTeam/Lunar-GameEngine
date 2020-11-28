@@ -1,10 +1,11 @@
-﻿#pragma once
+#pragma once
 #include <json\json.h>
 
-#include"core\core_module.h"
+#include "core/misc/container.h"
+#include "core/log/log.h"
 
 #pragma comment(lib,"../../lib/Debug/jsoncpp_static.lib")
-using namespace std;
+
 enum pancy_json_data_type
 {
 	json_data_int = 0,
@@ -86,8 +87,8 @@ class PancyJsonTool
 {
 	Json::StreamWriterBuilder Jwriter;
 	Json::CharReaderBuilder builder;
-	ifstream FileOpen;
-	ofstream FileWrite;
+	std::ifstream FileOpen;
+	std::ofstream FileWrite;
 	//todo:删掉关于shader的特殊反射
 	std::string name_value_type[7];
 	//json反射相关......

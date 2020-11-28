@@ -17,7 +17,7 @@
 #include <windows.h>
 #include <windowsx.h>
 
-class LunarWindow : public Object
+class LunarWindow
 {
 public:
 	virtual bool Init() = 0;

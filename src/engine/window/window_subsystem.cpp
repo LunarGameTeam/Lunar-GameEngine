@@ -2,18 +2,18 @@
 #include "boost/make_shared.hpp"
 #include "core/core_module.h"
 
-Ptr<LunarWindow> WindowSubusystem::CreateLunarWindow(const LunarEngine::LString& name, int width, int height)
+LunarWindow* WindowSubusystem::CreateLunarWindow(const LunarEngine::LString& name, int width, int height)
 {
 
 #ifdef _WIN32 || _WIN64
-	Ptr<LunarWindow> win32Window(CreateObject<LunarWin32Window>(this).get());
+	LunarWindow* win32Window =(LunarWindow*)new LunarWin32Window();
 #endif // _WIN32 || _WIN64
 
 	win32Window->Init();
 	return win32Window;
 }
 
-Ptr<LunarWindow> WindowSubusystem::GetMainWindow()
+LunarWindow* WindowSubusystem::GetMainWindow()
 {
 	return mMainWindow;
 }

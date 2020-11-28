@@ -6,12 +6,12 @@
 
 namespace LunarEngine
 {
-	class IPlatformFileManager : public Object
+	class IPlatformFileManager
 	{
 	public:
 		virtual bool InitFileManager() = 0;
 
-		virtual SharedPtr<LFile> Open(const LPath& path,int mode) = 0;
+		virtual LSharedPtr<LFile> Open(const LPath& path,int mode) = 0;
 		virtual bool IsExists(const LPath& path) = 0;
 		virtual bool IsDirctory(const LPath& path) = 0;
 		virtual bool IsFile(const LPath& path) = 0;
@@ -30,7 +30,7 @@ namespace LunarEngine
 	public:
 		bool InitFileManager()override;
 
-		SharedPtr<LFile> Open(const LPath& path, int mode) override;
+		LSharedPtr<LFile> Open(const LPath& path, int mode) override;
 		bool IsExists(const LPath& path) override;
 		bool IsDirctory(const LPath& path) override;
 		bool IsFile(const LPath& path) override;
@@ -39,8 +39,4 @@ namespace LunarEngine
 		bool CreateFile(const LPath& path) override;
 		const LString& EngineDir() override;
 	};
-
-
-
-
 }
