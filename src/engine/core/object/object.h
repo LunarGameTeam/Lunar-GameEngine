@@ -37,22 +37,14 @@ public:
 	GET_SET_VAULE(LUuid, m_uid, LUuid);
 	LObject();
 	virtual ~LObject();
-	//默认加载资源
-	luna::LResult InitResource();
-	//检查资源的加载状态
-	const LLoadState &GetLoadState();
 	//获取名字
 	inline const luna::LString& GetObjectName()
 	{
 		return m_Name;
 	};
-private:
-	virtual void CheckIfLoadingStateChanged(LLoadState &m_object_load_state) = 0;
-	virtual luna::LResult InitCommon();
 protected:
 	luna::LString m_Name;
 	LUuid m_uid;
-	LLoadState m_object_load_state;
 };
 
 
