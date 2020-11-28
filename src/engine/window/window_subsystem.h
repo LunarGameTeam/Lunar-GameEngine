@@ -21,7 +21,7 @@ class WindowSubusystem : public SubSystem
 
 public:
 
-	LunarWindow* CreateLunarWindow(const LunarEngine::LString& name, int width, int height);
+	LunarWindow* CreateLunarWindow(const luna::LString& name, int width, int height);
 	LunarWindow* GetMainWindow();
 
 

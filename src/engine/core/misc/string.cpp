@@ -1,7 +1,7 @@
 #include "string.h"
 #include "core/private_core.h"
 
-using namespace LunarEngine;
+using namespace luna;
 
 size_t LString::npos = LString::ContainerType::npos;
 
@@ -88,7 +88,7 @@ const LString::ElementType* LString::operator*() const
 	return m_Data.c_str();
 }
 
-const LunarEngine::LString::ElementType *LString::operator*()
+const luna::LString::ElementType *LString::operator*()
 {
 	return m_Data.c_str();
 }
@@ -127,7 +127,7 @@ size_t LString::FindLast(const char* str) const
 	return m_Data.find_last_of(str);
 }
 
-void LunarEngine::LString::Replace(const ContainerType& str)
+void luna::LString::Replace(const ContainerType& str)
 {
 	boost::algorithm::replace_all(m_Data, str, str);
 }
@@ -161,7 +161,7 @@ void LString::ReplaceAll(const char* str, const char* dest)
 // 	return *this;
 // }
 
-LString LunarEngine::operator+(const LString& lValue, const LString& rValue)
+LString luna::operator+(const LString& lValue, const LString& rValue)
 {
 	LString res;
 	res.m_Data = lValue.m_Data + rValue.m_Data;
@@ -170,7 +170,7 @@ LString LunarEngine::operator+(const LString& lValue, const LString& rValue)
 
 
 
-LString LunarEngine::operator+(const char* lValue, const LString& rValue)
+LString luna::operator+(const char* lValue, const LString& rValue)
 {
 	LString res;
 	res.m_Data.assign(lValue);
@@ -178,14 +178,14 @@ LString LunarEngine::operator+(const char* lValue, const LString& rValue)
 	return res;
 }
 
-LString LunarEngine::operator+(const LString& lValue, const char* rValue)
+LString luna::operator+(const LString& lValue, const char* rValue)
 {
 	LString res(lValue);
 	res.Append(rValue);
 	return res;
 }
 
-LString::WStringDataType LunarEngine::StringToWstring(const LString::ContainerType& string_in)
+LString::WStringDataType luna::StringToWstring(const LString::ContainerType& string_in)
 {
 	LString::WStringDataType unicode_string;
 	int nLen = (int)string_in.length();
@@ -193,7 +193,7 @@ LString::WStringDataType LunarEngine::StringToWstring(const LString::ContainerTy
 	int nResult = MultiByteToWideChar(CP_ACP, 0, (LPCSTR)string_in.c_str(), nLen, (LPWSTR)unicode_string.c_str(), nLen);
 	return unicode_string;
 }
-LString::ContainerType LunarEngine::WstringToString(const LString::WStringDataType& wstring_in)
+LString::ContainerType luna::WstringToString(const LString::WStringDataType& wstring_in)
 {
 	LString::ContainerType ascii_string;
 	int nLen = (int)wstring_in.length();

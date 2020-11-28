@@ -3,7 +3,7 @@
 #include "core/private_core.h"
 
 
-namespace LunarEngine
+namespace luna
 {
 	class LPathUtil
 	{

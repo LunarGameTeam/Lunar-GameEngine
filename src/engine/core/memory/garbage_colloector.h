@@ -3,7 +3,7 @@
 #include"core/memory/ptr.h"
 #include "core/misc/container.h"
 
-namespace LunarEngine
+namespace luna
 {
 	class GrabageColloector
 	{
@@ -23,7 +23,7 @@ namespace LunarEngine
 	template<typename ObjectType, typename... Args>
 	ObjectType* GrabageColloector::CreateObject(Args&&... arg)
 	{
-		LunarEngine::LResult check_error;
+		luna::LResult check_error;
 		ObjectType* new_object = new ObjectType(arg...);
 		check_error = new_object->InitResource();
 		if (!check_error.m_IsOK)

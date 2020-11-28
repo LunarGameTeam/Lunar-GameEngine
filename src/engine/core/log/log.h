@@ -18,7 +18,7 @@
 #include "log_msg.h"
 
 
-namespace LunarEngine
+namespace luna
 {
 	class Log
 	{
@@ -73,16 +73,16 @@ char* FormatLog(const char* format, Args&&... args)
 	return fmt;
 }
 
-#define LogError(scope,result,msg) LunarEngine::LogInternal(scope,msg,LunarEngine::LogLevel::Error,__FILE__,__FUNCTION__,__LINE__, result);
-#define LogWarning(scope,result,msg) LunarEngine::LogInternal(scope,msg,LunarEngine::LogLevel::Warning,__FILE__,__FUNCTION__,__LINE__, result);
-#define LogVerbose(scope,msg) LunarEngine::LogInternal(scope, msg ,LunarEngine::LogLevel::Verbose,__FILE__,__FUNCTION__,__LINE__, LunarEngine::g_Succeed);
+#define LogError(scope,result,msg) luna::LogInternal(scope,msg,luna::LogLevel::Error,__FILE__,__FUNCTION__,__LINE__, result);
+#define LogWarning(scope,result,msg) luna::LogInternal(scope,msg,luna::LogLevel::Warning,__FILE__,__FUNCTION__,__LINE__, result);
+#define LogVerbose(scope,msg) luna::LogInternal(scope, msg ,luna::LogLevel::Verbose,__FILE__,__FUNCTION__,__LINE__, luna::g_Succeed);
 
-#define LogErrorFormat(scope,result,format,...) LunarEngine::LogInternal(scope,FormatLog(format,__VA_ARGS__),LunarEngine::LogLevel::Error,__FILE__,__FUNCTION__,__LINE__, result);
-#define LogWarningFormat(scope,result,format,...) LunarEngine::LogInternal(scope,FormatLog(format,__VA_ARGS__),LunarEngine::LogLevel::Warning,__FILE__,__FUNCTION__,__LINE__, result);
-#define LogVerboseFormat(scope,format,...) LunarEngine::LogInternal(scope, FormatLog(format,__VA_ARGS__) ,LunarEngine::LogLevel::Verbose,__FILE__,__FUNCTION__,__LINE__, LunarEngine::g_Succeed);
+#define LogErrorFormat(scope,result,format,...) luna::LogInternal(scope,FormatLog(format,__VA_ARGS__),luna::LogLevel::Error,__FILE__,__FUNCTION__,__LINE__, result);
+#define LogWarningFormat(scope,result,format,...) luna::LogInternal(scope,FormatLog(format,__VA_ARGS__),luna::LogLevel::Warning,__FILE__,__FUNCTION__,__LINE__, result);
+#define LogVerboseFormat(scope,format,...) luna::LogInternal(scope, FormatLog(format,__VA_ARGS__) ,luna::LogLevel::Verbose,__FILE__,__FUNCTION__,__LINE__, luna::g_Succeed);
 
 
 
-#define LunarDebugLogError(platform_result,error_reason,log_index) LunarEngine::BuildDebugLog(platform_result,error_reason,__FILE__,__FUNCTION__,__LINE__,LunarEngine::LogLevel::Error,log_index)
-#define LunarDebugLogWarning(platform_result,error_reason,log_index) LunarEngine::BuildDebugLog(platform_result,error_reason,__FILE__,__FUNCTION__,__LINE__,LunarEngine::LogLevel::Warning,log_index)
-#define LunarDebugLogVerbose(error_reason,log_index) LunarEngine::BuildDebugLog(S_OK,error_reason,__FILE__,__FUNCTION__,__LINE__,LunarEngine::LogLevel::Verbose,log_index)
+#define LunarDebugLogError(platform_result,error_reason,log_index) luna::BuildDebugLog(platform_result,error_reason,__FILE__,__FUNCTION__,__LINE__,luna::LogLevel::Error,log_index)
+#define LunarDebugLogWarning(platform_result,error_reason,log_index) luna::BuildDebugLog(platform_result,error_reason,__FILE__,__FUNCTION__,__LINE__,luna::LogLevel::Warning,log_index)
+#define LunarDebugLogVerbose(error_reason,log_index) luna::BuildDebugLog(S_OK,error_reason,__FILE__,__FUNCTION__,__LINE__,luna::LogLevel::Verbose,log_index)

@@ -1,4 +1,4 @@
-﻿#include"PancyJsonTool.h"
+#include"json_utility.h"
 PancyJsonTool::PancyJsonTool()
 {
 	builder["collectComments"] = false;
@@ -21,12 +21,12 @@ PancyJsonTool::PancyJsonTool()
 PancyJsonTool::~PancyJsonTool() 
 {
 }
-LunarEngine::LResult PancyJsonTool::LoadJsonFile(const std::string &file_name, Json::Value &root_value)
+luna::LResult PancyJsonTool::LoadJsonFile(const std::string &file_name, Json::Value &root_value)
 {
 	FileOpen.open(file_name);
 	if (!FileOpen.is_open())
 	{
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(E_FAIL, "could not open json file " + file_name,error_message);
 		
 		return error_message; 
@@ -35,15 +35,15 @@ LunarEngine::LResult PancyJsonTool::LoadJsonFile(const std::string &file_name, J
 	JSONCPP_STRING errs;
 	if (!parseFromStream(builder, FileOpen, &root_value, &errs))
 	{
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(E_FAIL, errs.c_str(),error_message);
 		
 		return error_message;
 	}
 	FileOpen.close();
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
-LunarEngine::LResult PancyJsonTool::GetJsonData
+luna::LResult PancyJsonTool::GetJsonData
 (
 	const std::string &file_name,
 	const Json::Value &root_value,
@@ -55,7 +55,7 @@ LunarEngine::LResult PancyJsonTool::GetJsonData
 	auto enum_type_value = root_value.get(member_name, Json::Value::null);
 	return GetJsonMemberData(file_name, enum_type_value, member_name, json_type, variable_value);
 }
-LunarEngine::LResult PancyJsonTool::GetJsonData
+luna::LResult PancyJsonTool::GetJsonData
 (
 	const std::string &file_name,
 	const Json::Value &root_value,
@@ -67,7 +67,7 @@ LunarEngine::LResult PancyJsonTool::GetJsonData
 	auto enum_type_value = root_value[member_num];
 	return GetJsonMemberData(file_name, enum_type_value, "array::" + std::to_string(member_num), json_type, variable_value);
 }
-LunarEngine::LResult PancyJsonTool::GetJsonMemberData
+luna::LResult PancyJsonTool::GetJsonMemberData
 (
 	const std::string &file_name,
 	const Json::Value &enum_type_value,
@@ -79,7 +79,7 @@ LunarEngine::LResult PancyJsonTool::GetJsonMemberData
 	if (enum_type_value == Json::Value::null)
 	{
 		//未能获得json数据
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(E_FAIL, "could not find value of variable " + member_name,error_message);
 		
 		return error_message;
@@ -91,7 +91,7 @@ LunarEngine::LResult PancyJsonTool::GetJsonMemberData
 		{
 			int now_type_name = static_cast<int32_t>(enum_type_value.type());
 			//json数据对应的类型不是整数类型
-			LunarEngine::LResult error_message;
+			luna::LResult error_message;
 			LunarDebugLogError(E_FAIL, "the value of variable " + member_name + " need int but find " + name_value_type[now_type_name],error_message);
 			
 			return error_message;
@@ -112,7 +112,7 @@ LunarEngine::LResult PancyJsonTool::GetJsonMemberData
 		{
 			int now_type_name = static_cast<int32_t>(enum_type_value.type());
 			//json数据对应的类型不是浮点类型
-			LunarEngine::LResult error_message;
+			luna::LResult error_message;
 			LunarDebugLogError(E_FAIL, "the value of variable " + member_name + " need float but find " + name_value_type[now_type_name],error_message);
 			
 			return error_message;
@@ -126,7 +126,7 @@ LunarEngine::LResult PancyJsonTool::GetJsonMemberData
 		{
 			int now_type_name = static_cast<int32_t>(enum_type_value.type());
 			//json数据对应的类型不是浮点类型
-			LunarEngine::LResult error_message;
+			luna::LResult error_message;
 			LunarDebugLogError(E_FAIL, "the value of variable " + member_name + " need string but find " + name_value_type[now_type_name],error_message);
 			
 			return error_message;
@@ -140,7 +140,7 @@ LunarEngine::LResult PancyJsonTool::GetJsonMemberData
 		{
 			int now_type_name = static_cast<int32_t>(enum_type_value.type());
 			//json数据对应的类型不是浮点类型
-			LunarEngine::LResult error_message;
+			luna::LResult error_message;
 			LunarDebugLogError(E_FAIL, "the value of variable " + member_name + " need bool but find " + name_value_type[now_type_name],error_message);
 			
 			return error_message;
@@ -150,12 +150,12 @@ LunarEngine::LResult PancyJsonTool::GetJsonMemberData
 	else 
 	{
 		//未能获得json数据
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(E_FAIL, "could not parse value of variable " + member_name,error_message);
 		
 		return error_message;
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
 void PancyJsonTool::SplitString(std::string str, const std::string &pattern, std::vector<std::string> &result)
 {
@@ -171,7 +171,7 @@ void PancyJsonTool::SplitString(std::string str, const std::string &pattern, std
 		}
 	}
 }
-LunarEngine::LResult PancyJsonTool::WriteValueToJson(
+luna::LResult PancyJsonTool::WriteValueToJson(
 	const Json::Value &insert_value,
 	const std::string &Json_name
 )
@@ -194,7 +194,7 @@ LunarEngine::LResult PancyJsonTool::WriteValueToJson(
 	FileWrite.open(save_file_name);
 	writer->write(insert_value,&FileWrite);
 	FileWrite.close();
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
 void PancyJsonTool::InitBasicType()
 {

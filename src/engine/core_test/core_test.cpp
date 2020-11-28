@@ -4,7 +4,9 @@
 
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
-using namespace LunarEngine;
+#include "core/config/config.h"
+
+using namespace luna;
 
 #include <gtest/gtest.h>
 
@@ -40,20 +42,21 @@ TEST(GameEngine, Test0)
 	LString dir = gEngine->GetSubsystem<FileSubsystem>()->GetPlatformFileManager()->EngineDir();
 	LString str = "/log/log.txt";
 	LString split = "log";
-	LPath path("/log/log.txt");
-	gEngine->MainLoop();
-
+	LPath path("/log/log.txt");	
 }
+
 
 TEST(GameEngine, String)
-{
+{	
 	LString str = ToString(1);
 	int i = FromString<int>(str);
-
+	auto f = ToString(1.1f);
 }
+
 int main(int argc, const char* argv[])
 {
+	float f = FromString<float>("1.1");
+	LogVerboseFormat(E_Core, "%f", f);
 	testing::InitGoogleTest();
 	return RUN_ALL_TESTS();
-
 }

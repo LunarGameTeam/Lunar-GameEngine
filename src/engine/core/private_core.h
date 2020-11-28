@@ -19,4 +19,5 @@
 #include "core/misc/container.h"
 
 #include "core/log/log.h"
-extern LunarEngine::LogScope E_Core;
+
+extern luna::LogScope E_Core;

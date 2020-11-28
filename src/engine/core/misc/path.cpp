@@ -1,7 +1,7 @@
 #include "path.h"
 #include "string.h"
 
-using namespace LunarEngine;
+using namespace luna;
 
 void LPathUtil::DivideFilePath(const LString& full_file_name_in, LString& file_path_out, LString& file_name_out, LString& file_tail_out)
 {

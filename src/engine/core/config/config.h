@@ -7,7 +7,7 @@
 class ConfigManager
 {
 public:
-	static boost::container::map<const char *, LunarEngine::LString> s_configs;
+	static boost::container::map<const char *, luna::LString> s_configs;
 };
 
 template<typename Type,Type DefaultValue>

@@ -1,13 +1,11 @@
 #pragma once
 
-#include "core/private_core.h"
 #include "marcos.h"
 
 #include "core/misc/uuid.h"
-#include "core/reflection/PancyResourceJsonReflect.h"
+#include "core/reflection/reflection.h"
+#include "core/misc/container.h"
 #include <memory>
-#include "boost/uuid/uuid_generators.hpp"
-#include "boost/unordered_set.hpp"
 
 template<typename T>
 using LSharedPtr = boost::shared_ptr<T>;
@@ -40,19 +38,19 @@ public:
 	LObject();
 	virtual ~LObject();
 	//默认加载资源
-	LunarEngine::LResult InitResource();
+	luna::LResult InitResource();
 	//检查资源的加载状态
 	const LLoadState &GetLoadState();
 	//获取名字
-	inline const LunarEngine::LString& GetObjectName()
+	inline const luna::LString& GetObjectName()
 	{
 		return m_Name;
 	};
 private:
 	virtual void CheckIfLoadingStateChanged(LLoadState &m_object_load_state) = 0;
-	virtual LunarEngine::LResult InitCommon();
+	virtual luna::LResult InitCommon();
 protected:
-	LunarEngine::LString m_Name;
+	luna::LString m_Name;
 	LUuid m_uid;
 	LLoadState m_object_load_state;
 };

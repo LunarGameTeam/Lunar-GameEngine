@@ -1,27 +1,28 @@
-﻿#include"PancyResourceJsonReflect.h"
-LunarEngine::LResult LReflectNodeBasic::GetSingleEnumValueFromNode(std::string& output_enum_name) const
+#include"struct_reflection.h"
+
+luna::LResult LReflectNodeBasic::GetSingleEnumValueFromNode(std::string& output_enum_name) const
 {
-	LunarEngine::LResult check_error;
+	luna::LResult check_error;
 	check_error = LReflectVariableCopySystem::GetInstance()->GetEnumValueFromPointer(m_value_type, output_enum_name, m_data_value);
 	if (!check_error.m_IsOK)
 	{
 		return check_error;
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 };
-LunarEngine::LResult LReflectNodeBasic::SetSingleEnumValueToNode(const std::string& input_enum_name)
+luna::LResult LReflectNodeBasic::SetSingleEnumValueToNode(const std::string& input_enum_name)
 {
-	LunarEngine::LResult check_error;
+	luna::LResult check_error;
 	check_error = LReflectVariableCopySystem::GetInstance()->SetEnumValueToPointer(m_value_type, input_enum_name, m_value_type, m_data_value);
 	if (!check_error.m_IsOK)
 	{
 		return check_error;
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
-LunarEngine::LResult LReflectNodeBasic::GetArrayEnumValueFromNode(std::string& output_enum_name, const int32_t& index) const
+luna::LResult LReflectNodeBasic::GetArrayEnumValueFromNode(std::string& output_enum_name, const int32_t& index) const
 {
-	LunarEngine::LResult check_error;
+	luna::LResult check_error;
 	//先检查最大值是否超过了数组范围
 	if (index >= m_array_size)
 	{
@@ -34,12 +35,12 @@ LunarEngine::LResult LReflectNodeBasic::GetArrayEnumValueFromNode(std::string& o
 	{
 		return check_error;
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
-LunarEngine::LResult LReflectNodeBasic::SetArrayEnumValueToNode(const std::string& output_enum_name, const int32_t& index)
+luna::LResult LReflectNodeBasic::SetArrayEnumValueToNode(const std::string& output_enum_name, const int32_t& index)
 {
 	//先检查最大值是否超过了数组范围
-	LunarEngine::LResult check_error;
+	luna::LResult check_error;
 	if (index >= m_array_size)
 	{
 		LunarDebugLogError(0, "could not get array value from overflow index", check_error);
@@ -51,7 +52,7 @@ LunarEngine::LResult LReflectNodeBasic::SetArrayEnumValueToNode(const std::strin
 	{
 		return check_error;
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
 LBasicVariableNode::LBasicVariableNode(
 	const size_t& class_type_hash_in,
@@ -113,13 +114,13 @@ bool LReflectVariableCopySystem::GetDynamicSizeByArrayType(const size_t& type_id
 	dynamic_size_out = type_find->second(array_data);
 	return true;
 }
-LunarEngine::LResult LReflectVariableCopySystem::GetEnumValueFromName(const size_t& enum_type_id, const std::string& enum_name, LEnumMidType& enum_value)
+luna::LResult LReflectVariableCopySystem::GetEnumValueFromName(const size_t& enum_type_id, const std::string& enum_name, LEnumMidType& enum_value)
 {
 	//获取枚举的类名和值表
 	auto now_enum_value_map = enum_variable_list.find(enum_type_id);
 	if (now_enum_value_map == enum_variable_list.end())
 	{
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(0, "could not find enum type of" + enum_name, error_message);
 		return error_message;
 	}
@@ -127,36 +128,36 @@ LunarEngine::LResult LReflectVariableCopySystem::GetEnumValueFromName(const size
 	auto now_enum_value_data = now_enum_value_map->second.find(enum_name);
 	if (now_enum_value_data == now_enum_value_map->second.end())
 	{
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(0, "could not find enum value " + enum_name, error_message);
 		return error_message;
 	}
 	enum_value = now_enum_value_data->second;
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
-LunarEngine::LResult LReflectVariableCopySystem::GetEnumNameFromValue(const size_t& enum_type_id, std::string& enum_name, const LEnumMidType& enum_value)
+luna::LResult LReflectVariableCopySystem::GetEnumNameFromValue(const size_t& enum_type_id, std::string& enum_name, const LEnumMidType& enum_value)
 {
 	//获取枚举的类名和变量名
 	auto now_enum_name_table = enum_name_list.find(enum_type_id);
 	if (now_enum_name_table == enum_name_list.end())
 	{
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(0, "could not find enum type of "+ enum_name, error_message);
 		return error_message;
 	}
 	auto now_enum_name = now_enum_name_table->second.find(enum_value);
 	if (now_enum_name == now_enum_name_table->second.end())
 	{
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(0, "could not find enum value " + std::to_string(enum_value), error_message);
 		return error_message;
 	}
 	enum_name = now_enum_name->second;
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
-LunarEngine::LResult LReflectVariableCopySystem::SetEnumValueToPointer(const size_t& enum_type_id, const std::string& enum_name, const size_t deal_value_type_in, void* pointer_data)
+luna::LResult LReflectVariableCopySystem::SetEnumValueToPointer(const size_t& enum_type_id, const std::string& enum_name, const size_t deal_value_type_in, void* pointer_data)
 {
-	LunarEngine::LResult check_error;
+	luna::LResult check_error;
 	//将字符串转换为枚举变量
 	LEnumMidType enum_value;
 	check_error = GetEnumValueFromName(enum_type_id, enum_name, enum_value);
@@ -170,11 +171,11 @@ LunarEngine::LResult LReflectVariableCopySystem::SetEnumValueToPointer(const siz
 	{
 		return check_error;
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 };
-LunarEngine::LResult LReflectVariableCopySystem::GetEnumValueFromPointer(const size_t& enum_type_id, std::string& enum_name, const void* pointer_data)
+luna::LResult LReflectVariableCopySystem::GetEnumValueFromPointer(const size_t& enum_type_id, std::string& enum_name, const void* pointer_data)
 {
-	LunarEngine::LResult check_error;
+	luna::LResult check_error;
 	//根据枚举类型获取枚举的值
 	LEnumMidType enum_value;
 	check_error = GetValueFromPointer(enum_type_id, enum_value, pointer_data);
@@ -188,17 +189,17 @@ LunarEngine::LResult LReflectVariableCopySystem::GetEnumValueFromPointer(const s
 	{
 		return check_error;
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 };
-LunarEngine::LResult LReflectVariableCopySystem::SetEnumArrayValueToPointerByIndex(const size_t enum_type_id, const std::string& enum_name, const size_t& array_index, void* pointer_data)
+luna::LResult LReflectVariableCopySystem::SetEnumArrayValueToPointerByIndex(const size_t enum_type_id, const std::string& enum_name, const size_t& array_index, void* pointer_data)
 {
-	LunarEngine::LResult check_error;
+	luna::LResult check_error;
 
 	size_t now_enum_member_type;
 	bool if_succeed = GetTypeByArrayType(enum_type_id, now_enum_member_type);
 	if (!if_succeed) 
 	{
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(0, "could not find type of enum" + enum_name, error_message);
 		return error_message;
 	}
@@ -215,11 +216,11 @@ LunarEngine::LResult LReflectVariableCopySystem::SetEnumArrayValueToPointerByInd
 	{
 		return check_error;
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
-LunarEngine::LResult LReflectVariableCopySystem::GetEnumArrayValueFromPointerByIndex(const size_t enum_type_id, std::string& enum_name, const size_t& array_index, const void* pointer_data)
+luna::LResult LReflectVariableCopySystem::GetEnumArrayValueFromPointerByIndex(const size_t enum_type_id, std::string& enum_name, const size_t& array_index, const void* pointer_data)
 {
-	LunarEngine::LResult check_error;
+	luna::LResult check_error;
 	//根据枚举类型获取枚举的值
 	LEnumMidType enum_value;
 	check_error = GetArrayValueFromPointerByIndex(enum_type_id, array_index, pointer_data, enum_value);
@@ -232,7 +233,7 @@ LunarEngine::LResult LReflectVariableCopySystem::GetEnumArrayValueFromPointerByI
 	bool if_succeed = GetTypeByArrayType(enum_type_id, deal_value_member_type);
 	if (!if_succeed)
 	{
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(0, "haven't init array type or type is not array", error_message);
 		return error_message;
 	}
@@ -242,7 +243,7 @@ LunarEngine::LResult LReflectVariableCopySystem::GetEnumArrayValueFromPointerByI
 	{
 		return check_error;
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
 LSerializeType LReflectVariableCopySystem::GetSerializeType(const size_t& index_in)
 {
@@ -305,11 +306,11 @@ void LSrtructReflect::DivideStringForReflect(const char* name_input, std::vector
 		data_out.push_back(mid_str);
 	}
 }
-LunarEngine::LResult LSrtructReflect::AddReflectData(const std::string& node_name, LReflectNodeBasic& node_data)
+luna::LResult LSrtructReflect::AddReflectData(const std::string& node_name, LReflectNodeBasic& node_data)
 {
 	if (name_to_id_map.find(node_name) != name_to_id_map.end())
 	{
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(0, "repeat init variable",error_message);
 		return error_message;
 	}
@@ -324,7 +325,7 @@ LunarEngine::LResult LSrtructReflect::AddReflectData(const std::string& node_nam
 	if (parent_name == "")
 	{
 		parent_map.insert(std::pair<int32_t, int32_t>(now_used_id, -1));
-		return LunarEngine::g_Succeed;
+		return luna::g_Succeed;
 	}
 	auto parent_find = name_to_id_map.find(parent_name);
 	if (parent_find != name_to_id_map.end())
@@ -367,10 +368,10 @@ LunarEngine::LResult LSrtructReflect::AddReflectData(const std::string& node_nam
 			parent_map.insert(std::pair<int32_t, int32_t>(now_pre_id, -1));
 		}
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
 //从json中获取数据
-LunarEngine::LResult LSrtructReflect::LoadFromJsonFile(const std::string& Json_file)
+luna::LResult LSrtructReflect::LoadFromJsonFile(const std::string& Json_file)
 {
 	ClearMemory();
 	Json::Value jsonRoot;
@@ -381,14 +382,14 @@ LunarEngine::LResult LSrtructReflect::LoadFromJsonFile(const std::string& Json_f
 	}
 	return LoadFromJsonNode("reflect_data", Json_file, jsonRoot);
 }
-LunarEngine::LResult LSrtructReflect::LoadFromJsonMemory(const std::string& value_name, const Json::Value& root_value)
+luna::LResult LSrtructReflect::LoadFromJsonMemory(const std::string& value_name, const Json::Value& root_value)
 {
 	ClearMemory();
 	return LoadFromJsonNode("reflect_data", value_name, root_value);
 }
-LunarEngine::LResult LSrtructReflect::LoadFromJsonNode(const std::string& parent_name, const std::string& value_name, const Json::Value& root_value)
+luna::LResult LSrtructReflect::LoadFromJsonNode(const std::string& parent_name, const std::string& value_name, const Json::Value& root_value)
 {
-	LunarEngine::LResult check_error;
+	luna::LResult check_error;
 	std::vector<std::string> all_member_name = root_value.getMemberNames();
 	std::vector<Json::ValueType> check_value;
 	for (int member_index = 0; member_index < all_member_name.size(); ++member_index)
@@ -414,7 +415,7 @@ LunarEngine::LResult LSrtructReflect::LoadFromJsonNode(const std::string& parent
 			if (now_reflect_index == name_to_id_map.end())
 			{
 				//未找到对应的反射数据
-				LunarEngine::LResult error_message;
+				luna::LResult error_message;
 				LunarDebugLogError(E_FAIL, "could not find JSON reflect variable: " + now_combine_value_common + " while load json node " + value_name, error_message);
 				return error_message;
 			}
@@ -428,7 +429,7 @@ LunarEngine::LResult LSrtructReflect::LoadFromJsonNode(const std::string& parent
 		case Json::nullValue:
 		{
 			//损坏的数据
-			LunarEngine::LResult error_message;
+			luna::LResult error_message;
 			LunarDebugLogError(E_FAIL, "the variable: " + all_member_name[member_index] + " could not be recognized by json tool", error_message);
 			return error_message;
 		}
@@ -507,30 +508,30 @@ LunarEngine::LResult LSrtructReflect::LoadFromJsonNode(const std::string& parent
 		}
 
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
-LunarEngine::LResult LSrtructReflect::LoadFromJsonArray(const int32_t& value_index, const Json::Value& root_value)
+luna::LResult LSrtructReflect::LoadFromJsonArray(const int32_t& value_index, const Json::Value& root_value)
 {
 	auto now_reflect_data = value_map.find(value_index);
 	if (now_reflect_data == value_map.end())
 	{
 		//未找到对应的反射数据
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(E_FAIL, "could not find JSON reflect variable: " + name_map[value_index], error_message);
 		return error_message;
 	}
 	return SetArrayValue(now_reflect_data->second, root_value);
 }
-LunarEngine::LResult LSrtructReflect::SetArrayValue(LReflectNodeBasic& reflect_data, const Json::Value& now_child_value)
+luna::LResult LSrtructReflect::SetArrayValue(LReflectNodeBasic& reflect_data, const Json::Value& now_child_value)
 {
-	LunarEngine::LResult check_error;
+	luna::LResult check_error;
 	//数组变量对应的大小变量不需要进行存储(json中会有额外的变量映射过来)
 	for (Json::ArrayIndex array_index = 0; array_index < now_child_value.size(); ++array_index)
 	{
 		//先检查数组是否越界
 		if (array_index >= reflect_data.GetArraySize())
 		{
-			LunarEngine::LResult error_message;
+			luna::LResult error_message;
 			LunarDebugLogError(E_FAIL, "the array variable: " + reflect_data.GetName() + " size only have " + std::to_string(reflect_data.GetArraySize()) + " could not get index" + std::to_string(array_index), error_message);
 			return error_message;
 		}
@@ -575,16 +576,16 @@ LunarEngine::LResult LSrtructReflect::SetArrayValue(LReflectNodeBasic& reflect_d
 			return check_error;
 		}
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
-LunarEngine::LResult LSrtructReflect::SetNodeArrayValue(LReflectNodeBasic& reflect_data, const int32_t& offset_value, const Json::Value& now_child_value)
+luna::LResult LSrtructReflect::SetNodeArrayValue(LReflectNodeBasic& reflect_data, const int32_t& offset_value, const Json::Value& now_child_value)
 {
-	LunarEngine::LResult check_error;
+	luna::LResult check_error;
 	//根据节点的类型创建一个新的处理类来解析节点数据
 	auto child_reflect_pointer = LSrtructReflectControl::GetInstance()->GetJsonReflectByArray(reflect_data.GetValueType());
 	if (child_reflect_pointer == NULL)
 	{
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(E_FAIL, "could not find struct node reflect: " + reflect_data.GetName(), error_message);
 
 		return error_message;
@@ -595,11 +596,11 @@ LunarEngine::LResult LSrtructReflect::SetNodeArrayValue(LReflectNodeBasic& refle
 		return check_error;
 	}
 	child_reflect_pointer->CopyValueToArrayData(reflect_data, offset_value);
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
-LunarEngine::LResult LSrtructReflect::SetStringArrayValue(LReflectNodeBasic& reflect_data, const std::string& string_value, const int32_t &index)
+luna::LResult LSrtructReflect::SetStringArrayValue(LReflectNodeBasic& reflect_data, const std::string& string_value, const int32_t &index)
 {
-	LunarEngine::LResult check_error;
+	luna::LResult check_error;
 	switch (reflect_data.GetSerializeType().serialize_type)
 	{
 	case SerializeNodeType::Serialize_Node_String:
@@ -618,16 +619,16 @@ LunarEngine::LResult LSrtructReflect::SetStringArrayValue(LReflectNodeBasic& ref
 	}
 	break;
 	default:
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(0, "the variable: " + reflect_data.GetName() + " is not a string value", error_message);
 		return error_message;
 		break;
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
-LunarEngine::LResult LSrtructReflect::SetStringValue(LReflectNodeBasic& reflect_data, const std::string& string_value)
+luna::LResult LSrtructReflect::SetStringValue(LReflectNodeBasic& reflect_data, const std::string& string_value)
 {
-	LunarEngine::LResult check_error;
+	luna::LResult check_error;
 	switch (reflect_data.GetSerializeType().serialize_type)
 	{
 	case SerializeNodeType::Serialize_Node_String:
@@ -646,12 +647,12 @@ LunarEngine::LResult LSrtructReflect::SetStringValue(LReflectNodeBasic& reflect_
 	}
 	break;
 	default:
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(0, "the variable: " + reflect_data.GetName() + " is not a string value", error_message);
 		return error_message;
 		break;
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
 void LSrtructReflect::BuildChildValueMap() 
 {
@@ -668,7 +669,7 @@ void LSrtructReflect::BuildChildValueMap()
 	}
 }
 //存储到json
-LunarEngine::LResult LSrtructReflect::SaveToJsonFile(const std::string& json_name)
+luna::LResult LSrtructReflect::SaveToJsonFile(const std::string& json_name)
 {
 	Json::Value file_value;
 	auto check_error = SaveToJsonMemory(file_value);
@@ -681,14 +682,14 @@ LunarEngine::LResult LSrtructReflect::SaveToJsonFile(const std::string& json_nam
 	{
 		return check_error;
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
-LunarEngine::LResult LSrtructReflect::SaveToJsonMemory(Json::Value& root_value)
+luna::LResult LSrtructReflect::SaveToJsonMemory(Json::Value& root_value)
 {
 	auto child_value_member = name_to_id_map.find("reflect_data");
 	if (child_value_member == name_to_id_map.end())
 	{
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(E_FAIL, "could not find JSON reflect variable: reflect_data", error_message);
 
 		return error_message;
@@ -696,12 +697,12 @@ LunarEngine::LResult LSrtructReflect::SaveToJsonMemory(Json::Value& root_value)
 	auto now_root_child_list = child_value_list.find(child_value_member->second);
 	if (now_root_child_list == child_value_list.end())
 	{
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(E_FAIL, "could not find JSON reflect variable: reflect_data", error_message);
 
 		return error_message;
 	}
-	LunarEngine::LResult check_error;
+	luna::LResult check_error;
 	for (int32_t child_value_index = 0; child_value_index < now_root_child_list->second.size(); ++child_value_index)
 	{
 		auto now_child_id = now_root_child_list->second[child_value_index];
@@ -711,15 +712,15 @@ LunarEngine::LResult LSrtructReflect::SaveToJsonMemory(Json::Value& root_value)
 			return check_error;
 		}
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
-LunarEngine::LResult LSrtructReflect::SaveToJsonNode(const int32_t& now_value_index, Json::Value& root_value)
+luna::LResult LSrtructReflect::SaveToJsonNode(const int32_t& now_value_index, Json::Value& root_value)
 {
-	LunarEngine::LResult check_error;
+	luna::LResult check_error;
 	auto now_reflect_data = value_map.find(now_value_index);
 	if (now_reflect_data == value_map.end())
 	{
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(0, "could not find JSON reflect variable: " + name_map[now_value_index], error_message);
 		return error_message;
 	}
@@ -742,13 +743,13 @@ LunarEngine::LResult LSrtructReflect::SaveToJsonNode(const int32_t& now_value_in
 	}
 	else
 	{
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(0, "could not recognize JSON reflect variable: " + name_map[now_value_index], error_message);
 		return error_message;
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
-LunarEngine::LResult LSrtructReflect::SaveSingleValueMemberToJson(const LReflectNodeBasic& reflect_data, Json::Value& root_value)
+luna::LResult LSrtructReflect::SaveSingleValueMemberToJson(const LReflectNodeBasic& reflect_data, Json::Value& root_value)
 {
 	std::string real_name_node = TranslateFullNameToRealName(reflect_data.GetName());
 	switch (reflect_data.GetSerializeType().serialize_type)
@@ -791,7 +792,7 @@ LunarEngine::LResult LSrtructReflect::SaveSingleValueMemberToJson(const LReflect
 	case SerializeNodeType::Serialize_Node_Enum:
 	{
 		std::string enum_value_name;
-		LunarEngine::LResult check_error = reflect_data.GetSingleEnumValueFromNode(enum_value_name);
+		luna::LResult check_error = reflect_data.GetSingleEnumValueFromNode(enum_value_name);
 		PancyJsonTool::GetInstance()->SetJsonValue(root_value, real_name_node, enum_value_name);
 		break;
 	}
@@ -800,7 +801,7 @@ LunarEngine::LResult LSrtructReflect::SaveSingleValueMemberToJson(const LReflect
 		auto child_value_member = child_value_list.find(reflect_data.GetID());
 		if (child_value_member == child_value_list.end())
 		{
-			LunarEngine::LResult error_message;
+			luna::LResult error_message;
 			LunarDebugLogError(E_FAIL, "could not find JSON reflect variable: " + reflect_data.GetName(), error_message);
 			return error_message;
 		}
@@ -820,17 +821,17 @@ LunarEngine::LResult LSrtructReflect::SaveSingleValueMemberToJson(const LReflect
 	}
 	default:
 	{
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 
 		LunarDebugLogError(E_FAIL, "could not recognize JSON reflect type: " + reflect_data.GetName(), error_message);
 		return error_message;
 	}
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
-LunarEngine::LResult LSrtructReflect::SaveArrayValueMemberToJson(const LReflectNodeBasic& reflect_data, Json::Value& root_value)
+luna::LResult LSrtructReflect::SaveArrayValueMemberToJson(const LReflectNodeBasic& reflect_data, Json::Value& root_value)
 {
-	LunarEngine::LResult check_error;
+	luna::LResult check_error;
 	std::string real_name_node = TranslateFullNameToRealName(reflect_data.GetName());
 	size_t now_array_size;
 	check_error = GetArrayDataSize(reflect_data, now_array_size);
@@ -889,7 +890,7 @@ LunarEngine::LResult LSrtructReflect::SaveArrayValueMemberToJson(const LReflectN
 			auto child_reflect_pointer = LSrtructReflectControl::GetInstance()->GetJsonReflectByArray(reflect_data.GetValueType());
 			if (child_reflect_pointer == NULL)
 			{
-				LunarEngine::LResult error_message;
+				luna::LResult error_message;
 				LunarDebugLogError(E_FAIL, "could not find struct node reflect: " + reflect_data.GetName(), error_message);
 				return error_message;
 			}
@@ -909,18 +910,18 @@ LunarEngine::LResult LSrtructReflect::SaveArrayValueMemberToJson(const LReflectN
 		}
 		default:
 		{
-			LunarEngine::LResult error_message;
+			luna::LResult error_message;
 
 			LunarDebugLogError(E_FAIL, "could not recognize JSON reflect type: " + reflect_data.GetName(), error_message);
 			return error_message;
 		}
 		}
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
-LunarEngine::LResult LSrtructReflect::GetArrayDataSize(const LReflectNodeBasic& reflect_data, size_t& size_out)
+luna::LResult LSrtructReflect::GetArrayDataSize(const LReflectNodeBasic& reflect_data, size_t& size_out)
 {
-	LunarEngine::LResult check_error;
+	luna::LResult check_error;
 	auto array_dynamic_size_variable = static_array_size_used_map.find(reflect_data.GetID());
 	if (array_dynamic_size_variable != static_array_size_used_map.end())
 	{
@@ -939,12 +940,12 @@ LunarEngine::LResult LSrtructReflect::GetArrayDataSize(const LReflectNodeBasic& 
 		size_out = reflect_data.GetDynamicArraySize();
 		if (size_out == gMaxDynamicArraySize)
 		{
-			LunarEngine::LResult error_message;
+			luna::LResult error_message;
 			LunarDebugLogError(0, "could not find array size of variable: " + reflect_data.GetName(), error_message);
 			return error_message;
 		}
 	}
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
 std::string LSrtructReflect::TranslateFullNameToRealName(const std::string& full_name)
 {
@@ -1004,7 +1005,7 @@ LSrtructReflect* LSrtructReflectControl::GetJsonReflectByArray(const size_t& cla
 	bool if_succeed = LReflectVariableCopySystem::GetInstance()->GetTypeByArrayType(class_id, member_type);
 	if (!if_succeed)
 	{
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(0, "class haven't init to reflect class", error_message);
 
 		return NULL;
@@ -1016,7 +1017,7 @@ LSrtructReflect* LSrtructReflectControl::GetJsonReflect(const size_t& class_id)
 	auto now_reflect_data = reflect_map.find(class_id);
 	if (now_reflect_data == reflect_map.end())
 	{
-		LunarEngine::LResult error_message;
+		luna::LResult error_message;
 		LunarDebugLogError(0, "class haven't init to reflect class", error_message);
 
 		return NULL;

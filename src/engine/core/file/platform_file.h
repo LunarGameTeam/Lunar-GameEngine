@@ -4,7 +4,7 @@
 #include "path.h"
 #include "file.h"
 
-namespace LunarEngine
+namespace luna
 {
 	class IPlatformFileManager
 	{

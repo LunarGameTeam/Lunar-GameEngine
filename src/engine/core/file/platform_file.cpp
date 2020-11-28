@@ -2,14 +2,14 @@
 #include "core/object/object.h"
 #include <boost/filesystem.hpp>
 
-using namespace LunarEngine;
+using namespace luna;
 
 int64_t IFile::Size()
 {
 	return 0;
 }
 
-LSharedPtr<LunarEngine::LFile> WindowsFileManager::Open(const LPath& path, int mode)
+LSharedPtr<luna::LFile> WindowsFileManager::Open(const LPath& path, int mode)
 {
 
 	auto file = boost::make_shared<LFile>();
@@ -51,7 +51,7 @@ bool WindowsFileManager::CreateFile(const LPath& path)
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
-const LunarEngine::LString& WindowsFileManager::EngineDir()
+const luna::LString& WindowsFileManager::EngineDir()
 {
 	return m_EngineDir;
 }

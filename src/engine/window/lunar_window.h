@@ -31,7 +31,7 @@ public:
 	}
 protected:
 	bool mFullScreen = false;
-	LunarEngine::LString mWindowName = "LunarGame-Engine";
+	luna::LString mWindowName = "LunarGame-Engine";
 	int32_t mWidth = 1024;
 	int32_t mHeight = 768;
 };

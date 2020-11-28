@@ -3,7 +3,7 @@
 #include "core/misc/string.h"
 
 
-namespace LunarEngine
+namespace luna
 {
 
 /*!

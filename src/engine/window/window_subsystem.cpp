@@ -2,7 +2,7 @@
 #include "boost/make_shared.hpp"
 #include "core/core_module.h"
 
-LunarWindow* WindowSubusystem::CreateLunarWindow(const LunarEngine::LString& name, int width, int height)
+LunarWindow* WindowSubusystem::CreateLunarWindow(const luna::LString& name, int width, int height)
 {
 
 #ifdef _WIN32 || _WIN64

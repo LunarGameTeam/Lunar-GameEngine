@@ -1,6 +1,6 @@
-﻿#pragma once
+#pragma once
 
 #include "core/core_module.h"
 
 
-extern LunarEngine::LogScope E_Render;
+extern luna::LogScope E_Render;

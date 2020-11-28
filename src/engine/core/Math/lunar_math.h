@@ -4,7 +4,7 @@
 #include<DirectXMath.h>
 #endif
 
-namespace LunarEngine
+namespace luna
 {
 	class LunarMatrix3x3
 	{

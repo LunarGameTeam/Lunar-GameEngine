@@ -1,3 +1,3 @@
-﻿#include "private_core.h"
+#include "private_core.h"
 
-LunarEngine::LogScope E_Core("Core");
+luna::LogScope E_Core("Core");

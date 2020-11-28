@@ -1,7 +1,9 @@
 #include "object.h"
 #include "core/memory/ptr.h"
+#include "core/core_configs.h"
+
 using namespace boost;
-using namespace LunarEngine;
+using namespace luna;
 LSharedObject*& LSharedObject::AddSubObject()
 {
 	return sub_object_list.emplace_back();
@@ -12,7 +14,7 @@ const LLoadState& LObject::GetLoadState()
 	return m_object_load_state;
 }
 //默认加载资源
-LunarEngine::LResult LObject::InitResource()
+luna::LResult LObject::InitResource()
 {
 	LResult check_error;
 	m_object_load_state = LLoadState::LOAD_STATE_EMPTY;
@@ -25,13 +27,13 @@ LunarEngine::LResult LObject::InitResource()
 }
 
 
-LunarEngine::LResult LObject::InitCommon()
+luna::LResult LObject::InitCommon()
 {
-	return LunarEngine::g_Succeed;
+	return luna::g_Succeed;
 }
 
 LObject::LObject() :
-	m_uid(LUuid::GenerateUUID())
+	m_uid(GenerateUUID())
 {
 
 }

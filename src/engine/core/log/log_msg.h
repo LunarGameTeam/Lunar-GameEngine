@@ -17,7 +17,7 @@
 
 #include "windows.h"
 
-namespace LunarEngine
+namespace luna
 {
 
 	enum class LogLevel

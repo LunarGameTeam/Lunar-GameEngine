@@ -1,7 +1,7 @@
 #include "file.h"
 #include "core/misc/path.h"
 
-using namespace LunarEngine;
+using namespace luna;
 
 void LFile::Write(const byte* Source, int64_t BytesToWrite)
 {

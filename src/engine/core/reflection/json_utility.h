@@ -108,8 +108,8 @@ public:
 		return this_instance;
 	}
 	//读取json数据
-	LunarEngine::LResult LoadJsonFile(const std::string &file_name, Json::Value &root_value);
-	LunarEngine::LResult GetJsonData
+	luna::LResult LoadJsonFile(const std::string &file_name, Json::Value &root_value);
+	luna::LResult GetJsonData
 	(
 		const std::string &file_name,
 		const Json::Value &root_value,
@@ -117,7 +117,7 @@ public:
 		const pancy_json_data_type &json_type,
 		pancy_json_value &variable_value
 	);
-	LunarEngine::LResult GetJsonData
+	luna::LResult GetJsonData
 	(
 		const std::string &file_name,
 		const Json::Value &root_value,
@@ -144,14 +144,14 @@ public:
 	{
 		insert_value[value_name].append(value);
 	}
-	LunarEngine::LResult WriteValueToJson(
+	luna::LResult WriteValueToJson(
 		const Json::Value &insert_value,
 		const std::string &Json_name
 	);
 	PancyJsonMemberType GetVariableJsonType(const size_t &variable_type);
 private:
 	void InitBasicType();
-	LunarEngine::LResult GetJsonMemberData
+	luna::LResult GetJsonMemberData
 	(
 		const std::string &file_name,
 		const Json::Value &enum_type_value,

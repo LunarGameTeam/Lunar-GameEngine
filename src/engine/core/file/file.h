@@ -5,7 +5,7 @@
 #include "path.h"
 #include <fstream>
 
-namespace LunarEngine
+namespace luna
 {
 	
 	class IFile

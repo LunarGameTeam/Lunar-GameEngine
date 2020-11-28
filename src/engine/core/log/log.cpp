@@ -11,7 +11,7 @@
 //log信息(log来源，log错误记录)
 
 
-namespace LunarEngine
+namespace luna
 {
 
 	LResult g_Succeed;
@@ -21,7 +21,7 @@ namespace LunarEngine
 	std::vector<LogMsg> g_LogQueue;
 
 	void AddLog(const LogMsg& engine_error_message, LResult& error_log);
-	void SaveLogToFile(LunarEngine::LString log_file_name);
+	void SaveLogToFile(luna::LString log_file_name);
 	void PrintLogToconsole();
 
 	Log::Log()
@@ -41,12 +41,12 @@ namespace LunarEngine
 
 }
 
-void LunarEngine::AddLog(const LunarEngine::LogMsg& engine_error_message, LunarEngine::LResult& error_log)
+void luna::AddLog(const luna::LogMsg& engine_error_message, luna::LResult& error_log)
 {
 	g_LogQueue.push_back(engine_error_message);
 }
 
-void LunarEngine::LogInternal(const LogScope& scope, const LString& msg, const LogLevel& level, const char* file_name, const char* function_name, const uint32_t line, LResult& log_turn /*= succeed */)
+void luna::LogInternal(const LogScope& scope, const LString& msg, const LogLevel& level, const char* file_name, const char* function_name, const uint32_t line, LResult& log_turn /*= succeed */)
 {
 	static Log s_Log;
 	const boost::posix_time::ptime now = boost::posix_time::microsec_clock::local_time();
@@ -84,14 +84,14 @@ void LunarEngine::LogInternal(const LogScope& scope, const LString& msg, const L
 	s_Log.m_LogFile.flush();
 }
 
-void LunarEngine::BuildDebugLog(
+void luna::BuildDebugLog(
 	const HRESULT& windows_result,
-	const LunarEngine::LString& error_reason,
-	const LunarEngine::LString& file_name,
-	const LunarEngine::LString& function_name,
+	const luna::LString& error_reason,
+	const luna::LString& file_name,
+	const luna::LString& function_name,
 	const uint32_t& line,
 	const LogLevel& log_type,
-	LunarEngine::LResult& log_turn
+	luna::LResult& log_turn
 )
 {
 	std::string new_log_source = "file: " + file_name.str() + " \nfunction: " + function_name.str() + " \nline " + std::to_string(line) + "\n" + error_reason.c_str();

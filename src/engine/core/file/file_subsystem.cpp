@@ -1,6 +1,6 @@
 #include "file_subsystem.h"
 
-using namespace LunarEngine;
+using namespace luna;
 
 bool FileSubsystem::OnPreInit()
 {

@@ -3,14 +3,14 @@
 #include "platform_file.h"
 #include "core\engine\engine.h"
 
-using namespace LunarEngine;
+using namespace luna;
 
-LunarEngine::LString LPath::GetDirectoryName() const
+luna::LString LPath::GetDirectoryName() const
 {
 	return "";
 }
 
-LunarEngine::LString LPath::GetFileNameWithoutExt() const
+luna::LString LPath::GetFileNameWithoutExt() const
 {
 	return "";
 }
@@ -45,12 +45,12 @@ LPath::LPath(const LString& str) :m_Path(str)
 	}
 }
 
-LunarEngine::LString LunarEngine::LPath::GetFileNameWithExt() const
+luna::LString luna::LPath::GetFileNameWithExt() const
 {
 	return "";
 }
 
-bool LunarEngine::LPath::IsRelative() const
+bool luna::LPath::IsRelative() const
 {
 	return m_Path.StartWith("/");
 }
