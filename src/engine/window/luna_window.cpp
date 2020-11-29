@@ -1,8 +1,14 @@
-﻿#include "lunar_window.h"
-#include<ShellScalingApi.h>
+#include "luna_window.h"
+#include <ShellScalingApi.h>
+#include "engine.h"
+#include "window_subsystem.h"
+
 #pragma comment(lib, "Shcore.lib")
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+	static WindowSubusystem* subsytem = gEngine->GetSubsystem<WindowSubusystem>();
+	LWindow* window = subsytem->GetWindowByHandle(hwnd);
+	
 	switch (msg)
 	{
 	case WM_CLOSE:
@@ -16,7 +22,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return DefWindowProc(hwnd, msg, wParam, lParam);
 }
 
-bool LunarWin32Window::Init()
+bool LWin32Window::Init()
 {
 	HINSTANCE appInstance = GetModuleHandle(NULL);
 	m_appInstance = appInstance;
@@ -31,7 +37,7 @@ bool LunarWin32Window::Init()
 	wndClass.hIconSm = wndClass.hIcon;
 	wndClass.hInstance = appInstance;
 	wndClass.lpfnWndProc = WndProc;
-	wndClass.lpszClassName = mWindowName.c_str();
+	wndClass.lpszClassName = m_window_name.c_str();
 	wndClass.lpszMenuName = nullptr;
 	wndClass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	//取消dpi对游戏的缩放
@@ -49,7 +55,7 @@ bool LunarWin32Window::Init()
 	//真实的windows窗口大小(窗口模式下，窗口大小大于渲染窗口的大小)
 	int real_window_width;
 	int real_window_height;
-	if (mFullScreen)
+	if (m_full_screen)
 	{
 		DEVMODE dmScreenSettings;
 		memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
@@ -60,18 +66,18 @@ bool LunarWin32Window::Init()
 		dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 		ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN);
 
-		mWidth = screenWidth;
-		mHeight = screenHeight;
-		real_window_width = mWidth;
-		real_window_height = mHeight;
+		m_width = screenWidth;
+		m_height = screenHeight;
+		real_window_width = m_width;
+		real_window_height = m_height;
 		posX = posY = 0;
 	}
 	else
 	{
-		posX = (screenWidth - mWidth) / 2;
-		posY = (screenHeight - mHeight) / 2;
+		posX = (screenWidth - m_width) / 2;
+		posY = (screenHeight - m_height) / 2;
 		//获取渲染窗口真正的大小
-		RECT R = { 0, 0, mWidth, mHeight };
+		RECT R = { 0, 0, m_width, m_height };
 		AdjustWindowRect(&R, WS_OVERLAPPEDWINDOW, false);
 		real_window_width = R.right - R.left;
 		real_window_height = R.bottom - R.top;

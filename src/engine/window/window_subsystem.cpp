@@ -2,25 +2,27 @@
 #include "boost/make_shared.hpp"
 #include "core/core_module.h"
 
-LunarWindow* WindowSubusystem::CreateLunarWindow(const luna::LString& name, int width, int height)
+LWindow* WindowSubusystem::CreateLunaWindow(const luna::LString& name, int width, int height)
 {
 
 #ifdef _WIN32 || _WIN64
-	LunarWindow* win32Window =(LunarWindow*)new LunarWin32Window();
+	LWin32Window* win32Window = new LWin32Window();
 #endif // _WIN32 || _WIN64
 
 	win32Window->Init();
+	auto hwnd = win32Window->GetHwnd();
+	m_win_windows[hwnd] = win32Window;
 	return win32Window;
 }
 
-LunarWindow* WindowSubusystem::GetMainWindow()
+LWindow* WindowSubusystem::GetMainWindow()
 {
-	return mMainWindow;
+	return m_main_window;
 }
 
 bool WindowSubusystem::OnPreInit()
 {
-	mMainWindow = CreateLunarWindow("LunarGameEngine", 1024, 768);
+	m_main_window = CreateLunaWindow("LunarGameEngine", 1024, 768);
 	//("[Window]MainWindow Created");
 	return true;
 }

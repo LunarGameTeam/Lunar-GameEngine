@@ -5,7 +5,7 @@
  * \author IsakWong
  * Contact: isakwong@outlook.com
  *
- * \brief 
+ * \brief
  *
  * TODO: long description
  *
@@ -14,31 +14,33 @@
 #pragma once
 
 #include "core/core_module.h"
-#include "lunar_window.h"
+#include "core/misc/container.h"
+#include "luna_window.h"
 
 class WindowSubusystem : public SubSystem
 {
+#ifdef _WIN32
+	using WindowHandle = HWND;
+#endif // _WIN32
 
 public:
 
-	LunarWindow* CreateLunarWindow(const luna::LString& name, int width, int height);
-	LunarWindow* GetMainWindow();
+	LWindow *CreateLunaWindow(const luna::LString &name, int width, int height);
+	LWindow *GetMainWindow();
+	LWindow *GetWindowByHandle(WindowHandle handle)
+	{
+		return m_win_windows[handle];
+	}
 
 
 public:
 	bool OnPreInit() override;
-
-
 	bool OnPostInit() override;
-
-
 	bool OnInit() override;
-
-
 	bool OnShutdown() override;
-
 	void Tick() override;
 
 private:
-	LunarWindow* mMainWindow;
+	LMap<WindowHandle, LWindow *> m_win_windows;
+	LWindow *m_main_window;
 };

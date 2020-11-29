@@ -2,19 +2,18 @@
 
 #include <boost\bind\bind.hpp>
 #include <boost\function.hpp>
-#include <boost\container\list.hpp>
+#include "core/misc/container.h"
 
-using namespace boost::placeholders;
 
 template<typename RetVal,typename... Param>
 class StaticSignature
 {
-	using FuncType = RetVal(*)(Param...); 
+	using Signature = RetVal(*)(Param...); 
 	RetVal Invoke( Param... param)
 	{
 		_func(param...)
 	}
-	FuncType _func;
+	Signature _func;
 };
 
 
@@ -34,6 +33,10 @@ public:
 	{
 		(_pointer->*_func)(param...);
 	}
+	bool operator==(DynamicSignature &right)
+	{
+		return this->_pointer == right._pointer && this->_func == right._func;
+	}
 
 protected:
 	Class *_pointer;
@@ -45,37 +48,41 @@ template< typename Class, typename RetVal, typename... Param>
 class DelegateBase
 {
 public:
-	using FuncType = DynamicSignature<RetVal,Class,Param...>;
+	using SignatureType = DynamicSignature<RetVal,Class,Param...>;
 	using MemberFunc = RetVal(Class:: *)(Param...);
 	using StaticFunc = RetVal(*)(Param...);
 
 	void BroadCast(Param... param)
 	{
-		for (auto node : _FunctionList)
+		for (auto node : m_signatures)
 		{
-			node.Invoke(param...);
+			node->Invoke(param...);
 		}
 	}
 	void Clear()
 	{
-		_FunctionList.clear();
+		m_signatures.clear();
 	}
 
 protected:
-	boost::container::list<FuncType> _FunctionList;
+	LList<LSharedPtr<SignatureType>> m_signatures;
 };
 
 template<typename Class, typename RetVal, typename... Param>
 class MultiDynamicDelegate : public DelegateBase<Class, RetVal, Param...>
 {
 public:
-	void Bind(MemberFunc memberfunc, Class *cls)
+	LWeakPtr<SignatureType> Bind(MemberFunc memberfunc, Class *cls)
 	{
-		FuncType func;
-		func.Bind(cls, memberfunc);
-		_FunctionList.emplace_back(func);
+		LSharedPtr<SignatureType> signature_ptr = boost::make_shared<SignatureType>();
+		signature_ptr->Bind(cls, memberfunc);
+		m_signatures.emplace_back(signature_ptr);
+		return LWeakPtr<SignatureType>(signature_ptr);
 	}
-
+	void Remove(SignatureType func)
+	{
+		m_signatures.remove(func);
+	}
 };
 
 

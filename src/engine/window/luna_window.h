@@ -14,29 +14,32 @@
 #pragma once
 
 #include "core/core_module.h"
+#include "core/delegates/delegate.h"
 #include <windows.h>
 #include <windowsx.h>
 
-class LunarWindow
+class LWindow
 {
 public:
 	virtual bool Init() = 0;
+
+
 	inline int32_t GetWindowWidth() 
 	{
-		return mWidth;
+		return m_width;
 	}
 	inline int32_t GetWindowHeight()
 	{
-		return mHeight;
+		return m_height;
 	}
 protected:
-	bool mFullScreen = false;
-	luna::LString mWindowName = "LunarGame-Engine";
-	int32_t mWidth = 1024;
-	int32_t mHeight = 768;
+	bool m_full_screen = false;
+	luna::LString m_window_name = "LunarGame-Engine";
+	int32_t m_width = 1024;
+	int32_t m_height = 768;
 };
 
-class LunarWin32Window : public LunarWindow
+class LWin32Window : public LWindow
 {
 public:
 	virtual bool Init();

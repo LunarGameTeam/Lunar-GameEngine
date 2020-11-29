@@ -18,3 +18,7 @@ using LUnorderedMap = boost::unordered_map<K, Value>;
 template<typename K, typename Value>
 using LMap = boost::container::map<K, Value>;
 
+#include "boost/container/list.hpp"
+template<typename Value>
+using LList= boost::container::list<Value>;
+
