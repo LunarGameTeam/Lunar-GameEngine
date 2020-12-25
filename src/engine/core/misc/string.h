@@ -33,95 +33,77 @@ namespace luna
 	{
 		
 	public:
-		using ContainerType = std::string;
+		using StringContainer = std::string;
 		using ElementType = char;
-		using WStringDataType = std::wstring;
+		using WStringContainer = std::wstring;
 
 	private:
-		ContainerType m_Data;
+		StringContainer m_data;
 
 	public:
-
 		LString();
-		LString(const LString& lValue);
-
-		LString(const ContainerType& lValue) : m_Data(lValue)
-		{
-
-		}
-
-		LString(const ContainerType&& rValue) : m_Data(rValue)
-		{
-
-		}
-
-
-		LString(const ElementType * value) : m_Data(value)
-		{
-
-		}
+		LString(const LString& l_val);
+		LString(const StringContainer& l_val) : m_data(l_val){}
+		LString(const StringContainer&& r_val) : m_data(r_val){}
+		LString(const ElementType * value) : m_data(value){}
 
 		void Assign(const char* str);
-		void Assign(const ContainerType& container);
+		void Assign(const StringContainer& container);
 		void Assign(const LString& str);
 
 		inline size_t Find(char const ch) const;
 		inline size_t Find(const char* str) const;
 		inline size_t FindLast(const char ch) const
 		{
-			return m_Data.find_last_of(ch);
+			return m_data.find_last_of(ch);
 		}
 		size_t FindLast(const char* str) const;
 		bool StartWith(const char* str) const;
 		bool StartWith(const char str) const;
 
 		void Replace(const char* str,const char* des);
-		void Replace(const ContainerType& str);
+		void Replace(const StringContainer& str);
 		void ReplaceAll(const char* str, const char* dest);
 
 		void EraseAt(size_t index);
 
-		operator const char* () const
+		operator const char*() const
 		{
-			return m_Data.c_str();
+			return m_data.c_str();
 		}
 		void Append(const char* str);
-		void Append(const ContainerType& container);
+		void Append(const StringContainer& container);
 		void Append(const LString& str);
 
 		// 接口
 		inline size_t Length() const
 		{
-			return m_Data.length();
+			return m_data.length();
 		}
 		inline LString Substr(size_t pos, size_t n)
 		{
-			return m_Data.substr(pos, n);
+			return m_data.substr(pos, n);
 		}
 
-		inline const ContainerType& str() const
+		inline const StringContainer& str() const
 		{
-			return m_Data;
+			return m_data;
 		}
 		inline const char* c_str() const
 		{
-			return m_Data.c_str();
+			return m_data.c_str();
 		}
-		WStringDataType GetStdUnicodeString() const;
+		WStringContainer GetStdUnicodeString() const;
+
 		// 运算符
 		friend LString operator+(const LString& lValue, const LString& rValue);
 		friend LString operator+(const LString& lValue, const char* rValue);
 		friend LString operator+(const char *lValue, const LString &rValue);
-		friend LString& operator<<(LString& out,const char *lValue);
-		friend LString& operator>>(LString& in,const char *lValue);
 
 		LString& operator=(const char* const string_in);
-		LString& operator=(const ContainerType& string_in);
-		LString& operator=(const WStringDataType& string_in);
+		LString& operator=(const StringContainer& string_in);
+		LString& operator=(const WStringContainer& string_in);
 		LString& operator=(const wchar_t* const string_in);
-
-		template<typename Target>
-		friend Target FromString(const LString &source);
 
 // 		LString& operator+=(const char* string_in);
 // 		LString& operator+=(const LString& string_in);
@@ -141,8 +123,8 @@ namespace luna
 	LString operator+(const char* lValue, const LString& rValue);
 
 
-	LString::WStringDataType StringToWstring(const LString::ContainerType& string_in);
-	LString::ContainerType WstringToString(const LString::WStringDataType& wstring_in);
+	LString::WStringContainer StringToWstring(const LString::StringContainer& string_in);
+	LString::StringContainer WstringToString(const LString::WStringContainer& wstring_in);
 
 	template<typename Source, typename Target>
 	inline Target LexicalCast(const Source &source)
@@ -152,11 +134,11 @@ namespace luna
 	template<typename Source>
 	inline LString ToString(const Source &source)
 	{
-		return LString(boost::lexical_cast<LString::ContainerType>(source));
+		return LString(boost::lexical_cast<LString::StringContainer>(source));
 	}
 	template<typename Target>
 	inline Target FromString(const LString &source)
 	{
-		return boost::lexical_cast<Target>(source.m_Data);
+		return boost::lexical_cast<Target>(source.c_str());
 	}
 }

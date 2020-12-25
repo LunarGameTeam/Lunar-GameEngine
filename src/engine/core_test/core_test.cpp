@@ -56,6 +56,7 @@ TEST(GameEngine, String)
 int main(int argc, const char* argv[])
 {
 	float f = FromString<float>("1.1");
+	ConfigManager::instance();
 	LogVerboseFormat(E_Core, "%f", f);
 	testing::InitGoogleTest();
 	return RUN_ALL_TESTS();

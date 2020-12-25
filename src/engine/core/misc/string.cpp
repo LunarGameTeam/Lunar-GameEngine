@@ -1,145 +1,142 @@
 #include "string.h"
 #include "core/private_core.h"
 
-using namespace luna;
+namespace luna
+{
 
-size_t LString::npos = LString::ContainerType::npos;
+size_t LString::npos = LString::StringContainer::npos;
 
 LString::LString()
 {
 
 }
 
-LString::LString(const LString& lValue) :
-	m_Data(lValue.m_Data)
+LString::LString(const LString &lValue) :
+	m_data(lValue.m_data)
 {
 
 }
 
 
-
-
-LString& LString::operator=(const char* const string_in)
+LString &LString::operator=(const char *const string_in)
 {
-	m_Data = string_in;
+	m_data = string_in;
 	return *this;
 }
-LString& LString::operator=(const ContainerType& string_in)
+LString &LString::operator=(const StringContainer &string_in)
 {
-	m_Data = string_in.c_str();
+	m_data = string_in.c_str();
 	return *this;
 }
-LString& LString::operator=(const wchar_t* string_in)
+LString &LString::operator=(const wchar_t *string_in)
 {
-	m_Data = WstringToString(string_in);
+	m_data = WstringToString(string_in);
 	return *this;
 }
-LString& LString::operator=(const WStringDataType& string_in)
+LString &LString::operator=(const WStringContainer &string_in)
 {
 	auto unicode_string = WstringToString(string_in.c_str());
 	return *this;
 }
 
-void LString::Append(const LString& str)
+void LString::Append(const LString &str)
 {
-	m_Data.append(str.m_Data);
+	m_data.append(str.m_data);
 }
 
-void LString::Append(const ContainerType& container)
+void LString::Append(const StringContainer &container)
 {
-	m_Data.append(container);
+	m_data.append(container);
 }
 
-void LString::Append(const char* str)
+void LString::Append(const char *str)
 {
-	m_Data.append(str);
+	m_data.append(str);
 }
 
-void LString::Assign(const char* str)
+void LString::Assign(const char *str)
 {
-	m_Data.assign(str);
+	m_data.assign(str);
 }
 
-void LString::Assign(const ContainerType& container)
+void LString::Assign(const StringContainer &container)
 {
-	m_Data.assign(container);
+	m_data.assign(container);
 
 }
 
-void LString::Assign(const LString& str)
+void LString::Assign(const LString &str)
 {
-	m_Data.assign(str.m_Data);
+	m_data.assign(str.m_data);
 }
 
-
-
-char& LString::operator[](size_t index)
+char &LString::operator[](size_t index)
 {
-	return m_Data[index];
+	return m_data[index];
 }
 
-const LString::ElementType& LString::operator[](size_t index) const
+const LString::ElementType &LString::operator[](size_t index) const
 {
-	return m_Data[index];
+	return m_data[index];
 }
 
-const LString::ElementType* LString::operator*() const
+const LString::ElementType *LString::operator*() const
 {
-	return m_Data.c_str();
+	return m_data.c_str();
 }
 
 const luna::LString::ElementType *LString::operator*()
 {
-	return m_Data.c_str();
+	return m_data.c_str();
 }
 
-LString::WStringDataType LString::GetStdUnicodeString() const
+LString::WStringContainer LString::GetStdUnicodeString() const
 {
-	return StringToWstring(m_Data).c_str();
+	return StringToWstring(m_data).c_str();
 }
 
-void LString::Replace(const char* str, const char* des)
+void LString::Replace(const char *str, const char *des)
 {
-	boost::algorithm::replace_all(m_Data, str, des);
+	boost::algorithm::replace_all(m_data, str, des);
 }
 
-bool LString::StartWith(const char* str) const
+bool LString::StartWith(const char *str) const
 {
-	return boost::algorithm::starts_with(m_Data, str);
+	return boost::algorithm::starts_with(m_data, str);
 }
 bool LString::StartWith(const char str) const
 {
-	assert(m_Data.length() > 0);
-	return m_Data[0] == str;
+	assert(m_data.length() > 0);
+	return m_data[0] == str;
 }
 
-size_t LString::Find(const char* str) const
+size_t LString::Find(const char *str) const
 {
-	return m_Data.find_first_of(str);
+	return m_data.find_first_of(str);
 }
 size_t LString::Find(const char ch) const
 {
-	return m_Data.find_first_of(ch);
+	return m_data.find_first_of(ch);
 }
 
-size_t LString::FindLast(const char* str) const
+size_t LString::FindLast(const char *str) const
 {
-	return m_Data.find_last_of(str);
+	return m_data.find_last_of(str);
 }
 
-void luna::LString::Replace(const ContainerType& str)
+void luna::LString::Replace(const StringContainer &str)
 {
-	boost::algorithm::replace_all(m_Data, str, str);
+	boost::algorithm::replace_all(m_data, str, str);
 }
 
 void LString::EraseAt(size_t index)
 {
-	m_Data.erase(index);
+	m_data.erase(index);
 }
 
-void LString::ReplaceAll(const char* str, const char* dest)
+void LString::ReplaceAll(const char *str, const char *dest)
 {
-	boost::algorithm::replace_all(m_Data, str, dest);
+	boost::algorithm::replace_all(m_data, str, dest);
 }
 
 // LString& LString::operator+=(const char* const string_in)
@@ -161,44 +158,43 @@ void LString::ReplaceAll(const char* str, const char* dest)
 // 	return *this;
 // }
 
-LString luna::operator+(const LString& lValue, const LString& rValue)
+LString operator+(const LString &lValue, const LString &rValue)
 {
 	LString res;
-	res.m_Data = lValue.m_Data + rValue.m_Data;
+	res.m_data = lValue.m_data + rValue.m_data;
 	return res;
 }
 
-
-
-LString luna::operator+(const char* lValue, const LString& rValue)
+LString operator+(const char *lValue, const LString &rValue)
 {
 	LString res;
-	res.m_Data.assign(lValue);
-	res.m_Data += rValue.m_Data;
+	res.m_data.assign(lValue);
+	res.m_data += rValue.m_data;
 	return res;
 }
 
-LString luna::operator+(const LString& lValue, const char* rValue)
+LString operator+(const LString &lValue, const char *rValue)
 {
 	LString res(lValue);
 	res.Append(rValue);
 	return res;
 }
 
-LString::WStringDataType luna::StringToWstring(const LString::ContainerType& string_in)
+LString::WStringContainer StringToWstring(const LString::StringContainer &string_in)
 {
-	LString::WStringDataType unicode_string;
+	LString::WStringContainer unicode_string;
 	int nLen = (int)string_in.length();
 	unicode_string.resize(nLen, L' ');
 	int nResult = MultiByteToWideChar(CP_ACP, 0, (LPCSTR)string_in.c_str(), nLen, (LPWSTR)unicode_string.c_str(), nLen);
 	return unicode_string;
 }
-LString::ContainerType luna::WstringToString(const LString::WStringDataType& wstring_in)
+LString::StringContainer WstringToString(const LString::WStringContainer &wstring_in)
 {
-	LString::ContainerType ascii_string;
+	LString::StringContainer ascii_string;
 	int nLen = (int)wstring_in.length();
 	ascii_string.resize(nLen, ' ');
 	int nResult = WideCharToMultiByte(CP_ACP, 0, (LPCWSTR)wstring_in.c_str(), nLen, (LPSTR)ascii_string.c_str(), nLen, NULL, NULL);
 	return ascii_string;
 }
 
+}

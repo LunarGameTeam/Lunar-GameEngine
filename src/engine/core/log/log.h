@@ -82,7 +82,7 @@ char* FormatLog(const char* format, Args&&... args)
 #define LogVerboseFormat(scope,format,...) luna::LogInternal(scope, FormatLog(format,__VA_ARGS__) ,luna::LogLevel::Verbose,__FILE__,__FUNCTION__,__LINE__, luna::g_Succeed);
 
 
-
+//弃用的Log函数，逐渐删掉
 #define LunarDebugLogError(platform_result,error_reason,log_index) luna::BuildDebugLog(platform_result,error_reason,__FILE__,__FUNCTION__,__LINE__,luna::LogLevel::Error,log_index)
 #define LunarDebugLogWarning(platform_result,error_reason,log_index) luna::BuildDebugLog(platform_result,error_reason,__FILE__,__FUNCTION__,__LINE__,luna::LogLevel::Warning,log_index)
 #define LunarDebugLogVerbose(error_reason,log_index) luna::BuildDebugLog(S_OK,error_reason,__FILE__,__FUNCTION__,__LINE__,luna::LogLevel::Verbose,log_index)

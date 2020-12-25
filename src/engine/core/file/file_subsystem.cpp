@@ -5,9 +5,11 @@ using namespace luna;
 bool FileSubsystem::OnPreInit()
 {
 
-#ifdef _WIN32 || _WIN64 
+#ifdef _WIN32 || _WIN64
+
 	m_PlatformFile =  new WindowsFileManager();
 	m_PlatformFile->InitFileManager();
+
 #endif
 	return true;
 }
