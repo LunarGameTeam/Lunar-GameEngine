@@ -27,17 +27,17 @@ protected:
 	int32_t                               Scene_width;
 	int32_t                               Scene_height;
 	bool                                  If_dsv_loaded;
-	std::vector<LunarEngine::VirtualResourcePointer>   Default_depthstencil_buffer;
+	std::vector<luna::VirtualResourcePointer>   Default_depthstencil_buffer;
 
 	//与屏幕大小一致的几种纹理格式(普通RGB，SRGB，浮点纹理，标准D24S8深度缓冲区)
-	LunarEngine::PancyCommonTextureDesc default_tex_desc_RGB;
-	LunarEngine::PancyCommonTextureDesc default_tex_desc_SRGB;
-	LunarEngine::PancyCommonTextureDesc default_tex_desc_float;
-	LunarEngine::PancyCommonTextureDesc default_tex_desc_depthstencil;
+	luna::PancyCommonTextureDesc default_tex_desc_RGB;
+	luna::PancyCommonTextureDesc default_tex_desc_SRGB;
+	luna::PancyCommonTextureDesc default_tex_desc_float;
+	luna::PancyCommonTextureDesc default_tex_desc_depthstencil;
 public:
 	SceneRoot();
-	LunarEngine::LResult Create(int32_t width_in, int32_t height_in);
-	LunarEngine::LResult ResetScreen(int32_t width_in, int32_t height_in);
+	luna::LResult Create(int32_t width_in, int32_t height_in);
+	luna::LResult ResetScreen(int32_t width_in, int32_t height_in);
 	virtual void Display() = 0;
 	virtual void DisplayNopost() = 0;
 	virtual void DisplayEnvironment(DirectX::XMFLOAT4X4 view_matrix, DirectX::XMFLOAT4X4 proj_matrix) = 0;
@@ -56,22 +56,22 @@ public:
 		}
 	};
 private:
-	virtual LunarEngine::LResult Init() = 0;
-	virtual LunarEngine::LResult ScreenChange() = 0;
+	virtual luna::LResult Init() = 0;
+	virtual luna::LResult ScreenChange() = 0;
 protected:
 	//todo：全局cbuffer不应该从PSO中获取，而应当从文件中获取
-	LunarEngine::LResult GetGlobelCbuffer(
+	luna::LResult GetGlobelCbuffer(
 		const LunarObjectID& PSO_id,
 		const std::string& cbuffer_name,
 		PancyConstantBuffer** cbuffer_data
 	);
-	LunarEngine::LResult GetGlobelCbuffer(
+	luna::LResult GetGlobelCbuffer(
 		const LunarObjectID& PSO_id,
 		const std::string& cbuffer_name,
 		std::vector<PancyConstantBuffer*>& cbuffer_data
 	);
 private:
-	LunarEngine::LResult GetGlobelCbufferByFrame(
+	luna::LResult GetGlobelCbufferByFrame(
 		const LunarObjectID& frame_id,
 		const LunarObjectID& PSO_id,
 		const std::string& cbuffer_name,

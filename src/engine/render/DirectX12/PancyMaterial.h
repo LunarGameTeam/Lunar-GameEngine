@@ -1,6 +1,6 @@
 #pragma once
 #include"PancyRenderParam.h"
-namespace LunarEngine
+namespace luna
 {
 	enum MaterialShaderResourceType
 	{
@@ -112,25 +112,25 @@ namespace LunarEngine
 	public:
 		PancyMaterialBasic(const bool& if_could_reload_in);
 		//根据资源格式创建资源数据
-		LunarEngine::LResult LoadResoureDataByDesc(const PancyCommonMaterialDesc& ResourceDescStruct) override;
+		luna::LResult LoadResoureDataByDesc(const PancyCommonMaterialDesc& ResourceDescStruct) override;
 		//创建一个渲染param
-		LunarEngine::LResult BuildRenderParam(PancyRenderParamID& render_param_id);
+		luna::LResult BuildRenderParam(PancyRenderParamID& render_param_id);
 		bool CheckIfResourceLoadFinish() override;;
 	private:
-		LunarEngine::LResult BuildBufferDescriptorByDesc(
+		luna::LResult BuildBufferDescriptorByDesc(
 			const std::string& resource_file_name,
 			const PancyBufferDescriptorDesc& descriptor_desc,
 			std::vector<VirtualResourcePointer>& resource_pointer_array,
 			std::vector<BasicDescriptorDesc>& resource_descriptor_descr_array
 		);
-		LunarEngine::LResult BuildTextureDescriptorByDesc(
+		luna::LResult BuildTextureDescriptorByDesc(
 			const std::string& resource_file_name,
 			const PancyTextureDescriptorDesc& descriptor_desc,
 			std::vector<VirtualResourcePointer>& resource_pointer_array,
 			std::vector<BasicDescriptorDesc>& resource_descriptor_descr_array
 		);
 	};
-	LunarEngine::LResult LoadMaterialFromFile(
+	luna::LResult LoadMaterialFromFile(
 		const std::string& name_resource_in,
 		VirtualResourcePointer& id_need
 	);

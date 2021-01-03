@@ -252,19 +252,19 @@ luna::LResult scene_test_simple::Init()
 		return check_error;
 	}
 	/*
-	check_error = LunarEngine::PancyModelControl::GetInstance()->LoadResource("model\\export\\multiball\\multiball.json", model_common);
+	check_error = luna::PancyModelControl::GetInstance()->LoadResource("model\\export\\multiball\\multiball.json", model_common);
 	if (!check_error.m_IsOK)
 	{
 		return check_error;
 	}
 
-	check_error = LunarEngine::PancyModelControl::GetInstance()->LoadResource("model\\export\\lion\\lion.json", model_skinmesh);
+	check_error = luna::PancyModelControl::GetInstance()->LoadResource("model\\export\\lion\\lion.json", model_skinmesh);
 	if (!check_error.m_IsOK)
 	{
 		return check_error;
 	}
 
-	check_error = LunarEngine::PancyModelControl::GetInstance()->LoadResource("model\\export\\treetest\\tree.json", model_pointmesh);
+	check_error = luna::PancyModelControl::GetInstance()->LoadResource("model\\export\\treetest\\tree.json", model_pointmesh);
 	if (!check_error.m_IsOK)
 	{
 		return check_error;
@@ -298,8 +298,8 @@ luna::LResult scene_test_simple::Init()
 	//模型加载测试
 	SubresourceControl::GetInstance()->WriteSubMemoryMessageToFile("memory_log.json");
 
-	LunarEngine::ResourceStateType now_id_state;
-	check_error = LunarEngine::PancyModelControl::GetInstance()->GetResourceState(model_skinmesh, now_id_state);
+	luna::ResourceStateType now_id_state;
+	check_error = luna::PancyModelControl::GetInstance()->GetResourceState(model_skinmesh, now_id_state);
 	SubresourceControl::GetInstance()->WriteSubMemoryMessageToFile("memory_log4.json");
 	*/
 	//调用一次骨骼动画单例，完成全局缓冲区的注册
@@ -379,10 +379,10 @@ luna::LResult scene_test_simple::BuildSkinmeshComputeDescriptor()
 		return check_error;
 	}
 	/*
-	check_error = LunarEngine::PancySkinAnimationControl::GetInstance()->BuildDescriptor(
+	check_error = luna::PancySkinAnimationControl::GetInstance()->BuildDescriptor(
 		model_resource_render->GetVertexBuffer(),
 		model_resource_render->GetVertexNum(),
-		sizeof(LunarEngine::PointSkinCommon8),
+		sizeof(luna::PointSkinCommon8),
 		skinmesh_compute_descriptor
 	);
 	if (!check_error.m_IsOK)
@@ -801,27 +801,27 @@ bool RenderSubusystem::OnShutdown()
 {
 	/*
 	delete new_scene;
-	delete LunarEngine::PancySkinAnimationControl::GetInstance();
-	delete LunarEngine::RenderParamSystem::GetInstance();
+	delete luna::PancySkinAnimationControl::GetInstance();
+	delete luna::RenderParamSystem::GetInstance();
 	delete ThreadPoolGPUControl::GetInstance();
 	delete PancyShaderControl::GetInstance();
 	delete PancyRootSignatureControl::GetInstance();
 	delete PancyEffectGraphic::GetInstance();
-	delete LunarEngine::FileBuildRepeatCheck::GetInstance();
+	delete luna::FileBuildRepeatCheck::GetInstance();
 	delete PancyInput::GetInstance();
 	delete PancyCamera::GetInstance();
 	//销毁用于动态上传本地资源的ring-buffer堆
-	delete LunarEngine::PancyDynamicRingBuffer::GetInstance();
+	delete luna::PancyDynamicRingBuffer::GetInstance();
 	//销毁dx设备与基础库
 	delete PancyDx12DeviceBasic::GetInstance();
-	LunarEngine::EngineFailLog::GetInstance()->PrintLogToconsole();
-	delete LunarEngine::EngineFailLog::GetInstance();
+	luna::EngineFailLog::GetInstance()->PrintLogToconsole();
+	delete luna::EngineFailLog::GetInstance();
 	//销毁json反射工具类
 	delete PancyJsonTool::GetInstance();
 	delete PancyJsonReflectControl::GetInstance();
 	//todo::这里释放描述符与资源堆的时候需要检查是否已经是空的了，可以用于检查资源的泄露情况
-	delete LunarEngine::PancyDescriptorHeapControl::GetInstance();
-	delete LunarEngine::PancyGlobelResourceControl::GetInstance();
+	delete luna::PancyDescriptorHeapControl::GetInstance();
+	delete luna::PancyGlobelResourceControl::GetInstance();
 	*/
 	return true;
 }

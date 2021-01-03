@@ -24,7 +24,7 @@ DELEGATE_NO_PARAMS(SubSystemPreInitDone, LObject, void)
 DELEGATE_NO_PARAMS(SubSystemInitDone, LObject, void)
 DELEGATE_NO_PARAMS(SubSystemPostInitDone, LObject, void)
 
-class LunarEngineCore
+class lunaCore
 {
 public:
 	void Run();
@@ -62,4 +62,4 @@ private:
 	boost::unordered::unordered_map<const char *, SubSystem * > mSubSystems;
 };
 
-extern LunarEngineCore *gEngine;
+extern lunaCore *gEngine;

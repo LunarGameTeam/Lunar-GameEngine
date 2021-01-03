@@ -3,7 +3,7 @@
 #include"PancyBufferDx12.h"
 #include"PancyTextureDx12.h"
 #define threadBlockSize 128
-namespace LunarEngine
+namespace luna
 {
 	//普通的绑定描述符
 	struct CommonDescriptorPointer
@@ -66,24 +66,24 @@ namespace LunarEngine
 			return max_descriptor_num - now_pointer_offset;
 		}
 		//从描述符段里开辟一组bindless描述符页
-		LunarEngine::LResult BuildBindlessShaderResourceViewPack(
+		luna::LResult BuildBindlessShaderResourceViewPack(
 			const std::vector<D3D12_SHADER_RESOURCE_VIEW_DESC> &SRV_desc,
 			const std::vector<VirtualResourcePointer> &describe_memory_data,
 			const LunarObjectID &SRV_pack_size,
 			LunarObjectID &SRV_pack_id
 		);
 		//从起始位置创建一个虚拟的srv打包，只创建，不填充(todo:之后要移除这种方法)
-		LunarEngine::LResult BuildBindlessShaderResourceViewFromBegin(LunarObjectID& SRV_pack_id);
-		LunarEngine::LResult RebindBindlessShaderResourceViewFromBegin(
+		luna::LResult BuildBindlessShaderResourceViewFromBegin(LunarObjectID& SRV_pack_id);
+		luna::LResult RebindBindlessShaderResourceViewFromBegin(
 			const std::vector<D3D12_SHADER_RESOURCE_VIEW_DESC>& SRV_desc,
 			const std::vector<VirtualResourcePointer>& describe_memory_data
 			);
 		//从描述符段里删除一组bindless描述符页
-		LunarEngine::LResult DeleteBindlessShaderResourceViewPack(const LunarObjectID &SRV_pack_id);
+		luna::LResult DeleteBindlessShaderResourceViewPack(const LunarObjectID &SRV_pack_id);
 		//为描述符段进行一次描述符碎片的整理操作
-		LunarEngine::LResult RefreshBindlessShaderResourceViewPack();
+		luna::LResult RefreshBindlessShaderResourceViewPack();
 		//从描述符段里删除一组bindless描述符页并执行一次整理操作
-		LunarEngine::LResult DeleteBindlessShaderResourceViewPackAndRefresh(const LunarObjectID &SRV_pack_id);
+		luna::LResult DeleteBindlessShaderResourceViewPackAndRefresh(const LunarObjectID &SRV_pack_id);
 		//获取一个描述符页的基础偏移
 		const BindlessResourceViewPointer &GetDescriptorPageOffset(const LunarObjectID &descriptor_page_id);
 		//将描述符段虚拟填满(用于长期控制该段的所有数据)
@@ -98,7 +98,7 @@ namespace LunarEngine
 		}
 	private:
 		//根据描述符页的指针信息，在描述符堆开辟描述符
-		LunarEngine::LResult BuildShaderResourceView(BindlessResourceViewPointer &resource_view_pointer);
+		luna::LResult BuildShaderResourceView(BindlessResourceViewPointer &resource_view_pointer);
 	};
 
 	//解绑定描述符页的id号
@@ -141,75 +141,75 @@ namespace LunarEngine
 	public:
 		PancyDescriptorHeap();
 		~PancyDescriptorHeap();
-		LunarEngine::LResult Create(
+		luna::LResult Create(
 			const D3D12_DESCRIPTOR_HEAP_DESC &descriptor_heap_desc,
 			const std::string &descriptor_heap_name_in,
 			const LunarObjectID &bind_descriptor_num_in,
 			const LunarObjectID &bindless_descriptor_num_in,
 			const LunarObjectID &per_segmental_size_in
 		);
-		inline LunarEngine::LResult GetDescriptorHeapData(ID3D12DescriptorHeap **descriptor_heap_out)
+		inline luna::LResult GetDescriptorHeapData(ID3D12DescriptorHeap **descriptor_heap_out)
 		{
 			*descriptor_heap_out = descriptor_heap_data.Get();
-			return LunarEngine::g_Succeed;
+			return luna::g_Succeed;
 		}
 		//创建全局描述符
-		LunarEngine::LResult BuildGlobelDescriptor(
+		luna::LResult BuildGlobelDescriptor(
 			const std::string &globel_name,
 			const std::vector<BasicDescriptorDesc> &SRV_desc,
 			std::vector <VirtualResourcePointer>& memory_data,
 			const bool if_build_multi_buffer
 		);
-		LunarEngine::LResult DeleteGlobelDescriptor(const std::string &globel_name);
-		LunarEngine::LResult GetGlobelDesciptorID(const std::string &globel_name, LunarObjectID &descriptor_id);
-		LunarEngine::LResult BindGlobelDescriptor(
+		luna::LResult DeleteGlobelDescriptor(const std::string &globel_name);
+		luna::LResult GetGlobelDesciptorID(const std::string &globel_name, LunarObjectID &descriptor_id);
+		luna::LResult BindGlobelDescriptor(
 			const std::string &globel_name,
 			const D3D12_COMMAND_LIST_TYPE &render_param_type,
 			PancyRenderCommandList *m_commandList,
 			const LunarObjectID &root_signature_offset
 		);
 		//创建私有的绑定描述符
-		LunarEngine::LResult BuildBindDescriptor(
+		luna::LResult BuildBindDescriptor(
 			const std::vector<BasicDescriptorDesc> &descriptor_desc,
 			std::vector<VirtualResourcePointer>& memory_data,
 			const bool if_build_multi_buffer,
 			LunarObjectID &descriptor_id
 		);
-		LunarEngine::LResult DeleteBindDescriptor(const LunarObjectID &descriptor_id);
-		LunarEngine::LResult BindCommonDescriptor(
+		luna::LResult DeleteBindDescriptor(const LunarObjectID &descriptor_id);
+		luna::LResult BindCommonDescriptor(
 			const LunarObjectID &descriptor_id,
 			const D3D12_COMMAND_LIST_TYPE &render_param_type,
 			PancyRenderCommandList *m_commandList,
 			const LunarObjectID &root_signature_offset
 		);
-		LunarEngine::LResult GetCommonDescriptorCpuOffset(const LunarObjectID &descriptor_id, CD3DX12_CPU_DESCRIPTOR_HANDLE &Cpu_Handle);
+		luna::LResult GetCommonDescriptorCpuOffset(const LunarObjectID &descriptor_id, CD3DX12_CPU_DESCRIPTOR_HANDLE &Cpu_Handle);
 		//创建私有的bindless描述符页
-		LunarEngine::LResult BuildBindlessShaderResourceViewPage(
+		luna::LResult BuildBindlessShaderResourceViewPage(
 			const std::vector<D3D12_SHADER_RESOURCE_VIEW_DESC> &SRV_desc,
 			const std::vector<VirtualResourcePointer> &describe_memory_data,
 			const LunarObjectID &SRV_pack_size,
 			BindlessResourceViewID &descriptor_id
 		);
 		//获取指定大小的bindless描述符段（消耗较大，避免频繁使用todo:之后需要删除这个逻辑，使用bindless描述符跨段以及独立的动态描述符区域）
-		LunarEngine::LResult LockDescriptorSegmental(
+		luna::LResult LockDescriptorSegmental(
 			const LunarObjectID& lock_size,
 			std::vector<BindlessDescriptorID> &descriptor_segmental_list,
 			BindlessResourceViewID& descriptor_id
 		);
-		LunarEngine::LResult RebindSahderResourceViewDynamic(
+		luna::LResult RebindSahderResourceViewDynamic(
 			const std::vector<D3D12_SHADER_RESOURCE_VIEW_DESC>& SRV_desc,
 			const std::vector<VirtualResourcePointer>& describe_memory_data,
 			const BindlessResourceViewID& descriptor_id
 		);
 		//删除私有的bindless描述符页(可以指定是否删除完毕后对页碎片进行整理)
-		LunarEngine::LResult DeleteBindlessShaderResourceViewPage(
+		luna::LResult DeleteBindlessShaderResourceViewPage(
 			const BindlessResourceViewID &descriptor_id,
 			bool is_refresh_segmental = true
 		);
 		//整理所有的描述符段，消耗较大，在切换地图资源的时候配合不整理碎片的删除使用
-		LunarEngine::LResult RefreshBindlessShaderResourceViewSegmental();
+		luna::LResult RefreshBindlessShaderResourceViewSegmental();
 		//将解绑定描述符绑定至rootsignature
-		LunarEngine::LResult BindBindlessDescriptor(
+		luna::LResult BindBindlessDescriptor(
 			const BindlessResourceViewID &descriptor_id,
 			const D3D12_COMMAND_LIST_TYPE &render_param_type,
 			PancyRenderCommandList *m_commandList,
@@ -217,9 +217,9 @@ namespace LunarEngine
 		);
 	private:
 		//重新刷新解绑定资源描述符段的大小，当描述符段增删查改的时候被调用
-		LunarEngine::LResult RefreshBindlessResourcesegmentalSize(const LunarObjectID &resourc_id);
+		luna::LResult RefreshBindlessResourcesegmentalSize(const LunarObjectID &resourc_id);
 		//预创建描述符数据
-		LunarEngine::LResult PreBuildBindDescriptor(
+		luna::LResult PreBuildBindDescriptor(
 			const D3D12_DESCRIPTOR_HEAP_TYPE &descriptor_type,
 			const bool if_build_multi_buffer,
 			std::vector<CD3DX12_CPU_DESCRIPTOR_HANDLE> &descriptor_cpu_handle,
@@ -270,8 +270,8 @@ namespace LunarEngine
 		BindlessDescriptorPointer descriptor_id;
 	public:
 		PancyDescriptorHeapDynamic();
-		LunarEngine::LResult Create(const int32_t &max_descriptor_num);
-		LunarEngine::LResult BuildShaderResourceViewFromHead(
+		luna::LResult Create(const int32_t &max_descriptor_num);
+		luna::LResult BuildShaderResourceViewFromHead(
 			const std::vector<D3D12_SHADER_RESOURCE_VIEW_DESC>& SRV_desc,
 			const std::vector<VirtualResourcePointer>& describe_memory_data
 		);
@@ -304,27 +304,27 @@ namespace LunarEngine
 			return this_instance;
 		}
 		//获取基础的描述符堆
-		LunarEngine::LResult GetBasicDescriptorHeap(const D3D12_DESCRIPTOR_HEAP_TYPE &descriptor_desc, ID3D12DescriptorHeap **descriptor_heap_out);
+		luna::LResult GetBasicDescriptorHeap(const D3D12_DESCRIPTOR_HEAP_TYPE &descriptor_desc, ID3D12DescriptorHeap **descriptor_heap_out);
 		//全局描述符
-		LunarEngine::LResult BuildCommonGlobelDescriptor(
+		luna::LResult BuildCommonGlobelDescriptor(
 			const std::string &globel_srv_name,
 			const std::vector<BasicDescriptorDesc> &now_descriptor_desc_in,
 			std::vector<VirtualResourcePointer>& memory_data,
 			const bool if_build_multi_buffer
 		);
-		LunarEngine::LResult GetCommonGlobelDescriptorID(
+		luna::LResult GetCommonGlobelDescriptorID(
 			PancyDescriptorType basic_descriptor_type,
 			const std::string &globel_srv_name,
 			BindDescriptorPointer &descriptor_id
 		);
-		LunarEngine::LResult BindCommonGlobelDescriptor(
+		luna::LResult BindCommonGlobelDescriptor(
 			PancyDescriptorType basic_descriptor_type,
 			const std::string &globel_name,
 			const D3D12_COMMAND_LIST_TYPE &render_param_type,
 			PancyRenderCommandList *m_commandList,
 			const LunarObjectID &root_signature_offset
 		);
-		LunarEngine::LResult BindCommonRenderTargetUncontiguous(
+		luna::LResult BindCommonRenderTargetUncontiguous(
 			const std::vector<LunarObjectID> rendertarget_list,
 			const LunarObjectID depthstencil_descriptor,
 			PancyRenderCommandList *m_commandList,
@@ -332,52 +332,52 @@ namespace LunarEngine
 			const bool &if_have_depthstencil = true
 		);
 		//todo:目前由于RTV在交换链中取出来无法管理，暂时给出取出depthstencil的方法用于测试，在资源管理器重做后要删除
-		LunarEngine::LResult GetCommonDepthStencilBufferOffset(
+		luna::LResult GetCommonDepthStencilBufferOffset(
 			const LunarObjectID depthstencil_descriptor,
 			CD3DX12_CPU_DESCRIPTOR_HANDLE &dsvHandle
 		);
 		//todo:目前暂时将描述符堆数据锁住用于动态描述符处理
-		LunarEngine::LResult LockDescriptorSegmental(
+		luna::LResult LockDescriptorSegmental(
 			const LunarObjectID& lock_size,
 			std::vector<BindlessDescriptorID>& descriptor_segmental_list,
 			BindlessDescriptorPointer& descriptor_id
 		);
-		LunarEngine::LResult RebindSahderResourceViewDynamicCommon(
+		luna::LResult RebindSahderResourceViewDynamicCommon(
 			const std::vector<D3D12_SHADER_RESOURCE_VIEW_DESC>& SRV_desc,
 			const std::vector<VirtualResourcePointer>& describe_memory_data,
 			const BindlessDescriptorPointer& descriptor_id
 		);
 		//绑定描述符
-		LunarEngine::LResult BuildCommonDescriptor(
+		luna::LResult BuildCommonDescriptor(
 			const std::vector<BasicDescriptorDesc> &now_descriptor_desc_in,
 			std::vector<VirtualResourcePointer>& memory_data,
 			const bool if_build_multi_buffer,
 			BindDescriptorPointer &descriptor_id
 		);
-		LunarEngine::LResult BindCommonDescriptor(
+		luna::LResult BindCommonDescriptor(
 			const BindDescriptorPointer &descriptor_id,
 			const D3D12_COMMAND_LIST_TYPE &render_param_type,
 			PancyRenderCommandList *m_commandList,
 			const LunarObjectID &root_signature_offset
 		);
 		//解绑定描述符
-		LunarEngine::LResult BuildCommonBindlessShaderResourceView(
+		luna::LResult BuildCommonBindlessShaderResourceView(
 			const std::vector<D3D12_SHADER_RESOURCE_VIEW_DESC> &SRV_desc,
 			const std::vector<VirtualResourcePointer> &describe_memory_data,
 			const LunarObjectID &SRV_pack_size,
 			BindlessDescriptorPointer &descriptor_id
 		);
-		LunarEngine::LResult BindBindlessDescriptor(
+		luna::LResult BindBindlessDescriptor(
 			const BindlessDescriptorPointer &descriptor_id,
 			const D3D12_COMMAND_LIST_TYPE &render_param_type,
 			PancyRenderCommandList *m_commandList,
 			const LunarObjectID &root_signature_offset
 		);
-		LunarEngine::LResult ClearRenderTarget();
+		luna::LResult ClearRenderTarget();
 		//添加与删除一个描述符堆
-		LunarEngine::LResult BuildNewDescriptorHeapFromJson(const std::string &json_name, const Json::Value &root_value, LunarResourceID &descriptor_heap_id);
-		LunarEngine::LResult BuildNewDescriptorHeapFromJson(const std::string &json_file_name, LunarResourceID &descriptor_heap_id);
-		LunarEngine::LResult DeleteDescriptorHeap(const LunarResourceID &descriptor_heap_id);
+		luna::LResult BuildNewDescriptorHeapFromJson(const std::string &json_name, const Json::Value &root_value, LunarResourceID &descriptor_heap_id);
+		luna::LResult BuildNewDescriptorHeapFromJson(const std::string &json_file_name, LunarResourceID &descriptor_heap_id);
+		luna::LResult DeleteDescriptorHeap(const LunarResourceID &descriptor_heap_id);
 	private:
 		LunarResourceID GetCommonDescriptorHeapID(const BasicDescriptorDesc &descriptor_desc);
 		LunarResourceID GetCommonDescriptorHeapID(const PancyDescriptorType &descriptor_type);

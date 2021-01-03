@@ -1,6 +1,6 @@
 #include"PancyMemoryBasic.h"
 //GPU可访问的资源块
-using namespace LunarEngine;
+using namespace luna;
 ResourceBlockGpu::ResourceBlockGpu(
 	const uint64_t& memory_size_in,
 	ComPtr<ID3D12Resource> resource_data_in,

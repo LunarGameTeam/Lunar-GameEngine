@@ -4,5 +4,10 @@
 
 namespace luna
 {
-	uint64_t SizeAligned(const uint64_t& size_in, const uint64_t& size_aligned_in);
+	size_t SizeAligned(const size_t& size_in, const size_t& size_aligned_in);
+	size_t SizeAligned2Pow(const size_t& size_in, const size_t& size_aligned_in);
+	const static size_t CommonSize1K = 1024;
+	const static size_t CommonSize64K = 65536;
+	const static size_t CommonSize128K = 131072;
+	const static size_t CommonSize256K = 262144;
 }

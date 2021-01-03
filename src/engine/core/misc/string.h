@@ -105,6 +105,14 @@ namespace luna
 		LString& operator=(const WStringContainer& string_in);
 		LString& operator=(const wchar_t* const string_in);
 
+		bool operator!=(const char* const string_in)
+		{
+			return m_Data != string_in;
+		}
+		bool operator== (const LString& p) const
+		{
+			return m_Data == p.m_Data;
+		}
 // 		LString& operator+=(const char* string_in);
 // 		LString& operator+=(const LString& string_in);
 // 		LString& operator+=(const ContainerType& string_in);
@@ -141,4 +149,8 @@ namespace luna
 	{
 		return boost::lexical_cast<Target>(source.c_str());
 	}
+}
+namespace LContainerPack
+{
+	size_t hash_value(const luna::LString& key);
 }

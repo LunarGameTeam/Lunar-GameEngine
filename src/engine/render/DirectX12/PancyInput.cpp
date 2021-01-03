@@ -2,7 +2,7 @@
 #include "core/core_module.h"
 PancyInput* PancyInput::pancy_input_pInstance = NULL;
 
-using namespace LunarEngine;
+using namespace luna;
 PancyInput::PancyInput()
 {
 }

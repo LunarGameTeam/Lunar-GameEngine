@@ -1,8 +1,8 @@
 #include "engine.h"
 
-LunarEngineCore* gEngine = nullptr;
+lunaCore* gEngine = nullptr;
 
-void LunarEngineCore::Run()
+void lunaCore::Run()
 {
 	//PreInit
 	for (auto subsytem : mOrderedSubSystems)
@@ -34,7 +34,7 @@ void LunarEngineCore::Run()
 
 }
 
-void LunarEngineCore::MainLoop()
+void lunaCore::MainLoop()
 {
 	while (!mPendingExit)
 	{

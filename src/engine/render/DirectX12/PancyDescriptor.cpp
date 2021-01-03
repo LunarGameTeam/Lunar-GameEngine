@@ -1,5 +1,5 @@
 #include"PancyDescriptor.h"
-using namespace LunarEngine;
+using namespace luna;
 
 //解绑定描述符段，用于描述符段里的所有描述符页的分配和管理
 BindlessResourceViewSegmental::BindlessResourceViewSegmental(

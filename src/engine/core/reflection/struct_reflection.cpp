@@ -476,7 +476,7 @@ luna::LResult LSrtructReflect::LoadFromJsonNode(const std::string& parent_name, 
 		break;
 		case Json::booleanValue:
 		{
-			bool bool_value = now_child_value.asDouble();
+			bool bool_value = now_child_value.asBool();
 			check_error = now_reflect_data->second.SetSingleValueToNode(bool_value);
 			if (!check_error.m_IsOK)
 			{

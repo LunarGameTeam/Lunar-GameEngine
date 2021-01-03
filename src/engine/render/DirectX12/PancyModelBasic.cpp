@@ -1,7 +1,7 @@
 #include"PancyModelBasic.h"
 #include "core/misc/path.h"
 
-using namespace LunarEngine;
+using namespace luna;
 //模型部件
 PancyRenderMesh::PancyRenderMesh()
 {

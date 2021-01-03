@@ -1,60 +1,29 @@
-#include"PancyBufferDx12.h"
-
-using namespace LunarEngine;
-//基础缓冲区
-PancyBasicBuffer::PancyBasicBuffer(const bool& if_could_reload) :PancyCommonVirtualResource<PancyCommonBufferDesc>(if_could_reload)
+#include "LDirectX12Buffer.h"
+using namespace luna;
+using Microsoft::WRL::ComPtr;
+void LDx12GraphicResourceBuffer::CheckIfLoadingStateChanged(LLoadState& m_object_load_state)
 {
+	auto now_load_state = buffer_data->GetResourceLoadingState();
+	if (now_load_state == LDxResourceBlockLoadState::RESOURCE_LOAD_FINISH)
+	{
+		m_object_load_state = LLoadState::LOAD_STATE_FINISHED;
+		return;
+	}
+	m_object_load_state = LLoadState::LOAD_STATE_LOADING;
 }
-LResult PancyBasicBuffer::WriteDataToBuffer(void* cpu_data_pointer, const LunarResourceSize& data_size)
-{
-	auto check_error = CopyCpuDataToBufferGpu(cpu_data_pointer, data_size);
-	if (!check_error.m_IsOK)
-	{
-		return check_error;
-	}
-	return g_Succeed;
-}
-LResult PancyBasicBuffer::CopyCpuDataToBufferGpu(void* cpu_data_pointer, const LunarResourceSize& data_size)
-{
-	if (data_size > subresources_size)
-	{
-		LResult error_message;
-		LunarDebugLogError(E_FAIL, "could not copy data to GPU, size too large than buffer", error_message);
-
-		return error_message;
-	}
-	//获取用于拷贝的commond list
-	PancyRenderCommandList* copy_render_list;
-	PancyThreadIdGPU copy_render_list_ID;
-	auto check_error = ThreadPoolGPUControl::GetInstance()->GetResourceLoadContex()->GetThreadPool(D3D12_COMMAND_LIST_TYPE_COPY)->GetEmptyRenderlist(NULL, &copy_render_list, copy_render_list_ID);
-	if (!check_error.m_IsOK)
-	{
-		return check_error;
-	}
-	//拷贝资源数据
-	check_error = PancyDynamicRingBuffer::GetInstance()->CopyDataToGpu(copy_render_list, cpu_data_pointer, data_size, *buffer_data);
-	if (!check_error.m_IsOK)
-	{
-		return check_error;
-	}
-	copy_render_list->UnlockPrepare();
-	//提交渲染命令
-	ThreadPoolGPUControl::GetInstance()->GetResourceLoadContex()->GetThreadPool(D3D12_COMMAND_LIST_TYPE_COPY)->SubmitRenderlist(1, &copy_render_list_ID);
-	//分配等待眼位
-	PancyFenceIdGPU WaitFence;
-	ThreadPoolGPUControl::GetInstance()->GetResourceLoadContex()->GetThreadPool(D3D12_COMMAND_LIST_TYPE_COPY)->SetGpuBrokenFence(WaitFence);
-	check_error = buffer_data->SetResourceCopyBrokenFence(WaitFence);
-	if (!check_error.m_IsOK)
-	{
-		return check_error;
-	}
-	return g_Succeed;
-}
-LResult PancyBasicBuffer::LoadResoureDataByDesc(const PancyCommonBufferDesc& resource_desc)
+LResult LDx12GraphicResourceBuffer::InitResorceByDesc(const LunaCommonBufferDesc& resource_desc)
 {
 	LResult check_error;
-	ComPtr<ID3D12Resource> resource_data;
+	//获取directx设备
+	ID3D12Device* directx_device = reinterpret_cast<ID3D12Device*>(ILunarGraphicDeviceCore::GetInstance()->GetVirtualDevice());
+	if (directx_device == nullptr)
+	{
+		LResult error_message;
+		LunarDebugLogError(0, "Directx device is broken ", error_message);
+		return error_message;
+	}
 	//在d3d层级上创建一个单独堆的buffer资源
+	ComPtr<ID3D12Resource> resource_data;
 	D3D12_HEAP_TYPE heap_type = D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_DEFAULT;
 	D3D12_RESOURCE_STATES resource_build_state = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 	switch (resource_desc.buffer_type)
@@ -94,7 +63,7 @@ LResult PancyBasicBuffer::LoadResoureDataByDesc(const PancyCommonBufferDesc& res
 	default:
 		break;
 	}
-	HRESULT hr = PancyDx12DeviceBasic::GetInstance()->GetD3dDevice()->CreateCommittedResource(
+	HRESULT hr = directx_device->CreateCommittedResource(
 		&CD3DX12_HEAP_PROPERTIES(heap_type),
 		D3D12_HEAP_FLAG_NONE,
 		&resource_desc.buffer_res_desc,
@@ -110,15 +79,14 @@ LResult PancyBasicBuffer::LoadResoureDataByDesc(const PancyCommonBufferDesc& res
 		return error_message;
 	}
 	//计算缓冲区的大小，创建资源块
-	PancyDx12DeviceBasic::GetInstance()->GetD3dDevice()->GetCopyableFootprints(&resource_desc.buffer_res_desc, 0, 1, 0, nullptr, nullptr, nullptr, &subresources_size);
+	directx_device->GetCopyableFootprints(&resource_desc.buffer_res_desc, 0, 1, 0, nullptr, nullptr, nullptr, &subresources_size);
 	if (resource_desc.buffer_res_desc.Width != subresources_size)
 	{
 		LResult error_message;
 		LunarDebugLogError(0, "buffer resource size dismatch, maybe it's not a buffer resource", error_message);
-
 		return error_message;
 	}
-	buffer_data = new ResourceBlockGpu(subresources_size, resource_data, heap_type, resource_build_state);
+	buffer_data = new LDirectx12ResourceBlock(subresources_size, resource_data, heap_type, resource_build_state);
 	if (heap_type == D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD)
 	{
 		check_error = buffer_data->GetCpuMapPointer(&map_pointer);
@@ -127,7 +95,6 @@ LResult PancyBasicBuffer::LoadResoureDataByDesc(const PancyCommonBufferDesc& res
 			return check_error;
 		}
 	}
-
 	//如果需要拷贝数据，将数据拷贝到buffer中
 	if (resource_desc.buffer_type == Buffer_Index || resource_desc.buffer_type == Buffer_Vertex || resource_desc.buffer_type == Buffer_ShaderResource_static)
 	{
@@ -147,143 +114,7 @@ LResult PancyBasicBuffer::LoadResoureDataByDesc(const PancyCommonBufferDesc& res
 	}
 	return g_Succeed;
 }
-bool PancyBasicBuffer::CheckIfResourceLoadFinish()
-{
-	PancyResourceLoadState now_load_state = buffer_data->GetResourceLoadingState();
-	if (now_load_state == PancyResourceLoadState::RESOURCE_LOAD_CPU_FINISH || now_load_state == PancyResourceLoadState::RESOURCE_LOAD_GPU_FINISH)
-	{
-		return true;
-	}
-	return false;
-}
-PancyBasicBuffer::~PancyBasicBuffer()
-{
-	if (buffer_data != NULL)
-	{
-		delete buffer_data;
-	}
-}
-ResourceBlockGpu* LunarEngine::GetBufferResourceData(VirtualResourcePointer& virtual_pointer, LResult& check_error)
-{
-	check_error = g_Succeed;
-	auto now_buffer_resource_value = virtual_pointer.GetResourceData();
-	if (now_buffer_resource_value->GetResourceTypeName() != typeid(PancyBasicBuffer).name())
-	{
-		LResult error_message;
-		LunarDebugLogError(E_FAIL, "the vertex resource is not a buffer", error_message);
-
-		check_error = error_message;
-	}
-	const PancyBasicBuffer* buffer_real_pointer = dynamic_cast<const PancyBasicBuffer*>(now_buffer_resource_value);
-	auto gpu_buffer_data = buffer_real_pointer->GetGpuResourceData();
-	if (gpu_buffer_data != NULL)
-	{
-		return gpu_buffer_data;
-	}
-	return NULL;
-}
-LResult LunarEngine::BuildBufferResource(
-	const std::string& name_resource_in,
-	PancyCommonBufferDesc& resource_data,
-	VirtualResourcePointer& id_need,
-	bool if_allow_repeat
-)
-{
-	auto check_error = PancyGlobelResourceControl::GetInstance()->LoadResource<PancyBasicBuffer>(
-		name_resource_in,
-		&resource_data,
-		typeid(PancyCommonBufferDesc*).name(),
-		sizeof(PancyCommonBufferDesc),
-		id_need,
-		if_allow_repeat
-		);
-	if (!check_error.m_IsOK)
-	{
-		return check_error;
-	}
-	return g_Succeed;
-}
-LResult LunarEngine::BuildBufferResourceFromMemory(
-	const std::string& name_resource_in,
-	VirtualResourcePointer& id_need,
-	void* data_pointer,
-	const LunarResourceSize& resource_size,
-	bool if_allow_repeat,
-	D3D12_RESOURCE_FLAGS flag
-)
-{
-	//创建存储动画数据的缓冲区资源(静态缓冲区)
-	PancyCommonBufferDesc buffer_desc;
-	buffer_desc.buffer_type = Buffer_ShaderResource_static;
-	buffer_desc.buffer_res_desc.Alignment = 0;
-	buffer_desc.buffer_res_desc.DepthOrArraySize = 1;
-	buffer_desc.buffer_res_desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	buffer_desc.buffer_res_desc.Flags = flag;
-	buffer_desc.buffer_res_desc.Height = 1;
-	buffer_desc.buffer_res_desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	buffer_desc.buffer_res_desc.MipLevels = 1;
-	buffer_desc.buffer_res_desc.SampleDesc.Count = 1;
-	buffer_desc.buffer_res_desc.SampleDesc.Quality = 0;
-	buffer_desc.buffer_res_desc.Width = SizeAligned(resource_size, 65536);
-	LResult check_error = BuildBufferResource(
-		name_resource_in,
-		buffer_desc,
-		id_need,
-		true
-	);
-	if (!check_error.m_IsOK)
-	{
-		return check_error;
-	}
-	//获取数据拷贝commondlist
-	PancyRenderCommandList* copy_render_list;
-	PancyThreadIdGPU copy_render_list_ID;
-	check_error = ThreadPoolGPUControl::GetInstance()->GetResourceLoadContex()->GetThreadPool(D3D12_COMMAND_LIST_TYPE_COPY)->GetEmptyRenderlist(NULL, &copy_render_list, copy_render_list_ID);
-	if (!check_error.m_IsOK)
-	{
-		return check_error;
-	}
-	//拷贝资源数据
-	ResourceBlockGpu* buffer_gpu_resource = GetBufferResourceData(id_need, check_error);
-	if (!check_error.m_IsOK)
-	{
-		return check_error;
-	}
-	check_error = PancyDynamicRingBuffer::GetInstance()->CopyDataToGpu(copy_render_list, data_pointer, resource_size, *buffer_gpu_resource);
-	if (!check_error.m_IsOK)
-	{
-		return check_error;
-	}
-	copy_render_list->UnlockPrepare();
-	//提交渲染命令
-	ThreadPoolGPUControl::GetInstance()->GetResourceLoadContex()->GetThreadPool(D3D12_COMMAND_LIST_TYPE_COPY)->SubmitRenderlist(1, &copy_render_list_ID);
-	//分配等待眼位
-	PancyFenceIdGPU WaitFence;
-	ThreadPoolGPUControl::GetInstance()->GetResourceLoadContex()->GetThreadPool(D3D12_COMMAND_LIST_TYPE_COPY)->SetGpuBrokenFence(WaitFence);
-	check_error = buffer_gpu_resource->SetResourceCopyBrokenFence(WaitFence);
-	if (!check_error.m_IsOK)
-	{
-		return check_error;
-	}
-	return g_Succeed;
-}
-LResult LunarEngine::LoadBufferResourceFromFile(
-	const std::string& name_resource_in,
-	VirtualResourcePointer& id_need
-)
-{
-	auto check_error = PancyGlobelResourceControl::GetInstance()->LoadResource<PancyBasicBuffer>(
-		name_resource_in,
-		id_need,
-		false
-		);
-	if (!check_error.m_IsOK)
-	{
-		return check_error;
-	}
-	return g_Succeed;
-}
-void LunarEngine::InitBufferJsonReflect()
+void luna::InitBufferJsonReflect()
 {
 	InitNewEnumValue(Buffer_ShaderResource_static);
 	InitNewEnumValue(Buffer_ShaderResource_dynamic);
@@ -433,6 +264,5 @@ void LunarEngine::InitBufferJsonReflect()
 	InitNewEnumValue(D3D12_RESOURCE_FLAG_ALLOW_SIMULTANEOUS_ACCESS);
 	InitNewEnumValue(D3D12_RESOURCE_FLAG_VIDEO_DECODE_REFERENCE_ONLY);
 
-	InitNewStructToReflection(PancyCommonBufferDesc);
+	InitNewStructToReflection(LunaCommonBufferDesc);
 }
-

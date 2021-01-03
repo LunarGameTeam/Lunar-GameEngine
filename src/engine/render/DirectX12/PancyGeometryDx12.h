@@ -5,7 +5,7 @@
 #include"PancyBufferDx12.h"
 #include"PancyThreadBasic.h"
 #define IndexType uint32_t
-namespace LunarEngine
+namespace luna
 {
 	//纯顶点格式(用于网格显示)
 	struct PointPositionSingle
@@ -86,7 +86,7 @@ namespace LunarEngine
 		bool if_buffer_created;
 	public:
 		GeometryBasic();
-		LunarEngine::LResult Create();
+		luna::LResult Create();
 		virtual ~GeometryBasic();
 		//检测数据是否正确创建
 		bool CheckIfCreateSucceed();
@@ -130,10 +130,10 @@ namespace LunarEngine
 			return geometry_adjindex_buffer;
 		};
 	protected:
-		virtual LunarEngine::LResult InitGeometryDesc(
+		virtual luna::LResult InitGeometryDesc(
 			bool& if_create_adj
 		) = 0;
-		virtual LunarEngine::LResult InitGeometry(
+		virtual luna::LResult InitGeometry(
 			uint32_t& all_vertex_need,
 			uint32_t& all_index_need,
 			uint32_t& all_index_adj_need,
@@ -168,16 +168,16 @@ namespace LunarEngine
 			bool if_adj_in = false,
 			bool if_save_cpu_data_in = false
 		);
-		LunarEngine::LResult GetModelData(
+		luna::LResult GetModelData(
 			std::vector<T>& vertex_data_in,
 			std::vector<IndexType>& index_data_in
 		);
 		~GeometryCommonModel();
 	private:
-		LunarEngine::LResult InitGeometryDesc(
+		luna::LResult InitGeometryDesc(
 			bool& if_create_adj
 		);
-		LunarEngine::LResult InitGeometry(
+		luna::LResult InitGeometry(
 			uint32_t& all_vertex_need,
 			uint32_t& all_index_need,
 			uint32_t& all_index_adj_need,
@@ -233,15 +233,15 @@ namespace LunarEngine
 		}
 	}
 	template<typename T>
-	LunarEngine::LResult GeometryCommonModel<T>::InitGeometryDesc(
+	luna::LResult GeometryCommonModel<T>::InitGeometryDesc(
 		bool& if_create_adj
 	)
 	{
 		if_create_adj = if_model_adj;
-		return LunarEngine::g_Succeed;
+		return luna::g_Succeed;
 	}
 	template<typename T>
-	LunarEngine::LResult GeometryCommonModel<T>::InitGeometry(
+	luna::LResult GeometryCommonModel<T>::InitGeometry(
 		uint32_t& all_vertex_need,
 		uint32_t& all_index_need,
 		uint32_t& all_index_adj_need,
@@ -253,7 +253,7 @@ namespace LunarEngine
 		D3D12_INDEX_BUFFER_VIEW& geometry_index_adj_buffer_view_in
 	)
 	{
-		LunarEngine::LResult check_error;
+		luna::LResult check_error;
 		all_vertex_need = all_model_vertex;
 		all_index_need = all_model_index;
 		LunarResourceSize vbuffer_realszie = static_cast<LunarResourceSize>(all_vertex_need) * sizeof(T);
@@ -265,13 +265,13 @@ namespace LunarEngine
 		else
 		{
 			ibuffer_real_size = 0;
-			LunarEngine::LResult error_message;
+			luna::LResult error_message;
 			LunarDebugLogError(E_FAIL, "unsurpported index buffer type: " + std::to_string(sizeof(IndexType)), error_message);
 
 			return error_message;
 		}
-		auto VertexBufferSize = LunarEngine::SizeAligned(vbuffer_realszie, 65536);
-		auto IndexBufferSize = LunarEngine::SizeAligned(ibuffer_real_size, 65536);
+		auto VertexBufferSize = luna::SizeAligned(vbuffer_realszie, 65536);
+		auto IndexBufferSize = luna::SizeAligned(ibuffer_real_size, 65536);
 		//创建顶点缓冲区
 		PancyCommonBufferDesc buffer_resource_desc;
 		buffer_resource_desc.buffer_type = Buffer_Vertex;
@@ -395,10 +395,10 @@ namespace LunarEngine
 		{
 			return check_error;
 		}
-		return LunarEngine::g_Succeed;
+		return luna::g_Succeed;
 	}
 	template<typename T>
-	LunarEngine::LResult GeometryCommonModel<T>::GetModelData(
+	luna::LResult GeometryCommonModel<T>::GetModelData(
 		std::vector<T>& vertex_data_in,
 		std::vector<IndexType>& index_data_in
 	)
@@ -407,7 +407,7 @@ namespace LunarEngine
 		index_data_in.clear();
 		if (!if_save_CPU_data)
 		{
-			LunarEngine::LResult error_message(E_FAIL, "the model doesn't save the data to cpu");
+			luna::LResult error_message(E_FAIL, "the model doesn't save the data to cpu");
 
 			return error_message;
 		}
@@ -419,7 +419,7 @@ namespace LunarEngine
 		{
 			index_data_in.push_back(index_data[i]);
 		}
-		return LunarEngine::g_Succeed;
+		return luna::g_Succeed;
 	}
 	class ModelResourceBasic
 	{

@@ -1,5 +1,5 @@
 #include"PancyAnimationBasic.h"
-using namespace LunarEngine;
+using namespace luna;
 PancySkinAnimationControl* PancySkinAnimationControl::this_instance = NULL;
 //骨骼动画缓冲区
 PancySkinAnimationBuffer::PancySkinAnimationBuffer(const LunarResourceSize& animation_buffer_size_in, const LunarResourceSize& bone_buffer_size_in)

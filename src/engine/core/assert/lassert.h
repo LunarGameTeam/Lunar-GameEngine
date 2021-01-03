@@ -7,6 +7,7 @@ class LBasicAsset : public LObject
 public:
 	LBasicAsset()
 	{
+		m_object_load_state = LLoadState::LOAD_STATE_EMPTY;
 	};
 	~LBasicAsset()
 	{
@@ -53,6 +54,10 @@ public:
 		}
 	};
 	virtual ~LTemplateAssert() {};
+	ObjectDescType GetDesc()
+	{
+		return m_assert_desc;
+	}
 private:
 	virtual luna::LResult InitResorceByDesc(const ObjectDescType& resource_desc) = 0;
 };
@@ -69,10 +74,18 @@ luna::LResult LTemplateAssert<ObjectDescType>::InitCommon()
 }
 
 template<typename ObjectType>
-static ObjectType* LCreateAssetByJson(const luna::LString& resource_name_in, const Json::Value& resource_desc)
+static ObjectType* LCreateAssetByJson(const luna::LString& resource_name_in, const Json::Value& resource_desc, bool if_have_name)
 {
 	luna::LResult check_error;
-	ObjectType* object_data = luna::GrabageColloector::GetInstance()->CreateObject<ObjectType>(resource_name_in, resource_desc);
+	ObjectType* object_data;
+	if (if_have_name)
+	{
+		object_data = LCreateObjectWithName<ObjectType>(resource_name_in, resource_name_in, resource_desc);
+	}
+	else
+	{
+		object_data = LCreateObject<ObjectType>(resource_name_in, resource_desc);
+	}
 	check_error = object_data->InitResource();
 	if (!check_error.m_IsOK)
 	{
@@ -81,7 +94,39 @@ static ObjectType* LCreateAssetByJson(const luna::LString& resource_name_in, con
 	return object_data;
 };
 template<typename ObjectType>
-static ObjectType* LCreateAssetByBinary(const luna::LString& resource_name_in, const void* resource_desc, const size_t& resource_size)
+static ObjectType* LCreateAssetByBinary(const luna::LString& resource_name_in, const void* resource_desc, const size_t& resource_size, bool if_have_name)
 {
-	return GrabageColloector::GetInstance()->CreateObject<ObjectType>(resource_name_in, resource_desc, resource_size);
+	return nullptr;
+	//return GrabageColloector::GetInstance()->CreateObject<ObjectType>(resource_name_in, resource_desc, resource_size);
 }
+template<typename ObjectType, typename ObjectDescType>
+static ObjectType* LCreateAssetByDesc(const luna::LString& resource_name_in, const ObjectDescType& resource_desc, bool if_have_name)
+{
+	luna::LResult check_error;
+	ObjectType* object_data;
+	if (if_have_name)
+	{
+		object_data = LCreateObjectWithName<ObjectType>(resource_name_in, resource_name_in, resource_desc);
+	}
+	else
+	{
+		object_data = LCreateObject<ObjectType>(resource_name_in, resource_desc);
+	}
+	check_error = object_data->InitResource();
+	if (!check_error.m_IsOK)
+	{
+		return nullptr;
+	}
+	return object_data;
+};
+
+#define LDefaultAssert(AssertClassName,AssertInitDesc)\
+AssertClassName(const luna::LString& resource_name_in, const AssertInitDesc& assert_desc) :LTemplateAssert<AssertInitDesc>(resource_name_in, assert_desc)\
+{\
+};\
+AssertClassName(const luna::LString& resource_name_in, const Json::Value& resource_desc) :LTemplateAssert<AssertInitDesc>(resource_name_in, resource_desc)\
+{\
+};\
+AssertClassName(const luna::LString& resource_name_in, const void* resource_desc, const size_t& resource_size) :LTemplateAssert<AssertInitDesc>(resource_name_in, resource_desc, resource_size)\
+{\
+};

@@ -196,5 +196,12 @@ LString::StringContainer WstringToString(const LString::WStringContainer &wstrin
 	int nResult = WideCharToMultiByte(CP_ACP, 0, (LPCWSTR)wstring_in.c_str(), nLen, (LPSTR)ascii_string.c_str(), nLen, NULL, NULL);
 	return ascii_string;
 }
+namespace LContainerPack
+{
+	size_t hash_value(const luna::LString& key)
+	{
+		return std::hash<std::string>()(key.c_str());
+	}
+}
 
 }

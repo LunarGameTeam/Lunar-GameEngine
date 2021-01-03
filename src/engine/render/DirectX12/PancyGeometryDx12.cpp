@@ -1,5 +1,5 @@
 #include"PancyGeometryDx12.h"
-using namespace LunarEngine;
+using namespace luna;
 GeometryBasic::GeometryBasic()
 {
 	all_vertex = 0;

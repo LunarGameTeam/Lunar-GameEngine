@@ -8,11 +8,13 @@ const LLoadState& LBasicAsset::GetLoadState()
 luna::LResult LBasicAsset::InitResource()
 {
 	luna::LResult check_error;
-	m_object_load_state = LLoadState::LOAD_STATE_EMPTY;
-	check_error = InitCommon();
-	if (!check_error.m_IsOK)
+	if (m_object_load_state == LLoadState::LOAD_STATE_EMPTY)
 	{
-		return check_error;
+		check_error = InitCommon();
+		if (!check_error.m_IsOK)
+		{
+			return check_error;
+		}
 	}
 	return luna::g_Succeed;
 }

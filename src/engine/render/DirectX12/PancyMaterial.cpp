@@ -2,7 +2,7 @@
 
 #include "core/misc/path.h"
 
-using namespace LunarEngine;
+using namespace luna;
 PancyMaterialBasic::PancyMaterialBasic(const bool& if_could_reload_in) :PancyCommonVirtualResource<PancyCommonMaterialDesc>(if_could_reload_in)
 {
 }
@@ -321,7 +321,7 @@ bool PancyMaterialBasic::CheckIfResourceLoadFinish()
 	}
 	return true;
 }
-LResult LunarEngine::LoadMaterialFromFile(
+LResult luna::LoadMaterialFromFile(
 	const std::string& name_resource_in,
 	VirtualResourcePointer& id_need
 )
@@ -337,7 +337,7 @@ LResult LunarEngine::LoadMaterialFromFile(
 	}
 	return g_Succeed;
 }
-void LunarEngine::InitMaterialJsonReflect()
+void luna::InitMaterialJsonReflect()
 {
 	InitNewEnumValue(MaterialShaderResourceBufferBind);
 	InitNewEnumValue(MaterialShaderResourceTextureBind);

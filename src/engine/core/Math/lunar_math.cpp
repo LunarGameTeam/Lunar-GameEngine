@@ -44,14 +44,14 @@ luna::LunarMatrix4x4 luna::LunarMatrix4x4::operator*(const luna::LunarMatrix4x4&
 	DirectX::XMStoreFloat4x4(&new_mat.matrix_value, now_mat_left * now_mat_right);
 	return new_mat;
 }
-luna::LunarMatrix4x4 luna::LunarMatrix4x4::TransposeMatrix()
+luna::LunarMatrix4x4 luna::LunarMatrix4x4::TransposeMatrix()const
 {
 	luna::LunarMatrix4x4 new_mat;
 	DirectX::XMMATRIX now_mat_value = DirectX::XMLoadFloat4x4(&matrix_value);
 	DirectX::XMStoreFloat4x4(&new_mat.matrix_value, DirectX::XMMatrixTranspose(now_mat_value));
 	return new_mat;
 }
-luna::LunarMatrix4x4 luna::LunarMatrix4x4::InverseMatrix()
+luna::LunarMatrix4x4 luna::LunarMatrix4x4::InverseMatrix()const
 {
 	luna::LunarMatrix4x4 new_mat;
 	DirectX::XMMATRIX now_mat_value = DirectX::XMLoadFloat4x4(&matrix_value);
@@ -268,4 +268,46 @@ luna::LunarVector4 luna::LunarVector4::NormalizeVec4()
 	DirectX::XMVECTOR now_ans_data = DirectX::XMVector4Normalize(now_vec_data);
 	DirectX::XMStoreFloat4(&normalized_vec.vector_value, now_ans_data);
 	return normalized_vec;
+}
+//四维int向量
+luna::LunarUint4::LunarUint4()
+{
+	vector_value.x = 0;
+	vector_value.y = 0;
+	vector_value.z = 0;
+	vector_value.w = 0;
+}
+luna::LunarUint4::LunarUint4(const uint32_t& x, const uint32_t& y, const uint32_t& z, const uint32_t& w)
+{
+	vector_value.x = x;
+	vector_value.y = y;
+	vector_value.z = z;
+	vector_value.w = w;
+}
+luna::LunarUint4 luna::LunarUint4::operator+(const luna::LunarUint4& vector_right)
+{
+	luna::LunarUint4 new_vector;
+	new_vector.vector_value.x = vector_value.x + vector_right.vector_value.x;
+	new_vector.vector_value.y = vector_value.y + vector_right.vector_value.y;
+	new_vector.vector_value.z = vector_value.z + vector_right.vector_value.z;
+	new_vector.vector_value.w = vector_value.w + vector_right.vector_value.w;
+	return new_vector;
+}
+luna::LunarUint4 luna::LunarUint4::operator-(const luna::LunarUint4& vector_right)
+{
+	luna::LunarUint4 new_vector;
+	new_vector.vector_value.x = vector_value.x - vector_right.vector_value.x;
+	new_vector.vector_value.y = vector_value.y - vector_right.vector_value.y;
+	new_vector.vector_value.z = vector_value.z - vector_right.vector_value.z;
+	new_vector.vector_value.w = vector_value.w - vector_right.vector_value.w;
+	return new_vector;
+}
+luna::LunarUint4 luna::LunarUint4::operator*(const luna::LunarUint4& vector_right)
+{
+	luna::LunarUint4 new_vector;
+	new_vector.vector_value.x = vector_value.x * vector_right.vector_value.x;
+	new_vector.vector_value.y = vector_value.y * vector_right.vector_value.y;
+	new_vector.vector_value.z = vector_value.z * vector_right.vector_value.z;
+	new_vector.vector_value.w = vector_value.w * vector_right.vector_value.w;
+	return new_vector;
 }

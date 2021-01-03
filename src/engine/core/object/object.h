@@ -24,6 +24,7 @@ protected:
 
 	};
 };
+static LSharedObject* lroot_object;
 enum class LLoadState
 {
 	LOAD_STATE_EMPTY = 0,

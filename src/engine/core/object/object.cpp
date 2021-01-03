@@ -17,5 +17,4 @@ LObject::LObject() :
 LObject::~LObject()
 {
 }
-
 //REGISTER_CLASS_IMP(LObject)

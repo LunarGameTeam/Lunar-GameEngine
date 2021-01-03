@@ -30,8 +30,8 @@ namespace luna
 			return matrix_value;
 		}
 		LunarMatrix4x4 operator*(const LunarMatrix4x4& matrix_right);
-		LunarMatrix4x4 TransposeMatrix();
-		LunarMatrix4x4 InverseMatrix();
+		LunarMatrix4x4 TransposeMatrix() const;
+		LunarMatrix4x4 InverseMatrix() const;
 	};
 
 	class LunarVector2
@@ -94,6 +94,30 @@ namespace luna
 		inline LunarVector3 GetVector3() const
 		{
 			return LunarVector3(vector_value.x, vector_value.y, vector_value.z);
+		}
+		const DirectX::XMFLOAT4& GetVectorValue() const
+		{
+			return vector_value;
+		}
+	};
+
+	class LunarUint4
+	{
+		DirectX::XMUINT4 vector_value;
+	public:
+		LunarUint4();
+		LunarUint4(const uint32_t& x, const uint32_t& y, const uint32_t& z, const uint32_t& w);
+		LunarUint4 operator+(const LunarUint4& vector_right);
+		LunarUint4 operator-(const LunarUint4& vector_right);
+		LunarUint4 operator*(const LunarUint4& vector_right);
+		/*uint32_t DotValue4(const LunarVector4& vector_right);
+		inline LunarVector3 GetVector3() const
+		{
+			return LunarVector3(vector_value.x, vector_value.y, vector_value.z);
+		}*/
+		const DirectX::XMUINT4& GetVectorValue() const
+		{
+			return vector_value;
 		}
 	};
 

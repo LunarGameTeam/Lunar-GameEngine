@@ -18,7 +18,7 @@ class PancyRenderCommandList
 	D3D12_COMMAND_LIST_TYPE command_list_type;            //commandlist类型
 public:
 	PancyRenderCommandList(PancyThreadIdGPU command_list_ID_in);
-	LunarEngine::LResult Create
+	luna::LResult Create
 	(
 		ID3D12CommandAllocator* allocator_use_in,
 		ID3D12PipelineState* pso_use_in,
@@ -91,33 +91,33 @@ class CommandListEngine
 public:
 	CommandListEngine(const D3D12_COMMAND_LIST_TYPE& type_need);
 	~CommandListEngine();
-	LunarEngine::LResult Create();
+	luna::LResult Create();
 	//获取一个空闲的commandlist
-	LunarEngine::LResult GetEmptyRenderlist
+	luna::LResult GetEmptyRenderlist
 	(
 		ID3D12PipelineState* pso_use_in,
 		PancyRenderCommandList** command_list_data,
 		PancyThreadIdGPU& command_list_ID
 	);
 	//设置一个GPU断点
-	LunarEngine::LResult SetGpuBrokenFence(PancyFenceIdGPU& broken_point_id);
+	luna::LResult SetGpuBrokenFence(PancyFenceIdGPU& broken_point_id);
 	//查询一个GPU断点
 	bool CheckGpuBrokenFence(const PancyFenceIdGPU& broken_point_id);
 	//等待一个GPU断点
-	LunarEngine::LResult WaitGpuBrokenFence(const PancyFenceIdGPU& broken_point_id);
+	luna::LResult WaitGpuBrokenFence(const PancyFenceIdGPU& broken_point_id);
 	//获取下一个将要进行的GPU断点
 	inline PancyFenceIdGPU GetNextBrokenFence()
 	{
 		return fence_value_self_add;
 	}
 	//提交一个准备完毕的commandlist
-	LunarEngine::LResult SubmitRenderlist
+	luna::LResult SubmitRenderlist
 	(
 		const uint32_t command_list_num,
 		const PancyThreadIdGPU* command_list_ID
 	);
 	//释放commandalloctor的内存
-	LunarEngine::LResult FreeAlloctor();
+	luna::LResult FreeAlloctor();
 private:
 	//更新当前正在被分配的commandlist，检测其是否已经分配完毕
 	void UpdateLastRenderList();
@@ -148,7 +148,7 @@ public:
 	CommandListEngine* GetThreadPool(D3D12_COMMAND_LIST_TYPE engine_type);
 	//获取上一帧的线程池
 	CommandListEngine* GetLastThreadPool(D3D12_COMMAND_LIST_TYPE engine_type);
-	LunarEngine::LResult Create();
+	luna::LResult Create();
 private:
 	template<class T>
 	void ReleaseList(T& list_in)
@@ -159,7 +159,7 @@ private:
 		}
 		list_in.clear();
 	}
-	LunarEngine::LResult BuildNewEngine(D3D12_COMMAND_LIST_TYPE engine_type);
+	luna::LResult BuildNewEngine(D3D12_COMMAND_LIST_TYPE engine_type);
 };
 
 class ThreadPoolGPUControl
@@ -171,19 +171,19 @@ class ThreadPoolGPUControl
 	std::unordered_map<uint32_t, ThreadPoolGPU*> GPU_thread_pool_working;
 private:
 	ThreadPoolGPUControl();
-	LunarEngine::LResult Create();
+	luna::LResult Create();
 public:
 	static ThreadPoolGPUControl* threadpool_control_instance;
-	static LunarEngine::LResult SingleCreate()
+	static luna::LResult SingleCreate()
 	{
 		if (threadpool_control_instance != NULL)
 		{
-			return LunarEngine::g_Succeed;
+			return luna::g_Succeed;
 		}
 		else
 		{
 			threadpool_control_instance = new ThreadPoolGPUControl();
-			LunarEngine::LResult check_failed = threadpool_control_instance->Create();
+			luna::LResult check_failed = threadpool_control_instance->Create();
 			return check_failed;
 		}
 	}
