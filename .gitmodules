@@ -16,3 +16,9 @@
 [submodule "sdk/rttr"]
 	path = sdk/rttr
 	url = https://github.com/rttrorg/rttr.git
+[submodule "sdk/lua"]
+	path = sdk/lua
+	url = https://github.com/lua/lua.git
+[submodule "sdk/sol2"]
+	path = sdk/sol2
+	url = https://github.com/ThePhD/sol2.git
