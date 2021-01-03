@@ -1,57 +1,70 @@
 #include "platform_file.h"
 #include "core/object/object.h"
 #include <boost/filesystem.hpp>
-
-using namespace luna;
-
-int64_t IFile::Size()
-{
-	return 0;
-}
-
-LSharedPtr<luna::LFile> WindowsFileManager::Open(const LPath& path, int mode)
+#include <sstream>
+namespace luna
 {
 
-	auto file = boost::make_shared<LFile>();
-	file->m_File.open(path.AsString(),mode);
+LSharedPtr<LFile> WindowsFileManager::Open(const LPath &path, OpenMode mode)
+{
+
+	LSharedPtr<LFile> file = boost::make_shared<LFile>();
+	file->m_File.open(path.AsStringAbs(),(int)mode);
 	if (file->m_File.fail())
 	{
 		LogError(E_Core, g_Failed, "open file failed");
+		return NULL;
 	}
-	return NULL;
+	return file;
 }
 
-bool WindowsFileManager::IsExists(const LPath& path)
-{	
+bool WindowsFileManager::ReadStringFromFile(const LPath &path, LString& res)
+{
+	LSharedPtr<LFile> file = boost::make_shared<LFile>();
+	file->m_File.open(path.AsStringAbs(), (int)OpenMode::In);
+
+	if (file->m_File.fail())
+	{
+		LogError(E_Core, g_Failed, "open file failed");
+		return false;
+	}
+	std::stringstream stream;
+	stream << file->m_File.rdbuf();
+	res.Assign(stream.str());
+	return true;
+}
+
+bool WindowsFileManager::IsExists(const LPath &path)
+{
 	return boost::filesystem::exists(*path.AsString());
 }
 
-bool WindowsFileManager::IsDirctory(const LPath& path)
+bool WindowsFileManager::IsDirctory(const LPath &path)
 {
 	return boost::filesystem::is_directory(*path.AsString());
 }
 
-bool WindowsFileManager::IsFile(const LPath& path)
+bool WindowsFileManager::IsFile(const LPath &path)
 {
 	return boost::filesystem::is_regular_file(*path.AsString());
 }
 
-bool WindowsFileManager::DeleteFile(const LPath& path)
+bool WindowsFileManager::DeleteFile(const LPath &path)
 {
 	return boost::filesystem::remove(*path.AsString());
 }
 
-bool WindowsFileManager::CreateDirectory(const LPath& path)
+bool WindowsFileManager::CreateDirectory(const LPath &path)
 {
 	return boost::filesystem::create_directory(*path.AsString());
 }
 
-bool WindowsFileManager::CreateFile(const LPath& path)
+bool WindowsFileManager::CreateFile(const LPath &path)
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
-const luna::LString& WindowsFileManager::EngineDir()
+const LString &WindowsFileManager::EngineDir()
 {
 	return m_EngineDir;
 }
@@ -60,16 +73,15 @@ bool WindowsFileManager::InitFileManager()
 {
 	TCHAR tempPath[1000];
 	GetModuleFileName(NULL, tempPath, MAX_PATH);
-	
 	m_ApplicationPath = LString(tempPath);
-	m_ApplicationPath.ReplaceAll("\\", "/");
-	
-	size_t pos = m_ApplicationPath.FindLast("/");
-	if (pos != LString::npos)
-	{
-		m_ApplicationPath.EraseAt(pos);
-		m_EngineDir = m_ApplicationPath.Substr(0, pos);		
-	}
+	GetCurrentDirectory(MAX_PATH, tempPath); //获取程序的当前目录
+	m_EngineDir = LString(tempPath);
 
+	m_EngineDir.ReplaceAll("\\", "/");
+	m_ApplicationPath.ReplaceAll("\\", "/");
+
+	size_t pos = m_ApplicationPath.FindLast("/");
 	return true;
+}
+
 }

@@ -1,4 +1,4 @@
-﻿/*!
+/*!
  * \file render_subsystem.h
  * \date 2020/08/09 10:39
  *
@@ -15,6 +15,7 @@
 
 #include "core/core_module.h"
 #include "DirectX12/PancySceneDesign.h"
+
 class RenderSubusystem : public SubSystem
 {
 	SceneRoot* new_scene;

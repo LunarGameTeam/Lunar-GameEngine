@@ -10,8 +10,7 @@ set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS})
 
 auto_source_group(${ALL_FILES})
 
-add_executable(core_test ${ALL_FILES})
+add_library(lua_bind STATIC ${ALL_FILES})
 
-add_dependencies(core_test core window lua_bind)
-target_link_libraries(core_test core window lua_bind)
+target_link_libraries(lua_bind lua)
 

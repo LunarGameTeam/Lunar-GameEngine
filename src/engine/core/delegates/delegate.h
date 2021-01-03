@@ -72,12 +72,12 @@ template<typename Class, typename RetVal, typename... Param>
 class MultiDynamicDelegate : public DelegateBase<Class, RetVal, Param...>
 {
 public:
-	LWeakPtr<SignatureType> Bind(MemberFunc memberfunc, Class *cls)
+	LSharedPtr<SignatureType> Bind(MemberFunc memberfunc, Class *cls)
 	{
 		LSharedPtr<SignatureType> signature_ptr = boost::make_shared<SignatureType>();
 		signature_ptr->Bind(cls, memberfunc);
 		m_signatures.emplace_back(signature_ptr);
-		return LWeakPtr<SignatureType>(signature_ptr);
+		return LSharedPtr<SignatureType>(signature_ptr);
 	}
 	void Remove(SignatureType func)
 	{

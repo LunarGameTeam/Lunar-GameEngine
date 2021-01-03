@@ -8,45 +8,39 @@
 namespace luna
 {
 	
-	class IFile
+	class LFile
 	{
 	public:
 		bool Ready()
 		{
 			return m_ready;
 		}
-		virtual void Read(uint8_t* Destination, int64_t BytesToRead) = 0;
-		virtual void Write(const uint8_t* Source, int64_t BytesToWrite) = 0;
-		virtual void Flush(const bool bFullFlush = false) = 0;
-		virtual int64_t Size();
+		int64_t Tell() const
+		{
+			return m_pos;
+		}
+		void Seek(int64_t pos)
+		{
+			m_pos = pos;
+		}
+		virtual void Read(byte * Destination, int64_t BytesToRead);
+		virtual void Write(const byte * Source, int64_t BytesToWrite) ;
+		virtual void Flush(const bool bFullFlush = false);
+		virtual int64_t Size() = 0;
+
+
+		virtual void ReadToVector(LVector<byte> &dest);
+		virtual void WriteFromVector(LVector<byte> &dest);		
 
 	private:
+		int m_mode;
+		int64_t m_pos;
+		std::fstream m_file;
 		bool m_ready = false;
 
 
 	};
 
-	class LFile : public IFile
-	{
-
-	public:
-		int64_t Tell() const
-		{
-			return m_Pos;
-		}
-		void Seek(int64_t pos)
-		{
-			m_Pos = pos;
-		}
-		void Read(byte * Destination, int64_t BytesToRead) override;
-		void Write(const byte* Source, int64_t BytesToWrite) override;
-		void Flush(const bool bFullFlush = false) override;
-		int m_Mode;
-		int64_t m_Pos;
-		std::fstream m_File;
-	protected:
-		
-	};
 
 
 }
