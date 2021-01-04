@@ -22,12 +22,12 @@ set(CMAKE_BINARY_DIR  ${dir})
 
 include_directories(
 	src/engine
+	src/engine/lua
 	${SDK_PATH}glm
 	${SDK_PATH}googletest/googletest/include
 	${SDK_PATH}jsoncpp/include
 	${SDK_PATH}boost
 	${SDK_PATH}DirectXTex
-	${SDK_PATH}lua
 	${SDK_PATH}sol2/include
 	${SDK_PATH}DirectXTK12
 	${SDK_PATH}DirectXTK12/Src
@@ -70,15 +70,18 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251")
 
 add_subdirectory(src/engine)
 add_subdirectory(src/engine/core)
-add_subdirectory(src/engine/core_test)
 add_subdirectory(src/engine/render)
 add_subdirectory(src/engine/window)
 add_subdirectory(src/engine/world)
 add_subdirectory(src/engine/lua_bind)
-add_subdirectory(src/engine/lua_bind_test)
-
+add_subdirectory(src/engine/lua)
 
 add_subdirectory(src/application)
+
+add_subdirectory(src/test/core_test)
+add_subdirectory(src/test/lua_bind_test)
+
+
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
 SET_PROPERTY(TARGET engine PROPERTY FOLDER "Runtime")
@@ -90,14 +93,10 @@ SET_PROPERTY(TARGET window PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET world PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET lua_bind PROPERTY FOLDER "Runtime")
 
-SET_PROPERTY(TARGET core_test PROPERTY FOLDER "Test")
-SET_PROPERTY(TARGET lua_bind_test PROPERTY FOLDER "Test")
-
 add_subdirectory(sdk/googletest)
 add_subdirectory(sdk/DirectXTex)
 add_subdirectory(sdk/DirectXTK12)
 add_subdirectory(sdk/jsoncpp)
-add_subdirectory(sdk/lua)
 add_subdirectory(sdk/sol2)
 
 SET_PROPERTY(TARGET lua PROPERTY FOLDER "SDK")
@@ -113,6 +112,10 @@ SET_PROPERTY(TARGET texassemble PROPERTY FOLDER "SDK")
 SET_PROPERTY(TARGET texconv PROPERTY FOLDER "SDK")
 SET_PROPERTY(TARGET texdiag PROPERTY FOLDER "SDK")
 
+
+SET_PROPERTY(TARGET core_test PROPERTY FOLDER "Test")
+SET_PROPERTY(TARGET gtest PROPERTY FOLDER "Test")
+SET_PROPERTY(TARGET lua_bind_test PROPERTY FOLDER "Test")
 
 set_property(TARGET application PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${SOLUTION_CMAKE_SOURCE_PATH}")
 set_property(TARGET lua_bind_test PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${SOLUTION_CMAKE_SOURCE_PATH}")

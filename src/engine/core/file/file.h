@@ -26,7 +26,7 @@ namespace luna
 		virtual void Read(byte * Destination, int64_t BytesToRead);
 		virtual void Write(const byte * Source, int64_t BytesToWrite) ;
 		virtual void Flush(const bool bFullFlush = false);
-		virtual int64_t Size() = 0;
+		virtual int64_t Size();
 
 
 		virtual void ReadToVector(LVector<byte> &dest);
@@ -37,6 +37,8 @@ namespace luna
 		int64_t m_pos;
 		std::fstream m_file;
 		bool m_ready = false;
+
+		friend class WindowsFileManager;
 
 
 	};

@@ -9,8 +9,8 @@ LSharedPtr<LFile> WindowsFileManager::Open(const LPath &path, OpenMode mode)
 {
 
 	LSharedPtr<LFile> file = boost::make_shared<LFile>();
-	file->m_File.open(path.AsStringAbs(),(int)mode);
-	if (file->m_File.fail())
+	file->m_file.open(path.AsStringAbs(),(int)mode);
+	if (file->m_file.fail())
 	{
 		LogError(E_Core, g_Failed, "open file failed");
 		return NULL;
@@ -21,15 +21,15 @@ LSharedPtr<LFile> WindowsFileManager::Open(const LPath &path, OpenMode mode)
 bool WindowsFileManager::ReadStringFromFile(const LPath &path, LString& res)
 {
 	LSharedPtr<LFile> file = boost::make_shared<LFile>();
-	file->m_File.open(path.AsStringAbs(), (int)OpenMode::In);
+	file->m_file.open(path.AsStringAbs(), (int)OpenMode::In);
 
-	if (file->m_File.fail())
+	if (file->m_file.fail())
 	{
 		LogError(E_Core, g_Failed, "open file failed");
 		return false;
 	}
 	std::stringstream stream;
-	stream << file->m_File.rdbuf();
+	stream << file->m_file.rdbuf();
 	res.Assign(stream.str());
 	return true;
 }
