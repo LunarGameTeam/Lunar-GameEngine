@@ -47,7 +47,7 @@ namespace luna
 		reflect_data.static_sampler_data,
 		reflect_data.root_signature_flags
 	);
-	class LDx12GraphicResourceRootSignature :public LTemplateAssert<RootSignatureDesc>
+	class LDx12GraphicResourceRootSignature :public LTemplateAsset<RootSignatureDesc>
 	{
 		Microsoft::WRL::ComPtr<ID3D12RootSignature> m_root_signature_data;
 	public:

@@ -13,7 +13,7 @@ namespace luna
 		reflect_data.shader_path,
 		reflect_data.shader_entry_point_name
 	);
-	class LDx12GraphicResourceShaderBlob :public LTemplateAssert<LunarShaderMessage>
+	class LDx12GraphicResourceShaderBlob :public LTemplateAsset<LunarShaderMessage>
 	{
 		Microsoft::WRL::ComPtr<ID3DBlob> shader_memory_pointer;
 		Microsoft::WRL::ComPtr<ID3D12ShaderReflection> shader_reflection;

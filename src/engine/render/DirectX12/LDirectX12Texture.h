@@ -80,7 +80,7 @@ namespace luna
 		reflect_data.if_force_srgb,
 		reflect_data.max_size
 	);
-	class LDx12GraphicResourceTexture :public LTemplateAssert<LunarCommonTextureDesc>
+	class LDx12GraphicResourceTexture :public LTemplateAsset<LunarCommonTextureDesc>
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC  srv_desc_from_file = {};  //默认纹理访问格式
 		bool if_cube_map;                                         //是否是cubemap(仅dds有效)
@@ -106,7 +106,7 @@ namespace luna
 		luna::LResult LoadResoureDataByOtherFile(const std::string& file_name);
 	private:
 		void CheckIfLoadingStateChanged(LLoadState& m_object_load_state) override;
-		virtual luna::LResult InitResorceByDesc(const LunarCommonTextureDesc& resource_desc) override;
+		luna::LResult InitResorceByDesc(const LunarCommonTextureDesc& resource_desc) override;
 	private:
 		luna::LResult LoadPictureFromFile(ID3D12Device* device_data,LunarCommonTextureDesc& texture_desc);
 		luna::LResult BuildEmptyPicture(ID3D12Device* device_data, const LunarCommonTextureDesc& texture_desc);

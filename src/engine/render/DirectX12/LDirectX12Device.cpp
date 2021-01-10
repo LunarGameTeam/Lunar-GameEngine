@@ -6,6 +6,9 @@
 #include "LDirectX12Fence.h"
 #include "LDirectX12CommondList.h"
 #include "LDirectX12SwapChain.h"
+#include "LDirectX12ResourceHeap.h"
+#include "LDirectX12DescriptorHeap.h"
+#include "LDirectX12DescriptorObject.h"
 #include "core/core_module.h"
 #pragma comment ( lib, "D3D12.lib")
 #pragma comment ( lib, "DXGI.lib")
@@ -98,6 +101,7 @@ void luna::ILunarDirectXGraphicDeviceCore::GetHardwareAdapter(IDXGIFactory2* pFa
 	}
 	*ppAdapter = adapter.Detach();
 }
+//创建shader资源
 LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateShaderFromFile(
 	const LString& file_name,
 	const Json::Value& root_value,
@@ -106,13 +110,13 @@ LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateShaderFromFile(
 {
 	return LCreateAssetByJson<LDx12GraphicResourceShaderBlob>(file_name, root_value, if_check_repeat);
 };
-LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateShaderFromMemory(const void* Pipeline_desc_message, const bool if_check_repeat)
+LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateShaderFromMemory(const void* shader_desc_message, const bool if_check_repeat)
 {
 	LResult error_message;
 	LunarDebugLogError(0, "unsupport memory serialize ", error_message);
 	return nullptr;
 }
-
+//创建RootSignature资源
 LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateRootSignatureFromFile(
 	const LString& file_name,
 	const Json::Value& root_value,
@@ -121,12 +125,13 @@ LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateRootSignatureFromFile(
 {
 	return LCreateAssetByJson<LDx12GraphicResourceRootSignature>(file_name, root_value, if_check_repeat);
 };
-LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateRootSignatureFromMemory(const void* Pipeline_desc_message, const bool if_check_repeat)
+LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateRootSignatureFromMemory(const void* rootsignature_desc_message, const bool if_check_repeat)
 {
 	LResult error_message;
 	LunarDebugLogError(0, "unsupport memory serialize ", error_message);
 	return nullptr;
 };
+//创建Pipeline资源
 LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreatePipelineFromFile(
 	const LString& file_name,
 	const Json::Value& root_value,
@@ -135,13 +140,13 @@ LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreatePipelineFromFile(
 {
 	return LCreateAssetByJson<LDx12GraphicResourceShaderBlob>(file_name, root_value, if_check_repeat);
 };
-LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreatePipelineFromMemory(const void* Pipeline_desc_message, const bool if_check_repeat)
+LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreatePipelineFromMemory(const void* pipeline_desc_message, const bool if_check_repeat)
 {
 	LResult error_message;
 	LunarDebugLogError(0, "unsupport memory serialize ", error_message);
 	return nullptr;
 };
-
+//创建Buffer资源
 LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateBufferResourceFromFile(
 	const LString& file_name,
 	const Json::Value& root_value,
@@ -150,7 +155,52 @@ LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateBufferResourceFromFile(
 {
 	return LCreateAssetByJson<LDx12GraphicResourceBuffer>(file_name, root_value, if_check_repeat);
 };
-LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateBufferResourceFromMemory(const void* Pipeline_desc_message, const bool if_check_repeat)
+LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateBufferResourceFromMemory(const void* buffer_desc_message, const bool if_check_repeat)
+{
+	LResult error_message;
+	LunarDebugLogError(0, "unsupport memory serialize ", error_message);
+	return nullptr;
+};
+//创建Texture资源
+LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateTextureResourceFromFile(
+	const LString& file_name,
+	const Json::Value& root_value,
+	const bool if_check_repeat
+)
+{
+	return LCreateAssetByJson<LDx12GraphicResourceTexture>(file_name, root_value, if_check_repeat);
+};
+LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateTextureResourceFromMemory(const void* texture_desc_message, const bool if_check_repeat)
+{
+	LResult error_message;
+	LunarDebugLogError(0, "unsupport memory serialize ", error_message);
+	return nullptr;
+};
+//创建ResourceHeap资源
+LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateResourceHeapFromFile(
+	const LString& file_name,
+	const Json::Value& root_value,
+	const bool if_check_repeat
+)
+{
+	return LCreateAssetByJson<LDx12GraphicResourceHeap>(file_name, root_value, if_check_repeat);
+};
+LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateResourceHeapFromMemory(const void* resource_heap_desc_message, const bool if_check_repeat)
+{
+	LResult error_message;
+	LunarDebugLogError(0, "unsupport memory serialize ", error_message);
+	return nullptr;
+};
+//创建DescriptorHeap资源
+LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateDescriptorHeapFromFile(
+	const LString& file_name,
+	const Json::Value& root_value,
+	const bool if_check_repeat
+)
+{
+	return LCreateAssetByJson<LDx12GraphicDescriptorHeap>(file_name, root_value, if_check_repeat);
+};
+LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateDescriptorHeapFromMemory(const void* descriptor_heap_desc_message, const bool if_check_repeat)
 {
 	LResult error_message;
 	LunarDebugLogError(0, "unsupport memory serialize ", error_message);
@@ -174,21 +224,6 @@ LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateUniforBuffer(const size
 	required_uinform_buffer_desc.buffer_res_desc.Width = uniform_buffer_size;
 	return LCreateAssetByDesc<LDx12GraphicResourceBuffer>("UniformBuffer", required_uinform_buffer_desc, false);
 }
-
-LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateTextureResourceFromFile(
-	const LString& file_name,
-	const Json::Value& root_value,
-	const bool if_check_repeat
-)
-{
-	return LCreateAssetByJson<LDx12GraphicResourceTexture>(file_name, root_value, if_check_repeat);
-};
-LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateTextureResourceFromMemory(const void* Pipeline_desc_message, const bool if_check_repeat)
-{
-	LResult error_message;
-	LunarDebugLogError(0, "unsupport memory serialize ", error_message);
-	return nullptr;
-};
 
 ILunarGraphicRenderCommondList* luna::ILunarDirectXGraphicDeviceCore::CreateCommondList(
 	LSharedObject* allocator,
@@ -225,6 +260,17 @@ ILunarGraphicRenderFence* luna::ILunarDirectXGraphicDeviceCore::CreateFence()
 	}
 	return new_object;
 };
+
+ILunarGraphicRenderDescriptor* luna::ILunarDirectXGraphicDeviceCore::CreateDescriptor(const LunarGraphicDescriptorType& descriptor_type, const size_t& m_descriptor_offset, const size_t& descriptor_size, LObject* descriptor_heap)
+{
+	LDx12DescriptorObject* new_object = LCreateObject<LDx12DescriptorObject>(descriptor_type, m_descriptor_offset, descriptor_size);
+	LResult check_error = new_object->Create(descriptor_heap);
+	if (!check_error.m_IsOK)
+	{
+		return nullptr;
+	}
+	return new_object;
+}
 
 
 luna::LResult ILunarGraphicDeviceCore::SingleCreate()

@@ -16,9 +16,8 @@ namespace luna
 
 		AddNewGraphicDeviceFuncOverride(BufferResource);
 		AddNewGraphicDeviceFuncOverride(TextureResource);
-		AddNewGraphicDeviceFuncOverride(ResourceHeap);
 
-		AddNewGraphicDeviceFuncOverride(Descriptor);
+		AddNewGraphicDeviceFuncOverride(ResourceHeap);
 		AddNewGraphicDeviceFuncOverride(DescriptorHeap);
 		void* GetVirtualDevice() override
 		{
@@ -36,6 +35,7 @@ namespace luna
 		) override;
 		ILunarGraphicRenderCommondAllocator* CreateCommondAllocator(const LunarGraphicPipeLineType& pipeline_type) override;
 		ILunarGraphicRenderFence* CreateFence()override;
+		ILunarGraphicRenderDescriptor* CreateDescriptor(const LunarGraphicDescriptorType& descriptor_type, const size_t& m_descriptor_offset, const size_t& descriptor_size, LObject* descriptor_heap) override;
 	private:
 		LResult InitDeviceData() override;
 		void GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter);

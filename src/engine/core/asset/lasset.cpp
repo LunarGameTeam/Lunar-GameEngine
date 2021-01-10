@@ -1,4 +1,4 @@
-#include "core/assert/lassert.h"
+#include "core/asset/lasset.h"
 const LLoadState& LBasicAsset::GetLoadState()
 {
 	CheckIfLoadingStateChanged(m_object_load_state);

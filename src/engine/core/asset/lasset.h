@@ -22,17 +22,17 @@ private:
 	LLoadState m_object_load_state;
 };
 template<typename ObjectDescType>
-class LTemplateAssert : public LBasicAsset
+class LTemplateAsset : public LBasicAsset
 {
 	ObjectDescType m_assert_desc;
 public:
 	luna::LResult InitCommon() override;
-	LTemplateAssert(const luna::LString& resource_name_in, const ObjectDescType& assert_desc)
+	LTemplateAsset(const luna::LString& resource_name_in, const ObjectDescType& assert_desc)
 	{
 		m_Name = resource_name_in;
 		m_assert_desc = assert_desc;
 	};
-	LTemplateAssert(const luna::LString & resource_name_in, const Json::Value& resource_desc)
+	LTemplateAsset(const luna::LString & resource_name_in, const Json::Value& resource_desc)
 	{
 		luna::LResult check_error;
 		m_Name = resource_name_in;
@@ -42,7 +42,7 @@ public:
 			return;
 		}
 	};
-	LTemplateAssert(const luna::LString& resource_name_in, const void* resource_desc, const size_t& resource_size)
+	LTemplateAsset(const luna::LString& resource_name_in, const void* resource_desc, const size_t& resource_size)
 	{
 		luna::LResult check_error;
 		m_Name = resource_name_in;
@@ -53,7 +53,7 @@ public:
 			return;
 		}
 	};
-	virtual ~LTemplateAssert() {};
+	virtual ~LTemplateAsset() {};
 	ObjectDescType GetDesc()
 	{
 		return m_assert_desc;
@@ -62,7 +62,7 @@ private:
 	virtual luna::LResult InitResorceByDesc(const ObjectDescType& resource_desc) = 0;
 };
 template<typename ObjectDescType>
-luna::LResult LTemplateAssert<ObjectDescType>::InitCommon()
+luna::LResult LTemplateAsset<ObjectDescType>::InitCommon()
 {
 	luna::LResult check_error;
 	check_error = InitResorceByDesc(m_assert_desc);
@@ -121,12 +121,12 @@ static ObjectType* LCreateAssetByDesc(const luna::LString& resource_name_in, con
 };
 
 #define LDefaultAssert(AssertClassName,AssertInitDesc)\
-AssertClassName(const luna::LString& resource_name_in, const AssertInitDesc& assert_desc) :LTemplateAssert<AssertInitDesc>(resource_name_in, assert_desc)\
+AssertClassName(const luna::LString& resource_name_in, const AssertInitDesc& assert_desc) :LTemplateAsset<AssertInitDesc>(resource_name_in, assert_desc)\
 {\
 };\
-AssertClassName(const luna::LString& resource_name_in, const Json::Value& resource_desc) :LTemplateAssert<AssertInitDesc>(resource_name_in, resource_desc)\
+AssertClassName(const luna::LString& resource_name_in, const Json::Value& resource_desc) :LTemplateAsset<AssertInitDesc>(resource_name_in, resource_desc)\
 {\
 };\
-AssertClassName(const luna::LString& resource_name_in, const void* resource_desc, const size_t& resource_size) :LTemplateAssert<AssertInitDesc>(resource_name_in, resource_desc, resource_size)\
+AssertClassName(const luna::LString& resource_name_in, const void* resource_desc, const size_t& resource_size) :LTemplateAsset<AssertInitDesc>(resource_name_in, resource_desc, resource_size)\
 {\
 };

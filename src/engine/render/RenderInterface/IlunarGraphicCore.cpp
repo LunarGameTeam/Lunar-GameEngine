@@ -1,5 +1,5 @@
 #include"ILunarGraphicCore.h"
-
+using namespace luna;
 luna::ILunarGraphicDeviceCore::ILunarGraphicDeviceCore()
 {
 };
@@ -104,5 +104,24 @@ luna::LResult luna::ILunarGraphicRenderSwapChain::ResetSwapChain(const LWindowRe
 	{
 		return check_error;
 	}
+	return g_Succeed;
+}
+
+luna::ILunarGraphicRenderDescriptor::ILunarGraphicRenderDescriptor(const LunarGraphicDescriptorType& descriptor_type, const size_t& m_descriptor_offset, const size_t &descriptor_size):
+	m_descriptor_type(descriptor_type),
+	m_descriptor_offset(m_descriptor_offset),
+	m_descriptor_size(descriptor_size),
+	m_descriptor_heap(this)
+{
+}
+luna::LResult luna::ILunarGraphicRenderDescriptor::Create(LObject* descriptor_heap)
+{
+	luna::LResult check_error;
+	check_error = InitGraphicRenderDescriptor(descriptor_heap);
+	if (!check_error.m_IsOK)
+	{
+		return check_error;
+	}
+	m_descriptor_heap = descriptor_heap;
 	return g_Succeed;
 }

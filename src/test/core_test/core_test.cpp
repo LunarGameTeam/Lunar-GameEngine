@@ -5,7 +5,7 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include "core/config/config.h"
-#include "core/assert/lassert.h"
+#include "core/asset/lasset.h"
 #include "core/Common/LinerGrowMap.h"
 using namespace luna;
 
@@ -65,16 +65,16 @@ INIT_REFLECTION_CLASS(CeshiAssertDesc,
 	reflect_data.b,
 	reflect_data.buffer_data_file
 );
-class Cweshi :public LTemplateAssert<CeshiAssertDesc>
+class Cweshi :public LTemplateAsset<CeshiAssertDesc>
 {
 public:
-	Cweshi(const luna::LString& resource_name_in, const CeshiAssertDesc& assert_desc) :LTemplateAssert<CeshiAssertDesc>(resource_name_in, assert_desc)
+	Cweshi(const luna::LString& resource_name_in, const CeshiAssertDesc& assert_desc) :LTemplateAsset<CeshiAssertDesc>(resource_name_in, assert_desc)
 	{
 	};
-	Cweshi(const luna::LString& resource_name_in, const Json::Value& resource_desc) :LTemplateAssert<CeshiAssertDesc>(resource_name_in, resource_desc)
+	Cweshi(const luna::LString& resource_name_in, const Json::Value& resource_desc) :LTemplateAsset<CeshiAssertDesc>(resource_name_in, resource_desc)
 	{
 	};
-	Cweshi(const luna::LString& resource_name_in, const void* resource_desc, const size_t& resource_size) :LTemplateAssert<CeshiAssertDesc>(resource_name_in, resource_desc, resource_size)
+	Cweshi(const luna::LString& resource_name_in, const void* resource_desc, const size_t& resource_size) :LTemplateAsset<CeshiAssertDesc>(resource_name_in, resource_desc, resource_size)
 	{
 	};
 	void CheckIfLoadingStateChanged(LLoadState& m_object_load_state) override

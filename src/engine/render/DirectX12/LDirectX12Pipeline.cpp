@@ -365,9 +365,10 @@ void luna::InitPipelineJsonReflect()
 	InitNewEnumValue(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE);
 	InitNewEnumValue(D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH);
 	//Descriptor格式
-	InitNewEnumValue(CbufferPrivate);
-	InitNewEnumValue(CbufferGlobel);
-	InitNewEnumValue(SRVGlobel);
-	InitNewEnumValue(SRVPrivate);
-	InitNewEnumValue(SRVBindless);
+	InitNewEnumValue(DESCRIPTOR_UNIFORM_INVALID);
+	InitNewEnumValue(DESCRIPTOR_UNIFORM_BUFFER);
+	InitNewEnumValue(DESCRIPTOR_SHADER_RESOURCE);
+	InitNewEnumValue(DESCRIPTOR_UNORDERED_ACCESS);
+	InitNewEnumValue(DESCRIPTOR_RENDER_TARGET);
+	InitNewEnumValue(DESCRIPTOR_DEPTH_STENCIL);
 }

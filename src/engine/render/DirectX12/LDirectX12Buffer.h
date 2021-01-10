@@ -33,7 +33,7 @@ namespace luna
 		reflect_data.buffer_res_desc.Flags,
 		reflect_data.buffer_data_file
 	);
-	class LDx12GraphicResourceBuffer :public LTemplateAssert<LunaCommonBufferDesc>
+	class LDx12GraphicResourceBuffer :public LTemplateAsset<LunaCommonBufferDesc>
 	{
 		UINT8* map_pointer = nullptr;
 		size_t subresources_size = 0;
@@ -54,7 +54,7 @@ namespace luna
 		}
 	private:
 		void CheckIfLoadingStateChanged(LLoadState& m_object_load_state) override;
-		virtual luna::LResult InitResorceByDesc(const LunaCommonBufferDesc& resource_desc) override;
+		luna::LResult InitResorceByDesc(const LunaCommonBufferDesc& resource_desc) override;
 	};
 	void InitBufferJsonReflect();
 }

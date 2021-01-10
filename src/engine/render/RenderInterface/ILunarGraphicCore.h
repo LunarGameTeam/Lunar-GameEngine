@@ -5,7 +5,7 @@
 #include "core/reflection/json_utility.h"
 #include"core/reflection/reflection.h"
 #include"core/Common/MultiThreadMap.h"
-#include"core/assert/lassert.h"
+#include"core/asset/lasset.h"
 #include"core/memory/ptr.h"
 #include "core/Common/LinerGrowMap.h"
 #define LunarObjectID uint32_t
@@ -124,13 +124,14 @@ namespace luna
 		SHADER_HULL,
 		SHADER_DOMIN
 	};
-	enum PancyShaderDescriptorType
+	enum LunarGraphicDescriptorType
 	{
-		CbufferPrivate = 0,
-		CbufferGlobel,
-		SRVGlobel,
-		SRVPrivate,
-		SRVBindless
+		DESCRIPTOR_UNIFORM_INVALID =0,
+		DESCRIPTOR_UNIFORM_BUFFER,
+		DESCRIPTOR_SHADER_RESOURCE,
+		DESCRIPTOR_UNORDERED_ACCESS,
+		DESCRIPTOR_RENDER_TARGET,
+		DESCRIPTOR_DEPTH_STENCIL
 	};
 	//命令分配器
 	class ILunarGraphicRenderCommondAllocator :public LObject
@@ -213,6 +214,36 @@ namespace luna
 		virtual LResult InitGraphicSwapChain() = 0;
 		virtual LResult ResetSwapChainData(const LWindowRenderDesc& window_width_in) = 0;
 	};
+	//描述符的创建绑定格式
+	class ILunarGraphicDescriptorCompleteDesc : public LObject
+	{
+		LunarGraphicDescriptorType m_descriptor_type;
+	public:
+		ILunarGraphicDescriptorCompleteDesc(const LunarGraphicDescriptorType& descriptor_type)
+		{
+			m_descriptor_type = descriptor_type;
+		};
+		inline LunarGraphicDescriptorType GetDesc()
+		{
+			return m_descriptor_type;
+		}
+	};
+	//描述符，用于绑定资源
+	class ILunarGraphicRenderDescriptor : public LObject
+	{
+	protected:
+		LunarGraphicDescriptorType m_descriptor_type;
+		size_t m_descriptor_offset;
+		size_t m_descriptor_size;
+		LPtrBasic m_descriptor_heap;
+	public:
+		ILunarGraphicRenderDescriptor(const LunarGraphicDescriptorType& descriptor_type, const size_t &m_descriptor_offset,const size_t &descriptor_size);
+		luna::LResult Create(LObject* descriptor_heap);
+		virtual void BindBufferToDescriptor(const LVector<LBasicAsset*>& buffer_data, const LVector<ILunarGraphicDescriptorCompleteDesc*>& buffer_descriptor_desc) = 0;
+		virtual void BindTextureToDescriptor(const LVector<LBasicAsset*>& texture_data, const LVector<ILunarGraphicDescriptorCompleteDesc*>& tex_descriptor_desc) = 0;
+	private:
+		virtual LResult InitGraphicRenderDescriptor(LObject* descriptor_heap) = 0;
+	};
 	//图形设备单例，用于处理图形资源的分配和管理
 	class ILunarGraphicDeviceCore
 	{
@@ -236,8 +267,7 @@ namespace luna
 		AddNewGraphicDeviceFunc(BufferResource);
 		AddNewGraphicDeviceFunc(TextureResource);
 		AddNewGraphicDeviceFunc(ResourceHeap);
-		//描述符及描述符堆
-		AddNewGraphicDeviceFunc(Descriptor);
+		//描述符堆
 		AddNewGraphicDeviceFunc(DescriptorHeap);
 		virtual uint8_t* GetPointerFromSharedMemory(LSharedObject* dynamic_buffer_pointer) = 0;
 		virtual LBasicAsset * CreateUniforBuffer(const size_t &uniform_buffer_size) = 0;
@@ -247,12 +277,13 @@ namespace luna
 			const LunarGraphicPipeLineType& pipeline_type) = 0;
 		virtual ILunarGraphicRenderCommondAllocator* CreateCommondAllocator(const LunarGraphicPipeLineType& pipeline_type) = 0;
 		virtual ILunarGraphicRenderFence* CreateFence() = 0;
+		virtual ILunarGraphicRenderDescriptor* CreateDescriptor(const LunarGraphicDescriptorType& descriptor_type, const size_t& m_descriptor_offset, const size_t& descriptor_size, LObject* descriptor_heap) = 0;
 	protected:
 		LResult Create();
 	private:
 		virtual LResult InitDeviceData() = 0;
 	};
-
+	
 	//图形队列单例,用于提交渲染命令
 	class ILunarGraphicRenderQueueCore
 	{

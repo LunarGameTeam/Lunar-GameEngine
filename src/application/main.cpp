@@ -2,7 +2,7 @@
 #include "core/core_configs.h"
 #include "render/render_subsystem.h"
 #include "core/config/config.h"
-#include "core/assert/lassert.h"
+#include "core/asset/lasset.h"
 #include "window/window_subsystem.h"
 
 

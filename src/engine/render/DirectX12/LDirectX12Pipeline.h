@@ -6,7 +6,7 @@ namespace luna
 	struct DescriptorTypeDesc
 	{
 		LString name;
-		PancyShaderDescriptorType type;
+		LunarGraphicDescriptorType type;
 	};
 	INIT_REFLECTION_CLASS(DescriptorTypeDesc,
 		reflect_data.name,
@@ -96,19 +96,19 @@ namespace luna
 		reflect_data.pipeline_data_graphic
 	);
 
-	class LDx12GraphicResourcePipelineState :public LTemplateAssert<LunarPipelineStateDesc>
+	class LDx12GraphicResourcePipelineState :public LTemplateAsset<LunarPipelineStateDesc>
 	{
 		Microsoft::WRL::ComPtr<ID3D12PipelineState> m_pipeline_data;
 		LPtr<LDx12GraphicResourceRootSignature> root_signature_use;
 		LUnorderedMap<LunarGraphicShaderType, LPtr<LDx12GraphicResourceShaderBlob>> m_shader_use;
 	public:
-		LDx12GraphicResourcePipelineState(const luna::LString& resource_name_in, const LunarPipelineStateDesc& assert_desc) :LTemplateAssert<LunarPipelineStateDesc>(resource_name_in, assert_desc), root_signature_use(this)
+		LDx12GraphicResourcePipelineState(const luna::LString& resource_name_in, const LunarPipelineStateDesc& assert_desc) :LTemplateAsset<LunarPipelineStateDesc>(resource_name_in, assert_desc), root_signature_use(this)
 		{
 		};
-		LDx12GraphicResourcePipelineState(const luna::LString& resource_name_in, const Json::Value& resource_desc) :LTemplateAssert<LunarPipelineStateDesc>(resource_name_in, resource_desc), root_signature_use(this)
+		LDx12GraphicResourcePipelineState(const luna::LString& resource_name_in, const Json::Value& resource_desc) :LTemplateAsset<LunarPipelineStateDesc>(resource_name_in, resource_desc), root_signature_use(this)
 		{
 		};
-		LDx12GraphicResourcePipelineState(const luna::LString& resource_name_in, const void* resource_desc, const size_t& resource_size) :LTemplateAssert<LunarPipelineStateDesc>(resource_name_in, resource_desc, resource_size), root_signature_use(this)
+		LDx12GraphicResourcePipelineState(const luna::LString& resource_name_in, const void* resource_desc, const size_t& resource_size) :LTemplateAsset<LunarPipelineStateDesc>(resource_name_in, resource_desc, resource_size), root_signature_use(this)
 		{
 		};
 		ID3D12PipelineState* GetPipeLine()
