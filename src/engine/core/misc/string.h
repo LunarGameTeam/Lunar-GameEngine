@@ -107,11 +107,11 @@ namespace luna
 
 		bool operator!=(const char* const string_in)
 		{
-			return m_Data != string_in;
+			return m_data != string_in;
 		}
 		bool operator== (const LString& p) const
 		{
-			return m_Data == p.m_Data;
+			return m_data == p.m_data;
 		}
 // 		LString& operator+=(const char* string_in);
 // 		LString& operator+=(const LString& string_in);
