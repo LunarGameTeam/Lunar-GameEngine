@@ -20,4 +20,4 @@
 
 #include "core/log/log.h"
 
-extern luna::LogScope E_Core;
+extern luna::LogScope E_World;

@@ -1,3 +1,3 @@
-#include "private_core.h"
+#include "core/core_module.h"
 
-luna::LogScope E_Core("Core");
+luna::LogScope E_World("World");
