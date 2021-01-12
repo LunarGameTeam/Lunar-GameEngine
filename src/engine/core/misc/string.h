@@ -23,7 +23,7 @@ namespace luna
 	/*!
 	 * \class LString
 	 *
-	 * \brief LString是最基础的多字节字符存储类，他不负责处理编码等问题，
+	 * \brief LString是最基础的多字节字符存储类，他不负责处理编码等问题。
 	 *
 	 * \author IsakWong
 	 * 

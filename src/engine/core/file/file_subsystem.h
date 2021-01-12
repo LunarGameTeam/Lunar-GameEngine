@@ -6,6 +6,19 @@
 namespace luna
 {
 
+/*!
+ * \class FileSubsystem
+ *
+ *
+ * \brief FileSubsystem 是平台无关的文件子系统，提供了文件操作Manager
+ * 
+ *
+ * \author IsakWong
+ *
+ * \version 1.0
+ *
+ *
+ */
 	class FileSubsystem : public SubSystem
 	{
 

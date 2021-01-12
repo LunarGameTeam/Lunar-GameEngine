@@ -11,6 +11,7 @@
  * \note
 */
 #pragma once
+
 #include "core/config/config.h"
 
 extern Config<bool, true> UsingReflection;

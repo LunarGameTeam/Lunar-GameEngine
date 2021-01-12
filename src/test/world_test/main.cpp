@@ -24,10 +24,10 @@ TEST(LuaEnv, Test0)
 	sta.script(content.c_str());
 }
 
+
 int main(int argc, const char* argv[])
 {
-	gEngine = new lunaCore();
-	Config<int, 1> test("Lua", "Kay");
+	gEngine = new LunarEngineCore();
 	gEngine->RegisterSubsystem<luna::LuaSubsystem>();
 	gEngine->RegisterSubsystem<luna::FileSubsystem>();
 	gEngine->Run();

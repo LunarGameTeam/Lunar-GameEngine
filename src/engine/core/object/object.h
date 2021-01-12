@@ -31,7 +31,14 @@ enum class LLoadState
 	LOAD_STATE_LOADING,
 	LOAD_STATE_FINISHED
 };
-
+/*!
+ * \class Object
+ *
+ * \brief 
+ *
+ * \author 
+ * 
+ */
 class LObject :public LSharedObject
 {
 public:

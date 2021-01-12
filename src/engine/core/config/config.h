@@ -20,8 +20,12 @@ public:
 	class Config;
 
 	ConfigManager()
-	{		
-		m_config_file.open("Config.ini", std::fstream::in | std::fstream::out);
+	{	
+		TCHAR tempPath[1000];
+		GetCurrentDirectory(MAX_PATH, tempPath); //获取程序的当前目录
+		luna::LString config_path(tempPath);
+		config_path = config_path + "/config.ini";
+		m_config_file.open(config_path.c_str(), std::fstream::in | std::fstream::out);
 		boost::container::string temp;
 		boost::container::string current_group = "";
 		if (!m_config_file.is_open())
@@ -60,7 +64,11 @@ public:
 	}
 	~ConfigManager()
 	{
-		m_config_file.open("Config.ini", std::fstream::out | std::fstream::trunc);
+		TCHAR tempPath[1000];
+		GetCurrentDirectory(MAX_PATH, tempPath); //获取程序的当前目录
+		luna::LString config_path(tempPath);
+		config_path = config_path + "/config.ini";
+		m_config_file.open(config_path.c_str(), std::fstream::out | std::fstream::trunc);
 		boost::container::map<const char *, boost::container::vector<SerializeConfig>> configs;
 
 		for (auto& it : s_configs)
