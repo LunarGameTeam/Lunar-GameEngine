@@ -45,7 +45,8 @@ namespace luna
 		LString(const LString& l_val);
 		LString(const StringContainer& l_val) : m_data(l_val){}
 		LString(const StringContainer&& r_val) : m_data(r_val){}
-		LString(const ElementType * value) : m_data(value){}
+		LString(const ElementType *value) : m_data(value) {}
+		LString(const ElementType *first, const ElementType *end) :m_data(first, end) {};
 
 		void Assign(const char* str);
 		void Assign(const StringContainer& container);
@@ -84,8 +85,36 @@ namespace luna
 		{
 			return m_data.substr(pos, n);
 		}
+		inline LString Substr(size_t pos)
+		{
+			return m_data.substr(pos);
+		}
+		template<typename T>
+		inline void EraseFirst(T &&v)
+		{
+			boost::algorithm::erase_first(m_data, v);
+		}
+		template<typename T>
+		inline void EraseLast(T &&v)
+		{
+			boost::algorithm::erase_last(m_data, v);
+		}
+		template<typename T>
+		inline bool Contains(T &&v)
+		{
+			return boost::algorithm::contains(m_data, v);
+		}
+		template<typename T>
+		inline auto Find(T&& v)
+		{			
+			return m_data.find(v);
+		}
 
 		inline const StringContainer& str() const
+		{
+			return m_data;
+		}
+		inline StringContainer &str()
 		{
 			return m_data;
 		}
@@ -99,6 +128,7 @@ namespace luna
 		friend LString operator+(const LString& lValue, const LString& rValue);
 		friend LString operator+(const LString& lValue, const char* rValue);
 		friend LString operator+(const char *lValue, const LString &rValue);
+		friend size_t hash_value(const luna::LString &key);
 
 		LString& operator=(const char* const string_in);
 		LString& operator=(const StringContainer& string_in);
@@ -113,6 +143,10 @@ namespace luna
 		{
 			return m_data == p.m_data;
 		}
+		bool operator< (const LString &p) const
+		{
+			return m_data < p.m_data;
+		}
 // 		LString& operator+=(const char* string_in);
 // 		LString& operator+=(const LString& string_in);
 // 		LString& operator+=(const ContainerType& string_in);
@@ -124,6 +158,19 @@ namespace luna
 		const ElementType *operator*();
 	public:
 		static size_t npos;
+
+		template<typename ... Args>
+		static LString Format(const LString &format, Args ... args)
+		{
+			auto size_buf = std::snprintf(nullptr, 0, format.c_str(), args ...) + 1;
+			std::unique_ptr<char[]> buf(new(std::nothrow) char[size_buf]);
+
+			if (!buf)
+				return std::string("");
+
+			std::snprintf(buf.get(), size_buf, format.c_str(), args ...);
+			return LString(buf.get(), buf.get() + size_buf - 1);
+		}
 	};
 
 	LString operator+(const LString& lValue, const LString& rValue);
@@ -149,8 +196,8 @@ namespace luna
 	{
 		return boost::lexical_cast<Target>(source.c_str());
 	}
-}
-namespace LContainerPack
-{
-	size_t hash_value(const luna::LString& key);
+
+	size_t hash_value(const luna::LString &key);
+
+	
 }

@@ -110,15 +110,6 @@ bool LString::StartWith(const char str) const
 	return m_data[0] == str;
 }
 
-size_t LString::Find(const char *str) const
-{
-	return m_data.find_first_of(str);
-}
-size_t LString::Find(const char ch) const
-{
-	return m_data.find_first_of(ch);
-}
-
 size_t LString::FindLast(const char *str) const
 {
 	return m_data.find_last_of(str);
@@ -196,12 +187,10 @@ LString::StringContainer WstringToString(const LString::WStringContainer &wstrin
 	int nResult = WideCharToMultiByte(CP_ACP, 0, (LPCWSTR)wstring_in.c_str(), nLen, (LPSTR)ascii_string.c_str(), nLen, NULL, NULL);
 	return ascii_string;
 }
-namespace LContainerPack
+
+size_t hash_value(const luna::LString &key)
 {
-	size_t hash_value(const luna::LString& key)
-	{
-		return std::hash<std::string>()(key.c_str());
-	}
+	return std::hash<std::string>()(key.m_data);
 }
 
 }
