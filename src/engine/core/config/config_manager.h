@@ -13,7 +13,7 @@ struct SerializeConfig;
  *
  * \brief 配置管理器，负责了配置最基础的序列化和反序列化
  *
- * \author isakwong
+ * \author isAk wOng
  * 
  */
 class ConfigManager

@@ -5,24 +5,24 @@
 namespace luna
 {
 
-void LFile::Write(const byte *Source, int64_t BytesToWrite)
+void LFileStream::Write(const byte *Source, int64_t BytesToWrite)
 {
 	m_file.seekp(m_pos);
 	m_file.write((char *)Source, BytesToWrite);
 }
 
-void LFile::Flush(const bool bFullFlush /*= false*/)
+void LFileStream::Flush(const bool bFullFlush /*= false*/)
 {
 	m_file.flush();
 }
 
-void LFile::Read(byte *Destination, int64_t BytesToRead)
+void LFileStream::Read(byte *Destination, int64_t BytesToRead)
 {
 	m_file.seekg(m_pos);
 	m_file.read((char *)Destination, BytesToRead);
 }
 
-int64_t LFile::Size()
+int64_t LFileStream::Size()
 {
 	auto pos = m_file.tellg();
 	m_file.seekg(0, std::ios::end);
@@ -31,14 +31,14 @@ int64_t LFile::Size()
 	return res;
 }
 
-void LFile::ReadToVector(LVector<byte> &dest)
+void LFileStream::ReadToVector(LVector<byte> &dest)
 {
 	auto size = Size();
 	dest.reserve(size);
 	Read(dest.data(), size);
 }
 
-void LFile::WriteFromVector(LVector<byte> &dest)
+void LFileStream::WriteFromVector(LVector<byte> &dest)
 {
 	auto size = dest.size();
 	Write(dest.data(), size);

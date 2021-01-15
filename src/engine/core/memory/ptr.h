@@ -16,11 +16,12 @@ class LSharedObject;
 //template<typename T>
 //using LSharedPtr = boost::shared_ptr<T>;
 //
-//template<typename T, typename... Args>
-//LSharedPtr<T> MakeShared(Args && ... args)
-//{
-//	return boost::make_shared<T>(args...);
-//}
+
+template<typename T, typename... Args>
+inline LSharedPtr<T> MakeShared(Args && ... args)
+{
+	return boost::make_shared<T>(args...);
+}
 class LPtrBasic
 {
 	LSharedObject** m_res_pointer;

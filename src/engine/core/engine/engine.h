@@ -16,7 +16,7 @@
 #include "boost/container/vector.hpp"
 
 #include "core/subsystem/sub_system.h"
-#include "core/delegates/delegate.h"
+#include "core/misc/delegate.h"
 
 class LObject;
 

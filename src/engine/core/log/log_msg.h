@@ -20,6 +20,14 @@
 namespace luna
 {
 
+/*!
+ * \class LogLevel
+ *
+ * \brief Log级别，Verbose，Warning，Error
+ *
+ * \author isAk wOng
+ *
+ */
 	enum class LogLevel
 	{
 		Success = 0,
@@ -28,6 +36,14 @@ namespace luna
 		Verbose
 	};
 
+/*!
+ * \class LResult
+ *
+ * \brief 兼容Pancy引擎的方法执行返回结果，TODO，LResult在不同平台会有不同的结果（原本是用来取代HRESULT，这个设计并不支持跨平台）
+ *
+ * \author isAk wOng
+ *
+ */
 	struct LResult
 	{
 #ifdef _MSC_VER

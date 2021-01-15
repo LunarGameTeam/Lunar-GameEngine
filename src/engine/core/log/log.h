@@ -20,18 +20,32 @@
 
 namespace luna
 {
-	class Log
+/*!
+ * \class Log
+ *
+ * \brief Log提供了最基础的格式化日志打印，会输出到控制台以及文件中
+ *
+ * \author isAk wOng
+ * 
+ */
+	class LogManager
 	{
 	public:
-		Log();
-		~Log();
-		std::ofstream m_LogFile;
-
+		LogManager();
+		~LogManager();
 	};
 
 	extern LResult g_Succeed;
 	extern LResult g_Failed;
 
+/*!
+ * \class LogScope
+ *
+ * \brief Log的域，每个模块的私有公共头文件应声明一个该模块的Log域，比如E_Core，E_Render，E_World
+ *
+ * \author isAk wOng
+ *
+ */
 	struct LogScope
 	{
 	public:
@@ -68,21 +82,27 @@ namespace luna
 template<typename...Args>
 char* FormatLog(const char* format, Args&&... args)
 {
+	//TODO，使用string处理溢出情况
 	static char fmt[1000];
 	sprintf_s(fmt, format, args...);
 	return fmt;
 }
 
+/*
+ *	建议使用下面6个进行Log
+ */
 #define LogError(scope,result,msg) luna::LogInternal(scope,msg,luna::LogLevel::Error,__FILE__,__FUNCTION__,__LINE__, result);
 #define LogWarning(scope,result,msg) luna::LogInternal(scope,msg,luna::LogLevel::Warning,__FILE__,__FUNCTION__,__LINE__, result);
 #define LogVerbose(scope,msg) luna::LogInternal(scope, msg ,luna::LogLevel::Verbose,__FILE__,__FUNCTION__,__LINE__, luna::g_Succeed);
-
+ 
 #define LogErrorFormat(scope,result,format,...) luna::LogInternal(scope,FormatLog(format,__VA_ARGS__),luna::LogLevel::Error,__FILE__,__FUNCTION__,__LINE__, result);
 #define LogWarningFormat(scope,result,format,...) luna::LogInternal(scope,FormatLog(format,__VA_ARGS__),luna::LogLevel::Warning,__FILE__,__FUNCTION__,__LINE__, result);
 #define LogVerboseFormat(scope,format,...) luna::LogInternal(scope, FormatLog(format,__VA_ARGS__) ,luna::LogLevel::Verbose,__FILE__,__FUNCTION__,__LINE__, luna::g_Succeed);
 
 
-//弃用的Log函数，逐渐删掉
+/*
+ *	弃用的Log函数，目前不支持Format，以及输出到文件
+ */
 #define LunarDebugLogError(platform_result,error_reason,log_index) luna::BuildDebugLog(platform_result,error_reason,__FILE__,__FUNCTION__,__LINE__,luna::LogLevel::Error,log_index)
 #define LunarDebugLogWarning(platform_result,error_reason,log_index) luna::BuildDebugLog(platform_result,error_reason,__FILE__,__FUNCTION__,__LINE__,luna::LogLevel::Warning,log_index)
 #define LunarDebugLogVerbose(error_reason,log_index) luna::BuildDebugLog(S_OK,error_reason,__FILE__,__FUNCTION__,__LINE__,luna::LogLevel::Verbose,log_index)

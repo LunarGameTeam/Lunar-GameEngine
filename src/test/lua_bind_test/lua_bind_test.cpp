@@ -10,7 +10,10 @@ using namespace luna;
 
 #include <gtest/gtest.h>
 
-
+void OnFileOpen(LSharedPtr<LFile> file)
+{
+	return;
+}
 
 TEST(LuaEnv, Test0)
 {
@@ -19,6 +22,9 @@ TEST(LuaEnv, Test0)
 	LPath entry_file("/assets/entry.lua");
 	LString content;
 	file_sys->GetPlatformFileManager()->ReadStringFromFile(entry_file, content);
+	auto f = file_sys->GetPlatformFileManager()->ReadSync(entry_file);
+	file_sys->GetPlatformFileManager()->ReadAsync(entry_file, OnFileOpen);
+
 	LuaEnv& env = lua->GetDefaultEnv();
 	auto& sta = env.GetLuaState(); 
 	sta.script(content.c_str());

@@ -14,7 +14,6 @@
 #pragma once
 
 #include "core/core_module.h"
-#include "core/delegates/delegate.h"
 #include <windows.h>
 #include <windowsx.h>
 

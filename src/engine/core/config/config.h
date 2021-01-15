@@ -17,7 +17,7 @@ struct SerializeConfig
  *
  * \brief 含有默认值的引擎配置项，会在启动时读取工作目录下的config.ini，关闭时写入
  *
- * \author wangyunfei02
+ * \author isAk wOng
  * 
  */
 template<typename Type, Type DefaultValue>

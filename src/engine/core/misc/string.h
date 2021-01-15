@@ -45,7 +45,9 @@ namespace luna
 		LString(const LString& l_val);
 		LString(const StringContainer& l_val) : m_data(l_val){}
 		LString(const StringContainer&& r_val) : m_data(r_val){}
+		//从字符串指针内新建，需要以\0结尾
 		LString(const ElementType *value) : m_data(value) {}
+		//从字节数组指针中新建，指定Begin和End
 		LString(const ElementType *first, const ElementType *end) :m_data(first, end) {};
 
 		void Assign(const char* str);

@@ -1,14 +1,13 @@
 #include "platform_file.h"
 #include "core/object/object.h"
 #include <boost/filesystem.hpp>
-#include <sstream>
 namespace luna
 {
 
-LSharedPtr<LFile> WindowsFileManager::Open(const LPath &path, OpenMode mode)
-{
 
-	LSharedPtr<LFile> file = boost::make_shared<LFile>();
+LSharedPtr<LFileStream> WindowsFileManager::OpenAsStream(const LPath &path, OpenMode mode)
+{
+	LSharedPtr<LFileStream> file = boost::make_shared<LFileStream>();
 	file->m_file.open(path.AsStringAbs(),(int)mode);
 	if (file->m_file.fail())
 	{
@@ -20,7 +19,7 @@ LSharedPtr<LFile> WindowsFileManager::Open(const LPath &path, OpenMode mode)
 
 bool WindowsFileManager::ReadStringFromFile(const LPath &path, LString& res)
 {
-	LSharedPtr<LFile> file = boost::make_shared<LFile>();
+	LSharedPtr<LFileStream> file = boost::make_shared<LFileStream>();
 	file->m_file.open(path.AsStringAbs(), (int)OpenMode::In);
 
 	if (file->m_file.fail())
@@ -67,6 +66,35 @@ bool WindowsFileManager::CreateFile(const LPath &path)
 const LString &WindowsFileManager::EngineDir()
 {
 	return m_EngineDir;
+}
+
+LSharedPtr<luna::LFile> WindowsFileManager::WriteSync(const LPath &path, const LVector<byte> &data)
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+FileAsyncHandle WindowsFileManager::ReadAsync(const LPath &path, FileAsyncCallback callback)
+{
+	auto file = ReadSync(path);
+	callback(file);
+	return FileAsyncHandle();
+}
+
+LSharedPtr<LFile> WindowsFileManager::ReadSync(const LPath &path)
+{
+	HANDLE file_handle = ::CreateFileA(path.AsStringAbs().c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
+	LSharedPtr<LFile> file = MakeShared<LFile>();
+	if (file_handle == INVALID_HANDLE_VALUE)
+	{
+		return file;
+	}
+	DWORD size = GetFileSize(file_handle, NULL);
+	file->data.resize(size);
+	file->full_path = path.AsStringAbs();
+	DWORD actual_size = 0;
+	::ReadFile(file_handle, file->data.data(), size, &actual_size, NULL);
+	file->is_ok = true;
+	return file;
 }
 
 bool WindowsFileManager::InitFileManager()
