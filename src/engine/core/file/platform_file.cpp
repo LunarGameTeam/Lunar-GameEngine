@@ -1,14 +1,17 @@
 #include "platform_file.h"
 #include "core/object/object.h"
+#include "core/file/file_subsystem.h"
+#include "core/engine/engine.h"
 #include <boost/filesystem.hpp>
 namespace luna
 {
 
+bool io_loop = true;
 
 LSharedPtr<LFileStream> WindowsFileManager::OpenAsStream(const LPath &path, OpenMode mode)
 {
 	LSharedPtr<LFileStream> file = boost::make_shared<LFileStream>();
-	file->m_file.open(path.AsStringAbs(),(int)mode);
+	file->m_file.open(path.AsStringAbs(), (int)mode);
 	if (file->m_file.fail())
 	{
 		LogError(E_Core, g_Failed, "open file failed");
@@ -17,7 +20,7 @@ LSharedPtr<LFileStream> WindowsFileManager::OpenAsStream(const LPath &path, Open
 	return file;
 }
 
-bool WindowsFileManager::ReadStringFromFile(const LPath &path, LString& res)
+bool WindowsFileManager::ReadStringFromFile(const LPath &path, LString &res)
 {
 	LSharedPtr<LFileStream> file = boost::make_shared<LFileStream>();
 	file->m_file.open(path.AsStringAbs(), (int)OpenMode::In);
@@ -68,16 +71,37 @@ const LString &WindowsFileManager::EngineDir()
 	return m_EngineDir;
 }
 
-LSharedPtr<luna::LFile> WindowsFileManager::WriteSync(const LPath &path, const LVector<byte> &data)
+
+bool WindowsFileManager::DisposeFileManager()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	io_loop = false;
+
+	m_pending_lock.lock();
+	while (!m_pending_queue.empty()) m_pending_queue.pop();
+	m_pending_lock.unlock();
+
+	return true;
 }
 
-FileAsyncHandle WindowsFileManager::ReadAsync(const LPath &path, FileAsyncCallback callback)
+LSharedPtr<LFile> WindowsFileManager::WriteSync(const LPath &path, const LVector<byte> &data)
 {
-	auto file = ReadSync(path);
-	callback(file);
-	return FileAsyncHandle();
+	return LSharedPtr<LFile>();
+}
+
+LSharedPtr<FileAsyncHandle> WindowsFileManager::ReadAsync(const LPath &path, FileAsyncCallback callback)
+{
+	LSharedPtr<FileAsyncHandle> async_handle = MakeShared<FileAsyncHandle>();
+	//组装异步Handle
+	async_handle->callback = callback;
+	async_handle->file = MakeShared<LFile>();
+	async_handle->state = AsyncState::PendingQueue;
+	async_handle->path = path.AsStringAbs();
+
+	m_pending_lock.lock();
+	m_pending_queue.push(async_handle);
+	m_pending_lock.unlock();
+
+	return async_handle;
 }
 
 LSharedPtr<LFile> WindowsFileManager::ReadSync(const LPath &path)
@@ -90,11 +114,76 @@ LSharedPtr<LFile> WindowsFileManager::ReadSync(const LPath &path)
 	}
 	DWORD size = GetFileSize(file_handle, NULL);
 	file->data.resize(size);
-	file->full_path = path.AsStringAbs();
+	file->path = path.AsStringAbs();
 	DWORD actual_size = 0;
 	::ReadFile(file_handle, file->data.data(), size, &actual_size, NULL);
 	file->is_ok = true;
 	return file;
+}
+
+VOID CALLBACK WindowsFileManager::FileCompleteCallback(
+	DWORD dwErrorCode,                // 对于此次操作返回的状态
+	DWORD dwNumberOfBytesTransfered,  // 告诉已经操作了多少字节,也就是在IRP里的Infomation
+	LPOVERLAPPED lpOverlapped         // 这个数据结构
+)
+{
+	static WindowsFileManager *instance = (WindowsFileManager *)gEngine->GetSubsystem<FileSubsystem>()->GetPlatformFileManager();
+
+	LSharedPtr<FileAsyncHandle> handle = instance->m_running_handles[lpOverlapped];
+
+	handle->callback(handle->file);
+	handle->state = AsyncState::Finished;
+
+	instance->m_running_lock.lock();
+	instance->m_running_handles.erase(lpOverlapped);
+	delete lpOverlapped;
+	instance->m_running_lock.unlock();
+}
+
+void WindowsFileManager::IO_Thread()
+{
+	while (io_loop)
+	{
+		
+		{
+			if (m_pending_queue.empty())
+				goto END;
+
+			//取AsyncHandle并进行处理
+			LSharedPtr<FileAsyncHandle> async_handle = m_pending_queue.front();
+			m_pending_lock.lock();
+			m_pending_queue.pop();
+			m_pending_lock.unlock();
+
+			HANDLE file_handle = ::CreateFileA(async_handle->path.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
+			if (file_handle == INVALID_HANDLE_VALUE)
+				goto END;
+
+			LSharedPtr<LFile> file = async_handle->file;
+			DWORD size = GetFileSize(file_handle, NULL);
+			DWORD actual_size = 0;
+			OVERLAPPED *overlap = new OVERLAPPED();
+			memset(overlap, 0, sizeof(OVERLAPPED));
+
+			file->data.resize(size);
+			file->path = async_handle->path;
+
+			//创建overlap事件
+			async_handle->state = AsyncState::Running;
+
+			bool rc = ReadFileEx(file_handle, file->data.data(), size, overlap, WindowsFileManager::FileCompleteCallback);	//进入alterable
+			if (!rc)
+				goto END;
+
+			m_running_lock.lock();
+			m_running_handles[overlap] = async_handle;
+			m_running_lock.unlock();
+		}
+
+	END:
+		SleepEx(0, TRUE);
+		continue;
+	}
 }
 
 bool WindowsFileManager::InitFileManager()
@@ -109,6 +198,8 @@ bool WindowsFileManager::InitFileManager()
 	m_ApplicationPath.ReplaceAll("\\", "/");
 
 	size_t pos = m_ApplicationPath.FindLast("/");
+
+	m_io_thread = new LThread(boost::bind(&WindowsFileManager::IO_Thread, this));
 	return true;
 }
 

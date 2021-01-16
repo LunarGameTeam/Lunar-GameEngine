@@ -10,7 +10,7 @@ namespace luna
 
 struct LFile
 {
-	LString full_path;
+	LString path;
 	LVector<byte> data;
 	bool is_ok = false;
 };

@@ -70,7 +70,14 @@ namespace luna
 		}
 		*/
 		static char fmt[1000];
-		sprintf_s(fmt, "[%04lld.%02lld.%02lld-%02lld.%02lld.%02lld:%03lld][Verbose][%s]%s", y, month, d, h, m, s, ms, scope.m_ScopeName, msg.c_str());
+		static const char *level_str[10] =
+		{
+			"Error",
+			"Warning",
+			"Success",
+			"Verbose",
+		};
+		sprintf_s(fmt, "[%04lld.%02lld.%02lld-%02lld.%02lld.%02lld:%03lld][%s][%s]%s", y, month, d, h, m, s, ms, level_str[int(level)], scope.m_ScopeName, msg.c_str());
 		std::cout << fmt << std::endl;
 		g_log_file << fmt << std::endl;
 		g_log_file.flush();

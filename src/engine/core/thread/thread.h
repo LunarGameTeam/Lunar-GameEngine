@@ -1,7 +1,10 @@
 #pragma once
+#include "core/misc/misc.h"
 #include <boost/function.hpp>
 #include <boost/thread.hpp>
 
+namespace luna
+{
 
 class LThread
 {
@@ -14,15 +17,9 @@ private:
 
 };
 
-LThread::LThread(boost::function<void()> func):
-	m_thread(func)
+class ThreadManager : public Singleton<ThreadManager>
 {
-	
+
+};
 
 }
-
-void LThread::Join()
-{
-	m_thread.join();
-}
-

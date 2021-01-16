@@ -30,10 +30,11 @@ namespace luna
  */
 	enum class LogLevel
 	{
-		Success = 0,
-		Warning,
-		Error,
-		Verbose
+		
+		Error = 0,
+		Warning = 1,
+		Success = 2,
+		Verbose = 3
 	};
 
 /*!
