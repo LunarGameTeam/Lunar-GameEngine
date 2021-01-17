@@ -8,11 +8,29 @@
 namespace luna
 {
 
+class WindowsFileManager;
+
 struct LFile
 {
+public:
+	const LString &GetPath()
+	{
+		return path;
+	}
+	const LVector<byte> &GetData()
+	{
+		return data;
+	}
+	bool IsOk()
+	{
+		return is_ok;
+	}
+private:
 	LString path;
 	LVector<byte> data;
 	bool is_ok = false;
+
+	friend class WindowsFileManager;
 };
 
 /*!

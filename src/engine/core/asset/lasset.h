@@ -2,27 +2,10 @@
 #include "core/object/object.h"
 #include "core/memory/garbage_colloector.h"
 #include "core/log/log.h"
-class LBasicAsset : public LObject
-{	
-public:
-	LBasicAsset()
-	{
-		m_object_load_state = LLoadState::LOAD_STATE_EMPTY;
-	};
-	~LBasicAsset()
-	{
-	};
-	//默认加载资源
-	luna::LResult InitResource();
-	//检查资源的加载状态
-	const LLoadState& GetLoadState();
-private:
-	virtual void CheckIfLoadingStateChanged(LLoadState& m_object_load_state) = 0;
-	virtual luna::LResult InitCommon() = 0;
-	LLoadState m_object_load_state;
-};
+#include "asset.h"
+
 template<typename ObjectDescType>
-class LTemplateAsset : public LBasicAsset
+class LTemplateAsset : public luna::LBasicAsset
 {
 	ObjectDescType m_assert_desc;
 public:

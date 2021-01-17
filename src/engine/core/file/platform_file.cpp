@@ -131,7 +131,7 @@ VOID CALLBACK WindowsFileManager::FileCompleteCallback(
 
 	LSharedPtr<FileAsyncHandle> handle = instance->m_running_handles[lpOverlapped];
 
-	handle->callback(handle->file);
+	handle->callback(handle);
 	handle->state = AsyncState::Finished;
 
 	instance->m_running_lock.lock();

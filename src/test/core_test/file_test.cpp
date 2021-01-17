@@ -6,7 +6,7 @@ using namespace luna;
 
 #include <gtest/gtest.h>
 
-void OnFileOpen(LSharedPtr<LFile> file)
+void OnFileOpen(LSharedPtr<FileAsyncHandle> file)
 {
 	return;
 }
