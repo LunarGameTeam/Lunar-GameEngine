@@ -77,6 +77,7 @@ add_subdirectory(src/engine/lua_bind)
 add_subdirectory(src/engine/lua)
 
 add_subdirectory(src/application)
+add_subdirectory(src/editor)
 
 add_subdirectory(src/test/core_test)
 add_subdirectory(src/test/lua_bind_test)
@@ -94,6 +95,8 @@ SET_PROPERTY(TARGET application PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET window PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET world PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET lua_bind PROPERTY FOLDER "Runtime")
+
+SET_PROPERTY(TARGET editor PROPERTY FOLDER "Editor")
 
 add_subdirectory(sdk/googletest)
 add_subdirectory(sdk/DirectXTex)

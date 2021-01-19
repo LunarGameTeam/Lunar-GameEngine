@@ -749,7 +749,7 @@ scene_test_simple::~scene_test_simple()
 
 bool RenderSubusystem::OnInit()
 {
-	mNeedTick = true;
+	m_need_tick = true;
 	Ptr<LunarWindow> mainWindow = gEngine->GetSubsystem<WindowSubusystem>()->GetMainWindow();
 	LunarWin32Window* windows_window = dynamic_cast<LunarWin32Window*>(mainWindow.get());
 

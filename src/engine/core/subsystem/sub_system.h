@@ -14,6 +14,11 @@
 class SubSystem
 {
 public:
+	bool IsInitialized()
+	{
+		return m_is_initialized;
+	}
+
 	bool Init();
 	bool PreInit();
 	bool PostInit();
@@ -26,8 +31,11 @@ public:
 
 	virtual void Tick() = 0;
 
-public:
-	bool mNeedTick = false;
+protected:
+	bool m_is_initialized = false;
+	bool m_need_tick = false;
+
+	friend class lunaCore;
 };
 
 

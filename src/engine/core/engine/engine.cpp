@@ -17,6 +17,7 @@ void lunaCore::Run()
 	for (auto subsytem : mOrderedSubSystems)
 	{
 		subsytem->Init();
+		subsytem->m_is_initialized = true;
 	}
 	//广播Init执行完毕
 	mSubSystemInitDoneEvent.BroadCast();
@@ -38,12 +39,16 @@ void lunaCore::MainLoop()
 {
 	while (!mPendingExit)
 	{
-		for (auto subsystem : mOrderedSubSystems)
+		for (auto& subsystem : mOrderedSubSystems)
 		{
-			if (subsystem->mNeedTick)
+			if (subsystem->m_need_tick)
 			{
 				subsystem->Tick();
 			}
+		}
+		if ((GetKeyState(VK_ESCAPE) & 0x8000))
+		{
+			mPendingExit = true;
 		}
 	}
 }

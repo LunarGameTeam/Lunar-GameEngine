@@ -28,6 +28,10 @@ LPath::LPath(const char* str) : m_Path(str)
 	{
 		m_AbsPath = file->EngineDir() + str;
 	}
+	else
+	{
+		m_AbsPath = str;
+	}
 }
 
 LPath::LPath(const LString& str) :m_Path(str)
@@ -42,6 +46,10 @@ LPath::LPath(const LString& str) :m_Path(str)
 	if (m_Path.StartWith('/'))
 	{
 		m_AbsPath = file->EngineDir() + str;
+	}
+	else
+	{
+		m_AbsPath = str;
 	}
 }
 

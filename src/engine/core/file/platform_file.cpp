@@ -3,6 +3,8 @@
 #include "core/file/file_subsystem.h"
 #include "core/engine/engine.h"
 #include <boost/filesystem.hpp>
+#include <filesystem>
+
 namespace luna
 {
 
@@ -71,6 +73,76 @@ const LString &WindowsFileManager::EngineDir()
 	return m_EngineDir;
 }
 
+
+bool WindowsFileManager::GetFileInfo(const LPath &path, LFileInfo &result, bool recursive /*= false*/)
+{
+	std::filesystem::path p(path.AsStringAbs().c_str());
+	if (!std::filesystem::exists(p))
+	{
+		return false;
+	}
+	std::filesystem::directory_entry file(p);
+	result.is_folder = file.is_directory();
+	result.path = file.path().string();
+#ifdef _WIN32
+	result.path.ReplaceAll("\\", "/");
+#endif
+	for (const auto &entry : std::filesystem::directory_iterator(p))
+	{
+		LString path = entry.path().string();
+#ifdef _WIN32
+		path.ReplaceAll("\\", "/");
+#endif
+		auto &info = result.folder_contents[path];
+		info.is_folder = entry.is_directory();
+		info.path = path;
+		if (info.is_folder && recursive)
+		{
+			GetFileInfo(LPath(info.path), info, recursive);
+			info.is_folder_contents_init = true;
+		}
+	}
+	if (result.is_folder)
+		result.is_folder_contents_init = true;
+	return true;
+}
+
+bool WindowsFileManager::GetFileInfoRecursive(const LPath &path, LFileInfo &result, bool recursive /*= false*/)
+{
+	std::filesystem::path p(path.AsStringAbs().c_str());
+	if (!std::filesystem::exists(p))
+	{
+		return false;
+	}
+	std::filesystem::directory_entry file(p);
+	for (const auto &entry : std::filesystem::recursive_directory_iterator(p))
+	{
+		LString path = entry.path().string();
+#ifdef _WIN32
+		path.ReplaceAll("\\", "/");
+#endif
+		auto &info = result.folder_contents[path];
+		info.is_folder = entry.is_directory();
+		info.path = path;
+	}
+	return true;
+}
+
+bool WindowsFileManager::WriteStringToFile(const LPath &path, const LString &res)
+{
+	LSharedPtr<LFileStream> file = boost::make_shared<LFileStream>();
+	file->m_file.open(path.AsStringAbs(), (int)OpenMode::Out | (int)OpenMode::Trunc);
+
+	if (file->m_file.fail())
+	{
+		LogError(E_Core, g_Failed, "open file failed");
+		return false;
+	}
+	file->m_file << res;
+	file->m_file.flush();
+	file->m_file.close();
+	return true;
+}
 
 bool WindowsFileManager::DisposeFileManager()
 {

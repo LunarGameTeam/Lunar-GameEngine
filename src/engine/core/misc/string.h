@@ -63,6 +63,7 @@ namespace luna
 		size_t FindLast(const char* str) const;
 		bool StartWith(const char* str) const;
 		bool StartWith(const char str) const;
+		bool EndsWith(const char* str) const;
 
 		void Replace(const char* str,const char* des);
 		void Replace(const StringContainer& str);

@@ -29,7 +29,7 @@ bool WindowSubusystem::OnPreInit()
 
 bool WindowSubusystem::OnInit()
 {
-	mNeedTick = true;
+	m_need_tick = true;
 	return true;
 
 }

@@ -46,12 +46,46 @@ public:
 public:
 	virtual LSharedPtr<LFile> ReadSync(const LPath &path) = 0;
 	virtual LSharedPtr<FileAsyncHandle> ReadAsync(const LPath &path, FileAsyncCallback callback) = 0;
-
 	virtual LSharedPtr<LFile> WriteSync(const LPath &path, const LVector<byte> &data) = 0;
 
 public:
 	virtual LSharedPtr<LFileStream> OpenAsStream(const LPath &path, OpenMode mode) = 0;
+	//************************************
+	// Method:    GetFileInfo
+	// Brief:     获取一个文件的所有信息，递归获取，保持文件，文件夹之间的层级关系
+	// Returns:   bool
+	// Parameter: const LPath & path
+	// Parameter: LFileInfo & result
+	// Parameter: bool recursive
+	//************************************
+	virtual bool GetFileInfo(const LPath &path, LFileInfo &result, bool recursive = false) = 0;
+
+	//************************************
+	// Method:    GetFileInfoRecursive
+	// Brief:     递归获取一个文件或者文件夹的下的所有信息，存放到Result中，不保持层级关系
+	// Returns:   bool
+	// Parameter: const LPath & path
+	// Parameter: LFileInfo & result
+	// Parameter: bool recursive
+	//************************************
+	virtual bool GetFileInfoRecursive(const LPath &path, LFileInfo &result, bool recursive = false) = 0;
+	
+	//************************************
+	// Method:    ReadStringFromFile
+	// Brief:     从文件中同步读取文本
+	// Returns:   bool
+	// Parameter: const LPath & path
+	// Parameter: LString & res
+	//************************************
 	virtual bool ReadStringFromFile(const LPath &path, LString &res) = 0;
+	//************************************
+	// Method:    WriteStringToFile
+	// Brief:     同步写入文本到文件
+	// Returns:   bool
+	// Parameter: const LPath & path
+	// Parameter: const LString & res
+	//************************************
+	virtual bool WriteStringToFile(const LPath &path, const LString &res) = 0;
 	virtual bool IsExists(const LPath &path) = 0;
 	virtual bool IsDirctory(const LPath &path) = 0;
 	virtual bool IsFile(const LPath &path) = 0;
@@ -83,7 +117,10 @@ public:
 	LSharedPtr<LFile> WriteSync(const LPath &path, const LVector<byte> &data) override;
 	LSharedPtr<FileAsyncHandle> ReadAsync(const LPath &path, FileAsyncCallback callback) override;
 	LSharedPtr<LFileStream> OpenAsStream(const LPath &path, OpenMode mode) override;
+	
 	bool ReadStringFromFile(const LPath &path, LString &res) override;
+	bool WriteStringToFile(const LPath &path, const LString &res) override;
+
 	bool IsExists(const LPath &path) override;
 	bool IsDirctory(const LPath &path) override;
 	bool IsFile(const LPath &path) override;
@@ -91,6 +128,11 @@ public:
 	bool CreateDirectory(const LPath &path) override;
 	bool CreateFile(const LPath &path) override;
 	const LString &EngineDir() override;
+
+	bool GetFileInfo(const LPath &path, LFileInfo& result, bool recursive = false) override;
+
+
+	bool GetFileInfoRecursive(const LPath &path, LFileInfo &result, bool recursive = false) override;
 
 private:
 	boost::mutex m_pending_lock;

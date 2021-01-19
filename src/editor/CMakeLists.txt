@@ -10,8 +10,9 @@ set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS})
 auto_source_group(${ALL_FILES})
 
 set_property(TARGET application PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${SOLUTION_CMAKE_SOURCE_PATH}")
+
 add_executable(editor ${ALL_FILES})
 add_dependencies(editor engine)
 
-target_link_libraries(application engine)
+target_link_libraries(editor engine)
 

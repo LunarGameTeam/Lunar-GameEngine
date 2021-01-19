@@ -106,8 +106,14 @@ bool LString::StartWith(const char *str) const
 }
 bool LString::StartWith(const char str) const
 {
-	assert(m_data.length() > 0);
-	return m_data[0] == str;
+	if(m_data.length() > 0)
+		return m_data[0] == str;
+	return false;
+}
+
+bool LString::EndsWith(const char *str) const
+{
+	return m_data.ends_with(str);
 }
 
 size_t LString::FindLast(const char *str) const

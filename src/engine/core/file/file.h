@@ -10,6 +10,14 @@ namespace luna
 
 class WindowsFileManager;
 
+struct LFileInfo
+{
+	LString path;
+	bool is_folder = false;
+	bool is_folder_contents_init = false;
+	LUnorderedMap<LString, LFileInfo> folder_contents;
+};
+
 struct LFile
 {
 public:

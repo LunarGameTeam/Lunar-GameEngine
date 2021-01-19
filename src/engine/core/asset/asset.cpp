@@ -29,6 +29,11 @@ LResult LBasicAsset::InitResource()
 	return luna::g_Succeed;
 }
 
+void LBasicAsset::CheckIfLoadingStateChanged(LLoadState &m_object_load_state)
+{
+
+}
+
 LResult LBasicAsset::InitCommon()
 {
 	return luna::g_Succeed;
