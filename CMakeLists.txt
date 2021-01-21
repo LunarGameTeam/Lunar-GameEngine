@@ -68,7 +68,6 @@ endfunction(auto_source_group)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251")
 
-add_subdirectory(src/engine)
 add_subdirectory(src/engine/core)
 add_subdirectory(src/engine/render)
 add_subdirectory(src/engine/world)
@@ -86,7 +85,6 @@ add_subdirectory(src/test/async_test)
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
-SET_PROPERTY(TARGET engine PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET core PROPERTY FOLDER "Runtime")
 
 SET_PROPERTY(TARGET render PROPERTY FOLDER "Runtime")

@@ -298,3 +298,5 @@ OpenCover/
 /K-Renderer/Debug/
 Debug
 x64
+/log.txt
+/Config.ini

@@ -10,6 +10,6 @@ set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS})
 auto_source_group(${ALL_FILES})
 
 add_executable(application ${ALL_FILES})
-add_dependencies(application engine core render)
-target_link_libraries(application engine)
+add_dependencies(application core render)
+target_link_libraries(application core render)
 
