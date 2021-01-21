@@ -9,7 +9,7 @@
 int main(int argc, const char* argv[])
 {
 	gEngine = new LunarEngineCore();
-	gEngine->RegisterSubsystem<WindowSubusystem>();
+	gEngine->RegisterSubsystem<WindowSubsystem>();
 	gEngine->RegisterSubsystem<RenderSubusystem>();
 	gEngine->Run();
 	gEngine->MainLoop();

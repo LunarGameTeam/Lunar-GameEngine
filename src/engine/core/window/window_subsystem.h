@@ -17,7 +17,10 @@
 #include "core/misc/container.h"
 #include "luna_window.h"
 
-class WindowSubusystem : public SubSystem
+namespace luna
+{
+
+class WindowSubsystem : public SubSystem
 {
 #ifdef _WIN32
 	using WindowHandle = HWND;
@@ -44,3 +47,5 @@ private:
 	LMap<WindowHandle, LWindow *> m_win_windows;
 	LWindow *m_main_window;
 };
+
+}

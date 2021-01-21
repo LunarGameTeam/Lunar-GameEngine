@@ -1,12 +1,15 @@
 #include "window_subsystem.h"
 #include "boost/make_shared.hpp"
 #include "core/core_module.h"
+namespace luna
+{
 
-LWindow* WindowSubusystem::CreateLunaWindow(const luna::LString& name, int width, int height)
+
+LWindow *WindowSubsystem::CreateLunaWindow(const luna::LString &name, int width, int height)
 {
 
 #ifdef _WIN32 || _WIN64
-	LWin32Window* win32Window = new LWin32Window();
+	LWin32Window *win32Window = new LWin32Window();
 #endif // _WIN32 || _WIN64
 
 	win32Window->Init();
@@ -15,36 +18,36 @@ LWindow* WindowSubusystem::CreateLunaWindow(const luna::LString& name, int width
 	return win32Window;
 }
 
-LWindow* WindowSubusystem::GetMainWindow()
+LWindow *WindowSubsystem::GetMainWindow()
 {
 	return m_main_window;
 }
 
-bool WindowSubusystem::OnPreInit()
+bool WindowSubsystem::OnPreInit()
 {
-	m_main_window = CreateLunaWindow("LunarGameEngine", 1024, 768);
+	m_main_window = CreateLunaWindow("MainWindow", 1024, 768);
 	//("[Window]MainWindow Created");
 	return true;
 }
 
-bool WindowSubusystem::OnInit()
+bool WindowSubsystem::OnInit()
 {
 	m_need_tick = true;
 	return true;
 
 }
 
-bool WindowSubusystem::OnPostInit()
+bool WindowSubsystem::OnPostInit()
 {
 	return true;
 }
 
-bool WindowSubusystem::OnShutdown()
+bool WindowSubsystem::OnShutdown()
 {
 	return true;
 }
 
-void WindowSubusystem::Tick()
+void WindowSubsystem::Tick()
 {
 
 	MSG msg;
@@ -58,3 +61,5 @@ void WindowSubusystem::Tick()
 		gEngine->mPendingExit = true;
 }
 
+
+}

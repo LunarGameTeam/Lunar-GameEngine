@@ -12,7 +12,7 @@ auto_source_group(${ALL_FILES})
 
 add_library(render STATIC ${ALL_FILES})
 
-add_dependencies(render core window)
-target_link_libraries(render core window)
+add_dependencies(render core)
+target_link_libraries(render core)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")

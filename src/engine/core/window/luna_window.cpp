@@ -4,11 +4,14 @@
 #include "window_subsystem.h"
 
 #pragma comment(lib, "Shcore.lib")
+namespace luna
+{
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-	static WindowSubusystem* subsytem = gEngine->GetSubsystem<WindowSubusystem>();
-	LWindow* window = subsytem->GetWindowByHandle(hwnd);
-	
+	static WindowSubsystem *subsytem = gEngine->GetSubsystem<WindowSubsystem>();
+	LWindow *window = subsytem->GetWindowByHandle(hwnd);
+
 	switch (msg)
 	{
 	case WM_CLOSE:
@@ -108,4 +111,6 @@ bool LWin32Window::Init()
 	ShowCursor(true);
 
 	return true;
+}
+
 }

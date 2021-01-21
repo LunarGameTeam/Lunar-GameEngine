@@ -17,13 +17,16 @@
 #include <windows.h>
 #include <windowsx.h>
 
+namespace luna
+{
+
 class LWindow
 {
 public:
 	virtual bool Init() = 0;
 
 
-	inline int32_t GetWindowWidth() 
+	inline int32_t GetWindowWidth()
 	{
 		return m_width;
 	}
@@ -42,7 +45,7 @@ class LWin32Window : public LWindow
 {
 public:
 	virtual bool Init();
-	HWND GetHwnd() 
+	HWND GetHwnd()
 	{
 		return mHWND;
 	}
@@ -54,3 +57,5 @@ private:
 	HWND mHWND;
 	HINSTANCE m_appInstance;
 };
+
+}
