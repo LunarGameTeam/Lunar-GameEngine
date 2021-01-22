@@ -1,6 +1,12 @@
 #include "window_subsystem.h"
 #include "boost/make_shared.hpp"
 #include "core/core_module.h"
+
+#ifdef _WIN32
+
+#include "win32_window.h"
+
+#endif
 namespace luna
 {
 
@@ -8,13 +14,13 @@ namespace luna
 LWindow *WindowSubsystem::CreateLunaWindow(const luna::LString &name, int width, int height)
 {
 
-#ifdef _WIN32 || _WIN64
+#ifdef _WIN32
 	LWin32Window *win32Window = new LWin32Window();
-#endif // _WIN32 || _WIN64
-
 	win32Window->Init();
 	auto hwnd = win32Window->GetHwnd();
 	m_win_windows[hwnd] = win32Window;
+#endif // _WIN32
+
 	return win32Window;
 }
 

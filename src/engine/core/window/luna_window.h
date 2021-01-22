@@ -14,8 +14,6 @@
 #pragma once
 
 #include "core/core_module.h"
-#include <windows.h>
-#include <windowsx.h>
 
 namespace luna
 {
@@ -41,21 +39,5 @@ protected:
 	int32_t m_height = 768;
 };
 
-class LWin32Window : public LWindow
-{
-public:
-	virtual bool Init();
-	HWND GetHwnd()
-	{
-		return mHWND;
-	}
-	HINSTANCE GetInstanceHwnd()
-	{
-		return m_appInstance;
-	}
-private:
-	HWND mHWND;
-	HINSTANCE m_appInstance;
-};
 
 }
