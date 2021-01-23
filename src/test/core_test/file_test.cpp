@@ -19,29 +19,14 @@ TEST(Core, File)
 	AssetSubsystem *asset_sys = gEngine->GetSubsystem<AssetSubsystem>();
 	IPlatformFileManager *manager = file_sys->GetPlatformFileManager();
 
+	//获取一个文件/文件夹的信息
 	LFileInfo info;
 	manager->GetFileInfo("/assets", info, true);
-
+	//递归获取一个文件/文件夹的信息
 	LFileInfo assets_dir;
 	manager->GetFileInfoRecursive("/assets", assets_dir);
-	bool ignore_exists = true;
-	for (auto &file : assets_dir.folder_contents)
-	{
-		auto &info = file.second;
-		if (!info.path.EndsWith(".meta"))
-		{
-			LString meta_path = info.path + ".meta";
-			//不存在meta生成			
-			if (ignore_exists || assets_dir.folder_contents.find(meta_path) == assets_dir.folder_contents.end())
-			{				
-				LString content = "{\n}";
-				manager->WriteStringToFile(meta_path, content);
-			}
-			LString file_name = info.path.Substr(0, info.path.FindLast('.'));
-		}
-	}
-
+	//异步读
 	LPath entry_file("/assets/entry.lua");
 	manager->ReadAsync(entry_file, OnFileOpen);
-	asset_sys->LoadAsset<LBasicAsset>("/assets/entry.lua");
+
 }

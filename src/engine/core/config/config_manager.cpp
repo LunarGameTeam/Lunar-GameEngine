@@ -59,7 +59,7 @@ ConfigManager::~ConfigManager()
 	LString path(tempPath);
 	path = path + "/config.ini";
 	fs.open(path.c_str(), std::fstream::out | std::fstream::trunc);
-	map<const char *, boost::container::vector<SerializeConfig>> configs;
+	map<LString, boost::container::vector<SerializeConfig>> configs;
 
 	for (auto &it : s_configs)
 	{
@@ -75,7 +75,7 @@ ConfigManager::~ConfigManager()
 	
 	for (auto& it : configs)
 	{
-		LString group = LString::Format("[%s]\n", it.first);
+		LString group = LString::Format("[%s]\n", it.first.c_str());
 		fs << group.c_str();
 		for (auto &config : it.second)
 		{

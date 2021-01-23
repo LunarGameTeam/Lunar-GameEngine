@@ -80,7 +80,6 @@ add_subdirectory(src/editor)
 add_subdirectory(src/test/core_test)
 add_subdirectory(src/test/lua_bind_test)
 add_subdirectory(src/test/world_test)
-add_subdirectory(src/test/async_test)
 
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -118,7 +117,6 @@ SET_PROPERTY(TARGET core_test PROPERTY FOLDER "Test")
 SET_PROPERTY(TARGET gtest PROPERTY FOLDER "Test")
 SET_PROPERTY(TARGET lua_bind_test PROPERTY FOLDER "Test")
 SET_PROPERTY(TARGET world_test PROPERTY FOLDER "Test")
-SET_PROPERTY(TARGET async_test PROPERTY FOLDER "Test")
 
 
 set_property(TARGET application PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${SOLUTION_CMAKE_SOURCE_PATH}")

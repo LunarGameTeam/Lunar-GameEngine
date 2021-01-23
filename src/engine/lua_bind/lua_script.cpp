@@ -1,16 +1,17 @@
-#include "lua_env.h"
+#include "lua_script.h"
 
-void luna::LuaEnv::Init()
+namespace luna
 {
-	m_lua_state.open_libraries(sol::lib::base, sol::lib::package);
+
+
+void LuaScript::OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile> file)
+{
+	m_content = LString((char*)file->GetData().data(), (char *)file->GetData().data() + file->GetData().size());
 }
 
-void luna::LuaEnv::RunScript(const LString &str)
+const LString &LuaScript::GetScriptContent()
 {
+	return m_content;
 }
 
-sol::state &luna::LuaEnv::GetLuaState()
-{
-	return m_lua_state;
 }
-

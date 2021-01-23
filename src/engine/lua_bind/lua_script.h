@@ -12,25 +12,12 @@ namespace luna
 class LuaScript : public LBasicAsset
 {
 public:
-
-	void Init();
-	void RunScript(const LString& str);
-
-	sol::state &GetLuaState();
-
+	void OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile> file) override;
+	const LString &GetScriptContent();
 private:
-	sol::state m_lua_state;
+	LString m_content;
 
 
-	void CheckIfLoadingStateChanged(LLoadState &m_object_load_state) override
-	{
-	}
-
-
-	luna::LResult InitCommon() override
-	{
-		return g_Succeed;
-	}
 
 };
 
