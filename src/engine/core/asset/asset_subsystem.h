@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/subsystem/sub_system.h"
+#include "core/file/file_subsystem.h"
 #include "core/file/path.h"
 #include "core/memory/ptr.h"
 #include "asset.h"

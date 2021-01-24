@@ -199,6 +199,12 @@ namespace luna
 	{
 		return boost::lexical_cast<Target>(source.c_str());
 	}
+	template<typename const char*>
+	inline const char *FromString(const LString &source)
+	{
+		return source.c_str();
+	}
+
 
 	size_t hash_value(const luna::LString &key);
 

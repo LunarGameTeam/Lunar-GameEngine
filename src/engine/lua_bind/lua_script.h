@@ -1,8 +1,7 @@
 #pragma once
 
-#define SOL_ALL_SAFETIES_ON 1
+#include "private_lua.h"
 
-#include <sol/sol.hpp>
 #include "core/misc/string.h"
 #include "core/asset/lasset.h"
 

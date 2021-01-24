@@ -1,8 +1,6 @@
 #pragma once
 
-#define SOL_ALL_SAFETIES_ON 1
-
-#include <sol/sol.hpp>
+#include "private_lua.h"
 #include "core/misc/string.h"
 
 namespace luna
@@ -19,7 +17,7 @@ public:
 
 private:
 	sol::state m_lua_state;
-
+	sol::table m_luna_namespace;
 };
 
 
