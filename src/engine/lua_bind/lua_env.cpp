@@ -14,11 +14,15 @@ Scene* CreateScene(const LString& va)
 void luna::LuaEnv::Init()
 {
 	m_lua_state.open_libraries(sol::lib::base, sol::lib::package);
-	m_luna_namespace = m_lua_state["luna"].get_or_create<sol::table>();
+
+	m_luna_namespace = m_lua_state["luna"].get_or_create<sol::table>();	
+	auto component = m_luna_namespace.new_usertype<Component>("Component");
 	auto entity = m_luna_namespace.new_usertype<Entity>("Entity");
-	m_luna_namespace.new_usertype<Component>("Component");
-	m_luna_namespace.new_usertype<Scene>("Scene");
-	m_luna_namespace.new_usertype<LString>("string");
+	auto scene = m_luna_namespace.new_usertype<Scene>("Scene");
+	auto scene_manager = m_luna_namespace.new_usertype<SceneManager>("SceneManager");
+	scene_manager.set_function("instance", SceneManager::instance);
+	scene_manager.set("main_scene", sol::property(&SceneManager::MainScene));
+	auto str = m_luna_namespace.new_usertype<LString>("string");
 	m_luna_namespace.set_function("create_scene", &CreateScene);
 }
 

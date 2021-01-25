@@ -48,11 +48,9 @@ bool LuaSubsystem::OnShutdown()
 	return true;
 }
 
-void LuaSubsystem::Tick()
+void LuaSubsystem::Tick(float delta_time)
 {
 	auto tick = m_default_env->GetLuaState()["tick"];
-	if(tick)
-		tick();
 }
 
 

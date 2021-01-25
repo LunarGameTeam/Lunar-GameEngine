@@ -35,7 +35,7 @@ namespace luna
 		bool OnShutdown() override;
 
 
-		void Tick() override;
+		void Tick(float delta_time) override;
 
 		IPlatformFileManager* GetPlatformFileManager() const {
 			return m_PlatformFile;

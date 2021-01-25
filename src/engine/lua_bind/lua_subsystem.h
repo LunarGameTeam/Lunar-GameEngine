@@ -25,7 +25,7 @@ public:
 	bool OnShutdown() override;
 
 
-	void Tick() override;
+	void Tick(float delta_time) override;
 
 	LuaEnv &GetDefaultEnv();
 

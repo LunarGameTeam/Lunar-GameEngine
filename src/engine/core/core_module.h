@@ -18,6 +18,7 @@
 #include "engine/engine.h"
 #include "log/log.h"
 #include "misc/misc.h"
+#include "misc/container.h"
 #include "misc/delegate.h"
 #include "misc/string.h"
 #include "memory/ptr.h"

@@ -32,7 +32,7 @@ bool AssetSubsystem::OnShutdown()
 	return true;
 }
 
-void AssetSubsystem::Tick()
+void AssetSubsystem::Tick(float delta_time)
 {
 
 }

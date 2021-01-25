@@ -1,4 +1,5 @@
 #include "engine.h"
+#include <chrono>
 
 lunaCore* gEngine = nullptr;
 
@@ -37,19 +38,35 @@ void lunaCore::Run()
 
 void lunaCore::MainLoop()
 {
+
+	typedef std::chrono::high_resolution_clock Time;
+	typedef std::chrono::milliseconds ms;
+	typedef std::chrono::duration<float> fsec;
+	auto now = Time::now();
+	auto old = Time::now();
+
 	while (!mPendingExit)
 	{
 		for (auto& subsystem : mOrderedSubSystems)
 		{
 			if (subsystem->m_need_tick)
 			{
-				subsystem->Tick();
+				subsystem->Tick(0.15f);
 			}
 		}
 		if ((GetKeyState(VK_ESCAPE) & 0x8000))
 		{
 			mPendingExit = true;
 		}
+		now = Time::now();
+		fsec fs = now - old;
+		ms d = std::chrono::duration_cast<ms>(fs);
+		if (d.count() < 15)
+		{
+			Sleep(15 - d.count());
+		}
+		old = now;
+		
 	}
 }
 

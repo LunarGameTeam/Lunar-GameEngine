@@ -29,7 +29,7 @@ public:
 	virtual bool OnInit() = 0;
 	virtual bool OnShutdown() = 0;
 
-	virtual void Tick() = 0;
+	virtual void Tick(float delta_time) = 0;
 
 protected:
 	bool m_is_initialized = false;

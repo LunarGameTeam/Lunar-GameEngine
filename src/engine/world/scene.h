@@ -10,29 +10,46 @@ namespace luna
 class Scene : LObject
 {
 public:
-	Entity *CreateEntity(LString& name);
+	Scene()
+	{
+
+	}
+
+	Entity *CreateEntity(LString &name)
+	{
+		auto entity = new Entity(name);
+		m_entities.insert(entity);
+	}
+	
+	void OnCreate();
+	void OnDestroy();
 
 private:
-	LVector<Entity *> m_entities;
+	LUnorderedSet<Entity*> m_entities;
 };
 
 class SceneManager
 {
-
-};
-
-class WorldSubsystem : public SubSystem
-{
 public:
-	bool OnPreInit() override;
+	Scene *CreateScene()
+	{
+		return new Scene();
+	}
 
-	bool OnPostInit() override;
+	Scene *MainScene()
+	{
+		static Scene *main_scene = nullptr;
+		if (main_scene == nullptr)
+			main_scene = CreateScene();
+		return main_scene;
+	}
+	static SceneManager *instance()
+	{
+		static SceneManager manager;
+		return &manager;
+	}
+private:
 
-	bool OnInit() override;
-
-	bool OnShutdown() override;
-
-	void Tick() override;
 
 };
 

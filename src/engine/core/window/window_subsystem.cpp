@@ -53,7 +53,7 @@ bool WindowSubsystem::OnShutdown()
 	return true;
 }
 
-void WindowSubsystem::Tick()
+void WindowSubsystem::Tick(float delta_time)
 {
 
 	MSG msg;

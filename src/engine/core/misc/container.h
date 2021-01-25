@@ -21,6 +21,7 @@ using LMap = boost::container::map<K, Value>;
 
 #include "boost/container/list.hpp"
 template<typename Value>
+
 using LList= boost::container::list<Value>;
 template<typename K>
 using LHash = boost::hash<K>;

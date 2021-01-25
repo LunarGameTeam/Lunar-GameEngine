@@ -30,6 +30,6 @@ bool FileSubsystem::OnShutdown()
 	return true;
 }
 
-void FileSubsystem::Tick()
+void luna::FileSubsystem::Tick(float delta_time)
 {
 }

@@ -29,7 +29,7 @@ public:
 	bool OnPostInit() override;
 	bool OnInit() override;
 	bool OnShutdown() override;
-	void Tick() override;
+	void Tick(float delta_time) override;
 	
 public:
 	template<typename T>

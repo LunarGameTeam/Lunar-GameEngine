@@ -12,6 +12,6 @@ auto_source_group(${ALL_FILES})
 
 add_library(lua_bind STATIC ${ALL_FILES})
 
-add_dependencies(lua_bind lua)
-target_link_libraries(lua_bind lua)
+add_dependencies(lua_bind lua world)
+target_link_libraries(lua_bind lua world)
 

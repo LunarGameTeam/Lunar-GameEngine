@@ -5,9 +5,14 @@
 namespace luna
 {
 
-class Component : LObject
+class Component : public LObject
 {
+public:
+	virtual void OnCreate();
+	virtual void OnDestroy();
 
+private:
+	bool m_is_initliazed = false;
 };
 
 }

@@ -826,7 +826,7 @@ bool RenderSubusystem::OnShutdown()
 	return true;
 }
 
-void RenderSubusystem::Tick()
+void RenderSubusystem::Tick(float delta_time)
 {
 	new_scene->Update(0);
 	new_scene->Display();

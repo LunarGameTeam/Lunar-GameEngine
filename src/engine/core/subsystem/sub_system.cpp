@@ -30,7 +30,7 @@ bool SubSystem::Shutdown()
 	return OnShutdown();
 }
 
-void SubSystem::Tick()
+void SubSystem::Tick(float delta_time)
 {
 
 }
