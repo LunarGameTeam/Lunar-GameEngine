@@ -51,6 +51,10 @@ bool LuaSubsystem::OnShutdown()
 void LuaSubsystem::Tick(float delta_time)
 {
 	auto tick = m_default_env->GetLuaState()["tick"];
+	if (tick.valid() && tick.get_type() == sol::type::function)
+	{
+		tick(delta_time);
+	}
 }
 
 

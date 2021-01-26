@@ -9,12 +9,8 @@ namespace luna
 
 class Scene : LObject
 {
+
 public:
-	Scene()
-	{
-
-	}
-
 	Entity *CreateEntity(LString &name)
 	{
 		auto entity = new Entity(name);
@@ -24,8 +20,16 @@ public:
 	void OnCreate();
 	void OnDestroy();
 
+protected:
+	Scene()
+	{
+
+	}
+
 private:
 	LUnorderedSet<Entity*> m_entities;
+
+	friend class SceneManager;
 };
 
 class SceneManager

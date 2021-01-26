@@ -1,4 +1,11 @@
 
-luna.create_scene("123")
-print('lua entry')
-print(luna.create_scene)
+function on_create()
+    print('lua entry');
+    local scene = luna.SceneManager.instance().main_scene;
+end
+
+function tick(delta_time)
+    print(delta_time);
+end
+
+on_create();

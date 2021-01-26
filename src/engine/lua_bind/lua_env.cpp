@@ -6,11 +6,6 @@
 namespace luna
 {
 
-Scene* CreateScene(const LString& va)
-{
-	return new Scene();
-}
-
 void luna::LuaEnv::Init()
 {
 	m_lua_state.open_libraries(sol::lib::base, sol::lib::package);
@@ -23,7 +18,6 @@ void luna::LuaEnv::Init()
 	scene_manager.set_function("instance", SceneManager::instance);
 	scene_manager.set("main_scene", sol::property(&SceneManager::MainScene));
 	auto str = m_luna_namespace.new_usertype<LString>("string");
-	m_luna_namespace.set_function("create_scene", &CreateScene);
 }
 
 void luna::LuaEnv::RunScript(const LString &str)
