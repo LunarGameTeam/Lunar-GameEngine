@@ -54,10 +54,6 @@ void lunaCore::MainLoop()
 				subsystem->Tick(0.15f);
 			}
 		}
-		if ((GetKeyState(VK_ESCAPE) & 0x8000))
-		{
-			mPendingExit = true;
-		}
 		now = Time::now();
 		fsec fs = now - old;
 		ms d = std::chrono::duration_cast<ms>(fs);

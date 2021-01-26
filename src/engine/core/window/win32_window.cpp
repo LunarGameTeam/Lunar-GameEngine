@@ -1,6 +1,7 @@
 #include "win32_window.h"
 
 #include "window_subsystem.h"
+#include "event_subsystem.h"
 #include <ShellScalingApi.h>
 
 #pragma comment(lib, "Shcore.lib")
@@ -8,13 +9,39 @@
 namespace luna
 {
 
+LUnorderedMap<int32_t, KeyCode> InitKeyCodeMap()
+{
+	LUnorderedMap<int32_t, KeyCode> keycode_map;
+	keycode_map[VK_ESCAPE] = KeyCode::Escape;
+	keycode_map[VK_F5] = KeyCode::F5;
+	return keycode_map;
+}
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	static WindowSubsystem *subsytem = gEngine->GetSubsystem<WindowSubsystem>();
 	LWindow *window = subsytem->GetWindowByHandle(hwnd);
+	assert(subsytem != nullptr);
+	static EventSubsystem *event_subsytem = gEngine->GetSubsystem<EventSubsystem>();
+	assert(event_subsytem != nullptr);
+	static LUnorderedMap<int32_t, KeyCode> keycode_map = InitKeyCodeMap();
 
 	switch (msg)
 	{
+	case WM_KEYDOWN:
+	{
+		InputEvent event;
+		event.type = EventType::Input_KeyDown;
+		event.code = keycode_map[(int32_t)wParam];
+		event_subsytem->OnInput(*window, event);
+		if (wParam == VK_ESCAPE)
+			PostQuitMessage(0);
+		if (wParam == VK_F5)
+			PostQuitMessage(0);
+		LogVerboseFormat(E_Core, "%d", wParam);
+	}
+
+	break;
 	case WM_CLOSE:
 		PostQuitMessage(0);
 		break;
