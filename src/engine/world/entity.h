@@ -9,10 +9,6 @@ namespace luna
 class Entity : public LObject
 {
 public:
-	Entity(const LString &name)
-	{
-		
-	}
 	Entity(const Entity &rv) = delete;
 
 	void OnCreate();
@@ -37,9 +33,15 @@ public:
 	T *AddComponent()
 	{
 		T *comp = new T();		
-		m_components.push_back(comp);
+		comp->Owner = this;
+		m_components.push_back(comp);		
 		comp->OnCreate();
 		return T;
+	}
+protected:
+	Entity(const LString &name)
+	{
+
 	}
 
 private:

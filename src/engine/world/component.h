@@ -4,16 +4,33 @@
 
 namespace luna
 {
+class Entity;
 
 class Component : public LObject
 {
 public:
-	virtual void OnCreate();
-	virtual void OnDestroy();
+	Component(const Component &comp) = delete;
+	
+	inline Entity *Owner() 
+	{
+		return m_owner;
+	}
 	void Destroy();
 
+	virtual void OnDisable();
+	virtual void OnEnable();
+	virtual void OnCreate();
+	virtual void OnDestroy();
+	virtual void OnTick(float delta_time);
+protected:
+	Component();
 private:
 	bool m_is_initliazed = false;
+	bool m_enable = true;
+	bool m_need_tick = false;
+	Entity *m_owner;
+
+	friend class Entity;
 };
 
 }
