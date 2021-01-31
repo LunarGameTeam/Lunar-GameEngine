@@ -13,7 +13,7 @@ public:
 
 	void OnCreate();
 	void OnDestroy();
-
+	void OnTick(float delta_time);
 	void Destroy();
 
 	template<typename T>
@@ -41,11 +41,15 @@ public:
 protected:
 	Entity(const LString &name)
 	{
-
+		m_need_tick = false;
 	}
 
 private:
 	LVector<Component *> m_components;
+	bool m_need_tick = false;
+
+	friend class Scene;
+	friend class WorldSubsystem;
 };
 
 }

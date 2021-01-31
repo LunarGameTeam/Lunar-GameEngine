@@ -7,26 +7,42 @@
 
 using namespace luna;
 
-// 
-// TEST(DelegateTest, Test0)
-// {
-// 
-// 	class TestObject
-// 	{
-// 	public:
-// 		void print_sum()
-// 		{
-// 			std::cout << "print";
-// 		}
-// 
-// 	};
-// 
-// 	DELEGATE_NO_PARAMS(TestEvent, TestObject, void);
-// 	TestEvent evet;
-// 	TestObject test;
-// 	evet.Bind(&TestObject::print_sum, &test);
-// 	evet.BroadCast();
-// }
+class TestObject;
+
+class TestObject
+{
+public:
+	void print_sum()
+	{
+		std::cout << "print" << std::endl;
+	}
+	void print_sum2(int val)
+	{
+		std::cout << val << std::endl;
+	}
+	SIGNAL_NO_PARAMS(TestEvent, void);
+	SIGNAL_ONE_PARAMS(TestEvent2, void, int);
+
+};
+
+
+TEST(DelegateTest, Test0)
+{
+	auto h =
+	{
+		TestObject test;	
+		auto func = boost::bind(&TestObject::print_sum, &test);
+		auto func2 = boost::bind(&TestObject::print_sum2, &test, boost::placeholders::_1);
+		auto handle = test.TestEvent.Bind(func);
+		{
+			auto handle2 = test.TestEvent2.Bind(func2);
+		}
+		test.TestEvent.BroadCast();
+		test.TestEvent2.BroadCast(1);
+	}
+
+	
+}
 
 int main(int argc, const char* argv[])
 {

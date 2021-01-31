@@ -31,6 +31,7 @@ private:
 	Entity *m_owner;
 
 	friend class Entity;
+	friend class WorldSubsystem;
 };
 
 }

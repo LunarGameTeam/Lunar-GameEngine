@@ -11,10 +11,10 @@ class Scene : LObject
 {
 
 public:
-	Entity *CreateEntity(LString &name)
+	Entity *CreateEntity(LString &name, Entity* parent = nullptr)
 	{
 		auto entity = new Entity(name);
-		m_entities.insert(entity);
+		m_entities.push_back(entity);
 	}
 	
 	void OnCreate();
@@ -27,9 +27,10 @@ protected:
 	}
 
 private:
-	LUnorderedSet<Entity*> m_entities;
+	LVector<Entity*> m_entities;
 
 	friend class SceneManager;
+	friend class WorldSubsystem;
 };
 
 class SceneManager

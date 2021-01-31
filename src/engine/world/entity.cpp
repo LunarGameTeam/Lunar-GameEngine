@@ -15,4 +15,9 @@ void Entity::OnDestroy()
 }
 
 
+void Entity::OnTick(float delta_time)
+{
+
+}
+
 }

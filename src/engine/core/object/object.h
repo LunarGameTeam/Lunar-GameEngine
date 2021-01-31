@@ -1,7 +1,6 @@
 #pragma once
 
-#include "marcos.h"
-
+#include "core/private_core.h"
 #include "core/misc/uuid.h"
 #include "core/reflection/reflection.h"
 #include "core/misc/container.h"

@@ -20,9 +20,6 @@
 
 class LObject;
 
-DELEGATE_NO_PARAMS(SubSystemPreInitDone, LObject, void)
-DELEGATE_NO_PARAMS(SubSystemInitDone, LObject, void)
-DELEGATE_NO_PARAMS(SubSystemPostInitDone, LObject, void)
 
 class lunaCore
 {
@@ -53,9 +50,9 @@ public:
 
 	//引擎初始化事件
 public:
-	SubSystemPreInitDone mSubSystemPreInitDoneEvent;
-	SubSystemInitDone mSubSystemInitDoneEvent;
-	SubSystemPostInitDone mSubSystemPostInitDoneEvent;
+	SIGNAL_NO_PARAMS(mSubSystemPreInitDoneEvent, void);
+	SIGNAL_NO_PARAMS(mSubSystemInitDoneEvent, void);
+	SIGNAL_NO_PARAMS(mSubSystemPostInitDoneEvent, void);
 
 private:
 	boost::container::vector<SubSystem *> mOrderedSubSystems;

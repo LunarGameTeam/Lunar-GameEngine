@@ -4,86 +4,72 @@
 #include <boost\function.hpp>
 #include "core/misc/container.h"
 
+template<typename RetVal, typename... Param>
+class DelegateBase;
 
-template<typename RetVal,typename... Param>
-class StaticSignature
-{
-	using Signature = RetVal(*)(Param...); 
-	RetVal Invoke( Param... param)
-	{
-		_func(param...)
-	}
-	Signature _func;
-};
-
-
-template<typename RetVal, typename Class, typename... Param>
+template<typename RetVal, typename... Param>
 class DynamicSignature
 {
-	using FuncType = RetVal(Class:: *)(Param...);
-
+	using FunctionType = boost::function<RetVal(Param...)>;
 public:
-
-	void Bind(Class *pointer, FuncType func)
-	{
-		_pointer = pointer;
-		_func = func;
-	}
-	RetVal Invoke( Param... param)
-	{
-		(_pointer->*_func)(param...);
-	}
-	bool operator==(DynamicSignature &right)
-	{
-		return this->_pointer == right._pointer && this->_func == right._func;
-	}
-
-protected:
-	Class *_pointer;
-	FuncType _func;
+	FunctionType _func;
+	LWeakPtr<DelegateBase< RetVal, Param...>> _owner;
 };
 
 
-template< typename Class, typename RetVal, typename... Param>
+template<typename RetVal, typename... Param>
 class DelegateBase
 {
 public:
-	using SignatureType = DynamicSignature<RetVal,Class,Param...>;
-	using MemberFunc = RetVal(Class:: *)(Param...);
-	using StaticFunc = RetVal(*)(Param...);
+	using SignatureType = DynamicSignature<RetVal,Param...>;
 
+public:
+	LList<LWeakPtr<SignatureType>> m_signatures;
+};
+
+template<typename RetVal, typename... Param>
+class SignalHandle
+{
+	using FunctionType = boost::function<RetVal(Param...)>;
+	using SignatureType = DynamicSignature<RetVal, Param...>;
+public:
+	SignalHandle()
+	{
+		_signal = MakeShared<DelegateBase<RetVal, Param... >>();
+	}
+	LSharedPtr<SignatureType> Bind(FunctionType func)
+	{
+		LSharedPtr<SignatureType> signature = MakeShared<SignatureType>();
+		signature->_func = func;
+		LWeakPtr< SignatureType> weak = signature;
+		signature->_owner = _signal;
+		_signal->m_signatures.emplace_back(weak);
+		return signature;
+	}
+	void Remove(SignatureType func)
+	{
+		_signal.m_signatures.remove(func);
+	}
 	void BroadCast(Param... param)
 	{
-		for (auto node : m_signatures)
+		for (LWeakPtr<SignatureType> node : _signal->m_signatures)
 		{
-			node->Invoke(param...);
+			if (!node.expired())
+			{
+				node.lock()->_func(param...);
+			}
 		}
 	}
 	void Clear()
 	{
-		m_signatures.clear();
+		_signal->m_signatures.clear();
 	}
 
-protected:
-	LList<LSharedPtr<SignatureType>> m_signatures;
-};
-
-template<typename Class, typename RetVal, typename... Param>
-class MultiDynamicDelegate : public DelegateBase<Class, RetVal, Param...>
-{
-public:
-	LSharedPtr<SignatureType> Bind(MemberFunc memberfunc, Class *cls)
-	{
-		LSharedPtr<SignatureType> signature_ptr = boost::make_shared<SignatureType>();
-		signature_ptr->Bind(cls, memberfunc);
-		m_signatures.emplace_back(signature_ptr);
-		return LSharedPtr<SignatureType>(signature_ptr);
-	}
-	void Remove(SignatureType func)
-	{
-		m_signatures.remove(func);
-	}
+private:
+	LSharedPtr<DelegateBase<RetVal, Param...>> _signal;
 };
 
 
-#define DELEGATE_NO_PARAMS(DelegateTypeName,ClassType,RetVal) using DelegateTypeName = MultiDynamicDelegate<ClassType,RetVal>;
+#define SIGNAL_NO_PARAMS(DelegateTypeName,RetVal) SignalHandle<RetVal> DelegateTypeName;
+#define SIGNAL_ONE_PARAMS(DelegateTypeName,RetVal,Param1) SignalHandle<RetVal,Param1> DelegateTypeName;
+#define SIGNAL_TWO_PARAMS(DelegateTypeName,RetVal,Param1, Param2) SignalHandle<RetVal,Param1,Param2> DelegateTypeName;
