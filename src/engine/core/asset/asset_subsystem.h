@@ -41,7 +41,7 @@ public:
 		LSharedPtr<LBasicAsset> asset = cache->asset;
 		if (asset.get() != nullptr)
 		{
-			return boost::dynamic_pointer_cast<T>(asset);
+			return std::dynamic_pointer_cast<T>(asset);
 		}
 		//没有命中
 		LSharedPtr<T> t = MakeShared<T>();

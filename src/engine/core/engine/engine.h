@@ -16,7 +16,7 @@
 #include "boost/container/vector.hpp"
 
 #include "core/subsystem/sub_system.h"
-#include "core/misc/delegate.h"
+#include "core/misc/signal.h"
 
 class LObject;
 
@@ -50,9 +50,9 @@ public:
 
 	//引擎初始化事件
 public:
-	SIGNAL_NO_PARAMS(mSubSystemPreInitDoneEvent, void);
-	SIGNAL_NO_PARAMS(mSubSystemInitDoneEvent, void);
-	SIGNAL_NO_PARAMS(mSubSystemPostInitDoneEvent, void);
+	SIGNAL(mSubSystemPreInitDoneEvent);
+	SIGNAL(mSubSystemInitDoneEvent);
+	SIGNAL(mSubSystemPostInitDoneEvent);
 
 private:
 	boost::container::vector<SubSystem *> mOrderedSubSystems;

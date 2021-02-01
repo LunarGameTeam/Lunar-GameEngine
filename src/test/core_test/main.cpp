@@ -20,28 +20,23 @@ public:
 	{
 		std::cout << val << std::endl;
 	}
-	SIGNAL_NO_PARAMS(TestEvent, void);
-	SIGNAL_ONE_PARAMS(TestEvent2, void, int);
+	SIGNAL(TestEvent);
+	SIGNAL(TestEvent2,int);
 
 };
 
 
 TEST(DelegateTest, Test0)
 {
-	auto h =
 	{
-		TestObject test;	
-		auto func = boost::bind(&TestObject::print_sum, &test);
-		auto func2 = boost::bind(&TestObject::print_sum2, &test, boost::placeholders::_1);
-		auto handle = test.TestEvent.Bind(func);
+		TestObject* test = new TestObject();	
+		auto func = boost::bind(&TestObject::print_sum, test);
+		auto func2 = boost::bind(&TestObject::print_sum2, test, boost::placeholders::_1);
 		{
-			auto handle2 = test.TestEvent2.Bind(func2);
+			auto handle = test->TestEvent.Bind(func);
+			delete test;
 		}
-		test.TestEvent.BroadCast();
-		test.TestEvent2.BroadCast(1);
 	}
-
-	
 }
 
 int main(int argc, const char* argv[])

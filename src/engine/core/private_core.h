@@ -20,7 +20,7 @@
 
 #include "core/log/log.h"
 
-
+#define CORE_API __declspec( dllexport )//宏定义
 
 #define __DEBUG if (GL_NO_ERROR != error) \
 	{\

@@ -59,7 +59,7 @@ void lunaCore::MainLoop()
 		ms d = std::chrono::duration_cast<ms>(fs);
 		if (d.count() < 15)
 		{
-			Sleep(15 - d.count());
+			std::this_thread::sleep_for(std::chrono::milliseconds(15 - d.count()));
 		}
 		old = now;
 		

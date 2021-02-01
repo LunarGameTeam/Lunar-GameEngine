@@ -5,37 +5,50 @@
 #include "core/misc/container.h"
 
 template<typename RetVal, typename... Param>
-class DelegateBase;
+class LFunctionList;
 
 template<typename RetVal, typename... Param>
-class DynamicSignature
+class LFunction
 {
 	using FunctionType = boost::function<RetVal(Param...)>;
 public:
 	FunctionType _func;
-	LWeakPtr<DelegateBase< RetVal, Param...>> _owner;
+	LWeakPtr<LFunctionList< RetVal, Param...>> _owner;
+
+public:
+	~LFunction()
+	{
+		auto ptr = _owner.lock();
+		if (ptr)
+		{
+			ptr->m_func_list.remove_if([this](auto ref) {
+				return ref.lock().get() == this;
+			});
+		}
+	}
+
 };
 
 
 template<typename RetVal, typename... Param>
-class DelegateBase
+class LFunctionList
 {
 public:
-	using SignatureType = DynamicSignature<RetVal,Param...>;
+	using FunctionHandleType = LWeakPtr < LFunction<RetVal,Param...> >;
 
 public:
-	LList<LWeakPtr<SignatureType>> m_signatures;
+	LList<FunctionHandleType> m_func_list;
 };
 
 template<typename RetVal, typename... Param>
 class SignalHandle
 {
 	using FunctionType = boost::function<RetVal(Param...)>;
-	using SignatureType = DynamicSignature<RetVal, Param...>;
+	using SignatureType = LFunction<RetVal, Param...>;
 public:
 	SignalHandle()
 	{
-		_signal = MakeShared<DelegateBase<RetVal, Param... >>();
+		_signal = MakeShared<LFunctionList<RetVal, Param... >>();
 	}
 	LSharedPtr<SignatureType> Bind(FunctionType func)
 	{
@@ -43,7 +56,7 @@ public:
 		signature->_func = func;
 		LWeakPtr< SignatureType> weak = signature;
 		signature->_owner = _signal;
-		_signal->m_signatures.emplace_back(weak);
+		_signal->m_func_list.emplace_back(weak);
 		return signature;
 	}
 	void Remove(SignatureType func)
@@ -52,7 +65,7 @@ public:
 	}
 	void BroadCast(Param... param)
 	{
-		for (LWeakPtr<SignatureType> node : _signal->m_signatures)
+		for (LWeakPtr<SignatureType> node : _signal->m_func_list)
 		{
 			if (!node.expired())
 			{
@@ -62,14 +75,12 @@ public:
 	}
 	void Clear()
 	{
-		_signal->m_signatures.clear();
+		_signal->m_func_list.clear();
 	}
 
 private:
-	LSharedPtr<DelegateBase<RetVal, Param...>> _signal;
+	LSharedPtr<LFunctionList<RetVal, Param...>> _signal;
 };
 
 
-#define SIGNAL_NO_PARAMS(DelegateTypeName,RetVal) SignalHandle<RetVal> DelegateTypeName;
-#define SIGNAL_ONE_PARAMS(DelegateTypeName,RetVal,Param1) SignalHandle<RetVal,Param1> DelegateTypeName;
-#define SIGNAL_TWO_PARAMS(DelegateTypeName,RetVal,Param1, Param2) SignalHandle<RetVal,Param1,Param2> DelegateTypeName;
+#define SIGNAL(DelegateTypeName,...) SignalHandle<void, __VA_ARGS__> DelegateTypeName;

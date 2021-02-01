@@ -12,7 +12,7 @@ bool io_loop = true;
 
 LSharedPtr<LFileStream> WindowsFileManager::OpenAsStream(const LPath &path, OpenMode mode)
 {
-	LSharedPtr<LFileStream> file = boost::make_shared<LFileStream>();
+	LSharedPtr<LFileStream> file = MakeShared<LFileStream>();
 	file->m_file.open(path.AsStringAbs(), (int)mode);
 	if (file->m_file.fail())
 	{
@@ -24,7 +24,7 @@ LSharedPtr<LFileStream> WindowsFileManager::OpenAsStream(const LPath &path, Open
 
 bool WindowsFileManager::ReadStringFromFile(const LPath &path, LString &res)
 {
-	LSharedPtr<LFileStream> file = boost::make_shared<LFileStream>();
+	LSharedPtr<LFileStream> file = MakeShared<LFileStream>();
 	file->m_file.open(path.AsStringAbs(), (int)OpenMode::In);
 
 	if (file->m_file.fail())
@@ -130,7 +130,7 @@ bool WindowsFileManager::GetFileInfoRecursive(const LPath &path, LFileInfo &resu
 
 bool WindowsFileManager::WriteStringToFile(const LPath &path, const LString &res)
 {
-	LSharedPtr<LFileStream> file = boost::make_shared<LFileStream>();
+	LSharedPtr<LFileStream> file = MakeShared<LFileStream>();
 	file->m_file.open(path.AsStringAbs(), (int)OpenMode::Out | (int)OpenMode::Trunc);
 
 	if (file->m_file.fail())

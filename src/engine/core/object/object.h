@@ -6,8 +6,6 @@
 #include "core/misc/container.h"
 #include <memory>
 
-template<typename T>
-using LSharedPtr = boost::shared_ptr<T>;
 //侵入式智能指针
 class LSharedObject
 {
