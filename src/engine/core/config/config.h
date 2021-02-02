@@ -6,7 +6,7 @@
 namespace luna
 {
 
-struct SerializeConfig
+struct CORE_API SerializeConfig
 {
 	LString m_group;
 	LString m_key;
@@ -21,7 +21,7 @@ struct SerializeConfig
  * 
  */
 template<typename Type, Type DefaultValue>
-class Config
+class CORE_API Config
 {
 	LString m_group;
 	LString m_key;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "file.h"
+#include "core/private_core.h"
 #include <boost/function.hpp>
 
 namespace luna
@@ -28,7 +29,7 @@ using FileAsyncCallback = boost::function<void(LSharedPtr<FileAsyncHandle>)>;
  * \author isAk wOng
  * 
  */
-class FileAsyncHandle
+class CORE_API FileAsyncHandle
 {
 
 public:

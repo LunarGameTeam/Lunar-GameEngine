@@ -2,7 +2,7 @@
 
 #include "core/private_core.h"
 
-class ProfileGuard
+class CORE_API ProfileGuard
 {
 public:
 	ProfileGuard() :_curTimePoint(std::chrono::steady_clock::now())

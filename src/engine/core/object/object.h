@@ -7,7 +7,7 @@
 #include <memory>
 
 //侵入式智能指针
-class LSharedObject
+class CORE_API LSharedObject
 {
 public:
 	LSharedObject()
@@ -36,7 +36,7 @@ enum class LLoadState
  * \author 
  * 
  */
-class LObject :public LSharedObject
+class CORE_API LObject :public LSharedObject
 {
 public:
 	GET_SET_VAULE(LUuid, m_uid, LUuid);

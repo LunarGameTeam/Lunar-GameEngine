@@ -21,7 +21,7 @@ auto Bind(Args && ...args)
 }
 
 
-enum class OpenMode : int
+enum class CORE_API OpenMode : int
 {
 	In = std::ios::in,
 	Out = std::ios::out,
@@ -37,7 +37,7 @@ enum class OpenMode : int
  * \author isAk wOng
  *
  */
-class IPlatformFileManager
+class CORE_API IPlatformFileManager
 {
 public:
 	virtual bool InitFileManager() = 0;
@@ -107,7 +107,7 @@ protected:
  * \author isAk wOng
  *
  */
-class WindowsFileManager : public IPlatformFileManager
+class CORE_API WindowsFileManager : public IPlatformFileManager
 {
 public:
 	bool InitFileManager()override;

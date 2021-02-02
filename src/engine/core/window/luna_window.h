@@ -18,7 +18,7 @@
 namespace luna
 {
 
-class LWindow
+class CORE_API LWindow
 {
 public:
 	virtual bool Init() = 0;

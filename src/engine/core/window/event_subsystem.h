@@ -90,7 +90,7 @@ struct LEvent
 	EventType type;
 };
 
-struct InputEvent : public LEvent
+struct CORE_API InputEvent : public LEvent
 {
 	EventType type;
 	float x;
@@ -100,7 +100,7 @@ struct InputEvent : public LEvent
 
 using InputCallback = boost::function<void(LWindow&, InputEvent&)>;
 
-class EventSubsystem : public SubSystem
+class CORE_API EventSubsystem : public SubSystem
 {
 public:
 	bool OnPreInit() override;

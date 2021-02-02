@@ -5,7 +5,7 @@
 #include "asset.h"
 
 template<typename ObjectDescType>
-class LTemplateAsset : public luna::LBasicAsset
+class CORE_API LTemplateAsset : public luna::LBasicAsset
 {
 	ObjectDescType m_assert_desc;
 public:

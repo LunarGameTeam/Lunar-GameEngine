@@ -3,8 +3,11 @@
 #include "core/core_module.h"
 #include "component.h"
 
+
 namespace luna
 {
+
+class Transform;
 
 class Entity : public LObject
 {
@@ -15,6 +18,7 @@ public:
 	void OnDestroy();
 	void OnTick(float delta_time);
 	void Destroy();
+	Entity *Parent();
 
 	template<typename T>
 	T *GetComponent()
@@ -39,13 +43,12 @@ public:
 		return T;
 	}
 protected:
-	Entity(const LString &name)
-	{
-		m_need_tick = false;
-	}
+	Entity(const LString &name);
 
 private:
 	LVector<Component *> m_components;
+	Transform *m_transform = nullptr;
+	Transform *m_parent = nullptr;
 	bool m_need_tick = false;
 
 	friend class Scene;

@@ -10,7 +10,7 @@ namespace luna
 
 class WindowsFileManager;
 
-struct LFileInfo
+struct CORE_API LFileInfo
 {
 	LString path;
 	bool is_folder = false;
@@ -18,7 +18,7 @@ struct LFileInfo
 	LUnorderedMap<LString, LFileInfo> folder_contents;
 };
 
-struct LFile
+struct CORE_API LFile
 {
 public:
 	const LString &GetPath()
@@ -49,7 +49,7 @@ private:
  * \author isAk wOng
  *
  */
-class LFileStream
+class CORE_API LFileStream
 {
 public:
 	bool Ready()

@@ -20,7 +20,7 @@
 namespace luna
 {
 
-class WindowSubsystem : public SubSystem
+class CORE_API WindowSubsystem : public SubSystem
 {
 #ifdef _WIN32
 	using WindowHandle = HWND;

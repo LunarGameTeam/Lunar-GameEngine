@@ -7,11 +7,11 @@ file(GLOB_RECURSE PROJECT_CPPS *.cpp)
 
 set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS})
 
-auto_source_group(${ALL_FILES})
+auto_source_group("${ALL_FILES}" DST_FILES)
 
 set_property(TARGET application PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${SOLUTION_CMAKE_SOURCE_PATH}")
 
-add_executable(editor ${ALL_FILES})
+add_executable(editor ${DST_FILES})
 add_dependencies(editor core render)
 
 target_link_libraries(editor core render)

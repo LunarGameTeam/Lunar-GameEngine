@@ -11,7 +11,7 @@
 namespace luna
 {
 
-class AssetMetaData
+class CORE_API AssetMetaData
 {
 public:
 	Json::Value m_value;

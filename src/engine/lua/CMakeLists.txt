@@ -8,8 +8,8 @@ file(GLOB_RECURSE PROJECT_CPPS *.c)
 
 set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS})
 
-auto_source_group(${ALL_FILES})
+auto_source_group("${ALL_FILES}" DST_FILES)
 
-add_library(lua STATIC ${ALL_FILES})
+add_library(lua STATIC ${DST_FILES})
 
 

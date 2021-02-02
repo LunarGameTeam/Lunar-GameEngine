@@ -21,7 +21,7 @@ struct AssetCache
 	LSharedPtr<LBasicAsset> asset;
 };
 
-class AssetSubsystem : public SubSystem
+class CORE_API AssetSubsystem : public SubSystem
 {
 
 public:

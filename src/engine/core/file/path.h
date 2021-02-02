@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/misc/string.h"
+#include "core/private_core.h"
 
 
 namespace luna
@@ -13,7 +14,7 @@ namespace luna
  *
  * \author IsakW
  */
-class LPath
+class CORE_API LPath
 {
 public:
 	//

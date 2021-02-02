@@ -1,12 +1,13 @@
 #pragma once
 
 #include <cstdint>
+#include "core/private_core.h"
 
 namespace luna
 {
 
 template<typename T>
-class Singleton
+class CORE_API Singleton
 {
 public:
 	T &instance() {

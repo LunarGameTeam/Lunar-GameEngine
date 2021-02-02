@@ -8,9 +8,9 @@ file(GLOB_RECURSE PROJECT_CPPS *.cpp)
 
 set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS})
 
-auto_source_group(${ALL_FILES})
+auto_source_group("${ALL_FILES}" DST_FILES)
 
-add_executable(lua_bind_test ${ALL_FILES})
+add_executable(lua_bind_test ${DST_FILES})
 
 add_dependencies(lua_bind_test core lua_bind)
 target_link_libraries(lua_bind_test core lua_bind)

@@ -6,7 +6,7 @@
 namespace luna
 {
 
-class LThread
+class CORE_API LThread
 {
 public:
 	LThread(boost::function<void()> func);

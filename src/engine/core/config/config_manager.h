@@ -7,7 +7,7 @@
 namespace luna
 {
 
-struct SerializeConfig;
+struct CORE_API SerializeConfig;
 /*!
  * \class ConfigManager
  *
@@ -16,7 +16,7 @@ struct SerializeConfig;
  * \author isAk wOng
  * 
  */
-class ConfigManager
+class CORE_API ConfigManager
 {
 public:
 	static ConfigManager &instance()

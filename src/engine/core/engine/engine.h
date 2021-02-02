@@ -21,7 +21,7 @@
 class LObject;
 
 
-class lunaCore
+class CORE_API lunaCore
 {
 public:
 	void Run();

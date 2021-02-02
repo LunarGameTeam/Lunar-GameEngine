@@ -17,9 +17,13 @@
 #include <boost/filesystem.hpp>
 #include "log_msg.h"
 
+#ifndef CORE_API
+#define CORE_API __declspec(dllexport)
+#endif
 
 namespace luna
 {
+
 /*!
  * \class Log
  *
@@ -28,7 +32,7 @@ namespace luna
  * \author isAk wOng
  * 
  */
-	class LogManager
+	class CORE_API LogManager
 	{
 	public:
 		LogManager();
@@ -46,7 +50,7 @@ namespace luna
  * \author isAk wOng
  *
  */
-	struct LogScope
+	struct CORE_API LogScope
 	{
 	public:
 		LogScope(const char* name)
@@ -56,7 +60,7 @@ namespace luna
 		char m_ScopeName[20];
 	};
 
-	void LogInternal(
+	CORE_API void LogInternal(
 		const LogScope& scope,
 		const LString& msg,
 		const LogLevel& level,
@@ -66,7 +70,7 @@ namespace luna
 		LResult& log_turn = g_Succeed
 	);
 
-	void BuildDebugLog(
+	CORE_API void BuildDebugLog(
 		const HRESULT& windows_result,
 		const LString& error_reason,
 		const LString& file_name,

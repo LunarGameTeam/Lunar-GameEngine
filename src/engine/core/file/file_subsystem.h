@@ -19,7 +19,7 @@ namespace luna
  *
  *
  */
-	class FileSubsystem : public SubSystem
+	class CORE_API FileSubsystem : public SubSystem
 	{
 
 	public:

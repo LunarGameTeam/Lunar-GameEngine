@@ -11,7 +11,7 @@
 // #define DEPENDENCY_SUBSYSTEM_IMP(SubSystemClass,SystemVarName) \
 // 	SystemVarName = gEngine->GetSubsystem<SubSystemClass>();
 
-class SubSystem
+class CORE_API SubSystem
 {
 public:
 	bool IsInitialized()
