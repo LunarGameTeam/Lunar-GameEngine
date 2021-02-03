@@ -1,14 +1,18 @@
 #include "window_subsystem.h"
 #include "boost/make_shared.hpp"
 #include "core/core_module.h"
-#include "imgui/imgui_impl_win32.h"
-#include "imgui/imgui_impl_dx12.h"
+#include "core/imgui/imgui_impl_win32.h"
+#include "core/imgui/imgui_impl_dx12.h"
 #ifdef _WIN32
 
 #include "win32_window.h"
 
 #endif
 
+#pragma comment(lib, "dxguid.lib")
+#pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "d3d12.lib")
+#pragma comment(lib, "d3dcompiler.lib")
 
 #include <d3d12.h>
 #include <dxgi1_4.h>
@@ -68,6 +72,8 @@ LWindow *WindowSubsystem::CreateLunaWindow(const luna::LString &name, int width,
 	win32Window->Init();
 	auto hwnd = win32Window->GetHwnd();
 	CreateDeviceD3D(hwnd);
+	ImGui::CreateContext();
+	ImGuiIO &io = ImGui::GetIO(); (void)io;
 	m_win_windows[hwnd] = win32Window;
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
@@ -113,6 +119,12 @@ bool WindowSubsystem::OnPostInit()
 
 bool WindowSubsystem::OnShutdown()
 {
+	WaitForLastSubmittedFrame();
+	// Cleanup
+	ImGui_ImplDX12_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
+	CleanupDeviceD3D();
 	return true;
 }
 
@@ -128,6 +140,9 @@ void WindowSubsystem::Tick(float delta_time)
 		DispatchMessage(&msg);
 	}
 	bool show = true;
+	ImGui_ImplDX12_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
 	ImGui::ShowDemoWindow(&show);
 	// Rendering
 	ImGui::Render();
@@ -169,13 +184,6 @@ void WindowSubsystem::Tick(float delta_time)
 	if (WM_QUIT == msg.message)
 	{
 		gEngine->mPendingExit = true;
-		WaitForLastSubmittedFrame();
-		// Cleanup
-		ImGui_ImplDX12_Shutdown();
-		ImGui_ImplWin32_Shutdown();
-		ImGui::DestroyContext();
-
-		CleanupDeviceD3D();
 
 	}
 

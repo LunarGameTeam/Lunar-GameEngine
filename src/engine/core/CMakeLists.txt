@@ -11,6 +11,5 @@ auto_source_group("${ALL_FILES}" DST_FILES)
 
 add_library(core STATIC ${DST_FILES})
 
-add_dependencies(core imgui)
-target_link_libraries(core gtest imgui)
+target_link_libraries(core gtest)
 
