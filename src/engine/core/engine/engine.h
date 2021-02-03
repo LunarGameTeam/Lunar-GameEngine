@@ -38,6 +38,7 @@ public:
 		mOrderedSubSystems.push_back(sub);
 	}
 
+	void OnRender();
 
 	//TODO 使用自带反射库，而不是RTTI
 	template<typename T>
@@ -57,6 +58,8 @@ public:
 private:
 	boost::container::vector<SubSystem *> mOrderedSubSystems;
 	boost::unordered::unordered_map<const char *, SubSystem * > mSubSystems;
+	float m_frame_rate = 60.f;
+	float m_frame_delta = 1000.f / 60.f;
 };
 
 extern lunaCore *gEngine;

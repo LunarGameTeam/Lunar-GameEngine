@@ -37,10 +37,10 @@ public:
 	T *AddComponent()
 	{
 		T *comp = new T();		
-		comp->Owner = this;
+		comp->m_owner = this;
 		m_components.push_back(comp);		
 		comp->OnCreate();
-		return T;
+		return comp;
 	}
 protected:
 	Entity(const LString &name);

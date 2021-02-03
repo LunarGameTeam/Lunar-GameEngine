@@ -23,6 +23,7 @@ set(CMAKE_BINARY_DIR  ${dir})
 include_directories(
 	src/engine
 	src/engine/lua
+	src/engine/imgui
 	${SDK_PATH}glm
 	${SDK_PATH}googletest/googletest/include
 	${SDK_PATH}jsoncpp/include
@@ -93,6 +94,7 @@ add_subdirectory(src/engine/render)
 add_subdirectory(src/engine/world)
 add_subdirectory(src/engine/lua_bind)
 add_subdirectory(src/engine/lua)
+add_subdirectory(src/engine/imgui)
 
 add_subdirectory(src/application)
 add_subdirectory(src/editor)
@@ -120,6 +122,7 @@ add_subdirectory(sdk/jsoncpp)
 add_subdirectory(sdk/sol2)
 
 SET_PROPERTY(TARGET lua PROPERTY FOLDER "SDK")
+SET_PROPERTY(TARGET imgui PROPERTY FOLDER "SDK")
 
 SET_PROPERTY(TARGET DirectXTex PROPERTY FOLDER "SDK")
 SET_PROPERTY(TARGET DirectXTK12 PROPERTY FOLDER "SDK")

@@ -46,23 +46,28 @@ void lunaCore::MainLoop()
 	auto old = Time::now();
 
 	while (!mPendingExit)
-	{
+	{		
 		for (auto& subsystem : mOrderedSubSystems)
 		{
 			if (subsystem->m_need_tick)
 			{
-				subsystem->Tick(0.15f);
+				subsystem->Tick(m_frame_delta / 1000.0f);
 			}
 		}
+		OnRender();
 		now = Time::now();
 		fsec fs = now - old;
 		ms d = std::chrono::duration_cast<ms>(fs);
-		if (d.count() < 15)
+		if (d.count() < m_frame_delta)
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(15 - d.count()));
+			std::this_thread::sleep_for(std::chrono::milliseconds((int)m_frame_delta - d.count()));
 		}
-		old = now;
-		
+		old = now;	
 	}
+}
+
+void lunaCore::OnRender()
+{
+
 }
 

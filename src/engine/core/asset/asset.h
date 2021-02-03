@@ -18,7 +18,7 @@ public:
 };
 
 
-class LBasicAsset : public LObject
+class CORE_API LBasicAsset : public LObject
 {
 public:
 	LBasicAsset(const LPath &asset_path)
