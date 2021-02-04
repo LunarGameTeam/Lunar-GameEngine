@@ -269,6 +269,7 @@ namespace luna
 		AddNewGraphicDeviceFunc(ResourceHeap);
 		//描述符堆
 		AddNewGraphicDeviceFunc(DescriptorHeap);
+		virtual LBasicAsset* CreateDescriptorHeapByType(const LunarGraphicDescriptorType& descriptor_heap_type, const size_t& heap_size) = 0;
 		virtual uint8_t* GetPointerFromSharedMemory(LSharedObject* dynamic_buffer_pointer) = 0;
 		virtual LBasicAsset * CreateUniforBuffer(const size_t &uniform_buffer_size) = 0;
 		virtual ILunarGraphicRenderCommondList* CreateCommondList(

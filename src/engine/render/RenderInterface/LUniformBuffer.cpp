@@ -205,9 +205,8 @@ size_t luna::LUniformBufferMemoryAllocator::GenerateNewListValue()
 {
 	return uuid_generate.GetUuid().GetValue();
 };
-luna::LResult luna::LUniformBufferMemoryAllocator::OnReleaseListFromMap(ILinerGrowListMember<size_t>* resource_list_pointer)
+luna::LResult luna::LUniformBufferMemoryAllocator::OnReleaseListFromMap(const size_t& index, ILinerGrowListMember<size_t>* resource_list_pointer)
 {
-	delete resource_list_pointer;
 	return luna::g_Succeed;
 };
 

@@ -192,7 +192,7 @@ namespace luna
 		virtual LResult BuildNewValue(const ValueMarkIndex<IndexValueType>& value_index) = 0;
 		virtual LResult ReleaseValue(const IndexValueType &value_index) = 0;
 	};
-	
+
 	template<typename IndexValueType>
 	class LLinerGrowMap
 	{
@@ -273,7 +273,6 @@ namespace luna
 				index_size_map.emplace(m_data_index.list_index, now_used_list_id);
 				value_data_map.emplace(now_used_list_id, now_released_data);
 			}
-
 		}
 	private:
 		void ReleaseListFromMap(const IndexValueType& m_data_index)
@@ -282,14 +281,20 @@ namespace luna
 			if (value_data_real_index != index_size_map.end())
 			{
 				ILinerGrowListMember<IndexValueType>* now_released_data = value_data_map[value_data_real_index->second];
-				OnReleaseListFromMap(now_released_data);
+				OnReleaseListFromMap(m_data_index,now_released_data);
+				delete now_released_data;
+				index_size_map.erase(m_data_index);
+				value_data_map.erase(value_data_real_index->second);
 			}
-			index_size_map.erase(m_data_index);
-			value_data_map.erase(value_data_real_index->second);
+			else
+			{
+				luna::LResult error_message;
+				LunarDebugLogError(0, "could not release memory list from map", error_message);
+			}
 		}
 		virtual luna::LResult BuildNewListToMap(const IndexValueType& list_index, const IndexValueType& max_size_per_list, ILinerGrowListMember<IndexValueType>*& resource_list_pointer) = 0;
 		virtual IndexValueType GenerateNewListValue() = 0;
-		virtual luna::LResult OnReleaseListFromMap(ILinerGrowListMember<IndexValueType>* resource_list_pointer) = 0;
+		virtual luna::LResult OnReleaseListFromMap(const IndexValueType& index,ILinerGrowListMember<IndexValueType>* resource_list_pointer) = 0;
 	protected:
 		ILinerGrowListMember<IndexValueType>* GetListData(const IndexValueType& list_index)
 		{

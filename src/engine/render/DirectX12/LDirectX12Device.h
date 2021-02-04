@@ -19,6 +19,7 @@ namespace luna
 
 		AddNewGraphicDeviceFuncOverride(ResourceHeap);
 		AddNewGraphicDeviceFuncOverride(DescriptorHeap);
+		LBasicAsset* CreateDescriptorHeapByType(const LunarGraphicDescriptorType &descriptor_heap_type,const size_t &heap_size);
 		void* GetVirtualDevice() override
 		{
 			return m_device.Get();

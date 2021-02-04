@@ -120,7 +120,7 @@ namespace luna
 	private:
 		luna::LResult BuildNewListToMap(const size_t& list_index, const size_t& max_size_per_list, ILinerGrowListMember<size_t>*& resource_list_pointer)override;
 		size_t GenerateNewListValue() override;
-		luna::LResult OnReleaseListFromMap(ILinerGrowListMember<size_t>* resource_list_pointer) override;
+		luna::LResult OnReleaseListFromMap(const size_t& index, ILinerGrowListMember<size_t>* resource_list_pointer) override;
 	};
 	void InitGraphicReflectValue()
 	{
