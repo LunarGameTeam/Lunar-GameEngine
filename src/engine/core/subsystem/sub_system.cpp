@@ -35,3 +35,18 @@ void SubSystem::Tick(float delta_time)
 
 }
 
+void SubSystem::OnFrame(float delta_time)
+{
+
+}
+
+void SubSystem::OnFrameBegin(float delta_time)
+{
+
+}
+
+void SubSystem::OnFrameEnd(float delta_time)
+{
+
+}
+

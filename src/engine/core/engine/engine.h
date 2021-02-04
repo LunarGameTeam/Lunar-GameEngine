@@ -40,14 +40,16 @@ public:
 
 	void OnRender();
 
+	void OnSubsystemTick(float delta_time);
+	void OnSubsystemFrameBegin(float delta_time);
+	void OnSubsystemFrameEnd(float delta_time);
+
 	//TODO 使用自带反射库，而不是RTTI
 	template<typename T>
 	T *GetSubsystem()
 	{
 		return static_cast<T *>(mSubSystems[typeid(T).name()]);
 	}
-
-	bool mPendingExit = false;
 
 	//引擎初始化事件
 public:

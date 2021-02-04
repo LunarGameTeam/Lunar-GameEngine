@@ -21,6 +21,9 @@ namespace luna
 class CORE_API LWindow
 {
 public:
+	using WindowHandle = uint64_t;
+
+	LWindow();
 	virtual bool Init() = 0;
 
 
@@ -32,11 +35,13 @@ public:
 	{
 		return m_height;
 	}
+	WindowHandle Id() { return m_id; }
 protected:
 	bool m_full_screen = false;
 	luna::LString m_window_name = "LunarGame-Engine";
 	int32_t m_width = 1024;
 	int32_t m_height = 768;
+	WindowHandle m_id = 0;
 };
 
 

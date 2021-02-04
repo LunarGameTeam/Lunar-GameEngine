@@ -31,6 +31,10 @@ public:
 
 	virtual void Tick(float delta_time) = 0;
 
+	virtual void OnFrame(float delta_time);
+	virtual void OnFrameBegin(float delta_time);
+	virtual void OnFrameEnd(float delta_time);
+
 protected:
 	bool m_is_initialized = false;
 	bool m_need_tick = false;

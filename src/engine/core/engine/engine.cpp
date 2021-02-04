@@ -47,14 +47,11 @@ void lunaCore::MainLoop()
 
 	while (!mPendingExit)
 	{		
-		for (auto& subsystem : mOrderedSubSystems)
-		{
-			if (subsystem->m_need_tick)
-			{
-				subsystem->Tick(m_frame_delta / 1000.0f);
-			}
-		}
+		
+
 		OnRender();
+
+
 		now = Time::now();
 		fsec fs = now - old;
 		ms d = std::chrono::duration_cast<ms>(fs);
@@ -69,5 +66,41 @@ void lunaCore::MainLoop()
 void lunaCore::OnRender()
 {
 
+}
+
+void lunaCore::OnSubsystemTick(float delta_time)
+{
+
+	for (auto &subsystem : mOrderedSubSystems)
+	{
+		if (subsystem->m_need_tick)
+		{
+			subsystem->Tick(m_frame_delta / 1000.0f);
+		}
+	}
+}
+
+void lunaCore::OnSubsystemFrameBegin(float delta_time)
+{
+	for (auto &subsystem : mOrderedSubSystems)
+	{
+		if (subsystem->m_need_tick)
+		{
+			subsystem->OnFrameBegin(m_frame_delta);
+		}
+	}
+
+}
+
+void lunaCore::OnSubsystemFrameEnd(float delta_time)
+{
+
+	for (auto &subsystem : mOrderedSubSystems)
+	{
+		if (subsystem->m_need_tick)
+		{
+			subsystem->OnFrameEnd(m_frame_delta);
+		}
+	}
 }
 

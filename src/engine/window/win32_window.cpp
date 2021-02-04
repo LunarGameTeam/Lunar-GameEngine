@@ -17,10 +17,14 @@ LUnorderedMap<int32_t, KeyCode> InitKeyCodeMap()
 	return keycode_map;
 }
 
+LUnorderedMap<HWND, LWindow::WindowHandle> hwnd_map;
+
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	static WindowSubsystem *subsytem = gEngine->GetSubsystem<WindowSubsystem>();
-	LWindow *window = subsytem->GetWindowByHandle(hwnd);
+	LWindow::WindowHandle id = hwnd_map[hwnd];
+	LWindow *window = subsytem->GetWindowByHandle(id);
 	assert(subsytem != nullptr);
 	static EventSubsystem *event_subsytem = gEngine->GetSubsystem<EventSubsystem>();
 	assert(event_subsytem != nullptr);
@@ -125,7 +129,7 @@ bool LWin32Window::Init()
 		NULL,
 		appInstance,
 		nullptr);
-
+	hwnd_map[mHWND] = m_id;
 	if (!mHWND)
 	{
 		MessageBox(NULL, TEXT("CreateWindowEx function failed"), TEXT("Error"), MB_OK | MB_ICONERROR);
@@ -137,6 +141,8 @@ bool LWin32Window::Init()
 	SetFocus(mHWND);
 
 	ShowCursor(true);
+
+
 
 	return true;
 }

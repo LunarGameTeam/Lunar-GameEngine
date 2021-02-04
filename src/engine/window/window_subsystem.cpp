@@ -67,25 +67,23 @@ LWindow *WindowSubsystem::CreateLunaWindow(const luna::LString &name, int width,
 
 #ifdef _WIN32
 	LWin32Window *win32Window = new LWin32Window();
-
-
 	win32Window->Init();
-	auto hwnd = win32Window->GetHwnd();
-	CreateDeviceD3D(hwnd);
+	m_win_windows[win32Window->Id()] = win32Window;
+	CreateDeviceD3D(win32Window->GetHwnd());
 	ImGui::CreateContext();
 	ImGuiIO &io = ImGui::GetIO(); (void)io;
-	m_win_windows[hwnd] = win32Window;
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsClassic();
 
 	// Setup Platform/Renderer backends
-	ImGui_ImplWin32_Init(hwnd);
+	ImGui_ImplWin32_Init(win32Window->GetHwnd());
 	ImGui_ImplDX12_Init(g_pd3dDevice, NUM_FRAMES_IN_FLIGHT,
 						DXGI_FORMAT_R8G8B8A8_UNORM, g_pd3dSrvDescHeap,
 						g_pd3dSrvDescHeap->GetCPUDescriptorHandleForHeapStart(),
 						g_pd3dSrvDescHeap->GetGPUDescriptorHandleForHeapStart());
 #endif // _WIN32
+
 
 	return win32Window;
 }
@@ -119,34 +117,19 @@ bool WindowSubsystem::OnPostInit()
 
 bool WindowSubsystem::OnShutdown()
 {
+#ifdef _WIN32
 	WaitForLastSubmittedFrame();
 	// Cleanup
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
 	CleanupDeviceD3D();
+#endif
 	return true;
 }
-
-void WindowSubsystem::Tick(float delta_time)
+void TempRender()
 {
-
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-	MSG msg;
-	memset(&msg, 0, sizeof(msg));
-	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
-	bool show = true;
-	ImGui_ImplDX12_NewFrame();
-	ImGui_ImplWin32_NewFrame();
-	ImGui::NewFrame();
-	ImGui::ShowDemoWindow(&show);
-	// Rendering
-	ImGui::Render();
-
 	FrameContext *frameCtx = WaitForNextFrameResources();
 	UINT backBufferIdx = g_pSwapChain->GetCurrentBackBufferIndex();
 	frameCtx->CommandAllocator->Reset();
@@ -162,7 +145,7 @@ void WindowSubsystem::Tick(float delta_time)
 	g_pd3dCommandList->ResourceBarrier(1, &barrier);
 
 	// Render Dear ImGui graphics
-	g_pd3dCommandList->ClearRenderTargetView(g_mainRenderTargetDescriptor[backBufferIdx], (float *)& clear_color, 0, NULL);
+	g_pd3dCommandList->ClearRenderTargetView(g_mainRenderTargetDescriptor[backBufferIdx], (float *)&clear_color, 0, NULL);
 	g_pd3dCommandList->OMSetRenderTargets(1, &g_mainRenderTargetDescriptor[backBufferIdx], FALSE, NULL);
 	g_pd3dCommandList->SetDescriptorHeaps(1, &g_pd3dSrvDescHeap);
 	ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), g_pd3dCommandList);
@@ -180,13 +163,40 @@ void WindowSubsystem::Tick(float delta_time)
 	g_pd3dCommandQueue->Signal(g_fence, fenceValue);
 	g_fenceLastSignaledValue = fenceValue;
 	frameCtx->FenceValue = fenceValue;
+}
 
+
+void WindowSubsystem::Tick(float delta_time)
+{
+
+	MSG msg;
+	memset(&msg, 0, sizeof(msg));
+	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+	{
+		TranslateMessage(&msg);
+		DispatchMessage(&msg);
+	}
+	
+	OnIMGUI();
+	//临时的渲染后端实现
+	TempRender();
 	if (WM_QUIT == msg.message)
 	{
 		gEngine->mPendingExit = true;
 
 	}
 
+}
+
+void WindowSubsystem::OnIMGUI()
+{
+	ImGui_ImplDX12_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	//IMGUI
+	ImGui::ShowDemoWindow();
+	// Rendering
+	ImGui::Render();
 }
 
 // Helper functions

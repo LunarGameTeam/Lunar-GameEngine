@@ -91,10 +91,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251")
 add_subdirectory(src/engine/core)
 add_subdirectory(src/engine/render)
 add_subdirectory(src/engine/world)
+add_subdirectory(src/engine/window)
 add_subdirectory(src/engine/lua_bind)
 add_subdirectory(src/engine/lua)
 
-add_subdirectory(src/application)
+add_subdirectory(src/game)
 add_subdirectory(src/editor)
 
 add_subdirectory(src/test/core_test)
@@ -107,10 +108,11 @@ SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 SET_PROPERTY(TARGET core PROPERTY FOLDER "Runtime")
 
 SET_PROPERTY(TARGET render PROPERTY FOLDER "Runtime")
-SET_PROPERTY(TARGET application PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET world PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET lua_bind PROPERTY FOLDER "Runtime")
+SET_PROPERTY(TARGET window PROPERTY FOLDER "Runtime")
 
+SET_PROPERTY(TARGET game PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET editor PROPERTY FOLDER "Editor")
 
 add_subdirectory(sdk/googletest)
@@ -139,6 +141,7 @@ SET_PROPERTY(TARGET lua_bind_test PROPERTY FOLDER "Test")
 SET_PROPERTY(TARGET world_test PROPERTY FOLDER "Test")
 
 
-set_property(TARGET application PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${SOLUTION_CMAKE_SOURCE_PATH}")
+set_property(TARGET game PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${SOLUTION_CMAKE_SOURCE_PATH}")
+set_property(TARGET editor PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${SOLUTION_CMAKE_SOURCE_PATH}")
 set_property(TARGET lua_bind_test PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${SOLUTION_CMAKE_SOURCE_PATH}")
 set_property(TARGET core_test PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${SOLUTION_CMAKE_SOURCE_PATH}")
