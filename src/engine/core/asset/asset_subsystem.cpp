@@ -41,7 +41,7 @@ void AssetSubsystem::CollectAssets()
 {
 
 	static FileSubsystem *file_sys = gEngine->GetSubsystem<FileSubsystem>();
-	assert(file_sys && file_sys->IsInitialized());
+	assert(file_sys);
 	static IPlatformFileManager *file_manager = file_sys->GetPlatformFileManager();
 	LPath asset_dir_path = "/assets";
 	LFileInfo asset_dir;
@@ -54,7 +54,7 @@ void AssetSubsystem::CollectAssets()
 		if (!info.path.EndsWith(".meta"))
 		{
 			LString meta_path = info.path + ".meta";
-			//不存在meta生成			
+			//不存在meta生成			^
 			if (asset_dir.folder_contents.find(meta_path) == asset_dir.folder_contents.end())
 			{
 				LString content = "{\n}";

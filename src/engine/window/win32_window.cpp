@@ -3,8 +3,11 @@
 #include "window_subsystem.h"
 #include "event_subsystem.h"
 #include <ShellScalingApi.h>
+#include "core/imgui/imgui_impl_win32.h"
 
 #pragma comment(lib, "Shcore.lib")
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace luna
 {
@@ -19,7 +22,6 @@ LUnorderedMap<int32_t, KeyCode> InitKeyCodeMap()
 
 LUnorderedMap<HWND, LWindow::WindowHandle> hwnd_map;
 
-
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	static WindowSubsystem *subsytem = gEngine->GetSubsystem<WindowSubsystem>();
@@ -29,6 +31,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	static EventSubsystem *event_subsytem = gEngine->GetSubsystem<EventSubsystem>();
 	assert(event_subsytem != nullptr);
 	static LUnorderedMap<int32_t, KeyCode> keycode_map = InitKeyCodeMap();
+
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wParam, lParam))
+		return true;
 
 	switch (msg)
 	{

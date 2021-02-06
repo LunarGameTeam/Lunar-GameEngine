@@ -182,19 +182,37 @@ void WindowSubsystem::Tick(float delta_time)
 	TempRender();
 	if (WM_QUIT == msg.message)
 	{
-		gEngine->mPendingExit = true;
+		gEngine->SetPendingExit(true);
 
 	}
 
 }
+bool my_tool_active;
 
 void WindowSubsystem::OnIMGUI()
 {
+	ImGuiIO &io = ImGui::GetIO();
 	ImGui_ImplDX12_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
-	//IMGUI
-	ImGui::ShowDemoWindow();
+	
+	// Create a window called "My First Tool", with a menu bar.
+	ImGui::Begin("My First Tool", &my_tool_active, ImGuiWindowFlags_MenuBar);
+	ImGui::Text("Dear ImGui %s", ImGui::GetVersion());
+	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */ }
+			if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
+			if (ImGui::MenuItem("Close", "Ctrl+W")) { my_tool_active = false; }
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenuBar();
+	}
+	ImGui::End();
+
 	// Rendering
 	ImGui::Render();
 }

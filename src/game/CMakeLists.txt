@@ -10,6 +10,6 @@ set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS})
 auto_source_group("${ALL_FILES}" DST_FILES)
 
 add_executable(game ${DST_FILES})
-add_dependencies(game core render window)
-target_link_libraries(game core render window)
+add_dependencies(game core window)
+target_link_libraries(game core window)
 
