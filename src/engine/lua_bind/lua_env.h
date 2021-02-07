@@ -6,7 +6,7 @@
 namespace luna
 {
 
-class LuaEnv
+class LUA_BIND_API LuaEnv
 {
 public:
 

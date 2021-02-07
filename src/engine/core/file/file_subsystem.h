@@ -23,18 +23,11 @@ namespace luna
 	{
 
 	public:
+		FileSubsystem() {};
 		bool OnPreInit() override;
-
-
 		bool OnPostInit() override;
-
-
 		bool OnInit() override;
-
-
 		bool OnShutdown() override;
-
-
 		void Tick(float delta_time) override;
 
 		IPlatformFileManager* GetPlatformFileManager() const {

@@ -12,6 +12,6 @@ auto_source_group("${ALL_FILES}" DST_FILES)
 
 add_executable(world_test ${DST_FILES})
 
-add_dependencies(world_test core world)
-target_link_libraries(world_test core world)
+add_dependencies(world_test core world lua_bind)
+target_link_libraries(world_test core world lua_bind)
 

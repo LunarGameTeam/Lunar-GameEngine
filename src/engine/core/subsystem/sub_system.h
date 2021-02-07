@@ -2,7 +2,8 @@
 
 #include "core/private_core.h"
 #include "core/object/object.h"
-
+#include "core/misc/string.h"
+#include "core/misc/misc.h"
 
 // #define DEPENDENCY_SUBSYSTEM_DECLARE(SubSystemClass,SystemVarName) \
 // 	private:\
@@ -11,7 +12,7 @@
 // #define DEPENDENCY_SUBSYSTEM_IMP(SubSystemClass,SystemVarName) \
 // 	SystemVarName = gEngine->GetSubsystem<SubSystemClass>();
 
-class CORE_API SubSystem
+class CORE_API SubSystem : luna::NoCopy
 {
 public:
 	bool IsInitialized()
@@ -36,6 +37,7 @@ public:
 	virtual void OnFrameEnd(float delta_time);
 
 protected:
+	SubSystem() {};
 	bool m_is_initialized = false;
 	bool m_need_tick = false;
 
@@ -67,7 +69,8 @@ public:
 	{
 		T *subSystem = new T();
 		SubSystem *sub = static_cast<SubSystem *>(subSystem);
-		mSubSystems[typeid(T).name()] = sub;
+		luna::LString name = typeid(T).name();
+		mSubSystems[name] = sub;
 		mOrderedSubSystems.push_back(sub);
 	}
 
@@ -81,7 +84,8 @@ public:
 	template<typename T>
 	T *GetSubsystem()
 	{
-		return static_cast<T *>(mSubSystems[typeid(T).name()]);
+		luna::LString name = typeid(T).name();
+		return static_cast<T *>(mSubSystems[name]);
 	}
 
 	//引擎初始化事件
@@ -90,15 +94,18 @@ public:
 	SIGNAL(mSubSystemInitDoneEvent);
 	SIGNAL(mSubSystemPostInitDoneEvent);
 
-	void SetPendingExit(bool val) { m_pending_exit = val; }
+	GET_SET_VAULE(bool, m_pending_exit, PendingExit);
+	GETTER(float, m_frame_delta, FrameDelta);
+	GETTER(float, m_frame_rate, FrameRate);
+
 private:
 	bool m_pending_exit = false;
 	boost::container::vector<SubSystem *> mOrderedSubSystems;
-	boost::unordered::unordered_map<const char *, SubSystem * > mSubSystems;
+	boost::unordered::unordered_map<luna::LString, SubSystem * > mSubSystems;
 	float m_frame_rate = 60.f;
 	float m_frame_delta = 1000.f / 60.f;
 
 	friend class Application;
 };
 
-extern lunaCore *gEngine;
+CORE_API extern lunaCore *gEngine;

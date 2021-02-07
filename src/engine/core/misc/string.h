@@ -17,6 +17,15 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 
+#ifndef CORE_API
+
+#ifdef CORE_EXPORT
+#define CORE_API __declspec( dllexport )//宏定义
+#else
+#define CORE_API __declspec( dllimport )
+#endif
+
+#endif
 namespace luna
 {
 
@@ -29,7 +38,7 @@ namespace luna
 	 * 
 	*/
 	//各种类字符串处理类
-	class LString
+	class CORE_API LString
 	{
 		
 	public:
@@ -128,10 +137,10 @@ namespace luna
 		WStringContainer GetStdUnicodeString() const;
 
 		// 运算符
-		friend LString operator+(const LString& lValue, const LString& rValue);
-		friend LString operator+(const LString& lValue, const char* rValue);
-		friend LString operator+(const char *lValue, const LString &rValue);
-		friend size_t hash_value(const luna::LString &key);
+		friend CORE_API LString operator+(const LString& lValue, const LString& rValue);
+		friend CORE_API LString operator+(const LString& lValue, const char* rValue);
+		friend CORE_API LString operator+(const char *lValue, const LString &rValue);
+		friend CORE_API size_t hash_value(const luna::LString &key);
 
 		LString& operator=(const char* const string_in);
 		LString& operator=(const StringContainer& string_in);
@@ -176,37 +185,37 @@ namespace luna
 		}
 	};
 
-	LString operator+(const LString& lValue, const LString& rValue);
-	LString operator+(const LString& lValue, const char* rValue);
-	LString operator+(const char* lValue, const LString& rValue);
+	LString CORE_API operator+(const LString& lValue, const LString& rValue);
+	LString CORE_API operator+(const LString& lValue, const char* rValue);
+	LString CORE_API operator+(const char* lValue, const LString& rValue);
 
 
-	LString::WStringContainer StringToWstring(const LString::StringContainer& string_in);
-	LString::StringContainer WstringToString(const LString::WStringContainer& wstring_in);
+	CORE_API LString::WStringContainer StringToWstring(const LString::StringContainer& string_in);
+	CORE_API LString::StringContainer WstringToString(const LString::WStringContainer& wstring_in);
 
 	template<typename Source, typename Target>
-	inline Target LexicalCast(const Source &source)
+	inline CORE_API Target LexicalCast(const Source &source)
 	{
 		return boost::lexical_cast<Target>(Source);
 	}
 	template<typename Source>
-	inline LString ToString(const Source &source)
+	inline CORE_API LString ToString(const Source &source)
 	{
 		return LString(boost::lexical_cast<LString::StringContainer>(source));
 	}
 	template<typename Target>
-	inline Target FromString(const LString &source)
+	inline CORE_API Target FromString(const LString &source)
 	{
 		return boost::lexical_cast<Target>(source.c_str());
 	}
 	template<typename const char*>
-	inline const char *FromString(const LString &source)
+	inline CORE_API const char *FromString(const LString &source)
 	{
 		return source.c_str();
 	}
 
 
-	size_t hash_value(const luna::LString &key);
+	CORE_API size_t hash_value(const luna::LString &key);
 
 	
 }

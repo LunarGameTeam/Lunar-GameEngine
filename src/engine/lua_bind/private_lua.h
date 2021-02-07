@@ -3,9 +3,13 @@
 #define SOL_ALL_SAFETIES_ON 1
 
 #include <sol/sol.hpp>
-
+#include "core/subsystem/sub_system.h"
 
 #include "core/misc/string.h"
+
+#ifndef LUA_BIND_API
+#define LUA_BIND_API __declspec( dllexport )//宏定义
+#endif
 
 namespace sol {
 namespace stack {

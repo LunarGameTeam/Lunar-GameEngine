@@ -1,5 +1,6 @@
 #pragma once
 
+#include "private_world.h"
 #include "core/core_module.h"
 #include "world/entity.h"
 #include "core/subsystem/sub_system.h"
@@ -7,7 +8,7 @@
 namespace luna
 {
 
-class Scene : LObject
+class WORLD_API Scene : LObject
 {
 
 public:
@@ -15,6 +16,7 @@ public:
 	{
 		auto entity = new Entity(name);
 		m_entities.push_back(entity);
+		return entity;
 	}
 	
 	void OnCreate();

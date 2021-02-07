@@ -1,5 +1,7 @@
 #include "config_manager.h"
 #include "config.h"
+#include <tchar.h>
+#include "windows.h"
 
 namespace luna
 {

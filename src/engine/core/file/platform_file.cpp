@@ -1,7 +1,7 @@
 #include "platform_file.h"
 #include "core/object/object.h"
 #include "core/file/file_subsystem.h"
-#include "core/engine/engine.h"
+
 #include <boost/filesystem.hpp>
 #include <filesystem>
 

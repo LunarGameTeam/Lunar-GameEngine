@@ -2,11 +2,12 @@
 
 #include "core/core_module.h"
 #include "world/component.h"
+#include "private_world.h"
 
 namespace luna
 {
 
-class Renderer : public Component
+class WORLD_API Renderer : public Component
 {
 
 };

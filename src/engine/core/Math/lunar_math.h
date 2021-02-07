@@ -4,9 +4,12 @@
 #include<DirectXMath.h>
 #endif
 
+#ifndef CORE_API
+#define CORE_API __declspec( dllexport )//宏定义
+#endif
 namespace luna
 {
-	class LunarMatrix3x3
+	class CORE_API LunarMatrix3x3
 	{
 		DirectX::XMFLOAT3X3 matrix_value;
 	public:
@@ -20,7 +23,7 @@ namespace luna
 		LunarMatrix3x3 InverseMatrix();
 	};
 
-	class LunarMatrix4x4
+	class CORE_API LunarMatrix4x4
 	{
 		DirectX::XMFLOAT4X4 matrix_value;
 	public:
@@ -34,7 +37,7 @@ namespace luna
 		LunarMatrix4x4 InverseMatrix() const;
 	};
 
-	class LunarVector2
+	class CORE_API LunarVector2
 	{
 		DirectX::XMFLOAT2 vector_value;
 	public:
@@ -53,7 +56,7 @@ namespace luna
 		}
 	};
 
-	class LunarVector3
+	class CORE_API LunarVector3
 	{
 		DirectX::XMFLOAT3 vector_value;
 	public:
@@ -75,7 +78,7 @@ namespace luna
 		}
 	};
 
-	class LunarVector4
+	class CORE_API LunarVector4
 	{
 		DirectX::XMFLOAT4 vector_value;
 	public:
@@ -101,7 +104,7 @@ namespace luna
 		}
 	};
 
-	class LunarUint4
+	class CORE_API LunarUint4
 	{
 		DirectX::XMUINT4 vector_value;
 	public:

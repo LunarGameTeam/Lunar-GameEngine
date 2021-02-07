@@ -1,5 +1,6 @@
 #pragma once
 
+#include "private_world.h"
 #include "core/core_module.h"
 #include "core/math/lunar_math.h"
 #include "component.h"
@@ -7,7 +8,7 @@
 namespace luna
 {
 
-class Transform : public Component
+class WORLD_API Transform : public Component
 {
 public:
 	Transform *GetParentTransform()

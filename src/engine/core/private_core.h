@@ -11,17 +11,14 @@
  *
  * \note
 */
-
-#include "boost/smart_ptr.hpp"
-#include "boost/scoped_ptr.hpp"
-#include "boost/container/string.hpp"
-#include "core/memory/ptr.h"
-#include "core/misc/container.h"
-
-#include "core/log/log.h"
-
 #ifndef CORE_API
+
+#ifdef CORE_EXPORT
 #define CORE_API __declspec( dllexport )//宏定义
+#else
+#define CORE_API __declspec( dllimport )
+#endif
+
 #endif
 
 #define __DEBUG if (GL_NO_ERROR != error) \
@@ -29,60 +26,66 @@
 		printf("GL Error %x encountered in.\n", error);\
 	};
 
+/*
+ *	Getter和Setter宏
+ */
 
-#define GETTER_REF(type,variable,name) \
+#define GETTER_REF(type,var,name) \
 	type& Get##name()  \
 	{ \
-		return variable; \
+		return var; \
 	};\
 	const type& Get##name() const\
 	{ \
-		return variable; \
+		return var; \
 	};
 
-#define GETTER(type,variable,name) \
+#define GETTER_REF_CONST(type,var,name) \
+	const type& Get##name()  \
+	{ \
+		return var; \
+	};\
+	const type& Get##name() const\
+	{ \
+		return var; \
+	};
+
+#define GETTER(type,var,name) \
 	type Get##name()\
 	{ \
-		return variable; \
+		return var; \
 	};\
 	type Get##name() const\
 	{ \
-		return variable; \
+		return var; \
 	};
 
-#define GET_SET_REF(type,variable,name) \
-	type& Get##name()  \
-	{ \
-		return variable; \
-	};\
-	void Set##name(type& value) \
-	{\
-		variable = value;\
-	};
-
-#define GET_SET_CONST_REF(type,variable,name) \
-	const type& Get##name()  const\
-	{ \
-		return variable; \
-	};\
-	void Set##name(type& value) \
-	{\
-		variable = value;\
-	};
-
-#define GET_SET_VAULE(type,variable,name) \
-	type Get##name()\
-	{ \
-		return variable; \
-	};\
-	type Get##name() const\
-	{ \
-		return variable; \
-	};\
+#define SETTER(type, var, name)\
 	void Set##name(const type& value) \
 	{\
-		variable = value;\
+		var = value;\
 	};
 
+
+#define GET_SET_VAULE(type,var,name) \
+	GETTER(type, var, name)\
+	SETTER(type, var, name)
+
+#define GET_SET_REF(type, var, name) \
+	GETTER_REF(type, var, name)  \
+	SETTER(type, var, name)
+
+
+#define GET_SET_REF_CONST(type, var, name) \
+	GETTER_REF_CONST(type, var, name)  \
+	SETTER(type, var, name)
+
+
+namespace luna
+{
+
+struct LogScope;
+
+}
 
 extern luna::LogScope E_Core;

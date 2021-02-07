@@ -9,12 +9,25 @@ namespace luna
 template<typename T>
 class CORE_API Singleton
 {
+private:
+	Singleton()
+	{
+	}
 public:
 	T &instance() {
 		static T t;
 		return t;
 	}
 
+};
+
+class CORE_API NoCopy
+{
+protected:
+	NoCopy() {};
+private:
+	NoCopy(const NoCopy &) = delete;
+	NoCopy &operator=(const NoCopy &) = delete;
 };
 
 	size_t SizeAligned(const size_t& size_in, const size_t& size_aligned_in);

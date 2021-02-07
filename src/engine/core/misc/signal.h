@@ -3,6 +3,7 @@
 #include <boost\bind\bind.hpp>
 #include <boost\function.hpp>
 #include "core/misc/container.h"
+#include "core/memory/ptr.h"
 
 template<typename RetVal, typename... Param>
 class LFunctionList;

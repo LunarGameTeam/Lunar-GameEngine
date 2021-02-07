@@ -5,7 +5,7 @@ using namespace luna;
 bool FileSubsystem::OnPreInit()
 {
 
-#ifdef _WIN32 || _WIN64
+#ifdef LUNA_WINDOWS
 
 	m_PlatformFile =  new WindowsFileManager();
 	m_PlatformFile->InitFileManager();

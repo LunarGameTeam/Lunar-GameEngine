@@ -10,6 +10,9 @@ using LSharedPtr = std::shared_ptr<T>;
 template<typename T>
 using LWeakPtr = std::weak_ptr<T>;
 
+template<typename T>
+using LUniquePtr = std::unique_ptr<T>;
+
 class LSharedObject;
 
 //template<typename T>

@@ -66,7 +66,7 @@ LWindow *WindowSubsystem::CreateLunaWindow(const luna::LString &name, int width,
 {
 
 #ifdef _WIN32
-	LWin32Window *win32Window = new LWin32Window();
+	auto win32Window = MakeShared<LWin32Window>();
 	win32Window->Init();
 	m_win_windows[win32Window->Id()] = win32Window;
 	CreateDeviceD3D(win32Window->GetHwnd());
@@ -85,7 +85,7 @@ LWindow *WindowSubsystem::CreateLunaWindow(const luna::LString &name, int width,
 #endif // _WIN32
 
 
-	return win32Window;
+	return win32Window.get();
 }
 
 LWindow *WindowSubsystem::GetMainWindow()

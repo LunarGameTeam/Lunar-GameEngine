@@ -1,5 +1,6 @@
 #include "core/core_module.h"
 #include "core/file/file_subsystem.h"
+#include "core/asset/asset_subsystem.h"
 #include "lua_bind/lua_subsystem.h"
 
 #include <boost/function.hpp>
@@ -27,10 +28,18 @@ TEST(LuaEnv, Test0)
 
 int main(int argc, const char* argv[])
 {
-	gEngine = new LunarEngineCore();
-	gEngine->RegisterSubsystem<luna::LuaSubsystem>();
+	gEngine = new lunaCore();
 	gEngine->RegisterSubsystem<luna::FileSubsystem>();
+	gEngine->RegisterSubsystem<luna::AssetSubsystem>();
+	gEngine->RegisterSubsystem<luna::LuaSubsystem>();
 	gEngine->Run();
 	testing::InitGoogleTest();
-	return RUN_ALL_TESTS();
+	RUN_ALL_TESTS();
+	while (gEngine->GetPendingExit())
+	{
+		gEngine->OnSubsystemFrameBegin(gEngine->GetFrameDelta());
+		gEngine->OnSubsystemTick(gEngine->GetFrameDelta());
+		gEngine->OnSubsystemFrameEnd(gEngine->GetFrameDelta());
+	}
+	return 1;
 }

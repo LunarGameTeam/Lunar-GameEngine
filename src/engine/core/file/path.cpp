@@ -1,7 +1,6 @@
 #include "path.h"
 #include "file_subsystem.h"
 #include "platform_file.h"
-#include "core\engine\engine.h"
 
 using namespace luna;
 

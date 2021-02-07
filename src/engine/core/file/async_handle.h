@@ -1,7 +1,10 @@
 #pragma once
 
-#include "file.h"
 #include "core/private_core.h"
+#include "core/memory/ptr.h"
+#include "core/misc/container.h"
+#include "core/log/log.h"
+#include "file.h"
 #include <boost/function.hpp>
 
 namespace luna

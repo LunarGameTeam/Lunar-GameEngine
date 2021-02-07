@@ -20,6 +20,7 @@ class RenderSubusystem : public SubSystem
 {
 	SceneRoot* new_scene;
 public:
+	RenderSubusystem() {};
 	bool OnPreInit() override;
 
 

@@ -27,12 +27,12 @@ extern Config<int, true> UsingImGUI;
 class CORE_API WindowSubsystem : public SubSystem
 {
 public:
-
+	WindowSubsystem() {};
 	LWindow *CreateLunaWindow(const luna::LString &name, int width, int height);
 	LWindow *GetMainWindow();
 	LWindow *GetWindowByHandle(LWindow::WindowHandle handle)
 	{
-		return m_win_windows[handle];
+		return m_win_windows[handle].get();
 	}
 
 public:
@@ -44,7 +44,7 @@ public:
 	void OnIMGUI();
 
 private:
-	LMap<LWindow::WindowHandle, LWindow *> m_win_windows;
+	LMap<LWindow::WindowHandle, LSharedPtr<LWindow>> m_win_windows;
 	LWindow *m_main_window;
 };
 

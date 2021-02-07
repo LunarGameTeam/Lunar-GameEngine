@@ -1,6 +1,8 @@
 #pragma once
 #include "core/private_core.h"
 #include "core/misc/string.h"
+#include "core/misc/container.h"
+#include "core/memory/ptr.h"
 #include <fstream>
 #include <iostream> 
 

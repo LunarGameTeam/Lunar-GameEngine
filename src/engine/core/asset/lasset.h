@@ -9,7 +9,16 @@ class CORE_API LTemplateAsset : public luna::LBasicAsset
 {
 	ObjectDescType m_assert_desc;
 public:
-	luna::LResult InitCommon() override;
+	luna::LResult InitCommon() override
+	{
+		luna::LResult check_error;
+		check_error = InitResorceByDesc(m_assert_desc);
+		if (!check_error.m_IsOK)
+		{
+			return check_error;
+		}
+		return luna::g_Succeed;
+	}
 	LTemplateAsset(const luna::LString& resource_name_in, const ObjectDescType& assert_desc)
 	{
 		m_Name = resource_name_in;
@@ -44,17 +53,6 @@ public:
 private:
 	virtual luna::LResult InitResorceByDesc(const ObjectDescType& resource_desc) = 0;
 };
-template<typename ObjectDescType>
-luna::LResult LTemplateAsset<ObjectDescType>::InitCommon()
-{
-	luna::LResult check_error;
-	check_error = InitResorceByDesc(m_assert_desc);
-	if (!check_error.m_IsOK)
-	{
-		return check_error;
-	}
-	return luna::g_Succeed;
-}
 
 template<typename ObjectType>
 static ObjectType* LCreateAssetByJson(const luna::LString& resource_name_in, const Json::Value& resource_desc, bool if_have_name)

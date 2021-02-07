@@ -35,18 +35,9 @@ void EventSubsystem::Tick(float delta_time)
 
 }
 
-
-void EventSubsystem::OnInput(LWindow &window, InputEvent &event)
+void EventSubsystem::Input(LWindow &window, InputEvent &event)
 {
-	if (!m_input_callback.empty())
-	{
-		m_input_callback(window, event);
-	}
-}
-
-void EventSubsystem::RegisterInputCallback(InputCallback callback)
-{
-	m_input_callback = callback;
+	OnInput.BroadCast(window, event);
 }
 
 }

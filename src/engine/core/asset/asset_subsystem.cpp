@@ -1,5 +1,4 @@
 #include "asset_subsystem.h"
-#include "core/engine/engine.h"
 #include "core/file/file_subsystem.h"
 #include "core/file/platform_file.h"
 #include "core/misc/profile.h"

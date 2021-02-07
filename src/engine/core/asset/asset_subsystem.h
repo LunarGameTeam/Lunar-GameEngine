@@ -25,6 +25,7 @@ class CORE_API AssetSubsystem : public SubSystem
 {
 
 public:
+	AssetSubsystem() {};
 	bool OnPreInit() override;
 	bool OnPostInit() override;
 	bool OnInit() override;
@@ -37,6 +38,10 @@ public:
 	{
 		//Cache命中	
 		auto &cache = m_cached_assets[path.AsStringAbs()];
+		if (cache == nullptr)
+		{
+
+		}
 		LSharedPtr<AssetMetaData> meta = cache->meta;
 		LSharedPtr<LBasicAsset> asset = cache->asset;
 		if (asset.get() != nullptr)

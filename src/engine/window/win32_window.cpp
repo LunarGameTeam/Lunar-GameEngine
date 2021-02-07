@@ -1,13 +1,16 @@
 #include "win32_window.h"
-
 #include "window_subsystem.h"
-#include "event_subsystem.h"
-#include <ShellScalingApi.h>
+#include "core/event/event_subsystem.h"
 #include "core/imgui/imgui_impl_win32.h"
 
-#pragma comment(lib, "Shcore.lib")
+#ifdef LUNA_WINDOWS
 
+#include <ShellScalingApi.h>
+#pragma comment(lib, "Shcore.lib")
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+#endif
+
 
 namespace luna
 {
@@ -42,7 +45,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		InputEvent event;
 		event.type = EventType::Input_KeyDown;
 		event.code = keycode_map[(int32_t)wParam];
-		event_subsytem->OnInput(*window, event);
+		event_subsytem->Input(*window, event);
 		if (wParam == VK_ESCAPE)
 			PostQuitMessage(0);
 		if (wParam == VK_F5)

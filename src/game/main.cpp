@@ -5,7 +5,7 @@
 #include "core/asset/asset_subsystem.h"
 #include "core/file/file_subsystem.h"
 #include "window/window_subsystem.h"
-#include "window/event_subsystem.h"
+#include "core/event/event_subsystem.h"
 
 
 using namespace luna;

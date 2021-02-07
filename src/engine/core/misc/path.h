@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/private_core.h"
+#include "core/misc/string.h"
 
 
 namespace luna

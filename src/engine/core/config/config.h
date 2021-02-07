@@ -1,5 +1,6 @@
 #pragma once 
-#include "core/private_core.h"
+
+#include "core/misc/container.h"
 #include "core/misc/string.h"
 #include "config_manager.h"
 

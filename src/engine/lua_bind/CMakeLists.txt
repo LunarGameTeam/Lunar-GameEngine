@@ -9,8 +9,10 @@ set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS})
 
 auto_source_group("${ALL_FILES}" DST_FILES)
 
-add_library(lua_bind STATIC ${DST_FILES})
 
-add_dependencies(lua_bind lua world)
+add_library(lua_bind SHARED ${DST_FILES})
+add_compile_definitions(LUA_BIND_EXPORT)
+
+add_dependencies(lua_bind lua core world)
 target_link_libraries(lua_bind lua world)
 

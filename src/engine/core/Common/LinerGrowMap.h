@@ -2,6 +2,7 @@
 #include"core/core_module.h"
 #include"core/misc/container.h"
 #include"core/misc/FastId.h"
+#include "core/memory/ptr.h"
 //template<typename IndexValueType>
 //LInitNewFastIdClass(LinerGrowIndexMapID, size_t);
 namespace luna

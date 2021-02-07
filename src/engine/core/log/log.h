@@ -18,7 +18,13 @@
 #include "log_msg.h"
 
 #ifndef CORE_API
-#define CORE_API __declspec(dllexport)
+
+#ifdef CORE_EXPORT
+#define CORE_API __declspec( dllexport )//宏定义
+#else
+#define CORE_API __declspec( dllimport )
+#endif
+
 #endif
 
 namespace luna

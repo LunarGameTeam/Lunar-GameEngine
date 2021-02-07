@@ -20,4 +20,16 @@
 
 #include "core/log/log.h"
 
+
+#ifndef WORLD_API
+
+#ifdef WORLD_EXPORT
+#define WORLD_API __declspec( dllexport )//宏定义
+#else
+#define WORLD_API __declspec( dllimport )
+#endif
+
+
+#endif
+
 extern luna::LogScope E_World;

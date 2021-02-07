@@ -53,7 +53,7 @@ void SubSystem::OnFrameEnd(float delta_time)
 
 #include <chrono>
 
-lunaCore *gEngine = nullptr;
+CORE_API lunaCore *gEngine = nullptr;
 
 void lunaCore::Run()
 {

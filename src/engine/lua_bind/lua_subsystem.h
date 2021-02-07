@@ -7,24 +7,15 @@
 namespace luna
 {
 
-
-
-class LuaSubsystem : public SubSystem
+class LUA_BIND_API LuaSubsystem : public SubSystem
 {
 
 public:
+	LuaSubsystem() {};
 	bool OnPreInit() override;
-
-
 	bool OnPostInit() override;
-
-
 	bool OnInit() override;
-
-
 	bool OnShutdown() override;
-
-
 	void Tick(float delta_time) override;
 
 	LuaEnv &GetDefaultEnv();

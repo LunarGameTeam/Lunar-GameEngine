@@ -20,6 +20,10 @@ set(CMAKE_BUILD_FILES_DIRECTORY ${dir})
 set(CMAKE_BUILD_DIRECTORY ${dir})
 set(CMAKE_BINARY_DIR  ${dir})
 
+add_compile_definitions(LUNA_WINDOWS)
+add_compile_definitions(BOOST_BIND_GLOBAL_PLACEHOLDERS)
+
+
 include_directories(
 	src/engine
 	src/engine/lua

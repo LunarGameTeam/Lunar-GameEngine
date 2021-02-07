@@ -1,5 +1,5 @@
 /*!
- * \file window_subsystem.h
+ * \file event_subsytem.h
  * \date 2020/08/09 11:14
  *
  * \author IsakWong
@@ -13,14 +13,37 @@
 */
 #pragma once
 
+#include "core/private_core.h"
 #include "core/core_module.h"
 #include "core/misc/container.h"
-#include "luna_window.h"
+#include "core/misc/signal.h"
 
 namespace luna
 {
 
-enum class KeyCode : int
+class LWindow;
+
+enum class CORE_API EventType
+{
+	Input_KeyDown,
+	Input_KeyUp,
+	Input_KeyRepeat,
+	Input_MouseMove,
+	Input_MousePress,
+	Input_MouseRelease,
+	Window_Resize,
+	Window_Close,	
+	App_Init,
+	App_Exit,
+	App_Pause
+};
+
+struct CORE_API LEvent
+{
+	EventType type;
+};
+
+enum class CORE_API KeyCode : int
 {
 	Num1,
 	Num2,
@@ -73,48 +96,33 @@ enum class KeyCode : int
 	F11,
 	F12
 };
-enum class EventType
-{
-	Input_KeyDown,
-	Input_KeyUp,
-	Input_KeyRelease,
-	Input_MouseMove,
-	Input_MousePress,
-	Input_MouseRelease,
-	Window_Resize,
-
-};
-
-struct LEvent
-{
-	EventType type;
-};
 
 struct CORE_API InputEvent : public LEvent
 {
-	EventType type;
 	float x;
 	float y;
 	KeyCode code;
 };
 
-using InputCallback = boost::function<void(LWindow&, InputEvent&)>;
 
 class CORE_API EventSubsystem : public SubSystem
 {
 public:
+	SIGNAL(OnInput, LWindow&, InputEvent&)
+	SIGNAL(OnAppInit)
+	SIGNAL(OnAppExit)
+
+public:
+	EventSubsystem() {};
 	bool OnPreInit() override;
 	bool OnPostInit() override;
 	bool OnInit() override;
 	bool OnShutdown() override;
 	void Tick(float delta_time) override;
 
+public:
+	void Input(LWindow &window, InputEvent &evebt);
 
-	void OnInput(LWindow &window, InputEvent &evebt);
-	void RegisterInputCallback(InputCallback callback);
-
-private:
-	InputCallback m_input_callback;
 };
 
 }

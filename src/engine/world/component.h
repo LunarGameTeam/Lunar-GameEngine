@@ -1,12 +1,13 @@
 #pragma once
 
 #include "core/core_module.h"
+#include "private_world.h"
 
 namespace luna
 {
 class Entity;
 
-class Component : public LObject
+class WORLD_API Component : public LObject
 {
 public:
 	Component(const Component &comp) = delete;

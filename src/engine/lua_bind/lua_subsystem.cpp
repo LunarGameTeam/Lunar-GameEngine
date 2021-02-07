@@ -31,7 +31,7 @@ LuaEnv &LuaSubsystem::GetDefaultEnv()
 bool LuaSubsystem::OnInit()
 {
 	AssetSubsystem *asset_sys = gEngine->GetSubsystem<AssetSubsystem>();
-	assert(asset_sys->IsInitialized());
+	assert(asset_sys);
 
 	m_default_env->Init();
 	LPath entry_file(SCRIPT_ENTRY);

@@ -8,7 +8,7 @@
 namespace luna
 {
 
-class LuaScript : public LBasicAsset
+class LUA_BIND_API LuaScript : public LBasicAsset
 {
 public:
 	void OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile> file) override;

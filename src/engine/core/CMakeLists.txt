@@ -9,7 +9,7 @@ set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS})
 
 auto_source_group("${ALL_FILES}" DST_FILES)
 
-add_library(core STATIC ${DST_FILES})
-
+add_library(core SHARED ${DST_FILES})
+add_compile_definitions(CORE_EXPORT)
 target_link_libraries(core gtest)
 

@@ -1,5 +1,7 @@
-#include "string.h"
 #include "core/private_core.h"
+#include "string.h"
+#include "windows.h"
+
 
 namespace luna
 {
