@@ -12,7 +12,7 @@
  * \note
 */
 #pragma once
-
+#include "private_window.h"
 #include "core/core_module.h"
 #include "core/misc/container.h"
 #include "core/config/config.h"
@@ -22,9 +22,11 @@
 namespace luna
 {
 
-extern Config<int, true> UsingImGUI;
+extern WINDOW_API Config<int, true> UsingImGUI;
+extern WINDOW_API Config<int, 1024> DefaultWidth;
+extern WINDOW_API Config<int, 768> DefaultHeight;
 
-class CORE_API WindowSubsystem : public SubSystem
+class WINDOW_API WindowSubsystem : public SubSystem
 {
 public:
 	WindowSubsystem() {};
@@ -35,15 +37,15 @@ public:
 		return m_win_windows[handle].get();
 	}
 
+
 public:
 	bool OnPreInit() override;
 	bool OnPostInit() override;
 	bool OnInit() override;
 	bool OnShutdown() override;
 	void Tick(float delta_time) override;
-	void OnIMGUI();
 
-private:
+private:	
 	LMap<LWindow::WindowHandle, LSharedPtr<LWindow>> m_win_windows;
 	LWindow *m_main_window;
 };

@@ -22,7 +22,7 @@ struct CORE_API SerializeConfig
  * 
  */
 template<typename Type, Type DefaultValue>
-class CORE_API Config
+class Config
 {
 	LString m_group;
 	LString m_key;

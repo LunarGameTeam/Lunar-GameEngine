@@ -1,4 +1,4 @@
-﻿# CMake 最低版本号要求
+# CMake 最低版本号要求
 cmake_minimum_required (VERSION 2.8)
 # 项目信息
 cmake_policy(VERSION "3.8.0")
@@ -25,11 +25,13 @@ add_compile_definitions(BOOST_BIND_GLOBAL_PLACEHOLDERS)
 
 
 include_directories(
-	src/engine
+	src/Engine
 	src/engine/lua
+	${SDK_PATH}imgui
 	${SDK_PATH}glm
 	${SDK_PATH}googletest/googletest/include
 	${SDK_PATH}jsoncpp/include
+	${SDK_PATH}sdl
 	${SDK_PATH}boost
 	${SDK_PATH}DirectXTex
 	${SDK_PATH}sol2/include
@@ -124,6 +126,8 @@ add_subdirectory(sdk/DirectXTex)
 add_subdirectory(sdk/DirectXTK12)
 add_subdirectory(sdk/jsoncpp)
 add_subdirectory(sdk/sol2)
+add_subdirectory(sdk/sdl)
+add_subdirectory(sdk/imgui)
 
 SET_PROPERTY(TARGET lua PROPERTY FOLDER "SDK")
 
@@ -137,6 +141,11 @@ SET_PROPERTY(TARGET jsoncpp_static PROPERTY FOLDER "SDK")
 SET_PROPERTY(TARGET texassemble PROPERTY FOLDER "SDK")
 SET_PROPERTY(TARGET texconv PROPERTY FOLDER "SDK")
 SET_PROPERTY(TARGET texdiag PROPERTY FOLDER "SDK")
+
+
+SET_PROPERTY(TARGET SDL2 PROPERTY FOLDER "SDK")
+SET_PROPERTY(TARGET SDL2main PROPERTY FOLDER "SDK")
+SET_PROPERTY(TARGET imgui PROPERTY FOLDER "SDK")
 
 
 SET_PROPERTY(TARGET core_test PROPERTY FOLDER "Test")

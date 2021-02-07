@@ -28,7 +28,7 @@ namespace luna
  * \author isAk wOng
  *
  */
-	enum class LogLevel
+	enum class CORE_API LogLevel
 	{
 		
 		Error = 0,
@@ -45,7 +45,7 @@ namespace luna
  * \author isAk wOng
  *
  */
-	struct LResult
+	struct CORE_API LResult
 	{
 #ifdef _MSC_VER
 		HRESULT m_Result;

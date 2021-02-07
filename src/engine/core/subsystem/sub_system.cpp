@@ -35,6 +35,11 @@ void SubSystem::Tick(float delta_time)
 
 }
 
+void SubSystem::OnIMGUI()
+{
+
+}
+
 void SubSystem::OnFrame(float delta_time)
 {
 
@@ -102,6 +107,15 @@ void lunaCore::OnSubsystemTick(float delta_time)
 		{
 			subsystem->Tick(m_frame_delta / 1000.0f);
 		}
+	}
+}
+
+void lunaCore::OnSubsystemIMGUI()
+{
+
+	for (auto& subsystem : mOrderedSubSystems)
+	{
+		subsystem->OnIMGUI();
 	}
 }
 

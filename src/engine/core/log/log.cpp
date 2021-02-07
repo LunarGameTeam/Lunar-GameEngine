@@ -13,8 +13,8 @@ namespace luna
 {
 	std::fstream g_log_file;
 
-	LResult g_Succeed;
-	LResult g_Failed;
+	CORE_API LResult g_Succeed;
+	CORE_API LResult g_Failed;
 
 	std::vector<LogMsg> g_LogQueue;
 

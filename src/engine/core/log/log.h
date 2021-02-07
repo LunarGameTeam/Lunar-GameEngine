@@ -45,8 +45,8 @@ namespace luna
 		~LogManager();
 	};
 
-	extern LResult g_Succeed;
-	extern LResult g_Failed;
+	CORE_API extern LResult g_Succeed;
+	CORE_API extern LResult g_Failed;
 
 /*!
  * \class LogScope

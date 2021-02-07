@@ -12,7 +12,7 @@ auto_source_group("${ALL_FILES}" DST_FILES)
 
 add_executable(editor ${DST_FILES})
 set_property(TARGET editor PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${SOLUTION_CMAKE_SOURCE_PATH}")
-add_dependencies(editor core render)
+add_dependencies(editor core window)
 
-target_link_libraries(editor core render)
+target_link_libraries(editor core window)
 

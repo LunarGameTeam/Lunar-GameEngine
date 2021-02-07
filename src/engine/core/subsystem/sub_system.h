@@ -31,6 +31,7 @@ public:
 	virtual bool OnShutdown() = 0;
 
 	virtual void Tick(float delta_time) = 0;
+	virtual void OnIMGUI();
 
 	virtual void OnFrame(float delta_time);
 	virtual void OnFrameBegin(float delta_time);
@@ -77,6 +78,7 @@ public:
 	void OnRender();
 
 	void OnSubsystemTick(float delta_time);
+	void OnSubsystemIMGUI();
 	void OnSubsystemFrameBegin(float delta_time);
 	void OnSubsystemFrameEnd(float delta_time);
 
@@ -97,11 +99,16 @@ public:
 	GET_SET_VAULE(bool, m_pending_exit, PendingExit);
 	GETTER(float, m_frame_delta, FrameDelta);
 	GETTER(float, m_frame_rate, FrameRate);
+	GET_SET_VAULE(float, m_actual_framte_delta, ActualFrameDelta);
+	GET_SET_VAULE(float, m_actual_frame_rate, ActualFrameRate);
+
 
 private:
 	bool m_pending_exit = false;
 	boost::container::vector<SubSystem *> mOrderedSubSystems;
 	boost::unordered::unordered_map<luna::LString, SubSystem * > mSubSystems;
+	float m_actual_frame_rate = 0.0f;
+	float m_actual_framte_delta = 0.0f;
 	float m_frame_rate = 60.f;
 	float m_frame_delta = 1000.f / 60.f;
 

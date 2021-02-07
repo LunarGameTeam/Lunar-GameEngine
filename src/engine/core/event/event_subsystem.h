@@ -45,6 +45,9 @@ struct CORE_API LEvent
 
 enum class CORE_API KeyCode : int
 {
+	MouseLeft,
+	MouseRight,
+	MouseMiddle,
 	Num1,
 	Num2,
 	Num3,

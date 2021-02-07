@@ -88,4 +88,4 @@ struct LogScope;
 
 }
 
-extern luna::LogScope E_Core;
+CORE_API extern luna::LogScope E_Core;

@@ -17,6 +17,10 @@ public:
 	Application()
 	{
 		gEngine = new lunaCore();
+		gEngine->RegisterSubsystem<FileSubsystem>();
+		gEngine->RegisterSubsystem<AssetSubsystem>();
+		gEngine->RegisterSubsystem<EventSubsystem>();
+		gEngine->RegisterSubsystem<WindowSubsystem>();
 	}
 	void Run()
 	{
@@ -32,16 +36,21 @@ public:
 
 		while (!gEngine->m_pending_exit)
 		{
-			gEngine->OnSubsystemFrameBegin(gEngine->m_frame_delta);
-			gEngine->OnSubsystemTick(gEngine->m_frame_delta);			
-			gEngine->OnSubsystemFrameEnd(gEngine->m_frame_delta);
+			gEngine->OnSubsystemFrameBegin(gEngine->GetFrameDelta());
+			gEngine->OnSubsystemTick(gEngine->GetFrameDelta());
+			gEngine->OnSubsystemFrameEnd(gEngine->GetFrameDelta());
 			now = Time::now();
 			fsec fs = now - old;
 			ms d = std::chrono::duration_cast<ms>(fs);			
+			
 			if (d.count() < gEngine->m_frame_delta)
 			{
 				std::this_thread::sleep_for(std::chrono::milliseconds((int)gEngine->m_frame_delta - d.count()));
 			}
+			fs = Time::now() - old;
+			d = std::chrono::duration_cast<ms>(fs);
+			gEngine->SetActualFrameRate(1000 / d.count());
+			gEngine->SetActualFrameDelta(d.count());
 			old = now;
 		}
 	}
@@ -50,15 +59,12 @@ public:
 
 };
 
+#undef main
 
 int main(int argc, const char* argv[])
 {
 	Application game;
-	gEngine->RegisterSubsystem<FileSubsystem>();
-	gEngine->RegisterSubsystem<AssetSubsystem>();
-	gEngine->RegisterSubsystem<EventSubsystem>();
-	gEngine->RegisterSubsystem<WindowSubsystem>();
 	game.Run();
 	game.MainLoop();
-
+	return 1;
 }

@@ -19,3 +19,9 @@
 [submodule "sdk/sol2"]
 	path = sdk/sol2
 	url = https://github.com/ThePhD/sol2.git
+[submodule "sdk/sdl"]
+	path = sdk/sdl
+	url = https://github.com/SDL-mirror/SDL.git
+[submodule "sdk/imgui"]
+	path = sdk/imgui
+	url = https://github.com/LunarGameTeam/imgui.git
