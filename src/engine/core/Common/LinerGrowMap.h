@@ -157,7 +157,11 @@ namespace luna
 			now_value_data_mark.data_index = *now_empty_data.begin();
 			now_value_data_mark.data_size = require_size;
 			//ID号创建完毕后创建新的资源数据
-			value_data.Create(now_value_data_mark, GetAllocator());
+			check_error = value_data.Create(now_value_data_mark, GetAllocator());
+			if (!check_error.m_IsOK)
+			{
+				return check_error;
+			}
 			check_error = BuildNewValue(now_value_data_mark);
 			if (!check_error.m_IsOK)
 			{
@@ -186,6 +190,91 @@ namespace luna
 		}
 		LResult DefragmenteList()override
 		{
+			return luna::g_Succeed;
+		}
+	private:
+		virtual LResult BuildNewValue(const ValueMarkIndex<IndexValueType>& value_index) = 0;
+		virtual LResult ReleaseValue(const IndexValueType &value_index) = 0;
+	};
+	template<typename IndexValueType>
+	class LinerGrowListMemberCommon : public ILinerGrowListMember<IndexValueType>
+	{
+		IndexValueType m_tail_pointer_offset;         //当前表已分配指针的偏移
+		IndexValueType m_refresh_pointer_offset;      //当前表如果需要一次整理操作，其合理的起始整理位置
+		LUnorderedMap<IndexValueType, ValueMarkIndex<IndexValueType>> list_data_map;//每个被分配出来的数据块
+	public:
+		LinerGrowListMemberCommon(
+			const IndexValueType& list_index,
+			const IndexValueType& max_list_size,
+			LLinerGrowMap<IndexValueType>* controler_map
+		) :ILinerGrowListMember<IndexValueType>(list_index, max_list_size, controler_map)
+		{
+			m_tail_pointer_offset = 0;
+			m_refresh_pointer_offset = m_max_list_size;
+		};
+		virtual ~LinerGrowListMemberCommon()
+		{
+		}
+		const size_t GetEmptySize() override
+		{
+			return m_max_list_size - m_tail_pointer_offset;
+		}
+		LResult BuildNewValueFromList(const IndexValueType& require_size, LinerGrownResourceData<IndexValueType>& value_data) override
+		{
+			LResult check_error;
+			if (value_data.CheckIfCreated())
+			{
+				LunarDebugLogError(0, "do not repeate create resource", check_error);
+				return check_error;
+			}
+			if (require_size > GetEmptySize())
+			{
+				LunarDebugLogError(0, "This List is too full to allocate new data", check_error);
+				return check_error;
+			}
+			//通过检测，为新资源开辟新的ID号
+			ValueMarkIndex<IndexValueType> now_value_data_mark;
+			now_value_data_mark.list_index = m_list_index;
+			now_value_data_mark.data_index = m_tail_pointer_offset;
+			now_value_data_mark.data_size = require_size;
+			//ID号创建完毕后创建新的资源数据
+			check_error = value_data.Create(now_value_data_mark, GetAllocator());
+			if (!check_error.m_IsOK)
+			{
+				return check_error;
+			}
+			check_error = BuildNewValue(now_value_data_mark);
+			if (!check_error.m_IsOK)
+			{
+				return check_error;
+			}
+			m_tail_pointer_offset += require_size;
+			list_data_map.insert(std::pair<IndexValueType, ValueMarkIndex<IndexValueType>>(now_value_data_mark.data_index, now_value_data_mark));
+			return luna::g_Succeed;
+		}
+		LResult ReleaseValueFromList(const IndexValueType& value_index) override
+		{
+			LResult check_error;
+			if (list_data_map.find(value_index) == now_use_data.end())
+			{
+				LunarDebugLogError(0, "could not find map value", check_error);
+				return check_error;
+			}
+			check_error = ReleaseValue(value_index);
+			if (!check_error.m_IsOK)
+			{
+				return check_error;
+			}
+			list_data_map.erase(value_index);
+			if (m_refresh_pointer_offset > value_index)
+			{
+				m_refresh_pointer_offset = value_index;
+			}
+			return luna::g_Succeed;
+		}
+		LResult DefragmenteList()override
+		{
+			//todo:等需要测试描述符页的回收时进行
 			return luna::g_Succeed;
 		}
 	private:
@@ -273,6 +362,10 @@ namespace luna
 				index_size_map.emplace(m_data_index.list_index, now_used_list_id);
 				value_data_map.emplace(now_used_list_id, now_released_data);
 			}
+		}
+		inline IndexValueType GetMaxSizePerList()
+		{
+			return m_max_size_per_list;
 		}
 	private:
 		void ReleaseListFromMap(const IndexValueType& m_data_index)

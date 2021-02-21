@@ -207,6 +207,43 @@ LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateDescriptorHeapFromMemor
 	return nullptr;
 };
 
+LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateDescriptorHeapByType(const LunarGraphicDescriptorType &descriptor_heap_type, const size_t &heap_size)
+{
+	D3D12_DESCRIPTOR_HEAP_DESC required_descriptor_heap_desc;
+	required_descriptor_heap_desc.NumDescriptors = heap_size;
+	required_descriptor_heap_desc.NodeMask = 0;
+	switch (descriptor_heap_type)
+	{
+	case LunarGraphicDescriptorType::DESCRIPTOR_SHADER_RESOURCE:
+	case LunarGraphicDescriptorType::DESCRIPTOR_UNIFORM_BUFFER:
+	case LunarGraphicDescriptorType::DESCRIPTOR_UNORDERED_ACCESS:
+	{
+		required_descriptor_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		required_descriptor_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE;
+		break;
+	}
+	case LunarGraphicDescriptorType::DESCRIPTOR_RENDER_TARGET:
+	{
+		required_descriptor_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+		required_descriptor_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		break;
+	}
+	case LunarGraphicDescriptorType::DESCRIPTOR_DEPTH_STENCIL:
+	{
+		required_descriptor_heap_desc.Type = D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+		required_descriptor_heap_desc.Flags = D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
+		break;
+	}
+	default: 
+	{
+		LResult error_message;
+		LunarDebugLogError(0, "unsupport descriptor heap type", error_message);
+		break;
+	}
+	}
+	return LCreateAssetByDesc<LDx12GraphicDescriptorHeap>("DescriptorHeap", required_descriptor_heap_desc, false);
+}
+
 LBasicAsset* luna::ILunarDirectXGraphicDeviceCore::CreateUniforBuffer(const size_t& uniform_buffer_size)
 {
 	LunaCommonBufferDesc required_uinform_buffer_desc;

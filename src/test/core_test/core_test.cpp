@@ -162,7 +162,7 @@ private:
 	{
 		return uuid_generate.GetUuid().GetValue();
 	};
-	luna::LResult OnReleaseListFromMap(ILinerGrowListMember<int32_t>* resource_list_pointer)
+	luna::LResult OnReleaseListFromMap(const int32_t& index, ILinerGrowListMember<int32_t>* resource_list_pointer)
 	{
 		delete resource_list_pointer;
 		return luna::g_Succeed;

@@ -4,111 +4,102 @@
 //shader输入布局
 namespace luna
 {
-	class LBasicDescriptorBlock : public luna::LinerGrownResourceData<size_t>,public LSharedObject
+	class LBasicBindingObject
 	{
+	protected:
 		LunarGraphicDescriptorType m_descriptor_type;
 		size_t m_descriptor_offset;
 		size_t m_descriptor_size;
 		LPtr<ILunarGraphicRenderDescriptor> m_descriptor_data;
 	public:
-		LBasicDescriptorBlock(const luna::LString& file_name);
+		LBasicBindingObject(
+			const LunarGraphicDescriptorType &descriptor_type,
+			LSharedObject* Parent):
+			m_descriptor_type(descriptor_type),
+			m_descriptor_offset(0),
+			m_descriptor_size(0),
+			m_descriptor_data(Parent)
+		{
+		}
+		~LBasicBindingObject()
+		{
+		}
+		LResult LBasicBindingObject::CreateByHeap(LObject* descriptor_heap_pointer,const size_t &descriptor_offset,const size_t& descriptor_size);
+	};
+	LResult LBasicBindingObject::CreateByHeap(LObject* descriptor_heap_pointer, const size_t &descriptor_offset, const size_t& descriptor_size)
+	{
+		m_descriptor_offset = descriptor_offset;
+		m_descriptor_size = descriptor_size;
+		if (descriptor_heap_pointer == nullptr)
+		{
+			LResult check_error;
+			LunarDebugLogError(0, "descriptor heap of allocator is null", check_error);
+			return check_error;
+		}
+		ILunarGraphicRenderDescriptor* descriptor_pointer = ILunarGraphicDeviceCore::GetInstance()->CreateDescriptor(m_descriptor_type, m_descriptor_offset, m_descriptor_size, descriptor_heap_pointer);
+		if (descriptor_pointer == nullptr)
+		{
+			LResult check_error;
+			LunarDebugLogError(0, "create descriptor fail", check_error);
+			return check_error;
+		}
+		m_descriptor_data = descriptor_pointer;
+		return g_Succeed;
+	}
+	class LBasicDescriptorBlock : public luna::LinerGrownResourceData<size_t>,public LSharedObject, public LBasicBindingObject
+	{
+	public:
+		LBasicDescriptorBlock(const LunarGraphicDescriptorType& descriptor_type);
 		~LBasicDescriptorBlock()
 		{
 		};
 		LResult InitResource(const ValueMarkIndex<size_t>& data_index) override;
 	};
-	LBasicDescriptorBlock::LBasicDescriptorBlock(const luna::LString& file_name) : m_descriptor_data(this)
+	LBasicDescriptorBlock::LBasicDescriptorBlock(const LunarGraphicDescriptorType& descriptor_type): LBasicBindingObject(descriptor_type,this)
 	{
-		LRenderDescriptrMemoryPageAllocator* descriptor_page_allocator = dynamic_cast<LRenderDescriptrMemoryPageAllocator*>(GetAllocator());
-		LObject* descriptor_heap_pointer = descriptor_page_allocator->GetDescriptorHeap();
-		ILunarGraphicDeviceCore::GetInstance()->CreateDescriptor(m_descriptor_type, m_descriptor_offset, m_descriptor_size, descriptor_heap_pointer);
+		m_descriptor_type = descriptor_type;
 	};
 	LResult LBasicDescriptorBlock::InitResource(const ValueMarkIndex<size_t>& data_index)
 	{
+		LRenderDescriptrMemoryPageAllocator* descriptor_page_allocator = dynamic_cast<LRenderDescriptrMemoryPageAllocator*>(GetAllocator());
+		auto real_descriptor_offset = descriptor_page_allocator->CountOffsetSizeByIndex(data_index);
+		auto real_descriptor_size = data_index.data_size;
+		LObject* descriptor_heap_pointer = dynamic_cast<LObject*>(descriptor_page_allocator->GetDescriptorHeap());
+		if (descriptor_heap_pointer == nullptr)
+		{
+			LResult check_error;
+			LunarDebugLogError(0, "descriptor heap of allocator is null", check_error);
+			return check_error;
+		}
+		LResult check_error = CreateByHeap(descriptor_heap_pointer,real_descriptor_offset, real_descriptor_size);
+		if (!check_error.m_IsOK)
+		{
+			return check_error;
+		}
+		return g_Succeed;
 	};
-	class LinerGrowListMemberDescriptor : public ILinerGrowListMember<size_t>
+	class LinerGrowListMemberDescriptor : public LinerGrowListMemberCommon<size_t>
 	{
-		//已经被分配使用的数据的id
-		LUnorderedSet<size_t> now_use_data;
-		//尚未被分配使用的数据id
-		LUnorderedSet<size_t> now_empty_data;
 	public:
 		LinerGrowListMemberDescriptor(
 			const size_t& list_index,
 			const size_t& max_list_size,
 			LLinerGrowMap<size_t>* controler_map
-		) :ILinerGrowListMember<size_t>(list_index, max_list_size, controler_map)
+		) :LinerGrowListMemberCommon<size_t>(list_index, max_list_size, controler_map)
 		{
-			for (size_t index_now = 0; index_now < max_list_size; ++index_now)
-			{
-				now_empty_data.insert(index_now);
-			}
 		};
 		virtual ~LinerGrowListMemberDescriptor()
 		{
 		}
-		const size_t GetEmptySize() override
-		{
-			return now_empty_data.size();
-		}
-		LResult BuildNewValueFromList(const size_t& require_size, LinerGrownResourceData<size_t>& value_data) override
-		{
-			LResult check_error;
-			if (value_data.CheckIfCreated())
-			{
-				LunarDebugLogError(0, "do not repeate create resource", check_error);
-				return check_error;
-			}
-			if (require_size != static_cast<size_t>(1))
-			{
-				LunarDebugLogError(0, "This List Only Accept Allocate One block", check_error);
-				return check_error;
-			}
-			if (now_empty_data.size() <= 0)
-			{
-				LunarDebugLogError(0, "list is full,coud not create new value", check_error);
-				return check_error;
-			}
-			//通过检测，为新资源开辟新的ID号
-			ValueMarkIndex<size_t> now_value_data_mark;
-			now_value_data_mark.list_index = m_list_index;
-			now_value_data_mark.data_index = *now_empty_data.begin();
-			now_value_data_mark.data_size = require_size;
-			//ID号创建完毕后创建新的资源数据
-			value_data.Create(now_value_data_mark, GetAllocator());
-			check_error = BuildNewValue(now_value_data_mark);
-			if (!check_error.m_IsOK)
-			{
-				return check_error;
-			}
-			now_empty_data.erase(now_value_data_mark.data_index);
-			now_use_data.insert(now_value_data_mark.data_index);
-			return luna::g_Succeed;
-		}
-		LResult ReleaseValueFromList(const size_t& value_index) override
-		{
-			LResult check_error;
-			if (now_use_data.find(value_index) == now_use_data.end())
-			{
-				LunarDebugLogError(0, "could not find map value", check_error);
-				return check_error;
-			}
-			check_error = ReleaseValue(value_index);
-			if (!check_error.m_IsOK)
-			{
-				return check_error;
-			}
-			now_use_data.erase(value_index);
-			now_empty_data.insert(value_index);
-			return luna::g_Succeed;
-		}
-		LResult DefragmenteList()override
-		{
-			return luna::g_Succeed;
-		}
 	private:
-		virtual LResult BuildNewValue(const ValueMarkIndex<size_t>& value_index) = 0;
-		virtual LResult ReleaseValue(const size_t& value_index) = 0;
+		LResult BuildNewValue(const ValueMarkIndex<size_t>& value_index) override
+		{
+			return luna::g_Succeed;
+		};
+		LResult ReleaseValue(const size_t& value_index) override
+		{
+			return luna::g_Succeed;
+		};
 	};
 	//页式描述符分配器
 	class LRenderDescriptrMemoryPageAllocator :public LLinerGrowMap<size_t>
@@ -118,8 +109,6 @@ namespace luna
 		size_t m_heap_start_offset;
 		//当前分配器可分配的最大描述符数量
 		size_t m_heap_control_size;
-		//当前描述符分配器为每个描述符页分配的描述符数量
-		size_t m_descriptor_size_per_page;
 		//当前空闲的描述符页
 		LUnorderedSet<size_t> m_empty_list_index;
 	public:
@@ -127,7 +116,6 @@ namespace luna
 			LBasicAsset* descriptor_heap,
 			const size_t &heap_start_offset,
 			const size_t& heap_control_size,
-			const size_t &descriptor_size_per_page,
 			const size_t& max_size_per_list
 		);
 		~LRenderDescriptrMemoryPageAllocator();
@@ -135,6 +123,18 @@ namespace luna
 		{
 			return m_descriptor_heap.Get();
 		};
+		size_t CountOffsetSizeByIndex(const ValueMarkIndex<size_t>& data_index)
+		{
+			size_t size_per_list = GetMaxSizePerList();
+			size_t final_offset = m_heap_start_offset + size_per_list * data_index.list_index + data_index.data_index;
+			if (final_offset + data_index.data_size >= m_heap_control_size)
+			{
+				LResult check_error;
+				LunarDebugLogError(0, "size out of range", check_error);
+				return -1;
+			}
+			return final_offset;
+		}
 	private:
 		luna::LResult BuildNewListToMap(const size_t& list_index, const size_t& max_size_per_list, ILinerGrowListMember<size_t>*& resource_list_pointer)override;
 		size_t GenerateNewListValue() override;
@@ -144,22 +144,20 @@ namespace luna
 		LBasicAsset* descriptor_heap,
 		const size_t& heap_start_offset,
 		const size_t& heap_control_size,
-		const size_t& descriptor_size_per_page,
 		const size_t& max_size_per_list
 	) :
 		m_descriptor_heap(lroot_object),
 		m_heap_start_offset(heap_start_offset),
 		m_heap_control_size(heap_control_size),
-		m_descriptor_size_per_page(descriptor_size_per_page),
-		LLinerGrowMap<size_t>(heap_control_size/ descriptor_size_per_page)
+		LLinerGrowMap<size_t>(max_size_per_list)
 	{
 		//初始化所有的空闲页表
-		size_t all_empty_page_size = heap_control_size / descriptor_size_per_page;
+		size_t all_empty_page_size = heap_control_size / max_size_per_list;
 		for (size_t index_empty_page = 0; index_empty_page < all_empty_page_size; ++index_empty_page)
 		{
 			m_empty_list_index.insert(index_empty_page);
 		}
-		m_descriptor_heap = ILunarGraphicDeviceCore::GetInstance()->CreateDescriptorHeapFromFile(,);
+		m_descriptor_heap = descriptor_heap;
 	}
 	LRenderDescriptrMemoryPageAllocator::~LRenderDescriptrMemoryPageAllocator()
 	{
@@ -188,5 +186,8 @@ namespace luna
 	{
 
 	}
-
+	//段式描述符分配器
+	class LRenderDescriptrMemorySegmentalAllocator
+	{
+	};
 }
