@@ -8,7 +8,7 @@
 namespace luna
 {
 
-Config<int, 0> g_create_meta("Asset", "IsAutoCreateAssetMeta");
+Config<int> g_create_meta("Asset", "IsAutoCreateAssetMeta", 0);
 
 bool AssetSubsystem::OnPreInit()
 {

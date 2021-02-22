@@ -14,8 +14,9 @@
 namespace luna
 {
 
-Config<int, 1024> DefaultWidth("Window", "DefaultWidth");
-Config<int, 768> DefaultHeight("Window", "DefaultHeight");
+CONFIG_IMPLEMENT(int, Window, UsingImGUI, 1);
+CONFIG_IMPLEMENT(int, Window, DefaultWidth, 1024);
+CONFIG_IMPLEMENT(int, Window, DefaultHeight, 768);
 
 LWindow *WindowSubsystem::CreateLunaWindow(const luna::LString &name, int width, int height)
 {

@@ -7,8 +7,8 @@
 namespace luna
 {
 
-constexpr char SCRIPT_ENTRY[] = "/assets/entry.lua";
-
+LUA_BIND_API CONFIG_DECLARE(LString, Script, EntryFilePath, "/assets/entry.lua");
+CONFIG_IMPLEMENT(LString, Script, EntryFilePath, "/assets/entry.lua");
 
 bool LuaSubsystem::OnPreInit()
 {

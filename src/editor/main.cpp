@@ -11,61 +11,22 @@
 
 using namespace luna;
 
-class EditorApplication
+class EditorApp
 {
 
 public:
-	EditorApplication()
+	EditorApp()
 	{
-		gEngine = new lunaCore();
-		gEngine->RegisterSubsystem<FileSubsystem>();
-		gEngine->RegisterSubsystem<AssetSubsystem>();
-		gEngine->RegisterSubsystem<EventSubsystem>();
 		gEngine->RegisterSubsystem<WindowSubsystem>();
 		gEngine->RegisterSubsystem<editor::EditorSubsystem>();
 	}
-	void Run()
-	{
-		gEngine->Run();
-	}
-	void MainLoop()
-	{
-		typedef std::chrono::high_resolution_clock Time;
-		typedef std::chrono::milliseconds ms;
-		typedef std::chrono::duration<float> fsec;
-		auto now = Time::now();
-		auto old = Time::now();
-
-		while (!gEngine->GetPendingExit())
-		{
-			gEngine->OnSubsystemFrameBegin(gEngine->GetFrameDelta());
-			gEngine->OnSubsystemTick(gEngine->GetFrameDelta());
-			gEngine->OnSubsystemFrameEnd(gEngine->GetFrameDelta());
-			now = Time::now();
-			fsec fs = now - old;
-			ms d = std::chrono::duration_cast<ms>(fs);
-
-			if (d.count() < gEngine->GetFrameDelta())
-			{
-				std::this_thread::sleep_for(std::chrono::milliseconds((int)gEngine->GetFrameDelta() - d.count()));
-			}
-			fs = Time::now() - old;
-			d = std::chrono::duration_cast<ms>(fs);
-			gEngine->SetActualFrameRate(1000 / d.count());
-			gEngine->SetActualFrameDelta(d.count());
-			old = now;
-		}
-	}
-
-	bool mPendingExit = false;
-
 };
 
 #undef main
 
 int main(int argc, const char* argv[])
 {
-	EditorApplication game;
+	EditorApp game;
 	game.Run();
 	game.MainLoop();
 	return 1;

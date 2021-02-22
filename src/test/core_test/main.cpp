@@ -2,7 +2,7 @@
 #include "core/file/file_subsystem.h"
 #include "core/asset/asset_subsystem.h"
 #include "window/window_subsystem.h"
-#include "window/event_subsystem.h"
+#include "core/event/event_subsystem.h"
 #include <gtest/gtest.h>
 
 using namespace luna;
@@ -39,15 +39,26 @@ TEST(DelegateTest, Test0)
 	}
 }
 
-int main(int argc, const char* argv[])
+using namespace luna;
+
+class TestApp
 {
-	gEngine = new lunaCore();
-	gEngine->RegisterSubsystem<FileSubsystem>();
-	gEngine->RegisterSubsystem<AssetSubsystem>();
-	gEngine->RegisterSubsystem<WindowSubsystem>();
-	gEngine->RegisterSubsystem<EventSubsystem>();
-	gEngine->Run();
+
+public:
+	TestApp()
+	{
+		gEngine->RegisterSubsystem<WindowSubsystem>();
+	}
+};
+
+#undef main
+
+int main(int argc, const char *argv[])
+{
+	TestApp game;
+	game.Run();
 	testing::InitGoogleTest();
 	int result = RUN_ALL_TESTS();
-	return result;
+	game.MainLoop();
+	return 1;
 }

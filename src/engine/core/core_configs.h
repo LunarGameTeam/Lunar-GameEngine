@@ -2,11 +2,11 @@
  * \file private_core.h
  * \date 2020/08/09 10:05
  *
- * \author isAk wOng 
+ * \author isAk wOng
  *
  * \brief Core模块内部公共的配置声明头文件
  *
- * 
+ *
  *
  * \note
 */
@@ -15,5 +15,8 @@
 
 namespace luna
 {
-	extern Config<bool, true> UsingReflection;
+
+CONFIG_DECLARE(int, Core, UsingReflection, 0);
+CONFIG_DECLARE(const char*, Core, StringConfig, "123");
+
 }

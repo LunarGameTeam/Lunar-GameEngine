@@ -22,9 +22,9 @@
 namespace luna
 {
 
-extern WINDOW_API Config<int, true> UsingImGUI;
-extern WINDOW_API Config<int, 1024> DefaultWidth;
-extern WINDOW_API Config<int, 768> DefaultHeight;
+WINDOW_API CONFIG_DECLARE(int, Window, UsingImGUI, 1);
+WINDOW_API CONFIG_DECLARE(int, Window, DefaultWidth, 1024);
+WINDOW_API CONFIG_DECLARE(int, Window, DefaultHeight, 768);
 
 class WINDOW_API WindowSubsystem : public SubSystem
 {

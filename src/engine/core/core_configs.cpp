@@ -1,3 +1,6 @@
 #include "core_configs.h"
 
-luna::Config<bool, true> UsingReflection("Core","UsingReflection");
+namespace luna
+{
+CONFIG_IMPLEMENT(int, Core, UsingReflection, 0);
+}

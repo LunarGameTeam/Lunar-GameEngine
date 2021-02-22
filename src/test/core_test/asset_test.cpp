@@ -44,8 +44,5 @@ TEST(Core, LoadAssetSync)
 /// </summary>
 TEST(Core, Config)
 {
-	Config<int, 0> UsingReflection("Core"/*分类*/, "UsingReflection"/*Config名字*/);
-	Config<int, 1280> WindowWidth("Core"/*分类*/, "WindowWidth"/*Config名字*/);
-	Config<int, 720> WindowHeight("Core"/*分类*/, "WindowHeight"/*Config名字*/);
 	//会从config.ini里饭序列化，以及会序列化到config.ini里
 }

@@ -13,7 +13,12 @@ SET(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 SET(SOLUTION_CMAKE_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4819")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251")
 
 set(dir ${CMAKE_CURRENT_SOURCE_DIR}/build/Compile/)
 set(CMAKE_BUILD_FILES_DIRECTORY ${dir})
@@ -25,9 +30,9 @@ add_compile_definitions(BOOST_BIND_GLOBAL_PLACEHOLDERS)
 
 
 include_directories(
-	src/Engine
+	src/engine
 	src/engine/lua
-	${SDK_PATH}imgui
+	src/engine/imgui
 	${SDK_PATH}glm
 	${SDK_PATH}googletest/googletest/include
 	${SDK_PATH}jsoncpp/include
@@ -39,6 +44,7 @@ include_directories(
 	${SDK_PATH}DirectXTK12/Src
 	${SDK_PATH}DirectXTK12/Inc
 )
+
 IF(WIN32)
 	link_directories(
 	${LIBRARY_OUTPUT_PATH}/${CMAKE_INTDIR}
@@ -92,8 +98,6 @@ function(auto_source_group src_files dst_files)
 	set(${dst_files} PARENT_SCOPE)
 endfunction(auto_source_group)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4251")
-
 add_subdirectory(src/engine/core)
 add_subdirectory(src/engine/render)
 add_subdirectory(src/engine/world)
@@ -105,7 +109,6 @@ add_subdirectory(src/game)
 add_subdirectory(src/editor)
 
 add_subdirectory(src/test/core_test)
-add_subdirectory(src/test/lua_bind_test)
 add_subdirectory(src/test/world_test)
 
 
@@ -127,7 +130,7 @@ add_subdirectory(sdk/DirectXTK12)
 add_subdirectory(sdk/jsoncpp)
 add_subdirectory(sdk/sol2)
 add_subdirectory(sdk/sdl)
-add_subdirectory(sdk/imgui)
+add_subdirectory(src/engine/imgui)
 
 SET_PROPERTY(TARGET lua PROPERTY FOLDER "SDK")
 
@@ -142,6 +145,7 @@ SET_PROPERTY(TARGET texassemble PROPERTY FOLDER "SDK")
 SET_PROPERTY(TARGET texconv PROPERTY FOLDER "SDK")
 SET_PROPERTY(TARGET texdiag PROPERTY FOLDER "SDK")
 
+SET_PROPERTY(TARGET gtest PROPERTY FOLDER "SDK")
 
 SET_PROPERTY(TARGET SDL2 PROPERTY FOLDER "SDK")
 SET_PROPERTY(TARGET SDL2main PROPERTY FOLDER "SDK")
@@ -149,12 +153,9 @@ SET_PROPERTY(TARGET imgui PROPERTY FOLDER "SDK")
 
 
 SET_PROPERTY(TARGET core_test PROPERTY FOLDER "Test")
-SET_PROPERTY(TARGET gtest PROPERTY FOLDER "Test")
-SET_PROPERTY(TARGET lua_bind_test PROPERTY FOLDER "Test")
 SET_PROPERTY(TARGET world_test PROPERTY FOLDER "Test")
 
 
 set_property(TARGET game PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${SOLUTION_CMAKE_SOURCE_PATH}")
 set_property(TARGET editor PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${SOLUTION_CMAKE_SOURCE_PATH}")
-set_property(TARGET lua_bind_test PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${SOLUTION_CMAKE_SOURCE_PATH}")
 set_property(TARGET core_test PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${SOLUTION_CMAKE_SOURCE_PATH}")

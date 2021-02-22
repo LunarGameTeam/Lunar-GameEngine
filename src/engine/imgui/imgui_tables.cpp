@@ -1,4 +1,4 @@
-// dear imgui, v1.81 WIP
+// dear imgui, v1.82 WIP
 // (tables and columns code)
 
 /*
@@ -126,12 +126,12 @@ Index of this file:
 //   - with Table policy ImGuiTableFlags_SizingFixedSame     --> default Column policy is ImGuiTableColumnFlags_WidthFixed, default Width is max of all contents width
 //   - with Table policy ImGuiTableFlags_SizingStretchSame   --> default Column policy is ImGuiTableColumnFlags_WidthStretch, default Weight is 1.0f
 //   - with Table policy ImGuiTableFlags_SizingStretchWeight --> default Column policy is ImGuiTableColumnFlags_WidthStretch, default Weight is proportional to contents
-// Default Width and default Weight can be overriden when calling TableSetupColumn().
+// Default Width and default Weight can be overridden when calling TableSetupColumn().
 //-----------------------------------------------------------------------------
 // About mixing Fixed/Auto and Stretch columns together:
 //   - the typical use of mixing sizing policies is: any number of LEADING Fixed columns, followed by one or two TRAILING Stretch columns.
 //   - using mixed policies with ScrollX does not make much sense, as using Stretch columns with ScrollX does not make much sense in the first place!
-//     that is, unless 'inner_width' is passed to BeginTable() to explicitely provide a total width to layout columns in.
+//     that is, unless 'inner_width' is passed to BeginTable() to explicitly provide a total width to layout columns in.
 //   - when using ImGuiTableFlags_SizingFixedSame with mixed columns, only the Fixed/Auto columns will match their widths to the maximum contents width.
 //   - when using ImGuiTableFlags_SizingStretchSame with mixed columns, only the Stretch columns will match their weight/widths.
 //-----------------------------------------------------------------------------
@@ -687,13 +687,14 @@ void ImGui::TableUpdateLayout(ImGuiTable* table)
     table->ColumnsEnabledCount = 0;
     table->EnabledMaskByIndex = 0x00;
     table->EnabledMaskByDisplayOrder = 0x00;
+    table->LeftMostEnabledColumn = -1;
     table->MinColumnWidth = ImMax(1.0f, g.Style.FramePadding.x * 1.0f); // g.Style.ColumnsMinSpacing; // FIXME-TABLE
 
     // [Part 1] Apply/lock Enabled and Order states. Calculate auto/ideal width for columns. Count fixed/stretch columns.
     // Process columns in their visible orders as we are building the Prev/Next indices.
     int count_fixed = 0;                // Number of columns that have fixed sizing policies
     int count_stretch = 0;              // Number of columns that have stretch sizing policies
-    int last_visible_column_idx = -1;
+    int prev_visible_column_idx = -1;
     bool has_auto_fit_request = false;
     bool has_resizable = false;
     float stretch_sum_width_auto = 0.0f;
@@ -741,14 +742,16 @@ void ImGui::TableUpdateLayout(ImGuiTable* table)
         }
 
         // Mark as enabled and link to previous/next enabled column
-        column->PrevEnabledColumn = (ImGuiTableColumnIdx)last_visible_column_idx;
+        column->PrevEnabledColumn = (ImGuiTableColumnIdx)prev_visible_column_idx;
         column->NextEnabledColumn = -1;
-        if (last_visible_column_idx != -1)
-            table->Columns[last_visible_column_idx].NextEnabledColumn = (ImGuiTableColumnIdx)column_n;
+        if (prev_visible_column_idx != -1)
+            table->Columns[prev_visible_column_idx].NextEnabledColumn = (ImGuiTableColumnIdx)column_n;
+        else
+            table->LeftMostEnabledColumn = (ImGuiTableColumnIdx)column_n;
         column->IndexWithinEnabledSet = table->ColumnsEnabledCount++;
         table->EnabledMaskByIndex |= (ImU64)1 << column_n;
         table->EnabledMaskByDisplayOrder |= (ImU64)1 << column->DisplayOrder;
-        last_visible_column_idx = column_n;
+        prev_visible_column_idx = column_n;
         IM_ASSERT(column->IndexWithinEnabledSet <= column->DisplayOrder);
 
         // Calculate ideal/auto column width (that's the width required for all contents to be visible without clipping)
@@ -778,8 +781,8 @@ void ImGui::TableUpdateLayout(ImGuiTable* table)
     }
     if ((table->Flags & ImGuiTableFlags_Sortable) && table->SortSpecsCount == 0 && !(table->Flags & ImGuiTableFlags_SortTristate))
         table->IsSortSpecsDirty = true;
-    table->RightMostEnabledColumn = (ImGuiTableColumnIdx)last_visible_column_idx;
-    IM_ASSERT(table->RightMostEnabledColumn >= 0);
+    table->RightMostEnabledColumn = (ImGuiTableColumnIdx)prev_visible_column_idx;
+    IM_ASSERT(table->LeftMostEnabledColumn >= 0 && table->RightMostEnabledColumn >= 0);
 
     // [Part 2] Disable child window clipping while fitting columns. This is not strictly necessary but makes it possible
     // to avoid the column fitting having to wait until the first visible frame of the child container (may or not be a good thing).
@@ -1367,7 +1370,7 @@ void ImGui::TableSetupColumn(const char* label, ImGuiTableColumnFlags flags, flo
     // Assert when passing a width or weight if policy is entirely left to default, to avoid storing width into weight and vice-versa.
     // Give a grace to users of ImGuiTableFlags_ScrollX.
     if (table->IsDefaultSizingPolicy && (flags & ImGuiTableColumnFlags_WidthMask_) == 0 && (flags & ImGuiTableFlags_ScrollX) == 0)
-        IM_ASSERT(init_width_or_weight <= 0.0f && "Can only specify width/weight if sizing policy is set explicitely in either Table or Column.");
+        IM_ASSERT(init_width_or_weight <= 0.0f && "Can only specify width/weight if sizing policy is set explicitly in either Table or Column.");
 
     // When passing a width automatically enforce WidthFixed policy
     // (whereas TableSetupColumnFlags would default to WidthAuto if table is not Resizable)

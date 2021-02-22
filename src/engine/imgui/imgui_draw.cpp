@@ -1,4 +1,4 @@
-// dear imgui, v1.81 WIP
+// dear imgui, v1.82 WIP
 // (drawing and font code)
 
 /*
@@ -224,6 +224,8 @@ void ImGui::StyleColorsDark(ImGuiStyle* dst)
     colors[ImGuiCol_TabActive]              = ImLerp(colors[ImGuiCol_HeaderActive], colors[ImGuiCol_TitleBgActive], 0.60f);
     colors[ImGuiCol_TabUnfocused]           = ImLerp(colors[ImGuiCol_Tab],          colors[ImGuiCol_TitleBg], 0.80f);
     colors[ImGuiCol_TabUnfocusedActive]     = ImLerp(colors[ImGuiCol_TabActive],    colors[ImGuiCol_TitleBg], 0.40f);
+    colors[ImGuiCol_DockingPreview]         = colors[ImGuiCol_HeaderActive] * ImVec4(1.0f, 1.0f, 1.0f, 0.7f);
+    colors[ImGuiCol_DockingEmptyBg]         = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
     colors[ImGuiCol_PlotLines]              = ImVec4(0.61f, 0.61f, 0.61f, 1.00f);
     colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
     colors[ImGuiCol_PlotHistogram]          = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
@@ -284,6 +286,8 @@ void ImGui::StyleColorsClassic(ImGuiStyle* dst)
     colors[ImGuiCol_TabActive]              = ImLerp(colors[ImGuiCol_HeaderActive], colors[ImGuiCol_TitleBgActive], 0.60f);
     colors[ImGuiCol_TabUnfocused]           = ImLerp(colors[ImGuiCol_Tab],          colors[ImGuiCol_TitleBg], 0.80f);
     colors[ImGuiCol_TabUnfocusedActive]     = ImLerp(colors[ImGuiCol_TabActive],    colors[ImGuiCol_TitleBg], 0.40f);
+    colors[ImGuiCol_DockingPreview]         = colors[ImGuiCol_Header] * ImVec4(1.0f, 1.0f, 1.0f, 0.7f);
+    colors[ImGuiCol_DockingEmptyBg]         = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
     colors[ImGuiCol_PlotLines]              = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
     colors[ImGuiCol_PlotLinesHovered]       = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
     colors[ImGuiCol_PlotHistogram]          = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
@@ -345,6 +349,8 @@ void ImGui::StyleColorsLight(ImGuiStyle* dst)
     colors[ImGuiCol_TabActive]              = ImLerp(colors[ImGuiCol_HeaderActive], colors[ImGuiCol_TitleBgActive], 0.60f);
     colors[ImGuiCol_TabUnfocused]           = ImLerp(colors[ImGuiCol_Tab],          colors[ImGuiCol_TitleBg], 0.80f);
     colors[ImGuiCol_TabUnfocusedActive]     = ImLerp(colors[ImGuiCol_TabActive],    colors[ImGuiCol_TitleBg], 0.40f);
+    colors[ImGuiCol_DockingPreview]         = colors[ImGuiCol_Header] * ImVec4(1.0f, 1.0f, 1.0f, 0.7f);
+    colors[ImGuiCol_DockingEmptyBg]         = ImVec4(0.20f, 0.20f, 0.20f, 1.00f);
     colors[ImGuiCol_PlotLines]              = ImVec4(0.39f, 0.39f, 0.39f, 1.00f);
     colors[ImGuiCol_PlotLinesHovered]       = ImVec4(1.00f, 0.43f, 0.35f, 1.00f);
     colors[ImGuiCol_PlotHistogram]          = ImVec4(0.90f, 0.70f, 0.00f, 1.00f);
@@ -376,7 +382,7 @@ ImDrawListSharedData::ImDrawListSharedData()
     }
 }
 
-void ImDrawListSharedData::SetCircleSegmentMaxError(float max_error)
+void ImDrawListSharedData::SetCircleTessellationMaxError(float max_error)
 {
     if (CircleSegmentMaxError == max_error)
         return;
@@ -384,8 +390,7 @@ void ImDrawListSharedData::SetCircleSegmentMaxError(float max_error)
     for (int i = 0; i < IM_ARRAYSIZE(CircleSegmentCounts); i++)
     {
         const float radius = (float)i;
-        const int segment_count = IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(radius, CircleSegmentMaxError);
-        CircleSegmentCounts[i] = (ImU8)ImMin(segment_count, 255);
+        CircleSegmentCounts[i] = (ImU8)((i > 0) ? IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(radius, CircleSegmentMaxError) : 0);
     }
 }
 
@@ -541,6 +546,16 @@ void ImDrawList::_OnChangedVtxOffset()
     }
     IM_ASSERT(curr_cmd->UserCallback == NULL);
     curr_cmd->VtxOffset = _CmdHeader.VtxOffset;
+}
+
+int ImDrawList::_CalcCircleAutoSegmentCount(float radius) const
+{
+    // Automatic segment count
+    const int radius_idx = (int)(radius + 0.999f); // ceil to never reduce accuracy
+    if (radius_idx < IM_ARRAYSIZE(_Data->CircleSegmentCounts))
+        return _Data->CircleSegmentCounts[radius_idx]; // Use cached value
+    else
+        return IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(radius, _Data->CircleSegmentMaxError);
 }
 
 // Render-level scissoring. This is passed down to your render function but not used for CPU-side coarse clipping. Prefer using higher-level ImGui::PushClipRect() to affect logic (hit-testing and widget culling)
@@ -1018,11 +1033,12 @@ void ImDrawList::AddConvexPolyFilled(const ImVec2* points, const int points_coun
 
 void ImDrawList::PathArcToFast(const ImVec2& center, float radius, int a_min_of_12, int a_max_of_12)
 {
-    if (radius == 0.0f || a_min_of_12 > a_max_of_12)
+    if (radius == 0.0f)
     {
         _Path.push_back(center);
         return;
     }
+    IM_ASSERT(a_min_of_12 <= a_max_of_12);
 
     // For legacy reason the PathArcToFast() always takes angles where 2*PI is represented by 12,
     // but it is possible to set IM_DRAWLIST_ARCFAST_TESSELATION_MULTIPLIER to a higher value. This should compile to a no-op otherwise.
@@ -1046,6 +1062,7 @@ void ImDrawList::PathArcTo(const ImVec2& center, float radius, float a_min, floa
         _Path.push_back(center);
         return;
     }
+    IM_ASSERT(a_min <= a_max);
 
     // Note that we are adding a point at both a_min and a_max.
     // If you are trying to draw a full closed circle you don't want the overlapping points!
@@ -1284,11 +1301,7 @@ void ImDrawList::AddCircle(const ImVec2& center, float radius, ImU32 col, int nu
     if (num_segments <= 0)
     {
         // Automatic segment count
-        const int radius_idx = (int)radius;
-        if (radius_idx < IM_ARRAYSIZE(_Data->CircleSegmentCounts))
-            num_segments = _Data->CircleSegmentCounts[radius_idx]; // Use cached value
-        else
-            num_segments = IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(radius, _Data->CircleSegmentMaxError);
+        num_segments = _CalcCircleAutoSegmentCount(radius);
     }
     else
     {
@@ -1314,11 +1327,7 @@ void ImDrawList::AddCircleFilled(const ImVec2& center, float radius, ImU32 col, 
     if (num_segments <= 0)
     {
         // Automatic segment count
-        const int radius_idx = (int)radius;
-        if (radius_idx < IM_ARRAYSIZE(_Data->CircleSegmentCounts))
-            num_segments = _Data->CircleSegmentCounts[radius_idx]; // Use cached value
-        else
-            num_segments = IM_DRAWLIST_CIRCLE_AUTO_SEGMENT_CALC(radius, _Data->CircleSegmentMaxError);
+        num_segments = _CalcCircleAutoSegmentCount(radius);
     }
     else
     {
@@ -3524,8 +3533,10 @@ void ImFont::RenderText(ImDrawList* draw_list, float size, ImVec2 pos, ImU32 col
 // - RenderBullet()
 // - RenderCheckMark()
 // - RenderMouseCursor()
+// - RenderArrowDockMenu()
 // - RenderArrowPointingAt()
 // - RenderRectFilledRangeH()
+// - RenderRectFilledWithHole()
 //-----------------------------------------------------------------------------
 // Function in need of a redesign (legacy mess)
 // - RenderColorRectWithAlphaCheckerboard()
@@ -3615,6 +3626,14 @@ void ImGui::RenderArrowPointingAt(ImDrawList* draw_list, ImVec2 pos, ImVec2 half
     case ImGuiDir_Down:  draw_list->AddTriangleFilled(ImVec2(pos.x - half_sz.x, pos.y - half_sz.y), ImVec2(pos.x + half_sz.x, pos.y - half_sz.y), pos, col); return;
     case ImGuiDir_None: case ImGuiDir_COUNT: break; // Fix warnings
     }
+}
+
+// This is less wide than RenderArrow() and we use in dock nodes instead of the regular RenderArrow() to denote a change of functionality,
+// and because the saved space means that the left-most tab label can stay at exactly the same position as the label of a loose window.
+void ImGui::RenderArrowDockMenu(ImDrawList* draw_list, ImVec2 p_min, float sz, ImU32 col)
+{
+    draw_list->AddRectFilled(p_min + ImVec2(sz * 0.10f, sz * 0.15f), p_min + ImVec2(sz * 0.70f, sz * 0.30f), col);
+    RenderArrowPointingAt(draw_list, p_min + ImVec2(sz * 0.40f, sz * 0.85f), ImVec2(sz * 0.30f, sz * 0.40f), ImGuiDir_Down, col);
 }
 
 static inline float ImAcos01(float x)

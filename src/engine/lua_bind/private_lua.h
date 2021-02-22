@@ -35,3 +35,4 @@ struct unqualified_getter<luna::LString> {
 template <>
 struct lua_type_of< luna::LString > : std::integral_constant<type, type::string> {};
 } // stack
+

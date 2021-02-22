@@ -21,7 +21,8 @@ struct CORE_API SerializeConfig
  * \author isAk wOng
  * 
  */
-template<typename Type, Type DefaultValue>
+
+template<typename Type>
 class Config
 {
 	LString m_group;
@@ -32,23 +33,58 @@ public:
 		return m_value;
 	}
 
-	Config(const char *group, const char *key) :
+	Config(const char *group, const char *key, const Type &value) :
 		m_group(group),
-		m_key(key)
+		m_key(key),
+		m_value(value)
 	{
-		if (ConfigManager::instance().s_configs.contains(m_key))
+		static auto ins = ConfigManager::instance();
+		static auto &configs = ins.s_configs;
+		if (configs.contains(m_key))
 		{
-			m_value = luna::FromString<Type>(ConfigManager::instance().s_configs[m_key].m_value);
+			m_value = luna::FromString<Type>(configs[m_key].m_value);
 		}
 		else
 		{
-			ConfigManager::instance().s_configs[m_key].m_group = m_group;
-			ConfigManager::instance().s_configs[m_key].m_key = m_key;
-			ConfigManager::instance().s_configs[m_key].m_value = luna::ToString<Type>(m_value);
+			configs[m_key].m_group = m_group;
+			configs[m_key].m_key = m_key;
+			configs[m_key].m_value = luna::ToString<Type>(m_value);
 		}
 	}
 };
 
+template<>
+class Config<LString>
+{
+	LString m_group;
+	LString m_key;
+	LString m_value;
+public:
+	LString GetValue() {
+		return m_value;
+	}
 
+	Config(const char *group, const char *key, const char* value) :
+		m_group(group),
+		m_key(key),
+		m_value(value)
+	{
+		static auto ins = ConfigManager::instance();
+		static auto &configs = ins.s_configs;
+		if (configs.contains(m_key))
+		{
+			m_value = configs[m_key].m_value;
+		}
+		else
+		{
+			configs[m_key].m_group = m_group;
+			configs[m_key].m_key = m_key;
+			configs[m_key].m_value = m_value;
+		}
+	}
+};
+
+#define CONFIG_DECLARE(Type, Group, Key, DefaultValue) extern Config<Type> Key;
+#define CONFIG_IMPLEMENT(Type, Group, Key, DefaultValue) Config<Type> Key(#Group, #Key, DefaultValue);
 
 }

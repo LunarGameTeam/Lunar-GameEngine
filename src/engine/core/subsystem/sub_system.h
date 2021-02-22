@@ -112,7 +112,7 @@ private:
 	float m_frame_rate = 60.f;
 	float m_frame_delta = 1000.f / 60.f;
 
-	friend class Application;
+	friend class GameApp;
 };
 
 CORE_API extern lunaCore *gEngine;
