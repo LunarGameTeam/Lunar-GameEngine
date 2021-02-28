@@ -56,7 +56,7 @@ namespace luna
 		}
 	};
 
-	class CORE_API LunarVector3
+	struct CORE_API LunarVector3
 	{
 		DirectX::XMFLOAT3 vector_value;
 	public:
@@ -67,6 +67,18 @@ namespace luna
 		LunarVector3 operator*(const LunarVector3& vector_right);
 		LunarVector3 operator*(const LunarMatrix3x3& matrix_right);
 		LunarVector3 operator*(const LunarMatrix4x4& matrix_right);
+		inline float X()
+		{
+			return vector_value.x;
+		}
+		inline float Y()
+		{
+			return vector_value.y;
+		}
+		inline float Z()
+		{
+			return vector_value.z;
+		}
 		float DotValue(const LunarVector3& vector_right);
 		LunarVector3 CrossVec(const LunarVector3& vector_right);
 		LunarVector3 NormalizeVec();

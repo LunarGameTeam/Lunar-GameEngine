@@ -38,12 +38,14 @@ LWindow *WindowSubsystem::GetMainWindow()
 
 bool WindowSubsystem::OnPreInit()
 {
-	ImGui::CreateContext();
-	IMGUI_CHECKVERSION();
-	ImGuiIO& io = ImGui::GetIO();(void)io;
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-	m_main_window = CreateLunaWindow("MainWindow", 1024, 768);
-	ImGui::StyleColorsLight();
+// 	ImGui::CreateContext();
+// 	IMGUI_CHECKVERSION();
+// 	ImGuiIO& io = ImGui::GetIO();(void)io;
+// 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+ 	m_main_window = CreateLunaWindow("MainWindow", 1024, 768);
+// 	ImGui::StyleColorsLight();
+
+
 // 	ImGuiStyle* style = &ImGui::GetStyle();
 // 
 // 	style->WindowPadding = ImVec2(15, 15);
@@ -121,7 +123,7 @@ void WindowSubsystem::Tick(float delta_time)
 	bool done = true;
 	while (SDL_PollEvent(&event))
 	{
-		ImGui_ImplSDL2_ProcessEvent(&event);
+		//ImGui_ImplSDL2_ProcessEvent(&event);
 		if (event.type == SDL_QUIT)
 			gEngine->SetPendingExit(true);
 		if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE)

@@ -5,19 +5,17 @@ cmake_minimum_required (VERSION 2.8)
 file(GLOB_RECURSE PROJECT_HEADERS *.h)
 file(GLOB_RECURSE PROJECT_CPPS *.cpp)
 
-include_directories(
-    ${SDK_PATH}DirectXTK12
-    ${SDK_PATH}DirectXTK12/Src
-    ${SDK_PATH}DirectXTK12/Inc
-)
 
 set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS})
 
 auto_source_group("${ALL_FILES}" DST_FILES)
 
-add_library(render STATIC ${DST_FILES})
+add_compile_definitions(LEGACY_RENDER_EXPORT)
 
-add_dependencies(render core)
-target_link_libraries(render core)
+add_library(legacy_render SHARED ${DST_FILES})
+
+add_dependencies(legacy_render core window)
+target_link_libraries(legacy_render core d3d11 DirectXTK dxgi dxguid window D3dcompiler)
+
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")

@@ -34,15 +34,14 @@ include_directories(
 	src/engine/lua
 	src/engine/imgui
 	${SDK_PATH}glm
+	${SDK_PATH}eigen
 	${SDK_PATH}googletest/googletest/include
 	${SDK_PATH}jsoncpp/include
 	${SDK_PATH}sdl
 	${SDK_PATH}boost
 	${SDK_PATH}DirectXTex
 	${SDK_PATH}sol2/include
-	${SDK_PATH}DirectXTK12
-	${SDK_PATH}DirectXTK12/Src
-	${SDK_PATH}DirectXTK12/Inc
+	${SDK_PATH}DirectXTK/Inc
 )
 
 IF(WIN32)
@@ -100,6 +99,7 @@ endfunction(auto_source_group)
 
 add_subdirectory(src/engine/core)
 add_subdirectory(src/engine/render)
+add_subdirectory(src/engine/legacy_render)
 add_subdirectory(src/engine/world)
 add_subdirectory(src/engine/window)
 add_subdirectory(src/engine/lua_bind)
@@ -110,6 +110,7 @@ add_subdirectory(src/editor)
 
 add_subdirectory(src/test/core_test)
 add_subdirectory(src/test/world_test)
+add_subdirectory(src/test/eigen_test)
 
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -120,6 +121,7 @@ SET_PROPERTY(TARGET render PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET world PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET lua_bind PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET window PROPERTY FOLDER "Runtime")
+SET_PROPERTY(TARGET legacy_render PROPERTY FOLDER "Runtime")
 
 SET_PROPERTY(TARGET game PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET editor PROPERTY FOLDER "Editor")
@@ -127,6 +129,7 @@ SET_PROPERTY(TARGET editor PROPERTY FOLDER "Editor")
 add_subdirectory(sdk/googletest)
 add_subdirectory(sdk/DirectXTex)
 add_subdirectory(sdk/DirectXTK12)
+add_subdirectory(sdk/DirectXTK)
 add_subdirectory(sdk/jsoncpp)
 add_subdirectory(sdk/sol2)
 add_subdirectory(sdk/sdl)
@@ -136,6 +139,7 @@ SET_PROPERTY(TARGET lua PROPERTY FOLDER "SDK")
 
 SET_PROPERTY(TARGET DirectXTex PROPERTY FOLDER "SDK")
 SET_PROPERTY(TARGET DirectXTK12 PROPERTY FOLDER "SDK")
+SET_PROPERTY(TARGET DirectXTK PROPERTY FOLDER "SDK")
 
 SET_PROPERTY(TARGET jsoncpp_lib PROPERTY FOLDER "SDK")
 SET_PROPERTY(TARGET jsoncpp_object PROPERTY FOLDER "SDK")
@@ -154,6 +158,7 @@ SET_PROPERTY(TARGET imgui PROPERTY FOLDER "SDK")
 
 SET_PROPERTY(TARGET core_test PROPERTY FOLDER "Test")
 SET_PROPERTY(TARGET world_test PROPERTY FOLDER "Test")
+SET_PROPERTY(TARGET eigen_test PROPERTY FOLDER "Test")
 
 
 set_property(TARGET game PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${SOLUTION_CMAKE_SOURCE_PATH}")

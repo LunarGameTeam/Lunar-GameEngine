@@ -41,27 +41,28 @@ bool LWindow::Init()
 		return false;
 	}
 
-	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_BORDERLESS);
+	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+	
 	m_window = SDL_CreateWindow("Luna Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_width, m_height, window_flags);
 	SDL_SysWMinfo wmInfo;
 	SDL_VERSION(&wmInfo.version);
 	SDL_GetWindowWMInfo(m_window, &wmInfo);
 	HWND hwnd = (HWND)wmInfo.info.win.window;
 
-	// Initialize Direct3D
-	if (!CreateDeviceD3D(hwnd))
-	{
-		CleanupDeviceD3D();
-		return 1;
-	}
-
-	// Setup Dear ImGui style
-	ImGui::StyleColorsDark();
-	//ImGui::StyleColorsClassic();
-
-	// Setup Platform/Renderer backends
-	ImGui_ImplSDL2_InitForD3D(m_window);
-	ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
+// 	// Initialize Direct3D
+// 	if (!CreateDeviceD3D(hwnd))
+// 	{
+// 		CleanupDeviceD3D();
+// 		return 1;
+// 	}
+// 
+// 	// Setup Dear ImGui style
+// 	ImGui::StyleColorsDark();
+// 	//ImGui::StyleColorsClassic();
+// 
+// 	// Setup Platform/Renderer backends
+// 	ImGui_ImplSDL2_InitForD3D(m_window);
+// 	ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
 }
 
 bool LWindow::Tick()
@@ -71,21 +72,21 @@ bool LWindow::Tick()
 
 void LWindow::OnPreGUI()
 {
-	// Start the Dear ImGui frame
-	ImGui_ImplDX11_NewFrame();
-	ImGui_ImplSDL2_NewFrame(m_window);
-	ImGui::NewFrame();
+// 	// Start the Dear ImGui frame
+// 	ImGui_ImplDX11_NewFrame();
+// 	ImGui_ImplSDL2_NewFrame(m_window);
+// 	ImGui::NewFrame();
 }
 
 void LWindow::OnPostGUI()
 {
-	ImVec4 clear_color = ImVec4(1.f, 1.f, 1.f, 1.00f);
-	// Rendering
-	ImGui::Render();
-	g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
-	g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, (float*)&clear_color);
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-	g_pSwapChain->Present(1, 0); // Present with vsync
+// 	ImVec4 clear_color = ImVec4(1.f, 1.f, 1.f, 1.00f);
+// 	// Rendering
+// 	ImGui::Render();
+// 	g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
+// 	g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, (float*)&clear_color);
+// 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+// 	g_pSwapChain->Present(1, 0); // Present with vsync
 }
 
 void LWindow::OnDestroy()
@@ -120,14 +121,14 @@ bool CreateDeviceD3D(HWND hWnd)
 	sd.Windowed = TRUE;
 	sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
-	UINT createDeviceFlags = 0;
-	//createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-	D3D_FEATURE_LEVEL featureLevel;
-	const D3D_FEATURE_LEVEL featureLevelArray[2] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_0, };
-	if (D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &g_pSwapChain, &g_pd3dDevice, &featureLevel, &g_pd3dDeviceContext) != S_OK)
-		return false;
-
-	CreateRenderTarget();
+// 	UINT createDeviceFlags = 0;
+// 	//createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+// 	D3D_FEATURE_LEVEL featureLevel;
+// 	const D3D_FEATURE_LEVEL featureLevelArray[2] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_0, };
+// 	if (D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &g_pSwapChain, &g_pd3dDevice, &featureLevel, &g_pd3dDeviceContext) != S_OK)
+// 		return false;
+// 
+// 	CreateRenderTarget();
 	return true;
 }
 

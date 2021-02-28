@@ -25,3 +25,9 @@
 [submodule "sdk/imgui"]
 	path = sdk/imgui
 	url = https://github.com/LunarGameTeam/imgui.git
+[submodule "sdk/DirectXTK"]
+	path = sdk/DirectXTK
+	url = https://github.com/microsoft/DirectXTK.git
+[submodule "sdk/eigen"]
+	path = sdk/eigen
+	url = https://gitlab.com/libeigen/eigen.git

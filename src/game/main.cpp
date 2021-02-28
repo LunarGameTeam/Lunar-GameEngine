@@ -4,6 +4,7 @@
 #include "core/asset/lasset.h"
 #include "core/application.h"
 #include "window/window_subsystem.h"
+#include "legacy_render/render_subsystem.h"
 
 using namespace luna;
 
@@ -17,6 +18,7 @@ public:
 	GameApp()
 	{
 		gEngine->RegisterSubsystem<WindowSubsystem>();
+		gEngine->RegisterSubsystem<luna::legacy_render::RenderSubusystem>();
 	}
 };
 
