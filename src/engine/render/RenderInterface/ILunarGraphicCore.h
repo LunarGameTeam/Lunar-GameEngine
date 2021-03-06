@@ -8,6 +8,7 @@
 #include"core/asset/lasset.h"
 #include"core/memory/ptr.h"
 #include "core/Common/LinerGrowMap.h"
+#include "core/Common/SegmentalAllocatorMap.h"
 #define LunarObjectID uint32_t
 #define LunarResourceSize size_t
 

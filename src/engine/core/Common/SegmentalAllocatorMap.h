@@ -41,10 +41,14 @@ namespace luna
 		bool if_created;
 		SegmentalAllocatorMap* m_allocator;
 	public:
-		SegmentalMemberValue(SegmentalAllocatorMap* allocator);
+		SegmentalMemberValue();
 		~SegmentalMemberValue();
 		bool CheckIfCreated();
-		LResult Create(const size_t& data_offset, const size_t& data_size);
+		SegmentalAllocatorMap* GetAllocator()
+		{
+			return m_allocator;
+		}
+		LResult Create(SegmentalAllocatorMap* allocator,const size_t& data_offset, const size_t& data_size);
 	private:
 		virtual LResult OnSegmentalCreated(const size_t &data_offset, const size_t &data_size) = 0;
 	};
@@ -58,7 +62,7 @@ namespace luna
 		SegmentalAllocatorMap(const size_t& segmental_size);
 		~SegmentalAllocatorMap();
 		LResult Create();
-		LResult AllocateNewSegmental(const size_t &required_segmental_size, SegmentalMemberValue &segmental_value);
+		LResult AllocateNewSegmental(const size_t &required_segmental_size, SegmentalMemberValue *segmental_value);
 		LResult ReleaseSegmental(const size_t &segmental_index, const size_t &segmental_size);
 	private:
 		virtual LResult BuildNewSegmentalToMap(const SegmentalIndex& required_segmental_index, SegmentalMemberValue* segmental_value) = 0;
@@ -68,8 +72,5 @@ namespace luna
 }
 namespace LContainerPack
 {
-	size_t hash_value(const luna::SegmentalIndex& key)
-	{
-		return key.GetHash();
-	}
+	size_t hash_value(const luna::SegmentalIndex& key);
 }

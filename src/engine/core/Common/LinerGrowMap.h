@@ -14,6 +14,15 @@ namespace luna
 	{
 		IndexValueType index_value;
 		size_t now_size;
+		//重载==运算符
+		bool operator== (const LinerGrowIndex& p) const
+		{
+			if ((index_value == p.index_value) && (now_size == p.now_size))
+			{
+				return true;
+			}
+			return false;
+		}
 		//重载小于运算符
 		bool operator<(const LinerGrowIndex& other)  const
 		{
@@ -103,7 +112,7 @@ namespace luna
 			return m_controler_map;
 		}
 		virtual const size_t GetEmptySize() = 0;
-		virtual LResult BuildNewValueFromList(const IndexValueType &require_size, LinerGrownResourceData<IndexValueType> &value_data) = 0;
+		virtual LResult BuildNewValueFromList(const IndexValueType &require_size, LinerGrownResourceData<IndexValueType> *value_data) = 0;
 		virtual LResult ReleaseValueFromList(const IndexValueType &value_index) = 0;
 		virtual LResult DefragmenteList() = 0;
 	};
@@ -133,10 +142,10 @@ namespace luna
 		{
 			return now_empty_data.size();
 		}
-		LResult BuildNewValueFromList(const IndexValueType& require_size, LinerGrownResourceData<IndexValueType>& value_data) override
+		LResult BuildNewValueFromList(const IndexValueType& require_size, LinerGrownResourceData<IndexValueType>* value_data) override
 		{
 			LResult check_error;
-			if (value_data.CheckIfCreated())
+			if (value_data->CheckIfCreated())
 			{
 				LunarDebugLogError(0, "do not repeate create resource", check_error);
 				return check_error;
@@ -157,7 +166,7 @@ namespace luna
 			now_value_data_mark.data_index = *now_empty_data.begin();
 			now_value_data_mark.data_size = require_size;
 			//ID号创建完毕后创建新的资源数据
-			check_error = value_data.Create(now_value_data_mark, GetAllocator());
+			check_error = value_data->Create(now_value_data_mark, GetAllocator());
 			if (!check_error.m_IsOK)
 			{
 				return check_error;
@@ -219,10 +228,10 @@ namespace luna
 		{
 			return m_max_list_size - m_tail_pointer_offset;
 		}
-		LResult BuildNewValueFromList(const IndexValueType& require_size, LinerGrownResourceData<IndexValueType>& value_data) override
+		LResult BuildNewValueFromList(const IndexValueType& require_size, LinerGrownResourceData<IndexValueType>* value_data) override
 		{
 			LResult check_error;
-			if (value_data.CheckIfCreated())
+			if (value_data->CheckIfCreated())
 			{
 				LunarDebugLogError(0, "do not repeate create resource", check_error);
 				return check_error;
@@ -238,7 +247,7 @@ namespace luna
 			now_value_data_mark.data_index = m_tail_pointer_offset;
 			now_value_data_mark.data_size = require_size;
 			//ID号创建完毕后创建新的资源数据
-			check_error = value_data.Create(now_value_data_mark, GetAllocator());
+			check_error = value_data->Create(now_value_data_mark, GetAllocator());
 			if (!check_error.m_IsOK)
 			{
 				return check_error;
@@ -255,7 +264,7 @@ namespace luna
 		LResult ReleaseValueFromList(const IndexValueType& value_index) override
 		{
 			LResult check_error;
-			if (list_data_map.find(value_index) == now_use_data.end())
+			if (list_data_map.find(value_index) == list_data_map.end())
 			{
 				LunarDebugLogError(0, "could not find map value", check_error);
 				return check_error;
@@ -297,12 +306,12 @@ namespace luna
 		virtual ~LLinerGrowMap()
 		{
 		}
-		luna::LResult AllocatedDataFromMap(const IndexValueType &alloc_require_size, LinerGrownResourceData<IndexValueType>&allocate_data_from_map)
+		luna::LResult AllocatedDataFromMap(const IndexValueType &alloc_require_size, LinerGrownResourceData<IndexValueType>*allocate_data_from_map)
 		{
 			luna::LResult check_error;
 			//创建一个尺寸变量用于请求指定大小的资源
 			LinerGrowIndex<IndexValueType> now_allocate_index;
-			now_allocate_index.index_value = static_cast<IndexValueType>(-1);
+			now_allocate_index.index_value = min(static_cast<IndexValueType>(-1), 0);
 			now_allocate_index.now_size = static_cast<size_t>(alloc_require_size);
 			//从资源树里获取一个合适的资源表用于开辟数据，如果没有空闲的表则需要新建一个
 			LinerGrowIndex<IndexValueType> now_used_list_id;

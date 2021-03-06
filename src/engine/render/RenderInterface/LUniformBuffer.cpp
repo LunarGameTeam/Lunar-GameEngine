@@ -219,7 +219,7 @@ LResult luna::LUniformBufferAllocatorSystem::AllocateUinformBufferByDesc(const L
 		LunarDebugLogError(0, "could not find required uniform buffer alloctor", check_error);
 		return check_error;
 	}
-	check_error = check_uniform_allocator->second->AllocatedDataFromMap(1, allocate_data_from_map);
+	check_error = check_uniform_allocator->second->AllocatedDataFromMap(1, &allocate_data_from_map);
 	if (!check_error.m_IsOK)
 	{
 		return check_error;
