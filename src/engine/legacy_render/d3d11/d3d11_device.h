@@ -3,12 +3,12 @@
 //
 #pragma once
 
-#include "private_render.h"
+#include "legacy_render/private_render.h"
 
 namespace DX
 {
     // Provides an interface for an application that owns DeviceResources to be notified of the device being lost or created.
-    struct IDeviceNotify
+    struct LEGACY_RENDER_API IDeviceNotify
     {
         virtual void OnDeviceLost() = 0;
         virtual void OnDeviceRestored() = 0;
@@ -85,8 +85,8 @@ namespace DX
         Microsoft::WRL::ComPtr<ID3D11Device1>               m_d3dDevice;
         Microsoft::WRL::ComPtr<ID3D11DeviceContext1>        m_d3dContext;
         Microsoft::WRL::ComPtr<IDXGISwapChain1>             m_swapChain;
-        Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation>   m_d3dAnnotation;
-
+		Microsoft::WRL::ComPtr<ID3DUserDefinedAnnotation>   m_d3dAnnotation;
+		ID3D11RasterizerState *m_rasterState;
         // Direct3D rendering objects. Required for 3D.
         Microsoft::WRL::ComPtr<ID3D11Texture2D>         m_renderTarget;
         Microsoft::WRL::ComPtr<ID3D11Texture2D>         m_depthStencil;

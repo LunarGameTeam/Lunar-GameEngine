@@ -130,20 +130,52 @@ void WindowSubsystem::Tick(float delta_time)
 			gEngine->SetPendingExit(true);
 		auto window = m_win_windows[event.window.windowID];
 		switch (event.type)
-
 		{
+		case SDL_MOUSEMOTION:
+			InputEvent input;
+			input.type = EventType::Input_MouseMove;
+			input.x = event.button.x;
+			input.y = event.button.y;
+			event_subsystem->OnInput.BroadCast(*window, input);
+			break;
 		case SDL_KEYDOWN:
 		{
+			InputEvent input;
+			input.type = EventType::Input_KeyDown;
+			if (event.key.keysym.sym == SDL_KeyCode::SDLK_w)
+				input.code = KeyCode::W;
+			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_s)
+				input.code = KeyCode::S;
+			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_a)
+				input.code = KeyCode::A;
+			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_d)
+				input.code = KeyCode::D;
+			input.x = 0;
+			input.y = 0;
+			event_subsystem->OnInput.BroadCast(*window, input);
 			break;
 		}
 		case SDL_KEYUP:
 		{
 			break;
-		}
+		}		
 		case SDL_MOUSEBUTTONDOWN:
 		{
 			InputEvent input;
 			input.type = EventType::Input_MousePress;
+			if (event.button.button == SDL_BUTTON_LEFT)
+				input.code = KeyCode::MouseLeft;
+			if (event.button.button == SDL_BUTTON_RIGHT)
+				input.code = KeyCode::MouseRight;
+			input.x = event.button.x;
+			input.y = event.button.y;
+			event_subsystem->OnInput.BroadCast(*window, input);
+			break;
+		}
+		case SDL_MOUSEBUTTONUP:
+		{
+			InputEvent input;
+			input.type = EventType::Input_MouseRelease;
 			if (event.button.button == SDL_BUTTON_LEFT)
 				input.code = KeyCode::MouseLeft;
 			if (event.button.button == SDL_BUTTON_RIGHT)

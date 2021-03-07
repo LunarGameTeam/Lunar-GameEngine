@@ -1,25 +1,38 @@
 #include "shader.h"
 #include "legacy_render/render_subsystem.h"
 #include "core/core_module.h"
-#include "core/subsystem/subsystem.h"
+#include "core/subsystem/sub_system.h"
 #include <d3dcompiler.h>
+#include <D3DCompiler.inl>
 
 namespace luna
 {
 namespace legacy_render
 {
 
+void OutputShaderErrorMessage(ID3D10Blob *errorMessage)
+{
+	char *compileErrors;
+	// Get a pointer to the error message text buffer.
+	compileErrors = (char *)(errorMessage->GetBufferPointer());
+	// Get the length of the message.
+	auto bufferSize = errorMessage->GetBufferSize();
+	// Write out the error message.
+	LString str(compileErrors, compileErrors + bufferSize);
+	LogVerbose(E_Core, str);
+	return;
+}
+
 bool Dx11Shader::Init()
 {
 	static RenderSubusystem *render = gEngine->GetSubsystem<RenderSubusystem>();
-	static auto* device = render->GetDevice();
+	static auto *device = render->GetDevice();
 	HRESULT result;
 	ID3D10Blob *errorMessage;
 	ID3D10Blob *vertexShaderBuffer;
 	ID3D10Blob *pixelShaderBuffer;
 	D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
 	unsigned int numElements;
-	D3D11_BUFFER_DESC matrixBufferDesc;
 
 
 	// Initialize the pointers this function will use to null.
@@ -28,54 +41,36 @@ bool Dx11Shader::Init()
 	pixelShaderBuffer = 0;
 
 	// Compile the vertex shader code.
-	result = D3DCompileFromFile(vsFilename, NULL, NULL, "ColorVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
+	result = D3DCompileFromFile(m_vs_path.GetStdUnicodeString().c_str(), NULL, NULL, "VSMain", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
 								&vertexShaderBuffer, &errorMessage);
 	if (FAILED(result))
 	{
-		// If the shader failed to compile it should have writen something to the error message.
-		if (errorMessage)
-		{
-			OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
-		}
-		// If there was  nothing in the error message then it simply could not find the shader file itself.
-		else
-		{
-			MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
-		}
-
+		OutputShaderErrorMessage(errorMessage);
 		return false;
 	}
 
 	// Compile the pixel shader code.
-	result = D3DCompileFromFile(psFilename, NULL, NULL, "ColorPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
+	result = D3DCompileFromFile(m_ps_path.GetStdUnicodeString().c_str(), NULL, NULL, "PSMain", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0,
 								&pixelShaderBuffer, &errorMessage);
 	if (FAILED(result))
 	{
-		// If the shader failed to compile it should have writen something to the error message.
-		if (errorMessage)
-		{
-			OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
-		}
-		// If there was nothing in the error message then it simply could not find the file itself.
-		else
-		{
-			MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
-		}
-
+		OutputShaderErrorMessage(errorMessage);
 		return false;
 	}
 
 	// Create the vertex shader from the buffer.
-	result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
+	result = device->GetD3DDevice()->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
 	if (FAILED(result))
 	{
+		OutputShaderErrorMessage(errorMessage);
 		return false;
 	}
 
 	// Create the pixel shader from the buffer.
-	result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader);
+	result = device->GetD3DDevice()->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader);
 	if (FAILED(result))
 	{
+		OutputShaderErrorMessage(errorMessage);
 		return false;
 	}
 
@@ -101,35 +96,61 @@ bool Dx11Shader::Init()
 	numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
 	// Create the vertex input layout.
-	result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(),
-									   vertexShaderBuffer->GetBufferSize(), &m_layout);
+	result = device->GetD3DDevice()->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(),
+													   vertexShaderBuffer->GetBufferSize(), &m_layout);
 	if (FAILED(result))
 	{
 		return false;
 	}
 
+	ID3D11ShaderReflection *pReflector = nullptr;
+	D3DReflect(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), IID_ID3D11ShaderReflection, (void **)&pReflector);
 	// Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
+
+	D3D11_SHADER_DESC ShaderDesc;
+	pReflector->GetDesc(&ShaderDesc);
+
+	for (auto i = 0; i < ShaderDesc.ConstantBuffers; i++)
+	{
+		ID3D11ShaderReflectionConstantBuffer *pCBReflecion = nullptr;
+		pCBReflecion = pReflector->GetConstantBufferByIndex(i);
+
+		D3D11_BUFFER_DESC matrixBufferDesc;
+		D3D11_SHADER_BUFFER_DESC ShaderBufferDesc;
+		pCBReflecion->GetDesc(&ShaderBufferDesc);
+		matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+		matrixBufferDesc.ByteWidth = ShaderBufferDesc.Size;
+		matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		matrixBufferDesc.MiscFlags = 0;
+		matrixBufferDesc.StructureByteStride = 0;
+		m_buffer_map[ShaderBufferDesc.Name] = nullptr;
+		result = device->GetD3DDevice()->CreateBuffer(&matrixBufferDesc, NULL, &m_cb0_buffer);
+
+		if (ShaderBufferDesc.Type == D3D_CT_CBUFFER || ShaderBufferDesc.Type == D3D_CT_TBUFFER)
+		{
+		}
+	}
+
 	vertexShaderBuffer->Release();
 	vertexShaderBuffer = 0;
 
 	pixelShaderBuffer->Release();
 	pixelShaderBuffer = 0;
-
-	// Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
-	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
-	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	matrixBufferDesc.MiscFlags = 0;
-	matrixBufferDesc.StructureByteStride = 0;
-
-	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-	result = device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer);
-	if (FAILED(result))
-	{
-		return false;
-	}
-
+	// 
+	// 	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	// 	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
+	// 	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	// 	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	// 	matrixBufferDesc.MiscFlags = 0;
+	// 	matrixBufferDesc.StructureByteStride = 0;
+	// 
+	// 	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+	// 	result = device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer);
+	// 	if (FAILED(result))
+	// 	{
+	// 		return false;
+	// 	}
 	return true;
 
 }
@@ -171,7 +192,59 @@ void Dx11Shader::SetParameterMatrix3(const LString &name, const LMatrix3f &value
 
 void Dx11Shader::SetParameterMatrix4(const LString &name, const LMatrix4f &value)
 {
-	throw std::logic_error("The method or operation is not implemented.");
+
+}
+
+
+void Dx11Shader::Bind()
+{
+	static RenderSubusystem *render = gEngine->GetSubsystem<RenderSubusystem>();
+	static auto *context = render->GetDevice()->GetD3DDeviceContext();
+	context->IASetInputLayout(m_layout);
+
+	// Set the vertex and pixel shaders that will be used to render this triangle.
+	context->VSSetShader(m_vertexShader, NULL, 0);
+	context->PSSetShader(m_pixelShader, NULL, 0);
+
+}
+
+void Dx11Shader::SetWVPMatrix(const LMatrix4f &w, const LMatrix4f &v, const LMatrix4f &p)
+{
+
+	static RenderSubusystem *render = gEngine->GetSubsystem<RenderSubusystem>();
+	static auto *context = render->GetDevice()->GetD3DDeviceContext();
+	HRESULT result;
+	D3D11_MAPPED_SUBRESOURCE mappedResource;
+	MatrixBufferType *dataPtr;
+	unsigned int bufferNumber;
+	
+	// Lock the constant buffer so it can be written to.
+	result = context->Map(m_cb0_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))
+	{
+		return;
+	}
+
+	// Get a pointer to the data in the constant buffer.
+	dataPtr = (MatrixBufferType *)mappedResource.pData;
+
+	// Copy the matrices into the constant buffer.
+	dataPtr->world = w;
+	dataPtr->view = v;
+	DirectX::XMFLOAT4X4 mat_pers_data;
+	auto mid_data = DirectX::XMMatrixPerspectiveFovLH(DirectX::XM_1DIV2PI / 2.0f, 1024.0f / 768.0f, 0.1f, 1000.0f);
+	
+	DirectX::XMStoreFloat4x4(&mat_pers_data, mid_data);
+	dataPtr->projection = p;
+
+	// Unlock the constant buffer.
+	context->Unmap(m_cb0_buffer, 0);
+
+	// Set the position of the constant buffer in the vertex shader.
+	bufferNumber = 0;
+
+	// Finanly set the constant buffer in the vertex shader with the updated values.
+	context->VSSetConstantBuffers(bufferNumber, 1, &m_cb0_buffer);
 }
 
 }

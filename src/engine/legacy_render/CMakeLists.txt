@@ -14,8 +14,8 @@ add_compile_definitions(LEGACY_RENDER_EXPORT)
 
 add_library(legacy_render SHARED ${DST_FILES})
 
-add_dependencies(legacy_render core window)
-target_link_libraries(legacy_render core d3d11 DirectXTK dxgi dxguid window D3dcompiler)
+add_dependencies(legacy_render core)
+target_link_libraries(legacy_render core d3d11 DirectXTK dxgi dxguid window D3dcompiler assimp)
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")

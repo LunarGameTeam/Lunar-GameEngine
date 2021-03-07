@@ -25,10 +25,10 @@ public:
 	virtual void OnTick(float delta_time);
 protected:
 	Component();
+	bool m_need_tick = false;
 private:
 	bool m_is_initliazed = false;
 	bool m_enable = true;
-	bool m_need_tick = false;
 	Entity *m_owner;
 
 	friend class Entity;

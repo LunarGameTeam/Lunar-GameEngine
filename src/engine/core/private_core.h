@@ -12,11 +12,12 @@
  * \note
 */
 #ifndef CORE_API
-
 #ifdef CORE_EXPORT
 #define CORE_API __declspec( dllexport )//宏定义
+#define CORE_TEMPLATE __declspec( dllexport )//宏定义
 #else
 #define CORE_API __declspec( dllimport )
+#define CORE_TEMPLATE
 #endif
 
 #endif

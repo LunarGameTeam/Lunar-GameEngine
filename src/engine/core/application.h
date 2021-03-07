@@ -20,7 +20,14 @@ public:
 	virtual void Run()
 	{
 		gEngine->Run();
+		Init();
 	}
+
+	virtual void Init()
+	{
+
+	}
+
 	virtual void MainLoop()
 	{
 		typedef std::chrono::high_resolution_clock Time;

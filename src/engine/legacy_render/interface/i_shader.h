@@ -22,6 +22,10 @@ class IShader
 public:
 	virtual bool Init() = 0;
 	virtual bool Clean() = 0;
+
+	virtual void SetWVPMatrix(const LMatrix4f &w, const LMatrix4f &v, const LMatrix4f &p) = 0;
+	virtual void Bind() = 0;
+
 	virtual void SetParameterInt(const LString &name, int32_t value) = 0;
 	virtual void SetParameterUInt(const LString &name, uint32_t value) = 0;
 	virtual void SetParameterFloat(const LString& name,float value) = 0;

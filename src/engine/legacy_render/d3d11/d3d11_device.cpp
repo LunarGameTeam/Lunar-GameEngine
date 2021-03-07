@@ -64,6 +64,7 @@ DeviceResources::DeviceResources(
         m_options(flags | c_FlipPresent),
         m_deviceNotify(nullptr)
 {
+
 }
 
 // Configures the Direct3D device, and stores handles to it and the device context.
@@ -71,24 +72,12 @@ void DeviceResources::CreateDeviceResources()
 {
     UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 
-#if defined(_DEBUG)
-    if (SdkLayersAvailable())
-    {
-        // If the project is in a debug build, enable debugging via SDK Layers with this flag.
-        creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
-    }
-    else
-    {
-        OutputDebugStringA("WARNING: Direct3D Debug Device is not available\n");
-    }
-#endif
-
     CreateFactory();
 
     // Determines whether tearing support is available for fullscreen borderless windows.
     if (m_options & c_AllowTearing)
     {
-        BOOL allowTearing = FALSE;
+        bool allowTearing = false;
 
         ComPtr<IDXGIFactory5> factory5;
         HRESULT hr = m_dxgiFactory.As(&factory5);
@@ -100,9 +89,6 @@ void DeviceResources::CreateDeviceResources()
         if (FAILED(hr) || !allowTearing)
         {
             m_options &= ~c_AllowTearing;
-#ifdef _DEBUG
-            OutputDebugStringA("WARNING: Variable refresh rate displays not supported");
-#endif
         }
     }
 
@@ -113,9 +99,6 @@ void DeviceResources::CreateDeviceResources()
         if (FAILED(m_dxgiFactory.As(&factory5)))
         {
             m_options &= ~c_EnableHDR;
-#ifdef _DEBUG
-            OutputDebugStringA("WARNING: HDR swap chains not supported");
-#endif
         }
     }
 
@@ -126,9 +109,6 @@ void DeviceResources::CreateDeviceResources()
         if (FAILED(m_dxgiFactory.As(&factory4)))
         {
             m_options &= ~c_FlipPresent;
-#ifdef _DEBUG
-            OutputDebugStringA("INFO: Flip swap effects not supported");
-#endif
         }
     }
 
@@ -179,36 +159,6 @@ void DeviceResources::CreateDeviceResources()
             context.GetAddressOf()  // Returns the device immediate context.
             );
     }
-#if defined(NDEBUG)
-    else
-    {
-        throw std::exception("No Direct3D hardware device found");
-    }
-#else
-    if (FAILED(hr))
-    {
-        // If the initialization fails, fall back to the WARP device.
-        // For more information on WARP, see:
-        // http://go.microsoft.com/fwlink/?LinkId=286690
-        hr = D3D11CreateDevice(
-            nullptr,
-            D3D_DRIVER_TYPE_WARP, // Create a WARP device instead of a hardware device.
-            nullptr,
-            creationFlags,
-            s_featureLevels,
-            featLevelCount,
-            D3D11_SDK_VERSION,
-            device.GetAddressOf(),
-            &m_d3dFeatureLevel,
-            context.GetAddressOf()
-            );
-
-        if (SUCCEEDED(hr))
-        {
-            OutputDebugStringA("Direct3D Adapter - WARP\n");
-        }
-    }
-#endif
 
     ThrowIfFailed(hr);
 
@@ -235,6 +185,26 @@ void DeviceResources::CreateDeviceResources()
     }
 #endif
 
+	D3D11_RASTERIZER_DESC rasterDesc;
+	// Setup the raster description which will determine how and what polygons will be drawn.
+	rasterDesc.AntialiasedLineEnable = false;
+	rasterDesc.CullMode = D3D11_CULL_NONE;
+	rasterDesc.DepthBias = 0;
+	rasterDesc.DepthBiasClamp = 0.0f;
+	rasterDesc.DepthClipEnable = true;
+	rasterDesc.FillMode = D3D11_FILL_SOLID;
+	rasterDesc.FrontCounterClockwise = false;
+	rasterDesc.MultisampleEnable = false;
+	rasterDesc.ScissorEnable = false;
+	rasterDesc.SlopeScaledDepthBias = 0.0f;
+
+	// Create the rasterizer state from the description we just filled out.
+	device->CreateRasterizerState(&rasterDesc, &m_rasterState);
+
+
+	// Now set the rasterizer state.
+	context->RSSetState(m_rasterState);
+
     ThrowIfFailed(device.As(&m_d3dDevice));
     ThrowIfFailed(context.As(&m_d3dContext));
     ThrowIfFailed(context.As(&m_d3dAnnotation));
@@ -256,6 +226,8 @@ void DeviceResources::CreateWindowSizeDependentResources()
     m_renderTarget.Reset();
     m_depthStencil.Reset();
     m_d3dContext->Flush();
+        
+    
 
     // Determine the render target size in pixels.
     UINT backBufferWidth = std::max<UINT>(static_cast<UINT>(m_outputSize.right - m_outputSize.left), 1u);
@@ -516,8 +488,6 @@ void DeviceResources::CreateFactory()
             dxgiInfoQueue->AddStorageFilterEntries(DXGI_DEBUG_DXGI, &filter);
         }
     }
-
-    if (!debugDXGI)
 #endif
 
     ThrowIfFailed(CreateDXGIFactory1(IID_PPV_ARGS(m_dxgiFactory.ReleaseAndGetAddressOf())));

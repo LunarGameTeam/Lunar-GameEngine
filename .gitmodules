@@ -31,3 +31,6 @@
 [submodule "sdk/eigen"]
 	path = sdk/eigen
 	url = https://gitlab.com/libeigen/eigen.git
+[submodule "sdk/assimp"]
+	path = sdk/assimp
+	url = https://github.com/assimp/assimp.git

@@ -94,7 +94,7 @@ const luna::LString::ElementType *LString::operator*()
 
 LString::WStringContainer LString::GetStdUnicodeString() const
 {
-	return StringToWstring(m_data).c_str();
+	return StringToWstring(m_data);
 }
 
 void LString::Replace(const char *str, const char *des)

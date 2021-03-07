@@ -1,6 +1,7 @@
 #include "world_subsystem.h"
 #include "scene.h"
 #include "entity.h"
+#include "camera.h"
 
 namespace luna
 {
@@ -18,6 +19,10 @@ bool WorldSubsystem::OnPostInit()
 bool WorldSubsystem::OnInit()
 {
 	m_need_tick = true;
+	manager = SceneManager::instance();
+	Scene *main_scene = manager->MainScene();
+	auto* entity = main_scene->CreateEntity("MainCamera");
+	entity->AddComponent<CameraComponent>();
 	return true;
 }
 
@@ -28,7 +33,6 @@ bool WorldSubsystem::OnShutdown()
 
 void WorldSubsystem::Tick(float delta_time)
 {
-	SceneManager *manager = SceneManager::instance();
 	Scene *main_scene = manager->MainScene();
 	for (auto& entity : main_scene->m_entities)
 	{

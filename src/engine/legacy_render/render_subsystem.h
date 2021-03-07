@@ -16,7 +16,11 @@
 #include <directxmath.h>
 #include "core/core_module.h"
 #include "private_render.h"
-#include "d3d11_device.h"
+#include "d3d11/d3d11_device.h"
+
+#include "legacy_render/interface/i_shader.h"
+#include "d3d11/Mesh.h"
+#include "interface/i_camera.h"
 
 namespace luna
 {
@@ -51,15 +55,18 @@ public:
 	{
 		return m_deviceResources.get();
 	}
+
+	GET_SET_VAULE(ICamera*, m_main_camera, Camera);
+
 private:
-	float m_positionX = 0, m_positionY = 0 , m_positionZ = -5.0;
-	float m_rotationX, m_rotationY, m_rotationZ;
+	IShader *shader;
+	ICamera *m_main_camera;
+	LSharedPtr<Mesh> model;
 
 	void Clear();
 	// DirectXTK objects.
-	std::unique_ptr<DirectX::CommonStates> m_states;
-	std::unique_ptr<DX::DeviceResources>    m_deviceResources;
-	Microsoft::WRL::ComPtr<ID3D11InputLayout>                               m_batchInputLayout;
+	std::unique_ptr<DX::DeviceResources>	m_deviceResources;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_batchInputLayout;
 };
 
 }

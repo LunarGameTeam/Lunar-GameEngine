@@ -107,7 +107,6 @@ struct CORE_API InputEvent : public LEvent
 	KeyCode code;
 };
 
-
 class CORE_API EventSubsystem : public SubSystem
 {
 public:

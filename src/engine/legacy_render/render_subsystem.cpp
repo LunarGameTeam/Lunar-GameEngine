@@ -1,8 +1,12 @@
 #include "render_subsystem.h"
 #include "window/window_subsystem.h"
+#include "core/asset/asset_subsystem.h"
 #include <d3dcompiler.h>
 #include "CommonStates.h"
 #include "interface/i_camera.h"
+
+#include "d3d11/d3d11_device.h"
+#include "d3d11/shader.h"
 
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
@@ -72,6 +76,8 @@ HRESULT CompileShader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR 
 
 bool RenderSubusystem::OnInit()
 {
+	static AssetSubsystem *asset_sys = gEngine->GetSubsystem<AssetSubsystem>();
+
 	ICamera ca;
 	ca.GetViewMatrix();
 	m_deviceResources = std::make_unique<DX::DeviceResources>(
@@ -90,24 +96,21 @@ bool RenderSubusystem::OnInit()
 
 	auto context = m_deviceResources->GetD3DDeviceContext();
 	auto device = m_deviceResources->GetD3DDevice();
-
-	m_states = std::make_unique<CommonStates>(device);
+	bool ret = true;
+	shader = new Dx11Shader();
+	ret = shader->Init();
+	if (!ret)
 	{
-		void const *shaderByteCode;
-		size_t byteCodeLength;
-
-
-		ID3D10Blob *VS, *PS;
-		HRESULT hr = CompileShader(L"color.vs", "VSMain", "vs_4_0_level_9_1", &VS);
-		hr = CompileShader(L"color.ps", "PSMain", "ps_4_0_level_9_1", &PS);	
-
-		device->CreateInputLayout(VertexPositionColor::InputElements,
-								  VertexPositionColor::InputElementCount,
-								  VS->GetBufferPointer(), VS->GetBufferSize(),
-								  m_batchInputLayout.ReleaseAndGetAddressOf());
+		return false;
 	}
-
-
+	model = asset_sys->LoadAsset<Mesh>("/assets/box.fbx");
+	ret = model->Init();
+	if (!ret)
+	{
+		return false;
+	}
+	camera = new ICamera();
+	
 
 	return true;
 }
@@ -122,14 +125,15 @@ void RenderSubusystem::Tick(float delta_time)
 	
 	Clear();
 
-	m_deviceResources->PIXBeginEvent(L"Render");
+	
 	auto context = m_deviceResources->GetD3DDeviceContext();
+	shader->Bind();
+	auto proj = camera->GetProjectionMatrix();
+	shader->SetWVPMatrix(model->GetWolrdMatrix(), camera->GetViewMatrix(), camera->GetProjectionMatrix());
+	model->Bind();
+	model->Draw();
 
-	// Draw procedurally generated dynamic grid
-	const XMVECTORF32 xaxis = { 20.f, 0.f, 0.f };
-	const XMVECTORF32 yaxis = { 0.f, 0.f, 20.f };
-
-	m_deviceResources->PIXEndEvent();
+	
 
 	// Show the new frame.
 	m_deviceResources->Present();

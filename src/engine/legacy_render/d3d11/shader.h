@@ -1,6 +1,8 @@
 #pragma once
 
 #include "legacy_render/interface/i_shader.h"
+#include "core/misc/container.h"
+#include <d3d11.h>
 
 namespace luna
 {
@@ -16,6 +18,8 @@ public:
 
 	bool Clean() override;
 
+
+	void SetWVPMatrix(const LMatrix4f &w, const LMatrix4f &v, const LMatrix4f &p) override;
 
 	void SetParameterInt(const LString &name, int32_t value) override;
 
@@ -37,9 +41,19 @@ public:
 
 	void SetParameterMatrix4(const LString &name, const LMatrix4f &value) override;
 
-	LString m_vs_path;
-	LString m_ps_path;
+	LString m_vs_path = "color.vs";
+	LString m_ps_path = "color.ps";
 
+
+	void Bind() override;
+
+private:
+	ID3D11VertexShader *m_vertexShader;
+	ID3D11PixelShader *m_pixelShader;
+	ID3D11InputLayout *m_layout;
+	ID3D11Buffer *m_cb0_buffer;
+	LMap<LString, ID3D11Buffer *> m_buffer_map;
+	
 };
 
 }

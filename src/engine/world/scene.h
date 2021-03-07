@@ -12,7 +12,7 @@ class WORLD_API Scene : LObject
 {
 
 public:
-	Entity *CreateEntity(LString &name, Entity* parent = nullptr)
+	Entity *CreateEntity(const LString &name, Entity* parent = nullptr)
 	{
 		auto entity = new Entity(name);
 		m_entities.push_back(entity);

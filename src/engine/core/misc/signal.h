@@ -9,7 +9,7 @@ template<typename RetVal, typename... Param>
 class LFunctionList;
 
 template<typename RetVal, typename... Param>
-class CORE_API LFunction
+class LFunction
 {
 	using FunctionType = boost::function<RetVal(Param...)>;
 public:
@@ -32,7 +32,7 @@ public:
 
 
 template<typename RetVal, typename... Param>
-class CORE_API LFunctionList
+class LFunctionList
 {
 public:
 	using FunctionHandleType = LWeakPtr < LFunction<RetVal,Param...> >;
@@ -42,7 +42,7 @@ public:
 };
 
 template<typename RetVal, typename... Param>
-class CORE_API SignalHandle
+class SignalHandle
 {
 	using FunctionType = boost::function<RetVal(Param...)>;
 	using SignatureType = LFunction<RetVal, Param...>;
