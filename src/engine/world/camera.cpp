@@ -54,7 +54,12 @@ void CameraComponent::OnCreate()
 
 void CameraComponent::OnTick(float delta_time)
 {
-	
+	if (m_speed > 0.01)
+	{
+		auto pos = m_cache_transform->GetPosition();
+		pos = pos + m_fly_direction * m_speed * delta_time;
+		m_cache_transform->SetPosition(pos);
+	}
 }
 
 }

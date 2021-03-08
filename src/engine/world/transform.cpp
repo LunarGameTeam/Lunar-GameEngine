@@ -38,12 +38,33 @@ void Transform::RemoveChild(Transform *child)
 
 luna::LMatrix4f Transform::GetMatrix()
 {
-	LTransform trans;
+	LTransform trans = LTransform::Identity();
 	trans.translate(m_pos);
 	trans.rotate(m_rotation);
 	trans.scale(m_scale);
 	m_cached_matrix = trans.matrix();
 	return m_cached_matrix;
+}
+
+luna::LVector3f Transform::RightDirection()
+{
+	LVector3f result = m_rotation * LVector3f::UnitX();
+	result.normalize();
+	return result;
+}
+
+luna::LVector3f Transform::UpDirection()
+{
+	LVector3f result = m_rotation * LVector3f::UnitY();
+	result.normalize();
+	return result;
+}
+
+luna::LVector3f Transform::FrontDirection()
+{
+	LVector3f result = m_rotation * LVector3f::UnitZ();
+	result.normalize();
+	return result;
 }
 
 }

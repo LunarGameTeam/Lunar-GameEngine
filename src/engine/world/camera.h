@@ -18,7 +18,9 @@ public:
 	LMatrix4f &GetViewMatrix() override;
 	LMatrix4f &GetProjectionMatrix() override;
 
-	GET_SET_VALUE(Transform*, m_cache_transform, Transform)
+	GET_SET_VALUE(Transform *, m_cache_transform, Transform);
+	GET_SET_VALUE(LVector3f, m_fly_direction, FlyDirection);
+	GET_SET_VALUE(float, m_speed, Speed);
 
 private:
 	Transform *m_cache_transform;
@@ -30,7 +32,7 @@ private:
 	float m_aspect_ratio = 1024.f / 768.f;
 	float m_fov = (float)M_PI / 3.0f;
 	LVector3f m_fly_direction = LVector3f(0,0,0);
-	LVector3f m_speed = LVector3f(1.f, 1.f, 1.f);
+	float m_speed = 0.0f;
 };
 
 }

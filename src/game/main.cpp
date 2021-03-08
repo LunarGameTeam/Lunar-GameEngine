@@ -56,7 +56,7 @@ private:
 		static bool hold = false;
 		static float old_x = 0;
 		static float old_y = 0;
-
+		static LVector3f delta = LVector3f::Zero();
 		auto pos = transform->GetPosition();
 		auto rotation = transform->GetRotation();
 
@@ -71,7 +71,7 @@ private:
 		}
 		case EventType::Input_MouseRelease:
 		{
-			hold = false;
+			hold = false;			
 			break;
 		}
 		case EventType::Input_MouseMove:
@@ -82,12 +82,8 @@ private:
 				float y = event.y;
 				float delta_x = (x - old_x) / 500;
 				float delta_y = (y - old_y) / 500;
-				
-				
-				auto rota = Eigen::AngleAxisf(delta_y * M_PI, LVector3f::UnitX());
-				rotation = rotation * rota;
-				rota = Eigen::AngleAxisf(delta_x * M_PI, LVector3f::UnitY());
-				rotation = rotation * rota;
+				LVector3f forward = Eigen::AngleAxisf(delta_y * M_PI, LVector3f::UnitX()) * Eigen::AngleAxisf(delta_x * M_PI, transform->UpDirection()) * transform->FrontDirection();
+				rotation = rotation * LQuaternion::FromTwoVectors(transform->FrontDirection(), forward);				
 				old_x = x;
 				old_y = y;
 				transform->SetRotation(rotation);
@@ -95,28 +91,78 @@ private:
 			
 			break;
 		}
-		case EventType::Input_KeyDown:
+		case EventType::Input_KeyUp:
 		{
-			LVector3f delta = LVector3f::Zero();
 			if (event.code == KeyCode::W)
 			{
-				delta = rotation * LVector3f(0, 0, 1);
+				delta.z() -= 1;
 			}
 			else if (event.code == KeyCode::A)
 			{
-				delta = rotation * LVector3f(-1, 0, 0);
+				delta.x() += 1;
 			}
 			else if (event.code == KeyCode::S)
 			{
-				delta = rotation * LVector3f(0, 0, -1);
+				delta.z() += 1;
 
 			}
 			else if (event.code == KeyCode::D)
 			{
-				delta = rotation * LVector3f(1, 0, 0);
+				delta.x() -= 1;
 			}
-			pos = pos + delta;
-			transform->SetPosition(pos);
+			else if (event.code == KeyCode::Q)
+			{
+				delta.y() += 1;
+			}
+			else if (event.code == KeyCode::E)
+			{
+				delta.y() -= 1;
+			}
+			if (delta.size() > 0.01)
+			{
+				LVector3f direction = transform->GetRotation() * delta;
+				main_camera->SetFlyDirection(direction);
+				main_camera->SetSpeed(10);
+			}
+			else
+				main_camera->SetSpeed(0);
+			break;
+		}
+		case EventType::Input_KeyDown:
+		{
+			if (event.code == KeyCode::W)
+			{
+				delta.z() += 1;
+			}
+			else if (event.code == KeyCode::A)
+			{
+				delta.x() -= 1;
+			}
+			else if (event.code == KeyCode::S)
+			{
+				delta.z() -= 1;
+
+			}
+			else if (event.code == KeyCode::D)
+			{
+				delta.x() += 1;
+			}
+			else if (event.code == KeyCode::Q)
+			{
+				delta.y() -= 1;
+			}
+			else if (event.code == KeyCode::E)
+			{
+				delta.y() += 1;
+			}
+			if (delta.size() > 0.01)
+			{
+				LVector3f direction = transform->GetRotation() * delta;
+				main_camera->SetFlyDirection(direction);
+				main_camera->SetSpeed(10);
+			}
+			else
+				main_camera->SetSpeed(0);
 
 			break;
 		}

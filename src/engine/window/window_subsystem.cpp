@@ -140,6 +140,8 @@ void WindowSubsystem::Tick(float delta_time)
 			break;
 		case SDL_KEYDOWN:
 		{
+			if (event.key.repeat != 0)
+				return;
 			InputEvent input;
 			input.type = EventType::Input_KeyDown;
 			if (event.key.keysym.sym == SDL_KeyCode::SDLK_w)
@@ -150,6 +152,10 @@ void WindowSubsystem::Tick(float delta_time)
 				input.code = KeyCode::A;
 			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_d)
 				input.code = KeyCode::D;
+			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_q)
+				input.code = KeyCode::Q;
+			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_e)
+				input.code = KeyCode::E;
 			input.x = 0;
 			input.y = 0;
 			event_subsystem->OnInput.BroadCast(*window, input);
@@ -157,6 +163,23 @@ void WindowSubsystem::Tick(float delta_time)
 		}
 		case SDL_KEYUP:
 		{
+			InputEvent input;
+			input.type = EventType::Input_KeyUp;
+			if (event.key.keysym.sym == SDL_KeyCode::SDLK_w)
+				input.code = KeyCode::W;
+			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_s)
+				input.code = KeyCode::S;
+			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_a)
+				input.code = KeyCode::A;
+			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_d)
+				input.code = KeyCode::D;
+			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_q)
+				input.code = KeyCode::Q;
+			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_e)
+				input.code = KeyCode::E;
+			input.x = 0;
+			input.y = 0;
+			event_subsystem->OnInput.BroadCast(*window, input);
 			break;
 		}		
 		case SDL_MOUSEBUTTONDOWN:

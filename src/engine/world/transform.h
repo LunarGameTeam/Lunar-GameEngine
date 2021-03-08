@@ -32,6 +32,9 @@ public:
 	GET_SET_REF(LQuaternion, m_rotation, Rotation);
 	GET_SET_REF(LVector3f, m_scale, Scale);
 
+	LVector3f RightDirection();
+	LVector3f UpDirection();
+	LVector3f FrontDirection();
 protected:
 	void SetTransformDirty()
 	{
@@ -46,7 +49,7 @@ private:
 	bool m_dirty = true;
 	LVector3f m_pos = LVector3f::Zero();
 	LQuaternion m_rotation = LQuaternion::Identity();
-	LVector3f m_scale = LVector3f::Identity();
+	LVector3f m_scale = LVector3f(1,1,1);
 
 };
 

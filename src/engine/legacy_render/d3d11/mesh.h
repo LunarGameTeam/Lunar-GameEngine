@@ -38,7 +38,7 @@ public:
 	const LMatrix4f& GetWolrdMatrix();
 
 private:
-	LVector3f m_pos = LVector3f(0,0,100);
+	LVector3f m_pos = LVector3f(0,0,10);
 	LQuaternion m_rotation = LQuaternion::Identity();
 	LVector3f m_scale = LVector3f(0.01f,0.01f,0.01f);
 
