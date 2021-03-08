@@ -1,10 +1,10 @@
 #pragma once
+#include "core/misc/container.h"
+#include "core/asset/asset.h"
 
 #include "legacy_render/private_render.h"
 #include "legacy_render/interface/i_model.h"
-#include "core/misc/container.h"
 
-#include "core/asset/asset.h"
 #include <d3d11.h>
 
 namespace luna
@@ -40,7 +40,7 @@ public:
 private:
 	LVector3f m_pos = LVector3f(0,0,100);
 	LQuaternion m_rotation = LQuaternion::Identity();
-	LVector3f m_scale = LVector3f(0.01f,0.01,0.01);
+	LVector3f m_scale = LVector3f(0.01f,0.01f,0.01f);
 
 	LVector<SubMesh> m_sub_meshes;
 

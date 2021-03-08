@@ -12,7 +12,7 @@ class WORLD_API Component : public LObject
 public:
 	Component(const Component &comp) = delete;
 	
-	inline Entity *Owner() 
+	inline Entity *GetEntity() 
 	{
 		return m_owner;
 	}

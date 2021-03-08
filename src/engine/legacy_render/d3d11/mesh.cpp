@@ -28,7 +28,7 @@ bool Mesh::Init()
 		HRESULT result;
 		// Set up the description of the static vertex buffer.
 		vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		vertexBufferDesc.ByteWidth = sizeof(VERTEX) * submesh.vertices.size();
+		vertexBufferDesc.ByteWidth = sizeof(VERTEX) * (UINT)submesh.vertices.size();
 		vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		vertexBufferDesc.CPUAccessFlags = 0;
 		vertexBufferDesc.MiscFlags = 0;
@@ -48,7 +48,7 @@ bool Mesh::Init()
 
 		// Set up the description of the static index buffer.
 		indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		indexBufferDesc.ByteWidth = sizeof(unsigned long) * submesh.indices.size();
+		indexBufferDesc.ByteWidth = sizeof(unsigned long) * (UINT)submesh.indices.size();
 		indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 		indexBufferDesc.CPUAccessFlags = 0;
 		indexBufferDesc.MiscFlags = 0;
@@ -188,7 +188,7 @@ void SubMesh::Draw()
 	static RenderSubusystem *render = gEngine->GetSubsystem<RenderSubusystem>();
 	static auto *device = render->GetDevice()->GetD3DDevice();
 	static auto *context = render->GetDevice()->GetD3DDeviceContext();
-	context->DrawIndexed(indices.size(), 0, 0);
+	context->DrawIndexed(indices.size(), 0, (UINT)0);
 }
 
 }

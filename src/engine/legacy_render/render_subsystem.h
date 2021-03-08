@@ -14,13 +14,14 @@
 #pragma once
 
 #include <directxmath.h>
+
 #include "core/core_module.h"
 #include "private_render.h"
-#include "d3d11/d3d11_device.h"
 
 #include "legacy_render/interface/i_shader.h"
-#include "d3d11/Mesh.h"
-#include "interface/i_camera.h"
+#include "legacy_render/interface/i_camera.h"
+#include "legacy_render/d3d11/Mesh.h"
+#include "legacy_render/d3d11/d3d11_device.h"
 
 namespace luna
 {
@@ -34,19 +35,10 @@ public:
 	RenderSubusystem();;
 
 	bool OnPreInit() override;
-
-
 	bool OnPostInit() override;
-
-
 	bool OnInit() override;
-
-
 	bool OnShutdown() override;
-
-
 	void Tick(float delta_time) override;
-
 
 	virtual void OnDeviceLost();
 	virtual void OnDeviceRestored();
@@ -56,7 +48,7 @@ public:
 		return m_deviceResources.get();
 	}
 
-	GET_SET_VAULE(ICamera*, m_main_camera, Camera);
+	GET_SET_VALUE(ICamera*, m_main_camera, Camera);
 
 private:
 	IShader *shader;

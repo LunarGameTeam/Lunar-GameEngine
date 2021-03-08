@@ -36,4 +36,14 @@ void Transform::RemoveChild(Transform *child)
 	}
 }
 
+luna::LMatrix4f Transform::GetMatrix()
+{
+	LTransform trans;
+	trans.translate(m_pos);
+	trans.rotate(m_rotation);
+	trans.scale(m_scale);
+	m_cached_matrix = trans.matrix();
+	return m_cached_matrix;
+}
+
 }

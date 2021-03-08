@@ -78,8 +78,6 @@ bool RenderSubusystem::OnInit()
 {
 	static AssetSubsystem *asset_sys = gEngine->GetSubsystem<AssetSubsystem>();
 
-	ICamera ca;
-	ca.GetViewMatrix();
 	m_deviceResources = std::make_unique<DX::DeviceResources>(
 		DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_D24_UNORM_S8_UINT, 2,
 		D3D_FEATURE_LEVEL_9_1);
@@ -109,9 +107,6 @@ bool RenderSubusystem::OnInit()
 	{
 		return false;
 	}
-	camera = new ICamera();
-	
-
 	return true;
 }
 
@@ -121,20 +116,16 @@ bool RenderSubusystem::OnShutdown()
 }
 
 void RenderSubusystem::Tick(float delta_time)
-{
-	
+{	
 	Clear();
-
-	
 	auto context = m_deviceResources->GetD3DDeviceContext();
-	shader->Bind();
-	auto proj = camera->GetProjectionMatrix();
-	shader->SetWVPMatrix(model->GetWolrdMatrix(), camera->GetViewMatrix(), camera->GetProjectionMatrix());
-	model->Bind();
-	model->Draw();
-
-	
-
+	if (m_main_camera)
+	{
+		shader->Bind();
+		shader->SetWVPMatrix(model->GetWolrdMatrix(), m_main_camera->GetViewMatrix(), m_main_camera->GetProjectionMatrix());
+		model->Bind();
+		model->Draw();
+	}
 	// Show the new frame.
 	m_deviceResources->Present();
 }

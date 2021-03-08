@@ -61,25 +61,31 @@
 		return var; \
 	};
 
-#define SETTER(type, var, name)\
+#define SETTER_REF(type, var, name)\
 	void Set##name(const type& value) \
 	{\
 		var = value;\
 	};
 
+#define SETTER(type, var, name)\
+	void Set##name(type value) \
+	{\
+		var = value;\
+	};
 
-#define GET_SET_VAULE(type,var,name) \
+
+#define GET_SET_VALUE(type,var,name) \
 	GETTER(type, var, name)\
 	SETTER(type, var, name)
 
 #define GET_SET_REF(type, var, name) \
 	GETTER_REF(type, var, name)  \
-	SETTER(type, var, name)
+	SETTER_REF(type, var, name)
 
 
 #define GET_SET_REF_CONST(type, var, name) \
 	GETTER_REF_CONST(type, var, name)  \
-	SETTER(type, var, name)
+	SETTER_REF(type, var, name)
 
 
 namespace luna

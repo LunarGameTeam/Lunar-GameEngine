@@ -7,7 +7,7 @@
 namespace luna
 {
 
-class WORLD_API Renderer : public Component
+class WORLD_API RendererComponent : public Component
 {
 
 };

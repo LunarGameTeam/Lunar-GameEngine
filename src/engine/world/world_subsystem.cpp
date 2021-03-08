@@ -22,7 +22,7 @@ bool WorldSubsystem::OnInit()
 	manager = SceneManager::instance();
 	Scene *main_scene = manager->MainScene();
 	auto* entity = main_scene->CreateEntity("MainCamera");
-	entity->AddComponent<CameraComponent>();
+	m_main_camera = entity->AddComponent<CameraComponent>();
 	return true;
 }
 

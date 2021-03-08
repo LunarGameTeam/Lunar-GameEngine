@@ -1,7 +1,9 @@
-#include "shader.h"
+#include "legacy_render/d3d11/shader.h"
 #include "legacy_render/render_subsystem.h"
+
 #include "core/core_module.h"
 #include "core/subsystem/sub_system.h"
+
 #include <d3dcompiler.h>
 #include <D3DCompiler.inl>
 
@@ -110,7 +112,7 @@ bool Dx11Shader::Init()
 	D3D11_SHADER_DESC ShaderDesc;
 	pReflector->GetDesc(&ShaderDesc);
 
-	for (auto i = 0; i < ShaderDesc.ConstantBuffers; i++)
+	for (UINT i = 0; i < ShaderDesc.ConstantBuffers; i++)
 	{
 		ID3D11ShaderReflectionConstantBuffer *pCBReflecion = nullptr;
 		pCBReflecion = pReflector->GetConstantBufferByIndex(i);

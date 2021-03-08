@@ -39,6 +39,7 @@ include_directories(
 	${SDK_PATH}jsoncpp/include
 	${SDK_PATH}sdl
 	${SDK_PATH}boost
+	${SDK_PATH}assimp/include
 	${SDK_PATH}DirectXTex
 	${SDK_PATH}sol2/include
 	${SDK_PATH}DirectXTK/Inc
@@ -133,9 +134,12 @@ add_subdirectory(sdk/DirectXTK)
 add_subdirectory(sdk/jsoncpp)
 add_subdirectory(sdk/sol2)
 add_subdirectory(sdk/sdl)
+add_subdirectory(sdk/assimp)
 add_subdirectory(src/engine/imgui)
 
 SET_PROPERTY(TARGET lua PROPERTY FOLDER "SDK")
+
+SET_PROPERTY(TARGET assimp PROPERTY FOLDER "SDK")
 
 SET_PROPERTY(TARGET DirectXTex PROPERTY FOLDER "SDK")
 SET_PROPERTY(TARGET DirectXTK12 PROPERTY FOLDER "SDK")

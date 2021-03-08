@@ -96,11 +96,11 @@ public:
 	SIGNAL(mSubSystemInitDoneEvent);
 	SIGNAL(mSubSystemPostInitDoneEvent);
 
-	GET_SET_VAULE(bool, m_pending_exit, PendingExit);
+	GET_SET_VALUE(bool, m_pending_exit, PendingExit);
 	GETTER(float, m_frame_delta, FrameDelta);
 	GETTER(float, m_frame_rate, FrameRate);
-	GET_SET_VAULE(float, m_actual_framte_delta, ActualFrameDelta);
-	GET_SET_VAULE(float, m_actual_frame_rate, ActualFrameRate);
+	GET_SET_VALUE(float, m_actual_framte_delta, ActualFrameDelta);
+	GET_SET_VALUE(float, m_actual_frame_rate, ActualFrameRate);
 
 
 private:

@@ -39,7 +39,7 @@ enum class LLoadState
 class CORE_API LObject :public LSharedObject
 {
 public:
-	GET_SET_VAULE(LUuid, m_uid, LUuid);
+	GET_SET_VALUE(LUuid, m_uid, LUuid);
 	LObject();
 	virtual ~LObject();
 	//获取名字

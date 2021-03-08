@@ -51,7 +51,7 @@ public:
 			}
 			fs = Time::now() - old;
 			d = std::chrono::duration_cast<ms>(fs);
-			gEngine->SetActualFrameRate(1000 / d.count());
+			gEngine->SetActualFrameRate(1000.f / d.count());
 			gEngine->SetActualFrameDelta(d.count());
 			old = now;
 		}
