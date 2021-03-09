@@ -21,6 +21,7 @@
 #include "legacy_render/interface/i_shader.h"
 #include "legacy_render/interface/i_camera.h"
 #include "legacy_render/d3d11/Mesh.h"
+#include "legacy_render/component/renderer.h"
 #include "legacy_render/d3d11/d3d11_device.h"
 
 namespace luna
@@ -50,10 +51,14 @@ public:
 
 	GET_SET_VALUE(ICamera*, m_main_camera, Camera);
 
+	void RegisterRenderer(RendererComponent * renderer);
+	void UnRegisterRenderer(RendererComponent *renderer);
+
 private:
 	IShader *shader;
 	ICamera *m_main_camera;
 	LSharedPtr<Mesh> model;
+	LVector<RendererComponent *> m_renderers;
 
 	void Clear();
 	// DirectXTK objects.

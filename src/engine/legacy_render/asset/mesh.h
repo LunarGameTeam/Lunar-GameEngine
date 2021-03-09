@@ -32,9 +32,6 @@ public:
 	void OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile> file) override;
 
 public:
-	bool Init();
-	void Bind();
-	void Draw();
 	const LMatrix4f& GetWolrdMatrix();
 
 private:
