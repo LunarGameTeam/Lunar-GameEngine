@@ -82,8 +82,9 @@ private:
 				float y = event.y;
 				float delta_x = (x - old_x) / 500;
 				float delta_y = (y - old_y) / 500;
-				LVector3f forward = Eigen::AngleAxisf(delta_y * M_PI, LVector3f::UnitX()) * Eigen::AngleAxisf(delta_x * M_PI, transform->UpDirection()) * transform->FrontDirection();
-				rotation = rotation * LQuaternion::FromTwoVectors(transform->FrontDirection(), forward);				
+				auto v = Eigen::AngleAxisf(delta_y * M_PI, LVector3f::UnitX());
+				auto h = Eigen::AngleAxisf(delta_x * M_PI, LVector3f::UnitY());
+				rotation = h * rotation * v;
 				old_x = x;
 				old_y = y;
 				transform->SetRotation(rotation);

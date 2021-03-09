@@ -12,12 +12,13 @@ template<typename T>
 using LVector = boost::container::vector<T>;
 
 #include "boost/unordered_map.hpp"
+#include <unordered_map>
 template<typename K, typename Value>
-using LUnorderedMap = boost::unordered_map<K, Value>;
+using LUnorderedMap = std::unordered_map<K, Value>;
 
-#include "boost/container/map.hpp"
+#include <map>
 template<typename K, typename Value>
-using LMap = boost::container::map<K, Value>;
+using LMap = std::map<K, Value>;
 
 #include "boost/container/list.hpp"
 template<typename Value>

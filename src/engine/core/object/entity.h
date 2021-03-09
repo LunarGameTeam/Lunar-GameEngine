@@ -1,7 +1,7 @@
 #pragma once
 
-#include "private_world.h"
-#include "core/core_module.h"
+#include "core/private_core.h"
+#include "core/object/object.h"
 #include "component.h"
 
 
@@ -10,7 +10,7 @@ namespace luna
 
 class Transform;
 
-class WORLD_API Entity : public LObject
+class CORE_API Entity : public LObject
 {
 public:
 	Entity(const Entity &rv) = delete;

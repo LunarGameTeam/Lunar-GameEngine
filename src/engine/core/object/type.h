@@ -5,12 +5,10 @@
 namespace luna
 {
 
-
-
 struct Type
 {
 	LString Name;
-	Type * Base;
+	Type *Base;
 public:
 	bool IsSubClassOf(Type *parent)
 	{
@@ -34,7 +32,7 @@ private:
 };
 
 template<typename T>
-Type *NewType(const char* name, Type* base = nullptr)
+Type *NewType(const char *name, Type *base = nullptr)
 {
 	Type *type = new Type();
 	type->Name = name;

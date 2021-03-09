@@ -1,6 +1,6 @@
-#include "camera.h"
+#include "world/camera.h"
 #include "legacy_render/render_subsystem.h"
-#include "entity.h"
+#include "core/object/entity.h"
 
 namespace luna
 {

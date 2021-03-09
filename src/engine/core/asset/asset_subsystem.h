@@ -26,6 +26,7 @@ class CORE_API AssetSubsystem : public SubSystem
 
 public:
 	AssetSubsystem() {};
+	virtual ~AssetSubsystem() {};
 	bool OnPreInit() override;
 	bool OnPostInit() override;
 	bool OnInit() override;

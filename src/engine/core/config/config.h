@@ -38,8 +38,8 @@ public:
 		m_key(key),
 		m_value(value)
 	{
-		static auto ins = ConfigManager::instance();
-		static auto &configs = ins.s_configs;
+		auto &ins = ConfigManager::instance();
+		auto &configs = ins.s_configs;
 		if (configs.contains(m_key))
 		{
 			m_value = luna::FromString<Type>(configs[m_key].m_value);
@@ -69,7 +69,7 @@ public:
 		m_key(key),
 		m_value(value)
 	{
-		static auto ins = ConfigManager::instance();
+		static auto &ins = ConfigManager::instance();
 		static auto &configs = ins.s_configs;
 		if (configs.contains(m_key))
 		{

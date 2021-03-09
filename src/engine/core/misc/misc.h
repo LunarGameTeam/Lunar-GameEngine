@@ -9,22 +9,29 @@ namespace luna
 template<typename T>
 class CORE_API Singleton
 {
-private:
-	Singleton()
+public:
+	virtual ~Singleton()
 	{
 	}
-public:
+	Singleton(const Singleton &) = delete;
+	Singleton &operator=(const Singleton &) = delete;
+
 	T &instance() {
 		static T t;
 		return t;
+	}
+private:
+	Singleton()
+	{
 	}
 
 };
 
 class CORE_API NoCopy
 {
-protected:
+public:
 	NoCopy() {};
+	virtual ~NoCopy() {};
 private:
 	NoCopy(const NoCopy &) = delete;
 	NoCopy &operator=(const NoCopy &) = delete;

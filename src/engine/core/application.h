@@ -2,7 +2,9 @@
 #include "core/asset/asset_subsystem.h"
 #include "core/file/file_subsystem.h"
 #include "core/event/event_subsystem.h"
-#include "subsystem/sub_system.h"
+#include "core/config/config_manager.h"
+#include "core/subsystem/sub_system.h"
+
 
 namespace luna
 {
@@ -10,24 +12,27 @@ namespace luna
 class LApp
 {
 public:
+	
 	LApp()
-	{
+	{		
 		gEngine = new lunaCore();
 		gEngine->RegisterSubsystem<FileSubsystem>();
 		gEngine->RegisterSubsystem<AssetSubsystem>();
 		gEngine->RegisterSubsystem<EventSubsystem>();
 	}
+	virtual ~LApp()
+	{
+	}
+
 	virtual void Run()
 	{
 		gEngine->Run();
 		Init();
 	}
-
 	virtual void Init()
 	{
 
 	}
-
 	virtual void MainLoop()
 	{
 		typedef std::chrono::high_resolution_clock Time;
@@ -56,7 +61,6 @@ public:
 			old = now;
 		}
 	}
-
 };
 
 

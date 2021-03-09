@@ -1,18 +1,18 @@
 #pragma once
 
-#include "core/core_module.h"
-#include "private_world.h"
+#include "core/object/object.h"
+#include "core/private_core.h"
 
 namespace luna
 {
 class Entity;
 
-class WORLD_API Component : public LObject
+class CORE_API Component : public LObject
 {
 public:
 	Component(const Component &comp) = delete;
-	
-	inline Entity *GetEntity() 
+
+	inline Entity *GetEntity()
 	{
 		return m_owner;
 	}

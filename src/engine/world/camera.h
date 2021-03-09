@@ -1,8 +1,9 @@
 #pragma once
 
 #include "core/core_module.h"
-#include "transform.h"
-#include "world/component.h"
+#include "world/private_world.h"
+#include "core/object/transform.h"
+#include "core/object/component.h"
 #include "legacy_render/interface/i_camera.h"
 
 namespace luna

@@ -8,7 +8,7 @@
 #include <d3d11.h>
 #include <windows.h>
 #include <psapi.h>
-
+#include <xhash>
 #include <tchar.h>
 
 namespace luna
@@ -17,6 +17,8 @@ namespace luna
 CONFIG_IMPLEMENT(int, Window, UsingImGUI, 1);
 CONFIG_IMPLEMENT(int, Window, DefaultWidth, 1024);
 CONFIG_IMPLEMENT(int, Window, DefaultHeight, 768);
+
+LUnorderedMap<Sint32, luna::KeyCode> s_key_map;
 
 LWindow *WindowSubsystem::CreateLunaWindow(const luna::LString &name, int width, int height)
 {
@@ -38,6 +40,50 @@ LWindow *WindowSubsystem::GetMainWindow()
 
 bool WindowSubsystem::OnPreInit()
 {
+	s_key_map = {
+		{ SDL_KeyCode::SDLK_0, KeyCode::Num0},
+		{ SDL_KeyCode::SDLK_1, KeyCode::Num1},
+		{ SDL_KeyCode::SDLK_2, KeyCode::Num2},
+		{ SDL_KeyCode::SDLK_3, KeyCode::Num3},
+		{ SDL_KeyCode::SDLK_4, KeyCode::Num4},
+		{ SDL_KeyCode::SDLK_5, KeyCode::Num5},
+		{ SDL_KeyCode::SDLK_6, KeyCode::Num6},
+		{ SDL_KeyCode::SDLK_7, KeyCode::Num7},
+		{ SDL_KeyCode::SDLK_8, KeyCode::Num8},
+		{ SDL_KeyCode::SDLK_9, KeyCode::Num9},
+		{ SDL_KeyCode::SDLK_q, KeyCode::Q},
+		{ SDL_KeyCode::SDLK_w, KeyCode::W},
+		{ SDL_KeyCode::SDLK_e, KeyCode::E},
+		{ SDL_KeyCode::SDLK_r, KeyCode::R},
+		{ SDL_KeyCode::SDLK_t, KeyCode::T},
+		{ SDL_KeyCode::SDLK_y, KeyCode::Y},
+		{ SDL_KeyCode::SDLK_u, KeyCode::U},
+		{ SDL_KeyCode::SDLK_i, KeyCode::I},
+		{ SDL_KeyCode::SDLK_o, KeyCode::O},
+		{ SDL_KeyCode::SDLK_p, KeyCode::P},
+		{ SDL_KeyCode::SDLK_a, KeyCode::A},
+		{ SDL_KeyCode::SDLK_s, KeyCode::S},
+		{ SDL_KeyCode::SDLK_d, KeyCode::D},
+		{ SDL_KeyCode::SDLK_f, KeyCode::F},
+		{ SDL_KeyCode::SDLK_g, KeyCode::G},
+		{ SDL_KeyCode::SDLK_h, KeyCode::H},
+		{ SDL_KeyCode::SDLK_j, KeyCode::J},
+		{ SDL_KeyCode::SDLK_k, KeyCode::K},
+		{ SDL_KeyCode::SDLK_l, KeyCode::L},
+		{ SDL_KeyCode::SDLK_z, KeyCode::Z},
+		{ SDL_KeyCode::SDLK_x, KeyCode::X},
+		{ SDL_KeyCode::SDLK_c, KeyCode::C},
+		{ SDL_KeyCode::SDLK_v, KeyCode::V},
+		{ SDL_KeyCode::SDLK_b, KeyCode::B},
+		{ SDL_KeyCode::SDLK_n, KeyCode::N},
+		{ SDL_KeyCode::SDLK_m, KeyCode::M},
+		{ SDL_KeyCode::SDLK_ESCAPE, KeyCode::Escape},
+		{ SDL_KeyCode::SDLK_SPACE, KeyCode::Space},
+		{ SDL_KeyCode::SDLK_UP, KeyCode::Up},
+		{ SDL_KeyCode::SDLK_DOWN, KeyCode::Down},
+		{ SDL_KeyCode::SDLK_LEFT, KeyCode::Left},
+		{ SDL_KeyCode::SDLK_RIGHT, KeyCode::Right},
+	};
 // 	ImGui::CreateContext();
 // 	IMGUI_CHECKVERSION();
 // 	ImGuiIO& io = ImGui::GetIO();(void)io;
@@ -144,18 +190,7 @@ void WindowSubsystem::Tick(float delta_time)
 				return;
 			InputEvent input;
 			input.type = EventType::Input_KeyDown;
-			if (event.key.keysym.sym == SDL_KeyCode::SDLK_w)
-				input.code = KeyCode::W;
-			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_s)
-				input.code = KeyCode::S;
-			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_a)
-				input.code = KeyCode::A;
-			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_d)
-				input.code = KeyCode::D;
-			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_q)
-				input.code = KeyCode::Q;
-			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_e)
-				input.code = KeyCode::E;
+			input.code = s_key_map[(Sint32)event.key.keysym.sym];
 			input.x = 0;
 			input.y = 0;
 			event_subsystem->OnInput.BroadCast(*window, input);
@@ -165,18 +200,7 @@ void WindowSubsystem::Tick(float delta_time)
 		{
 			InputEvent input;
 			input.type = EventType::Input_KeyUp;
-			if (event.key.keysym.sym == SDL_KeyCode::SDLK_w)
-				input.code = KeyCode::W;
-			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_s)
-				input.code = KeyCode::S;
-			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_a)
-				input.code = KeyCode::A;
-			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_d)
-				input.code = KeyCode::D;
-			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_q)
-				input.code = KeyCode::Q;
-			else if (event.key.keysym.sym == SDL_KeyCode::SDLK_e)
-				input.code = KeyCode::E;
+			input.code = s_key_map[(Sint32)event.key.keysym.sym];
 			input.x = 0;
 			input.y = 0;
 			event_subsystem->OnInput.BroadCast(*window, input);

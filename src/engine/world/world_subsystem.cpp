@@ -1,7 +1,7 @@
 #include "world_subsystem.h"
-#include "scene.h"
-#include "entity.h"
-#include "camera.h"
+#include "world/scene.h"
+#include "core/object/entity.h"
+#include "world/camera.h"
 
 namespace luna
 {

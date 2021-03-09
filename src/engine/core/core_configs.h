@@ -17,6 +17,5 @@ namespace luna
 {
 
 CONFIG_DECLARE(int, Core, UsingReflection, 0);
-CONFIG_DECLARE(const char*, Core, StringConfig, "123");
 
 }

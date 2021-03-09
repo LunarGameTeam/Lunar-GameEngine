@@ -2,5 +2,7 @@
 
 namespace luna
 {
+
 CONFIG_IMPLEMENT(int, Core, UsingReflection, 0);
+
 }

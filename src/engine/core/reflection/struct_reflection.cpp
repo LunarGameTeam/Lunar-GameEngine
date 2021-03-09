@@ -92,7 +92,7 @@ LReflectVariableCopySystem::LReflectVariableCopySystem()
 
 	InitNewVariable<bool>(false, SerializeNodeType::Serialize_Node_Bool);
 	InitNewVariable<std::string>("", SerializeNodeType::Serialize_Node_String);
-	InitNewVariable<boost::container::string>("", SerializeNodeType::Serialize_Node_String);
+	InitNewVariable<std::string>("", SerializeNodeType::Serialize_Node_String);
 }
 bool LReflectVariableCopySystem::GetTypeByArrayType(const size_t& type_id_in, size_t& type_id_out)
 {

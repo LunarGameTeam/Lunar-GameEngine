@@ -19,3 +19,5 @@ target_link_libraries(legacy_render core d3d11 DirectXTK dxgi dxguid window D3dc
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")
+
+ADD_CUSTOM_COMMAND(TARGET legacy_render COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_BINARY_DIR}/sdk/assimp/bin/Debug/assimp-vc142-mtd.dll	${EXECUTABLE_OUTPUT_PATH}/Debug/assimp-vc142-mtd.dll VERBATIM)

@@ -19,7 +19,11 @@ private:
 
 class ThreadManager : public Singleton<ThreadManager>
 {
+public:
+	virtual ~ThreadManager()
+	{
 
+	}
 };
 
 }

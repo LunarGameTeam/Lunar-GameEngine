@@ -17,7 +17,7 @@ auto_source_group("${ALL_FILES}" DST_FILES)
 
 add_library(render STATIC ${DST_FILES})
 
-add_dependencies(render core window assimp)
+add_dependencies(render core window)
 target_link_libraries(render core window assimp)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP")

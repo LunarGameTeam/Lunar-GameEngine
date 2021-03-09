@@ -6,8 +6,9 @@
 namespace luna
 {
 
-using namespace boost::container;
 using namespace boost::algorithm;
+
+CORE_API LSharedPtr<ConfigManager> s_config_instance = LSharedPtr<ConfigManager>(nullptr);
 
 ConfigManager::ConfigManager()
 {
@@ -61,7 +62,7 @@ ConfigManager::~ConfigManager()
 	LString path(tempPath);
 	path = path + "/config.ini";
 	fs.open(path.c_str(), std::fstream::out | std::fstream::trunc);
-	map<LString, boost::container::vector<SerializeConfig>> configs;
+	LMap<LString, LVector<SerializeConfig>> configs;
 
 	for (auto &it : s_configs)
 	{

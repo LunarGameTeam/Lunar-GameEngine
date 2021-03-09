@@ -13,9 +13,9 @@
 */
 #pragma once
 
-#include <boost/container/string.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <xhash>
 
 #ifndef CORE_API
 
@@ -213,9 +213,19 @@ namespace luna
 	{
 		return source.c_str();
 	}
-
-
 	CORE_API size_t hash_value(const luna::LString &key);
-
 	
+}
+
+namespace std
+{
+
+template<> struct std::hash<luna::LString>
+{
+	std::size_t operator() (const luna::LString &p) const
+	{
+		return std::hash<luna::LString::StringContainer>()(p.str());
+	}
+};
+
 }

@@ -2,7 +2,7 @@
 
 #include "private_world.h"
 #include "core/core_module.h"
-#include "world/entity.h"
+#include "core/object/entity.h"
 #include "core/subsystem/sub_system.h"
 
 namespace luna

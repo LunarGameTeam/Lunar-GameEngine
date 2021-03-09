@@ -1,15 +1,14 @@
 #pragma once
 
-#include "private_world.h"
-#include "core/core_module.h"
+#include "core/private_core.h"
+#include "core/object/component.h"
 #include "core/math/math.h"
 #include "core/math/lunar_math.h"
-#include "component.h"
 
 namespace luna
 {
 
-class WORLD_API Transform : public Component
+class CORE_API Transform : public Component
 {
 public:
 	Transform *GetParentTransform()
@@ -49,7 +48,7 @@ private:
 	bool m_dirty = true;
 	LVector3f m_pos = LVector3f::Zero();
 	LQuaternion m_rotation = LQuaternion::Identity();
-	LVector3f m_scale = LVector3f(1,1,1);
+	LVector3f m_scale = LVector3f(1, 1, 1);
 
 };
 
