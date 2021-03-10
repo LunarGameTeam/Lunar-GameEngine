@@ -102,7 +102,7 @@ bool RenderSubusystem::OnInit()
 		return false;
 	}
 	model = asset_sys->LoadAsset<Mesh>("/assets/box.fbx");
-	ret = model->Init();
+	/*ret = model->Init();*/
 	if (!ret)
 	{
 		return false;
@@ -122,9 +122,9 @@ void RenderSubusystem::Tick(float delta_time)
 	if (m_main_camera)
 	{
 		shader->Bind();
-		shader->SetWVPMatrix(model->GetWolrdMatrix(), m_main_camera->GetViewMatrix(), m_main_camera->GetProjectionMatrix());
-		model->Bind();
-		model->Draw();
+		//shader->SetWVPMatrix(model->GetWolrdMatrix(), m_main_camera->GetViewMatrix(), m_main_camera->GetProjectionMatrix());
+// 		model->Bind();
+// 		model->Draw();
 	}
 	// Show the new frame.
 	m_deviceResources->Present();

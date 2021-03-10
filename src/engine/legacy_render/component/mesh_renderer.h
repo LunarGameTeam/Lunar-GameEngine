@@ -4,6 +4,7 @@
 #include "legacy_render/component/renderer.h"
 #include "legacy_render/asset/mesh.h"
 #include "legacy_render/asset/texture.h"
+#include "legacy_render/asset/material.h"
 
 namespace luna
 {
@@ -15,8 +16,8 @@ class LEGACY_RENDER_API MeshRenderer : public RendererComponent
 public:
 
 private:
-	LSharedPtr<Mesh> m_mesh
-	
+	LSharedPtr<Mesh> m_mesh;
+	LSharedPtr<Material> m_material;
 };
 
 class LEGACY_RENDER_API StaticMeshRenderer : public MeshRenderer

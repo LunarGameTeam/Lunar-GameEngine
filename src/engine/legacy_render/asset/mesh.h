@@ -12,40 +12,31 @@ namespace luna
 namespace legacy_render
 {
 
-struct VERTEX {
+struct BaseVertex {
 	LVector3f pos;
 	LVector2f uv;
+	LVector3f normal;
 };
 
 struct LEGACY_RENDER_API SubMesh
 {
-	LVector<VERTEX> vertices;
+	LVector<BaseVertex> vertices;
 	LVector<UINT> indices;
-	ID3D11Buffer *vertex_buffer, *index_buffer;
-	void Bind();
-	void Draw();
+};
+
+struct VertexInputLayout 
+{
+public:
+
 };
 
 class LEGACY_RENDER_API Mesh : public LBasicAsset, public IMesh
 {
 public:
 	void OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile> file) override;
-
-public:
-	const LMatrix4f& GetWolrdMatrix();
-
 private:
-	LVector3f m_pos = LVector3f(0,0,10);
-	LQuaternion m_rotation = LQuaternion::Identity();
-	LVector3f m_scale = LVector3f(0.01f,0.01f,0.01f);
-
 	LVector<SubMesh> m_sub_meshes;
-
-	ID3D11Buffer *m_vertex_buffer, *m_index_buffer;
 	int m_vertex_count, m_index_count;
-	LMatrix4f m_cache_matrix;
-
-
 };
 
 }

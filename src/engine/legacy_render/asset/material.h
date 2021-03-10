@@ -4,7 +4,8 @@
 
 #include "legacy_render/private_render.h"
 #include "legacy_render/interface/i_model.h"
-#include "legacy_render/interface/i_shader.h"
+#include "legacy_render/asset/texture.h"
+#include "legacy_render/d3d11/shader.h"
 
 #include <d3d11.h>
 
@@ -13,10 +14,6 @@ namespace luna
 namespace legacy_render
 {
 
-struct VERTEX {
-	LVector3f pos;
-	LVector2f uv;
-};
 
 class LEGACY_RENDER_API Material : public LBasicAsset
 {
@@ -26,7 +23,8 @@ public:
 public:
 
 private:
-	LSharedPtr<IShader> m_shader;
+	LSharedPtr<Texture> m_texture;
+	LSharedPtr<Dx11Shader> m_shader;
 
 };
 

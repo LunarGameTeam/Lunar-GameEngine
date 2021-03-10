@@ -2,6 +2,8 @@
 
 namespace luna
 {
+namespace legacy_render
+{
 
 void RendererComponent::OnCreate()
 {
@@ -28,4 +30,5 @@ void RendererComponent::OnTick(float delta_time)
 	throw std::logic_error("The method or operation is not implemented.");
 }
 
+}
 }

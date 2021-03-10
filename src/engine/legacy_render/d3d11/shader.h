@@ -9,6 +9,12 @@ namespace luna
 {
 namespace legacy_render
 {
+enum class ShaderType
+{
+	None,
+	VertexShader,
+	PixelShader
+};
 
 class Dx11Shader : public LBasicAsset, public IShader
 {
@@ -25,15 +31,21 @@ public:
 	void SetParameterMatrix3(const LString &name, const LMatrix3f &value) override;
 	void SetParameterMatrix4(const LString &name, const LMatrix4f &value) override;
 
-	LString m_vs_path = "color.vs";
-	LString m_ps_path = "color.ps";
-
 
 	void Bind() override;
 
+
+	void OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile> file) override;
+
 private:
-	ID3D11VertexShader *m_vertexShader;
-	ID3D11PixelShader *m_pixelShader;
+	ShaderType m_shader_type = ShaderType::None;
+
+	union Shader
+	{
+		ID3D11VertexShader *m_vertexShader;
+		ID3D11PixelShader *m_pixelShader;
+	};
+	Shader m_shader;
 	ID3D11InputLayout *m_layout;
 	ID3D11Buffer *m_cb0_buffer;
 	LMap<LString, ID3D11Buffer *> m_buffer_map;

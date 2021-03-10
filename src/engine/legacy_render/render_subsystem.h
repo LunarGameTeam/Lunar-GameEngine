@@ -20,7 +20,7 @@
 
 #include "legacy_render/interface/i_shader.h"
 #include "legacy_render/interface/i_camera.h"
-#include "legacy_render/d3d11/Mesh.h"
+#include "legacy_render/asset/mesh.h"
 #include "legacy_render/component/renderer.h"
 #include "legacy_render/d3d11/d3d11_device.h"
 
