@@ -14,6 +14,7 @@ namespace legacy_render
 class LEGACY_RENDER_API MeshRenderer : public RendererComponent
 {
 public:
+	void PopulateRenderNode(RenderNode &render_nodes) override;
 
 private:
 	LSharedPtr<Mesh> m_mesh;

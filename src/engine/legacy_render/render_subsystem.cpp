@@ -1,6 +1,7 @@
 #include "render_subsystem.h"
 #include "window/window_subsystem.h"
 #include "core/asset/asset_subsystem.h"
+#include "legacy_render/component/renderer.h"
 #include <d3dcompiler.h>
 #include "CommonStates.h"
 #include "interface/i_camera.h"
@@ -15,11 +16,15 @@ using Microsoft::WRL::ComPtr;
 
 namespace luna
 {
-namespace legacy_render{
+namespace legacy_render
+{
+
+LEGACY_RENDER_API RenderSubusystem *g_render_sys = nullptr;
 
 RenderSubusystem::RenderSubusystem()
 {
 	m_need_tick = true;
+	g_render_sys = this;
 }
 
 bool RenderSubusystem::OnPreInit()
@@ -78,7 +83,7 @@ bool RenderSubusystem::OnInit()
 {
 	static AssetSubsystem *asset_sys = gEngine->GetSubsystem<AssetSubsystem>();
 
-	m_deviceResources = std::make_unique<DX::DeviceResources>(
+	m_deviceResources = std::make_unique<DeviceResources>(
 		DXGI_FORMAT_B8G8R8A8_UNORM, DXGI_FORMAT_D24_UNORM_S8_UINT, 2,
 		D3D_FEATURE_LEVEL_9_1);
 	m_deviceResources->RegisterDeviceNotify(this);
@@ -95,18 +100,6 @@ bool RenderSubusystem::OnInit()
 	auto context = m_deviceResources->GetD3DDeviceContext();
 	auto device = m_deviceResources->GetD3DDevice();
 	bool ret = true;
-	shader = new Dx11Shader();
-	ret = shader->Init();
-	if (!ret)
-	{
-		return false;
-	}
-	model = asset_sys->LoadAsset<Mesh>("/assets/box.fbx");
-	/*ret = model->Init();*/
-	if (!ret)
-	{
-		return false;
-	}
 	return true;
 }
 
@@ -116,12 +109,19 @@ bool RenderSubusystem::OnShutdown()
 }
 
 void RenderSubusystem::Tick(float delta_time)
-{	
+{
+	for (auto it : m_renderers)
+	{
+		if (it.first->GetRendererDirty())
+		{
+			it.first->PopulateRenderNode(*it.second);
+			it.first->SetRendererDirty(false);
+		}
+	}
 	Clear();
 	auto context = m_deviceResources->GetD3DDeviceContext();
 	if (m_main_camera)
 	{
-		shader->Bind();
 		//shader->SetWVPMatrix(model->GetWolrdMatrix(), m_main_camera->GetViewMatrix(), m_main_camera->GetProjectionMatrix());
 // 		model->Bind();
 // 		model->Draw();
@@ -138,6 +138,23 @@ void RenderSubusystem::OnDeviceLost()
 void RenderSubusystem::OnDeviceRestored()
 {
 
+}
+
+void RenderSubusystem::RegisterRenderer(RendererComponent *renderer)
+{
+	if (m_renderers.find(renderer) == m_renderers.end())
+	{
+		m_renderers[renderer] = new RenderNode();
+	}
+}
+
+void RenderSubusystem::UnRegisterRenderer(RendererComponent *renderer)
+{
+	if (m_renderers.find(renderer) != m_renderers.end())
+	{
+		delete m_renderers[renderer];
+		m_renderers.erase(renderer);
+	}
 }
 
 void RenderSubusystem::Clear()

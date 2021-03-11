@@ -74,8 +74,23 @@
 #include "SpriteFont.h"
 #include "VertexTypes.h"
 
-namespace DX
+
+#ifdef LEGACY_RENDER_EXPORT
+#define LEGACY_RENDER_API __declspec( dllexport )//宏定义
+#else
+#define LEGACY_RENDER_API __declspec( dllimport )
+#endif
+
+namespace luna
 {
+namespace legacy_render
+{
+class RenderSubusystem;
+
+LEGACY_RENDER_API extern RenderSubusystem* g_render_sys;
+
+}
+
 // Helper class for COM exceptions
 class com_exception : public std::exception
 {
@@ -102,11 +117,5 @@ inline void ThrowIfFailed(HRESULT hr)
 	}
 }
 }
-
-#ifdef LEGACY_RENDER_EXPORT
-#define LEGACY_RENDER_API __declspec( dllexport )//宏定义
-#else
-#define LEGACY_RENDER_API __declspec( dllimport )
-#endif
 
 extern luna::LogScope E_Render;

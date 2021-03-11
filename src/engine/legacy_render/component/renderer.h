@@ -2,6 +2,7 @@
 
 #include "legacy_render/private_render.h"
 #include "core/core_module.h"
+#include "legacy_render/d3d11/node.h"
 #include "core/object/component.h"
 
 
@@ -17,10 +18,16 @@ public:
 	void OnDestroy() override;
 	void OnEnable() override;
 	void OnDisable() override;
+	
+	virtual void PopulateRenderNode(RenderNode &render_nodes) = 0;
 
+	GET_SET_VALUE(bool, m_dirty, RendererDirty);
 public:
-	virtual void Bind() = 0;
+
 	void OnTick(float delta_time) override;
+
+private:
+	bool m_dirty;
 
 };
 

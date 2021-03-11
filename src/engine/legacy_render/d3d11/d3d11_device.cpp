@@ -6,44 +6,45 @@
 #include "d3d11_device.h"
 
 using namespace DirectX;
-using namespace DX;
+using namespace luna;
 
 using Microsoft::WRL::ComPtr;
 
-namespace DX
+namespace luna
+{
+namespace legacy_render
 {
 #if defined(_DEBUG)
-    // Check for SDK Layer support.
-    inline bool SdkLayersAvailable()
-    {
-        HRESULT hr = D3D11CreateDevice(
-            nullptr,
-            D3D_DRIVER_TYPE_NULL,       // There is no need to create a real hardware device.
-            nullptr,
-            D3D11_CREATE_DEVICE_DEBUG,  // Check for the SDK layers.
-            nullptr,                    // Any feature level will do.
-            0,
-            D3D11_SDK_VERSION,
-            nullptr,                    // No need to keep the D3D device reference.
-            nullptr,                    // No need to know the feature level.
-            nullptr                     // No need to keep the D3D device context reference.
-            );
+// Check for SDK Layer support.
+inline bool SdkLayersAvailable()
+{
+    HRESULT hr = D3D11CreateDevice(
+        nullptr,
+        D3D_DRIVER_TYPE_NULL,       // There is no need to create a real hardware device.
+        nullptr,
+        D3D11_CREATE_DEVICE_DEBUG,  // Check for the SDK layers.
+        nullptr,                    // Any feature level will do.
+        0,
+        D3D11_SDK_VERSION,
+        nullptr,                    // No need to keep the D3D device reference.
+        nullptr,                    // No need to know the feature level.
+        nullptr                     // No need to keep the D3D device context reference.
+    );
 
-        return SUCCEEDED(hr);
-    }
+    return SUCCEEDED(hr);
+}
 #endif
 
-    inline DXGI_FORMAT NoSRGB(DXGI_FORMAT fmt)
+inline DXGI_FORMAT NoSRGB(DXGI_FORMAT fmt)
+{
+    switch (fmt)
     {
-        switch (fmt)
-        {
-        case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:   return DXGI_FORMAT_R8G8B8A8_UNORM;
-        case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:   return DXGI_FORMAT_B8G8R8A8_UNORM;
-        case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:   return DXGI_FORMAT_B8G8R8X8_UNORM;
-        default:                                return fmt;
-        }
+    case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:   return DXGI_FORMAT_R8G8B8A8_UNORM;
+    case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:   return DXGI_FORMAT_B8G8R8A8_UNORM;
+    case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:   return DXGI_FORMAT_B8G8R8X8_UNORM;
+    default:                                return fmt;
     }
-};
+}
 
 // Constructor for DeviceResources.
 DeviceResources::DeviceResources(
@@ -52,17 +53,17 @@ DeviceResources::DeviceResources(
     UINT backBufferCount,
     D3D_FEATURE_LEVEL minFeatureLevel,
     unsigned int flags) noexcept :
-        m_screenViewport{},
-        m_backBufferFormat(backBufferFormat),
-        m_depthBufferFormat(depthBufferFormat),
-        m_backBufferCount(backBufferCount),
-        m_d3dMinFeatureLevel(minFeatureLevel),
-        m_window(nullptr),
-        m_d3dFeatureLevel(D3D_FEATURE_LEVEL_9_1),
-        m_outputSize{0, 0, 1, 1},
-        m_colorSpace(DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709),
-        m_options(flags | c_FlipPresent),
-        m_deviceNotify(nullptr)
+    m_screenViewport{},
+    m_backBufferFormat(backBufferFormat),
+    m_depthBufferFormat(depthBufferFormat),
+    m_backBufferCount(backBufferCount),
+    m_d3dMinFeatureLevel(minFeatureLevel),
+    m_window(nullptr),
+    m_d3dFeatureLevel(D3D_FEATURE_LEVEL_9_1),
+    m_outputSize{ 0, 0, 1, 1 },
+    m_colorSpace(DXGI_COLOR_SPACE_RGB_FULL_G22_NONE_P709),
+    m_options(flags | c_FlipPresent),
+    m_deviceNotify(nullptr)
 {
 
 }
@@ -70,47 +71,11 @@ DeviceResources::DeviceResources(
 // Configures the Direct3D device, and stores handles to it and the device context.
 void DeviceResources::CreateDeviceResources()
 {
-    UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+	UINT creationFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
+
+	creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
 
     CreateFactory();
-
-    // Determines whether tearing support is available for fullscreen borderless windows.
-    if (m_options & c_AllowTearing)
-    {
-        bool allowTearing = false;
-
-        ComPtr<IDXGIFactory5> factory5;
-        HRESULT hr = m_dxgiFactory.As(&factory5);
-        if (SUCCEEDED(hr))
-        {
-            hr = factory5->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing));
-        }
-
-        if (FAILED(hr) || !allowTearing)
-        {
-            m_options &= ~c_AllowTearing;
-        }
-    }
-
-    // Disable HDR if we are on an OS that can't support FLIP swap effects
-    if (m_options & c_EnableHDR)
-    {
-        ComPtr<IDXGIFactory5> factory5;
-        if (FAILED(m_dxgiFactory.As(&factory5)))
-        {
-            m_options &= ~c_EnableHDR;
-        }
-    }
-
-    // Disable FLIP if not on a supporting OS
-    if (m_options & c_FlipPresent)
-    {
-        ComPtr<IDXGIFactory4> factory4;
-        if (FAILED(m_dxgiFactory.As(&factory4)))
-        {
-            m_options &= ~c_FlipPresent;
-        }
-    }
 
     // Determine DirectX hardware feature levels this app will support.
     static const D3D_FEATURE_LEVEL s_featureLevels[] =
@@ -157,53 +122,30 @@ void DeviceResources::CreateDeviceResources()
             device.GetAddressOf(),  // Returns the Direct3D device created.
             &m_d3dFeatureLevel,     // Returns feature level of device created.
             context.GetAddressOf()  // Returns the device immediate context.
-            );
+        );
     }
 
     ThrowIfFailed(hr);
 
-#ifndef NDEBUG
-    ComPtr<ID3D11Debug> d3dDebug;
-    if (SUCCEEDED(device.As(&d3dDebug)))
-    {
-        ComPtr<ID3D11InfoQueue> d3dInfoQueue;
-        if (SUCCEEDED(d3dDebug.As(&d3dInfoQueue)))
-        {
-#ifdef _DEBUG
-            d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, true);
-            d3dInfoQueue->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, true);
-#endif
-            D3D11_MESSAGE_ID hide [] =
-            {
-                D3D11_MESSAGE_ID_SETPRIVATEDATA_CHANGINGPARAMS,
-            };
-            D3D11_INFO_QUEUE_FILTER filter = {};
-            filter.DenyList.NumIDs = _countof(hide);
-            filter.DenyList.pIDList = hide;
-            d3dInfoQueue->AddStorageFilterEntries(&filter);
-        }
-    }
-#endif
+    D3D11_RASTERIZER_DESC rasterDesc;
+    // Setup the raster description which will determine how and what polygons will be drawn.
+    rasterDesc.AntialiasedLineEnable = false;
+    rasterDesc.CullMode = D3D11_CULL_NONE;
+    rasterDesc.DepthBias = 0;
+    rasterDesc.DepthBiasClamp = 0.0f;
+    rasterDesc.DepthClipEnable = true;
+    rasterDesc.FillMode = D3D11_FILL_SOLID;
+    rasterDesc.FrontCounterClockwise = false;
+    rasterDesc.MultisampleEnable = false;
+    rasterDesc.ScissorEnable = false;
+    rasterDesc.SlopeScaledDepthBias = 0.0f;
 
-	D3D11_RASTERIZER_DESC rasterDesc;
-	// Setup the raster description which will determine how and what polygons will be drawn.
-	rasterDesc.AntialiasedLineEnable = false;
-	rasterDesc.CullMode = D3D11_CULL_NONE;
-	rasterDesc.DepthBias = 0;
-	rasterDesc.DepthBiasClamp = 0.0f;
-	rasterDesc.DepthClipEnable = true;
-	rasterDesc.FillMode = D3D11_FILL_SOLID;
-	rasterDesc.FrontCounterClockwise = false;
-	rasterDesc.MultisampleEnable = false;
-	rasterDesc.ScissorEnable = false;
-	rasterDesc.SlopeScaledDepthBias = 0.0f;
-
-	// Create the rasterizer state from the description we just filled out.
-	device->CreateRasterizerState(&rasterDesc, &m_rasterState);
+    // Create the rasterizer state from the description we just filled out.
+    device->CreateRasterizerState(&rasterDesc, &m_rasterState);
 
 
-	// Now set the rasterizer state.
-	context->RSSetState(m_rasterState);
+    // Now set the rasterizer state.
+    context->RSSetState(m_rasterState);
 
     ThrowIfFailed(device.As(&m_d3dDevice));
     ThrowIfFailed(context.As(&m_d3dContext));
@@ -219,15 +161,15 @@ void DeviceResources::CreateWindowSizeDependentResources()
     }
 
     // Clear the previous window size specific context.
-    ID3D11RenderTargetView* nullViews[] = {nullptr};
+    ID3D11RenderTargetView *nullViews[] = { nullptr };
     m_d3dContext->OMSetRenderTargets(_countof(nullViews), nullViews, nullptr);
     m_d3dRenderTargetView.Reset();
     m_d3dDepthStencilView.Reset();
     m_renderTarget.Reset();
     m_depthStencil.Reset();
     m_d3dContext->Flush();
-        
-    
+
+
 
     // Determine the render target size in pixels.
     UINT backBufferWidth = std::max<UINT>(static_cast<UINT>(m_outputSize.right - m_outputSize.left), 1u);
@@ -243,7 +185,7 @@ void DeviceResources::CreateWindowSizeDependentResources()
             backBufferHeight,
             backBufferFormat,
             (m_options & c_AllowTearing) ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0u
-            );
+        );
 
         if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET)
         {
@@ -290,7 +232,7 @@ void DeviceResources::CreateWindowSizeDependentResources()
             &swapChainDesc,
             &fsSwapChainDesc,
             nullptr, m_swapChain.ReleaseAndGetAddressOf()
-            ));
+        ));
 
         // This class does not support exclusive full-screen mode and prevents DXGI from responding to the ALT+ENTER shortcut
         ThrowIfFailed(m_dxgiFactory->MakeWindowAssociation(m_window, DXGI_MWA_NO_ALT_ENTER));
@@ -307,7 +249,7 @@ void DeviceResources::CreateWindowSizeDependentResources()
         m_renderTarget.Get(),
         &renderTargetViewDesc,
         m_d3dRenderTargetView.ReleaseAndGetAddressOf()
-        ));
+    ));
 
     if (m_depthBufferFormat != DXGI_FORMAT_UNKNOWN)
     {
@@ -319,20 +261,20 @@ void DeviceResources::CreateWindowSizeDependentResources()
             1, // This depth stencil view has only one texture.
             1, // Use a single mipmap level.
             D3D11_BIND_DEPTH_STENCIL
-            );
+        );
 
         ThrowIfFailed(m_d3dDevice->CreateTexture2D(
             &depthStencilDesc,
             nullptr,
             m_depthStencil.ReleaseAndGetAddressOf()
-            ));
+        ));
 
         CD3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc(D3D11_DSV_DIMENSION_TEXTURE2D);
         ThrowIfFailed(m_d3dDevice->CreateDepthStencilView(
             m_depthStencil.Get(),
             &depthStencilViewDesc,
             m_d3dDepthStencilView.ReleaseAndGetAddressOf()
-            ));
+        ));
     }
 
     // Set the 3D rendering viewport to target the entire window.
@@ -341,7 +283,7 @@ void DeviceResources::CreateWindowSizeDependentResources()
         0.0f,
         static_cast<float>(backBufferWidth),
         static_cast<float>(backBufferHeight)
-        );
+    );
 }
 
 // This method is called when the Win32 window is created (or re-created).
@@ -495,7 +437,7 @@ void DeviceResources::CreateFactory()
 
 // This method acquires the first available hardware adapter.
 // If no such adapter can be found, *ppAdapter will be set to nullptr.
-void DeviceResources::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
+void DeviceResources::GetHardwareAdapter(IDXGIAdapter1 **ppAdapter)
 {
     *ppAdapter = nullptr;
 
@@ -507,11 +449,11 @@ void DeviceResources::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
     if (SUCCEEDED(hr))
     {
         for (UINT adapterIndex = 0;
-            SUCCEEDED(factory6->EnumAdapterByGpuPreference(
-                adapterIndex,
-                DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
-                IID_PPV_ARGS(adapter.ReleaseAndGetAddressOf())));
-            adapterIndex++)
+             SUCCEEDED(factory6->EnumAdapterByGpuPreference(
+                 adapterIndex,
+                 DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE,
+                 IID_PPV_ARGS(adapter.ReleaseAndGetAddressOf())));
+             adapterIndex++)
         {
             DXGI_ADAPTER_DESC1 desc;
             ThrowIfFailed(adapter->GetDesc1(&desc));
@@ -522,11 +464,11 @@ void DeviceResources::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
                 continue;
             }
 
-        #ifdef _DEBUG
+#ifdef _DEBUG
             wchar_t buff[256] = {};
             swprintf_s(buff, L"Direct3D Adapter (%u): VID:%04X, PID:%04X - %ls\n", adapterIndex, desc.VendorId, desc.DeviceId, desc.Description);
             OutputDebugStringW(buff);
-        #endif
+#endif
 
             break;
         }
@@ -535,10 +477,10 @@ void DeviceResources::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
     if (!adapter)
     {
         for (UINT adapterIndex = 0;
-            SUCCEEDED(m_dxgiFactory->EnumAdapters1(
-                adapterIndex,
-                adapter.ReleaseAndGetAddressOf()));
-            adapterIndex++)
+             SUCCEEDED(m_dxgiFactory->EnumAdapters1(
+                 adapterIndex,
+                 adapter.ReleaseAndGetAddressOf()));
+             adapterIndex++)
         {
             DXGI_ADAPTER_DESC1 desc;
             ThrowIfFailed(adapter->GetDesc1(&desc));
@@ -622,4 +564,7 @@ void DeviceResources::UpdateColorSpace()
             ThrowIfFailed(swapChain3->SetColorSpace1(colorSpace));
         }
     }
+}
+
+}
 }

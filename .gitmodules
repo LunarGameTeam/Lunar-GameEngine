@@ -34,3 +34,6 @@
 [submodule "sdk/assimp"]
 	path = sdk/assimp
 	url = https://github.com/assimp/assimp.git
+[submodule "sdk/stb"]
+	path = sdk/stb
+	url = https://github.com/nothings/stb.git

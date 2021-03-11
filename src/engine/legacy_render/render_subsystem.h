@@ -13,8 +13,6 @@
 */
 #pragma once
 
-#include <directxmath.h>
-
 #include "core/core_module.h"
 #include "private_render.h"
 
@@ -23,6 +21,7 @@
 #include "legacy_render/asset/mesh.h"
 #include "legacy_render/component/renderer.h"
 #include "legacy_render/d3d11/d3d11_device.h"
+#include "legacy_render/d3d11/node.h"
 
 namespace luna
 {
@@ -30,7 +29,7 @@ namespace legacy_render
 {
 
 
-class LEGACY_RENDER_API RenderSubusystem : public SubSystem, public DX::IDeviceNotify
+class LEGACY_RENDER_API RenderSubusystem : public SubSystem, public IDeviceNotify
 {
 public:
 	RenderSubusystem();;
@@ -44,7 +43,7 @@ public:
 	virtual void OnDeviceLost();
 	virtual void OnDeviceRestored();
 
-	DX::DeviceResources *GetDevice()
+	DeviceResources *GetDevice()
 	{
 		return m_deviceResources.get();
 	}
@@ -55,15 +54,13 @@ public:
 	void UnRegisterRenderer(RendererComponent *renderer);
 
 private:
-	IShader *shader;
 	ICamera *m_main_camera;
-	LSharedPtr<Mesh> model;
-	LVector<RendererComponent *> m_renderers;
+	LMap<RendererComponent *, RenderNode*> m_renderers;
+	LVector<LSharedPtr<DX11RenderNode>> m_nodes;
 
 	void Clear();
-	// DirectXTK objects.
-	std::unique_ptr<DX::DeviceResources>	m_deviceResources;
-	Microsoft::WRL::ComPtr<ID3D11InputLayout>	m_batchInputLayout;
+
+	std::unique_ptr<DeviceResources>	m_deviceResources;
 };
 
 }

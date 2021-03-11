@@ -34,6 +34,7 @@ class LEGACY_RENDER_API Mesh : public LBasicAsset, public IMesh
 {
 public:
 	void OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile> file) override;
+	GETTER(LVector<SubMesh>, m_sub_meshes, SubMeshList)
 private:
 	LVector<SubMesh> m_sub_meshes;
 	int m_vertex_count, m_index_count;

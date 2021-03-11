@@ -1,7 +1,9 @@
 #include "core/core_module.h"
 #include "core/core_configs.h"
+#include "core/object/entity.h"
 #include "core/config/config.h"
 #include "core/asset/lasset.h"
+#include "core/asset/asset_subsystem.h"
 #include "core/application.h"
 #include "core/event/event_subsystem.h"
 
@@ -12,6 +14,10 @@
 #include "world/world_subsystem.h"
 
 #include "legacy_render/render_subsystem.h"
+#include "legacy_render/component/mesh_renderer.h"
+#include "legacy_render/asset/mesh.h"
+#include "legacy_render/asset/texture.h"
+#include "legacy_render/d3d11/shader.h"
 #include "legacy_render/interface/i_camera.h"
 
 using namespace luna;
@@ -25,6 +31,7 @@ private:
 	legacy_render::RenderSubusystem *render_sys;
 	WorldSubsystem *world_sys;
 	EventSubsystem *event_sys;
+	AssetSubsystem *asset_sys;
 
 public:
 	GameApp()
@@ -33,6 +40,7 @@ public:
 		gEngine->RegisterSubsystem<WorldSubsystem>();
 		gEngine->RegisterSubsystem<legacy_render::RenderSubusystem>();
 
+		asset_sys = gEngine->GetSubsystem<AssetSubsystem>();
 		render_sys = gEngine->GetSubsystem<legacy_render::RenderSubusystem>();
 		world_sys = gEngine->GetSubsystem<WorldSubsystem>();
 		event_sys = gEngine->GetSubsystem<EventSubsystem>();
@@ -45,6 +53,11 @@ public:
 		static auto *main_camera = world_sys->GetMainCameraComponent();
 
 		render_sys->SetCamera(main_camera);
+		auto* box_entity = world_sys->GetSceneManager()->MainScene()->CreateEntity("Box");
+		auto* mesh_renderer = box_entity->AddComponent<legacy_render::MeshRenderer>();
+		auto box_mesh = asset_sys->LoadAsset<legacy_render::Mesh>("/assets/box.fbx");
+		auto shader = asset_sys->LoadAsset<legacy_render::Dx11Shader>("/assets/color.hlsl");
+		auto texture = asset_sys->LoadAsset<legacy_render::Texture>("/assets/texture.jpg");
 	}
 
 private:

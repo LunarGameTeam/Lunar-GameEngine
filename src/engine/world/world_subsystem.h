@@ -26,6 +26,7 @@ public:
 
 	GET_SET_VALUE(CameraComponent *, m_main_camera, MainCameraComponent);
 
+	GETTER(SceneManager *, manager, SceneManager);
 private:
 	CameraComponent *m_main_camera;
 	SceneManager *manager;

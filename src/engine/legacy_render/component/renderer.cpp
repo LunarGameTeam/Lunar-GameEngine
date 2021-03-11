@@ -1,5 +1,5 @@
 #include "renderer.h"
-
+#include "legacy_render/render_subsystem.h"
 namespace luna
 {
 namespace legacy_render
@@ -7,27 +7,24 @@ namespace legacy_render
 
 void RendererComponent::OnCreate()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	g_render_sys->RegisterRenderer(this);
 }
 
 void RendererComponent::OnDestroy()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	g_render_sys->UnRegisterRenderer(this);
 }
 
 void RendererComponent::OnEnable()
 {
-	throw std::logic_error("The method or operation is not implemented.");
 }
 
 void RendererComponent::OnDisable()
 {
-	throw std::logic_error("The method or operation is not implemented.");
 }
 
 void RendererComponent::OnTick(float delta_time)
 {
-	throw std::logic_error("The method or operation is not implemented.");
 }
 
 }

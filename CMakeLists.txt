@@ -34,6 +34,7 @@ include_directories(
 	src/engine/lua
 	src/engine/imgui
 	${SDK_PATH}glm
+	${SDK_PATH}stb
 	${SDK_PATH}eigen
 	${SDK_PATH}googletest/googletest/include
 	${SDK_PATH}jsoncpp/include
