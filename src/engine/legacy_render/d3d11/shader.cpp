@@ -168,7 +168,20 @@ void Dx11Shader::OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFil
 
 	if (buffer != nullptr)
 		buffer->Release();
+	D3D11_BUFFER_DESC matrixBufferDesc;
+	matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
+	matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	matrixBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	matrixBufferDesc.MiscFlags = 0;
+	matrixBufferDesc.StructureByteStride = 0;
 
+	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+	result = device->GetD3DDevice()->CreateBuffer(&matrixBufferDesc, NULL, &m_cb0_buffer);
+	if (FAILED(result))
+	{
+		return ;
+	}
 	D3D11_SAMPLER_DESC samplerDesc;
 	// Create a texture sampler state description.
 	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;

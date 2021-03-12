@@ -21,6 +21,8 @@ public:
 	void Destroy();
 	Entity *Parent();
 
+	Transform *GetTransform();
+
 	template<typename T>
 	T *GetComponent()
 	{
@@ -29,22 +31,34 @@ public:
 			T *res = dynamic_cast<T *>(it);
 			if (res != nullptr)
 				return res;
-			
+
 		}
 		return nullptr;
 	}
 
 	template<typename T>
+	T *RequireComponent()
+	{
+		T *t = GetComponent<T>();
+		if (t == nullptr)
+		{
+			t = AddComponent<>();
+		}
+		return t
+	}
+
+	template<typename T>
 	T *AddComponent()
 	{
-		T *comp = new T();		
+		T *comp = new T();
 		comp->m_owner = this;
-		m_components.push_back(comp);		
+		m_components.push_back(comp);
 		comp->OnCreate();
 		return comp;
 	}
 protected:
 	Entity(const LString &name);
+	Transform *m_cached_transform;
 
 private:
 	LVector<Component *> m_components;

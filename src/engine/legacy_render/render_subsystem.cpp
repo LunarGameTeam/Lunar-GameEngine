@@ -1,9 +1,13 @@
 #include "render_subsystem.h"
-#include "window/window_subsystem.h"
+
 #include "core/asset/asset_subsystem.h"
+#include "core/object/transform.h"
+#include "core/object/entity.h"
+
+#include "window/window_subsystem.h"
+
 #include "legacy_render/component/renderer.h"
-#include <d3dcompiler.h>
-#include "CommonStates.h"
+
 #include "interface/i_camera.h"
 
 #include "d3d11/d3d11_device.h"
@@ -35,48 +39,6 @@ bool RenderSubusystem::OnPreInit()
 bool RenderSubusystem::OnPostInit()
 {
 	return true;
-}
-
-HRESULT CompileShader(_In_ LPCWSTR srcFile, _In_ LPCSTR entryPoint, _In_ LPCSTR profile, _Outptr_ ID3DBlob **blob)
-{
-	if (!srcFile || !entryPoint || !profile || !blob)
-		return E_INVALIDARG;
-
-	*blob = nullptr;
-
-	UINT flags = D3DCOMPILE_ENABLE_STRICTNESS;
-#if defined( DEBUG ) || defined( _DEBUG )
-	flags |= D3DCOMPILE_DEBUG;
-#endif
-
-	const D3D_SHADER_MACRO defines[] =
-	{
-		"EXAMPLE_DEFINE", "1",
-		NULL, NULL
-	};
-
-	ID3DBlob *shaderBlob = nullptr;
-	ID3DBlob *errorBlob = nullptr;
-	HRESULT hr = D3DCompileFromFile(srcFile, defines, D3D_COMPILE_STANDARD_FILE_INCLUDE,
-									entryPoint, profile,
-									flags, 0, &shaderBlob, &errorBlob);
-	if (FAILED(hr))
-	{
-		if (errorBlob)
-		{
-			OutputDebugStringA((char *)errorBlob->GetBufferPointer());
-			errorBlob->Release();
-		}
-
-		if (shaderBlob)
-			shaderBlob->Release();
-
-		return hr;
-	}
-
-	*blob = shaderBlob;
-
-	return hr;
 }
 
 bool RenderSubusystem::OnInit()
@@ -114,15 +76,45 @@ void RenderSubusystem::Tick(float delta_time)
 	{
 		if (it.first->GetRendererDirty())
 		{
-			it.first->PopulateRenderNode(*it.second);
+			auto &render_node = *it.second.first;
+			auto &dx_node = *it.second.second;
+			it.first->PopulateRenderNode(*it.second.first);
+			
+			dx_node.mesh->Update(render_node.mesh.get());
+			dx_node.texture->Update(render_node.material->GetTexture2D().get());
+			dx_node.shader = render_node.material->GetShader();
+			dx_node.world_matrix = it.first->GetEntity()->GetComponent<Transform>()->GetMatrix();
 			it.first->SetRendererDirty(false);
 		}
 	}
 	Clear();
 	auto context = m_deviceResources->GetD3DDeviceContext();
+	
 	if (m_main_camera)
 	{
-		//shader->SetWVPMatrix(model->GetWolrdMatrix(), m_main_camera->GetViewMatrix(), m_main_camera->GetProjectionMatrix());
+		for (DX11RenderNode *dx_node : m_nodes)
+		{
+			dx_node->shader->Bind();
+			auto *device = GetDevice()->GetD3DDevice();
+			auto *context = GetDevice()->GetD3DDeviceContext();
+			unsigned int stride;
+			unsigned int offset;
+
+
+			// Set vertex buffer stride and offset.
+			stride = sizeof(BaseVertex);
+			offset = 0;
+			
+			// Set the vertex buffer to active in the input assembler so it can be rendered.
+			context->IASetVertexBuffers(0, 1, &dx_node->mesh->vertex_buffer, &stride, &offset);
+			// Set the index buffer to active in the input assembler so it can be rendered.
+			context->IASetIndexBuffer(dx_node->mesh->index_buffer, DXGI_FORMAT_R32_UINT, 0);
+			// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
+			context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			dx_node->shader->SetWVPMatrix(dx_node->world_matrix,m_main_camera->GetViewMatrix(), m_main_camera->GetProjectionMatrix());
+			context->DrawIndexed(dx_node->mesh->num, 0, (UINT)0);
+			
+		}
 // 		model->Bind();
 // 		model->Draw();
 	}
@@ -144,7 +136,8 @@ void RenderSubusystem::RegisterRenderer(RendererComponent *renderer)
 {
 	if (m_renderers.find(renderer) == m_renderers.end())
 	{
-		m_renderers[renderer] = new RenderNode();
+		m_renderers[renderer] = std::make_pair<RenderNode *, DX11RenderNode *>(new RenderNode(), new DX11RenderNode());
+		m_nodes.push_back(m_renderers[renderer].second);
 	}
 }
 
@@ -152,7 +145,8 @@ void RenderSubusystem::UnRegisterRenderer(RendererComponent *renderer)
 {
 	if (m_renderers.find(renderer) != m_renderers.end())
 	{
-		delete m_renderers[renderer];
+		delete m_renderers[renderer].first;
+		delete m_renderers[renderer].second;
 		m_renderers.erase(renderer);
 	}
 }

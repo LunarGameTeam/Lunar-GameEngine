@@ -24,6 +24,8 @@ void Texture2D::OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile
 	auto *device = render->GetDevice();
 	int w, h, n;
 	m_data = stbi_load_from_memory(file->GetData().data(), file->GetData().size(), &w, &h, &n, 4);
+	m_width = w;
+	m_height = h;
 }
 
 unsigned char *Texture2D::GetData()

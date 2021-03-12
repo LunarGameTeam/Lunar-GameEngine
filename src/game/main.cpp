@@ -16,7 +16,7 @@
 #include "legacy_render/render_subsystem.h"
 #include "legacy_render/component/mesh_renderer.h"
 #include "legacy_render/asset/mesh.h"
-#include "legacy_render/asset/texture.h"
+#include "legacy_render/asset/texture2d.h"
 #include "legacy_render/d3d11/shader.h"
 #include "legacy_render/interface/i_camera.h"
 
@@ -53,11 +53,12 @@ public:
 		static auto *main_camera = world_sys->GetMainCameraComponent();
 
 		render_sys->SetCamera(main_camera);
-		auto* box_entity = world_sys->GetSceneManager()->MainScene()->CreateEntity("Box");
+		auto *box_entity = world_sys->GetSceneManager()->MainScene()->CreateEntity("Box");
 		auto* mesh_renderer = box_entity->AddComponent<legacy_render::MeshRenderer>();
 		auto box_mesh = asset_sys->LoadAsset<legacy_render::Mesh>("/assets/box.fbx");
-		auto shader = asset_sys->LoadAsset<legacy_render::Dx11Shader>("/assets/color.hlsl");
-		auto texture = asset_sys->LoadAsset<legacy_render::Texture>("/assets/texture.jpg");
+		auto mat = asset_sys->LoadAsset<legacy_render::Material>("/assets/box.mat");
+		mesh_renderer->SetMesh(box_mesh);
+		mesh_renderer->SetMaterial(mat);
 	}
 
 private:

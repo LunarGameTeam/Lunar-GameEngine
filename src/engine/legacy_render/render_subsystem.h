@@ -20,6 +20,7 @@
 #include "legacy_render/interface/i_camera.h"
 #include "legacy_render/asset/mesh.h"
 #include "legacy_render/component/renderer.h"
+#include "legacy_render/component/mesh_renderer.h"
 #include "legacy_render/d3d11/d3d11_device.h"
 #include "legacy_render/d3d11/node.h"
 
@@ -54,9 +55,10 @@ public:
 	void UnRegisterRenderer(RendererComponent *renderer);
 
 private:
+	
 	ICamera *m_main_camera;
-	LMap<RendererComponent *, RenderNode*> m_renderers;
-	LVector<LSharedPtr<DX11RenderNode>> m_nodes;
+	LMap<RendererComponent *, std::pair<RenderNode* ,DX11RenderNode*>> m_renderers;
+	LVector<DX11RenderNode*> m_nodes;
 
 	void Clear();
 

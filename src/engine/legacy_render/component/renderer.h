@@ -22,12 +22,14 @@ public:
 	virtual void PopulateRenderNode(RenderNode &render_nodes) = 0;
 
 	GET_SET_VALUE(bool, m_dirty, RendererDirty);
-public:
 
+public:
 	void OnTick(float delta_time) override;
 
-private:
+protected:
 	bool m_dirty;
+
+private:
 
 };
 

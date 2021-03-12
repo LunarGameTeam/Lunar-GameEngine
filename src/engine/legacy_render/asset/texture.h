@@ -33,17 +33,19 @@ public:
 	virtual size_t GetDataSize() = 0;	
 
 	GET_SET_VALUE(TextureFormat, m_fomat, TextureDataFormat);
-	GET_SET_VALUE(TextureType, m_fomat, TextureType);
+	GET_SET_VALUE(TextureType, m_type, TextureType);
 
 	GETTER(unsigned int, m_width, Width);
 	GETTER(unsigned int, m_height, Height);
+
+protected:
+	unsigned int m_width;
+	unsigned int m_height;
 
 private:
 	TextureFormat m_fomat;
 	TextureType m_type;
 	ID3D11Texture2D *m_texture;
-	unsigned int m_width;
-	unsigned int m_height;
 
 };
 
