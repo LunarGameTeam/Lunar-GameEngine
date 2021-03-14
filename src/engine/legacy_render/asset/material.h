@@ -18,7 +18,7 @@ namespace legacy_render
 class LEGACY_RENDER_API Material : public LBasicAsset
 {
 public:
-	void OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile> file) override;
+	void OnAssetFileLoad(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file) override;
 
 public:
 	LSharedPtr<Texture2D> GetTexture2D() {

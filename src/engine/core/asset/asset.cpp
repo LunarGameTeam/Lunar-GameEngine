@@ -24,7 +24,7 @@ LBasicAsset::~LBasicAsset()
 
 }
 
-void LBasicAsset::OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile> file)
+void LBasicAsset::OnAssetFileLoad(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file)
 {
 
 }

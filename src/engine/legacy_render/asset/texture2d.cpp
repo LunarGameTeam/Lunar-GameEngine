@@ -18,7 +18,7 @@ namespace luna
 namespace legacy_render
 {
 
-void Texture2D::OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile> file)
+void Texture2D::OnAssetFileLoad(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file)
 {
 	static RenderSubusystem *render = gEngine->GetSubsystem<RenderSubusystem>();
 	auto *device = render->GetDevice();

@@ -28,7 +28,7 @@ class LEGACY_RENDER_API Texture : public LBasicAsset
 {
 
 public:
-	void OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile> file) override;
+	void OnAssetFileLoad(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file) override;
 	virtual unsigned char *GetData() = 0;
 	virtual size_t GetDataSize() = 0;	
 

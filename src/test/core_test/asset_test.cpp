@@ -17,14 +17,14 @@ class TextAsset :public LBasicAsset
 {
 
 public:
-	void OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile> file) override
+	void OnAssetFileLoad(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file) override
 	{
 		const char *begin = (const char*)file->GetData().data();
 		const char *end = (const char *)file->GetData().data() + file->GetData().size();
 		content = LString(begin, end);
 		m_meta = meta;
 	}
-	LSharedPtr<AssetMetaData> m_meta;//对应的Meta信息
+	LSharedPtr<Dictionary> m_meta;//对应的Meta信息
 	LString content;//文件文本内容
 
 };

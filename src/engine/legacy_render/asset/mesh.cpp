@@ -131,7 +131,7 @@ SubMesh ProcessMesh(aiMesh *mesh, const aiScene *scene)
 	return sub_mesh;
 }
 
-void Mesh::OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile> file)
+void Mesh::OnAssetFileLoad(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file)
 {
 	Assimp::Importer importer;
 

@@ -6,7 +6,6 @@ namespace luna
 
 void Entity::OnCreate()
 {
-	m_cached_transform = RequireComponent<Transform>();
 }
 
 void Entity::OnDestroy()
@@ -28,13 +27,13 @@ Entity *Entity::Parent()
 
 Transform *Entity::GetTransform()
 {
-	return m_cached_transform;
+	return m_transform;
 }
 
 Entity::Entity(const LString &name)
 {
 	m_need_tick = false;
-	m_transform = AddComponent<Transform>();
+	m_transform = RequireComponent<Transform>();
 }
 
 }

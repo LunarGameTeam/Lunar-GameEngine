@@ -33,7 +33,7 @@ public:
 class LEGACY_RENDER_API Mesh : public LBasicAsset, public IMesh
 {
 public:
-	void OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile> file) override;
+	void OnAssetFileLoad(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file) override;
 	GETTER(LVector<SubMesh>, m_sub_meshes, SubMeshList)
 private:
 	LVector<SubMesh> m_sub_meshes;

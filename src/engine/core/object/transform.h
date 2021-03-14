@@ -26,6 +26,7 @@ public:
 	void AddChild(Transform *child);
 	void RemoveChild(Transform *child);
 	LMatrix4f GetMatrix();
+	LMatrix4f &GetCachedMatrix();
 
 	GET_SET_REF(LVector3f, m_pos, Position);
 	GET_SET_REF(LQuaternion, m_rotation, Rotation);

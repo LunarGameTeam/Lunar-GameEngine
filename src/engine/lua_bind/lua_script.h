@@ -11,7 +11,7 @@ namespace luna
 class LUA_BIND_API LuaScript : public LBasicAsset
 {
 public:
-	void OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile> file) override;
+	void OnAssetFileLoad(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file) override;
 	const LString &GetScriptContent();
 private:
 	LString m_content;

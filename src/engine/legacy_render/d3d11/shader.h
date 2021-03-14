@@ -37,7 +37,7 @@ public:
 	void Bind() override;
 
 
-	void OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile> file) override;
+	void OnAssetFileLoad(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file) override;
 
 private:
 	ShaderType m_shader_type = ShaderType::None;

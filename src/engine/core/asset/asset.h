@@ -7,17 +7,12 @@
 #include "core/file/async_handle.h"
 #include "core/file/file.h"
 #include "core/file/path.h"
+#include "core/io/dict_data.h"
+
 #include <json/json.h>
 
 namespace luna
 {
-
-class CORE_API AssetMetaData
-{
-public:
-	Json::Value m_value;
-};
-
 
 class CORE_API LBasicAsset : public LObject
 {
@@ -26,7 +21,7 @@ public:
 	LBasicAsset();;
 	~LBasicAsset();
 	//此处接入同步或者异步文件接口
-	virtual void OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile> file);
+	virtual void OnAssetFileLoad(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file);
 	//默认加载资源
 	LResult InitResource();
 	//检查资源的加载状态

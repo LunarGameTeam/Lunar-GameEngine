@@ -11,7 +11,7 @@ namespace legacy_render
 {
 
 
-void Texture::OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile> file)
+void Texture::OnAssetFileLoad(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file)
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }

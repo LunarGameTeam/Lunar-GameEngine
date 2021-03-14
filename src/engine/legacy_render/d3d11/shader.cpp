@@ -105,7 +105,7 @@ void Dx11Shader::Bind()
 	context->PSSetShader(m_pixelShader, NULL, 0);
 }
 
-void Dx11Shader::OnAssetFileLoad(LSharedPtr<AssetMetaData> meta, LSharedPtr<LFile> file)
+void Dx11Shader::OnAssetFileLoad(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file)
 {
 	static RenderSubusystem *render = gEngine->GetSubsystem<RenderSubusystem>();
 	auto *device = render->GetDevice();
@@ -236,21 +236,8 @@ void Dx11Shader::SetWVPMatrix(const LMatrix4f &w, const LMatrix4f &v, const LMat
 
 	// Set the position of the constant buffer in the vertex shader.
 	bufferNumber = 0;
-	switch (m_shader_type)
-	{
-	case luna::legacy_render::ShaderType::None:
-		break;
-	case luna::legacy_render::ShaderType::VertexShader:
-		// Finanly set the constant buffer in the vertex shader with the updated values.
-		context->VSSetConstantBuffers(bufferNumber, 1, &m_cb0_buffer);		
-		break;
-	case luna::legacy_render::ShaderType::PixelShader:
-		// Finanly set the constant buffer in the vertex shader with the updated values.
-		context->PSSetConstantBuffers(bufferNumber, 1, &m_cb0_buffer);
-		break;
-	default:
-		break;
-	}
+	// Finanly set the constant buffer in the vertex shader with the updated values.
+	context->VSSetConstantBuffers(bufferNumber, 1, &m_cb0_buffer);
 }
 
 void Dx11Shader::SetParameterInt(const LString &name, int32_t value)

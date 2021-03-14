@@ -83,7 +83,7 @@ void RenderSubusystem::Tick(float delta_time)
 			dx_node.mesh->Update(render_node.mesh.get());
 			dx_node.texture->Update(render_node.material->GetTexture2D().get());
 			dx_node.shader = render_node.material->GetShader();
-			dx_node.world_matrix = it.first->GetEntity()->GetComponent<Transform>()->GetMatrix();
+			//dx_node.world_matrix = &(it.first->GetEntity()->GetComponent<Transform>()->GetCachedMatrix());
 			it.first->SetRendererDirty(false);
 		}
 	}
@@ -111,7 +111,7 @@ void RenderSubusystem::Tick(float delta_time)
 			context->IASetIndexBuffer(dx_node->mesh->index_buffer, DXGI_FORMAT_R32_UINT, 0);
 			// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 			context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-			dx_node->shader->SetWVPMatrix(dx_node->world_matrix,m_main_camera->GetViewMatrix(), m_main_camera->GetProjectionMatrix());
+			dx_node->shader->SetWVPMatrix(*dx_node->world_matrix,m_main_camera->GetViewMatrix(), m_main_camera->GetProjectionMatrix());
 			context->DrawIndexed(dx_node->mesh->num, 0, (UINT)0);
 			
 		}

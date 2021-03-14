@@ -3,6 +3,7 @@
 #include "core/object/entity.h"
 #include "core/config/config.h"
 #include "core/asset/lasset.h"
+#include "core/object/transform.h"
 #include "core/asset/asset_subsystem.h"
 #include "core/application.h"
 #include "core/event/event_subsystem.h"
@@ -54,6 +55,9 @@ public:
 
 		render_sys->SetCamera(main_camera);
 		auto *box_entity = world_sys->GetSceneManager()->MainScene()->CreateEntity("Box");
+		box_entity->GetTransform()->SetPosition(LVector3f(0, 0, 10));
+		box_entity->GetTransform()->SetScale(LVector3f(0.01f, 0.01f, 0.01f));
+		
 		auto* mesh_renderer = box_entity->AddComponent<legacy_render::MeshRenderer>();
 		auto box_mesh = asset_sys->LoadAsset<legacy_render::Mesh>("/assets/box.fbx");
 		auto mat = asset_sys->LoadAsset<legacy_render::Material>("/assets/box.mat");

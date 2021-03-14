@@ -17,7 +17,7 @@ class AssetAsyncHandle
 
 struct AssetCache
 {
-	LSharedPtr<AssetMetaData> meta;
+	LSharedPtr<Dictionary> meta;
 	LSharedPtr<LBasicAsset> asset;
 };
 
@@ -43,7 +43,7 @@ public:
 		{
 
 		}
-		LSharedPtr<AssetMetaData> meta = cache->meta;
+		LSharedPtr<Dictionary> meta = cache->meta;
 		LSharedPtr<LBasicAsset> asset = cache->asset;
 		if (asset.get() != nullptr)
 		{
@@ -59,15 +59,12 @@ public:
 			return t;
 
 		LSharedPtr<LFile> file_data = manager->ReadSync(path);
-		LSharedPtr<AssetMetaData> meta_data = MakeShared<AssetMetaData>();
+		LSharedPtr<Dictionary> meta_data = MakeShared<Dictionary>();
 
 		if (!file_data->IsOk())
 			return t;
 
-		//读取Meta数据
-		Json::Reader reader;
-		if (!reader.parse(meta_str.c_str(), meta_str.c_str() + meta_str.Length(), meta_data->m_value, true))
-			return t;
+		Dictionary::FromBinary(meta_str.c_str(), meta_str.Length(), *meta_data);
 			
 		//对Asset使用Meta和FileData进行初始化
 		t->OnAssetFileLoad(meta_data, file_data);

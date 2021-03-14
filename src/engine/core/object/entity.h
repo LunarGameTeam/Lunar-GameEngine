@@ -42,9 +42,9 @@ public:
 		T *t = GetComponent<T>();
 		if (t == nullptr)
 		{
-			t = AddComponent<>();
+			t = AddComponent<T>();
 		}
-		return t
+		return t;
 	}
 
 	template<typename T>
@@ -58,11 +58,10 @@ public:
 	}
 protected:
 	Entity(const LString &name);
-	Transform *m_cached_transform;
+	Transform *m_transform = nullptr;
 
 private:
 	LVector<Component *> m_components;
-	Transform *m_transform = nullptr;
 	Transform *m_parent = nullptr;
 	bool m_need_tick = false;
 

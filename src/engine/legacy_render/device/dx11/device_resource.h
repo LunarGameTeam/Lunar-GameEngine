@@ -29,18 +29,12 @@ struct LEGACY_RENDER_API DX11TextureResource
 	void Update(Texture *texture);
 };
 
-struct LEGACY_RENDER_API RenderNode
-{
-	LSharedPtr<Mesh> mesh;
-	LSharedPtr<Material> material;
-	LMatrix4f *world_matrix;
-};
-
 struct LEGACY_RENDER_API DX11RenderNode
 {
 	LSharedPtr<DX11MeshResource> mesh = MakeShared<DX11MeshResource>();
 	LSharedPtr<DX11TextureResource> texture = MakeShared<DX11TextureResource>();
 	LSharedPtr<Dx11Shader> shader;
+	LMatrix4f world_matrix;
 };
 
 }

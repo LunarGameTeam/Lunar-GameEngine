@@ -1,8 +1,10 @@
 #pragma once
+
 #include "core/object/object.h"
-#include "core/memory/garbage_colloector.h"
+#include "core/asset/asset.h"
 #include "core/log/log.h"
-#include "asset.h"
+#include "core/memory/garbage_colloector.h"
+
 
 template<typename ObjectDescType>
 class CORE_API LTemplateAsset : public luna::LBasicAsset
