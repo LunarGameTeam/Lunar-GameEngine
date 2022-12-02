@@ -1,0 +1,13 @@
+{
+    "str_var":"test_string_content",
+    "int_var":123,
+    "float_var":1.111,
+    "vector3_var":[1,2,3],
+    "bool_var":true,
+    "struct_var":{
+        "type":"JsonStruct",
+        "str_var":"test_string_content2",
+        "int_vqar":12345
+    }
+
+}

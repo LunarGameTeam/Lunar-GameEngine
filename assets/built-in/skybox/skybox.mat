@@ -1,0 +1,15 @@
+{
+   "00000000-0000-0000-0000-000000000000" : {
+      "name" : "",
+      "params" : [ "c9e8c1a7-cebc-4f2a-a70e-d90d95d8c34a" ],
+      "shader" : "/assets/built-in/skybox/sky_box.hlsl",
+      "type_name" : "MaterialInstance"
+   },
+   "c9e8c1a7-cebc-4f2a-a70e-d90d95d8c34a" : {
+      "name" : "_SkyTex",
+      "param_name" : "_SkyTex",
+      "texture" : "/assets/built-in/skybox/sky_box.cubemap",
+      "type" : 6,
+      "type_name" : "MaterialParamTextureCube"
+   }
+}

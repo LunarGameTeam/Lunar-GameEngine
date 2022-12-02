@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+    <!--PyObject-->
+    <Type Name="python310.dll!_object">
+        <!--_PyTypeObject-->
+        <DisplayString Condition="(void*)ob_type==(void*)&amp;python310.dll!PyType_Type">(pytype) {((python310.dll!PyTypeObject*)this)->tp_name,s}</DisplayString>
+        <!--_Py_NoneStruct-->
+        <DisplayString Condition="(void*)this==(void*)&amp;python310.dll!_Py_NoneStruct">(pynone)</DisplayString>
+        <!--_Py_TrueStruct-->
+        <DisplayString Condition="(void*)this==(void*)&amp;python310.dll!_Py_TrueStruct">(pytrue)</DisplayString>
+        <!--_Py_FalseStruct-->
+        <DisplayString Condition="(void*)this==(void*)&amp;python310.dll!_Py_FalseStruct">(pyfalse)</DisplayString>
+        <!--PyLongObject-->
+        <DisplayString Condition="(void*)ob_type==(void*)&amp;python310.dll!PyLong_Type">(py{ob_type->tp_name,sb}) {((python310.dll!_longobject*)this)->ob_digit[0]}</DisplayString>
+        <!--PyFloatObject-->
+        <DisplayString Condition="(void*)ob_type==(void*)&amp;python310.dll!PyFloat_Type">(py{ob_type->tp_name,sb}) {((python310.dll!PyFloatObject*)this)->ob_fval}</DisplayString>
+        <!--PyUnicodeObject-->
+        <DisplayString Condition="(void*)ob_type==(void*)&amp;python310.dll!PyUnicode_Type &amp;&amp; ((python310.dll!PyASCIIObject*)this)->state.compact &amp;&amp; ((python310.dll!PyASCIIObject*)this)->state.ascii">(pyascii) {((python310.dll!PyASCIIObject*)this) + 1, s}</DisplayString>
+        <DisplayString Condition="(void*)ob_type==(void*)&amp;python310.dll!PyUnicode_Type &amp;&amp; ((python310.dll!PyASCIIObject*)this)->state.compact &amp;&amp; ((python310.dll!PyASCIIObject*)this)->state.kind == 1">(pyutf8) {((python310.dll!PyCompactUnicodeObject*)this) + 1, s8}</DisplayString>
+        <DisplayString Condition="(void*)ob_type==(void*)&amp;python310.dll!PyUnicode_Type &amp;&amp; ((python310.dll!PyASCIIObject*)this)->state.compact &amp;&amp; ((python310.dll!PyASCIIObject*)this)->state.kind == 2">(pyutf16) {((python310.dll!PyCompactUnicodeObject*)this) + 1, su}</DisplayString>
+        <DisplayString Condition="(void*)ob_type==(void*)&amp;python310.dll!PyUnicode_Type &amp;&amp; ((python310.dll!PyASCIIObject*)this)->state.compact &amp;&amp; ((python310.dll!PyASCIIObject*)this)->state.kind == 4">(pyutf32) {((python310.dll!PyCompactUnicodeObject*)this) + 1, s32}</DisplayString>
+        <DisplayString Condition="(void*)ob_type==(void*)&amp;python310.dll!PyUnicode_Type &amp;&amp; ((python310.dll!PyASCIIObject*)this)->state.kind == 0">(pywstr) {((python310.dll!PyUnicodeObject*)this)->_base._base.wstr, su}</DisplayString>
+        <DisplayString Condition="(void*)ob_type==(void*)&amp;python310.dll!PyUnicode_Type &amp;&amp; !((python310.dll!PyASCIIObject*)this)->state.compact &amp;&amp; ((python310.dll!PyASCIIObject*)this)->state.kind == 1">(pyutf8) {((python310.dll!PyUnicodeObject*)this)->data.any, s8}</DisplayString>
+        <DisplayString Condition="(void*)ob_type==(void*)&amp;python310.dll!PyUnicode_Type &amp;&amp; !((python310.dll!PyASCIIObject*)this)->state.compact &amp;&amp; ((python310.dll!PyASCIIObject*)this)->state.kind == 2">(pyutf16) {((python310.dll!PyUnicodeObject*)this)->data.any, su}</DisplayString>
+        <DisplayString Condition="(void*)ob_type==(void*)&amp;python310.dll!PyUnicode_Type &amp;&amp; !((python310.dll!PyASCIIObject*)this)->state.compact &amp;&amp; ((python310.dll!PyASCIIObject*)this)->state.kind == 4">(pyutf32) {((python310.dll!PyUnicodeObject*)this)->data.any, s32}</DisplayString>
+        <!--PyListObject-->
+        <DisplayString Condition="(void*)ob_type==(void*)&amp;python310.dll!PyList_Type">(py{ob_type->tp_name,sb}) [{((python310.dll!PyListObject*)this)->ob_base.ob_size}]</DisplayString>
+        <!--PyTupleObject-->
+        <DisplayString Condition="(void*)ob_type==(void*)&amp;python310.dll!PyTuple_Type">(py{ob_type->tp_name,sb}) [{((python310.dll!PyTupleObject*)this)->ob_base.ob_size}]</DisplayString>
+        <!--PyDictObject-->
+        <DisplayString Condition="(void*)ob_type==(void*)&amp;python310.dll!PyDict_Type">(py{ob_type->tp_name,sb}) [{((python310.dll!PyDictObject*)this)->ma_used}]</DisplayString>
+        <!--PyBytesObject-->
+        <DisplayString Condition="(void*)ob_type==(void*)&amp;python310.dll!PyBytes_Type">(py{ob_type->tp_name,sb}) [{((python310.dll!PyBytesObject*)this)->ob_base.ob_size}</DisplayString>
+        <!--PyModuleObject-->
+        <DisplayString Condition="(void*)ob_type==(void*)&amp;python310.dll!PyModule_Type">(py{ob_type->tp_name,sb}) {((python310.dll!PyModuleObject*)this)->md_name,na}</DisplayString>
+        <!--PyFunctionObject-->
+        <DisplayString Condition="(void*)ob_type==(void*)&amp;python310.dll!PyFunction_Type">(py{ob_type->tp_name,sb}) {((python310.dll!PyFunctionObject*)this)->func_name,na}</DisplayString>
+        <!--PyCFunctionObject-->
+        <DisplayString Condition="(void*)ob_type==(void*)&amp;python310.dll!PyCFunction_Type">(py{ob_type->tp_name,sb}) {((python310.dll!PyCFunctionObject*)this)->m_ml->ml_name,na}</DisplayString>
+        <Expand>
+            <Item Name="[type]">ob_type->tp_name,s</Item>
+            <!--PyLongObject-->
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyLong_Type" Name="[value]">((python310.dll!_longobject*)this)->ob_digit[0]</Item>
+            <!--PyFloatObject-->
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyFloat_Type" Name="[value]">((python310.dll!PyFloatObject*)this)->ob_fval</Item>
+            <!--PyUnicodeObject-->
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyUnicode_Type" Name="[pyobj]">(python310.dll!PyUnicodeObject*)this</Item>
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyUnicode_Type" Name="[size]">((python310.dll!PyASCIIObject*)this)->length</Item>
+            <!--ArrayItems Condition="(void*)ob_type==(void*)&amp;python310.dll!PyUnicode_Type">
+                <Size>((python310.dll!PyASCIIObject*)this)->length + 1</Size>
+                <ValuePointer>(char*)(((python310.dll!PyASCIIObject*)this) + 1)</ValuePointer>
+            </ArrayItems-->
+            <!--PyListObject-->
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyList_Type" Name="[pyobj]">(python310.dll!PyListObject*)this</Item>
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyList_Type" Name="[size]">((python310.dll!PyListObject*)this)->ob_base.ob_size</Item>
+            <ArrayItems Condition="(void*)ob_type==(void*)&amp;python310.dll!PyList_Type">
+                <Size>((python310.dll!PyListObject*)this)->ob_base.ob_size</Size>
+                <ValuePointer>((python310.dll!PyListObject*)this)->ob_item,na</ValuePointer>
+            </ArrayItems>
+            <!--PyTupleObject-->
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyTuple_Type" Name="[pyobj]">(python310.dll!PyTupleObject*)this</Item>
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyTuple_Type" Name="[size]">((python310.dll!PyTupleObject*)this)->ob_base.ob_size</Item>
+            <ArrayItems Condition="(void*)ob_type==(void*)&amp;python310.dll!PyTuple_Type">
+                <Size>((python310.dll!PyTupleObject*)this)->ob_base.ob_size</Size>
+                <ValuePointer>((python310.dll!PyTupleObject*)this)->ob_item,na</ValuePointer>
+            </ArrayItems>
+            <!-- PyDictObject 参考源码DK_ENTRIES-->
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyDict_Type" Name="[pyobj]">(python310.dll!PyDictObject*)this</Item>
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyDict_Type" Name="[size]">((python310.dll!PyDictObject*)this)->ma_used</Item>
+            <CustomListItems Condition="(void*)ob_type==(void*)&amp;python310.dll!PyDict_Type">
+                <Variable Name="size" InitialValue="((python310.dll!PyDictObject*)this)->ma_used"/>
+				<Variable Name="makeys" InitialValue="((python310.dll!PyDictObject*)this)->ma_keys"/>
+                <Variable Name="ixsize" InitialValue="(makeys)->dk_size &lt;= 255 ? 1 : ((makeys)->dk_size &lt;= 65535 ? 2: 4)"/>
+                <Variable Name="entry" InitialValue="((python310.dll!PyDictKeyEntry*)(&amp;((char*)((makeys)->dk_indices))[(makeys)->dk_size * ixsize]))"/>
+                <Variable Name="i" InitialValue="0"/>
+                <Loop>
+                    <Break Condition="i>size"/>
+                    <Item Condition="entry[i].me_key==nullptr" Name="nullptr">"unknow",sb</Item>
+                    <Item Condition="entry[i].me_key!=nullptr" Name="{entry[i].me_key,na}">entry[i].me_value,na</Item>
+                    <Exec>i++</Exec>
+                </Loop>
+            </CustomListItems>
+            <!--PyBytesObject-->
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyBytes_Type" Name="[pyobj]">(python310.dll!PyBytesObject*)this</Item>
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyBytes_Type" Name="[size]">((python310.dll!PyBytesObject*)this)->ob_base.ob_size</Item>
+            <ArrayItems Condition="(void*)ob_type==(void*)&amp;python310.dll!PyBytes_Type">
+                <Size>((python310.dll!PyBytesObject*)this)->ob_base.ob_size</Size>
+                <ValuePointer>((python310.dll!PyBytesObject*)this)->ob_sval</ValuePointer>
+            </ArrayItems>
+            <!--PyModule_Type-->
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyModule_Type" Name="[pyobj]">(python310.dll!PyModuleObject*)this</Item>
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyModule_Type" Name="[name]">((python310.dll!PyModuleObject*)this)->md_name</Item>
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyModule_Type" Name="[dict]">((python310.dll!PyModuleObject*)this)->md_dict</Item>
+            <!--PyFunctionObject-->
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyFunction_Type" Name="[pyobj]">(python310.dll!PyFunctionObject*)this</Item>
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyFunction_Type" Name="[module]">((python310.dll!PyFunctionObject*)this)->func_module,na</Item>
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyFunction_Type" Name="[name]">((python310.dll!PyFunctionObject*)this)->func_name,na</Item>
+            <!--PyCFunctionObject-->
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyCFunction_Type" Name="[pyobj]">(python310.dll!PyCFunctionObject*)this</Item>
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyCFunction_Type" Name="[module]">((python310.dll!PyCFunctionObject*)this)->m_module,na</Item>
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyCFunction_Type" Name="[name]">((python310.dll!PyCFunctionObject*)this)->m_ml->ml_name,s</Item>
+            <Item Condition="(void*)ob_type==(void*)&amp;python310.dll!PyCFunction_Type" Name="[method]">((python310.dll!PyCFunctionObject*)this)->m_ml->ml_meth</Item>
+        </Expand>
+    </Type>
+
+    <!--PyCodeObject-->
+    <Type Name="python310.dll!PyCodeObject">
+        <DisplayString>(pycode) {(char*)(((python310.dll!PyASCIIObject*)co_name) + 1), s}</DisplayString>
+        <Expand>
+            <Item Name="[file]">co_filename,na</Item>
+            <Item Name="[lineno]">co_firstlineno</Item>
+            <Item Name="[name]">co_name,na</Item>
+        </Expand>
+    </Type>
+
+	<!--PyFrameObject-->
+	<Type Name="python310.dll!_frame">
+		<DisplayString>(pyframe) {(char*)(((python310.dll!PyASCIIObject*)(f_code->co_name)) + 1), s}</DisplayString>
+		<Expand>
+			<Item Name="[file]">f_code->co_filename,na</Item>
+			<Item Name="[lineno]">f_code->co_firstlineno</Item>
+			<Item Name="[name]">f_code->co_name,na</Item>
+			<!-- 当前opcode对应行号 -->
+			<CustomListItems>
+				<Variable Name="size" InitialValue="((python310.dll!PyBytesObject*)(f_code->co_lnotab))->ob_base.ob_size" />
+				<Variable Name="p" InitialValue="(unsigned char*)(((python310.dll!PyBytesObject*)(f_code->co_lnotab))->ob_sval)" />
+				<Variable Name="line" InitialValue="f_code->co_firstlineno" />
+				<Variable Name="addr" InitialValue="0" />
+				<Loop Condition="--size >= 0">
+					<Exec>addr += *p++</Exec>
+					<Break Condition="addr > f_lasti" />
+					<Exec>line += *p++</Exec>
+				</Loop>
+				<Item Name="[linecur]">line</Item>
+			</CustomListItems>
+            <!-- 调用栈 -->
+			<Synthetic Name="[stacks]">
+				<DisplayString>↓↓↓ show all stacks ↓↓↓</DisplayString>
+				<Expand>
+					<CustomListItems MaxItemsPerView="1000">
+						<Variable Name="f" InitialValue="f_back" />
+						<Loop Condition="f != nullptr">
+							<Item>f</Item>
+							<Exec>f = f->f_back</Exec>
+							<Break Condition="f == nullptr" />
+						</Loop>
+					</CustomListItems>
+				</Expand>
+			</Synthetic>
+		</Expand>
+	</Type>
+</AutoVisualizer>

@@ -1,0 +1,73 @@
+{
+  "marterial_texture_slot_data": [
+    {
+      "shader_resource_path": [
+        "rabbit_tex0.dds",
+        "rabbit_tex1.dds",
+        "rabbit_tex2.dds",
+        "rabbit_tex3.dds"
+      ],
+      "shader_resource_slot_name": "texture_model",
+      "shader_resource_type": "MaterialShaderResourceTextureBindLess",
+      "texture_descriptor_desc": [
+        {
+          "ArraySize": 0,
+          "First2DArrayFace": 0,
+          "FirstArraySlice": 0,
+          "Format": "DXGI_FORMAT_BC7_UNORM",
+          "MipLevels": 11,
+          "MostDetailedMip": 0,
+          "NumCubes": 0,
+          "PlaneSlice": 0,
+          "ResourceMinLODClamp": 0.0,
+          "Shader4ComponentMapping": 5768,
+          "UnusedField_NothingToDefine": 0,
+          "ViewDimension": "D3D12_SRV_DIMENSION_TEXTURE2D"
+        },
+        {
+          "ArraySize": 0,
+          "First2DArrayFace": 0,
+          "FirstArraySlice": 0,
+          "Format": "DXGI_FORMAT_BC7_UNORM",
+          "MipLevels": 11,
+          "MostDetailedMip": 0,
+          "NumCubes": 0,
+          "PlaneSlice": 0,
+          "ResourceMinLODClamp": 0.0,
+          "Shader4ComponentMapping": 5768,
+          "UnusedField_NothingToDefine": 0,
+          "ViewDimension": "D3D12_SRV_DIMENSION_TEXTURE2D"
+        },
+        {
+          "ArraySize": 0,
+          "First2DArrayFace": 0,
+          "FirstArraySlice": 0,
+          "Format": "DXGI_FORMAT_BC7_UNORM",
+          "MipLevels": 11,
+          "MostDetailedMip": 0,
+          "NumCubes": 0,
+          "PlaneSlice": 0,
+          "ResourceMinLODClamp": 0.0,
+          "Shader4ComponentMapping": 5768,
+          "UnusedField_NothingToDefine": 0,
+          "ViewDimension": "D3D12_SRV_DIMENSION_TEXTURE2D"
+        },
+        {
+          "ArraySize": 0,
+          "First2DArrayFace": 0,
+          "FirstArraySlice": 0,
+          "Format": "DXGI_FORMAT_BC7_UNORM",
+          "MipLevels": 11,
+          "MostDetailedMip": 0,
+          "NumCubes": 0,
+          "PlaneSlice": 0,
+          "ResourceMinLODClamp": 0.0,
+          "Shader4ComponentMapping": 5768,
+          "UnusedField_NothingToDefine": 0,
+          "ViewDimension": "D3D12_SRV_DIMENSION_TEXTURE2D"
+        }
+      ]
+    }
+  ],
+  "pipeline_state_name": "assets\\pipeline\\pipline_state_object\\pso_pbr.json"
+}
