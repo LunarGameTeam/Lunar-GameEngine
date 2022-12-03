@@ -18,10 +18,10 @@ struct DxResourceCopyLayout
 };
 
 
-class RENDER_API DX12ResourceNew : public RHIResource
+class RENDER_API DX12Resource : public RHIResource
 {
 public:
-	DX12ResourceNew() {}
+	DX12Resource() {}
 
 
 	void UpdateUploadBuffer(size_t offset, const void* copy_data, size_t data_size) override {};

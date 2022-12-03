@@ -30,7 +30,7 @@ void DX12View::BindResource(RHIResource* buffer_data)
 {
 	mBindRes = buffer_data;
 	ID3D12Device* device = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
-	DX12ResourceNew* dx12Res = mBindRes->As<DX12ResourceNew>();
+	DX12Resource* dx12Res = mBindRes->As<DX12Resource>();
 	switch (mViewType)
 	{
 	case RHIViewType::kConstantBuffer:

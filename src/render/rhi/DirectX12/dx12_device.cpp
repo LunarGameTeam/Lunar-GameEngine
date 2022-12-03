@@ -186,7 +186,7 @@ void DX12Device::CopyInitDataToResource(void* initData, size_t dataSize, RHIReso
 // 		&dxMemoryLayout->mDxRequire.pTotalBytes
 // 	);
 
-// 	DX12ResourceNew* dx12DstRes = resDynamic->As<DX12ResourceNew>();
+// 	DX12Resource* dx12DstRes = resDynamic->As<DX12Resource>();
 // 	const DxResourceMemorylayout* dx12MemoryLayout = static_cast<const DxResourceMemorylayout*>(sourceDataLayout);
 // 	const DxResourceCopyLayout& srcDx12CopyLayout = dx12MemoryLayout->mDxRequire;
 // 	if (sourceDataLayout->mBaseRequire.size > dataSize)
@@ -260,11 +260,11 @@ RHIResourcePtr DX12Device::CreateSamplerExt(const SamplerDesc& desc)
 {
 	ID3D12Device* device = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
 
-	RHIResourcePtr res = CreateRHIObject<DX12ResourceNew>();
+	RHIResourcePtr res = CreateRHIObject<DX12Resource>();
 	res->mDimension = RHIResDimension::Unknown;
 	res->mResType = ResourceType::kSampler;
 	
-	DX12ResourceNew* dx12Res = res->As< DX12ResourceNew>();
+	DX12Resource* dx12Res = res->As< DX12Resource>();
 	D3D12_SAMPLER_DESC& sampler_desc = dx12Res->mDxSamplerDesc;
 
 	switch (desc.filter)
@@ -326,12 +326,12 @@ RHIBindingSetPtr DX12Device::CreateBindingSet(RHIDescriptorPool* pool, RHIBindin
 luna::render::RHIResourcePtr DX12Device::CreateTextureExt(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc)
 {
 	//return CreateRHIObject<VulkanResource>(textureDesc, resDesc);
-	RHIResourcePtr res = CreateRHIObject<DX12ResourceNew>();
+	RHIResourcePtr res = CreateRHIObject<DX12Resource>();
 	res->mResType = ResourceType::kTexture;
 	res->mFormat = resDesc.Desc.Format;
 	res->mDimension = resDesc.Desc.Dimension;
 
-	DX12ResourceNew* dxRes = res->As<DX12ResourceNew>();
+	DX12Resource* dxRes = res->As<DX12Resource>();
 	
 
 
@@ -383,12 +383,12 @@ luna::render::RHIResourcePtr DX12Device::CreateTextureExt(const RHITextureDesc& 
 RHIResourcePtr DX12Device::CreateBufferExt(const RHIBufferDesc& bufferDesc)
 {
 
-	RHIResourcePtr res = CreateRHIObject<DX12ResourceNew>();
+	RHIResourcePtr res = CreateRHIObject<DX12Resource>();
 
 	res->mResType = ResourceType::kBuffer;
 	res->mResSize = bufferDesc.mSize;	
 	res->mDimension = RHIResDimension::Buffer;
-	DX12ResourceNew* dxRes = res->As<DX12ResourceNew>();
+	DX12Resource* dxRes = res->As<DX12Resource>();
 	auto& desc = dxRes->mDxDesc;
 
 	desc = CD3DX12_RESOURCE_DESC::Buffer(bufferDesc.mSize);	

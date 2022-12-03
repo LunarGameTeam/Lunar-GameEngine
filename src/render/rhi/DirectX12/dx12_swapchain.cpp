@@ -59,8 +59,8 @@ bool DX12SwapChain::Reset(const RHIWindowDesc& window_width_in)
 	swapChain.As(&mSwapChain);
 	for (uint32_t frameIndex = 0; frameIndex < swapChainDesc.BufferCount; ++frameIndex)
 	{
-		RHIResourcePtr back_rt_tex = CreateRHIObject<DX12ResourceNew>();
-		DX12ResourceNew* dx12Res = back_rt_tex->As<DX12ResourceNew>();
+		RHIResourcePtr back_rt_tex = CreateRHIObject<DX12Resource>();
+		DX12Resource* dx12Res = back_rt_tex->As<DX12Resource>();
 		mSwapChain->GetBuffer(frameIndex, IID_PPV_ARGS(&dx12Res->mDxRes));
 		dx12Res->mDxDesc.MipLevels = 1;
 		dx12Res->mDxDesc.DepthOrArraySize = 1;

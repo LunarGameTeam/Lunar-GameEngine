@@ -9,7 +9,7 @@ using Microsoft::WRL::ComPtr;
 
 namespace luna::render
 {
-void DX12ResourceNew::BindMemory(RHIMemory* memory, uint64_t offset)
+void DX12Resource::BindMemory(RHIMemory* memory, uint64_t offset)
 {
 	ID3D12Device* device = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
 	mBindMemory = memory;	
@@ -45,7 +45,7 @@ void DX12ResourceNew::BindMemory(RHIMemory* memory, uint64_t offset)
 
 }
 
-void DX12ResourceNew::RefreshMemoryRequirements()
+void DX12Resource::RefreshMemoryRequirements()
 {
 	ID3D12Device* device = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
 	D3D12_RESOURCE_ALLOCATION_INFO allocation_info = device->GetResourceAllocationInfo(0, 1, &mDxDesc);

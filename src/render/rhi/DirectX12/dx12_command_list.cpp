@@ -47,7 +47,7 @@ void DX12GraphicCmdList::SetVertexBuffer(const LVector<RHIVertexBufferDesc>& buf
 	for (int32_t idx = 0; idx < bufferView.size(); ++idx)
 	{
 		const RHIVertexBufferDesc& view = bufferView[idx];
-		DX12ResourceNew* dx12Res = bufferView[idx].mVertexRes->As<DX12ResourceNew>();
+		DX12Resource* dx12Res = bufferView[idx].mVertexRes->As<DX12Resource>();
 		dx12BufferView[idx].BufferLocation = dx12Res->mDxRes->GetGPUVirtualAddress();
 		dx12BufferView[idx].SizeInBytes = dx12Res->mResSize;
 		dx12BufferView[idx].StrideInBytes = view.mVertexLayout->GetSize();
@@ -57,7 +57,7 @@ void DX12GraphicCmdList::SetVertexBuffer(const LVector<RHIVertexBufferDesc>& buf
 
 void DX12GraphicCmdList::SetIndexBuffer(RHIResource* indexRes)
 {
-	DX12ResourceNew* dx12Res = indexRes->As<DX12ResourceNew>();
+	DX12Resource* dx12Res = indexRes->As<DX12Resource>();
 	D3D12_INDEX_BUFFER_VIEW ibv;
 	ibv.BufferLocation = dx12Res->mDxRes->GetGPUVirtualAddress();
 	ibv.Format = DXGI_FORMAT_R32_UINT;
@@ -73,8 +73,8 @@ void DX12GraphicCmdList::CopyBufferToBuffer(
 	const size_t copy_size
 )
 {
-	DX12ResourceNew* dst_dx_res = reinterpret_cast<DX12ResourceNew*>(target_resource);
-	DX12ResourceNew* src_dx_res = reinterpret_cast<DX12ResourceNew*>(source_resource);
+	DX12Resource* dst_dx_res = reinterpret_cast<DX12Resource*>(target_resource);
+	DX12Resource* src_dx_res = reinterpret_cast<DX12Resource*>(source_resource);
 	mDxCmdList->CopyBufferRegion(
 		dst_dx_res->mDxRes.Get(),
 		target_copy_offset,
@@ -91,8 +91,8 @@ void DX12GraphicCmdList::CopyBufferToTexture(
 	uint32_t source_subresource
 )
 {
-	DX12ResourceNew* dx12DstRes = target_resource->As<DX12ResourceNew>();
-	DX12ResourceNew* dx12SrcRes = source_resource->As<DX12ResourceNew>();
+	DX12Resource* dx12DstRes = target_resource->As<DX12Resource>();
+	DX12Resource* dx12SrcRes = source_resource->As<DX12Resource>();
 
 	std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> footprints;
 	footprints.resize(dx12DstRes->mDxDesc.DepthOrArraySize);
@@ -465,7 +465,7 @@ void DX12GraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier)
 	if (barrier.mStateBefore == ResourceState::kRaytracingAccelerationStructure)
 		return;
 
-	DX12ResourceNew* dxRes = barrier.mBarrierRes->As<DX12ResourceNew>();
+	DX12Resource* dxRes = barrier.mBarrierRes->As<DX12Resource>();
 	D3D12_RESOURCE_STATES dx_state_before = DxConvertState(barrier.mStateBefore);
 	D3D12_RESOURCE_STATES dx_state_after = DxConvertState(barrier.mStateAfter);
 	if (dx_state_before == dx_state_after)
