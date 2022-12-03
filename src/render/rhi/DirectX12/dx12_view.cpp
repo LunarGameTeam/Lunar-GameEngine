@@ -37,23 +37,23 @@ void DX12View::BindResource(RHIResource* buffer_data)
 	{
 		D3D12_CONSTANT_BUFFER_VIEW_DESC constantBufferDesc = {};
 		constantBufferDesc.BufferLocation = dx12Res->mDxRes->GetGPUVirtualAddress();
-		constantBufferDesc.SizeInBytes = Alignment(dx12Res->mResSize, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+		constantBufferDesc.SizeInBytes = Alignment(dx12Res->GetMemoryRequirements().size, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
 		device->CreateConstantBufferView(&constantBufferDesc, mCPUHandle);
 		break;
 	}
 	case RHIViewType::kTexture:
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
-		srvDesc.Format = GetGraphicFormat(dx12Res->mFormat);
-		srvDesc.ViewDimension = GetSrvDimention(dx12Res->mDimension);
+		srvDesc.Format = GetGraphicFormat(dx12Res->GetDesc().Format);
+		srvDesc.ViewDimension = GetSrvDimention(dx12Res->GetDesc().Dimension);
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-		switch (dx12Res->mDimension)
+		switch (dx12Res->GetDesc().Dimension)
 		{
 		case RHIResDimension::Texture1D:
 			srvDesc.Buffer.FirstElement = 0;
 			srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAGS::D3D12_BUFFER_SRV_FLAG_NONE;
 			srvDesc.Buffer.NumElements = 1;
-			srvDesc.Buffer.StructureByteStride = mBindRes->mResSize;
+			srvDesc.Buffer.StructureByteStride = mBindRes->GetMemoryRequirements().size;
 			break;
 		case RHIResDimension::Texture2D:
 			srvDesc.Texture2D.MipLevels = mViewDesc.mLevelCount;
@@ -69,7 +69,7 @@ void DX12View::BindResource(RHIResource* buffer_data)
 	case RHIViewType::kRenderTarget:
 	{
 		D3D12_RENDER_TARGET_VIEW_DESC rtvDesc = {};
-		rtvDesc.Format = GetGraphicFormat(dx12Res->mFormat);
+		rtvDesc.Format = GetGraphicFormat(dx12Res->GetDesc().Format);
 		rtvDesc.ViewDimension = GetRtvDimention(mViewDesc.mViewDimension);
 
 		device->CreateRenderTargetView(dx12Res->mDxRes.Get(), &rtvDesc, mCPUHandle);
@@ -78,7 +78,7 @@ void DX12View::BindResource(RHIResource* buffer_data)
 	case RHIViewType::kDepthStencil:
 	{
 		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
-		dsvDesc.Format = GetGraphicFormat(dx12Res->mFormat);
+		dsvDesc.Format = GetGraphicFormat(dx12Res->GetDesc().Format);
 		dsvDesc.ViewDimension = GetDsvDimention(mViewDesc.mViewDimension);
 		device->CreateDepthStencilView(dx12Res->mDxRes.Get(), &dsvDesc, mCPUHandle);
 		break;

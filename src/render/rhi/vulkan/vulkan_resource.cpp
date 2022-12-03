@@ -33,10 +33,10 @@ void VulkanResource::UpdateUploadBuffer(size_t offset, const void* copy_data, si
 VulkanResource::VulkanResource(uint32_t backBufferId, VulkanSwapChain* swapchain) :
 	RHIResource()
 {
-	mDimension = RHIResDimension::Texture2D;
-	mResType = ResourceType::kTexture;
-	mWidth = swapchain->GetWidth();
-	mHeight = swapchain->GetHeight();
+	mResDesc.Dimension = RHIResDimension::Texture2D;
+	mResDesc.mType = ResourceType::kTexture;
+	mResDesc.Width = swapchain->GetWidth();
+	mResDesc.Height = swapchain->GetHeight();
 
 	VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
 	uint32_t imageCount;
@@ -46,7 +46,7 @@ VulkanResource::VulkanResource(uint32_t backBufferId, VulkanSwapChain* swapchain
 	vkGetSwapchainImagesKHR(device, swapchain->mSwapChain, &imageCount, images.data());
 	mImage = images[backBufferId];
 	mVkFormat = swapchain->mSwapChainImageFormat;
-	mFormat = Convert(mVkFormat);
+	mResDesc.Format = Convert(mVkFormat);
 	RefreshMemoryRequirements();
 }
 
@@ -70,42 +70,41 @@ vk::ImageType Convert(RHIResDimension dimension)
 VulkanResource::VulkanResource(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc) :
 	RHIResource(resDesc)
 {
-	mResType = ResourceType::kTexture;
-
+	assert(resDesc.mType == ResourceType::kTexture);
 	vk::ImageCreateInfo imageInfo{};
 	
-	imageInfo.imageType = Convert(resDesc.Desc.Dimension);
-	imageInfo.extent.width = resDesc.Desc.Width;
-	imageInfo.extent.height = resDesc.Desc.Height;	
+	imageInfo.imageType = Convert(resDesc.Dimension);
+	imageInfo.extent.width = resDesc.Width;
+	imageInfo.extent.height = resDesc.Height;
 	imageInfo.extent.depth = 1;
-	imageInfo.arrayLayers = resDesc.Desc.DepthOrArraySize;
-	imageInfo.mipLevels = resDesc.Desc.MipLevels;
+	imageInfo.arrayLayers = resDesc.DepthOrArraySize;
+	imageInfo.mipLevels = resDesc.MipLevels;
 	imageInfo.initialLayout = vk::ImageLayout::eUndefined;
 	
-	if (Has(resDesc.Desc.mImageUsage, RHIImageUsage::TransferSrcBit))
+	if (Has(resDesc.mImageUsage, RHIImageUsage::TransferSrcBit))
 	{
 		imageInfo.usage |= vk::ImageUsageFlagBits::eTransferSrc;
 		imageInfo.initialLayout = vk::ImageLayout::ePreinitialized;
 	}
-	if (Has(resDesc.Desc.mImageUsage, RHIImageUsage::TransferDstBit))
+	if (Has(resDesc.mImageUsage, RHIImageUsage::TransferDstBit))
 	{
 		imageInfo.usage |= vk::ImageUsageFlagBits::eTransferDst;
 	}
-	if (Has(resDesc.Desc.mImageUsage, RHIImageUsage::SampledBit))
+	if (Has(resDesc.mImageUsage, RHIImageUsage::SampledBit))
 	{
 		imageInfo.usage |= vk::ImageUsageFlagBits::eSampled;
 	}
-	if (Has(resDesc.Desc.mImageUsage, RHIImageUsage::ColorAttachmentBit))
+	if (Has(resDesc.mImageUsage, RHIImageUsage::ColorAttachmentBit))
 	{
 		imageInfo.usage |= vk::ImageUsageFlagBits::eColorAttachment;
 	}
 
-	if (Has(resDesc.Desc.mImageUsage, RHIImageUsage::DepthStencilBit))
+	if (Has(resDesc.mImageUsage, RHIImageUsage::DepthStencilBit))
 	{
 		imageInfo.usage |= vk::ImageUsageFlagBits::eDepthStencilAttachment;
 	}
 
-	mVkFormat = Convert(mFormat);
+	mVkFormat = Convert(resDesc.Format);
 
 	imageInfo.format = mVkFormat;
 	imageInfo.tiling = vk::ImageTiling::eOptimal;
@@ -124,9 +123,8 @@ VulkanResource::VulkanResource(const RHITextureDesc& textureDesc, const RHIResDe
 
 VulkanResource::VulkanResource(const RHIBufferDesc& desc)
 {
-	mResSize = desc.mSize;
-	mResType = ResourceType::kBuffer;
-	mDimension = RHIResDimension::Buffer;
+	mResDesc.mType = ResourceType::kBuffer;
+	mResDesc.Dimension = RHIResDimension::Buffer;
 
 	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
 	
@@ -160,8 +158,8 @@ VulkanResource::VulkanResource(const RHIBufferDesc& desc)
 
 VulkanResource::VulkanResource(const SamplerDesc& desc)
 {
-	mResType = ResourceType::kSampler;
-	mDimension = RHIResDimension::Unknown;
+	mResDesc.mType = ResourceType::kSampler;
+	mResDesc.Dimension = RHIResDimension::Unknown;
 
 	VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
 	VkSamplerCreateInfo samplerInfo = {};
@@ -228,11 +226,11 @@ void VulkanResource::BindMemory(RHIMemory* memory, uint64_t offset)
 	mOffset = offset;
 	mBindMemory = memory;
 	VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
-	if (mResType == ResourceType::kBuffer)
+	if (mResDesc.mType == ResourceType::kBuffer)
 	{
 		vkBindBufferMemory(device, mBuffer, memory->As<VulkanMemory>()->mMemory, offset);
 	}
-	else if (mResType == ResourceType::kTexture)
+	else if (mResDesc.mType == ResourceType::kTexture)
 	{
 		vkBindImageMemory(device, mImage, memory->As<VulkanMemory>()->mMemory, offset);
 	}
@@ -241,7 +239,7 @@ void VulkanResource::BindMemory(RHIMemory* memory, uint64_t offset)
 void VulkanResource::RefreshMemoryRequirements()
 {
 	VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
-	if (mResType == ResourceType::kBuffer)
+	if (mResDesc.mType == ResourceType::kBuffer)
 	{
 		VkMemoryRequirements memRequirements = {};
 		vkGetBufferMemoryRequirements(device, mBuffer, &memRequirements);
@@ -249,7 +247,7 @@ void VulkanResource::RefreshMemoryRequirements()
 		mMemoryLayout.size = memRequirements.size;
 		mMemoryLayout.alignment = memRequirements.alignment;
 	}
-	else if (mResType == ResourceType::kTexture)
+	else if (mResDesc.mType == ResourceType::kTexture)
 	{
 		VkMemoryRequirements memRequirements = {};
 		vkGetImageMemoryRequirements(device, mImage, &memRequirements);
@@ -263,7 +261,7 @@ void* VulkanResource::Map()
 {
 	VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
 	void* dst_data;
-	vkMapMemory(device, mBindMemory->As<VulkanMemory>()->mMemory, mOffset, mResSize, {}, &dst_data);
+	vkMapMemory(device, mBindMemory->As<VulkanMemory>()->mMemory, mOffset, mMemoryLayout.size, {}, &dst_data);
 	return dst_data;
 }
 

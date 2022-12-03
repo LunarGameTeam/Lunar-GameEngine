@@ -87,7 +87,7 @@ bool EditorModule::OnInit()
 	mRHIDevice = sRenderModule->GetRHIDevice();
 	render::RenderDevice* renderDevice = sRenderModule->GetRenderDevice();
 	render::RenderPassDesc renderPassDesc;
-	renderPassDesc.mColors.emplace_back(sRenderModule->GetMainSwapchain()->mBackBuffers[0]->mFormat, render::RenderPassLoadOp::kClear, render::RenderPassStoreOp::kStore);
+	renderPassDesc.mColors.emplace_back(sRenderModule->GetMainSwapchain()->mBackBuffers[0]->GetDesc().Format, render::RenderPassLoadOp::kClear, render::RenderPassStoreOp::kStore);
 	mRenderPass = mRHIDevice->CreateRenderPass(renderPassDesc);
 
 	switch (sRenderModule->GetDeviceType())
@@ -171,8 +171,8 @@ bool EditorModule::OnInit()
 		desc.mPass = mRenderPass;
 		desc.mColor.push_back(mBackBufferView[i]);
 		desc.mDepthStencil = nullptr;
-		desc.mWidth = backBufferImage->mWidth;
-		desc.mHeight = backBufferImage->mHeight;
+		desc.mWidth = backBufferImage->GetDesc().Width;
+		desc.mHeight = backBufferImage->GetDesc().Height;
 		mFrameBuffer[i] = mRHIDevice->CreateFrameBuffer(desc);
 	}
 

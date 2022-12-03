@@ -1,4 +1,4 @@
-
+.\sdk\vcpkg\bootstrap-vcpkg.bat
 
 .\sdk\vcpkg\vcpkg.exe install stb:x64-windows
 .\sdk\vcpkg\vcpkg.exe install eigen3:x64-windows

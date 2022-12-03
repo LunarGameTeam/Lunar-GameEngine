@@ -33,7 +33,8 @@ void ITexture::Release()
 void Texture2D::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file)
 {
 	static RenderModule* render = gEngine->GetModule<RenderModule>();
-	tex_res_desc.Desc.Dimension = RHIResDimension::Texture2D;
+	tex_res_desc.Dimension = RHIResDimension::Texture2D;
+	tex_res_desc.mType = ResourceType::kTexture;
 	auto dds_type_test = file->GetPath().Find(".dds");
 	if (dds_type_test != std::string::npos)
 	{
@@ -57,9 +58,9 @@ void Texture2D::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> f
 		m_init_data_size = w * h * 4;
 
 		tex_res_desc.ResHeapType = RHIHeapType::Default;
-		tex_res_desc.Desc.Width = w;
-		tex_res_desc.Desc.Height = h;
-		tex_res_desc.Desc.Format = m_fomat;
+		tex_res_desc.Width = w;
+		tex_res_desc.Height = h;
+		tex_res_desc.Format = m_fomat;
 	}
 
 	//Init();
@@ -90,7 +91,7 @@ void Texture2D::Init()
 	if (m_init)
 		return;
 	m_init = true;	
-	tex_res_desc.Desc.mImageUsage = RHIImageUsage::SampledBit;
+	tex_res_desc.mImageUsage = RHIImageUsage::SampledBit;
 	mRes = sRenderModule->mRenderDevice->CreateTexture(tex_load_desc, tex_res_desc, (byte*)m_data, m_init_data_size);
 
 	ViewDesc viewDesc;
@@ -139,13 +140,14 @@ void TextureCube::Init()
 	m_type = TextureMemoryType::WIC;
 
 	mBufferDesc.ResHeapType = RHIHeapType::Default;
-	mBufferDesc.Desc.Layout = RHITextureLayout::LayoutUnknown;
-	mBufferDesc.Desc.Width = m_width;
-	mBufferDesc.Desc.Height = m_height;
-	mBufferDesc.Desc.Format = m_fomat;
-	mBufferDesc.Desc.Dimension = RHIResDimension::Texture2D;
-	mBufferDesc.Desc.DepthOrArraySize = 6;
-	mBufferDesc.Desc.mImageUsage = RHIImageUsage::SampledBit;
+	mBufferDesc.mType = ResourceType::kTexture;
+	mBufferDesc.Layout = RHITextureLayout::LayoutUnknown;
+	mBufferDesc.Width = m_width;
+	mBufferDesc.Height = m_height;
+	mBufferDesc.Format = m_fomat;
+	mBufferDesc.Dimension = RHIResDimension::Texture2D;
+	mBufferDesc.DepthOrArraySize = 6;
+	mBufferDesc.mImageUsage = RHIImageUsage::SampledBit;
 	
 	mRes = sRenderModule->GetRenderDevice()->CreateTexture(mTexDesc, mBufferDesc, init_datas.data(), init_datas.size());
 

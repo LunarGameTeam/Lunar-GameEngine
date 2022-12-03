@@ -761,7 +761,7 @@ RHIResourceUsage RENDER_API GetGpuResourceFlagDx(const D3D12_RESOURCE_FLAGS& gpu
 	}
 }
 
-D3D12_RESOURCE_DESC RENDER_API GetResourceDesc(const RHIGpuResourceDesc& res_desc)
+D3D12_RESOURCE_DESC RENDER_API GetResourceDesc(const RHIResDesc& res_desc)
 {
 	D3D12_RESOURCE_DESC desc_out = {};
 	desc_out.Dimension = GetResourceDimension(res_desc.Dimension);
@@ -778,9 +778,9 @@ D3D12_RESOURCE_DESC RENDER_API GetResourceDesc(const RHIGpuResourceDesc& res_des
 	return desc_out;
 }
 
-RHIGpuResourceDesc RENDER_API GetResourceDescDx(const D3D12_RESOURCE_DESC& res_desc)
+RHIResDesc RENDER_API GetResourceDescDx(const D3D12_RESOURCE_DESC& res_desc)
 {
-	RHIGpuResourceDesc desc_out = {};
+	RHIResDesc desc_out = {};
 	desc_out.Dimension = GetResourceDimensionDx(res_desc.Dimension);
 	desc_out.Alignment = res_desc.Alignment;
 	desc_out.Width = res_desc.Width;

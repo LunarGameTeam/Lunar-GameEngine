@@ -241,7 +241,7 @@ TRHIPtr<RHIFence> DX12Device::CreateFence()
 
 size_t DX12Device::CountResourceSizeByDesc(const RHIResDesc& res_desc)
 {
-	auto dx12_res_desc = GetResourceDesc(res_desc.Desc);
+	auto dx12_res_desc = GetResourceDesc(res_desc);
 	auto res_allocation_info = m_device->GetResourceAllocationInfo(0, 1, &dx12_res_desc);
 	return res_allocation_info.SizeInBytes;
 };

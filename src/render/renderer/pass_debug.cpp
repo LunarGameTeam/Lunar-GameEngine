@@ -36,26 +36,26 @@ void DebugRenderPass::BuildRenderPass(FrameGraphBuilder* builder, RenderView* vi
 	RHIResDesc depthResDesc;
 
 
-	depthResDesc.Desc.mType = ResourceType::kTexture;
-	depthResDesc.Desc.Dimension = RHIResDimension::Texture2D;
+	depthResDesc.mType = ResourceType::kTexture;
+	depthResDesc.Dimension = RHIResDimension::Texture2D;
 	depthResDesc.ResHeapType = RHIHeapType::Default;
-	depthResDesc.Desc.Width = 1024;
-	depthResDesc.Desc.Height = 768;
-	depthResDesc.Desc.DepthOrArraySize = 1;
-	depthResDesc.Desc.Alignment = 0;
-	depthResDesc.Desc.Format = RHITextureFormat::FORMAT_R8G8B8A8_UNORM_SRGB;
-	depthResDesc.Desc.mImageUsage = RHIImageUsage::ColorAttachmentBit;
-	depthResDesc.Desc.Layout = RHITextureLayout::LayoutUnknown;
-	depthResDesc.Desc.MipLevels = 1;
-	depthResDesc.Desc.SampleDesc.Count = 1;
-	depthResDesc.Desc.SampleDesc.Quality = 0;
+	depthResDesc.Width = 1024;
+	depthResDesc.Height = 768;
+	depthResDesc.DepthOrArraySize = 1;
+	depthResDesc.Alignment = 0;
+	depthResDesc.Format = RHITextureFormat::FORMAT_R8G8B8A8_UNORM_SRGB;
+	depthResDesc.mImageUsage = RHIImageUsage::ColorAttachmentBit;
+	depthResDesc.Layout = RHITextureLayout::LayoutUnknown;
+	depthResDesc.MipLevels = 1;
+	depthResDesc.SampleDesc.Count = 1;
+	depthResDesc.SampleDesc.Quality = 0;
 
 	LString rtName = "DebugColor";
 	LString rtDepthName = "DebugDepth";
 
 	builder->CreateTexture(rtName, depthResDesc, textureDesc);
-	depthResDesc.Desc.Format = RHITextureFormat::FORMAT_D24_UNORM_S8_UINT;
-	depthResDesc.Desc.mImageUsage = RHIImageUsage::DepthStencilBit;
+	depthResDesc.Format = RHITextureFormat::FORMAT_D24_UNORM_S8_UINT;
+	depthResDesc.mImageUsage = RHIImageUsage::DepthStencilBit;
 	builder->CreateTexture(rtDepthName, depthResDesc, textureDesc);
 
 	//用成员函数

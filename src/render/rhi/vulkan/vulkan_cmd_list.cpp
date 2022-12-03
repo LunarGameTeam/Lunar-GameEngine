@@ -114,9 +114,9 @@ void VulkanGraphicCmdList::ClearRTView(RHIView* descriptor_rtv, LVector4f clear_
 	vk::ClearAttachment clearAttachments[1] = {};
 
 	if (width == 0)
-		width = rtv->mRes->mWidth;
+		width = rtv->mRes->GetDesc().Width;
 	if (height == 0)
-		height = rtv->mRes->mHeight;
+		height = rtv->mRes->GetDesc().Height;
 
 	vk::ClearColorValue vkClearColor;
 	vkClearColor.setFloat32({ clear_color.x(), clear_color.y(), clear_color.z(), clear_color.w() });
@@ -170,12 +170,12 @@ void VulkanGraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier
 	}
 	
 	VulkanResource* vk_resource = barrier.mBarrierRes->As<VulkanResource>();
-	if (vk_resource->mResType == ResourceType::kBuffer)
+	if (vk_resource->GetDesc().mType == ResourceType::kBuffer)
 	{
 		VkBufferMemoryBarrier memoryBarrier = {};
 		memoryBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
 		VkBuffer buffer = vk_resource->mBuffer;
-		memoryBarrier.size = vk_resource->mResSize;
+		memoryBarrier.size = vk_resource->GetMemoryRequirements().size;
 		memoryBarrier.buffer = buffer;
 		memoryBarrier.srcAccessMask = VkAccessFlagBits::VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR
 			| VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR
@@ -188,7 +188,7 @@ void VulkanGraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier
 			0, nullptr);
 		return;
 	}
-	else if (vk_resource->mResType == ResourceType::kTexture)
+	else if (vk_resource->GetDesc().mType == ResourceType::kTexture)
 	{
 
 		vk::ImageMemoryBarrier image_memory_barriers = {};
@@ -208,7 +208,7 @@ void VulkanGraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier
 
 		vk::ImageSubresourceRange& range = image_memory_barrier.subresourceRange;		
 
-		if (Has(barrier.mBarrierRes->mImageUsage, RHIImageUsage::DepthStencilBit))
+		if (Has(barrier.mBarrierRes->GetDesc().mImageUsage, RHIImageUsage::DepthStencilBit))
 		{
 
 			range.aspectMask = vk::ImageAspectFlagBits::eDepth | vk::ImageAspectFlagBits::eStencil;
@@ -383,11 +383,11 @@ void VulkanGraphicCmdList::CopyBufferToTexture(RHIResource* dst, uint32_t target
 	size_t totalBytes;
 	size_t rowBytes;
 	size_t rows;
-	GetFormatInfo(vkRes->mWidth, vkRes->mHeight, dst->mFormat, totalBytes, rowBytes, rows, dst->GetMemoryRequirements().alignment);
+	GetFormatInfo(vkRes->GetDesc().Width, vkRes->GetDesc().Height, dst->GetDesc().Format, totalBytes, rowBytes, rows, dst->GetMemoryRequirements().alignment);
 
-	for (uint32_t face = 0; face < vkRes->mDepth; face++)
+	for (uint32_t face = 0; face < vkRes->GetDesc().DepthOrArraySize; face++)
 	{
-		for (uint32_t level = 0; level < vkRes->mMipLevels; level++)
+		for (uint32_t level = 0; level < vkRes->GetDesc().MipLevels; level++)
 		{				
 			offset = face * totalBytes;
 			VkBufferImageCopy& bufferCopyRegion = bufferCopyRegions.emplace_back();
@@ -395,8 +395,8 @@ void VulkanGraphicCmdList::CopyBufferToTexture(RHIResource* dst, uint32_t target
 			bufferCopyRegion.imageSubresource.mipLevel = level;
 			bufferCopyRegion.imageSubresource.baseArrayLayer = face;
 			bufferCopyRegion.imageSubresource.layerCount = 1;
-			bufferCopyRegion.imageExtent.width = vkRes->mWidth >> level;
-			bufferCopyRegion.imageExtent.height = vkRes->mHeight >> level;
+			bufferCopyRegion.imageExtent.width = vkRes->GetDesc().Width >> level;
+			bufferCopyRegion.imageExtent.height = vkRes->GetDesc().Height >> level;
 			bufferCopyRegion.imageExtent.depth = 1;
 			bufferCopyRegion.bufferOffset = offset;
 		}

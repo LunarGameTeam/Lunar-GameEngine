@@ -17,26 +17,26 @@ void ShadowRenderPass::InitImpl()
 	textureDesc.if_gen_mipmap = false;
 
 
-	shadowTextureDesc.Desc.Dimension = RHIResDimension::Texture2D;
-	shadowTextureDesc.Desc.mType = ResourceType::kTexture;
+	shadowTextureDesc.Dimension = RHIResDimension::Texture2D;
+	shadowTextureDesc.mType = ResourceType::kTexture;
 	shadowTextureDesc.ResHeapType = RHIHeapType::Default;
-	shadowTextureDesc.Desc.Width = width;
-	shadowTextureDesc.Desc.Height = height;
-	shadowTextureDesc.Desc.DepthOrArraySize = 1;
-	shadowTextureDesc.Desc.Format = RHITextureFormat::FORMAT_R8G8BB8A8_UNORM;
-	shadowTextureDesc.Desc.Alignment = 0;
-	shadowTextureDesc.Desc.mImageUsage = RHIImageUsage::ColorAttachmentBit;
-	shadowTextureDesc.Desc.Layout = RHITextureLayout::LayoutUnknown;
-	shadowTextureDesc.Desc.MipLevels = 1;
-	shadowTextureDesc.Desc.SampleDesc.Count = 1;
-	shadowTextureDesc.Desc.SampleDesc.Quality = 0;
+	shadowTextureDesc.Width = width;
+	shadowTextureDesc.Height = height;
+	shadowTextureDesc.DepthOrArraySize = 1;
+	shadowTextureDesc.Format = RHITextureFormat::FORMAT_R8G8BB8A8_UNORM;
+	shadowTextureDesc.Alignment = 0;
+	shadowTextureDesc.mImageUsage = RHIImageUsage::ColorAttachmentBit;
+	shadowTextureDesc.Layout = RHITextureLayout::LayoutUnknown;
+	shadowTextureDesc.MipLevels = 1;
+	shadowTextureDesc.SampleDesc.Count = 1;
+	shadowTextureDesc.SampleDesc.Quality = 0;
 
 	shadowDepthTextureDesc = shadowTextureDesc;
-	shadowDepthTextureDesc.Desc.mType = ResourceType::kTexture;
-	shadowDepthTextureDesc.Desc.Format = RHITextureFormat::FORMAT_D24_UNORM_S8_UINT;
-	shadowDepthTextureDesc.Desc.SampleDesc.Count = 1;
-	shadowDepthTextureDesc.Desc.SampleDesc.Quality = 0;
-	shadowDepthTextureDesc.Desc.mImageUsage = RHIImageUsage::DepthStencilBit;
+	shadowDepthTextureDesc.mType = ResourceType::kTexture;
+	shadowDepthTextureDesc.Format = RHITextureFormat::FORMAT_D24_UNORM_S8_UINT;
+	shadowDepthTextureDesc.SampleDesc.Count = 1;
+	shadowDepthTextureDesc.SampleDesc.Quality = 0;
+	shadowDepthTextureDesc.mImageUsage = RHIImageUsage::DepthStencilBit;
 
 }
 

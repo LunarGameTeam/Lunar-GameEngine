@@ -44,9 +44,9 @@ D3D12_RESOURCE_FLAGS RENDER_API GetGpuResourceFlag(const RHIResourceUsage& gpu_r
 
 RHIResourceUsage RENDER_API GetGpuResourceFlagDx(const D3D12_RESOURCE_FLAGS& gpu_res_flag);
 
-D3D12_RESOURCE_DESC RENDER_API GetResourceDesc(const RHIGpuResourceDesc& res_desc);
+D3D12_RESOURCE_DESC RENDER_API GetResourceDesc(const RHIResDesc& res_desc);
 
-RHIGpuResourceDesc RENDER_API GetResourceDescDx(const D3D12_RESOURCE_DESC& res_desc);
+RHIResDesc RENDER_API GetResourceDescDx(const D3D12_RESOURCE_DESC& res_desc);
 
 D3D12_HEAP_TYPE RENDER_API GetHeapType(const RHIHeapType& heap_type);
 

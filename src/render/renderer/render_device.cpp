@@ -177,7 +177,7 @@ RHIResourcePtr RenderDevice::_CreateTexture(const RHITextureDesc& textureDesc, c
 	RHIResourcePtr stagingBuffer = nullptr;
 
 	RHIResDesc newResDesc = resDesc;
-	newResDesc.Desc.mImageUsage = newResDesc.Desc.mImageUsage | RHIImageUsage::TransferDstBit;
+	newResDesc.mImageUsage = newResDesc.mImageUsage | RHIImageUsage::TransferDstBit;
 	RHIResourcePtr textureRes = mDevice->CreateTextureExt(textureDesc, newResDesc);
 	const MemoryRequirements& memoryReq = textureRes->GetMemoryRequirements();
 
@@ -205,22 +205,22 @@ RHIResourcePtr RenderDevice::_CreateTexture(const RHITextureDesc& textureDesc, c
 	ResourceBarrierDesc dstBarrier;
 	dstBarrier.mBarrierRes = textureRes;
 	dstBarrier.mBaseMipLevel = 0;
-	dstBarrier.mMipLevels = resDesc.Desc.MipLevels;
+	dstBarrier.mMipLevels = resDesc.MipLevels;
 	dstBarrier.mBaseDepth = 0;
-	dstBarrier.mDepth = resDesc.Desc.DepthOrArraySize;
+	dstBarrier.mDepth = resDesc.DepthOrArraySize;
 	if (usingStaging)
 	{
 		dstBarrier.mStateBefore = kUndefined;
 		dstBarrier.mStateAfter = kCopyDest;
 		mTransferCmd->ResourceBarrierExt(dstBarrier);
 		mTransferCmd->CopyBufferToTexture(textureRes, 0, stagingBuffer, 0);
-		if (Has(resDesc.Desc.mImageUsage, RHIImageUsage::SampledBit))
+		if (Has(resDesc.mImageUsage, RHIImageUsage::SampledBit))
 		{
 			dstBarrier.mStateBefore = kCopyDest;
 			dstBarrier.mStateAfter = kShaderReadOnly;
 			mTransferCmd->ResourceBarrierExt(dstBarrier);
 		}
-		else if (Has(resDesc.Desc.mImageUsage, RHIImageUsage::ColorAttachmentBit))
+		else if (Has(resDesc.mImageUsage, RHIImageUsage::ColorAttachmentBit))
 		{
 			dstBarrier.mStateBefore = kCopyDest;
 			dstBarrier.mStateAfter = kRenderTarget;

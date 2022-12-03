@@ -49,7 +49,7 @@ void DX12GraphicCmdList::SetVertexBuffer(const LVector<RHIVertexBufferDesc>& buf
 		const RHIVertexBufferDesc& view = bufferView[idx];
 		DX12Resource* dx12Res = bufferView[idx].mVertexRes->As<DX12Resource>();
 		dx12BufferView[idx].BufferLocation = dx12Res->mDxRes->GetGPUVirtualAddress();
-		dx12BufferView[idx].SizeInBytes = dx12Res->mResSize;
+		dx12BufferView[idx].SizeInBytes = dx12Res->GetMemoryRequirements().size;
 		dx12BufferView[idx].StrideInBytes = view.mVertexLayout->GetSize();
 	}
 	mDxCmdList->IASetVertexBuffers(slot, bufferView.size(), dx12BufferView.data());
@@ -61,7 +61,7 @@ void DX12GraphicCmdList::SetIndexBuffer(RHIResource* indexRes)
 	D3D12_INDEX_BUFFER_VIEW ibv;
 	ibv.BufferLocation = dx12Res->mDxRes->GetGPUVirtualAddress();
 	ibv.Format = DXGI_FORMAT_R32_UINT;
-	ibv.SizeInBytes = (UINT)dx12Res->mResSize;
+	ibv.SizeInBytes = (UINT)dx12Res->GetMemoryRequirements().size;
 	mDxCmdList->IASetIndexBuffer(&ibv);
 }
 
@@ -238,9 +238,9 @@ void DX12GraphicCmdList::ClearRTView(
 	DX12View* dx12View = descriptor_rtv->As<DX12View>();
 	D3D12_RECT render_rect;
 	if (width == 0)
-		width = dx12View->GetRessource()->mWidth;
+		width = dx12View->GetRessource()->GetDesc().Width;
 	if (height == 0)
-		height = dx12View->GetRessource()->mHeight;
+		height = dx12View->GetRessource()->GetDesc().Height;
 	render_rect.left = (LONG)x;
 	render_rect.top = (LONG)y;
 	render_rect.right = (LONG)width;
@@ -485,7 +485,7 @@ void DX12GraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier)
 		{
 			for (uint32_t j = barrier.mBaseDepth; j < barrier.mBaseDepth + barrier.mDepth; ++j)
 			{
-				uint32_t subresource = i + j * dxRes->mMipLevels;
+				uint32_t subresource = i + j * dxRes->GetDesc().MipLevels;
 				dxBarriers.emplace_back(CD3DX12_RESOURCE_BARRIER::Transition(dxRes->mDxRes.Get(), dx_state_before, dx_state_after, subresource));
 			}
 		}

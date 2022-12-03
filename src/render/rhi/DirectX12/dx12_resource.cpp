@@ -12,14 +12,13 @@ namespace luna::render
 	DX12Resource::DX12Resource(const RHIBufferDesc& buffer_desc)
 	{
 
-		mResType = ResourceType::kBuffer;
-		mResSize = buffer_desc.mSize;
-		mDimension = RHIResDimension::Buffer;
-		mWidth = buffer_desc.mSize;
+		mResDesc.mType = ResourceType::kBuffer;
+		mResDesc.Dimension = RHIResDimension::Buffer;
+		mResDesc.Width = buffer_desc.mSize;
 
 		mDxDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 		mDxDesc.Alignment = 0;
-		mDxDesc.Width = mWidth;
+		mDxDesc.Width = mResDesc.Width;
 		mDxDesc.Height = 1;
 		mDxDesc.DepthOrArraySize = 1;
 		mDxDesc.MipLevels = 1;
@@ -36,8 +35,8 @@ namespace luna::render
 
 	DX12Resource::DX12Resource(const SamplerDesc& desc)
 	{
-		mDimension = RHIResDimension::Unknown;
-		mResType = ResourceType::kSampler;
+		mResDesc.Dimension = RHIResDimension::Unknown;
+		mResDesc.mType = ResourceType::kSampler;
 
 		switch (desc.filter)
 		{
@@ -84,20 +83,14 @@ namespace luna::render
 		mDxSamplerDesc.MaxAnisotropy = 1;
 	}
 
-	DX12Resource::DX12Resource(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc)
+	DX12Resource::DX12Resource(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc) : RHIResource(resDesc)
 	{
-		mResType = ResourceType::kTexture;
-		mFormat = resDesc.Desc.Format;
-		mDimension = resDesc.Desc.Dimension;
-		mWidth = resDesc.Desc.Width;
-		mHeight = resDesc.Desc.Height;
+		mDxDesc.Width = resDesc.Width;
+		mDxDesc.Height = resDesc.Height;
+		mDxDesc.DepthOrArraySize = resDesc.DepthOrArraySize;
+		mDxDesc.MipLevels = resDesc.MipLevels;
 
-		mDxDesc.Width = resDesc.Desc.Width;
-		mDxDesc.Height = resDesc.Desc.Height;
-		mDxDesc.DepthOrArraySize = resDesc.Desc.DepthOrArraySize;
-		mDxDesc.MipLevels = resDesc.Desc.MipLevels;
-
-		switch (resDesc.Desc.Format)
+		switch (resDesc.Format)
 		{
 		case RHITextureFormat::FORMAT_R8G8BB8A8_UNORM:
 			mDxDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -109,7 +102,7 @@ namespace luna::render
 			mDxDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 			break;
 		}
-		switch (resDesc.Desc.Dimension)
+		switch (resDesc.Dimension)
 		{
 		case RHIResDimension::Texture1D:
 			mDxDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE1D;
@@ -122,13 +115,13 @@ namespace luna::render
 			break;
 		}
 
-		mDxDesc.SampleDesc.Count = resDesc.Desc.SampleDesc.Count;
+		mDxDesc.SampleDesc.Count = resDesc.SampleDesc.Count;
 		mDxDesc.SampleDesc.Quality = 0;
 
-		if (Has(resDesc.Desc.mImageUsage, RHIImageUsage::ColorAttachmentBit))
+		if (Has(resDesc.mImageUsage, RHIImageUsage::ColorAttachmentBit))
 			mDxDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 
-		if (Has(resDesc.Desc.mImageUsage, RHIImageUsage::DepthStencilBit))
+		if (Has(resDesc.mImageUsage, RHIImageUsage::DepthStencilBit))
 			mDxDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
 		SetInitialState(ResourceState::kUndefined);
@@ -141,12 +134,12 @@ namespace luna::render
 		swapchain->mSwapChain->GetBuffer(backBufferId, IID_PPV_ARGS(&mDxRes));
 		mDxDesc = mDxRes->GetDesc();
 
-		mResType = ResourceType::kTexture;
-		mFormat = GetGraphicFormatFromDx(mDxDesc.Format);
-		mDimension = GetResourceDimensionDx(mDxDesc.Dimension);
-		mWidth = mDxDesc.Width;
-		mHeight = mDxDesc.Height;
-		mImageUsage = RHIImageUsage::ColorAttachmentBit;
+		mResDesc.mType = ResourceType::kTexture;
+		mResDesc.Format = GetGraphicFormatFromDx(mDxDesc.Format);
+		mResDesc.Dimension = GetResourceDimensionDx(mDxDesc.Dimension);
+		mResDesc.Width = mDxDesc.Width;
+		mResDesc.Height = mDxDesc.Height;
+		mResDesc.mImageUsage = RHIImageUsage::ColorAttachmentBit;
 		m_initial_state = ResourceState::kPresent;
 
 		RefreshMemoryRequirements();

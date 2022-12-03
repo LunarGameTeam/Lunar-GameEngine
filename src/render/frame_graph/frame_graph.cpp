@@ -142,11 +142,11 @@ void FrameGraphBuilder::Flush()
 	{
 		if (it.second->GetRHIResource() == nullptr)
 		{
-			if (it.second->GetDesc().Desc.mType == ResourceType::kBuffer)
+			if (it.second->GetDesc().mType == ResourceType::kBuffer)
 			{
 				FGVirtualBuffer* res_buf = dynamic_cast<FGVirtualBuffer*>(it.second);				
 			}
-			else if (it.second->GetDesc().Desc.mType == ResourceType::kTexture)
+			else if (it.second->GetDesc().mType == ResourceType::kTexture)
 			{
 				FGVirtualTexture* virtualRes = dynamic_cast<FGVirtualTexture*>(it.second);
 				RHIResourcePtr rhiRes = renderDevice->CreateFGTexture(virtualRes->GetTextureDesc(), virtualRes->GetDesc());
@@ -198,8 +198,8 @@ void FrameGraphBuilder::Flush()
 		FGVirtualResView& rtView = node->mVirtureResView[node->mRT];
 		FGVirtualResView& dsView = node->mVirtureResView[node->mDS];
 
-		auto width = rtView.VirtualRes->GetRHIResource()->mWidth;
-		auto height = rtView.VirtualRes->GetRHIResource()->mHeight;
+		auto width = rtView.VirtualRes->GetRHIResource()->GetDesc().Width;
+		auto height = rtView.VirtualRes->GetRHIResource()->GetDesc().Height;
 
 		auto it = GetOrCreateRenderPass(node);
 
@@ -246,8 +246,8 @@ FrameGraphBuilder::RenderPassValue FrameGraphBuilder::GetOrCreateRenderPass(FGNo
 	FGVirtualResView& dsView = node->mVirtureResView[node->mDS];
 
 
-	auto width = rtView.VirtualRes->GetRHIResource()->mWidth;
-	auto height = rtView.VirtualRes->GetRHIResource()->mHeight;
+	auto width = rtView.VirtualRes->GetRHIResource()->GetDesc().Width;
+	auto height = rtView.VirtualRes->GetRHIResource()->GetDesc().Height;
 
 	auto key = std::make_pair(rtView.mView, dsView.mView);
 	if (mRHIFrameBuffers.find(key) != mRHIFrameBuffers.end())
@@ -256,12 +256,12 @@ FrameGraphBuilder::RenderPassValue FrameGraphBuilder::GetOrCreateRenderPass(FGNo
 	RenderPassDesc passDesc;
 
 	RenderPassColorDesc colorDesc;	
-	colorDesc.mFormat = rtView.VirtualRes->GetRHIResource()->mFormat;
+	colorDesc.mFormat = rtView.VirtualRes->GetRHIResource()->GetDesc().Format;
 	colorDesc.mClearColor = LVector4f(0.2, 0.2, 0.2, 1);
 	passDesc.mColors.push_back(colorDesc);
 
 	RenderPassDepthStencilDesc depthDesc;
-	depthDesc.mDepthStencilFormat = dsView.VirtualRes->GetRHIResource()->mFormat;
+	depthDesc.mDepthStencilFormat = dsView.VirtualRes->GetRHIResource()->GetDesc().Format;
 	depthDesc.mClearDepth = 1.0f;
 	depthDesc.mClearStencil = 0;
 	passDesc.mDepths.push_back(depthDesc);
