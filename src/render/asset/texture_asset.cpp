@@ -129,14 +129,15 @@ void TextureCube::Init()
 		int w, h, n;
 		auto data = (const byte*)stbi_load_from_memory(file->GetData().data(), (int)file->GetData().size(), &w, &h, &n, 4);
 		m_width = w;
-		m_height = h;		
-		init_datas.resize(data_size + file->GetData().size());
-		memcpy(init_datas.data() + data_size, data, file->GetData().size());
-		data_size += file->GetData().size();
+		m_height = h;
+		auto stride = w * h * 4;
+		init_datas.resize(data_size + stride);
+		memcpy(init_datas.data() + data_size, data, stride);
+		data_size += stride;
 		stbi_image_free((void*)data);
 	}
 
-	m_fomat = RHITextureFormat::FORMAT_R8G8BB8A8_UNORM;	
+	m_fomat = RHITextureFormat::FORMAT_R8G8BB8A8_UNORM;
 	m_type = TextureMemoryType::WIC;
 
 	mBufferDesc.ResHeapType = RHIHeapType::Default;
@@ -153,7 +154,7 @@ void TextureCube::Init()
 
 	ViewDesc desc;
 	desc.mViewType = RHIViewType::kTexture;
-	desc.mViewDimension = RHIViewDimension::TextureView2D;
+	desc.mViewDimension = RHIViewDimension::TextureViewCube;
 	desc.mBaseMipLevel = 0;
 	desc.mLayerCount = 6;	
 	mResView = sRenderModule->mRenderDevice->CreateView(desc);

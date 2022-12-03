@@ -38,6 +38,7 @@ find_package(directxtk12 REQUIRED)
 find_package(directxtex REQUIRED)
 find_package(boost COMPONENTS system REQUIRED)
 find_package(unofficial-spirv-reflect REQUIRED)
+find_package(GTest REQUIRED)
 
 find_package(Vulkan REQUIRED glslang glslangValidator glslc SPIRV-Tools shaderc_combined)
 
@@ -138,6 +139,10 @@ add_subdirectory(src/render)
 SET_PROPERTY(TARGET render PROPERTY FOLDER "Runtime")
 add_subdirectory(src/window)
 SET_PROPERTY(TARGET window PROPERTY FOLDER "Runtime")
+
+
+add_subdirectory(test/core_test)
+SET_PROPERTY(TARGET core_test PROPERTY FOLDER "Test")
 
 add_subdirectory(src/engine)
 SET_PROPERTY(TARGET engine PROPERTY FOLDER "Runtime")

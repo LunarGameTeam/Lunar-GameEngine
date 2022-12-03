@@ -18,5 +18,13 @@ TEST(Core, Math)
 	t = t.inverse();
 	auto& mat = t.matrix();	
 	LVector4f p2 = mat * LVector4f(1,1,1,1);
-	
+
+	for (int i = 0; i < 30; i++)
+	{
+		auto q = LMath::FromEuler(LVector3f(30 + i * 0.1f, 10, 0));
+		auto euler = LMath::ToEuler(q);
+		continue;
+	}
+
+	return;	
 }

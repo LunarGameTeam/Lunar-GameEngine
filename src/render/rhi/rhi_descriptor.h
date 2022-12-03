@@ -103,9 +103,9 @@ struct ViewDesc
 	RHIViewType mViewType;
 	RHIViewDimension mViewDimension;
 	uint32_t mBaseMipLevel = 0;
-	uint32_t mLevelCount = static_cast<uint32_t>(0);
+	uint32_t mLevelCount = static_cast<uint32_t>(1);
 	uint32_t mBaseArrayLayer = 0;
-	uint32_t mLayerCount = static_cast<uint32_t>(0);
+	uint32_t mLayerCount = static_cast<uint32_t>(1);
 	uint32_t mPlaneSlice = 0;
 	uint64_t mOffset = 0;
 	uint32_t mStructureStride = 0;

@@ -1,6 +1,6 @@
 #include "core/core_library.h"
 #include "core/file/path.h"
-#include "core/file/file_subsystem.h"
+#include "core/file/platform_module.h"
 
 using namespace luna;
 
@@ -8,7 +8,7 @@ using namespace luna;
 
 TEST(Core, String)
 {
-	LString dir = gEngine->GetModule<FileSystem>()->GetPlatformFileManager()->EngineDir();
+	LString dir = gEngine->GetModule < PlatformModule > ()->GetPlatformFileManager()->EngineDir();
 	LString str = "/log/log.txt";
 	LString split = "log";
 	LPath path("/log/log.txt");

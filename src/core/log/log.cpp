@@ -38,14 +38,9 @@ void _LogImpl(const char *scope, const LString &msg, const LogLevel &level, cons
 
 	auto start = std::chrono::system_clock::now().time_since_epoch();
 
-	auto d = std::chrono::duration_cast<std::chrono::days>(start).count();
-	auto h = std::chrono::duration_cast<std::chrono::hours>(start).count();
-	auto m = std::chrono::duration_cast<std::chrono::minutes>(start).count();
-	auto s = std::chrono::duration_cast<std::chrono::seconds>(start).count();
-	auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(start).count();
-
-	char fmt[150];
-	
+	auto const time = std::chrono::current_zone()
+		->to_local(std::chrono::system_clock::now());
+		
 	static const char *level_str[10] =
 	{
 		"Error",
@@ -53,11 +48,8 @@ void _LogImpl(const char *scope, const LString &msg, const LogLevel &level, cons
 		"Success",
 		"Verbose",
 	};
-
-	sprintf_s(fmt, "[%02d-%02d.%02d.%02lld:%03lld][%s][%s]", d, h, m, s, ms, level_str[int(level)], scope);
-	LString res = LString::Format("{}{}", fmt ,msg);
+	LString res = LString::Format("[{:%Y-%m-%d %H:%M:%S}][{}][{}]{}", time, level_str[int(level)], scope, msg);
 	
-
 	HANDLE hCon = GetStdHandle(STD_OUTPUT_HANDLE);
 	switch (level)
 	{
@@ -77,6 +69,7 @@ void _LogImpl(const char *scope, const LString &msg, const LogLevel &level, cons
 	std::cout << res.c_str() << std::endl;
 	g_log_file << res.c_str()  << std::endl;
 	g_log_file.flush();
+	SetConsoleTextAttribute(hCon, FOREGROUND_INTENSITY | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN);
 }
 
 }

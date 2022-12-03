@@ -8,9 +8,13 @@ namespace luna
 {
 using LVector2f = Eigen::Vector2f;
 using LVector3f = Eigen::Vector3f;
+using LVector3d = Eigen::Vector3d;
 using LVector4f = Eigen::Vector4f;
+using LVector4d = Eigen::Vector4d;
 using LQuaternion = Eigen::Quaternionf;
+using LQuaterniond = Eigen::Quaterniond;
 using LTransform = Eigen::Transform<float, 3, Eigen::Affine, Eigen::RowMajor>;
+using LTransformd = Eigen::Transform<double, 3, Eigen::Affine, Eigen::RowMajor>;
 using LMatrix3f = Eigen::Matrix<float, 3, 3, Eigen::RowMajor>;
 using LMatrix4f = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
 using LAABB = Eigen::AlignedBox<float, 3>;
@@ -20,6 +24,18 @@ class CORE_API LMath
 public:
 	static void GenPerspectiveFovLHMatrix(LMatrix4f &m, float fovy, float aspect, float zn, float zf);
 	static void GenOrthoLHMatrix(LMatrix4f &m, float w, float h, float zn, float zf);
+
+	template<typename T>
+	static T ToAngle(T val)
+	{
+		return val / std::numbers::pi_v<T> *(T)180;
+	}
+
+	template<typename T>
+	static T ToRad(T val)
+	{
+		return val * std::numbers::pi_v<T> / (T)180;
+	}
 	static LQuaternion FromEuler(const LVector3f &euler);
 	static LVector3f ToEuler(const LQuaternion& quat);
 

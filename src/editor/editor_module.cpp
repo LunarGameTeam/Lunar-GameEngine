@@ -305,12 +305,6 @@ void EditorModule::SetupIMGUI()
 
 void EditorModule::OnWindowResize(LWindow&, WindowEvent& evt)
 {
-	// 	render::RHISwapchainDesc desc;
-	// 		desc.MaxFrameNum = 60;
-	// 		desc.WindowWidth = evt.width;
-	// 		desc.WindowHeight = evt.height;
-	//render::RHIDevice *device = g_render_sys->GetDevice();
-	//device->As<render::DX11Device>()->GetSwapchain()->Init(desc);
 	GetMainEditor()->mWidth = evt.width;
 	GetMainEditor()->mHeight = evt.height;
 

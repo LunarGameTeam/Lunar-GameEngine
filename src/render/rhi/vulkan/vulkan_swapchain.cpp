@@ -18,16 +18,19 @@ namespace luna::render
 bool VulkanSwapChain::Init()
 {
 	assert(mWindow != nullptr);
-	VkWin32SurfaceCreateInfoKHR surfaceCreateInfo{};
-	surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-	surfaceCreateInfo.hwnd = mWindow->GetWin32HWND();
-	surfaceCreateInfo.hinstance = GetModuleHandle(nullptr);
-	
+	if (!mSurface)
+	{
+		VkWin32SurfaceCreateInfoKHR surfaceCreateInfo{};
+		surfaceCreateInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+		surfaceCreateInfo.hwnd = mWindow->GetWin32HWND();
+		surfaceCreateInfo.hinstance = GetModuleHandle(nullptr);
 
-	if (vkCreateWin32SurfaceKHR(sRenderModule->GetDevice<VulkanDevice>()->GetVkInstance(), &surfaceCreateInfo, nullptr, &mSurface) != VK_SUCCESS) {
-		throw std::runtime_error("failed to create window surface!");
+		if (vkCreateWin32SurfaceKHR(sRenderModule->GetDevice<VulkanDevice>()->GetVkInstance(), &surfaceCreateInfo, nullptr, &mSurface) != VK_SUCCESS) {
+			throw std::runtime_error("failed to create window surface!");
+		}
+
 	}
-
+	
 	vk::PhysicalDevice mPhysicalDevice = sRenderModule->GetDevice<VulkanDevice>()->GetPhysicalDevice();
 	
 	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
@@ -65,33 +68,42 @@ bool VulkanSwapChain::Init()
 	createInfo.presentMode = presentMode;
 	createInfo.clipped = VK_TRUE;
 	createInfo.oldSwapchain = VK_NULL_HANDLE;
-	if(device.createSwapchainKHR(&createInfo, nullptr, &mSwapChain) != vk::Result::eSuccess) {
-		throw std::runtime_error("failed to create swap chain!");
+	if (mSwapChain)
+	{
+		device.destroySwapchainKHR(mSwapChain);		
 	}
+
+	VULKAN_ASSERT(device.createSwapchainKHR(&createInfo, nullptr, &mSwapChain));
 
 
 	mSwapChainImageFormat = surfaceFormat.format;
 	mSwapChainExtent = extent;
 
 	vkGetSwapchainImagesKHR(device, mSwapChain, &imageCount, nullptr);
+	
 	mBackBuffers.resize(imageCount);
+	
 	mImageAvailable.resize(imageCount);
 	mSwapchainRelease.resize(imageCount);
 	mFence.resize(imageCount);
+
 	for (uint32_t i = 0; i < mBackBuffers.size(); i++)
 	{
 		TRHIPtr<VulkanResource> backBufferTexture = CreateRHIObject<VulkanResource>(i, this);
 		mBackBuffers[i] = backBufferTexture.get();
 		
-		vk::SemaphoreCreateInfo semaphore_create_info = {};
+		vk::SemaphoreCreateInfo createInfo = {};
 		
 		vk::FenceCreateInfo fenceInfo{};	
 
-		VULKAN_ASSERT(device.createSemaphore(&semaphore_create_info, nullptr, &mImageAvailable[i]));
-		
-		VULKAN_ASSERT(device.createSemaphore(&semaphore_create_info, nullptr, &mSwapchainRelease[i]));
-		
-		VULKAN_ASSERT(device.createFence(&fenceInfo, nullptr, &mFence[i]));
+		if(!mImageAvailable[i])
+			VULKAN_ASSERT(device.createSemaphore(&createInfo, nullptr, &mImageAvailable[i]));
+
+		if (!mSwapchainRelease[i])
+			VULKAN_ASSERT(device.createSemaphore(&createInfo, nullptr, &mSwapchainRelease[i]));
+
+		if (!mFence[i])
+			VULKAN_ASSERT(device.createFence(&fenceInfo, nullptr, &mFence[i]));
 		
 	}
 
@@ -155,8 +167,8 @@ vk::Extent2D VulkanSwapChain::chooseSwapExtent(const vk::SurfaceCapabilitiesKHR&
 	{
 
 		vk::Extent2D actualExtent = {
-			static_cast<uint32_t>(sWindowModule->GetMainWindow()->GetWindowWidth()),
-			static_cast<uint32_t>(sWindowModule->GetMainWindow()->GetWindowHeight())
+			static_cast<uint32_t>(mWindowDesc.mWidth),
+			static_cast<uint32_t>(mWindowDesc.mHeight)
 		};
 
 		actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
@@ -207,6 +219,8 @@ uint32_t VulkanSwapChain::GetNowFrameID()
 
 bool VulkanSwapChain::Reset(const RHIWindowDesc& window_width_in)
 {
+	mWindow = window_width_in;
+	Init();
 	return true;
 }
 

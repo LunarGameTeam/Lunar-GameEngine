@@ -1,7 +1,7 @@
 #include "core/core_library.h"
 #include "core/file/path.h"
-#include "core/file/file_subsystem.h"
-#include "core/asset/asset_subsystem.h"
+#include "core/file/platform_module.h"
+#include "core/asset/asset_module.h"
 #include "core/asset/asset.h"
 
 using namespace luna;
@@ -15,8 +15,8 @@ void OnFileOpen(LSharedPtr<FileAsyncHandle> file)
 
 TEST(Core, File)
 {
-	FileSystem *file_sys = gEngine->GetModule<FileSystem>();
-	AssetSystem *asset_sys = gEngine->GetModule<AssetSystem>();
+	PlatformModule *file_sys = gEngine->GetModule<PlatformModule>();
+	AssetModule*asset_sys = gEngine->GetModule<AssetModule>();
 	IPlatformFileManager *manager = file_sys->GetPlatformFileManager();
 
 	//获取一个文件/文件夹的信息

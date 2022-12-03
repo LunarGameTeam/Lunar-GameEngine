@@ -67,8 +67,8 @@ public:
 
 struct RHIDepthStencilStateDesc
 {
-	bool                      DepthEnable = false;
-	bool					  DepthWrite = false;
+	bool                      DepthEnable = true;
+	bool					  DepthWrite = true;
 	RHIComparisionFunc        DepthFunc = RHIComparisionFunc::FuncLess;
 	bool                      StencilEnable = false;
 	uint8_t                   StencilReadMask = 0xFF;

@@ -63,20 +63,26 @@ void LMath::GenOrthoLHMatrix(LMatrix4f &m, float w, float h, float zn, float zf)
 	m(3, 3) = 1.0f;
 }
 
+
 LQuaternion LMath::FromEuler(const LVector3f &euler)
 {
 
-	LQuaternion q;
-	q = Eigen::AngleAxisf(euler[0] * std::numbers::pi_v<float> / 180.f, LVector3f::UnitX())
-		* Eigen::AngleAxisf(euler[1] * std::numbers::pi_v<float> / 180.f, LVector3f::UnitY())
-		* Eigen::AngleAxisf(euler[2] * std::numbers::pi_v<float> / 180.f, LVector3f::UnitZ());
+	float xEuler = ToRad(euler[0]);
+	float yEuler = ToRad(euler[1]);
+	float zEuler = ToRad(euler[2]);
+	auto ry = Eigen::AngleAxisf(yEuler, LVector3f::UnitY());
+	auto rx = Eigen::AngleAxisf(xEuler, LVector3f::UnitX());
+	auto rz = Eigen::AngleAxisf(zEuler, LVector3f::UnitZ());
+	LQuaternion q = ry * rx * rz;
+	q.normalized();
 	return q;
 }
 
 luna::LVector3f LMath::ToEuler(const LQuaternion& quat)
 {
-	LVector3f res = quat.toRotationMatrix().eulerAngles(0, 1, 2);
-	res = res / std::numbers::pi_v<float> *180.f;
+	LVector3f res = quat.toRotationMatrix().eulerAngles(1, 0, 2);
+	res = res / std::numbers::pi_v<float> *180.f;	
+	std::swap(res.x(), res.y());
 	return res;
 }
 

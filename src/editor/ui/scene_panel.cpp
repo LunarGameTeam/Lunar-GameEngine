@@ -77,10 +77,10 @@ void SceneEditor::OnGUI()
 			float delta_y = delta.y / 500.0f;
 			float delta_x = delta.x / 500.0f;
 			auto v = Eigen::AngleAxisf(-delta_y * (float)std::numbers::pi, LVector3f::UnitX());
-			auto h = Eigen::AngleAxisf(delta_x * (float)std::numbers::pi, transform->UpDirection());
+			auto h = Eigen::AngleAxisf(delta_x * (float)std::numbers::pi, LVector3f::UnitY());
 			auto pos = transform->GetPosition();
 			auto rotation = transform->GetRotation();
-			rotation = h * rotation;
+			rotation = h * rotation  * v;
 			transform->SetRotation(rotation);
 			ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
 		}

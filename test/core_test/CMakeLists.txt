@@ -11,10 +11,10 @@ auto_source_group("${ALL_FILES}" DST_FILES)
 
 add_executable(core_test ${DST_FILES})
 
-set_property(TARGET editor PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${SOLUTION_CMAKE_SOURCE_PATH}")
+set_property(TARGET core_test PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${SOLUTION_CMAKE_SOURCE_PATH}")
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-add_dependencies(core_test core gtest_main)
-target_link_libraries(core_test core gtest_main)
+add_dependencies(core_test core GTest::gtest_main)
+target_link_libraries(core_test core GTest::gtest_main)
 

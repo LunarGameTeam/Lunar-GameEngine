@@ -1,8 +1,8 @@
 #include "core/core_library.h"
 #include "core/file/path.h"
 #include "core/config/config.h"
-#include "core/file/file_subsystem.h"
-#include "core/asset/asset_subsystem.h"
+#include "core/file/platform_module.h"
+#include "core/asset/asset_module.h"
 #include "core/asset/asset.h"
 #include "core/serialization/dict_data.h"
 

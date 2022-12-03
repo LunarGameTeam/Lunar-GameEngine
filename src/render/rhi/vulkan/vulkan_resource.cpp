@@ -79,6 +79,9 @@ VulkanResource::VulkanResource(const RHITextureDesc& textureDesc, const RHIResDe
 	imageInfo.extent.depth = 1;
 	imageInfo.arrayLayers = resDesc.DepthOrArraySize;
 	imageInfo.mipLevels = resDesc.MipLevels;
+	if (imageInfo.arrayLayers % 6 == 0)
+		imageInfo.flags |= vk::ImageCreateFlagBits::eCubeCompatible;
+
 	imageInfo.initialLayout = vk::ImageLayout::eUndefined;
 	
 	if (Has(resDesc.mImageUsage, RHIImageUsage::TransferSrcBit))

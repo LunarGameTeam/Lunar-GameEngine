@@ -23,6 +23,7 @@ struct property_editor<LQuaternion>
 		LType* prop_type = prop->GetType();
 		LType* target_type = target->GetClass();
 		LQuaternion& prop_val = prop->GetValue<LQuaternion>(target);
+		prop_val.normalized();
 		LVector3f euler = LMath::ToEuler(prop_val);
 		float float_val[3];
 		float_val[0] = euler.x();

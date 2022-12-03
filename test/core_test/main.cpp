@@ -1,9 +1,9 @@
 #include "core/core_library.h"
-#include "core/file/file_subsystem.h"
+#include "core/file/platform_module.h"
 #include "core/framework/application.h"
-#include "core/asset/asset_subsystem.h"
+#include "core/asset/asset_module.h"
+#include "core/event/eventmodule.h"
 
-#include "core/event/event_subsystem.h"
 #include <gtest/gtest.h>
 
 using namespace luna;

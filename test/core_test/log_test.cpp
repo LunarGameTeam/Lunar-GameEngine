@@ -1,6 +1,5 @@
 #include "core/core_library.h"
 #include "core/file/path.h"
-#include "core/file/file_subsystem.h"
 
 using namespace luna;
 
@@ -8,7 +7,7 @@ using namespace luna;
 
 TEST(Core, Log)
 {
-	LogVerboseFormat(E_Core, "format log out {0}", 1.0f);
-	LogWarningFormat(E_Core, "format log out {0}", 10.0f);
-	LogErrorFormat(E_Core, g_Failed, "format log out {0}", 100.0f);
+	Log("Core", "format log out {0}", 1.0f);
+	LogWarning("Core", "format log out {0}", 10.0f);
+	LogError("Core", "format log out {0}", 100.0f);
 }
