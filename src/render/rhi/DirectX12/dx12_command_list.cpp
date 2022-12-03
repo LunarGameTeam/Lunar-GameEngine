@@ -129,27 +129,6 @@ void DX12GraphicCmdList::CopyBufferToTexture(
 
 }
 
-void DX12GraphicCmdList::CopyTextureRegionByFootprint(
-	RHIResource* dstRes,
-	const size_t dsrSubResNum,
-	RHIResource* srcRes,
-	const RHIPlacedSubResFootprint& srcFootprint
-)
-{
-	DX12Resource* dst_dx_res = dstRes->As<DX12Resource>();
-	DX12Resource* src_dx_res = srcRes->As<DX12Resource>();
-	D3D12_TEXTURE_COPY_LOCATION target_copy_loc;
-	target_copy_loc.Type = D3D12_TEXTURE_COPY_TYPE::D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-	target_copy_loc.pResource = dst_dx_res->GetResource();
-	target_copy_loc.SubresourceIndex = dsrSubResNum;
-	D3D12_TEXTURE_COPY_LOCATION source_copy_loc;
-	auto foot_print = GetFootPrint(srcFootprint);
-	source_copy_loc.Type = D3D12_TEXTURE_COPY_TYPE::D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-	source_copy_loc.pResource = src_dx_res->GetResource();
-	source_copy_loc.PlacedFootprint = foot_print;
-	mDxCmdList->CopyTextureRegion(&target_copy_loc, 0, 0, 0, &source_copy_loc, nullptr);
-}
-
 void DX12GraphicCmdList::SetPipelineState(
 	RHIPipelineState* pipeline
 )

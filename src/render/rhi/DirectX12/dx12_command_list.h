@@ -66,13 +66,6 @@ public:
 		uint32_t source_subresource
 	) override;
 
-	void CopyTextureRegionByFootprint(
-		RHIResource* target_resource,
-		const size_t target_subresource,
-		RHIResource* source_resource,
-		const RHIPlacedSubResFootprint& source_footprint
-	) override;
-
 	void SetPipelineState(
 		RHIPipelineState* pipeline
 	) override;

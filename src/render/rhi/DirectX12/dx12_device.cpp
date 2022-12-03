@@ -72,10 +72,6 @@ void DX12Device::InitDescriptorHeap()
 
 DX12Device::~DX12Device()
 {
-	if (m_upload_buffer != nullptr)
-	{
-		delete m_upload_buffer;
-	}
 }
 
 bool DX12Device::CheckIfResourceHeapTire2()
@@ -121,7 +117,6 @@ bool DX12Device::InitDeviceData()
 	//注册全局反射
 	AddDirectXEnumVariable();
 	m_device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &m_feature_desc, sizeof(m_feature_desc));
-	m_upload_buffer = new LDirectx12DynamicRingBuffer();
 
 	InitDescriptorHeap();
 	return  true;
@@ -244,202 +239,6 @@ TRHIPtr<RHIFence> DX12Device::CreateFence()
 	return CreateRHIObject<DX12Fence>();
 };
 
-RHIResourcePtr DX12Device::CreateUniforBuffer(size_t uniform_buffer_size)
-{
-	RHIResDesc required_uinform_buffer_desc;
-	required_uinform_buffer_desc.ResHeapType = RHIHeapType::Upload;
-	required_uinform_buffer_desc.Desc.Alignment = 0;
-	required_uinform_buffer_desc.Desc.DepthOrArraySize = 1;
-	required_uinform_buffer_desc.Desc.Dimension = RHIResDimension::Buffer;
-	required_uinform_buffer_desc.Desc.mUsage = RHIResourceUsage::RESOURCE_FLAG_NONE;
-	required_uinform_buffer_desc.Desc.Height = 1;
-	required_uinform_buffer_desc.Desc.Layout = RHITextureLayout::TEXTURE_LAYOUT_ROW_MAJOR;
-	required_uinform_buffer_desc.Desc.MipLevels = 1;
-	required_uinform_buffer_desc.Desc.SampleDesc.Count = 1;
-	required_uinform_buffer_desc.Desc.SampleDesc.Quality = 0;
-	required_uinform_buffer_desc.Desc.Width = uniform_buffer_size;
-	auto p = CreateRHIObject<DX12Resource>(required_uinform_buffer_desc, D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON);
-	return p;
-}
-
-luna::render::RHIResourcePtr DX12Device::CreateCommitTexture(
-	RHITextureDesc& texture_desc,
-	RHIResDesc& texture_resource_desc,
-	byte* init_data,
-	size_t data_size,
-	TextureMemoryType init_memory_type
-)
-{
-	RHIResourcePtr empty_pointer;
-
-	if (init_memory_type == TextureMemoryType::DDS)
-	{
-		return empty_pointer;
-	}
-
-	empty_pointer = CreateRHIObject<DX12Resource>(texture_resource_desc, 1,
-		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON);
-	TRHIPtr<RHIResource> now_res_out = empty_pointer;
-	//根据资源格式确定资源的拷贝信息
-	auto res_desc_dx = GetResourceDesc(texture_resource_desc.Desc);
-	auto depth = res_desc_dx.DepthOrArraySize;
-	if (depth == 1)
-	{
-		D3D12_PLACED_SUBRESOURCE_FOOTPRINT copy_layout;
-		UINT pNumRows;
-		UINT64 pRowSizeInBytes;
-		UINT64 pTotalBytes;
-		m_device->GetCopyableFootprints(&res_desc_dx, 0, 1, 0, &copy_layout, &pNumRows, &pRowSizeInBytes,
-			&pTotalBytes);
-		auto footprint_use = GetFootPrintDx(copy_layout);
-		assert(pTotalBytes == data_size);
-		m_upload_buffer->CopyDataToGpu(init_data, data_size, now_res_out, footprint_use, 0);
-		return empty_pointer;
-	}
-	if (depth > 1)
-	{
-
-		LVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> copy_layout(depth);
-		LVector<D3D12_SUBRESOURCE_DATA> subs(depth);
-		LVector<UINT> pNumRows(depth);
-		LVector<UINT64> pRowSizeInBytes(depth);
-		UINT64 pTotalBytes;
-		m_device->GetCopyableFootprints(&res_desc_dx, 0, depth, 0, copy_layout.data(), pNumRows.data(), pRowSizeInBytes.data(),
-			&pTotalBytes);
-		for (int i = 0; i < depth; i++)
-		{
-			D3D12_SUBRESOURCE_DATA& it = subs[i];
-			it.pData = (byte*)(init_data)+i * pNumRows[i] * pRowSizeInBytes[i];
-			it.RowPitch = pRowSizeInBytes[i];
-			it.SlicePitch = pNumRows[i] * pRowSizeInBytes[i];
-		}
-		m_upload_buffer->CopyDataToGpu(subs, copy_layout, pRowSizeInBytes, pNumRows, now_res_out, data_size);
-
-		return empty_pointer;
-	}
-	return empty_pointer;
-}
-
-RHIResourcePtr DX12Device::CreateTextureArray(RHITextureDesc& texture_desc, RHIResDesc& texture_resource_desc, LVector<const byte*> init_datas, TextureMemoryType init_memory_type)
-{
-
-	RHIResourcePtr empty_pointer;
-	if (init_memory_type == TextureMemoryType::DDS)
-	{
-		return empty_pointer;
-	}
-
-	empty_pointer = CreateRHIObject<DX12Resource>(texture_resource_desc, 1,
-		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON);
-	TRHIPtr<RHIResource> now_res_out = empty_pointer;
-	//根据资源格式确定资源的拷贝信息
-	auto res_desc_dx = GetResourceDesc(texture_resource_desc.Desc);
-	auto depth = res_desc_dx.DepthOrArraySize;
-	assert(depth > 1);
-	assert(depth == init_datas.size());
-	LVector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> copy_layout(depth);
-	LVector<D3D12_SUBRESOURCE_DATA> subs(depth);
-	LVector<UINT> pNumRows(depth);
-	LVector<UINT64> pRowSizeInBytes(depth);
-	UINT64 pTotalBytes;
-	m_device->GetCopyableFootprints(&res_desc_dx, 0, depth, 0, copy_layout.data(), pNumRows.data(), pRowSizeInBytes.data(),
-		&pTotalBytes);
-	for (int i = 0; i < depth; i++)
-	{
-		D3D12_SUBRESOURCE_DATA& it = subs[i];
-		it.pData = init_datas[i];
-		it.RowPitch = pRowSizeInBytes[i];
-		it.SlicePitch = pNumRows[i] * pRowSizeInBytes[i];
-	}
-	m_upload_buffer->CopyDataToGpu(subs, copy_layout, pRowSizeInBytes, pNumRows, now_res_out, pTotalBytes);
-
-	return empty_pointer;
-
-}
-
-
-
-luna::render::RHIResourcePtr DX12Device::CreateCommitBuffer(
-	const RHIBufferDesc& buffer_desc,
-	void* init_data
-)
-{
-	return nullptr;
-	// 	RHIResDesc bufferDesc;
-	// 	bufferDesc.Desc.Dimension = RHIResDimension::Buffer;
-	// 	bufferDesc.Desc.Height = 1;
-	// 	bufferDesc.Desc.DepthOrArraySize = 1;
-	// 	bufferDesc.Desc.MipLevels = 1;
-	// 	bufferDesc.Desc.Layout = RHITextureLayout::TEXTURE_LAYOUT_ROW_MAJOR;
-	// 	RHIResourcePtr now_buffer_out = CreateRHIObject<DX12Resource>(
-	// 		buffer_desc, D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON);
-	// 	TRHIPtr<RHIResource> now_res_out = now_buffer_out;
-	// 	m_upload_buffer->CopyDataToGpu(init_data, buffer_desc.Width, now_res_out);
-	// 	return now_buffer_out;
-};
-
-luna::render::RHIResourcePtr DX12Device::CreatePlacedBuffer(
-	RHIMemory* res_heap,
-	size_t offset,
-	size_t buffer_size,
-	LResState res_state
-)
-{
-	RHIResDesc res_desc;
-	res_desc.ResHeapType = res_heap->GetDesc().Type;
-	res_desc.Desc.Alignment = 0;
-	res_desc.Desc.DepthOrArraySize = 1;
-	res_desc.Desc.Dimension = RHIResDimension::Buffer;
-	res_desc.Desc.mUsage = RHIResourceUsage::RESOURCE_FLAG_NONE;
-	res_desc.Desc.Height = 1;
-	res_desc.Desc.Layout = RHITextureLayout::TEXTURE_LAYOUT_ROW_MAJOR;
-	res_desc.Desc.MipLevels = 1;
-	res_desc.Desc.SampleDesc.Count = 1;
-	res_desc.Desc.SampleDesc.Quality = 0;
-	res_desc.Desc.Width = buffer_size;
-	res_desc.Desc.Format = RHITextureFormat::FORMAT_UNKNOWN;
-	return CreateRHIObject<DX12Resource>(res_heap, offset, res_desc, GetResourceState(res_state));
-};
-
-RHIResourcePtr DX12Device::CreatePlacedTexture(
-	RHIMemory* res_heap,
-	size_t offset,
-	const RHITextureDesc& texture_desc,
-	const RHIResDesc& texture_resource_desc
-)
-{
-	size_t numberOfResources = 1;
-	if (texture_resource_desc.Desc.Dimension != RHIResDimension::Texture3D)
-	{
-		numberOfResources = texture_resource_desc.Desc.DepthOrArraySize;
-	}
-	numberOfResources *= texture_resource_desc.Desc.MipLevels;
-	auto format = GetGraphicFormat(texture_resource_desc.Desc.Format);
-	UINT numberOfPlanes = D3D12GetFormatPlaneCount(m_device.Get(), format);
-	numberOfResources *= numberOfPlanes;
-	auto p = CreateRHIObject<DX12Resource>(res_heap, offset, texture_resource_desc, numberOfResources,
-		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON);
-	return p;
-};
-
-RHIResourcePtr DX12Device::CreateEmptyTexture(
-	const RHITextureDesc& texture_desc,
-	const RHIResDesc& texture_resource_desc
-)
-{
-	size_t numberOfResources = 1;
-	if (texture_resource_desc.Desc.Dimension != RHIResDimension::Texture3D)
-	{
-		numberOfResources = texture_resource_desc.Desc.DepthOrArraySize;
-	}
-	numberOfResources *= texture_resource_desc.Desc.MipLevels;
-	auto format = GetGraphicFormat(texture_resource_desc.Desc.Format);
-	UINT numberOfPlanes = D3D12GetFormatPlaneCount(m_device.Get(), format);
-	numberOfResources *= numberOfPlanes;
-	return CreateRHIObject<DX12Resource>(texture_resource_desc, numberOfResources,
-		D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON);
-}
-
 size_t DX12Device::CountResourceSizeByDesc(const RHIResDesc& res_desc)
 {
 	auto dx12_res_desc = GetResourceDesc(res_desc.Desc);
@@ -526,6 +325,7 @@ RHIBindingSetPtr DX12Device::CreateBindingSet(RHIDescriptorPool* pool, RHIBindin
 
 luna::render::RHIResourcePtr DX12Device::CreateTextureExt(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc)
 {
+	//return CreateRHIObject<VulkanResource>(textureDesc, resDesc);
 	RHIResourcePtr res = CreateRHIObject<DX12ResourceNew>();
 	res->mResType = ResourceType::kTexture;
 	res->mFormat = resDesc.Desc.Format;

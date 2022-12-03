@@ -62,56 +62,6 @@ public:
 	) {	return nullptr;	};
 
 	[[deprecated]]
-	virtual RHIResourcePtr CreateUniforBuffer(size_t uniform_buffer_size) { return nullptr; };
-
-
-	[[deprecated]]
-	virtual RHIResourcePtr CreateCommitTexture(
-		RHITextureDesc& texture_desc,
-		RHIResDesc& texture_resource_desc,
-		byte* init_data,
-		size_t data_size,
-		TextureMemoryType init_memory_type
-	) {	return nullptr;	};
-
-	[[deprecated]]
-	virtual RHIResourcePtr CreateTextureArray(
-		RHITextureDesc& texture_desc,
-		RHIResDesc& texture_resource_desc,
-		LVector<const byte*> init_datas,
-		TextureMemoryType init_memory_type
-	) { return nullptr;	};
-
-
-	[[deprecated]]
-	virtual RHIResourcePtr CreateCommitBuffer(
-		const RHIBufferDesc& buffer_desc,
-		void* init_data
-	) {	return nullptr; };
-
-	[[deprecated]]
-	virtual RHIResourcePtr CreatePlacedBuffer(
-		RHIMemory* res_heap,
-		size_t offset,
-		size_t buffer_size,
-		LResState res_state
-	) { return nullptr;	};
-
-	[[deprecated]]
-	virtual RHIResourcePtr CreatePlacedTexture(
-		RHIMemory* res_heap,
-		size_t offset,
-		const RHITextureDesc& texture_desc,
-		const RHIResDesc& texture_resource_desc
-	) {	return nullptr;	};
-
-	[[deprecated]]
-	virtual RHIResourcePtr CreateEmptyTexture(
-		const RHITextureDesc& texture_desc,
-		const RHIResDesc& texture_resource_desc
-	) {	return nullptr;	};
-
-	[[deprecated]]
 	virtual size_t CountResourceSizeByDesc(const RHIResDesc& res_desc) { return 0; }
 
 	virtual bool InitDeviceData() = 0;

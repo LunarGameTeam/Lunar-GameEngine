@@ -412,11 +412,6 @@ void VulkanGraphicCmdList::CopyBufferToTexture(RHIResource* dst, uint32_t target
 
 }
 
-void VulkanGraphicCmdList::CopyTextureRegionByFootprint(RHIResource* target_resource, const size_t target_subresource, RHIResource* source_resource, const RHIPlacedSubResFootprint& source_footprint)
-{
-	
-}
-
 void VulkanGraphicCmdList::SetPipelineState(RHIPipelineState* pipeline)
 {
 	vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->As<VulkanPipelineState>()->mPipeline);

@@ -121,14 +121,6 @@ public:
 		const LResState& resource_state_target
 	) = 0; 
 
-	[[deprecated]]
-	virtual void CopyTextureRegionByFootprint(
-		RHIResource* target_resource,
-		const size_t target_subresource,
-		RHIResource* source_resource,
-		const RHIPlacedSubResFootprint& source_footprint
-	) = 0;
-
 
 protected:
 	bool mClosed = false;
