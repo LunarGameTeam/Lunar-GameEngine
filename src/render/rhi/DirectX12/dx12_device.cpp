@@ -171,7 +171,7 @@ luna::render::TRHIPtr<luna::render::RHIMemory> DX12Device::AllocMemory(const RHI
 
 void DX12Device::CopyInitDataToResource(void* initData, size_t dataSize, RHIResourcePtr sourceDataLayout, RHIResourcePtr resDynamic)
 {
-	
+	int a = 0;
 // 	dxMemoryLayout->mDxRequire.pLayouts.resize(mDxDesc.DepthOrArraySize);
 // 	dxMemoryLayout->mDxRequire.pNumRows.resize(mDxDesc.DepthOrArraySize);
 // 	dxMemoryLayout->mDxRequire.pRowSizeInBytes.resize(mDxDesc.DepthOrArraySize);
@@ -258,59 +258,7 @@ RHIRenderPassPtr DX12Device::CreateRenderPass(const RenderPassDesc& desc)
 
 RHIResourcePtr DX12Device::CreateSamplerExt(const SamplerDesc& desc)
 {
-	ID3D12Device* device = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
-
-	RHIResourcePtr res = CreateRHIObject<DX12Resource>();
-	res->mDimension = RHIResDimension::Unknown;
-	res->mResType = ResourceType::kSampler;
-	
-	DX12Resource* dx12Res = res->As< DX12Resource>();
-	D3D12_SAMPLER_DESC& sampler_desc = dx12Res->mDxSamplerDesc;
-
-	switch (desc.filter)
-	{
-	case SamplerFilter::kAnisotropic:
-		sampler_desc.Filter = D3D12_FILTER_ANISOTROPIC;
-		break;
-	case SamplerFilter::kMinMagMipLinear:
-		sampler_desc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-		break;
-	case SamplerFilter::kComparisonMinMagMipLinear:
-		sampler_desc.Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
-		break;
-	}
-
-	switch (desc.mode)
-	{
-	case SamplerTextureAddressMode::kWrap:
-		sampler_desc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-		sampler_desc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-		sampler_desc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
-		break;
-	case SamplerTextureAddressMode::kClamp:
-		sampler_desc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-		sampler_desc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-		sampler_desc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-		break;
-	}
-
-	switch (desc.func)
-	{
-	case SamplerComparisonFunc::kNever:
-		sampler_desc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
-		break;
-	case SamplerComparisonFunc::kAlways:
-		sampler_desc.ComparisonFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-		break;
-	case SamplerComparisonFunc::kLess:
-		sampler_desc.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS;
-		break;
-	}
-
-	sampler_desc.MinLOD = 0;
-	sampler_desc.MaxLOD = std::numeric_limits<float>::max();
-	sampler_desc.MaxAnisotropy = 1;
-	return res;
+	return CreateRHIObject<DX12Resource>(desc);
 }
 
 RHIViewPtr DX12Device::CreateView(const ViewDesc& desc)
@@ -325,75 +273,12 @@ RHIBindingSetPtr DX12Device::CreateBindingSet(RHIDescriptorPool* pool, RHIBindin
 
 luna::render::RHIResourcePtr DX12Device::CreateTextureExt(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc)
 {
-	//return CreateRHIObject<VulkanResource>(textureDesc, resDesc);
-	RHIResourcePtr res = CreateRHIObject<DX12Resource>();
-	res->mResType = ResourceType::kTexture;
-	res->mFormat = resDesc.Desc.Format;
-	res->mDimension = resDesc.Desc.Dimension;
-
-	DX12Resource* dxRes = res->As<DX12Resource>();
-	
-
-
-	D3D12_RESOURCE_DESC& desc = dxRes->mDxDesc;
-	desc.Width = resDesc.Desc.Width;
-	desc.Height = resDesc.Desc.Height;
-	desc.DepthOrArraySize = resDesc.Desc.DepthOrArraySize;
-	desc.MipLevels = resDesc.Desc.MipLevels;
-
-	switch (resDesc.Desc.Format)
-	{
-	case RHITextureFormat::FORMAT_R8G8BB8A8_UNORM:
-		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		break;
-	case RHITextureFormat::FORMAT_D24_UNORM_S8_UINT:
-		desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		break;
-	default:
-		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		break;
-	}
-	switch (resDesc.Desc.Dimension)
-	{
-	case RHIResDimension::Texture1D:
-		desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE1D;
-		break;
-	case RHIResDimension::Texture2D:
-		desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-		break;
-	case RHIResDimension::Texture3D:
-		desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE3D;
-		break;
-	}
-
-	desc.SampleDesc.Count = resDesc.Desc.SampleDesc.Count;
-	desc.SampleDesc.Quality = 0;
-
-	if (Has(resDesc.Desc.mImageUsage, RHIImageUsage::ColorAttachmentBit))
-		desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
-
-	if (Has(resDesc.Desc.mImageUsage, RHIImageUsage::DepthStencilBit))	
-		desc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
-
-
-	res->SetInitialState(ResourceState::kUndefined);
-	return res;
+	return CreateRHIObject<DX12Resource>(textureDesc, resDesc);
 }
 
 RHIResourcePtr DX12Device::CreateBufferExt(const RHIBufferDesc& bufferDesc)
 {
-
-	RHIResourcePtr res = CreateRHIObject<DX12Resource>();
-
-	res->mResType = ResourceType::kBuffer;
-	res->mResSize = bufferDesc.mSize;	
-	res->mDimension = RHIResDimension::Buffer;
-	DX12Resource* dxRes = res->As<DX12Resource>();
-	auto& desc = dxRes->mDxDesc;
-
-	desc = CD3DX12_RESOURCE_DESC::Buffer(bufferDesc.mSize);	
-	ResourceState state = ResourceState::kCommon;
-	return res;
+	return CreateRHIObject<DX12Resource>(bufferDesc);
 }
 
 }

@@ -59,20 +59,7 @@ bool DX12SwapChain::Reset(const RHIWindowDesc& window_width_in)
 	swapChain.As(&mSwapChain);
 	for (uint32_t frameIndex = 0; frameIndex < swapChainDesc.BufferCount; ++frameIndex)
 	{
-		RHIResourcePtr back_rt_tex = CreateRHIObject<DX12Resource>();
-		DX12Resource* dx12Res = back_rt_tex->As<DX12Resource>();
-		mSwapChain->GetBuffer(frameIndex, IID_PPV_ARGS(&dx12Res->mDxRes));
-		dx12Res->mDxDesc.MipLevels = 1;
-		dx12Res->mDxDesc.DepthOrArraySize = 1;
-		dx12Res->mResDesc.Desc.Width = window_width_in.mWidth;
-		dx12Res->mResDesc.Desc.Height = window_width_in.mHeight;
-		dx12Res->mResDesc.Desc.DepthOrArraySize = 1;		
-		dx12Res->mResDesc.Desc.MipLevels = 1;
-		
-		back_rt_tex->mDimension = RHIResDimension::Texture2D;
-		back_rt_tex->mFormat = RHITextureFormat::FORMAT_R8G8BB8A8_UNORM;
-		back_rt_tex->mResType = ResourceType::kTexture;		
-		back_rt_tex->SetInitialState(ResourceState::kPresent);
+		RHIResourcePtr back_rt_tex = CreateRHIObject<DX12Resource>(frameIndex,this);
 		mBackBuffers.push_back(back_rt_tex);
 	}
 	return true;

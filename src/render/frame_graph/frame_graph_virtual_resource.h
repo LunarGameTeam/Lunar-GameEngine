@@ -28,8 +28,6 @@ protected:
 public:
 	FGVirtualRes(const LString& name, const RHIResDesc& desc, VirtualResType type);
 
-	size_t GetResourceSize();
-
 	const LString& GetName() const
 	{
 		return mName;

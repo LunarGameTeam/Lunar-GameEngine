@@ -10,11 +10,6 @@ FGVirtualRes::FGVirtualRes(const LString& name, const RHIResDesc& desc, VirtualR
 
 }
 
-size_t FGVirtualRes::GetResourceSize()
-{
-	return sRenderModule->GetRHIDevice()->CountResourceSizeByDesc(mDesc);
-}
-
 FGVirtualRes::~FGVirtualRes()
 {
 }
