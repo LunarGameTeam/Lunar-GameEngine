@@ -40,25 +40,36 @@ void VulkanRenderQueue::ExecuteCommandLists(RHIGraphicCmdList* commond_list_arra
 	VULKAN_ASSERT(mQueue.submit(1, &submit_info, {}));
 }
 
-RHISwapChainPtr VulkanRenderQueue::CreateSwapChain(LWindow* trarget_window, const RHISwapchainDesc& trarget_window_desc)
+RHISwapChainPtr VulkanRenderQueue::CreateSwapChain(LWindow* window, const RHISwapchainDesc& desc)
 {
-	RHISwapChainPtr swapchin = CreateRHIObject<VulkanSwapChain>(trarget_window, trarget_window_desc);
+	RHISwapChainPtr swapchin = CreateRHIObject<VulkanSwapChain>(window, desc);
 	swapchin->As<VulkanSwapChain>()->Init();
 	return swapchin;
 }
 
-void VulkanRenderQueue::Signal(RHIFence* fence, size_t fence_value)
+void VulkanRenderQueue::Signal(RHIFence* fence, size_t val)
 {
 	decltype(auto) vk_fence = fence->As<VulkanFence>();
-	vk::TimelineSemaphoreSubmitInfo timeline_info = {};
-	timeline_info.signalSemaphoreValueCount = 1;
-	timeline_info.pSignalSemaphoreValues = &fence_value;
+	vk::TimelineSemaphoreSubmitInfo timeline = {};
+	timeline.signalSemaphoreValueCount = 1;
+	timeline.pSignalSemaphoreValues = &val;
 
-	vk::SubmitInfo signal_submit_info = {};
-	signal_submit_info.pNext = &timeline_info;
-	signal_submit_info.signalSemaphoreCount = 1;
-	signal_submit_info.pSignalSemaphores = &vk_fence->mSempahore;
-	VULKAN_ASSERT(mQueue.submit(1, &signal_submit_info, {}));
+	vk::SubmitInfo submit = {};
+	submit.pNext = &timeline;
+	submit.signalSemaphoreCount = 1;
+	submit.pSignalSemaphores = &vk_fence->mSempahore;
+	VULKAN_ASSERT(mQueue.submit(1, &submit, {}));
+}
+
+void VulkanRenderQueue::Present(RHISwapChain* swapchain)
+{
+	uint32_t nowIndex = swapchain->GetNowFrameID();
+	vk::PresentInfoKHR present_info = {};
+	present_info.swapchainCount = 1;
+	present_info.pSwapchains = &swapchain->As<VulkanSwapChain>()->mSwapChain;
+	present_info.pImageIndices = &nowIndex;
+	present_info.waitSemaphoreCount = 0;	
+	VULKAN_ASSERT(mQueue.presentKHR(&present_info));
 }
 
 }

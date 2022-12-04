@@ -26,7 +26,7 @@ public:
 		mSwapChain->GetBuffer(buffer_id, IID_PPV_ARGS(&rt_texture));
 	}
 
-	uint32_t NextImage(RHIFence* fence, uint64_t signal_value);
+	uint32_t NextImage();
 
 	bool InitSwapchain(ID3D12CommandQueue* cmdQueue);
 

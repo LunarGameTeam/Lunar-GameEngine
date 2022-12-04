@@ -104,12 +104,6 @@ void EditorModule::Tick(float delta_time)
 
 
 	render::RenderDevice* device = sRenderModule->GetRenderDevice();
-	if (mResize)
-	{
-		sRenderModule->GetSwapChain()->Reset(mWindowDesc);
-		sRenderModule->UpdateFrameBuffer();
-		mResize = false;
-	}
 }
 
 void EditorModule::OnIMGUI()
@@ -134,7 +128,7 @@ void EditorModule::OnWindowResize(LWindow&, WindowEvent& evt)
 	mWindowDesc.mFrameNumber = 2;
 	mWindowDesc.mHeight = evt.height;
 	mWindowDesc.mWidth = evt.width;
-	mResize = true;
+	mNeedResize = true;
 
 }
 
@@ -184,6 +178,17 @@ MainEditor* EditorModule::GetMainEditor()
 	if (!mMainEditor)
 		mMainEditor = GetEditor < MainEditor>();
 	return mMainEditor;
+}
+
+void EditorModule::OnFrameEnd(float deltaTime)
+{
+
+	if (mNeedResize)
+	{
+		sRenderModule->GetSwapChain()->Reset(mWindowDesc);
+		sRenderModule->UpdateFrameBuffer();
+		mNeedResize = false;
+	}
 }
 
 }

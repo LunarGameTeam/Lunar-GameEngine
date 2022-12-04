@@ -40,7 +40,7 @@ BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
    	output.position = mul(output.position, projectionMatrix);
 	
 	// Calculate the position of the vertice as viewed by the light source.
-    output.worldPosition = mul(input.position, worldMatrix);
+    output.worldPosition = mul(position, worldMatrix);
 
 	// Store the texture coordinates for the pixel shader.
 	output.uv = input.uv;

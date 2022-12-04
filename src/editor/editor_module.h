@@ -50,6 +50,7 @@ public:
 	bool OnShutdown() override;
 	void Tick(float delta_time) override;
 	void OnIMGUI() override;
+	void OnFrameEnd(float deltaTime) override;
 
 public:
 	EditorBase* RegisterEditor(EditorBase* base);
@@ -100,7 +101,7 @@ private:
 	TSubPtr<render::RenderTarget> mScreenRt;
 	
 
-	bool mResize = false;
+	bool mNeedResize = false;
 	LVector<EditorBase*> m_editors;
 
 	render::TRHIPtr<render::RHIFence> frame_fence_3D;

@@ -66,61 +66,6 @@ public:
 
 	virtual bool InitDeviceData() = 0;
 protected:
-// 
-// 	bool Create()
-// 	{
-// 		bool check_error;
-// 		check_error = InitDeviceData();
-// 		if (!check_error)
-// 		{
-// 			return check_error;
-// 		}
-// 		RHIStaticSamplerDesc sampler_member;
-// 		// Linear Clamp
-// 		sampler_member.Filter = RHIRenderFilter::FILTER_MIN_MAG_MIP_LINEAR;
-// 		sampler_member.AddressU = RHITextureAddressMode::TEXTURE_ADDRESS_MODE_CLAMP;
-// 		sampler_member.AddressV = RHITextureAddressMode::TEXTURE_ADDRESS_MODE_CLAMP;
-// 		sampler_member.AddressW = RHITextureAddressMode::TEXTURE_ADDRESS_MODE_CLAMP;
-// 		sampler_member.ShaderRegister = 0;
-// 		common_static_sampler.insert(std::pair<LString, RHIStaticSamplerDesc>("SampleTypeClamp", sampler_member));
-// 		// Linear Wrap
-// 		sampler_member.Filter = RHIRenderFilter::FILTER_MIN_MAG_MIP_LINEAR;
-// 		sampler_member.AddressU = RHITextureAddressMode::TEXTURE_ADDRESS_MODE_WRAP;
-// 		sampler_member.AddressV = RHITextureAddressMode::TEXTURE_ADDRESS_MODE_WRAP;
-// 		sampler_member.AddressW = RHITextureAddressMode::TEXTURE_ADDRESS_MODE_WRAP;
-// 		common_static_sampler.insert(std::pair<LString, RHIStaticSamplerDesc>("SampleTypeWrap", sampler_member));
-// 		// Linear Wrap
-// 		sampler_member.Filter = RHIRenderFilter::FILTER_MIN_MAG_MIP_LINEAR;
-// 		sampler_member.AddressU = RHITextureAddressMode::TEXTURE_ADDRESS_MODE_WRAP;
-// 		sampler_member.AddressV = RHITextureAddressMode::TEXTURE_ADDRESS_MODE_WRAP;
-// 		sampler_member.AddressW = RHITextureAddressMode::TEXTURE_ADDRESS_MODE_WRAP;
-// 		common_static_sampler.insert(std::pair<LString, RHIStaticSamplerDesc>("SampleLinearWrap", sampler_member));
-// 		// Point Wrap
-// 		sampler_member.Filter = RHIRenderFilter::FILTER_MIN_MAG_MIP_POINT;
-// 		sampler_member.AddressU = RHITextureAddressMode::TEXTURE_ADDRESS_MODE_WRAP;
-// 		sampler_member.AddressV = RHITextureAddressMode::TEXTURE_ADDRESS_MODE_WRAP;
-// 		sampler_member.AddressW = RHITextureAddressMode::TEXTURE_ADDRESS_MODE_WRAP;
-// 		common_static_sampler.insert(std::pair<LString, RHIStaticSamplerDesc>("SamplePointWrap", sampler_member));
-// 		// shadow
-// 		sampler_member.Filter = RHIRenderFilter::FILTER_MIN_MAG_MIP_POINT;
-// 		sampler_member.AddressU = RHITextureAddressMode::TEXTURE_ADDRESS_MODE_CLAMP;
-// 		sampler_member.AddressV = RHITextureAddressMode::TEXTURE_ADDRESS_MODE_CLAMP;
-// 		sampler_member.AddressW = RHITextureAddressMode::TEXTURE_ADDRESS_MODE_CLAMP;
-// 		sampler_member.ComparisonFunc = RHIComparisionFunc::FuncLessEqual;
-// 		common_static_sampler.insert(std::pair<LString, RHIStaticSamplerDesc>("SampleShadow", sampler_member));
-// 
-// 		// shadow
-// 		sampler_member.Filter = RHIRenderFilter::FILTER_MIN_MAG_MIP_LINEAR;
-// 		sampler_member.AddressU = RHITextureAddressMode::TEXTURE_ADDRESS_MODE_CLAMP;
-// 		sampler_member.AddressV = RHITextureAddressMode::TEXTURE_ADDRESS_MODE_CLAMP;
-// 		sampler_member.AddressW = RHITextureAddressMode::TEXTURE_ADDRESS_MODE_CLAMP;
-// 		sampler_member.ComparisonFunc = RHIComparisionFunc::FuncLessEqual;
-// 		common_static_sampler.insert(std::pair<LString, RHIStaticSamplerDesc>("SampleShadowPCF", sampler_member));
-// 
-// 		return true;
-// 	}
-private:
-
 
 	LUnorderedMap<LString, RHIStaticSamplerDesc> common_static_sampler;
 
@@ -143,10 +88,8 @@ protected:
 
 public:
 	virtual void ExecuteCommandLists(RHIGraphicCmdList* commond_list_array) = 0;
-	virtual RHISwapChainPtr CreateSwapChain(
-		LWindow* window,
-		const RHISwapchainDesc& trarget_window_desc
-	) = 0;
+	virtual RHISwapChainPtr CreateSwapChain(LWindow* window, const RHISwapchainDesc& desc) = 0;
+	virtual void Present(RHISwapChain* swapchain) {};
 	virtual void Wait(RHIFence* fence, uint64_t value) {};
 	virtual void Signal(RHIFence* fence, size_t fence_value) = 0;
 	virtual bool InitRenderQueue() { return true; };

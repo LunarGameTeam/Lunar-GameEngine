@@ -30,7 +30,7 @@ public:
 	
 	void PresentFrame(RHIFence* fence, uint64_t waitValue) override;
 	uint32_t GetNowFrameID() override;
-	uint32_t NextImage(RHIFence* fence, uint64_t signal_value) override;
+	uint32_t NextImage() override;
 	bool Reset(const RHISwapchainDesc& desc) override;
 	vk::SurfaceKHR GetVkSurface() { return mSurface; }
 
@@ -43,7 +43,7 @@ private:
 	std::vector<vk::Semaphore> mImageAvailable;
 	std::vector<vk::Semaphore> mSwapchainRelease;
 	std::vector<vk::Fence> mFence;
-	uint32_t mPrevFrameIdx;
+	uint32_t mPrevFrameIdx = 0;
 	VkSurfaceKHR mSurface = nullptr;
 
 	SwapChainSupportDetails querySwapChainSupport(vk::PhysicalDevice device);

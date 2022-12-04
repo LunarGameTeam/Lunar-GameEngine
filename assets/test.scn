@@ -63,7 +63,7 @@
    },
    "292c6a0e-455b-46d2-9ab4-235cbe0788c0" : {
       "material" : "c5ca5380-16ce-4ab6-ab2f-03464f410ebc",
-      "mesh" : "/assets/built-in/box.lmesh",
+      "mesh" : "/assets/built-in/sphere.lmesh",
       "name" : "",
       "type_name" : "MeshRenderer"
    },

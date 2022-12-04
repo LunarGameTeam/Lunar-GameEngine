@@ -262,6 +262,7 @@ void RenderModule::Tick(float delta_time)
 	}
 	mRenderDevice->mTransferCmd->EndEvent();
 
+	Render();
 	mRenderDevice->FlushStaging();
 	mFrameGraph->Flush();
 
@@ -283,41 +284,8 @@ void RenderModule::Tick(float delta_time)
 	//Engine IMGUI End
 	ImGui::Render();
 
-	size_t& mFenceValue3D = mRenderDevice->mFenceValue;
+	RenderIMGUI();
 
-	uint32_t index = 0;
-	mRenderDevice->mFence->Wait(mFenceValue3D);
-	mRenderDevice->mGraphicCmd->Reset();
-
-	index = sRenderModule->GetSwapChain()->NextImage(mRenderDevice->mFence, ++mFenceValue3D);
-
-	mRenderDevice->mFence->Wait(mFenceValue3D);
-
-	mRenderDevice->mGraphicCmd->BindDescriptorHeap();
-	mRenderDevice->mGraphicCmd->BeginEvent("IMGUI");
-
-	for (ImguiTexture& it : mImguiTextures)
-	{		
-		mRenderDevice->mGraphicCmd->ResourceBarrierExt({ it.mView->mBindResource, render::ResourceState::kUndefined, render::ResourceState::kShaderReadOnly });
-	}	
-
-	mRenderDevice->mGraphicCmd->ResourceBarrierExt({ sRenderModule->GetSwapChain()->GetBackBuffer(index), render::ResourceState::kUndefined, render::ResourceState::kRenderTarget });
-	mRenderDevice->mGraphicCmd->BeginRenderPass(mRenderPass, mFrameBuffer[index]);
-
-	if (mRenderDevice->mDeviceType == render::RenderDeviceType::DirectX12)
-		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), mRenderDevice->mGraphicCmd->As<render::DX12GraphicCmdList>()->mDxCmdList.Get());
-	else if (mRenderDevice->mDeviceType == render::RenderDeviceType::Vulkan)
-		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), mRenderDevice->mGraphicCmd->As<render::VulkanGraphicCmdList>()->mCommandBuffer);
-	mRenderDevice->mGraphicCmd->EndRenderPass();
-
-	mRenderDevice->mGraphicCmd->ResourceBarrierExt({ sRenderModule->GetSwapChain()->GetBackBuffer(index), render::ResourceState::kRenderTarget , render::ResourceState::kPresent });
-	mRenderDevice->mGraphicCmd->EndEvent();
-
-	mRenderDevice->mGraphicCmd->CloseCommondList();
-	mRenderDevice->mGraphicQueue->ExecuteCommandLists(mRenderDevice->mGraphicCmd);
-
-	mRenderDevice->mGraphicQueue->Signal(mRenderDevice->mFence, ++mFenceValue3D);
-	sRenderModule->GetSwapChain()->PresentFrame(mRenderDevice->mFence, mFenceValue3D);
 
 }
 
@@ -325,6 +293,8 @@ void RenderModule::OnFrameEnd(float deltaTime)
 {
 	mFrameGraph->Clear();
 	mRenderDevice->OnFrameEnd();
+	mRenderDevice->mGraphicQueue->Wait(mRenderDevice->mFence, mRenderDevice->mFenceValue);
+	mRenderDevice->mGraphicQueue->Present(mMainSwapchain);
 }
 
 RenderScene* RenderModule::AddScene()
@@ -344,6 +314,49 @@ ImguiTexture* RenderModule::AddImguiTexture(RHIResource* res)
 	imguiTexture->mView->BindResource(res);
 	imguiTexture->mImg =ImGui_ImplVulkan_AddTexture(mRenderDevice->mClampSampler->As<render::VulkanResource>()->mSampler, imguiTexture->mView->As<VulkanView>()->mImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	return imguiTexture;
+}
+
+void RenderModule::Render()
+{
+
+}
+
+void RenderModule::RenderIMGUI()
+{
+
+	size_t& fenceValue = mRenderDevice->mFenceValue;
+	
+	mRenderDevice->mFence->Wait(fenceValue);
+	mRenderDevice->mGraphicCmd->Reset();
+	mMainSwapchain->NextImage();
+	uint32_t index = mMainSwapchain->GetNowFrameID();
+
+	RHIRenderQueue* graphQueue = mRenderDevice->mGraphicQueue;
+
+	mRenderDevice->mFence->Wait(fenceValue);
+
+	mRenderDevice->mGraphicCmd->BindDescriptorHeap();
+	mRenderDevice->mGraphicCmd->BeginEvent("IMGUI");
+
+	for (ImguiTexture& it : mImguiTextures)
+	{
+		mRenderDevice->mGraphicCmd->ResourceBarrierExt({ it.mView->mBindResource, render::ResourceState::kUndefined, render::ResourceState::kShaderReadOnly });
+	}
+
+	mRenderDevice->mGraphicCmd->ResourceBarrierExt({ sRenderModule->GetSwapChain()->GetBackBuffer(index), render::ResourceState::kUndefined, render::ResourceState::kRenderTarget });
+	mRenderDevice->mGraphicCmd->BeginRenderPass(mRenderPass, mFrameBuffer[index]);
+	if (mRenderDevice->mDeviceType == render::RenderDeviceType::DirectX12)
+		ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), mRenderDevice->mGraphicCmd->As<render::DX12GraphicCmdList>()->mDxCmdList.Get());
+	else if (mRenderDevice->mDeviceType == render::RenderDeviceType::Vulkan)
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), mRenderDevice->mGraphicCmd->As<render::VulkanGraphicCmdList>()->mCommandBuffer);
+	mRenderDevice->mGraphicCmd->EndRenderPass();
+
+	mRenderDevice->mGraphicCmd->ResourceBarrierExt({ sRenderModule->GetSwapChain()->GetBackBuffer(index), render::ResourceState::kRenderTarget , render::ResourceState::kPresent });
+	mRenderDevice->mGraphicCmd->EndEvent();
+	mRenderDevice->mGraphicCmd->CloseCommondList();
+
+	graphQueue->ExecuteCommandLists(mRenderDevice->mGraphicCmd);
+	graphQueue->Signal(mRenderDevice->mFence, ++fenceValue);
 }
 
 }

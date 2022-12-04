@@ -34,7 +34,7 @@ void RenderView::PrepareViewBuffer()
 {
 	static ShaderAsset* debugShader = sAssetModule->LoadAsset<render::ShaderAsset>("/assets/built-in/depth.hlsl");
 
-	
+	PerViewBuffer viewBuffer;	
 	std::vector<byte> bufferPtr;
 	auto passBufferDesc = debugShader->GetConstantBufferDesc("ViewBuffer");
 	bufferPtr.resize(passBufferDesc.mBufferSize);

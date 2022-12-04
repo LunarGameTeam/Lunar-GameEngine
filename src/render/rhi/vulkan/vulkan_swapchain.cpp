@@ -114,6 +114,8 @@ bool VulkanSwapChain::Init()
 		mViews[i] = sRenderModule->GetRenderDevice()->CreateView(backbufferViewDesc);
 		mViews[i]->BindResource(mBackBuffers[i]);
 	}
+	mFrameIndex = 0;
+	mPrevFrameIdx = 0;
 
 	return true;
 }
@@ -228,10 +230,11 @@ bool VulkanSwapChain::Reset(const RHISwapchainDesc& windowDesc)
 {
 	mWindowDesc = windowDesc;
 	Init();
+	
 	return true;
 }
 
-uint32_t VulkanSwapChain::NextImage(RHIFence* fence, uint64_t signal_value)
+uint32_t VulkanSwapChain::NextImage()
 {
 	auto renderQueue = sRenderModule->GetCmdQueueCore()->As<VulkanRenderQueue>();
 	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
@@ -239,21 +242,6 @@ uint32_t VulkanSwapChain::NextImage(RHIFence* fence, uint64_t signal_value)
 	mPrevFrameIdx = mFrameIndex;
 	VULKAN_ASSERT(device.acquireNextImageKHR(mSwapChain, UINT64_MAX, mImageAvailable[mPrevFrameIdx], nullptr, &mFrameIndex));	
 
-	uint64_t tmp = std::numeric_limits<uint64_t>::max();
-	vk::TimelineSemaphoreSubmitInfo timeline_info = {};
-	timeline_info.waitSemaphoreValueCount = 1;
-	timeline_info.pWaitSemaphoreValues = &tmp;
-	timeline_info.signalSemaphoreValueCount = 1;
-	timeline_info.pSignalSemaphoreValues = &signal_value;
-	vk::SubmitInfo signal_submit_info = {};
-	signal_submit_info.pNext = &timeline_info;
-	signal_submit_info.waitSemaphoreCount = 1;
-	signal_submit_info.pWaitSemaphores = &mImageAvailable[mPrevFrameIdx];
-	vk::PipelineStageFlags waitDstStageMask = vk::PipelineStageFlagBits::eAllGraphics;
-	signal_submit_info.pWaitDstStageMask = &waitDstStageMask;
-	signal_submit_info.signalSemaphoreCount = 1;
-	signal_submit_info.pSignalSemaphores = &fence->As<VulkanFence>()->mSempahore;
-	VULKAN_ASSERT(renderQueue->mQueue.submit(1, &signal_submit_info, {}));
 	return mFrameIndex;
 }
 

@@ -89,12 +89,14 @@ void CameraComponent::OnCreate()
 
 void CameraComponent::OnTick(float delta_time)
 {
+	auto pos = mTransform->GetPosition();
 	if (mSpeed > 0.01)
 	{
-		auto pos = mTransform->GetPosition();
+		
 		pos = pos + mDirection * mSpeed * delta_time;
 		mTransform->SetPosition(pos);
 	}
+	mRenderView->SetViewPosition(pos);
 	mRenderView->SetViewMatrix(GetViewMatrix());
 	mRenderView->SetProjectionMatrix(GetProjectionMatrix());
 }

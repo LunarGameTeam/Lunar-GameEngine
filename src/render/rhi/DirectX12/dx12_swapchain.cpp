@@ -65,10 +65,9 @@ bool DX12SwapChain::Reset(const RHISwapchainDesc& window_width_in)
 	return true;
 }
 
-uint32_t DX12SwapChain::NextImage(RHIFence* fence, uint64_t signal_value)
+uint32_t DX12SwapChain::NextImage()
 {
 	uint32_t frame_index = GetNowFrameID();
-	sRenderModule->GetCmdQueueCore()->Signal(fence, signal_value);	
 	return frame_index;
 }
 

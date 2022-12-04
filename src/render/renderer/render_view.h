@@ -20,6 +20,14 @@ struct RenderObject;
 class RenderScene;
 class RenderModule;
 
+struct PerViewBuffer
+{
+	LMatrix4f viewMatrix;
+	LMatrix4f projectionMatrix;
+	LVector2f newFar;
+	LVector3f camPos;
+};
+
 enum class RenderViewType
 {
 	SceneView,
@@ -46,6 +54,7 @@ public:
 
 	void SetRenderTarget(RenderTarget* val) { mRT = val; }
 	void SetViewMatrix(const LMatrix4f& val) { mViewMatrix = val; }
+	void SetViewPosition(const LVector3f& val) { mViewPos = val; }
 	void SetProjectionMatrix(const LMatrix4f& val) { mProjMatrix = val; }
 
 	RenderViewType mViewType = RenderViewType::SceneView;;
@@ -65,6 +74,7 @@ private:
 
 	LMatrix4f mViewMatrix;
 	LMatrix4f mProjMatrix;
+	LVector3f mViewPos;
 
 	uint64_t mViewID;
 	TSubPtr<RenderTarget> mRT;

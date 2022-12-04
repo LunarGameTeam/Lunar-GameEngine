@@ -98,6 +98,9 @@ public:
 	int32_t GetRenderSeneSize() { return (int32_t)mRenderScenes.Size(); }
 
 	void UpdateFrameBuffer();
+protected:
+	void Render();
+	void RenderIMGUI();
 public:
 
 	RenderDevice* mRenderDevice;

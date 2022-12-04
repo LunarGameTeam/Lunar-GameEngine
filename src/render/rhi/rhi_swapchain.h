@@ -47,7 +47,7 @@ public:
 
 	virtual void PresentFrame(RHIFence* fence, uint64_t waitValue)     = 0;
 	virtual uint32_t GetNowFrameID()                                   = 0;
-	virtual uint32_t NextImage(RHIFence* fence, uint64_t signal_value) = 0;
+	virtual uint32_t NextImage() = 0;
 	virtual bool Reset(const RHISwapchainDesc& window_width_in)        = 0;
 };
 }
