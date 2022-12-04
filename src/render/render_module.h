@@ -29,13 +29,15 @@
 #include "render/rhi/rhi_types.h"
 
 #include <vulkan//vulkan.h>
+#include "render/rhi/DirectX12/dx12_descriptor_pool.h"
 namespace luna::render
 {
 //IMGUI
 struct ImguiTexture
 {
 	render::RHIViewPtr	mView;
-	VkDescriptorSet		mImg;
+	TRHIPtr<DX12GpuDescriptorSegment> descriptorPoolSave;
+	void* mImg;
 };
 
 class RenderDevice;

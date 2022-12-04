@@ -891,6 +891,47 @@ D3D12_SRV_DIMENSION RENDER_API GetSrvDimention(RHIResDimension srv_dimention)
 	return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_UNKNOWN;
 }
 
+D3D12_SRV_DIMENSION RENDER_API GetSrvDimentionByView(RHIViewDimension view_dimension)
+{
+	switch (view_dimension)
+	{
+	case luna::render::RHIViewDimension::BufferView:
+		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_BUFFER;
+		break;
+	case luna::render::RHIViewDimension::TextureView1D:
+		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURE1D;
+		break;
+	case luna::render::RHIViewDimension::TextureView1DArray:
+		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
+		break;
+	case luna::render::RHIViewDimension::TextureView2D:
+		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURE2D;
+		break;
+	case luna::render::RHIViewDimension::TextureView2DArray:
+		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
+		break;
+	case luna::render::RHIViewDimension::TextureView3D:
+		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURE3D;
+		break;
+	case luna::render::RHIViewDimension::TextureView3DArray:
+		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURE3D;
+		break;
+	case luna::render::RHIViewDimension::TextureViewCube:
+		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURECUBE;
+		break;
+	case luna::render::RHIViewDimension::TextureViewCubeArray:
+		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
+		break;
+	case luna::render::RHIViewDimension::Unknown:
+		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_UNKNOWN;
+		break;
+	default:
+		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_UNKNOWN;
+		break;
+	}
+	return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_UNKNOWN;
+}
+
 D3D12_SHADER_RESOURCE_VIEW_DESC RENDER_API GetShaderResourceViewDesc(const LShaderResourceViewDesc& srv_desc)
 {
 	D3D12_SHADER_RESOURCE_VIEW_DESC desc_out = {};

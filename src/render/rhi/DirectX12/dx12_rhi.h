@@ -57,6 +57,8 @@ D3D12_BUFFER_SRV_FLAGS RENDER_API GetBufferSrvFlags(LBufferSrvFlag srv_flag);
 
 D3D12_SRV_DIMENSION RENDER_API GetSrvDimention(RHIResDimension srv_dimention);
 
+D3D12_SRV_DIMENSION RENDER_API GetSrvDimentionByView(RHIViewDimension view_dimension);
+
 D3D12_SHADER_RESOURCE_VIEW_DESC RENDER_API GetShaderResourceViewDesc(const LShaderResourceViewDesc& srv_desc);
 
 

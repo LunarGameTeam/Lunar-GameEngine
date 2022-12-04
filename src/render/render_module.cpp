@@ -27,8 +27,7 @@
 #include "render/rhi/DirectX12/dx12_device.h"
 #include "render/rhi/DirectX12/dx12_render_queue.h"
 #include "render/rhi/DirectX12/dx12_memory.h"
-#include "render/rhi/DirectX12/dx12_descriptor_pool.h"
-#include "render/rhi/DirectX12/dx12_descriptor_pool.h"
+#include "render/rhi/DirectX12/dx12_view.h"
 
 #include "render/rhi/vertex_layout.h"
 
@@ -314,7 +313,21 @@ ImguiTexture* RenderModule::AddImguiTexture(RHIResource* res)
 	imguiTexture->mView->BindResource(res);
 	if (sRenderModule->GetDeviceType() == render::RenderDeviceType::Vulkan)
 	{
-		imguiTexture->mImg = ImGui_ImplVulkan_AddTexture(mRenderDevice->mClampSampler->As<render::VulkanResource>()->mSampler, imguiTexture->mView->As<VulkanView>()->mImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		VkDescriptorSet  new_set = ImGui_ImplVulkan_AddTexture(mRenderDevice->mClampSampler->As<render::VulkanResource>()->mSampler, imguiTexture->mView->As<VulkanView>()->mImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		imguiTexture->mImg = new_set;
+	}
+	else
+	{
+		Dx12GpuDescriptorHeap* globel_heap = mRenderDevice->mDevice->As<DX12Device>()->GetGpuDescriptorHeapByType(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		imguiTexture->descriptorPoolSave = globel_heap->AllocPool(2);
+		Dx12DescriptorSet empty_set;
+		imguiTexture->descriptorPoolSave->AllocDescriptorSet(1, empty_set);
+		mRenderDevice->mDevice->As<DX12Device>()->GetDx12Device()->CopyDescriptorsSimple(
+			1,
+			empty_set.mDescriptorLists[D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV].mCPUHandle,
+			imguiTexture->mView->As<DX12View>()->GetCpuHandle(),
+			D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		imguiTexture->mImg = (void*)(empty_set.mDescriptorLists[D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV].mGPUHandle.ptr);
 	}
 	return imguiTexture;
 }

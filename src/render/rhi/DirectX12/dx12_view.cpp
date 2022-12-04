@@ -45,7 +45,7 @@ void DX12View::BindResource(RHIResource* buffer_data)
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
 		srvDesc.Format = GetGraphicFormat(dx12Res->GetDesc().Format);
-		srvDesc.ViewDimension = GetSrvDimention(dx12Res->GetDesc().Dimension);
+		srvDesc.ViewDimension = GetSrvDimentionByView(mViewDesc.mViewDimension);
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		switch (dx12Res->GetDesc().Dimension)
 		{

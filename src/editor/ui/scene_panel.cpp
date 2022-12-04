@@ -53,11 +53,8 @@ void SceneEditor::OnGUI()
 			}
 		}
 	}
-	if (sRenderModule->GetRenderDevice()->mDeviceType == render::RenderDeviceType::Vulkan)
-	{
-		if(mImguiTexture)
-			ImGui::Image((ImTextureID)(mImguiTexture->mImg), ImGui::GetContentRegionAvail());
-	}
+	if (mImguiTexture)
+		ImGui::Image((ImTextureID)(mImguiTexture->mImg), ImGui::GetContentRegionAvail());
 	{
 		ImVec2 vMin = ImGui::GetWindowContentRegionMin();
 		ImVec2 vMax = ImGui::GetWindowContentRegionMax();

@@ -349,57 +349,49 @@ D3D12_PRIMITIVE_TOPOLOGY DX12GraphicCmdList::GetDirectXPrimitiveTopology(
 void DX12GraphicCmdList::BeginRenderPass(RHIRenderPass* pass, RHIFrameBuffer* buffer)
 {
 	DX12FrameBuffer* dx12Target = static_cast<DX12FrameBuffer*>(buffer);
-	RHIView* descriptor_rtv = dx12Target->mRTV;
-	const int32_t bind_offset_rtv = 0;
-	RHIView* descriptor_dsv = dx12Target->mDsv;
-	const int32_t bind_offset_dsv = 0;
+	BindAndClearView(dx12Target->mRTV, dx12Target->mDsv);
+}
 
+void DX12GraphicCmdList::BindAndClearView(RHIView* descriptor_rtv, RHIView* descriptor_dsv)
+{
 	DX12View* rtv_directx_pointer = static_cast<DX12View*>(descriptor_rtv);
 	DX12View* dsv_directx_pointer = static_cast<DX12View*>(descriptor_dsv);
 	D3D12_CPU_DESCRIPTOR_HANDLE* rtv_final = nullptr;
 	D3D12_CPU_DESCRIPTOR_HANDLE* dsv_final = nullptr;
 	D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle_rtv, cpu_handle_dsv;
-	if (rtv_directx_pointer != nullptr)
-	{
-		cpu_handle_rtv = rtv_directx_pointer->GetCpuHandle();
-		rtv_final = &cpu_handle_rtv;
-	}
+	uint32_t width = 0;
+	uint32_t height = 0;
+
 	if (dsv_directx_pointer != nullptr)
 	{
 		cpu_handle_dsv = dsv_directx_pointer->GetCpuHandle();
 		dsv_final = &cpu_handle_dsv;
+		width = dsv_directx_pointer->mBindResource->GetDesc().Width;
+		height = dsv_directx_pointer->mBindResource->GetDesc().Height;
 	}
+
+	if (rtv_directx_pointer != nullptr)
+	{
+		cpu_handle_rtv = rtv_directx_pointer->GetCpuHandle();
+		rtv_final = &cpu_handle_rtv;
+		width = rtv_directx_pointer->mBindResource->GetDesc().Width;
+		height = rtv_directx_pointer->mBindResource->GetDesc().Height;
+	}
+
 	mDxCmdList->OMSetRenderTargets(1, rtv_final, false, dsv_final);
+	if (rtv_directx_pointer != nullptr)
+	{
+		ClearRTView(rtv_directx_pointer, LVector4f(0, 0, 0, 1), 0, 0, width, height);
+	}
+	if (dsv_directx_pointer != nullptr)
+	{
+		ClearDSView(0, 0, width, height, dsv_directx_pointer, 1, 0);
+	}
 }
+
 void DX12GraphicCmdList::BeginRender(const RenderPassDesc& passDesc)
 {
-	RHIView* descriptor_rtv = passDesc.mColorView[0];
-	const int32_t bind_offset_rtv = 0;
-	RHIView* descriptor_dsv = passDesc.mDepthStencilView;
-	const int32_t bind_offset_dsv = 0;
-
-	DX12View* rtv_directx_pointer = static_cast<DX12View*>(descriptor_rtv);
-	DX12View* dsv_directx_pointer = static_cast<DX12View*>(descriptor_dsv);
-	D3D12_CPU_DESCRIPTOR_HANDLE* rtv_final = nullptr;
-	D3D12_CPU_DESCRIPTOR_HANDLE* dsv_final = nullptr;
-	D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle_rtv, cpu_handle_dsv;
-	if (rtv_directx_pointer != nullptr)
-	{
-		cpu_handle_rtv = rtv_directx_pointer->GetCpuHandle();
-		rtv_final = &cpu_handle_rtv;
-	}
-	if (dsv_directx_pointer != nullptr)
-	{
-		cpu_handle_dsv = dsv_directx_pointer->GetCpuHandle();
-		dsv_final = &cpu_handle_dsv;
-	}
-	mDxCmdList->OMSetRenderTargets(1, rtv_final, false, dsv_final);
-
-	auto width = rtv_directx_pointer->mBindResource->GetDesc().Width;
-	auto height = rtv_directx_pointer->mBindResource->GetDesc().Height;
-	ClearRTView(rtv_directx_pointer, LVector4f(0, 0, 0, 1),0,0, width, height);
-	ClearDSView(0, 0, width, height, dsv_directx_pointer, 1, 0);
-	//mDxCmdList->ClearDepthStencilView();
+	BindAndClearView(passDesc.mColorView[0], passDesc.mDepthStencilView);
 }
 void DX12GraphicCmdList::EndRenderPass()
 {
