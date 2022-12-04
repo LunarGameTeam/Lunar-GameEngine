@@ -76,6 +76,7 @@ bool DX12SwapChain::Reset(const RHISwapchainDesc& window_width_in)
 
 uint32_t DX12SwapChain::NextImage()
 {
+	mSwapChain->Present(1, 0);
 	uint32_t frame_index = GetNowFrameID();
 	return frame_index;
 }
