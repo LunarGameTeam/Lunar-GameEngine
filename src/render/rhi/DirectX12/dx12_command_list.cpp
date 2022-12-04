@@ -201,9 +201,9 @@ void DX12GraphicCmdList::ClearRTView(
 	DX12View* dx12View = descriptor_rtv->As<DX12View>();
 	D3D12_RECT render_rect;
 	if (width == 0)
-		width = dx12View->GetRessource()->GetDesc().Width;
+		width = dx12View->mBindResource->GetDesc().Width;
 	if (height == 0)
-		height = dx12View->GetRessource()->GetDesc().Height;
+		height = dx12View->mBindResource->GetDesc().Height;
 	render_rect.left = (LONG)x;
 	render_rect.top = (LONG)y;
 	render_rect.right = (LONG)width;
@@ -371,7 +371,36 @@ void DX12GraphicCmdList::BeginRenderPass(RHIRenderPass* pass, RHIFrameBuffer* bu
 	}
 	mDxCmdList->OMSetRenderTargets(1, rtv_final, false, dsv_final);
 }
+void DX12GraphicCmdList::BeginRender(const RenderPassDesc& passDesc)
+{
+	RHIView* descriptor_rtv = passDesc.mColorView[0];
+	const int32_t bind_offset_rtv = 0;
+	RHIView* descriptor_dsv = passDesc.mDepthStencilView;
+	const int32_t bind_offset_dsv = 0;
 
+	DX12View* rtv_directx_pointer = static_cast<DX12View*>(descriptor_rtv);
+	DX12View* dsv_directx_pointer = static_cast<DX12View*>(descriptor_dsv);
+	D3D12_CPU_DESCRIPTOR_HANDLE* rtv_final = nullptr;
+	D3D12_CPU_DESCRIPTOR_HANDLE* dsv_final = nullptr;
+	D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle_rtv, cpu_handle_dsv;
+	if (rtv_directx_pointer != nullptr)
+	{
+		cpu_handle_rtv = rtv_directx_pointer->GetCpuHandle();
+		rtv_final = &cpu_handle_rtv;
+	}
+	if (dsv_directx_pointer != nullptr)
+	{
+		cpu_handle_dsv = dsv_directx_pointer->GetCpuHandle();
+		dsv_final = &cpu_handle_dsv;
+	}
+	mDxCmdList->OMSetRenderTargets(1, rtv_final, false, dsv_final);
+
+	auto width = rtv_directx_pointer->mBindResource->GetDesc().Width;
+	auto height = rtv_directx_pointer->mBindResource->GetDesc().Height;
+	ClearRTView(rtv_directx_pointer, LVector4f(0, 0, 0, 1),0,0, width, height);
+	ClearDSView(0, 0, width, height, dsv_directx_pointer, 1, 0);
+	//mDxCmdList->ClearDepthStencilView();
+}
 void DX12GraphicCmdList::EndRenderPass()
 {
 
@@ -431,6 +460,10 @@ void DX12GraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier)
 	DX12Resource* dxRes = barrier.mBarrierRes->As<DX12Resource>();
 	D3D12_RESOURCE_STATES dx_state_before = DxConvertState(barrier.mStateBefore);
 	D3D12_RESOURCE_STATES dx_state_after = DxConvertState(barrier.mStateAfter);
+	if (dx_state_before != dxRes->mLastState)
+	{
+		dx_state_before = dxRes->mLastState;
+	}
 	if (dx_state_before == dx_state_after)
 		return;
 
@@ -454,6 +487,7 @@ void DX12GraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier)
 		}
 	}
 	mDxCmdList->ResourceBarrier((UINT)dxBarriers.size(), dxBarriers.data());
+	dxRes->SetLastState(dx_state_after);
 }
 
 }

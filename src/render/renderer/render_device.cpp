@@ -355,7 +355,10 @@ void RenderDevice::DrawRenderOBject(render::RenderObject* ro, render::ShaderAsse
 
 		for (auto& param : params->mParams)
 		{
-			desc.emplace_back(shader->GetBindPoint(param.first), param.second);
+			if (shader->HasBindPoint(param.first))
+			{
+				desc.emplace_back(shader->GetBindPoint(param.first), param.second);
+			}
 		}
 		bindingset->WriteBindings(desc);
 		mLastPipline = pipeline;

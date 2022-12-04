@@ -23,11 +23,12 @@ class RENDER_API DX12Resource : public RHIResource
 {
 public:
 	DX12Resource(const RHIBufferDesc& buffer_desc);
-	DX12Resource(const SamplerDesc& desc);
-	DX12Resource(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc);
-	DX12Resource(uint32_t backBufferId, DX12SwapChain* swapchain);
-	//DX12Resource() {}
 
+	DX12Resource(const SamplerDesc& desc);
+
+	DX12Resource(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc);
+
+	DX12Resource(uint32_t backBufferId, DX12SwapChain* swapchain);
 
 	void UpdateUploadBuffer(size_t offset, const void* copy_data, size_t data_size) override {};
 
@@ -39,14 +40,19 @@ public:
 	{
 		return mMapPointer;
 	}
+
 	void Unmap() override
 	{
 		/*do nothing*/
 	}
+
+	void SetLastState(const D3D12_RESOURCE_STATES& newDesc) { mLastState = newDesc; };
+
 	Microsoft::WRL::ComPtr<ID3D12Resource> mDxRes;
 	void* mMapPointer = nullptr;
 	D3D12_RESOURCE_DESC mDxDesc = {};
 	D3D12_SAMPLER_DESC mDxSamplerDesc = {};
 	DxResourceCopyLayout mLayout;
+	D3D12_RESOURCE_STATES mLastState;
 };
 }

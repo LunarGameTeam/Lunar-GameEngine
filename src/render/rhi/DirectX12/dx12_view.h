@@ -16,8 +16,6 @@ class RENDER_API DX12View : public RHIView
 
 	D3D12_CPU_DESCRIPTOR_HANDLE mCPUHandle;
 
-	RHIResourcePtr mBindRes;
-
 	Dx12CpuDescriptorHeap* mUsedHeap;
 public:
 	DX12View(const ViewDesc& viewDesc);
@@ -25,8 +23,6 @@ public:
 	~DX12View();
 
 	void BindResource(RHIResource* buffer_data) override;
-
-	RHIResourcePtr& GetRessource() { return mBindRes; };
 
 	Dx12CpuDescriptorHeap* GetHeap() { return mUsedHeap; }
 

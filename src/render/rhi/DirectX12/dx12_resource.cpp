@@ -29,7 +29,7 @@ namespace luna::render
 		mDxDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
 
 		SetInitialState(ResourceState::kUndefined);
-
+		mLastState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 		RefreshMemoryRequirements();
 	}
 
@@ -125,7 +125,7 @@ namespace luna::render
 			mDxDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
 
 		SetInitialState(ResourceState::kUndefined);
-
+		mLastState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 		RefreshMemoryRequirements();
 	}
 
@@ -141,7 +141,8 @@ namespace luna::render
 		mResDesc.Height = mDxDesc.Height;
 		mResDesc.mImageUsage = RHIImageUsage::ColorAttachmentBit;
 		m_initial_state = ResourceState::kPresent;
-
+		SetInitialState(ResourceState::kUndefined);
+		mLastState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 		RefreshMemoryRequirements();
 	}
 
@@ -152,9 +153,46 @@ namespace luna::render
 
 		// TODO
 		if (mBindMemory->mMemoryDesc.Type == RHIHeapType::Upload)
+		{
 			SetInitialState(ResourceState::kGenericRead);
+			mLastState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_GENERIC_READ;
+		}
 		else
+		{
 			SetInitialState(ResourceState::kCommon);
+			mLastState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
+		}
+			
+		//³õÊ¼»¯
+		D3D12_CLEAR_VALUE default_clear;
+		default_clear.Format = mDxDesc.Format;
+		D3D12_CLEAR_VALUE* clear_data = &default_clear;
+		switch (mDxDesc.Format)
+		{
+		case DXGI_FORMAT::DXGI_FORMAT_B8G8R8A8_UNORM:
+		case DXGI_FORMAT::DXGI_FORMAT_R8G8B8A8_UNORM:
+			default_clear.Color[0] = 0.0f;
+			default_clear.Color[1] = 0.0f;
+			default_clear.Color[2] = 0.0f;
+			default_clear.Color[3] = 1.0f;
+			if (mDxDesc.Flags != D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET)
+			{
+				clear_data = nullptr;
+			}
+			break;
+		case DXGI_FORMAT::DXGI_FORMAT_D32_FLOAT:
+		case DXGI_FORMAT::DXGI_FORMAT_D24_UNORM_S8_UINT:
+			default_clear.DepthStencil.Depth = 1.0f;
+			default_clear.DepthStencil.Stencil = 0;
+			if (mDxDesc.Flags != D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL)
+			{
+				clear_data = nullptr;
+			}
+			break;
+		default:
+			clear_data = nullptr;
+			break;
+		}
 
 		DX12Memory* dx_memory = mBindMemory->As<DX12Memory>();
 		device->CreatePlacedResource(
@@ -162,7 +200,7 @@ namespace luna::render
 			offset,
 			&mDxDesc,
 			DxConvertState(GetInitialState()),
-			nullptr,
+			clear_data,
 			IID_PPV_ARGS(&mDxRes));
 		if (dx_memory->mHeap->GetDesc().Properties.Type == D3D12_HEAP_TYPE::D3D12_HEAP_TYPE_UPLOAD)
 		{

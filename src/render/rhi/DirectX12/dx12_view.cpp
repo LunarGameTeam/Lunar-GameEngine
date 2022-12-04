@@ -28,9 +28,9 @@ DX12View::~DX12View()
 
 void DX12View::BindResource(RHIResource* buffer_data)
 {
-	mBindRes = buffer_data;
+	mBindResource = buffer_data;
 	ID3D12Device* device = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
-	DX12Resource* dx12Res = mBindRes->As<DX12Resource>();
+	DX12Resource* dx12Res = mBindResource->As<DX12Resource>();
 	switch (mViewType)
 	{
 	case RHIViewType::kConstantBuffer:
@@ -53,7 +53,7 @@ void DX12View::BindResource(RHIResource* buffer_data)
 			srvDesc.Buffer.FirstElement = 0;
 			srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAGS::D3D12_BUFFER_SRV_FLAG_NONE;
 			srvDesc.Buffer.NumElements = 1;
-			srvDesc.Buffer.StructureByteStride = mBindRes->GetMemoryRequirements().size;
+			srvDesc.Buffer.StructureByteStride = mBindResource->GetMemoryRequirements().size;
 			break;
 		case RHIResDimension::Texture2D:
 			srvDesc.Texture2D.MipLevels = mViewDesc.mLevelCount;

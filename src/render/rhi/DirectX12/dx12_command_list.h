@@ -102,7 +102,7 @@ public:
 
 	void BeginRenderPass(RHIRenderPass* pass, RHIFrameBuffer* buffer) override;
 	void EndRenderPass() override;
-
+	void BeginRender(const RenderPassDesc&) override;
 
 	void Reset() override;
 	void CloseCommondList() override;

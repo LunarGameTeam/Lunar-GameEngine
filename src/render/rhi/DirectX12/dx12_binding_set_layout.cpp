@@ -86,7 +86,7 @@ DX12BindingSetLayout::DX12BindingSetLayout(const std::vector<RHIBindPoint>& desc
 			now_range = &now_descriptor_set.each_range_sampler.emplace_back();
 			now_range->OffsetInDescriptorsFromTableStart = now_descriptor_set.mSamplerNum;
 			now_descriptor_set.mSamplerNum += bind_key.mCount;
-			now_descriptor_set.range_name_list_sampler.emplace(bind_key.mName, now_descriptor_set.each_range_input.size() - 1);
+			now_descriptor_set.range_name_list_sampler.emplace(bind_key.mName, now_descriptor_set.each_range_sampler.size() - 1);
 			break;
 		default:
 			assert(false);

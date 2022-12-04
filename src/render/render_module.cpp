@@ -312,7 +312,10 @@ ImguiTexture* RenderModule::AddImguiTexture(RHIResource* res)
 	desc.mViewDimension = RHIViewDimension::TextureView2D;
 	imguiTexture->mView = GetRHIDevice()->CreateView(desc);
 	imguiTexture->mView->BindResource(res);
-	imguiTexture->mImg =ImGui_ImplVulkan_AddTexture(mRenderDevice->mClampSampler->As<render::VulkanResource>()->mSampler, imguiTexture->mView->As<VulkanView>()->mImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	if (sRenderModule->GetDeviceType() == render::RenderDeviceType::Vulkan)
+	{
+		imguiTexture->mImg = ImGui_ImplVulkan_AddTexture(mRenderDevice->mClampSampler->As<render::VulkanResource>()->mSampler, imguiTexture->mView->As<VulkanView>()->mImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	}
 	return imguiTexture;
 }
 
