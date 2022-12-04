@@ -251,18 +251,23 @@ PipelinePair RenderDevice::CreatePipelineState(const RHIPipelineStateDesc& desc)
 	return std::make_pair(pipeline, bindingSet);
 }
 
-PipelinePair RenderDevice::CreatePipelineState(ShaderAsset* shaderAsset)
+PipelinePair RenderDevice::CreatePipelineState(ShaderAsset* shaderAsset, const RenderPassDesc& passDesc, RHIVertexLayout* layout)
 {
-	auto key = std::make_pair(shaderAsset, mCurRenderPass.Hash());
+	size_t hashResult = 0;
+	boost::hash_combine(hashResult, layout->Hash());
+	boost::hash_combine(hashResult, passDesc.Hash());
+
+	auto key = std::make_pair(shaderAsset, hashResult);
 	auto it = mPipelineCache.find(key);
 	if (it != mPipelineCache.end())
 		return it->second;
 
 	RHIPipelineStateDesc desc = {};
 	desc.mType = RHICmdListType::Graphic3D;
+	desc.mGraphicDesc.mInputLayout = *layout;
 	desc.mGraphicDesc.mPipelineStateDesc.mVertexShader = shaderAsset->GetVertexShader();
 	desc.mGraphicDesc.mPipelineStateDesc.mPixelShader = shaderAsset->GetPixelShader();
-	desc.mGraphicDesc.mRenderPass = mCurRenderPass;
+	desc.mGraphicDesc.mRenderPassDesc = mCurRenderPass;
 
 	RHIBlendStateTargetDesc blend = {};
 	desc.mGraphicDesc.mPipelineStateDesc.BlendState.RenderTarget.push_back(blend);
@@ -318,13 +323,16 @@ void RenderDevice::DrawRenderOBject(render::RenderObject* ro, render::ShaderAsse
 {
 	RHIPipelineStatePtr pipeline;
 	RHIBindingSetPtr bindingset;
-	auto key = std::make_pair(shader, mCurRenderPass.Hash());
+	size_t hashResult = 0;
+	boost::hash_combine(hashResult, mCurRenderPass.Hash());
+	boost::hash_combine(hashResult, ro->mMesh->mVeretexLayout.Hash());
+	auto key = std::make_pair(shader, hashResult);
 	auto it = mPipelineCache.find(key);
 	
 	//Find cache
 	if (it == mPipelineCache.end())
 	{
-		auto piplinePair = CreatePipelineState(shader);
+		auto piplinePair = CreatePipelineState(shader, mCurRenderPass, &ro->mMesh->mVeretexLayout);
 		bindingset = piplinePair.second;
 		pipeline = piplinePair.first;
 	}
@@ -373,7 +381,7 @@ void RenderDevice::DrawRenderOBject(render::RenderObject* ro, render::ShaderAsse
 	mGraphicCmd->SetVertexBuffer(descs, 0);
 	mGraphicCmd->SetIndexBuffer(ib);
 	mGraphicCmd->SetDrawPrimitiveTopology(
-		RHIPrimitiveTopology::PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		RHIPrimitiveTopology::TriangleList);
 	mGraphicCmd->DrawIndexedInstanced(indexCount, 1, 0, 0, ro->mID % 128);
 
 }

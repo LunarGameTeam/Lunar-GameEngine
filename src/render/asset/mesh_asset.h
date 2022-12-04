@@ -38,7 +38,7 @@ public:
 
 	RHIResourcePtr mVB;
 	RHIResourcePtr mIB;
-	InputVertexLayout mVeretexLayout;
+	RHIVertexLayout mVeretexLayout;
 private:
 	bool m_ready = false;
 };

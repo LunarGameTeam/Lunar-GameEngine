@@ -13,7 +13,7 @@ namespace luna::render
 struct RHIVertexBufferDesc
 {
 	RHIResource* mVertexRes = nullptr;
-	InputVertexLayout* mVertexLayout = nullptr;
+	RHIVertexLayout* mVertexLayout = nullptr;
 	size_t       mOffset = 0;
 	size_t       mBufferSize = 0;
 };
@@ -45,10 +45,10 @@ enum class RHIResUsingState : uint8_t
 enum class RHIPrimitiveTopology
 {
 	PRIMITIVE_TOPOLOGY_UNDEFINED = 0,
+	LineList,
+	TriangleList,
 	PRIMITIVE_TOPOLOGY_POINTLIST,
-	PRIMITIVE_TOPOLOGY_LINELIST,
 	PRIMITIVE_TOPOLOGY_LINESTRIP,
-	PRIMITIVE_TOPOLOGY_TRIANGLELIST,
 	PRIMITIVE_TOPOLOGY_TRIANGLESTRIP,
 	PRIMITIVE_TOPOLOGY_LINELIST_ADJ,
 	PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ,

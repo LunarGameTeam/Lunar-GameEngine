@@ -42,11 +42,6 @@ public:
 		int32_t StartInstanceLocation) override;
 
 
-	void ResourceBarrier(
-		RHIResource* target_resource,
-		const LResState& resource_state_target
-	) override;
-
 	void SetVertexBuffer(const std::vector<RHIVertexBufferDesc>& vb, int32_t slot = 0) override;
 
 	void SetIndexBuffer(RHIResource* indexRes) override;

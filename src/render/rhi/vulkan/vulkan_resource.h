@@ -1,16 +1,15 @@
 #pragma once
 #include "render/pch.h"
+#include "render/rhi/vulkan/vulkan_pch.h"
+
 #include "render/rhi/rhi_device.h"
 #include "render/render_module.h"
 #include "render/rhi/vulkan/vulkan_device.h"
 #include "render/rhi/vulkan/vulkan_swapchain.h"
-#include <vulkan/vulkan.hpp>
 
 namespace luna::render
 {
 
-vk::Format Convert(RHITextureFormat format);
-RHITextureFormat Convert(vk::Format format);
 
 class RENDER_API VulkanResource : public RHIResource
 {

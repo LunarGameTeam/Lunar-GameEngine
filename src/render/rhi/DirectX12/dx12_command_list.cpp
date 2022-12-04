@@ -186,14 +186,6 @@ void DX12GraphicCmdList::BindDescriptorHeap()
 //}
 
 
-void DX12GraphicCmdList::ResourceBarrier(
-	RHIResource* target_resource,
-	const LResState& resource_state_target
-)
-{
-	return;
-};
-
 void DX12GraphicCmdList::SetViewPort(
 	size_t x,
 	size_t y,
@@ -297,11 +289,11 @@ D3D12_PRIMITIVE_TOPOLOGY DX12GraphicCmdList::GetDirectXPrimitiveTopology(
 		return D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
 	case RHIPrimitiveTopology::PRIMITIVE_TOPOLOGY_POINTLIST:
 		return D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
-	case RHIPrimitiveTopology::PRIMITIVE_TOPOLOGY_LINELIST:
+	case RHIPrimitiveTopology::LineList:
 		return D3D_PRIMITIVE_TOPOLOGY_LINELIST;
 	case RHIPrimitiveTopology::PRIMITIVE_TOPOLOGY_LINESTRIP:
 		return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
-	case RHIPrimitiveTopology::PRIMITIVE_TOPOLOGY_TRIANGLELIST:
+	case RHIPrimitiveTopology::TriangleList:
 		return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 	case RHIPrimitiveTopology::PRIMITIVE_TOPOLOGY_TRIANGLESTRIP:
 		return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;

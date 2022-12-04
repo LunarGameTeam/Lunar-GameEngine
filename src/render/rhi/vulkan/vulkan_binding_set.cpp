@@ -32,7 +32,7 @@ void VulkanBindingSet::WriteBindings(const std::vector<BindingDesc>& bindings)
 		VulkanView* vkViwe = binding.mView->As<VulkanView>();
 		vk::WriteDescriptorSet descriptor = vkViwe->mDesciptor;
 		descriptor.pNext = nullptr;
-		descriptor.descriptorType = GetDescriptorType(binding.mBindTarget.mViewType);
+		descriptor.descriptorType = Convert(binding.mBindTarget.mViewType);
 		descriptor.dstSet = mDescriptorSets[binding.mBindTarget.mSpace];
 		descriptor.dstBinding = binding.mBindTarget.mSlot;
 		descriptor.dstArrayElement = 0;

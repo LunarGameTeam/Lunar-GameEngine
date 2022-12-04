@@ -32,18 +32,6 @@ namespace luna::render
 {
 
 
-DoubleConverter<RHIViewType, vk::DescriptorType > sViewDescriptor = {
-	{RHIViewType::kConstantBuffer, vk::DescriptorType::eUniformBuffer},
-	{RHIViewType::kSampler, vk::DescriptorType::eSampler},
-	{RHIViewType::kTexture, vk::DescriptorType::eSampledImage},
-};
-
-vk::DescriptorType GetDescriptorType(RHIViewType view_type)
-{
-	return sViewDescriptor.Get(view_type);
-}
-
-
 uint32_t findMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties)
 {
 	VkPhysicalDeviceMemoryProperties memProperties;

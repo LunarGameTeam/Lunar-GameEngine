@@ -3,6 +3,8 @@
 #include "render/pch.h"
 #include "render/rhi/rhi_pch.h"
 
+#include <boost/container_hash/hash.hpp>
+
 
 namespace luna::render
 {
@@ -34,9 +36,9 @@ enum class VertexElementType : uint8_t
 };
 
 
-struct InputVertexLayoutElement
+struct RHIVertexLayoutElement
 {
-	InputVertexLayoutElement(VertexElementType elementType, VertexElementUsage usage, uint8_t elementCount) :
+	RHIVertexLayoutElement(VertexElementType elementType, VertexElementUsage usage, uint8_t elementCount) :
 		mElementType(elementType),
 		mUsage(usage),
 		mElementCount(elementCount)
@@ -67,6 +69,15 @@ struct InputVertexLayoutElement
 		}
 		mSize = elementSize * mElementCount;
 	}
+	size_t Hash() const 
+	{
+		size_t result = 0;
+		boost::hash_combine(result, mElementType);
+		boost::hash_combine(result, mElementCount);
+		boost::hash_combine(result, mUsage);
+		boost::hash_combine(result, mOffset);
+		return result;
+	}
 
 	VertexElementType mElementType;
 	uint8_t mElementCount;
@@ -75,28 +86,39 @@ struct InputVertexLayoutElement
 	uint32_t mSize = 0;
 };
 
-
-struct InputVertexLayout
+struct RHIVertexLayout
 {
 	void AddVertexElement(VertexElementType type, VertexElementUsage usage, uint8_t elementCount)
 	{
-		auto offset = GetSize();
 		mElements.emplace_back(type, usage, elementCount);
-		mElements.back().mOffset = offset;
+		mElements.back().mOffset = (uint32_t) mSize;
+		mSize += (uint32_t)Alignment(mElements.back().mSize, 8);
+		mDirty = true;
 	}
 
-	uint32_t GetSize() const
+	size_t Hash()
 	{
-		uint32_t size = 0;
-		for (const InputVertexLayoutElement& element : mElements)
+		if (mDirty)
 		{
-			size += (uint32_t)Alignment(element.mSize, 8);
+			mHash = 0;
+			for (auto& element : mElements)
+			{
+				boost::hash_combine(mHash, element.Hash());
+			}
+			mDirty = false;
 		}
-		return size;
+		return mHash;
 	}
 
-	size_t mSize;
-	std::vector<InputVertexLayoutElement> mElements;
+	size_t GetSize() const
+	{
+		return mSize;
+	}
+
+	bool mDirty = true;
+	size_t mHash = 0;
+	size_t mSize = 0;
+	std::vector<RHIVertexLayoutElement> mElements;
 };
 
 

@@ -11,35 +11,12 @@
 #include "render/rhi/vulkan/vulkan_binding_set_layout.h"
 #include "render/rhi/vulkan/vulkan_resource.h"
 
+#include <vulkan/vulkan_format_traits.hpp>
+
 
 namespace luna::render
 {
 
-
-vk::CompareOp Convert(RHIComparisionFunc func)
-{
-	switch (func)
-	{
-	case RHIComparisionFunc::FuncNever:
-		return vk::CompareOp::eNever;
-	case RHIComparisionFunc::FuncLess:
-		return vk::CompareOp::eLess;
-	case RHIComparisionFunc::FuncEqual:
-		return vk::CompareOp::eEqual;
-	case RHIComparisionFunc::FuncLessEqual:
-		return vk::CompareOp::eLessOrEqual;
-	case RHIComparisionFunc::FuncGreater:
-		return vk::CompareOp::eGreater;
-	case RHIComparisionFunc::FuncNotEqual:
-		return vk::CompareOp::eNotEqual;
-	case RHIComparisionFunc::FuncGreaterEuqal:
-		return vk::CompareOp::eGreaterOrEqual;
-	case RHIComparisionFunc::FuncAlways:
-		return vk::CompareOp::eAlways;
-	default:
-		assert(false);
-	}
-}
 
 VulkanPipelineState::VulkanPipelineState(const RHIPipelineStateDesc& pso_desc)
 	: RHIPipelineState(pso_desc)
@@ -54,16 +31,16 @@ void VulkanPipelineState::Init()
 
 	vk::PipelineRenderingCreateInfo renderingInfos;
 	std::vector<vk::Format> colors;
-	for (auto& it : mPSODesc.mGraphicDesc.mRenderPass.mColors)
+	for (auto& it : mPSODesc.mGraphicDesc.mRenderPassDesc.mColors)
 	{
 		colors.push_back(Convert(it.mFormat));
 	}
 	renderingInfos.pColorAttachmentFormats = colors.data();
 	renderingInfos.colorAttachmentCount = colors.size();
-	if (!mPSODesc.mGraphicDesc.mRenderPass.mDepths.empty())
+	if (!mPSODesc.mGraphicDesc.mRenderPassDesc.mDepths.empty())
 	{
-		renderingInfos.stencilAttachmentFormat = Convert(mPSODesc.mGraphicDesc.mRenderPass.mDepths[0].mDepthStencilFormat);
- 		renderingInfos.depthAttachmentFormat = Convert(mPSODesc.mGraphicDesc.mRenderPass.mDepths[0].mDepthStencilFormat);
+		renderingInfos.stencilAttachmentFormat = Convert(mPSODesc.mGraphicDesc.mRenderPassDesc.mDepths[0].mDepthStencilFormat);
+ 		renderingInfos.depthAttachmentFormat = Convert(mPSODesc.mGraphicDesc.mRenderPassDesc.mDepths[0].mDepthStencilFormat);
 	}
 	
 		
@@ -136,7 +113,8 @@ void VulkanPipelineState::Init()
 	std::vector<vk::DynamicState> dynamicStates = {
 		vk::DynamicState::eVertexInputBindingStride,
 		vk::DynamicState::eViewport,
-		vk::DynamicState::eScissor
+		vk::DynamicState::eScissor,
+		vk::DynamicState::ePrimitiveTopology
 		
 	};
 	vk::PipelineDynamicStateCreateInfo dynamicState{};
@@ -165,7 +143,46 @@ void VulkanPipelineState::Init()
 	pipelineInfo.stageCount = 2;
 	pipelineInfo.pStages = shaderStages;
 	
-	pipelineInfo.pVertexInputState = &mPSODesc.mGraphicDesc.mPipelineStateDesc.mVertexShader->As<VulkanShaderBlob>()->mVertexInputState;
+
+	vk::PipelineVertexInputStateCreateInfo vertexInputInfo = {};
+	std::vector<vk::VertexInputAttributeDescription> inputAttributes;
+	vk::VertexInputBindingDescription inputBindings;
+	uint32_t inputLocationIndex = 0;
+	for (auto& vertexElement : mPSODesc.mGraphicDesc.mInputLayout.mElements)
+	{
+		auto& attr = inputAttributes.emplace_back();
+		attr.location = inputLocationIndex;
+		attr.binding = 0;
+		attr.offset = 0;
+		if (vertexElement.mElementType == VertexElementType::Float)
+		{
+			if(vertexElement.mElementCount == 1)
+				attr.format = vk::Format::eR32Sfloat;
+			else if (vertexElement.mElementCount == 2)
+				attr.format = vk::Format::eR32G32Sfloat;
+			else if (vertexElement.mElementCount == 3)
+				attr.format = vk::Format::eR32G32B32Sfloat;
+			else if (vertexElement.mElementCount == 4)
+				attr.format = vk::Format::eR32G32B32A32Sfloat;
+		}		
+		inputLocationIndex++;
+	}
+	inputBindings.binding = 0;
+	inputBindings.stride = 0;  // computed below
+	inputBindings.inputRate = vk::VertexInputRate::eVertex;
+	for (auto& attr : inputAttributes)
+	{
+		uint32_t format_size = vk::blockSize(attr.format);
+		format_size = Alignment(format_size, 8);
+		attr.offset = inputBindings.stride;
+		inputBindings.stride += format_size;
+	}
+	vertexInputInfo.pVertexAttributeDescriptions = inputAttributes.data();
+	vertexInputInfo.vertexAttributeDescriptionCount = inputAttributes.size();
+	vertexInputInfo.pVertexBindingDescriptions = &inputBindings;
+	vertexInputInfo.vertexBindingDescriptionCount = 1;
+
+	pipelineInfo.pVertexInputState = &vertexInputInfo;
 	pipelineInfo.pInputAssemblyState = &inputAssembly;
 	pipelineInfo.pViewportState = &viewportState;
 	pipelineInfo.pRasterizationState = &rasterizer;

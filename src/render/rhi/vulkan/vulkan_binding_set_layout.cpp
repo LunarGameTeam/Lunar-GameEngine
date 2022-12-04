@@ -7,19 +7,6 @@
 namespace luna::render
 {
 
-ENABLE_BITMASK_OPERATORS(vk::ShaderStageFlagBits);
-vk::ShaderStageFlagBits ShaderType2Bit(RHIShaderVisibility type)
-{
-	vk::ShaderStageFlagBits bits = vk::ShaderStageFlagBits::eVertex;
-	if(Has(type, RHIShaderVisibility::Visibility_Vertex))
-		bits |= vk::ShaderStageFlagBits::eVertex;
-	if (Has(type, RHIShaderVisibility::Visibility_Pixel))
-		bits |= vk::ShaderStageFlagBits::eFragment;
-	if (Has(type, RHIShaderVisibility::Visibility_All))
-		bits |= vk::ShaderStageFlagBits::eAll;
-	return bits;
-}
-
 VulkanBindingSetLayout::VulkanBindingSetLayout(const std::vector<RHIBindPoint>& bindKeys)
 {
 	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
@@ -31,9 +18,9 @@ VulkanBindingSetLayout::VulkanBindingSetLayout(const std::vector<RHIBindPoint>& 
 	{
 		decltype(auto) binding = bindingsBySpace[bind_key.mSpace].emplace_back();
 		binding.binding = bind_key.mSlot;
-		binding.descriptorType = GetDescriptorType(bind_key.mViewType);
+		binding.descriptorType = Convert(bind_key.mViewType);
 		binding.descriptorCount = bind_key.mCount;
-		binding.stageFlags = ShaderType2Bit(bind_key.mShaderVisibility);
+		binding.stageFlags = ConvertShader(bind_key.mShaderVisibility);
 
 		decltype(auto) binding_flag = bindings_flags_by_set[bind_key.mSpace].emplace_back();
 	}

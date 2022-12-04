@@ -105,28 +105,19 @@ struct RHIPipelineStateObjectDesc
 	//此处废弃
 	RHIGraphicSampleCount       SampleDesc;
 	uint32_t                    NodeMask              = 0;
-	RHIPipelineStateFlag        Flags                 = RHIPipelineStateFlag::PipelineStateNone;
 
 };
 
 struct RenderPipelineStateDescGraphic
 {
 	RHIPipelineStateObjectDesc mPipelineStateDesc = {};
-	RenderPassDesc mRenderPass;
-	LVector<RenderBindingSlotTypeDesc> mDescriptorType;
-};
-
-struct RenderPipelineStateDescCompute
-{
-	RHIShaderDesc                      compute_shader_desc;
-	LVector<RenderBindingSlotTypeDesc> descriptor_type;
-
+	RHIVertexLayout mInputLayout;
+	RenderPassDesc mRenderPassDesc;
 };
 
 struct RHIPipelineStateDesc
 {
 	RHICmdListType mType;
-	RenderPipelineStateDescCompute mComputeDesc;
 	RenderPipelineStateDescGraphic mGraphicDesc;
 };
 

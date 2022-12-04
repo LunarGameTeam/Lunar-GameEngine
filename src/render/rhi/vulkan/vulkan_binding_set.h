@@ -3,14 +3,14 @@
 #include "render/rhi/rhi_binding_set_layout.h"
 #include "render/render_module.h"
 
-#include <vulkan/vulkan.h>
+#include "render/rhi/vulkan/vulkan_pch.h"
 #include "vulkan_descriptor_pool.h"
 
 
 namespace luna::render
 {
 
-vk::DescriptorType GetDescriptorType(RHIViewType view_type);
+vk::DescriptorType Convert(RHIViewType view_type);
 
 class VulkanBindingSet : public RHIBindingSet
 {

@@ -117,12 +117,6 @@ public:
 	) = 0;
 public:
 
-	[[deprecated]]
-	virtual void ResourceBarrier(
-		RHIResource* target_resource,
-		const LResState& resource_state_target
-	) = 0; 
-
 
 protected:
 	bool mClosed = false;

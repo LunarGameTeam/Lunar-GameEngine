@@ -62,7 +62,7 @@ public:
 	//Frame Graph API
 public:
 
-	PipelinePair CreatePipelineState(ShaderAsset* shaderPass);
+	PipelinePair CreatePipelineState(ShaderAsset* shaderPass, const RenderPassDesc& desc, RHIVertexLayout* layout);
 	PipelinePair CreatePipelineState(const RHIPipelineStateDesc& desc);
 	RHIResourcePtr CreateFGTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData = nullptr, size_t dataSize = 0);
 	RHIResourcePtr CreateFGBuffer(const RHIBufferDesc& resDesc, void* initData);

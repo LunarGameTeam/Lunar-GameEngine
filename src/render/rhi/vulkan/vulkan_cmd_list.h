@@ -28,11 +28,6 @@ public:
 
 	void ResourceBarrierExt(const ResourceBarrierDesc& desc) override;
 
-	void ResourceBarrier(
-		RHIResource* target_resource,
-		const LResState& resource_state_target
-	) override;
-
 	void SetBiningSetLayoutExt(
 		RHIBindingSetLayout* root_signature
 	) override;

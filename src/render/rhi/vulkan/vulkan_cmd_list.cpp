@@ -19,37 +19,6 @@
 namespace luna::render
 {
 
-vk::ImageLayout ConvertState(ResourceState state)
-{
-	static std::pair<ResourceState, vk::ImageLayout> mapping[] = {
-		{ ResourceState::kCommon, vk::ImageLayout::eGeneral },
-		{ ResourceState::kRenderTarget, vk::ImageLayout::eColorAttachmentOptimal},
-		{ ResourceState::kUnorderedAccess,  vk::ImageLayout::eGeneral },
-		{ ResourceState::kDepthStencilWrite,  vk::ImageLayout::eDepthStencilAttachmentOptimal },
-		{ ResourceState::kDepthStencilRead, vk::ImageLayout::eDepthAttachmentStencilReadOnlyOptimal },
-		{ ResourceState::kNonPixelShaderResource, vk::ImageLayout::eShaderReadOnlyOptimal },
-		{ ResourceState::kShaderReadOnly, vk::ImageLayout::eShaderReadOnlyOptimal },
-		{ ResourceState::kCopyDest, vk::ImageLayout::eTransferDstOptimal },
-		{ ResourceState::kCopySource, vk::ImageLayout::eTransferSrcOptimal },
-		{ ResourceState::kShadingRateSource, vk::ImageLayout::eFragmentShadingRateAttachmentOptimalKHR },
-		{ ResourceState::kPresent, vk::ImageLayout::ePresentSrcKHR },
-		{ ResourceState::kUndefined, vk::ImageLayout::eUndefined },
-	};
-	vk::ImageLayout res = (vk::ImageLayout)0;
-	for (const auto& m : mapping)
-	{
-		
-		if (state & m.first)
-		{
-			assert(state == m.first);
-			return m.second;
-		}
-	}
-	assert(false);
-	return vk::ImageLayout::eGeneral;
-}
-
-
 VulkanGraphicCmdList::VulkanGraphicCmdList(RHICmdListType type) : 
 	RHIGraphicCmdList(type)
 {
@@ -138,27 +107,20 @@ void VulkanGraphicCmdList::ClearRTView(RHIView* descriptor_rtv, LVector4f clear_
 
 void VulkanGraphicCmdList::SetScissorRects(size_t x, size_t y, size_t width, size_t height)
 {
-	VkRect2D scissor{};
-	scissor.offset = { 0, 0 };
-	scissor.extent = VkExtent2D();
-	scissor.extent.width = width;
-	scissor.extent.height = height;	
-	vkCmdSetScissor(mCommandBuffer, 0, 1, &scissor);
+	vk::Rect2D scissor{};
+	scissor.offset = vk::Offset2D(0, 0);
+	scissor.extent = vk::Extent2D( width  , height );
+	mCommandBuffer.setScissor(0, 1, &scissor);
 }
 
 void VulkanGraphicCmdList::DrawIndexedInstanced(uint32_t IndexCountPerInstance, uint32_t InstanceCount, uint32_t StartIndexLocation, int32_t BaseVertexLocation, int32_t StartInstanceLocation)
 {
-	vkCmdDrawIndexed(mCommandBuffer, IndexCountPerInstance,1, 0, 0, StartInstanceLocation);
+	mCommandBuffer.drawIndexed(IndexCountPerInstance, 1, 0, 0, StartInstanceLocation);	
 }
 
 void VulkanGraphicCmdList::SetDrawPrimitiveTopology(const RHIPrimitiveTopology& primitive_topology)
 {
-
-}
-
-void VulkanGraphicCmdList::ResourceBarrier(RHIResource* target_resource, const LResState& resource_state_target)
-{
-
+	mCommandBuffer.setPrimitiveTopology(Convert(primitive_topology));
 }
 
 void VulkanGraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier)

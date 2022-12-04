@@ -1,7 +1,7 @@
 #pragma once
 #include "render/pch.h"
 #include "render/rhi/rhi_device.h"
-#include <vulkan/vulkan.hpp>
+#include "render/rhi/vulkan/vulkan_pch.h"
 
 namespace luna::render
 {

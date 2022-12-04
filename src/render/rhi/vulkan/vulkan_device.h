@@ -1,7 +1,6 @@
 #pragma once
-#include <vulkan/vulkan.h>
 
-#include <vulkan/vulkan.hpp>
+#include "render/rhi/vulkan/vulkan_pch.h"
 
 #include "render/rhi/rhi_device.h"
 
@@ -10,7 +9,7 @@
 namespace luna::render
 {
 
-vk::DescriptorType GetDescriptorType(RHIViewType view_type);
+vk::DescriptorType Convert(RHIViewType view_type);
 
 struct QueueFamilyIndices
 {

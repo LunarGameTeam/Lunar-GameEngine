@@ -4,27 +4,6 @@
 namespace luna::render
 {
 
-DoubleConverter<RHITextureFormat, vk::Format> sVulkanFormtas =
-{
-	{RHITextureFormat::FORMAT_R8G8BB8A8_UNORM, vk::Format::eR8G8B8A8Unorm},
-	{RHITextureFormat::FORMAT_R8G8B8A8_UNORM_SRGB, vk::Format::eR8G8B8A8Srgb },
-	{RHITextureFormat::FORMAT_B8G8R8A8_UNORM, vk::Format::eB8G8R8A8Unorm },
-	{RHITextureFormat::FORMAT_B8G8R8A8_UNORM_SRGB, vk::Format::eB8G8R8A8Srgb },
-	{RHITextureFormat::FORMAT_D24_UNORM_S8_UINT, vk::Format::eD24UnormS8Uint },
-
-};
-
-vk::Format Convert(RHITextureFormat format)
-{
-	return sVulkanFormtas.Get(format);
-}
-
-RHITextureFormat Convert(vk::Format format)
-{
-	return sVulkanFormtas.Get(format);
-}
-
-
 void VulkanResource::UpdateUploadBuffer(size_t offset, const void* copy_data, size_t data_size)
 {
 	throw std::logic_error("The method or operation is not implemented.");
@@ -55,17 +34,6 @@ VulkanResource::VulkanResource()
 	assert(false);
 }
 
-DoubleConverter<RHIResDimension, vk::ImageType> sImageTypeConverter =
-{
-	{RHIResDimension::Texture1D, vk::ImageType::e1D},
-	{RHIResDimension::Texture2D, vk::ImageType::e2D},
-	{RHIResDimension::Texture3D, vk::ImageType::e3D},
-};
-
-vk::ImageType Convert(RHIResDimension dimension)
-{
-	return sImageTypeConverter.Get(dimension);	
-}
 
 VulkanResource::VulkanResource(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc) :
 	RHIResource(resDesc)
