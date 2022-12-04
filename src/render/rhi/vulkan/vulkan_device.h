@@ -49,8 +49,6 @@ public:
 
 	RHIMemoryPtr           AllocMemory(const RHIMemoryDesc& desc, uint32_t memoryBits = 0) override;
 
-	void				   CopyInitDataToResource(void* initData, size_t dataSize, RHIResourcePtr sourceDataLayout, RHIResourcePtr resDynamic) override;
-
 	RHIResourcePtr         CreateTextureExt(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc) override;
 	RHIBindingSetPtr       CreateBindingSet(RHIDescriptorPool* pool, RHIBindingSetLayoutPtr layout) override;
 

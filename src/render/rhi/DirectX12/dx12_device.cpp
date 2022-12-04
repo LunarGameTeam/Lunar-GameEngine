@@ -169,51 +169,6 @@ luna::render::TRHIPtr<luna::render::RHIMemory> DX12Device::AllocMemory(const RHI
 	return CreateRHIObject<DX12Memory>(desc);;
 }
 
-void DX12Device::CopyInitDataToResource(void* initData, size_t dataSize, RHIResourcePtr sourceDataLayout, RHIResourcePtr resDynamic)
-{
-	int a = 0;
-// 	dxMemoryLayout->mDxRequire.pLayouts.resize(mDxDesc.DepthOrArraySize);
-// 	dxMemoryLayout->mDxRequire.pNumRows.resize(mDxDesc.DepthOrArraySize);
-// 	dxMemoryLayout->mDxRequire.pRowSizeInBytes.resize(mDxDesc.DepthOrArraySize);
-// 	device->GetCopyableFootprints(
-// 		&mDxDesc,
-// 		0,
-// 		mDxDesc.DepthOrArraySize,
-// 		0,
-// 		dxMemoryLayout->mDxRequire.pLayouts.data(),
-// 		dxMemoryLayout->mDxRequire.pNumRows.data(),
-// 		dxMemoryLayout->mDxRequire.pRowSizeInBytes.data(),
-// 		&dxMemoryLayout->mDxRequire.pTotalBytes
-// 	);
-
-// 	DX12Resource* dx12DstRes = resDynamic->As<DX12Resource>();
-// 	const DxResourceMemorylayout* dx12MemoryLayout = static_cast<const DxResourceMemorylayout*>(sourceDataLayout);
-// 	const DxResourceCopyLayout& srcDx12CopyLayout = dx12MemoryLayout->mDxRequire;
-// 	if (sourceDataLayout->mBaseRequire.size > dataSize)
-// 	{
-// 		LogWarning("Device", "copy init data to upload buffer May Failed");
-// 		memcpy(dx12DstRes->Map(), initData, dataSize);
-// 		return;
-// 	}
-// 	LVector<D3D12_SUBRESOURCE_DATA> subs(srcDx12CopyLayout.pLayouts.size());
-// 	for (int i = 0; i < srcDx12CopyLayout.pLayouts.size(); i++)
-// 	{
-// 		D3D12_SUBRESOURCE_DATA& it = subs[i];
-// 		
-// 		it.pData = (byte*)(initData)+i * srcDx12CopyLayout.pNumRows[i] * srcDx12CopyLayout.pRowSizeInBytes[i];
-// 		it.RowPitch = srcDx12CopyLayout.pRowSizeInBytes[i];
-// 		it.SlicePitch = srcDx12CopyLayout.pNumRows[i] * srcDx12CopyLayout.pRowSizeInBytes[i];
-// 
-// 		D3D12_MEMCPY_DEST DestData = {
-// 			(byte*)dx12DstRes->Map() + srcDx12CopyLayout.pLayouts[i].Offset,
-// 			srcDx12CopyLayout.pLayouts[i].Footprint.RowPitch,
-// 			srcDx12CopyLayout.pLayouts[i].Footprint.RowPitch * srcDx12CopyLayout.pNumRows[i]
-// 		};
-// 		MemcopyDataToResource(&DestData, &it, (SIZE_T)srcDx12CopyLayout.pRowSizeInBytes[i], srcDx12CopyLayout.pNumRows[i],
-// 			srcDx12CopyLayout.pLayouts[i].Footprint.Depth);
-// 	}
-}
-
 luna::render::RHIDescriptorPoolPtr DX12Device::CreateDescriptorPool(DescriptorPoolDesc desc)
 {
 	return CreateRHIObject<DX12DescriptorPool>(desc);

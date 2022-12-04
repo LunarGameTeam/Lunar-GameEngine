@@ -46,8 +46,6 @@ public:
 	virtual RHIBindingSetLayoutPtr CreateBindingSetLayout(const std::vector<RHIBindPoint>& bindKeys) = 0;
 
 	virtual TRHIPtr<RHIMemory> AllocMemory(const RHIMemoryDesc& desc, uint32_t memoryBits = 0) = 0;
-	
-	virtual void CopyInitDataToResource(void* initData, size_t dataSize, RHIResourcePtr sourceDataLayout, RHIResourcePtr resDynamic) = 0;
 
 	
 	[[deprecated]]

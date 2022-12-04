@@ -324,14 +324,6 @@ RHIMemoryPtr VulkanDevice::AllocMemory(const RHIMemoryDesc& desc, uint32_t memor
 	return CreateRHIObject<VulkanMemory>(desc, memoryBits);
 }
 
-void VulkanDevice::CopyInitDataToResource(void* initData, size_t dataSize, RHIResourcePtr sourceDataLayout, RHIResourcePtr resDynamic)
-{
-	VulkanResource* vkDstRes = resDynamic->As<VulkanResource>();
-	char* dst = (char*)vkDstRes->Map();
-	memcpy(dst, initData, dataSize);
-	vkDstRes->Unmap();
-}
-
 RHIDescriptorPoolPtr VulkanDevice::CreateDescriptorPool(DescriptorPoolDesc desc)
 {
 	return CreateRHIObject<VulkanDescriptorPool>(desc);

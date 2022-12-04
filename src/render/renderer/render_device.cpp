@@ -302,7 +302,9 @@ RHIResourcePtr RenderDevice::_AllocateStagingBuffer(void* initData, size_t dataS
 		mStagingOffset = GetOffset(mStagingOffset, reqDst.alignment);
 	}
 	stagingBuffer->BindMemory(mStagingMemory, mStagingOffset);
-	mDevice->CopyInitDataToResource(initData, dataSize, resMemoryLayout, stagingBuffer);
+	char* dst = (char*)stagingBuffer->Map();
+	memcpy(dst, initData, dataSize);
+	stagingBuffer->Unmap();
 	mStagingOffset = mStagingOffset + reqDst.size;
 	historyStagingBuffer.push_back(stagingBuffer);
 	return stagingBuffer;

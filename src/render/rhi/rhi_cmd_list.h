@@ -115,7 +115,6 @@ public:
 		float depth,
 		uint8_t stencil
 	) = 0;
-public:
 
 
 protected:

@@ -185,9 +185,22 @@ namespace luna::render
 	{
 		ID3D12Device* device = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
 		D3D12_RESOURCE_ALLOCATION_INFO allocation_info = device->GetResourceAllocationInfo(0, 1, &mDxDesc);
-
 		mMemoryLayout.size = allocation_info.SizeInBytes;
 		mMemoryLayout.alignment = allocation_info.Alignment;
+
+		mLayout.pLayouts.resize(mDxDesc.DepthOrArraySize);
+		mLayout.pNumRows.resize(mDxDesc.DepthOrArraySize);
+		mLayout.pRowSizeInBytes.resize(mDxDesc.DepthOrArraySize);
+		device->GetCopyableFootprints(
+			&mDxDesc,
+			0,
+			mDxDesc.DepthOrArraySize,
+			0,
+			mLayout.pLayouts.data(),
+			mLayout.pNumRows.data(),
+			mLayout.pRowSizeInBytes.data(),
+			&mLayout.pTotalBytes
+		);
 	};
 
 }

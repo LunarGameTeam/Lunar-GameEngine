@@ -41,7 +41,6 @@ public:
 		int32_t BaseVertexLocation,
 		int32_t StartInstanceLocation) override;
 
-
 	void SetVertexBuffer(const std::vector<RHIVertexBufferDesc>& vb, int32_t slot = 0) override;
 
 	void SetIndexBuffer(RHIResource* indexRes) override;

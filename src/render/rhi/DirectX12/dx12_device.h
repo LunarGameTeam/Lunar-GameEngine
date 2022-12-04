@@ -65,8 +65,6 @@ public:
 	
 	TRHIPtr<RHIMemory> AllocMemory(const RHIMemoryDesc& desc, uint32_t memoryBits = 0) override;
 
-	void CopyInitDataToResource(void* initData, size_t dataSize, RHIResourcePtr sourceDataLayout, RHIResourcePtr resDynamic) override;
-
 	RHIViewPtr CreateDescriptor(
 		const RHIViewType& descriptor_type,
 		size_t descriptor_offset,

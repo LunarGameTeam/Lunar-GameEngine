@@ -94,27 +94,9 @@ void DX12GraphicCmdList::CopyBufferToTexture(
 	DX12Resource* dx12DstRes = target_resource->As<DX12Resource>();
 	DX12Resource* dx12SrcRes = source_resource->As<DX12Resource>();
 
-	std::vector<D3D12_PLACED_SUBRESOURCE_FOOTPRINT> footprints;
-	footprints.resize(dx12DstRes->mDxDesc.DepthOrArraySize);
-
-// 	for (int i = 0; i < dx12DstRes->mDxDesc.DepthOrArraySize; ++i)
-// 	{
-// 		footprints[i].Footprint.RowPitch = 
-// 	}
-// 	.pNumRows.resize(mDxDesc.DepthOrArraySize);
-// 	dxMemoryLayout->mDxRequire.pRowSizeInBytes.resize(mDxDesc.DepthOrArraySize);
-// 	device->GetCopyableFootprints(
-// 		&mDxDesc,
-// 		0,
-// 		mDxDesc.DepthOrArraySize,
-// 		0,
-// 		dxMemoryLayout->mDxRequire.pLayouts.data(),
-// 		dxMemoryLayout->mDxRequire.pNumRows.data(),
-// 		dxMemoryLayout->mDxRequire.pRowSizeInBytes.data(),
-// 		&dxMemoryLayout->mDxRequire.pTotalBytes
-// 	);
-	
-	for (UINT i = 0; i < footprints.size(); ++i)
+	assert(dx12DstRes->mLayout.pTotalBytes <= source_resource->GetMemoryRequirements().size);
+	assert(dx12DstRes->GetMemoryRequirements().size == source_resource->GetMemoryRequirements().size);
+	for (UINT i = 0; i < dx12DstRes->mLayout.pLayouts.size(); ++i)
 	{
 		D3D12_TEXTURE_COPY_LOCATION dstCopy = {};
 		dstCopy.Type = D3D12_TEXTURE_COPY_TYPE::D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
@@ -123,10 +105,9 @@ void DX12GraphicCmdList::CopyBufferToTexture(
 		D3D12_TEXTURE_COPY_LOCATION dxSrcCopy;
 		dxSrcCopy.Type = D3D12_TEXTURE_COPY_TYPE::D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
 		dxSrcCopy.pResource = dx12SrcRes->mDxRes.Get();
-		dxSrcCopy.PlacedFootprint = footprints[i];
+		dxSrcCopy.PlacedFootprint = dx12DstRes->mLayout.pLayouts[i];
 		mDxCmdList->CopyTextureRegion(&dstCopy, 0, 0, 0, &dxSrcCopy, nullptr);
 	}
-
 }
 
 void DX12GraphicCmdList::SetPipelineState(
@@ -174,16 +155,6 @@ void DX12GraphicCmdList::BindDescriptorHeap()
 	ID3D12DescriptorHeap * const heap_value[2] = { gpu_heap_srv->GetDeviceHeap(),gpu_heap_sampler->GetDeviceHeap()};
 	mDxCmdList->SetDescriptorHeaps(2, heap_value);
 }
-
-//void DX12GraphicCmdList::BindDescriptorToPipeline(
-//	RHIView* descriptor_data,
-//	const int32_t bind_offset,
-//	const int32_t slot)
-//{
-//	DX12View* dx12_descriptor_object = dynamic_cast<DX12View*>(descriptor_data);
-//	D3D12_GPU_DESCRIPTOR_HANDLE dx_bind_handle = dx12_descriptor_object->GetCpuHandle();
-//	mDxCmdList->SetGraphicsRootDescriptorTable(slot, dx_bind_handle);
-//}
 
 
 void DX12GraphicCmdList::SetViewPort(
