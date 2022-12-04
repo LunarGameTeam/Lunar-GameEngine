@@ -214,18 +214,18 @@ RHIResourcePtr RenderDevice::_CreateTexture(const RHITextureDesc& textureDesc, c
 		dstBarrier.mStateAfter = kCopyDest;
 		mTransferCmd->ResourceBarrierExt(dstBarrier);
 		mTransferCmd->CopyBufferToTexture(textureRes, 0, stagingBuffer, 0);
-		if (Has(resDesc.mImageUsage, RHIImageUsage::SampledBit))
-		{
-			dstBarrier.mStateBefore = kCopyDest;
-			dstBarrier.mStateAfter = kShaderReadOnly;
-			mTransferCmd->ResourceBarrierExt(dstBarrier);
-		}
-		else if (Has(resDesc.mImageUsage, RHIImageUsage::ColorAttachmentBit))
-		{
-			dstBarrier.mStateBefore = kCopyDest;
-			dstBarrier.mStateAfter = kRenderTarget;
-			mTransferCmd->ResourceBarrierExt(dstBarrier);
-		}		
+		//if (Has(resDesc.mImageUsage, RHIImageUsage::SampledBit))
+		//{
+		//	dstBarrier.mStateBefore = kCopyDest;
+		//	dstBarrier.mStateAfter = kShaderReadOnly;
+		//	mTransferCmd->ResourceBarrierExt(dstBarrier);
+		//}
+		//else if (Has(resDesc.mImageUsage, RHIImageUsage::ColorAttachmentBit))
+		//{
+		//	dstBarrier.mStateBefore = kCopyDest;
+		//	dstBarrier.mStateAfter = kRenderTarget;
+		//	mTransferCmd->ResourceBarrierExt(dstBarrier);
+		//}		
 	}
 
 
