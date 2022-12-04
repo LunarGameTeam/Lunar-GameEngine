@@ -38,9 +38,9 @@ public:
 	std::vector<RHIBindPoint> mBindings;
 	
 	//Refleciton
-	VkVertexInputBindingDescription mBindingDescription = {};
-	VkPipelineVertexInputStateCreateInfo mVertexInputState = {};
-	std::vector<VkVertexInputAttributeDescription> mAttributeDescriptions;
+	vk::VertexInputBindingDescription mBindingDescription = {};
+	vk::PipelineVertexInputStateCreateInfo mVertexInputState = {};
+	std::vector<vk::VertexInputAttributeDescription> mAttributeDescriptions;
 
 	std::vector<SpvReflectDescriptorSet*>& GetVulkanReflection() { return mDescriptorReflection; }
 private:

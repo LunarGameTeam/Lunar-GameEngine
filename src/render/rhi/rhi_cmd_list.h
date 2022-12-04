@@ -45,7 +45,7 @@ public:
 
 	virtual void BeginEvent(const LString& event_str) = 0;
 	virtual void EndEvent() = 0;
-
+	
 	virtual void Reset() = 0;
 	virtual void CloseCommondList() = 0;
 
@@ -86,6 +86,8 @@ public:
 
 	virtual void ResourceBarrierExt(const ResourceBarrierDesc& desc) {};
 
+	virtual void BeginRender(const RenderPassDesc&) {};
+	virtual void EndRender() {};
 	virtual void BeginRenderPass(RHIRenderPass* pass, RHIFrameBuffer* buffer) = 0;
 	virtual void EndRenderPass() = 0;
 

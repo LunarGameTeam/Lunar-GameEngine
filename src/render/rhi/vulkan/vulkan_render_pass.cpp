@@ -44,7 +44,7 @@ VulkanRenderPass::VulkanRenderPass(const RenderPassDesc& desc)
 		assert(false);
 		return vk::AttachmentStoreOp::eNone;		
 	};
-	for (const RenderPassColorDesc& desc : desc.mColors)
+	for (const PassColorDesc& desc : desc.mColors)
 	{
 		vk::AttachmentDescription& colorAttachment = descriptions.emplace_back();
 		colorAttachment.format = Convert(desc.mFormat);

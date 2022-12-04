@@ -874,7 +874,7 @@ enum class RHIViewType
 
 
 //交换链，用于绑定渲染窗口
-struct RHIWindowDesc
+struct RHISwapchainDesc
 {
 	uint32_t  mWidth;
 	uint32_t  mHeight;

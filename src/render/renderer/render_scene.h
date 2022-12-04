@@ -17,7 +17,7 @@ class RENDER_API RenderScene :public LObject
 public:
 	RenderScene(int32_t scene_id);
 	~RenderScene() = default;
-
+	void Init();
 	void Render(FrameGraphBuilder* FG);
 
 
@@ -45,6 +45,7 @@ public:
 	RHIViewPtr										 mSceneBufferView;
 
 private:
+	bool mInit = false;
 	int32_t                                          mSceneID;
 	Light                                            mDirLight;
 	LVector<Light>                                   mAllLight;

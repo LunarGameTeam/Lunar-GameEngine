@@ -40,7 +40,6 @@ enum class TextureCompressType
 
 struct RHITextureDesc
 {
-	RHIHeapFlag heap_flag_in;
 	bool        if_gen_mipmap; //是否为无mipmap的纹理创建mipmap
 	bool        if_force_srgb; //是否强制转换为线性空间纹理
 	int         max_size; //纹理最大大小

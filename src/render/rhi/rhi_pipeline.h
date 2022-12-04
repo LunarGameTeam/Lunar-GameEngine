@@ -5,7 +5,7 @@
 #include "render/rhi/rhi_binding_set_layout.h"
 #include "render/rhi/rhi_shader.h"
 #include "render/rhi/rhi_ptr.h"
-
+#include "render/rhi/rhi_render_pass.h"
 
 namespace luna::render
 {
@@ -112,7 +112,7 @@ struct RHIPipelineStateObjectDesc
 struct RenderPipelineStateDescGraphic
 {
 	RHIPipelineStateObjectDesc mPipelineStateDesc = {};
-	RHIRenderPassPtr mRenderPass;
+	RenderPassDesc mRenderPass;
 	LVector<RenderBindingSlotTypeDesc> mDescriptorType;
 };
 

@@ -13,7 +13,6 @@ RenderView::RenderView(uint64_t view_id) :
 	mViewID(view_id)
 {
 	mRT.SetPtr(TCreateObject<RenderTarget>());
-	mRT->SetScreenRt(true);
 	mRT->Ready();
 	mDebugPass = new DebugRenderPass();
 	mLightingPass = new LightingPass();

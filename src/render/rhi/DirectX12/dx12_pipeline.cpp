@@ -118,10 +118,8 @@ bool DX12PipelineState::InitPipeline(const RHIPipelineStateDesc& psoDesc)
 	if (psoDesc.mType == RHICmdListType::Graphic3D)
 	{
 		const RenderPipelineStateDescGraphic &desc = psoDesc.mGraphicDesc;
-
-		Dx12RenderPass* dx12Pass = desc.mRenderPass->As<Dx12RenderPass>();
-		//读取pipeline的信息
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC dx12Desc = GetPipelineDesc(desc.mPipelineStateDesc, dx12Pass->mRenderPassDesc);
+				//读取pipeline的信息
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC dx12Desc = GetPipelineDesc(desc.mPipelineStateDesc, desc.mRenderPass);
 
 		//获取着色器
 		RHIShaderBlob* shaders[] =

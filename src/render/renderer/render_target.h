@@ -8,27 +8,14 @@
 
 namespace luna::render
 {
+
+
 class RENDER_API RenderTarget : public LObject
 {
 public:
 	RenderTarget();
 	void Update();
 	bool Ready();
-
-	bool GetScreenRt()
-	{
-		return m_screen_rt;
-	}
-
-	void SetScreenRt(bool val)
-	{
-		m_screen_rt = val;
-	}
-
-	void SetWindowHandle()
-	{
-
-	}
 
 	GET_SET_VALUE(RHITextureFormat, m_depth_format, DepthFormat);
 
@@ -41,9 +28,9 @@ private:
 	uint32_t mWidth = 1024;
 	uint32_t mHeight = 768;
 	RHITextureFormat mFormat = RHITextureFormat::FORMAT_R8G8BB8A8_UNORM;
-	bool m_ready = false;
+	bool mReady = false;
 	RHITextureFormat m_depth_format = RHITextureFormat::FORMAT_D24_UNORM_S8_UINT;
-	bool m_is_shader_res = false;
-	bool m_screen_rt = false;
 };
+
+
 }

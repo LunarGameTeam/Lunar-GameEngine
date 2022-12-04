@@ -66,12 +66,11 @@ void LunaCore::OnTick(float delta_time)
 
 void LunaCore::OnIMGUI()
 {
-	ImGui::Begin("Debug");
 	for (auto& it : mOrderedModules)
 	{
 		it->OnIMGUI();
 	}
-	ImGui::End();
+	
 }
 
 void LunaCore::OnFrameBegin(float delta_time)

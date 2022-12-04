@@ -40,7 +40,7 @@ void VulkanRenderQueue::ExecuteCommandLists(RHIGraphicCmdList* commond_list_arra
 	VULKAN_ASSERT(mQueue.submit(1, &submit_info, {}));
 }
 
-RHISwapChainPtr VulkanRenderQueue::CreateSwapChain(LWindow* trarget_window, const RHIWindowDesc& trarget_window_desc)
+RHISwapChainPtr VulkanRenderQueue::CreateSwapChain(LWindow* trarget_window, const RHISwapchainDesc& trarget_window_desc)
 {
 	RHISwapChainPtr swapchin = CreateRHIObject<VulkanSwapChain>(trarget_window, trarget_window_desc);
 	swapchin->As<VulkanSwapChain>()->Init();

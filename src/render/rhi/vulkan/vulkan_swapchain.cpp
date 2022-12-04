@@ -86,6 +86,7 @@ bool VulkanSwapChain::Init()
 	mImageAvailable.resize(imageCount);
 	mSwapchainRelease.resize(imageCount);
 	mFence.resize(imageCount);
+	mViews.resize(imageCount);
 
 	for (uint32_t i = 0; i < mBackBuffers.size(); i++)
 	{
@@ -104,9 +105,15 @@ bool VulkanSwapChain::Init()
 
 		if (!mFence[i])
 			VULKAN_ASSERT(device.createFence(&fenceInfo, nullptr, &mFence[i]));
-		
-	}
 
+		render::ViewDesc backbufferViewDesc;
+
+		backbufferViewDesc.mBaseMipLevel = 0;
+		backbufferViewDesc.mViewType = render::RHIViewType::kRenderTarget;
+		backbufferViewDesc.mViewDimension = render::RHIViewDimension::TextureView2D;
+		mViews[i] = sRenderModule->GetRenderDevice()->CreateView(backbufferViewDesc);
+		mViews[i]->BindResource(mBackBuffers[i]);
+	}
 
 	return true;
 }
@@ -217,9 +224,9 @@ uint32_t VulkanSwapChain::GetNowFrameID()
 	return mFrameIndex;
 }
 
-bool VulkanSwapChain::Reset(const RHIWindowDesc& window_width_in)
+bool VulkanSwapChain::Reset(const RHISwapchainDesc& windowDesc)
 {
-	mWindow = window_width_in;
+	mWindowDesc = windowDesc;
 	Init();
 	return true;
 }

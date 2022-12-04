@@ -22,25 +22,7 @@ struct SceneBuffer
 
 RenderScene::RenderScene(int32_t scene_id) : mViews(this)
 {
-
 	mSceneID = scene_id;
-	RHIBufferDesc desc;
-	desc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
-	desc.mSize = sizeof(ObjectBuffer);
-	mROBuffer = sRenderModule->GetRenderDevice()->CreateBuffer(desc);
-
-
-	desc.mSize = sizeof(SceneBuffer);
-	mSceneBuffer = sRenderModule->GetRenderDevice()->CreateBuffer(desc);
-
-	ViewDesc viewDesc;
-	viewDesc.mViewType = RHIViewType::kConstantBuffer;
-	viewDesc.mViewDimension = RHIViewDimension::BufferView;
-	mROBufferView = sRenderModule->GetRenderDevice()->CreateView(viewDesc);
-	mSceneBufferView = sRenderModule->GetRenderDevice()->CreateView(viewDesc);
-
-	mROBufferView->BindResource(mROBuffer);
-	mSceneBufferView->BindResource(mSceneBuffer);
 }
 
 
@@ -91,6 +73,29 @@ RenderView* RenderScene::CreateRenderView()
 
 void RenderScene::Render(FrameGraphBuilder* FG)
 {
+	if (!mInit)
+	{
+
+		RHIBufferDesc desc;
+		desc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
+		desc.mSize = sizeof(ObjectBuffer);
+		mROBuffer = sRenderModule->GetRenderDevice()->CreateBuffer(desc);
+
+
+		desc.mSize = sizeof(SceneBuffer);
+		mSceneBuffer = sRenderModule->GetRenderDevice()->CreateBuffer(desc);
+
+		ViewDesc viewDesc;
+		viewDesc.mViewType = RHIViewType::kConstantBuffer;
+		viewDesc.mViewDimension = RHIViewDimension::BufferView;
+		mROBufferView = sRenderModule->GetRenderDevice()->CreateView(viewDesc);
+		mSceneBufferView = sRenderModule->GetRenderDevice()->CreateView(viewDesc);
+
+		mROBufferView->BindResource(mROBuffer);
+		mSceneBufferView->BindResource(mSceneBuffer);
+		mInit = true;
+	}
+
 	UpdateRenderObject();
 
 	for (auto& renderView : mViews)

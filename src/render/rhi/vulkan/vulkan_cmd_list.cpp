@@ -493,6 +493,89 @@ void VulkanGraphicCmdList::BindDesriptorSetExt(RHIBindingSetPtr bindingSet)
 	} 
 }
 
+void VulkanGraphicCmdList::BeginRender(const RenderPassDesc& passDesc)
+{
+	std::vector<vk::RenderingAttachmentInfo> attachments;
+	std::vector<vk::RenderingAttachmentInfo> depthAttachments;
+	std::vector<vk::RenderingAttachmentInfo> stencilAttachments;
+	vk::RenderingInfo info;
+	auto convertLoad = [](RenderPassLoadOp loadOp)->auto
+	{
+		switch (loadOp)
+		{
+		case RenderPassLoadOp::kLoad:
+			return vk::AttachmentLoadOp::eLoad;
+		case RenderPassLoadOp::kClear:
+			return vk::AttachmentLoadOp::eClear;
+		case RenderPassLoadOp::kDontCare:
+			return vk::AttachmentLoadOp::eDontCare;
+		}
+		return vk::AttachmentLoadOp::eNoneEXT;
+		assert(false);
+	};
+	auto convertStore = [](RenderPassStoreOp loadOp)->auto
+	{
+		switch (loadOp)
+		{
+		case RenderPassStoreOp::kStore:
+			return vk::AttachmentStoreOp::eStore;
+		case RenderPassStoreOp::kDontCare:
+			return vk::AttachmentStoreOp::eDontCare;
+		}
+		assert(false);
+		return vk::AttachmentStoreOp::eNone;
+	};
+	uint32_t width;
+	uint32_t height;
+	uint32_t idx = 0;
+	for (auto& it : passDesc.mColors)
+	{
+		auto& attach = attachments.emplace_back();
+		
+		attach.imageView = passDesc.mColorView[idx]->As<VulkanView>()->mImageView;
+		width = passDesc.mColorView[idx]->mBindResource->mResDesc.Width;
+		height = passDesc.mColorView[idx]->mBindResource->mResDesc.Height;
+		attach.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
+		attach.loadOp = convertLoad(it.mLoadOp);
+		attach.storeOp = convertStore(it.mStoreOp);
+		attach.clearValue.color = std::array<float, 4>{it.mClearColor.x(), it.mClearColor.y(), it.mClearColor.z(), it.mClearColor.w()};
+	}
+	for (auto& it : passDesc.mDepths)
+	{
+		auto& attach = depthAttachments.emplace_back();
+		attach.imageView = passDesc.mDepthStencilView->As<VulkanView>()->mImageView;
+		attach.imageLayout = vk::ImageLayout::eDepthAttachmentOptimal;
+		attach.loadOp = convertLoad(it.mDepthLoadOp);
+		attach.storeOp = convertStore(it.mDepthStoreOp);
+		attach.clearValue.setDepthStencil({ it.mClearDepth, it.mClearStencil });
+	}
+
+	for (auto& it : passDesc.mDepths)
+	{
+		auto& attach = stencilAttachments.emplace_back();		
+		attach.imageView = passDesc.mDepthStencilView->As<VulkanView>()->mImageView;
+		attach.imageLayout = vk::ImageLayout::eStencilAttachmentOptimal;
+		attach.loadOp = convertLoad(it.mStencilLoadOp);
+		attach.storeOp = convertStore(it.mStencilStoreOp);
+		attach.clearValue.setDepthStencil({ it.mClearDepth, it.mClearStencil });
+	}
+	info.viewMask = 0;
+	info.layerCount = 1;
+	info.pColorAttachments = attachments.data();
+	info.colorAttachmentCount = attachments.size();
+	info.pDepthAttachment = depthAttachments.data();
+	info.pStencilAttachment = stencilAttachments.data();
+
+	info.renderArea.setOffset({ 0, 0 });
+	info.renderArea.setExtent({ width, height });
+	mCommandBuffer.beginRendering(&info);
+}
+
+void VulkanGraphicCmdList::EndRender()
+{
+	mCommandBuffer.endRendering();
+}
+
 }
 
 

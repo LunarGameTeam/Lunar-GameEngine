@@ -40,7 +40,6 @@ Entity *Scene::CreateEntity(const LString &name, Entity *parent /*= nullptr*/)
 	entity->GenerateUUID();
 	entity->mName = name;
 	entity->mScene = this;
-	entity->OnCreate();
 	m_entities.PushBack(entity);
 	return entity;
 }

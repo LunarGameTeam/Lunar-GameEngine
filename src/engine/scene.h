@@ -31,9 +31,11 @@ public:
 
 	render::RenderScene* GetRenderScene() { return mRenderScene; };
 public:
+	
 	void OnLoad() override;
 
 private:
+	bool mInit = false;
 	render::RenderScene* mRenderScene;
 	TSubPtr<DirectionLightComponent> m_main_light;
 	TSubPtrArray<Entity> m_entities;

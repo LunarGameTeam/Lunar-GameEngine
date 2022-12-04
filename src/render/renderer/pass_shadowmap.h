@@ -23,11 +23,11 @@ class RENDER_API ShadowRenderPass : public RenderPass
 	 RHIResDesc              shadowTextureDesc;
 	 RHIResDesc              shadowDepthTextureDesc;
 	 RHITextureDesc          textureDesc;
-	 RHIRenderPassPtr		 mRenderPass;
-	 PipelinePair			 mPipeline;
+	 RHIRenderPassPtr		      mRenderPass;
+	 PipelinePair			         mPipeline;
 	 LSharedPtr<ShaderAsset> mShadowShader;
-	 std::string             mShadowMapName;
-	 std::string             mShadowMapDepthName;
+	 FGResourceView*             mShadowMapName;
+	 FGResourceView*             mShadowMapDepthName;
 	 Light*                  mLight;
  public:
 	ShadowRenderPass() = default;

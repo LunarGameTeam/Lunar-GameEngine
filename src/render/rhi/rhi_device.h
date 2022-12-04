@@ -26,7 +26,7 @@ public:
 	virtual ~RHIDevice() = default;
 
 	//device的RHI资源创建接口
-
+	
 	virtual RHIShaderBlobPtr CreateShader(const RHIShaderDesc& desc)             = 0;
 	virtual RHIPipelineStatePtr CreatePipeline(const RHIPipelineStateDesc& desc) = 0;
 	virtual RHIRenderPassPtr CreateRenderPass(const RenderPassDesc& desc) = 0;
@@ -145,7 +145,7 @@ public:
 	virtual void ExecuteCommandLists(RHIGraphicCmdList* commond_list_array) = 0;
 	virtual RHISwapChainPtr CreateSwapChain(
 		LWindow* window,
-		const RHIWindowDesc& trarget_window_desc
+		const RHISwapchainDesc& trarget_window_desc
 	) = 0;
 	virtual void Wait(RHIFence* fence, uint64_t value) {};
 	virtual void Signal(RHIFence* fence, size_t fence_value) = 0;

@@ -12,21 +12,23 @@
 namespace luna::render
 {
 
+
 class RENDER_API RHISwapChain : public RHIObject
 {
 public:
-	RHIWindowDesc           mWindowDesc;
-	LVector<RHIResourcePtr> mBackBuffers;	
-	LWindow*                mWindow = nullptr;
+	RHISwapchainDesc           mWindowDesc;
+	LVector<RHIResourcePtr>    mBackBuffers;
+	LVector<RHIViewPtr>        mViews;
+	LWindow*                   mWindow = nullptr;
 
 public:
-	RHISwapChain(LWindow* window, const RHIWindowDesc& windowDesc) :
+	RHISwapChain(LWindow* window, const RHISwapchainDesc& windowDesc) :
 		mWindowDesc(windowDesc),
 		mWindow(window)
 	{
 	}
 
-	inline const RHIWindowDesc& GetDesc()
+	inline const RHISwapchainDesc& GetDesc()
 	{
 		return mWindowDesc;
 	}
@@ -43,9 +45,9 @@ public:
 		return mBackBuffers[idx];
 	}
 
-	virtual void PresentFrame(RHIFence* fence, uint64_t waitValue) = 0;
-	virtual uint32_t GetNowFrameID() = 0;
+	virtual void PresentFrame(RHIFence* fence, uint64_t waitValue)     = 0;
+	virtual uint32_t GetNowFrameID()                                   = 0;
 	virtual uint32_t NextImage(RHIFence* fence, uint64_t signal_value) = 0;
-	virtual bool Reset(const RHIWindowDesc& window_width_in) = 0;
+	virtual bool Reset(const RHISwapchainDesc& window_width_in)        = 0;
 };
 }

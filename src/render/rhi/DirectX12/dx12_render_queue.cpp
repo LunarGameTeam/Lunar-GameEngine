@@ -52,7 +52,7 @@ ID3D12CommandQueue* DX12RenderQueue::GetCommandQueueByPipelineType(const RHICmdL
 	return mDirectQueue.Get();
 }
 
-RHISwapChainPtr DX12RenderQueue::CreateSwapChain(LWindow* window,const RHIWindowDesc& windowDesc)
+RHISwapChainPtr DX12RenderQueue::CreateSwapChain(LWindow* window,const RHISwapchainDesc& windowDesc)
 {	
 	RHISwapChainPtr swapchain = CreateRHIObject<DX12SwapChain>(window, windowDesc);
 	swapchain->As<DX12SwapChain>()->InitSwapchain(mDirectQueue.Get());

@@ -28,73 +28,49 @@ void FrameGraphBuilder::Clear()
 // 	}
 	//m_cmd_batch_queue->ResetAllocator();
 
-	for (auto frame_graph_node : mNodes)
+	for (auto it : mNodes)
 	{
-		delete frame_graph_node;
+		delete it;
 	}
 	mNodes.clear();
-// 	for (auto it : mVirtualRes)
-// 	{
-// 		delete it.second;
-// 	}
-// 	mVirtualRes.clear();
+	
 
 
 }
 
-FGVirtualBuffer* FrameGraphBuilder::BindExternalBuffer(
-	const LString& name,
-	RHIResourcePtr& buffer
-)
-{
-	FGVirtualBuffer* virtualRes = nullptr;
-	auto it = mVirtualRes.find(name);
-	if (it == mVirtualRes.end())
-	{
-		RHIResDesc new_desc;
-		virtualRes = new FGVirtualBuffer(name, new_desc);
-		virtualRes->SetRHIResource(buffer);
-		mVirtualRes[name] = virtualRes;
-	}
-	return virtualRes;
-}
-
-FGVirtualTexture* FrameGraphBuilder::CreateTexture(
+FGTexture* FrameGraphBuilder::CreateTexture(
 	const LString& res_name,
-	const RHIResDesc& res_desc,
-	const RHITextureDesc& texture_desc
+	const RHIResDesc& res_desc
 )
 {
-	FGVirtualTexture* virtualRes = nullptr;
+	FGTexture* virtualRes = nullptr;
 	auto it = mVirtualRes.find(res_name);
 	if (it == mVirtualRes.end())
 	{
-		virtualRes = new FGVirtualTexture(res_name, res_desc, texture_desc);
+		virtualRes = new FGTexture(res_name, res_desc);
 		mVirtualRes[res_name] = virtualRes;
 	}
 	else
-		virtualRes = (FGVirtualTexture*)it->second;
+		virtualRes = (FGTexture*)it->second;
 
 	return virtualRes;
 }
 
-FGVirtualTexture* FrameGraphBuilder::BindExternalTexture(
+FGTexture* FrameGraphBuilder::BindExternalTexture(
 	const LString& name,
 	RHIResourcePtr& rhiTexture
 )
 {
-	FGVirtualTexture* texture = nullptr;
+	FGTexture* texture = nullptr;
 	auto it = mVirtualRes.find(name);
 	if (it == mVirtualRes.end())
 	{
-		RHITextureDesc desc;
-		texture = new FGVirtualTexture(name, rhiTexture->GetDesc(), desc);
-		texture->SetRHIResource(rhiTexture);		
+		texture = new FGTexture(name, rhiTexture);			
 		mVirtualRes[name] = texture;		
 	}
 	else
 	{
-		texture = dynamic_cast<FGVirtualTexture*>(it->second);
+		texture = static_cast<FGTexture*>(it->second);
 		texture->SetRHIResource(rhiTexture);
 	}
 	return texture;
@@ -110,24 +86,13 @@ void FrameGraphBuilder::Compile()
 
 void FrameGraphBuilder::_Prepare()
 {
-
 	for (FGNode* it : mNodes)
 	{
-		for (auto& it : it->mVirtureResView)
+		for (FGResourceView* it : it->mVirtureResView)
 		{
-			const LString& name = it.first;
-			FGVirtualResView& view = it.second;
-
-			RHIViewPtr rhiView;
-
-			auto resIt = mVirtualRes.find(name);
-			if (resIt == mVirtualRes.end())
-				continue;
-			view.VirtualRes = resIt->second;
-			rhiView = sRenderModule->GetRenderDevice()->CreateView(view.mViewDesc);			
-			view.mView = rhiView;
-			rhiView->BindResource(view.VirtualRes->GetRHIResource());
-
+			RHIViewPtr rhiView = sRenderModule->GetRenderDevice()->CreateView(it->mRHIViewDesc);			
+			it->mRHIView = rhiView;
+			rhiView->BindResource(it->mVirtualRes->mRes);
 		}
 	}
 }
@@ -142,14 +107,11 @@ void FrameGraphBuilder::Flush()
 	{
 		if (it.second->GetRHIResource() == nullptr)
 		{
-			if (it.second->GetDesc().mType == ResourceType::kBuffer)
+			if (it.second->GetDesc().mType == ResourceType::kTexture)
 			{
-				FGVirtualBuffer* res_buf = dynamic_cast<FGVirtualBuffer*>(it.second);				
-			}
-			else if (it.second->GetDesc().mType == ResourceType::kTexture)
-			{
-				FGVirtualTexture* virtualRes = dynamic_cast<FGVirtualTexture*>(it.second);
-				RHIResourcePtr rhiRes = renderDevice->CreateFGTexture(virtualRes->GetTextureDesc(), virtualRes->GetDesc());
+				FGTexture* virtualRes = static_cast<FGTexture*>(it.second);
+				RHITextureDesc textureDesc;
+				RHIResourcePtr rhiRes = renderDevice->CreateFGTexture(textureDesc, virtualRes->GetDesc());
 				virtualRes->SetRHIResource(rhiRes);
 			}
 			else 
@@ -159,6 +121,7 @@ void FrameGraphBuilder::Flush()
 		}
 
 	}
+
 	_Prepare();
 
 
@@ -166,25 +129,24 @@ void FrameGraphBuilder::Flush()
 	cmdlist->Reset();
 	for (FGNode* node : mNodes)
 	{
-		for (auto& it : node->mVirtureResView)
-		{
-			const LString& name = it.first;
-			FGVirtualResView& view = it.second;
-			switch (view.mViewDesc.mViewType)
+		for (FGResourceView* view : node->mVirtureResView)
+		{			 
+			switch (view->mRHIViewDesc.mViewType)
 			{
 			case RHIViewType::kTexture:
-				cmdlist->ResourceBarrierExt({ view.VirtualRes->GetRHIResource(), ResourceState::kUndefined, ResourceState::kGenericRead });
+				cmdlist->ResourceBarrierExt({ view->mVirtualRes->GetRHIResource(), ResourceState::kUndefined, ResourceState::kGenericRead });
 				break;
 			case RHIViewType::kRenderTarget:
-				cmdlist->ResourceBarrierExt({ view.VirtualRes->GetRHIResource(), ResourceState::kUndefined, ResourceState::kRenderTarget });
+				cmdlist->ResourceBarrierExt({ view->mVirtualRes->GetRHIResource(), ResourceState::kUndefined, ResourceState::kRenderTarget });
 
 				break;
 			case RHIViewType::kDepthStencil:
-				cmdlist->ResourceBarrierExt({ view.VirtualRes->GetRHIResource(), ResourceState::kUndefined, ResourceState::kDepthStencilWrite });
+				cmdlist->ResourceBarrierExt({ view->mVirtualRes->GetRHIResource(), ResourceState::kUndefined, ResourceState::kDepthStencilWrite });
 				break;
 			}
 		}
 	}
+
 	cmdlist->CloseCommondList();
 	renderDevice->mGraphicQueue->ExecuteCommandLists(cmdlist);
 	renderDevice->mGraphicQueue->Signal(mFence3D, ++mFenceValue3D);
@@ -192,31 +154,38 @@ void FrameGraphBuilder::Flush()
 
 	for (FGNode* node : mNodes)
 	{
-		if (!node->HasResView(node->mRT) && !node->HasResView(node->mDS))
+		if (node->mRT.empty() && !node->mDS)
 			return;
 
-		FGVirtualResView& rtView = node->mVirtureResView[node->mRT];
-		FGVirtualResView& dsView = node->mVirtureResView[node->mDS];
 
-		auto width = rtView.VirtualRes->GetRHIResource()->GetDesc().Width;
-		auto height = rtView.VirtualRes->GetRHIResource()->GetDesc().Height;
-
-		auto it = GetOrCreateRenderPass(node);
-
+		FGResourceView& dsView = *node->mDS;
 
 		mFence3D->Wait(mFenceValue3D);
 		cmdlist->Reset();
 		cmdlist->BindDescriptorHeap();
+		uint32_t width;
+		uint32_t height;
+		node->mPassDesc.mColorView.clear();
+		int index = 0;
+		for (FGResourceView* it : node->mRT)
+		{
+			FGResourceView& rtView = *it;
+			width = rtView.mVirtualRes->GetRHIResource()->mResDesc.Width;
+			height = rtView.mVirtualRes->GetRHIResource()->mResDesc.Height;
+			assert(rtView.mRHIView);
+			node->mPassDesc.mColors[index].mFormat = rtView.mRHIView->mBindResource->mResDesc.Format;
+			node->mPassDesc.mColorView.emplace_back(rtView.mRHIView);
+		}
 
-		node->PreExecute(this);
+		node->mPassDesc.mDepthStencilView = dsView.mRHIView;
+		node->mPassDesc.mDepths[0].mDepthStencilFormat = dsView.mRHIView->mBindResource->mResDesc.Format;
+
 		cmdlist->BeginEvent(node->GetName());
+		node->PreExecute(this);
 
-		//
-		renderDevice->BeginRenderPass(it.first, it.second);
+		renderDevice->BeginRendering(node->mPassDesc);
 		cmdlist->SetViewPort(0, 0, width, height);
 		cmdlist->SetScissorRects(0, 0, width, width);
-		//cmdlist->ClearRTView(rtView.mView, LVector4f(0, 0, 0, 1));
-		//cmdlist->ClearDSView(0, 0, width, height, dsView.mView, 1, 0);
 
 		node->Execute(this);
 		renderDevice->EndRenderPass();
@@ -230,53 +199,13 @@ void FrameGraphBuilder::Flush()
 }
 
 
-FGVirtualTexture* FrameGraphBuilder::GetTexture(const LString& name)
+FGTexture* FrameGraphBuilder::GetTexture(const LString& name)
 {
 	auto it = mVirtualRes.find(name);
 	if (it == mVirtualRes.end())
 		return nullptr;
-	FGVirtualTexture* texture = dynamic_cast<FGVirtualTexture*>(it->second);
+	FGTexture* texture = static_cast<FGTexture*>(it->second);
 	return texture;
 }
 
-FrameGraphBuilder::RenderPassValue FrameGraphBuilder::GetOrCreateRenderPass(FGNode* node)
-{
-
-	FGVirtualResView& rtView = node->mVirtureResView[node->mRT];
-	FGVirtualResView& dsView = node->mVirtureResView[node->mDS];
-
-
-	auto width = rtView.VirtualRes->GetRHIResource()->GetDesc().Width;
-	auto height = rtView.VirtualRes->GetRHIResource()->GetDesc().Height;
-
-	auto key = std::make_pair(rtView.mView, dsView.mView);
-	if (mRHIFrameBuffers.find(key) != mRHIFrameBuffers.end())
-		return mRHIFrameBuffers[key];
-
-	RenderPassDesc passDesc;
-
-	RenderPassColorDesc colorDesc;	
-	colorDesc.mFormat = rtView.VirtualRes->GetRHIResource()->GetDesc().Format;
-	colorDesc.mClearColor = LVector4f(0.2, 0.2, 0.2, 1);
-	passDesc.mColors.push_back(colorDesc);
-
-	RenderPassDepthStencilDesc depthDesc;
-	depthDesc.mDepthStencilFormat = dsView.VirtualRes->GetRHIResource()->GetDesc().Format;
-	depthDesc.mClearDepth = 1.0f;
-	depthDesc.mClearStencil = 0;
-	passDesc.mDepths.push_back(depthDesc);
-
-	RHIRenderPassPtr pass = sRenderModule->GetRHIDevice()->CreateRenderPass(passDesc);
-
-	FrameBufferDesc desc;
-	desc.mPass = pass;
-	desc.mColor.push_back(rtView.mView);
-	desc.mDepthStencil = dsView.mView;
-
-	desc.mWidth = width;
-	desc.mHeight = height;
-	RHIFrameBufferPtr frameBuffer = sRenderModule->GetRHIDevice()->CreateFrameBuffer(desc);
-	mRHIFrameBuffers[key] = std::make_pair(pass, frameBuffer);
-	return mRHIFrameBuffers[key];
-}
 }

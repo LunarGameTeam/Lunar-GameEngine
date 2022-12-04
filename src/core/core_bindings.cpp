@@ -12,7 +12,6 @@
 */
 #pragma once
 
-
 #include "core/framework/module.h"
 #include "core/core_library.h"
 #include "core/framework/luna_core.h"

@@ -28,7 +28,7 @@ bool DX12SwapChain::InitSwapchain(ID3D12CommandQueue* cmdQueue)
 	return true;
 }
 
-bool DX12SwapChain::Reset(const RHIWindowDesc& window_width_in)
+bool DX12SwapChain::Reset(const RHISwapchainDesc& window_width_in)
 {
 	LDirectXGIFactory* dxGIFactor = sRenderModule->GetDevice<DX12Device>()->GetDxGIFactory();
 	assert(dxGIFactor != nullptr);

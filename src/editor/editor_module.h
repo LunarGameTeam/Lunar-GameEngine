@@ -54,7 +54,6 @@ public:
 public:
 	EditorBase* RegisterEditor(EditorBase* base);
 
-	void SetupIMGUI();
 
 	template<typename T>
 	T* GetEditor() 
@@ -75,7 +74,7 @@ public:
 	SceneEditor* GetSceneEditor();
 	MainEditor* GetMainEditor();
 
-	VkDescriptorSet mSceneImage;
+
 private:
 	void OnWindowResize(LWindow&, WindowEvent&);
 
@@ -91,16 +90,12 @@ private:
 	
 	
 	//Render
-	
-	render::RHIRenderPassPtr  mRenderPass;
-	render::RHIFrameBufferPtr mFrameBuffer[2]; 		
-	render::RHIViewPtr        mBackBufferView[2];
-	render::RHIViewPtr        mImguiSRV;
-	render::RHIResourcePtr    mImguiRes;
+
+
 
 	render::RHIDevice* mRHIDevice = nullptr;	
 
-	render::RHIWindowDesc mWindowDesc;
+	render::RHISwapchainDesc mWindowDesc;
 	render::RHIDescriptorPool* mImguiSrvHeap;
 	TSubPtr<render::RenderTarget> mScreenRt;
 	

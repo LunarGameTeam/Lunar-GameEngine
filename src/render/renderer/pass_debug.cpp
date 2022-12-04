@@ -26,7 +26,6 @@ void DebugRenderPass::BuildRenderPass(FrameGraphBuilder* builder, RenderView* vi
 	static std::pair<RHIPipelineStatePtr, RHIBindingSetPtr> pipeline;
 
 	RHITextureDesc textureDesc;
-	textureDesc.heap_flag_in = RHIHeapFlag::HEAP_FLAG_NONE;
 	textureDesc.max_size = 0;
 	textureDesc.if_force_srgb = false;
 	textureDesc.if_gen_mipmap = false;
@@ -53,28 +52,28 @@ void DebugRenderPass::BuildRenderPass(FrameGraphBuilder* builder, RenderView* vi
 	LString rtName = "DebugColor";
 	LString rtDepthName = "DebugDepth";
 
-	builder->CreateTexture(rtName, depthResDesc, textureDesc);
+	auto debugColor = builder->CreateTexture(rtName, depthResDesc);
 	depthResDesc.Format = RHITextureFormat::FORMAT_D24_UNORM_S8_UINT;
 	depthResDesc.mImageUsage = RHIImageUsage::DepthStencilBit;
-	builder->CreateTexture(rtDepthName, depthResDesc, textureDesc);
+	auto debugDepth = builder->CreateTexture(rtDepthName, depthResDesc);
 
 	//用成员函数
-	auto& pass = builder->AddPass()
-		.Name("DebugPass")
+	auto& pass = builder->AddPass("DebugPass")		
 		.SetupFunc(builder, [=, this](FrameGraphBuilder* builder, FGNode& node) {
 		ViewDesc desc;
 		auto shadow_map = builder->GetTexture(rtName);
 		desc.mViewType = RHIViewType::kRenderTarget;
 		desc.mViewDimension = RHIViewDimension::TextureView2D;
-		node.AddRTV(rtName, desc);
+		auto colorRTV = node.AddRTV(debugColor, desc);
 
 		auto shadow_map_depth = builder->GetTexture(rtDepthName);
 		ViewDesc dsvDesc;
 		dsvDesc.mViewType = RHIViewType::kDepthStencil;
 		dsvDesc.mViewDimension = RHIViewDimension::TextureView2D;
-		node.AddDSV(rtDepthName, dsvDesc);
+		auto depthView = node.AddDSV(debugDepth, dsvDesc);
 
-		node.SetRenderTarget(rtName, rtDepthName);
+		node.SetColorAttachment(colorRTV);
+		node.SetDepthStencilAttachment(depthView);
 
 
 			});

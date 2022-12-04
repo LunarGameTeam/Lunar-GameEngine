@@ -131,7 +131,7 @@ class RENDER_API RHIView : public RHIObject
 {	
 public:
 	ViewDesc mViewDesc;
-
+	RHIResourcePtr mBindResource;
 	RHIViewType mViewType;
 
 	RHIView(const ViewDesc& desc):

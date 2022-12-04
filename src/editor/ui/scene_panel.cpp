@@ -55,11 +55,8 @@ void SceneEditor::OnGUI()
 	}
 	if (sRenderModule->GetRenderDevice()->mDeviceType == render::RenderDeviceType::Vulkan)
 	{
-		if (sEditorModule->mSceneImage)
-		{
-
-			ImGui::Image((ImTextureID)(sEditorModule->mSceneImage), ImGui::GetContentRegionAvail());
-		}
+		if(mImguiTexture)
+			ImGui::Image((ImTextureID)(mImguiTexture->mImg), ImGui::GetContentRegionAvail());
 	}
 	{
 		ImVec2 vMin = ImGui::GetWindowContentRegionMin();
@@ -96,6 +93,7 @@ void SceneEditor::Init()
 	auto func = std::bind(&SceneEditor::OnInputEvent, this, std::placeholders::_1, std::placeholders::_2);
 	static auto handle = sEventModule->OnInput.Bind(func);
 	SetScene(sSceneModule->GetScene(0));
+	mImguiTexture = sRenderModule->AddImguiTexture(sRenderModule->mMainRT->mColorTexture);
 }
 
 void SceneEditor::OnInputEvent(LWindow& window, InputEvent& event)

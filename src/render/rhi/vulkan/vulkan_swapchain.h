@@ -25,13 +25,13 @@ struct SwapChainSupportDetails
 class RENDER_API VulkanSwapChain : public RHISwapChain
 {
 public:
-	VulkanSwapChain(LWindow* window, const RHIWindowDesc& windowDesc) :
+	VulkanSwapChain(LWindow* window, const RHISwapchainDesc& windowDesc) :
 		RHISwapChain(window, windowDesc) {}
 	
 	void PresentFrame(RHIFence* fence, uint64_t waitValue) override;
 	uint32_t GetNowFrameID() override;
 	uint32_t NextImage(RHIFence* fence, uint64_t signal_value) override;
-	bool Reset(const RHIWindowDesc& desc) override;
+	bool Reset(const RHISwapchainDesc& desc) override;
 	vk::SurfaceKHR GetVkSurface() { return mSurface; }
 
 	vk::SwapchainKHR mSwapChain;
@@ -44,7 +44,7 @@ private:
 	std::vector<vk::Semaphore> mSwapchainRelease;
 	std::vector<vk::Fence> mFence;
 	uint32_t mPrevFrameIdx;
-	VkSurfaceKHR mSurface;
+	VkSurfaceKHR mSurface = nullptr;
 
 	SwapChainSupportDetails querySwapChainSupport(vk::PhysicalDevice device);
 	vk::SurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats);

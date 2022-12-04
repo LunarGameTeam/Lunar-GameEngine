@@ -62,7 +62,7 @@ public:
 	//Frame Graph API
 public:
 
-	PipelinePair CreatePipelineState(ShaderAsset* shaderPass, RHIRenderPass* renderPass);
+	PipelinePair CreatePipelineState(ShaderAsset* shaderPass);
 	PipelinePair CreatePipelineState(const RHIPipelineStateDesc& desc);
 	RHIResourcePtr CreateFGTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData = nullptr, size_t dataSize = 0);
 	RHIResourcePtr CreateFGBuffer(const RHIBufferDesc& resDesc, void* initData);
@@ -75,7 +75,7 @@ public:
 	void UpdateConstantBuffer(RHIResourcePtr target, void* data, size_t dataSize);
 	void FlushStaging();
 
-	void BeginRenderPass(RHIRenderPass* pass, RHIFrameBuffer* framebuffer);
+	void BeginRendering(const RenderPassDesc&);
 	void EndRenderPass();
 
 	void DrawRenderOBject(render::RenderObject* mesh, render::ShaderAsset* shader, PackedParams* params);
@@ -96,11 +96,11 @@ private:
 		void* initData , size_t dataSize, RHIMemoryPtr targetMemory, size_t& memoryOffset);
 
 public:
-	using PipelineCacheKey = std::pair<ShaderAsset*, RHIRenderPass*>;
+	using PipelineCacheKey = std::pair<ShaderAsset*, size_t>;
+	RenderPassDesc mCurRenderPass;
 	std::map<PipelineCacheKey, PipelinePair> mPipelineCache;
 
 	RHIPipelineStatePtr mLastPipline;
-	RHIRenderPassPtr mCurRenderPass;
 
 	RHIMemoryPtr mStagingMemory;
 	std::vector<RHIResourcePtr> historyStagingBuffer;

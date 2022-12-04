@@ -12,6 +12,7 @@ namespace luna::render
 
 void VulkanView::BindResource(RHIResource* res)
 {
+	mBindResource = res;
 	mRes = res->As<VulkanResource>();
 	VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
 	auto dimension = mRes->GetDesc().Dimension;

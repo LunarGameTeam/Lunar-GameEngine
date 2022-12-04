@@ -113,6 +113,12 @@ public:
 
 
 
+
+	void BeginRender(const RenderPassDesc&) override;
+
+
+	void EndRender() override;
+
 private:
 
 };

@@ -281,10 +281,14 @@ void VulkanDevice::createLogicalDevice()
 		queueCreateInfo.pQueuePriorities = &queuePriority;
 		queueCreateInfos.push_back(queueCreateInfo);
 	}
+	
 	vk::PhysicalDeviceVulkan12Features device12Features;
 	device12Features.timelineSemaphore = true;
 	device12Features.bufferDeviceAddress = true;
 	device12Features.bufferDeviceAddressCaptureReplay = true;
+	vk::PhysicalDeviceVulkan13Features device13Features;
+	device13Features.dynamicRendering = true;
+	device12Features.pNext = &device13Features;
 
 	vk::PhysicalDeviceFeatures deviceFeatures{};
 	vk::DeviceCreateInfo createInfo{};

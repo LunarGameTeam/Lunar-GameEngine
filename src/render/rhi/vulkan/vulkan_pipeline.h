@@ -2,7 +2,7 @@
 #include "render/pch.h"
 #include "render/rhi/rhi_device.h"
 
-#include <vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 
 
 namespace luna::render
@@ -15,7 +15,7 @@ public:
 	void Init();
 
 
-	VkPipeline mPipeline;	
+	vk::Pipeline mPipeline;	
 
 };
 }

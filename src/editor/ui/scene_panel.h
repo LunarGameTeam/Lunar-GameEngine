@@ -30,11 +30,12 @@ public:
 	void SetScene(Scene* val);
 
 protected:
-	Scene* mScene = nullptr;
-	CameraComponent* mCamera = nullptr;
+	Scene*                mScene      = nullptr;
+	CameraComponent*      mCamera     = nullptr;
 
-	bool                             mNeedUpdate = false;
-	bool                             mDragging   = false;
-	ImVec2                           mOldSize    = ImVec2(0, 0);
+	bool                  mNeedUpdate = false;
+	bool                  mDragging   = false;
+	ImVec2                mOldSize    = ImVec2(0, 0);
+	render::ImguiTexture* mImguiTexture = nullptr;
 };
 }

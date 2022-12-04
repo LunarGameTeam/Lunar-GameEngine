@@ -18,7 +18,7 @@ public:
 	~DX12RenderQueue();
 	void ExecuteCommandLists(RHIGraphicCmdList* commond_list_array) override;
 
-	RHISwapChainPtr CreateSwapChain(LWindow* window,const RHIWindowDesc& windowDesc) override;
+	RHISwapChainPtr CreateSwapChain(LWindow* window,const RHISwapchainDesc& windowDesc) override;
 
 	void Wait(RHIFence* fence, uint64_t value) override;
 	void Signal(RHIFence* fence, size_t fence_value) override;

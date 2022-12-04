@@ -14,7 +14,7 @@ void LightingPass::BuildRenderPass(FrameGraphBuilder* builder, RenderView* view,
 	RenderPass::BuildRenderPass(builder, view, renderScene);
 
 	//用lambda
-	auto& node = builder->AddPass().Name("LightingPass");
+	auto& node = builder->AddPass("LightingPass");
 
 	node.SetupFunc(builder, [=](FrameGraphBuilder* builder, FGNode& node){
 			LString rtName = "MainColor";
@@ -24,8 +24,8 @@ void LightingPass::BuildRenderPass(FrameGraphBuilder* builder, RenderView* view,
 
 			//builder->BindExternalTexture(mShadowMapDsName, view->GetRenderTarget()->mDepthTexture);
 
-			FGVirtualTexture* color = builder->GetTexture(rtName);
-			FGVirtualTexture* depth = builder->GetTexture(rtDepthName);
+			FGTexture* color = builder->GetTexture(rtName);
+			FGTexture* depth = builder->GetTexture(rtDepthName);
 
 			assert(color);
 			assert(depth);
@@ -42,9 +42,10 @@ void LightingPass::BuildRenderPass(FrameGraphBuilder* builder, RenderView* view,
 			dsvDesc.mViewType = RHIViewType::kDepthStencil;
 			dsvDesc.mViewDimension = RHIViewDimension::TextureView2D;
 
-			node.AddRTV(rtName, rtvDesc)
-				.AddDSV(rtDepthName, dsvDesc)
-				.SetRenderTarget(rtName, rtDepthName);
+			auto colorView = node.AddRTV(color, rtvDesc);
+			auto depthView = node.AddDSV(depth, dsvDesc);
+			node.SetColorAttachment(colorView);
+			node.SetDepthStencilAttachment(depthView);
 	});	
 	
 	node.ExcuteFunc([view, renderScene](FrameGraphBuilder* builder, FGNode& node, RenderDevice* device){

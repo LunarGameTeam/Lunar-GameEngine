@@ -15,7 +15,7 @@ public:
 	ID3D12CommandQueue* mCmdQueue;
 	Microsoft::WRL::ComPtr<IDXGISwapChain3> mSwapChain;
 public:
-	DX12SwapChain(LWindow* window, const RHIWindowDesc& windowDesc) :
+	DX12SwapChain(LWindow* window, const RHISwapchainDesc& windowDesc) :
 		RHISwapChain(window, windowDesc) {}
 
 	void PresentFrame(RHIFence* fence, uint64_t waitValue) override;
@@ -32,6 +32,6 @@ public:
 
 private:
 	
-	bool Reset(const RHIWindowDesc& desc) override;
+	bool Reset(const RHISwapchainDesc& desc) override;
 };
 }

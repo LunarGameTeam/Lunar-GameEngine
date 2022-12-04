@@ -26,9 +26,17 @@
 #include "render/rhi/rhi_memory.h"
 #include "render/renderer/render_device.h"
 #include "render/renderer/render_scene.h"
+#include "render/rhi/rhi_types.h"
 
+#include <vulkan//vulkan.h>
 namespace luna::render
 {
+//IMGUI
+struct ImguiTexture
+{
+	render::RHIViewPtr	mView;
+	VkDescriptorSet		mImg;
+};
 
 class RenderDevice;
 
@@ -47,7 +55,7 @@ public:
 
 	RenderScene* AddScene();
 
-	RHISwapChainPtr& GetMainSwapchain()
+	RHISwapChainPtr& GetSwapChain()
 	{
 		return mMainSwapchain;
 	}
@@ -76,25 +84,41 @@ public:
 	RenderDeviceType GetDeviceType() { return mRenderDevice->mDeviceType; }
 	LSharedPtr<ShaderAsset> mDefaultShader;
 public:
+	bool OnLoad() override;	
 	bool OnInit() override;
+	void SetupIMGUI();
 	bool OnShutdown() override;
 
 	void OnFrameBegin(float delta_time) override;
 	void Tick(float delta_time) override;
+
 	void OnFrameEnd(float deltaTime) override;
 
 	RenderScene* GetRenderScene(int32_t scene_id) { return mRenderScenes[scene_id]; }
 	int32_t GetRenderSeneSize() { return (int32_t)mRenderScenes.Size(); }
+
+	void UpdateFrameBuffer();
 public:
+
 	RenderDevice* mRenderDevice;
 	TSubPtr<RenderTarget>     mMainRT;
-	
+
+	ImguiTexture* AddImguiTexture(RHIResource* res);
 private:
 	LSharedPtr<Texture2D> mDefaultWhiteTexture;
 
 	RenderDeviceType          mDeviceType = RenderDeviceType::DirectX12;
 
+
 	TSubPtrArray<RenderScene> mRenderScenes;	//主交换链
+
+	LMap<LWindow*, RHISwapChainPtr> mSwapchains;
+
+
+	std::vector<ImguiTexture> mImguiTextures;
+
+	render::RHIRenderPassPtr  mRenderPass;
+	render::RHIFrameBufferPtr mFrameBuffer[2];
 
 	RHISwapChainPtr           mMainSwapchain;
 	//framegraph

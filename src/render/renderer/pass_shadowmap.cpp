@@ -11,7 +11,6 @@ void ShadowRenderPass::InitImpl()
 {
 	mShadowShader = LSharedPtr<ShaderAsset>(sAssetModule->LoadAsset<render::ShaderAsset>("/assets/built-in/depth.hlsl"));
 
-	textureDesc.heap_flag_in = RHIHeapFlag::HEAP_FLAG_NONE;
 	textureDesc.max_size = 0;
 	textureDesc.if_force_srgb = false;
 	textureDesc.if_gen_mipmap = false;
@@ -76,59 +75,58 @@ void ShadowRenderPass::BuildRenderPass(
 
 	mLight = &render_scene->GetMainDirLight();
 	std::string name_tail = "Scene" + std::to_string(render_scene->GetSceneId()) + "_View" + std::to_string(view_info->GetViewID());
-	mShadowMapName = "ShadowMap_" + name_tail;
-	mShadowMapDepthName = "ShadowMapDepth_" + name_tail;
-	builder->BindExternalTexture(mShadowMapName, sRenderModule->mMainRT->mColorTexture);
+	LString shadowMapName = "ShadowMap_" + name_tail;
+	LString shadowMapDepthName = "ShadowMapDepth_" + name_tail;
+	FGTexture* shadowmap = builder->BindExternalTexture(shadowMapName, sRenderModule->mMainRT->mColorTexture);
 	//builder->CreateTexture(mShadowMapName, shadowTextureDesc, textureDesc);
-	builder->CreateTexture(
-		mShadowMapDepthName, shadowDepthTextureDesc, textureDesc);
+	FGTexture* shadowmapDepth = builder->CreateTexture(
+		shadowMapDepthName, shadowDepthTextureDesc);
 
 	//用成员函数
-	auto& pass = builder->AddPass()
-		.Name("ShadowPass")
-		.SetupFunc(builder, [this](FrameGraphBuilder* builder, FGNode& node) {
+	auto& pass = builder->AddPass("ShadowPass");
+	pass.SetupFunc(builder, [=, this](FrameGraphBuilder* builder, FGNode& node) {
 		ViewDesc desc;
-		auto shadow_map = builder->GetTexture(mShadowMapName);
-		desc.mViewType = RHIViewType::kRenderTarget;		
-		node.AddRTV(mShadowMapName, desc);
+	desc.mViewType = RHIViewType::kRenderTarget;
+	auto rtv = node.AddRTV(shadowmap, desc);
 
-		auto shadow_map_depth = builder->GetTexture(mShadowMapDepthName);
-		ViewDesc dsvDesc;
-		dsvDesc.mViewType = RHIViewType::kDepthStencil;
-		dsvDesc.mViewDimension = RHIViewDimension::TextureView2D;
-		node.AddDSV(mShadowMapDepthName, dsvDesc);
+	ViewDesc dsvDesc;
+	dsvDesc.mViewType = RHIViewType::kDepthStencil;
+	dsvDesc.mViewDimension = RHIViewDimension::TextureView2D;
+	auto dsv = node.AddDSV(shadowmapDepth, dsvDesc);
 
-		node.SetRenderTarget(mShadowMapName, mShadowMapDepthName);
+	node.SetColorAttachment(rtv);
+	node.SetDepthStencilAttachment(dsv);
 
 		});
 
 	pass.PreExecFunc([this](FrameGraphBuilder* builder, FGNode& node) {
 
-// 		std::vector<BindingDesc> bindings;
-// 
-// 		if (mShadowPipeline.first == nullptr)
-// 			mShadowPipeline = builder->GetPipelineState(&node, mShadowShader.get());
-// 
-// 		bindings.emplace_back(mShadowShader->GetBindPoint("PassBuffer"), mPassView);
-// 
-// 		bindings.emplace_back(mShadowShader->GetBindPoint("ObjectBuffer"), mRenderScene->mROBufferView);
-// 		mShadowPipeline.second->WriteBindings(bindings);
+		// 		std::vector<BindingDesc> bindings;
+		// 
+		// 		if (mShadowPipeline.first == nullptr)
+		// 			mShadowPipeline = builder->GetPipelineState(&node, mShadowShader.get());
+		// 
+		// 		bindings.emplace_back(mShadowShader->GetBindPoint("PassBuffer"), mPassView);
+		// 
+		// 		bindings.emplace_back(mShadowShader->GetBindPoint("ObjectBuffer"), mRenderScene->mROBufferView);
+		// 		mShadowPipeline.second->WriteBindings(bindings);
 		});
-	pass.ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RenderDevice* renderContext) {
-
-		auto renderDevice = sRenderModule->GetRenderDevice();
-
-		sRenderModule->GetRenderDevice()->mGraphicCmd->SetPipelineState(mShadowPipeline.first);
-		std::vector<BindingDesc> bindings;
-
-		renderDevice->mGraphicCmd->BindDesriptorSetExt(mShadowPipeline.second);
-
-		for (auto it : mRenderScene->GetRenderObjects())
+	pass.ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RenderDevice* renderContext) 
 		{
-			RenderObject* obj = it;
-			renderDevice->DrawRenderOBject(obj, nullptr, nullptr);
-		}
-		return;
+
+			auto renderDevice = sRenderModule->GetRenderDevice();
+
+	sRenderModule->GetRenderDevice()->mGraphicCmd->SetPipelineState(mShadowPipeline.first);
+	std::vector<BindingDesc> bindings;
+
+	renderDevice->mGraphicCmd->BindDesriptorSetExt(mShadowPipeline.second);
+
+	for (auto it : mRenderScene->GetRenderObjects())
+	{
+		RenderObject* obj = it;
+		renderDevice->DrawRenderOBject(obj, nullptr, nullptr);
+	}
+	return;
 
 		});
 

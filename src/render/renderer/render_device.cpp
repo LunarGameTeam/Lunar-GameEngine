@@ -251,9 +251,9 @@ PipelinePair RenderDevice::CreatePipelineState(const RHIPipelineStateDesc& desc)
 	return std::make_pair(pipeline, bindingSet);
 }
 
-PipelinePair RenderDevice::CreatePipelineState(ShaderAsset* shaderAsset, RHIRenderPass* pass)
+PipelinePair RenderDevice::CreatePipelineState(ShaderAsset* shaderAsset)
 {
-	auto key = make_pair(shaderAsset, pass);
+	auto key = std::make_pair(shaderAsset, mCurRenderPass.Hash());
 	auto it = mPipelineCache.find(key);
 	if (it != mPipelineCache.end())
 		return it->second;
@@ -262,7 +262,8 @@ PipelinePair RenderDevice::CreatePipelineState(ShaderAsset* shaderAsset, RHIRend
 	desc.mType = RHICmdListType::Graphic3D;
 	desc.mGraphicDesc.mPipelineStateDesc.mVertexShader = shaderAsset->GetVertexShader();
 	desc.mGraphicDesc.mPipelineStateDesc.mPixelShader = shaderAsset->GetPixelShader();
-	desc.mGraphicDesc.mRenderPass = pass;
+	desc.mGraphicDesc.mRenderPass = mCurRenderPass;
+
 	RHIBlendStateTargetDesc blend = {};
 	desc.mGraphicDesc.mPipelineStateDesc.BlendState.RenderTarget.push_back(blend);
 	mPipelineCache[key] = CreatePipelineState(desc);
@@ -302,29 +303,28 @@ RHIResourcePtr RenderDevice::_AllocateStagingBuffer(void* initData, size_t dataS
 	return stagingBuffer;
 }
 
-void RenderDevice::BeginRenderPass(RHIRenderPass* pass, RHIFrameBuffer* framebuffer)
+void RenderDevice::BeginRendering(const RenderPassDesc& desc)
 {
-	mCurRenderPass = pass;
-	mGraphicCmd->BeginRenderPass(pass, framebuffer);
+	mGraphicCmd->BeginRender(desc);
+	mCurRenderPass = desc;
 }
 
 void RenderDevice::EndRenderPass()
 {
-	mGraphicCmd->EndRenderPass();
-	mCurRenderPass = nullptr;
+	mGraphicCmd->EndRender();	
 }
 
 void RenderDevice::DrawRenderOBject(render::RenderObject* ro, render::ShaderAsset* shader, PackedParams* params)
 {
 	RHIPipelineStatePtr pipeline;
 	RHIBindingSetPtr bindingset;
-	auto key = std::make_pair(shader, mCurRenderPass);
+	auto key = std::make_pair(shader, mCurRenderPass.Hash());
 	auto it = mPipelineCache.find(key);
 	
 	//Find cache
-	if (it == mPipelineCache.end() && mCurRenderPass != nullptr)
+	if (it == mPipelineCache.end())
 	{
-		auto piplinePair = CreatePipelineState(shader, mCurRenderPass);
+		auto piplinePair = CreatePipelineState(shader);
 		bindingset = piplinePair.second;
 		pipeline = piplinePair.first;
 	}

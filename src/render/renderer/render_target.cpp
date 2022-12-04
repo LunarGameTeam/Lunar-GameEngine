@@ -7,21 +7,20 @@
 
 namespace luna::render
 {
+
 RenderTarget::RenderTarget()
 {
+
 }
 
 void RenderTarget::Update()
 {
-
 	RHITextureDesc textureDesc;
-	textureDesc.heap_flag_in = RHIHeapFlag::HEAP_FLAG_ALLOW_ALL_BUFFERS_AND_TEXTURES;
 	textureDesc.if_force_srgb = false;
 	textureDesc.if_gen_mipmap = false;
 	textureDesc.max_size = 0;
 	RHIResDesc resDesc;
 	resDesc.mType = ResourceType::kTexture;
-	resDesc.ResHeapType = RHIHeapType::Default;
 	resDesc.Dimension = RHIResDimension::Texture2D;
 	resDesc.Width = GetWidth();
 	resDesc.Height = GetHeight();
@@ -42,13 +41,14 @@ void RenderTarget::Update()
 	depthResDesc.SampleDesc.Quality = 0;
 	depthResDesc.mImageUsage = RHIImageUsage::DepthStencilBit;
 	mDepthTexture = sRenderModule->mRenderDevice->CreateTexture(textureDesc, depthResDesc);
+
 }
 
 bool RenderTarget::Ready()
 {
-	if (!m_ready)
+	if (!mReady)
 		Update();
-	m_ready = true;
-	return m_ready;
+	mReady = true;
+	return mReady;
 }
 }

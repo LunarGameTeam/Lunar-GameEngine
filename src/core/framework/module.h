@@ -17,7 +17,7 @@ public:
 	bool IsInitialized();
 	bool Shutdown();
 
-	virtual bool OnLoad() { return true; };
+	virtual bool OnLoad() { return true; };	
 	virtual bool OnInit() { return true; };
 	virtual bool OnShutdown() { return true; };
 	virtual void Tick(float delta_time);

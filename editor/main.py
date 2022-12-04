@@ -30,18 +30,10 @@ def init_editor():
     from ui.scene_editor import PySceneEditor
     from ui.library_editor import PyLibraryEditor
 
-    editor_module = luna.get_module(luna.editor.EditorModule)
-
-    editor_module.register_editor(PyMainEditor())
-    editor_module.register_editor(PySceneEditor())
-    editor_module.register_editor(PyLibraryEditor())
-    editor_module.register_editor(PyHierarchyEditor())
-    editor_module.register_editor(PyInspectorEditor())
-    app.run()
-
     asset_module = luna.get_module(luna.AssetModule)
     render_module = luna.get_module(luna.RenderModule)
     scene_module = luna.get_module(luna.SceneModule)
+    app.run()
 
     scn = asset_module.load_asset("/assets/test.scn", luna.Scene)
     entity = scn.find_entity("MainCamera")
@@ -50,6 +42,13 @@ def init_editor():
 
     scene_module.add_scene(scn)
 
+    editor_module = luna.get_module(luna.editor.EditorModule)
+    editor_module.register_editor(PyMainEditor())
+    editor_module.register_editor(PySceneEditor())
+    editor_module.register_editor(PyLibraryEditor())
+    editor_module.register_editor(PyHierarchyEditor())
+    editor_module.register_editor(PyInspectorEditor())
+    
     app.main_loop()
 
 
