@@ -201,6 +201,10 @@ namespace luna::render
 			mLayout.pRowSizeInBytes.data(),
 			&mLayout.pTotalBytes
 		);
+		if (mDxDesc.Dimension == D3D12_RESOURCE_DIMENSION_BUFFER)
+		{
+			mDxDesc.Width = mMemoryLayout.size;
+		}
 	};
 
 }

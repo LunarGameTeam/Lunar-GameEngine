@@ -94,9 +94,9 @@ void MaterialInstance::Init()
 
 		auto* shader = mMaterialTemplate->GetShaderAsset();
 		PARAM_ID(MaterialBuffer);
-		if (shader->GetVertexShader()->HasBindPoint(ParamID_MaterialBuffer))
+		if (shader->GetVertexShader()->HasBindPoint(ParamID_MaterialBuffer) || shader->GetPixelShader()->HasBindPoint(ParamID_MaterialBuffer))
 		{
-			auto& materialBufferDesc = mMaterialTemplate->GetShaderAsset()->GetConstantBufferDesc("MaterialBuffer");
+			RHIConstantBufferDesc materialBufferDesc = mMaterialTemplate->GetShaderAsset()->GetConstantBufferDesc("MaterialBuffer");
 			RHIBufferDesc desc;
 			desc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
 			desc.mSize = materialBufferDesc.mBufferSize;
@@ -124,7 +124,7 @@ void MaterialInstance::UpdateParamsToBuffer()
 {
 	PARAM_ID(MaterialBuffer)
 	auto& params = mAllParams;
-	auto& matBufferDesc = mMaterialTemplate->GetShaderAsset()->GetConstantBufferDesc("MaterialBuffer");
+	RHIConstantBufferDesc matBufferDesc = mMaterialTemplate->GetShaderAsset()->GetConstantBufferDesc("MaterialBuffer");
 	std::vector<byte> data;
 	data.resize(matBufferDesc.mBufferSize);
 	mMaterialParams.Clear();

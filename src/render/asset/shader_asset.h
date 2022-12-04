@@ -33,9 +33,18 @@ public:
 		return mPS->GetBindPoint(id);
 	};
 
-	RHIConstantBufferDesc& GetConstantBufferDesc(const LString& name)
+	RHIConstantBufferDesc GetConstantBufferDesc(const LString& name)
 	{
-		return mVS->GetUniformBuffer(name);
+		if (mVS->HasUniformBuffer(name))
+		{
+			return mVS->GetUniformBuffer(name);
+		}
+		else if(mPS->HasUniformBuffer(name))
+		{
+			return mPS->GetUniformBuffer(name);
+		}
+		RHIConstantBufferDesc empty;
+		return empty;
 	}
 
 	RHIShaderBlobPtr& GetVertexShader() { return mVS; }

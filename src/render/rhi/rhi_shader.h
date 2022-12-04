@@ -64,6 +64,15 @@ public:
 		return mUniformBuffers[name];
 	}
 
+	bool HasUniformBuffer(const LString& name)
+	{
+		if (mUniformBuffers.find(name) == mUniformBuffers.end())
+		{
+			return false;
+		}
+		return true;
+	}
+
 	RHIShaderBlob(const RHIShaderDesc& desc)
 	{
 		mDesc = desc;
