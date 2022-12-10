@@ -20,8 +20,13 @@ enum class VertexElementUsage : uint8_t
 	UsageBlendWeight = 1,
 	UsageNormal = 2,
 	UsageDiffuse = 3,
-	UsageTexture0 = 4,
-	UsageTangent = 5,
+	UsageTangent = 4,
+	UsageColor = 5,
+	UsageTexture0 = 6,
+	UsageTexture1 = 7,
+	UsageTexture2 = 8,
+	UsageTexture3 = 9,
+	UsageInstanceMessage = 10,
 	UsageMax,
 };
 
@@ -33,6 +38,12 @@ enum class VertexElementType : uint8_t
 	Byte, //1字节
 	UByte, // 1字节
 	Int, // 4字节	
+};
+
+enum class VertexElementInstanceType : uint8_t
+{
+	PerVertex, // 每顶点
+	PerInstance // 每实例	
 };
 
 
@@ -76,6 +87,8 @@ struct RHIVertexLayoutElement
 		boost::hash_combine(result, mElementCount);
 		boost::hash_combine(result, mUsage);
 		boost::hash_combine(result, mOffset);
+		boost::hash_combine(result, mBufferSlot);
+		boost::hash_combine(result, mInstanceUsage);
 		return result;
 	}
 
@@ -84,15 +97,27 @@ struct RHIVertexLayoutElement
 	VertexElementUsage mUsage;
 	uint32_t mOffset;
 	uint32_t mSize = 0;
+	uint8_t mBufferSlot = 0;
+	VertexElementInstanceType mInstanceUsage;
 };
 
 struct RHIVertexLayout
 {
-	void AddVertexElement(VertexElementType type, VertexElementUsage usage, uint8_t elementCount)
+	RHIVertexLayout()
+	{
+		mSize.resize(16);
+		for (int i = 0; i < 16; ++i)
+		{
+			mSize[i] = 0;
+		}
+	}
+	void AddVertexElement(VertexElementType type, VertexElementUsage usage, uint8_t elementCount,uint8_t bufferSlot,VertexElementInstanceType instanceUsage)
 	{
 		mElements.emplace_back(type, usage, elementCount);
-		mElements.back().mOffset = (uint32_t) mSize;
-		mSize += (uint32_t)Alignment(mElements.back().mSize, 8);
+		mElements.back().mOffset = (uint32_t) mSize[bufferSlot];
+		mElements.back().mBufferSlot = bufferSlot;
+		mElements.back().mInstanceUsage = instanceUsage;
+		mSize[bufferSlot] += (uint32_t)Alignment(mElements.back().mSize, 8);
 		mDirty = true;
 	}
 
@@ -110,15 +135,15 @@ struct RHIVertexLayout
 		return mHash;
 	}
 
-	size_t GetSize() const
+	LVector<size_t> GetSize() const
 	{
 		return mSize;
 	}
 
 	bool mDirty = true;
 	size_t mHash = 0;
-	size_t mSize = 0;
-	std::vector<RHIVertexLayoutElement> mElements;
+	LVector<size_t> mSize;
+	LVector<RHIVertexLayoutElement> mElements;
 };
 
 

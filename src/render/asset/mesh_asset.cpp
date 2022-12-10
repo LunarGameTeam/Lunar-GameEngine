@@ -56,15 +56,17 @@ void SubMesh::Init()
 	if (m_ready)
 		return;
 
-	mVeretexLayout.AddVertexElement(VertexElementType::Float, VertexElementUsage::UsagePosition, 3);
-	mVeretexLayout.AddVertexElement(VertexElementType::Float, VertexElementUsage::UsagePosition, 4);
-	mVeretexLayout.AddVertexElement(VertexElementType::Float, VertexElementUsage::UsagePosition, 3);
-	mVeretexLayout.AddVertexElement(VertexElementType::Float, VertexElementUsage::UsagePosition, 4);
+	mVeretexLayout.AddVertexElement(VertexElementType::Float, VertexElementUsage::UsagePosition, 3, 0, VertexElementInstanceType::PerVertex);
+	mVeretexLayout.AddVertexElement(VertexElementType::Float, VertexElementUsage::UsageColor, 4, 0, VertexElementInstanceType::PerVertex);
+	mVeretexLayout.AddVertexElement(VertexElementType::Float, VertexElementUsage::UsageNormal, 3, 0, VertexElementInstanceType::PerVertex);
+	mVeretexLayout.AddVertexElement(VertexElementType::Float, VertexElementUsage::UsageTangent, 4, 0, VertexElementInstanceType::PerVertex);
 
-	mVeretexLayout.AddVertexElement(VertexElementType::Float, VertexElementUsage::UsagePosition, 2);
-	mVeretexLayout.AddVertexElement(VertexElementType::Float, VertexElementUsage::UsagePosition, 2);
-	mVeretexLayout.AddVertexElement(VertexElementType::Float, VertexElementUsage::UsagePosition, 2);
-	mVeretexLayout.AddVertexElement(VertexElementType::Float, VertexElementUsage::UsagePosition, 2);
+	mVeretexLayout.AddVertexElement(VertexElementType::Float, VertexElementUsage::UsageTexture0, 2, 0, VertexElementInstanceType::PerVertex);
+	mVeretexLayout.AddVertexElement(VertexElementType::Float, VertexElementUsage::UsageTexture1, 2, 0, VertexElementInstanceType::PerVertex);
+	mVeretexLayout.AddVertexElement(VertexElementType::Float, VertexElementUsage::UsageTexture2, 2, 0, VertexElementInstanceType::PerVertex);
+	mVeretexLayout.AddVertexElement(VertexElementType::Float, VertexElementUsage::UsageTexture3, 2, 0, VertexElementInstanceType::PerVertex);
+
+	mVeretexLayout.AddVertexElement(VertexElementType::Int, VertexElementUsage::UsageInstanceMessage, 4, 1, VertexElementInstanceType::PerInstance);
 
 	Update();
 }

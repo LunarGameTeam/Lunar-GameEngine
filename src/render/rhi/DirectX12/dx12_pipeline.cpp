@@ -13,101 +13,160 @@ DX12PipelineState::DX12PipelineState(const RHIPipelineStateDesc& pso_desc) : RHI
 {
 	InitPipeline(pso_desc);
 }
-
-bool DX12PipelineState::GetVertexShaderInputLayoutDesc(ID3D12ShaderReflection* t_ShaderReflection,
-                                                          LVector<D3D12_INPUT_ELEMENT_DESC>& t_InputElementDescVec)
+static const char DX_VERTEX_ELEMENT_POSITION[] = "POSITION";
+static const char DX_VERTEX_ELEMENT_BLENDWEIGHT[] = "BLENDWEIGHT";
+static const char DX_VERTEX_ELEMENT_NORMAL[] = "NORMAL";
+static const char DX_VERTEX_ELEMENT_DIFFUSE[] = "DIFFUSE";
+static const char DX_VERTEX_ELEMENT_TANGENT[] = "TANGENT";
+static const char DX_VERTEX_ELEMENT_TEXCOORD[] = "TEXCOORD";
+static const char DX_VERTEX_ELEMENT_INSTANCEMESSAGE[] = "INSTANCEMESSAGE";
+const char* DX12PipelineState::GetDx12ElementName(VertexElementUsage m_usage)
 {
-	HRESULT hr;
-	/*
-	http://www.cnblogs.com/macom/archive/2013/10/30/3396419.html
-	*/
-	D3D12_SHADER_DESC t_ShaderDesc;
-	hr = t_ShaderReflection->GetDesc(&t_ShaderDesc);
-	if (FAILED(hr))
-	{		
-		LogError("Device", "get desc of shader reflect error");
-		return false;
-	}
-	unsigned int t_ByteOffset = 0;
-	for (int i = 0; i != t_ShaderDesc.InputParameters; ++i)
+	switch (m_usage)
 	{
-		D3D12_SIGNATURE_PARAMETER_DESC t_SP_DESC;
-		t_ShaderReflection->GetInputParameterDesc(i, &t_SP_DESC);
-
-		D3D12_INPUT_ELEMENT_DESC t_InputElementDesc;
-		t_InputElementDesc.SemanticName = t_SP_DESC.SemanticName;
-		t_InputElementDesc.SemanticIndex = t_SP_DESC.SemanticIndex;
-		t_InputElementDesc.InputSlot = 0;
-		t_InputElementDesc.AlignedByteOffset = t_ByteOffset;
-		t_InputElementDesc.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-		t_InputElementDesc.InstanceDataStepRate = 0;
-		if (t_SP_DESC.Mask == 1)
-		{
-			if (t_SP_DESC.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
-			{
-				t_InputElementDesc.Format = DXGI_FORMAT_R32_UINT;
-			}
-			else if (t_SP_DESC.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
-			{
-				t_InputElementDesc.Format = DXGI_FORMAT_R32_SINT;
-			}
-			else if (t_SP_DESC.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
-			{
-				t_InputElementDesc.Format = DXGI_FORMAT_R32_FLOAT;
-			}
-			t_ByteOffset += 4;
-		}
-		else if (t_SP_DESC.Mask <= 3)
-		{
-			if (t_SP_DESC.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
-			{
-				t_InputElementDesc.Format = DXGI_FORMAT_R32G32_UINT;
-			}
-			else if (t_SP_DESC.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
-			{
-				t_InputElementDesc.Format = DXGI_FORMAT_R32G32_SINT;
-			}
-			else if (t_SP_DESC.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
-			{
-				t_InputElementDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
-			}
-			t_ByteOffset += 8;
-		}
-		else if (t_SP_DESC.Mask <= 7)
-		{
-			if (t_SP_DESC.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
-			{
-				t_InputElementDesc.Format = DXGI_FORMAT_R32G32B32_UINT;
-			}
-			else if (t_SP_DESC.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
-			{
-				t_InputElementDesc.Format = DXGI_FORMAT_R32G32B32_SINT;
-			}
-			else if (t_SP_DESC.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
-			{
-				t_InputElementDesc.Format = DXGI_FORMAT_R32G32B32_FLOAT;
-			}
-			t_ByteOffset += 12;
-		}
-		else if (t_SP_DESC.Mask <= 15)
-		{
-			if (t_SP_DESC.ComponentType == D3D_REGISTER_COMPONENT_UINT32)
-			{
-				t_InputElementDesc.Format = DXGI_FORMAT_R32G32B32A32_UINT;
-			}
-			else if (t_SP_DESC.ComponentType == D3D_REGISTER_COMPONENT_SINT32)
-			{
-				t_InputElementDesc.Format = DXGI_FORMAT_R32G32B32A32_SINT;
-			}
-			else if (t_SP_DESC.ComponentType == D3D_REGISTER_COMPONENT_FLOAT32)
-			{
-				t_InputElementDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-			}
-			t_ByteOffset += 16;
-		}
-		t_InputElementDescVec.push_back(t_InputElementDesc);
+	case luna::render::VertexElementUsage::UsagePosition:
+		return DX_VERTEX_ELEMENT_POSITION;
+		break;
+	case luna::render::VertexElementUsage::UsageBlendWeight:
+		return DX_VERTEX_ELEMENT_BLENDWEIGHT;
+		break;
+	case luna::render::VertexElementUsage::UsageNormal:
+		return DX_VERTEX_ELEMENT_NORMAL;
+		break;
+	case luna::render::VertexElementUsage::UsageDiffuse:
+		return DX_VERTEX_ELEMENT_DIFFUSE;
+		break;
+	case luna::render::VertexElementUsage::UsageTangent:
+		return DX_VERTEX_ELEMENT_TANGENT;
+		break;
+	case luna::render::VertexElementUsage::UsageColor:
+		return DX_VERTEX_ELEMENT_TEXCOORD;
+		break;
+	case luna::render::VertexElementUsage::UsageTexture0:
+		return DX_VERTEX_ELEMENT_TEXCOORD;
+		break;
+	case luna::render::VertexElementUsage::UsageTexture1:
+		return DX_VERTEX_ELEMENT_TEXCOORD;
+		break;
+	case luna::render::VertexElementUsage::UsageTexture2:
+		return DX_VERTEX_ELEMENT_TEXCOORD;
+		break;
+	case luna::render::VertexElementUsage::UsageTexture3:
+		return DX_VERTEX_ELEMENT_TEXCOORD;
+		break;
+	case luna::render::VertexElementUsage::UsageInstanceMessage:
+		return DX_VERTEX_ELEMENT_INSTANCEMESSAGE;
+		break;
+	default:
+		return "";
+		break;
 	}
-	return true;
+}
+
+int32_t DX12PipelineState::GetDx12ElementIndex(VertexElementUsage m_usage)
+{
+	switch (m_usage)
+	{
+	case luna::render::VertexElementUsage::UsagePosition:
+	case luna::render::VertexElementUsage::UsageBlendWeight:
+	case luna::render::VertexElementUsage::UsageNormal:
+	case luna::render::VertexElementUsage::UsageDiffuse:
+	case luna::render::VertexElementUsage::UsageTangent:
+	case luna::render::VertexElementUsage::UsageColor:
+		return 0;
+		break;
+	case luna::render::VertexElementUsage::UsageTexture0:
+		return 1;
+		break;
+	case luna::render::VertexElementUsage::UsageTexture1:
+		return 2;
+		break;
+	case luna::render::VertexElementUsage::UsageTexture2:
+		return 3;
+		break;
+	case luna::render::VertexElementUsage::UsageTexture3:
+		return 4;
+		break;
+	default:
+		return 0;
+		break;
+	}
+}
+
+DXGI_FORMAT DX12PipelineState::GetDx12ElementFormat(VertexElementType elementType, uint8_t elementCount)
+{
+	switch (elementType)
+	{
+	case luna::render::VertexElementType::Float:
+	{
+		switch (elementCount)
+		{
+		case 1:
+			return DXGI_FORMAT::DXGI_FORMAT_R32_FLOAT;
+			break;
+		case 2:
+			return DXGI_FORMAT::DXGI_FORMAT_R32G32_FLOAT;
+			break;
+		case 3:
+			return DXGI_FORMAT::DXGI_FORMAT_R32G32B32_FLOAT;
+			break;
+		case 4:
+			return DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_FLOAT;
+			break;
+		default:
+			break;
+		}
+	}
+	break;
+	case luna::render::VertexElementType::Int:
+	{
+		switch (elementCount)
+		{
+		case 1:
+			return DXGI_FORMAT::DXGI_FORMAT_R32_UINT;
+			break;
+		case 2:
+			return DXGI_FORMAT::DXGI_FORMAT_R32G32_UINT;
+			break;
+		case 3:
+			return DXGI_FORMAT::DXGI_FORMAT_R32G32B32_UINT;
+			break;
+		case 4:
+			return DXGI_FORMAT::DXGI_FORMAT_R32G32B32A32_UINT;
+			break;
+		default:
+			break;
+		}
+	}
+	break;
+	default:
+		return DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
+		break;
+	}
+	return DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
+}
+
+void DX12PipelineState::GetDx12InputElementDesc(const RHIVertexLayout& rhi_layout, LVector<D3D12_INPUT_ELEMENT_DESC>& input_desc_array)
+{
+	input_desc_array.resize(rhi_layout.mElements.size());
+	for (int32_t element_index = 0; element_index < rhi_layout.mElements.size(); ++element_index)
+	{ 
+		input_desc_array[element_index].SemanticName = GetDx12ElementName(rhi_layout.mElements[element_index].mUsage);
+		input_desc_array[element_index].SemanticIndex = GetDx12ElementIndex(rhi_layout.mElements[element_index].mUsage);
+		input_desc_array[element_index].Format = GetDx12ElementFormat(rhi_layout.mElements[element_index].mElementType, rhi_layout.mElements[element_index].mElementCount);
+		if(rhi_layout.mElements[element_index].mInstanceUsage == VertexElementInstanceType::PerInstance)
+		{
+			input_desc_array[element_index].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_INSTANCE_DATA;
+			input_desc_array[element_index].InstanceDataStepRate = 1;
+		}
+		else
+		{
+			input_desc_array[element_index].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+			input_desc_array[element_index].InstanceDataStepRate = 0;
+		}
+		input_desc_array[element_index].InputSlot = rhi_layout.mElements[element_index].mBufferSlot;
+		input_desc_array[element_index].AlignedByteOffset = rhi_layout.mElements[element_index].mOffset;
+	}
 }
 
 bool DX12PipelineState::InitPipeline(const RHIPipelineStateDesc& psoDesc)
@@ -171,14 +230,9 @@ bool DX12PipelineState::InitPipeline(const RHIPipelineStateDesc& psoDesc)
 
 		ID3D12ShaderReflection* vertex_shader_reflection = vertexShader->GetDX12ShaderReflection();
 		LVector<D3D12_INPUT_ELEMENT_DESC> input_desc_array;
-		GetVertexShaderInputLayoutDesc(vertex_shader_reflection, input_desc_array);
+		GetDx12InputElementDesc(psoDesc.mGraphicDesc.mInputLayout,input_desc_array);
 
-		D3D12_INPUT_ELEMENT_DESC* vertex_desc = new D3D12_INPUT_ELEMENT_DESC[input_desc_array.size()];
-		for (int32_t element_index = 0; element_index < input_desc_array.size(); ++element_index)
-		{
-			vertex_desc[element_index] = input_desc_array[element_index];
-		}
-		dx12Desc.InputLayout.pInputElementDescs = vertex_desc;
+		dx12Desc.InputLayout.pInputElementDescs = input_desc_array.data();
 		dx12Desc.InputLayout.NumElements = static_cast<UINT>(input_desc_array.size());
 		//参数填写完毕后，开始创建图形管线
 		HRESULT hr = dx12Device->CreateGraphicsPipelineState(&dx12Desc, IID_PPV_ARGS(&m_pipeline_data));

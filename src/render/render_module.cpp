@@ -253,7 +253,7 @@ void RenderModule::Tick(float delta_time)
 {
 	LModule::Tick(delta_time);
 	//RenderScene发起渲染
-
+	mRenderDevice->FlushFrameInstancingBuffer();
 	mRenderDevice->mTransferCmd->BeginEvent("Frame Graph Prepare");
 	for (auto& it : mRenderScenes)
 	{
@@ -264,7 +264,6 @@ void RenderModule::Tick(float delta_time)
 	Render();
 	mRenderDevice->FlushStaging();
 	mFrameGraph->Flush();
-
 
 	if (sRenderModule->GetDeviceType() == render::RenderDeviceType::DirectX12)
 	{

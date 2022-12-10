@@ -30,13 +30,14 @@ BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
     
 	// Change the position vector to be 4 units for proper matrix calculations.
     float4 position = float4(input.position, 1.0);
-	matrix worldMatrix = objectBuffers[inst].worldMatrix;
+	matrix worldMatrix = objectBuffers[input.instancemessage.x].worldMatrix;
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
     output.position = mul(position, worldMatrix);
 	output.viewDir = normalize(camPos - output.position.xyz);
     output.position = mul(output.position, viewMatrix);
-	output.depthLinear = (output.position.z - nearFar.x)/ (nearFar.y - nearFar.x);
+	//output.depthLinear = (output.position.z - nearFar.x)/ (nearFar.y - nearFar.x);
+	output.depthLinear = 0;
    	output.position = mul(output.position, projectionMatrix);
 	
 	// Calculate the position of the vertice as viewed by the light source.

@@ -44,10 +44,27 @@ struct PackedParams
 	std::vector<std::pair<ShaderParamID, RHIViewPtr>> mParams;	
 };
 
+class DynamicMemoryBuffer
+{
+	RHIDevice* mDevice;
+	RHIBufferUsage mBufferUsage;
+	RHIMemoryPtr mFullMemory;
+	std::vector<RHIResourcePtr> mhistoryBuffer;
+	size_t mBufferOffset = 0;
+	size_t mMaxSize;
+public:
+	DynamicMemoryBuffer(size_t maxSize, RHIBufferUsage bufferUsage) :mMaxSize(maxSize), mBufferUsage(bufferUsage) {};
+	void Init(RHIDevice* device,const RHIHeapType memoryHeapType, const int32_t memoryType);
+	RHIResource* AllocateNewBuffer(void* initData, size_t dataSize, size_t bufferResSize);
+	void Reset();
+};
+
+
+
 class RENDER_API RenderDevice 
 {
 public:
-	RenderDevice() {};
+	RenderDevice();
 	virtual ~RenderDevice() {};
 
 	void Init();
@@ -70,16 +87,18 @@ public:
 
 	RHIResourcePtr CreateBuffer(const RHIBufferDesc& resDesc, void* initData = nullptr);
 	RHIResourcePtr CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData = nullptr, size_t dataSize = 0);
+	RHIResource* CreateInstancingBufferByRenderObjects(LVector<RenderObject*> RenderObjects);
 
 	RHIViewPtr CreateView(const ViewDesc& view);
 
 	void UpdateConstantBuffer(RHIResourcePtr target, void* data, size_t dataSize);
 	void FlushStaging();
+	void FlushFrameInstancingBuffer() { mInstancingIdMemory.Reset(); };
 
 	void BeginRendering(const RenderPassDesc&);
 	void EndRenderPass();
 
-	void DrawRenderOBject(render::RenderObject* mesh, render::ShaderAsset* shader, PackedParams* params);
+	void DrawRenderOBject(render::RenderObject* mesh, render::ShaderAsset* shader, PackedParams* params, render::RHIResource* instanceMessage = nullptr,int32_t instancingSize = 1);
 
 	void OnFrameBegin();
 	void OnFrameEnd();
@@ -88,9 +107,6 @@ private:
 	size_t						mFGOffset = 0;
 
 private:
-	//‘⁄Staging Buffer…œ∑÷≈‰
-	RHIResourcePtr _AllocateStagingBuffer(void* initData, size_t dataSize, RHIResourcePtr resMemoryLayout);
-
 	RHIResourcePtr _CreateBuffer(const RHIBufferDesc& resDesc, 
 		void* initData, RHIMemoryPtr targetMemory, size_t& memoryOffset);
 	RHIResourcePtr _CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, 
@@ -103,9 +119,8 @@ public:
 
 	RHIPipelineStatePtr mLastPipline;
 
-	RHIMemoryPtr mStagingMemory;
-	std::vector<RHIResourcePtr> historyStagingBuffer;
-	size_t mStagingOffset = 0;
+	DynamicMemoryBuffer mStagingMemory;
+	DynamicMemoryBuffer mInstancingIdMemory;
 
 	std::map<RHIBindingSetLayout*, RHIBindingSetPtr> mDescriptorsCache;	
 		
@@ -119,7 +134,6 @@ public:
 	RHIViewPtr                  mClampSamplerView;
 	//std::vector<TRHIPtr<DX12Descriptor>> mTempHolds;
 private:
-
 
 };
 

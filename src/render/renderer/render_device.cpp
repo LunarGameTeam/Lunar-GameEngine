@@ -21,13 +21,55 @@ namespace luna::render
 size_t sStagingBufferMaxSize = 4096 * 4096 * 64;
 //FG堆最大容量
 size_t sFrameGraphBufferMaxSize = 1024 * 1024 * 4 * 64;
+//instance id buffer最大容量
+static const size_t sInstancingBufferMaxSize = 1024 * 1024 * 16;
 
 size_t GetOffset(size_t offset, size_t aligment)
 {
 	return offset  + (aligment - offset) % aligment;
 }
 
+void DynamicMemoryBuffer::Init(RHIDevice* device, const RHIHeapType memoryHeapType,const int32_t memoryType)
+{
+	mDevice = device;
+	RHIMemoryDesc memoryDesc;
+	memoryDesc.Type = memoryHeapType;
+	memoryDesc.SizeInBytes = mMaxSize;
+	mFullMemory = mDevice->AllocMemory(memoryDesc, memoryType);
+}
+
+RHIResource* DynamicMemoryBuffer::AllocateNewBuffer(void* initData, size_t dataSize, size_t bufferResSize)
+{
+	RHIBufferDesc newBufferDesc;
+	newBufferDesc.mSize = bufferResSize;
+	newBufferDesc.mBufferUsage = mBufferUsage;
+	RHIResourcePtr newBuffer = mDevice->CreateBufferExt(newBufferDesc);
+	const MemoryRequirements& reqDst = newBuffer->GetMemoryRequirements();
+	mBufferOffset = GetOffset(mBufferOffset, reqDst.alignment);
+	//超出StagingMemory大小，Flush一下
+	if (mBufferOffset > sStagingBufferMaxSize)
+	{
+		return nullptr;
+	}
+	newBuffer->BindMemory(mFullMemory, mBufferOffset);
+	char* dst = (char*)newBuffer->Map();
+	memcpy(dst, initData, dataSize);
+	newBuffer->Unmap();
+	mBufferOffset = mBufferOffset + reqDst.size;
+	mhistoryBuffer.push_back(newBuffer);
+	return newBuffer;
+}
+
+void DynamicMemoryBuffer::Reset()
+{ 
+	mBufferOffset = 0;
+	mhistoryBuffer.clear();
+};
+
 RENDER_API CONFIG_IMPLEMENT(LString, Render, RenderDeviceType, "DirectX12");
+RenderDevice::RenderDevice() : mStagingMemory(sStagingBufferMaxSize, RHIBufferUsage::TransferSrcBit), mInstancingIdMemory(sInstancingBufferMaxSize, RHIBufferUsage::VertexBufferBit)
+{
+};
 
 void RenderDevice::Init()
 {
@@ -82,10 +124,8 @@ void RenderDevice::Init()
 
 	}
 
-	RHIMemoryDesc stagingMemoryDesc;
-	stagingMemoryDesc.Type = RHIHeapType::Upload;
-	stagingMemoryDesc.SizeInBytes = sStagingBufferMaxSize;
-	mStagingMemory = mDevice->AllocMemory(stagingMemoryDesc, 31);
+	mStagingMemory.Init(mDevice, RHIHeapType::Upload, 31);
+	mInstancingIdMemory.Init(mDevice, RHIHeapType::Upload, 31);
 
 	//Frame Graph
 	{
@@ -200,7 +240,13 @@ RHIResourcePtr RenderDevice::_CreateTexture(const RHITextureDesc& textureDesc, c
 
 	if (initData != nullptr)
 	{
-		stagingBuffer = _AllocateStagingBuffer(initData, dataSize, textureRes);
+		size_t fullResSize = textureRes->GetMemoryRequirements().size;
+		stagingBuffer = mStagingMemory.AllocateNewBuffer(initData, dataSize, fullResSize);
+		if (stagingBuffer == nullptr)
+		{
+			FlushStaging();
+			stagingBuffer = mStagingMemory.AllocateNewBuffer(initData, dataSize, fullResSize);
+		}
 	}
 
 
@@ -238,6 +284,20 @@ RHIResourcePtr RenderDevice::CreateTexture(const RHITextureDesc& textureDesc, co
 {
 	size_t offset = 0;
 	return _CreateTexture(textureDesc, resDesc, initData, dataSize, nullptr, offset);
+}
+
+RHIResource* RenderDevice::CreateInstancingBufferByRenderObjects(LVector<RenderObject*> RenderObjects)
+{
+	std::vector<int32_t> all_object_id;
+	for (auto it : RenderObjects)
+	{
+		RenderObject* ro = it;
+		all_object_id.push_back(ro->mID);
+		all_object_id.push_back(0);
+		all_object_id.push_back(0);
+		all_object_id.push_back(0);
+	}
+	return mInstancingIdMemory.AllocateNewBuffer(all_object_id.data(), all_object_id.size() * sizeof(int32_t), all_object_id.size() * sizeof(int32_t));
 }
 
 RHIViewPtr RenderDevice::CreateView(const ViewDesc& desc)
@@ -290,31 +350,7 @@ void RenderDevice::FlushStaging()
 	mFence->Wait(mFenceValue);
 	mTransferCmd->Reset();
 	mBarrierCmd->Reset();
-	mStagingOffset = 0;
-	historyStagingBuffer.clear();
-}
-
-RHIResourcePtr RenderDevice::_AllocateStagingBuffer(void* initData, size_t dataSize, RHIResourcePtr resMemoryLayout)
-{
-	RHIBufferDesc stagingBufferDesc;
-	stagingBufferDesc.mSize = resMemoryLayout->GetMemoryRequirements().size;
-	stagingBufferDesc.mBufferUsage = RHIBufferUsage::TransferSrcBit;
-	RHIResourcePtr stagingBuffer = mDevice->CreateBufferExt(stagingBufferDesc);
-	const MemoryRequirements& reqDst = stagingBuffer->GetMemoryRequirements();
-	mStagingOffset = GetOffset(mStagingOffset, reqDst.alignment);
-	//超出StagingMemory大小，Flush一下
-	if (mStagingOffset > sStagingBufferMaxSize)
-	{
-		FlushStaging();
-		mStagingOffset = GetOffset(mStagingOffset, reqDst.alignment);
-	}
-	stagingBuffer->BindMemory(mStagingMemory, mStagingOffset);
-	char* dst = (char*)stagingBuffer->Map();
-	memcpy(dst, initData, dataSize);
-	stagingBuffer->Unmap();
-	mStagingOffset = mStagingOffset + reqDst.size;
-	historyStagingBuffer.push_back(stagingBuffer);
-	return stagingBuffer;
+	mStagingMemory.Reset();
 }
 
 void RenderDevice::BeginRendering(const RenderPassDesc& desc)
@@ -328,7 +364,7 @@ void RenderDevice::EndRenderPass()
 	mGraphicCmd->EndRender();	
 }
 
-void RenderDevice::DrawRenderOBject(render::RenderObject* ro, render::ShaderAsset* shader, PackedParams* params)
+void RenderDevice::DrawRenderOBject(render::RenderObject* ro, render::ShaderAsset* shader, PackedParams* params, render::RHIResource* instanceMessage, int32_t instancingSize)
 {
 	RHIPipelineStatePtr pipeline;
 	RHIBindingSetPtr bindingset;
@@ -386,15 +422,25 @@ void RenderDevice::DrawRenderOBject(render::RenderObject* ro, render::ShaderAsse
 	LVector<RHIVertexBufferDesc> descs;
 	RHIVertexBufferDesc& vbDesc = descs.emplace_back();
 	vbDesc.mOffset = 0;
-	vbDesc.mBufferSize = vertexCount * mesh->mVeretexLayout.GetSize();
-	vbDesc.mVertexLayout = &mesh->mVeretexLayout;
+	vbDesc.mBufferSize = vertexCount * mesh->GetStridePerVertex();
+	vbDesc.mVertexStride = mesh->GetStridePerVertex();
 	vbDesc.mVertexRes = mesh->mVB;
-
+	if (instanceMessage != nullptr)
+	{
+		RHIVertexBufferDesc& vbInstancingDesc = descs.emplace_back();
+		vbInstancingDesc.mOffset = 0;
+		vbInstancingDesc.mBufferSize = instancingSize * mesh->GetStridePerInstance();
+		vbInstancingDesc.mVertexStride = mesh->GetStridePerInstance();
+		vbInstancingDesc.mVertexRes = instanceMessage;
+	}
 	mGraphicCmd->SetVertexBuffer(descs, 0);
+	
+
+
 	mGraphicCmd->SetIndexBuffer(ib);
 	mGraphicCmd->SetDrawPrimitiveTopology(
 		RHIPrimitiveTopology::TriangleList);
-	mGraphicCmd->DrawIndexedInstanced(indexCount, 1, 0, 0, ro->mID % 128);
+	mGraphicCmd->DrawIndexedInstanced(indexCount, 1, 0, 0, 0);
 
 }
 

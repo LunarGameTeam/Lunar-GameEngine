@@ -115,7 +115,7 @@ void VulkanGraphicCmdList::SetScissorRects(size_t x, size_t y, size_t width, siz
 
 void VulkanGraphicCmdList::DrawIndexedInstanced(uint32_t IndexCountPerInstance, uint32_t InstanceCount, uint32_t StartIndexLocation, int32_t BaseVertexLocation, int32_t StartInstanceLocation)
 {
-	mCommandBuffer.drawIndexed(IndexCountPerInstance, 1, 0, 0, StartInstanceLocation);	
+	mCommandBuffer.drawIndexed(IndexCountPerInstance, 1, 0, 0, StartInstanceLocation);
 }
 
 void VulkanGraphicCmdList::SetDrawPrimitiveTopology(const RHIPrimitiveTopology& primitive_topology)
@@ -313,7 +313,7 @@ void VulkanGraphicCmdList::SetVertexBuffer(const LVector<RHIVertexBufferDesc>& v
 		buffer.push_back(it.mVertexRes->As<VulkanResource>()->mBuffer);
 		offsets.push_back(it.mOffset);
 		sizes.push_back(it.mBufferSize);
-		strides.push_back(it.mVertexLayout->GetSize());
+		strides.push_back(it.mVertexStride);
 	}	
 	mCommandBuffer.bindVertexBuffers2(0, buffer, offsets, sizes, strides);	
 }

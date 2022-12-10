@@ -50,7 +50,7 @@ void DX12GraphicCmdList::SetVertexBuffer(const LVector<RHIVertexBufferDesc>& buf
 		DX12Resource* dx12Res = bufferView[idx].mVertexRes->As<DX12Resource>();
 		dx12BufferView[idx].BufferLocation = dx12Res->mDxRes->GetGPUVirtualAddress();
 		dx12BufferView[idx].SizeInBytes = dx12Res->GetMemoryRequirements().size;
-		dx12BufferView[idx].StrideInBytes = view.mVertexLayout->GetSize();
+		dx12BufferView[idx].StrideInBytes = view.mVertexStride;
 	}
 	mDxCmdList->IASetVertexBuffers(slot, bufferView.size(), dx12BufferView.data());
 };

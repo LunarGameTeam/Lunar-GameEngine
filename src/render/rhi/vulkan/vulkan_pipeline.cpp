@@ -146,13 +146,15 @@ void VulkanPipelineState::Init()
 
 	vk::PipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	std::vector<vk::VertexInputAttributeDescription> inputAttributes;
-	vk::VertexInputBindingDescription inputBindings;
 	uint32_t inputLocationIndex = 0;
+	LVector<vk::VertexInputBindingDescription> inputBindings;
+	inputBindings.resize(16);
+	uint32_t inputVertexBufferNum = 0;
 	for (auto& vertexElement : mPSODesc.mGraphicDesc.mInputLayout.mElements)
 	{
 		auto& attr = inputAttributes.emplace_back();
 		attr.location = inputLocationIndex;
-		attr.binding = 0;
+		attr.binding = vertexElement.mBufferSlot;
 		attr.offset = 0;
 		if (vertexElement.mElementType == VertexElementType::Float)
 		{
@@ -164,23 +166,46 @@ void VulkanPipelineState::Init()
 				attr.format = vk::Format::eR32G32B32Sfloat;
 			else if (vertexElement.mElementCount == 4)
 				attr.format = vk::Format::eR32G32B32A32Sfloat;
-		}		
+		}
+		else if(vertexElement.mElementType == VertexElementType::Int)
+		{
+			if (vertexElement.mElementCount == 1)
+				attr.format = vk::Format::eR32Uint;
+			else if (vertexElement.mElementCount == 2)
+				attr.format = vk::Format::eR32G32Uint;
+			else if (vertexElement.mElementCount == 3)
+				attr.format = vk::Format::eR32G32B32Uint;
+			else if (vertexElement.mElementCount == 4)
+				attr.format = vk::Format::eR32G32B32A32Uint;
+		}
 		inputLocationIndex++;
+		//更新vertex buffer的格式信息
+		if (attr.binding + 1 > inputVertexBufferNum)
+		{
+			inputVertexBufferNum = attr.binding + 1;
+		}
+		if (vertexElement.mInstanceUsage == VertexElementInstanceType::PerInstance)
+		{
+			inputBindings[attr.binding].inputRate = vk::VertexInputRate::eInstance;
+		}
+		else
+		{
+			inputBindings[attr.binding].inputRate = vk::VertexInputRate::eVertex;
+		}
+		inputBindings[attr.binding].binding = attr.binding;
+		inputBindings[attr.binding].stride = 0;
 	}
-	inputBindings.binding = 0;
-	inputBindings.stride = 0;  // computed below
-	inputBindings.inputRate = vk::VertexInputRate::eVertex;
 	for (auto& attr : inputAttributes)
 	{
 		uint32_t format_size = vk::blockSize(attr.format);
 		format_size = Alignment(format_size, 8);
-		attr.offset = inputBindings.stride;
-		inputBindings.stride += format_size;
+		attr.offset = inputBindings[attr.binding].stride;
+		inputBindings[attr.binding].stride += format_size;
 	}
 	vertexInputInfo.pVertexAttributeDescriptions = inputAttributes.data();
 	vertexInputInfo.vertexAttributeDescriptionCount = inputAttributes.size();
-	vertexInputInfo.pVertexBindingDescriptions = &inputBindings;
-	vertexInputInfo.vertexBindingDescriptionCount = 1;
+	vertexInputInfo.pVertexBindingDescriptions = inputBindings.data();
+	vertexInputInfo.vertexBindingDescriptionCount = inputVertexBufferNum;
 
 	pipelineInfo.pVertexInputState = &vertexInputInfo;
 	pipelineInfo.pInputAssemblyState = &inputAssembly;

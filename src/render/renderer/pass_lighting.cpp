@@ -55,6 +55,12 @@ void LightingPass::BuildRenderPass(FrameGraphBuilder* builder, RenderView* view,
 		PARAM_ID(ObjectBuffer);
 		PARAM_ID(ViewBuffer);
 		PARAM_ID(MaterialBuffer);
+		if (renderScene->GetRenderObjects().size() == 0)
+		{
+			return;
+		}
+		//目前所有的object只打成一组
+		//RHIResource* instancingBuffer = device->CreateInstancingBufferByRenderObjects(renderScene->GetRenderObjects());
 		for (auto it : renderScene->GetRenderObjects())
 		{
 			params.Clear();
@@ -73,8 +79,10 @@ void LightingPass::BuildRenderPass(FrameGraphBuilder* builder, RenderView* view,
 			{
 				params.PushShaderParam(matParam.first, matParam.second);
 			}
-			
-			device->DrawRenderOBject(ro, shader, &params);
+			LVector<RenderObject*> cacheRenderObjects;
+			cacheRenderObjects.push_back(it);
+			RHIResource* instancingBuffer = device->CreateInstancingBufferByRenderObjects(cacheRenderObjects);
+			device->DrawRenderOBject(ro, shader, &params, instancingBuffer,1);
 		}
 	});
 }

@@ -39,6 +39,9 @@ public:
 	RHIResourcePtr mVB;
 	RHIResourcePtr mIB;
 	RHIVertexLayout mVeretexLayout;
+	//对于mesh buffer，暂时认为buffer0为完整的pervertex，buffer1为完整的perinstance
+	size_t GetStridePerVertex() { return mVeretexLayout.GetSize()[0]; };
+	size_t GetStridePerInstance() { return mVeretexLayout.GetSize()[1]; };
 private:
 	bool m_ready = false;
 };

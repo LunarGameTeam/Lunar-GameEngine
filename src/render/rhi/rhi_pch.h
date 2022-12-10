@@ -13,7 +13,7 @@ namespace luna::render
 struct RHIVertexBufferDesc
 {
 	RHIResource* mVertexRes = nullptr;
-	RHIVertexLayout* mVertexLayout = nullptr;
+	size_t		 mVertexStride = 0;
 	size_t       mOffset = 0;
 	size_t       mBufferSize = 0;
 };
