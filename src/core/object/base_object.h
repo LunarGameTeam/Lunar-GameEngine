@@ -3,8 +3,8 @@
 
 
 #include "core/memory/garbage_collector.h"
-#include "core/misc/container.h"
-#include "core/misc/uuid.h"
+#include "core/foundation/container.h"
+#include "core/foundation/uuid.h"
 #include "core/reflection/reflection.h"
 
 #include <boost/uuid/uuid.hpp>

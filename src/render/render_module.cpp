@@ -4,7 +4,7 @@
 #include "core/object/transform.h"
 #include "core/object/entity.h"
 #include "core/framework/luna_core.h"
-#include "core/misc/profile.h"
+#include "core/foundation/profile.h"
 
 #include "window/window_module.h"
 

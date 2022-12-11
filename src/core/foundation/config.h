@@ -1,17 +1,9 @@
 #pragma once
 
-#include "core/misc/container.h"
-#include "core/misc/string.h"
-#include "config_manager.h"
+#include "core/foundation/container.h"
+#include "core/foundation/string.h"
+#include "core/foundation/misc.h"
 
-namespace luna
-{
-struct CORE_API SerializeConfig
-{
-	LString m_group;
-	LString m_key;
-	LString m_value;
-};
 /*!
  * \class Config
  *
@@ -20,6 +12,31 @@ struct CORE_API SerializeConfig
  * \author isAk wOng
  *
  */
+
+namespace luna
+{
+
+struct CORE_API SerializeConfig
+{
+	LString m_group;
+	LString m_key;
+	LString m_value;
+};
+
+class CORE_API ConfigLoader : public luna::Singleton<ConfigLoader>
+{
+public:
+	ConfigLoader();
+	~ConfigLoader();
+
+	void Save();
+private:
+	LMap<LString, SerializeConfig> sConfigs;
+
+	template<typename T>
+	friend class Config; // every B<T> is a friend of A
+};
+
 
 template<typename Type>
 class Config
@@ -37,7 +54,7 @@ public:
 		mKey(key),
 		mValue(value)
 	{
-		auto &ins = ConfigManager::instance();
+		auto &ins = ConfigLoader::instance();
 		auto &configs = ins.sConfigs;
 		if (configs.contains(mKey))
 		{
@@ -68,7 +85,7 @@ public:
 		mKey(key),
 		mValue(value)
 	{
-		static auto &ins = ConfigManager::instance();
+		static auto &ins = ConfigLoader::instance();
 		static auto &configs = ins.sConfigs;
 		if (configs.contains(mKey))
 		{
@@ -83,6 +100,14 @@ public:
 	}
 };
 
+/*!
+ * \class ConfigManager
+ *
+ * \brief 配置管理器，负责了配置最基础的序列化和反序列化
+ *
+ * \author isAk wOng
+ *
+ */
 #define CONFIG_DECLARE(Type, Group, Key, DefaultValue) extern Config<Type> Config_##Key;
 #define CONFIG_IMPLEMENT(Type, Group, Key, DefaultValue) Config<Type> Config_##Key(#Group, #Key, DefaultValue);
 }

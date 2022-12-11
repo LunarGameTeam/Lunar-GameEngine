@@ -786,10 +786,10 @@ enum RHIResourceUsage
 struct RHISubResFootprint
 {
 	RHITextureFormat Format;
-	UINT Width;
-	UINT Height;
-	UINT Depth;
-	UINT RowPitch;
+	uint32_t Width;
+	uint32_t Height;
+	uint32_t Depth;
+	uint32_t RowPitch;
 };
 
 

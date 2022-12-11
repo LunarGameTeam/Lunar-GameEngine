@@ -6,7 +6,7 @@
 #include "core/reflection/method_traits.h"
 #include "core/reflection/type_traits.h"
 #include "core/math/math.h"
-#include "core/misc/string.h"
+#include "core/foundation/string.h"
 
 #include <utility>
 #include <type_traits>

@@ -4,9 +4,18 @@
 #include "core/file/platform_module.h"
 
 #include <filesystem>
+#include "file.h"
+#include  "windows.h"
+
+
+#undef CreateFile
+#undef CreateDirectory
+#undef DeleteFile
 
 namespace luna
 {
+
+
 LSharedPtr<LFileStream> WindowsFileManager::OpenAsStream(const LPath &path, OpenMode mode)
 {
 	LSharedPtr<LFileStream> file = MakeShared<LFileStream>();
@@ -50,17 +59,17 @@ bool WindowsFileManager::IsFile(const LPath &path)
 	return std::filesystem::is_regular_file(*path.AsString());
 }
 
-bool WindowsFileManager::DeleteFile(const LPath &path)
+bool WindowsFileManager::Delete_File(const LPath &path)
 {
 	return std::filesystem::remove(*path.AsString());
 }
 
-bool WindowsFileManager::CreateDirectory(const LPath &path)
+bool WindowsFileManager::Create_Directory(const LPath &path)
 {
 	return std::filesystem::create_directory(*path.AsString());
 }
 
-bool WindowsFileManager::CreateFile(const LPath &path)
+bool WindowsFileManager::Create_File(const LPath &path)
 {
 	throw std::logic_error("The method or operation is not implemented.");
 }

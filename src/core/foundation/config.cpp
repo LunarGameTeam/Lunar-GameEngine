@@ -1,4 +1,4 @@
-#include "config_manager.h"
+#include "core/foundation/config.h"
 #include "config.h"
 #include <tchar.h>
 #include "windows.h"
@@ -8,14 +8,20 @@
 
 namespace luna
 {
+}
+
+namespace luna
+{
+
+
 using namespace boost::algorithm;
 
-ConfigManager::ConfigManager()
+ConfigLoader::ConfigLoader()
 {
 	TCHAR tempPath[1000];
 	auto platform_module = LunaCore::Ins()->GetModule<PlatformModule>();
-	IPlatformFileManager* file_manager = platform_module->GetPlatformFileManager();	
-	GetCurrentDirectory(MAX_PATH, tempPath); //获取程序的当前目录
+	IPlatformFileManager* file_manager = platform_module->GetPlatformFileManager();
+	GetCurrentDirectory(MAX_PATH, tempPath); //��ȡ����ĵ�ǰĿ¼
 	LString config_path = file_manager->EngineDir();
 	config_path = config_path + "/config.ini";
 	std::fstream fs;
@@ -51,16 +57,16 @@ ConfigManager::ConfigManager()
 	fs.close();
 }
 
-ConfigManager::~ConfigManager()
+ConfigLoader::~ConfigLoader()
 {
 }
 
-void ConfigManager::Save()
+void ConfigLoader::Save()
 {
 
 	std::fstream fs;
 	TCHAR tempPath[1000];
-	GetCurrentDirectory(MAX_PATH, tempPath); //获取程序的当前目录
+	GetCurrentDirectory(MAX_PATH, tempPath); //��ȡ����ĵ�ǰĿ¼
 	LString path(tempPath);
 	path = path + "/config.ini";
 	fs.open(path.c_str(), std::fstream::out | std::fstream::trunc);
@@ -90,5 +96,6 @@ void ConfigManager::Save()
 	fs.flush();
 	fs.close();
 }
+
 
 }

@@ -1,15 +1,22 @@
 #pragma once
 
 
+
 #include "path.h"
 #include "file.h"
 #include "async_handle.h"
 #include "core/thread/thread.h"
+
 #include <mutex>
 #include <queue>
 
+struct _OVERLAPPED;
+typedef  _OVERLAPPED OVERLAPPED;
+
 namespace luna
 {
+
+
 template<typename... Args>
 auto Bind(Args && ...args)
 {
@@ -84,9 +91,9 @@ public:
 	virtual bool IsExists(const LPath &path) = 0;
 	virtual bool IsDirctory(const LPath &path) = 0;
 	virtual bool IsFile(const LPath &path) = 0;
-	virtual bool DeleteFile(const LPath &path) = 0;
-	virtual bool CreateDirectory(const LPath &path) = 0;
-	virtual bool CreateFile(const LPath &path) = 0;
+	virtual bool Delete_File(const LPath &path) = 0;
+	virtual bool Create_Directory(const LPath &path) = 0;
+	virtual bool Create_File(const LPath &path) = 0;
 
 	virtual const LString &EngineDir() = 0;
 	virtual const LString& ApplicationDir() = 0;
@@ -103,32 +110,33 @@ protected:
  * \author isAk wOng
  *
  */
+
 class CORE_API WindowsFileManager : public IPlatformFileManager
 {
 public:
 	bool InitFileManager()override;
 	bool DisposeFileManager() override;
 
-	LSharedPtr<LFile> ReadSync(const LPath &path) override;
-	LSharedPtr<LFile> WriteSync(const LPath &path, const LVector<byte> &data) override;
-	LSharedPtr<FileAsyncHandle> ReadAsync(const LPath &path, FileAsyncCallback callback) override;
-	LSharedPtr<LFileStream> OpenAsStream(const LPath &path, OpenMode mode) override;
+	LSharedPtr<LFile> ReadSync(const LPath& path) override;
+	LSharedPtr<LFile> WriteSync(const LPath& path, const LVector<byte>& data) override;
+	LSharedPtr<FileAsyncHandle> ReadAsync(const LPath& path, FileAsyncCallback callback) override;
+	LSharedPtr<LFileStream> OpenAsStream(const LPath& path, OpenMode mode) override;
 
-	bool ReadStringFromFile(const LPath &path, LString &res) override;
-	bool WriteStringToFile(const LPath &path, const LString &res) override;
+	bool ReadStringFromFile(const LPath& path, LString& res) override;
+	bool WriteStringToFile(const LPath& path, const LString& res) override;
 
-	bool IsExists(const LPath &path) override;
-	bool IsDirctory(const LPath &path) override;
-	bool IsFile(const LPath &path) override;
-	bool DeleteFile(const LPath &path) override;
-	bool CreateDirectory(const LPath &path) override;
-	bool CreateFile(const LPath &path) override;
+	bool IsExists(const LPath& path) override;
+	bool IsDirctory(const LPath& path) override;
+	bool IsFile(const LPath& path) override;
+	bool Delete_File(const LPath& path) override;
+	bool Create_Directory(const LPath& path) override;
+	bool Create_File(const LPath& path) override;
 	const LString& EngineDir() override;
 	const LString& ApplicationDir() override;
 
-	bool GetFileInfo(const LPath &path, LFileInfo &result, bool recursive = false) override;
+	bool GetFileInfo(const LPath& path, LFileInfo& result, bool recursive = false) override;
 
-	bool GetFileInfoRecursive(const LPath &path, LFileInfo &result, bool recursive = false) override;
+	bool GetFileInfoRecursive(const LPath& path, LFileInfo& result, bool recursive = false) override;
 	bool io_loop = true;
 
 private:
@@ -136,11 +144,14 @@ private:
 	std::mutex m_running_lock;
 
 	std::queue<LSharedPtr<FileAsyncHandle>> m_pending_queue;
-	LMap<OVERLAPPED *, LSharedPtr<FileAsyncHandle>> m_running_handles;
+	LMap<OVERLAPPED*, LSharedPtr<FileAsyncHandle>> m_running_handles;
 
 	void IO_Thread();
-	static void FileCompleteCallback(DWORD dwErrorCode, DWORD dwNumberOfBytesTransfered, LPOVERLAPPED lpOverlapped);
 
-	LThread *m_io_thread;
+	static void FileCompleteCallback(unsigned long dwErrorCode, unsigned long dwNumberOfBytesTransfered, OVERLAPPED* lpOverlapped);
+
+	LThread* m_io_thread;
 };
+
+
 }

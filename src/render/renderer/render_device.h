@@ -58,6 +58,7 @@ public:
 	RenderDeviceType    mDeviceType = RenderDeviceType::DirectX12;
 	RHIGraphicCmdListPtr mGraphicCmd;
 	RHIGraphicCmdListPtr mTransferCmd;
+	RHIGraphicCmdListPtr mBarrierCmd;
 public:
 	//Frame Graph API
 public:

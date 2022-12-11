@@ -4,7 +4,7 @@
 #include <memory>
 #include <concepts>
 
-#include "core/log/log.h"
+#include "core/foundation/log.h"
 #include "core/core_types.h"
 
 
@@ -225,6 +225,80 @@ public:
 	}
 
 	WeakPtrHandle* mWeakHandle = nullptr;
+};
+
+template<typename T>
+class TSubPtrArray
+{
+private:
+	luna::LObject* m_parent = nullptr;
+	std::vector<TSubPtr<T>> m_container;
+public:
+
+	inline std::vector<TSubPtr<T>>::iterator begin()
+	{
+		return m_container.begin();
+	}
+
+	inline std::vector<TSubPtr<T>>::iterator end()
+	{
+		return m_container.end();
+	}
+
+	inline std::vector<TSubPtr<T>>::const_iterator begin() const
+	{
+		return m_container.begin();
+	}
+
+	inline std::vector<TSubPtr<T>>::const_iterator end() const
+	{
+		return m_container.end();
+	}
+
+	TSubPtrArray()
+	{
+		assert(0);
+	}
+
+	explicit TSubPtrArray(LObject* parent) :
+		m_parent(parent)
+	{
+
+	}
+
+	void operator=(const TSubPtrArray<T>& rv)
+	{
+		m_container = rv.m_container;
+	}
+
+	void PushBack(T* val)
+	{
+		m_container.emplace_back(m_parent).SetPtr(val);
+	}
+
+	void Erase(T* val)
+	{
+		for (auto it = m_container.begin(); it != m_container.end(); it++)
+		{
+			if (it->Get() == val)
+			{
+				m_container.erase(it);
+				break;
+			}
+		}
+
+	}
+
+	size_t Size() const
+	{
+		return m_container.size();
+	}
+
+	T* operator[](size_t index) const
+	{
+		return m_container[index].Get();
+	}
+
 };
 
 }

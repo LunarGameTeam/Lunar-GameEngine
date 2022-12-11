@@ -1,6 +1,6 @@
 #include "module.h"
-#include "core/log/log.h"
-#include "core/misc/profile.h"
+#include "core/foundation/log.h"
+#include "core/foundation/profile.h"
 #include "core/framework/luna_core.h"
 
 #include <imgui.h>

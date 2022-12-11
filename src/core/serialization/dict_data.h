@@ -8,10 +8,12 @@
  *
  */
 
-#include "core/misc/string.h"
+#include "core/foundation/string.h"
 #include "core/math/math.h"
+#include "core/foundation/log.h"
+
 #include <json/json.h>
-#include "../log/log.h"
+
 
 namespace luna
 {

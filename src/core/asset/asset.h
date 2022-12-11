@@ -2,8 +2,8 @@
 
 #include "core/object/base_object.h"
 #include "core/memory/ptr.h"
-#include "core/misc/string.h"
-#include "core/misc/container.h"
+#include "core/foundation/string.h"
+#include "core/foundation/container.h"
 #include "core/file/async_handle.h"
 #include "core/file/file.h"
 #include "core/file/path.h"

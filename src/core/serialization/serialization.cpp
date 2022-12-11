@@ -1,6 +1,6 @@
 #include "core/serialization/serialization.h"
 
-#include "core/misc/string.h"
+#include "core/foundation/string.h"
 #include "core/math/math.h"
 #include "core/asset/json_asset.h"
 #include "core/asset/asset_module.h"

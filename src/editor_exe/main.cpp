@@ -1,6 +1,8 @@
 #include "core/binding/binding_traits.h"
 #include "core/framework/application.h"
-#include "core/config/config.h"
+#include "core/foundation/config.h"
+#include "windows.h"
+
 #undef main
 
 namespace luna
@@ -15,7 +17,7 @@ int main(int argc, char** argv)
 {
 	TCHAR tempPath[1000];
 	GetCurrentDirectory(MAX_PATH, tempPath); //获取程序的当前目录
-	luna::ConfigManager::instance();
+	luna::ConfigLoader::instance();
 	luna::LString luna_dir = luna::LString(tempPath);
 	luna::LString init_script = luna_dir + luna::Config_InitScript.GetValue();
 	if (argc == 1)

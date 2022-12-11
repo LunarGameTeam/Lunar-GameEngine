@@ -15,8 +15,8 @@
 #include "core/pch.h"
 
 #include "core/memory/ptr.h"
-#include "core/misc/container.h"
-#include "core/log/log.h"
+#include "core/foundation/container.h"
+#include "core/foundation/log.h"
 #include "core/math/math.h"
 
 

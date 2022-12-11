@@ -6,7 +6,7 @@
 
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
-#include "core/config/config.h"
+#include "core/foundation/config.h"
 #include "core/asset/lasset.h"
 using namespace luna;
 
@@ -42,9 +42,9 @@ TEST(GameEngine, Test0)
 	gEngine->RegisterSubsystem<FileSubsystem>();
 	gEngine->Run();
 	LString dir = gEngine->GetSubsystem<FileSubsystem>()->GetPlatformFileManager()->EngineDir();
-	LString str = "/log/log.txt";
+	LString str = "/foundation/log.txt";
 	LString split = "log";
-	LPath path("/log/log.txt");	
+	LPath path("/foundation/log.txt");	
 }
 
 

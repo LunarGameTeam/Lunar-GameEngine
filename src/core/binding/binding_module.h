@@ -3,7 +3,7 @@
 
 #include "core/binding/binding.h"
 #include "core/core_types.h"
-#include "core/misc/string.h"
+#include "core/foundation/string.h"
 #include <map>
 #include <vector>
 

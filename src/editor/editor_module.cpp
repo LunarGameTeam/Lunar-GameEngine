@@ -1,7 +1,7 @@
 #include "editor_module.h"
 
 #include "core/asset/asset_module.h"
-#include "core/misc/profile.h"
+#include "core/foundation/profile.h"
 
 #include "engine/camera.h"
 

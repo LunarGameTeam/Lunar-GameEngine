@@ -15,8 +15,8 @@
 
 
 #include "core/framework/module.h"
-#include "core/misc/container.h"
-#include "core/misc/signal.h"
+#include "core/foundation/container.h"
+#include "core/foundation/signal.h"
 
 namespace luna
 {

@@ -4,7 +4,7 @@
 #include "core/asset/asset.h"
 #include "core/asset/json_asset.h"
 
-#include "core/misc/string.h"
+#include "core/foundation/string.h"
 #include "render/rhi/rhi_resource.h"
 
 #include "render/pch.h"

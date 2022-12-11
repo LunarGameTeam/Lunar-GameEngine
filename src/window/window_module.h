@@ -14,8 +14,8 @@
 #pragma once
 #include "pch.h"
 #include "core/core_library.h"
-#include "core/misc/container.h"
-#include "core/config/config.h"
+#include "core/foundation/container.h"
+#include "core/foundation/config.h"
 #include "core/event/EventModule.h"
 #include "window.h"
 

@@ -4,7 +4,7 @@
 #include "core/binding/binding.h"
 #include "core/reflection/method_traits.h"
 
-#include "core/misc/string.h"
+#include "core/foundation/string.h"
 
 #include <utility>
 

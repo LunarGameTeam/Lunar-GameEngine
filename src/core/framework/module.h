@@ -2,10 +2,10 @@
 
 
 #include "core/object/base_object.h"
-#include "core/misc/container.h"
-#include "core/misc/string.h"
-#include "core/misc/misc.h"
-#include "core/misc/signal.h"
+#include "core/foundation/container.h"
+#include "core/foundation/string.h"
+#include "core/foundation/misc.h"
+#include "core/foundation/signal.h"
 
 namespace luna
 {

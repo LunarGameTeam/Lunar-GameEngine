@@ -1,7 +1,7 @@
 #pragma once
 #include"core/core_library.h"
-#include"core/misc/container.h"
-#include"core/misc/fast_id.h"
+#include"core/foundation/container.h"
+#include"core/foundation/fast_id.h"
 //template<typename IndexValueType>
 //LInitNewFastIdClass(LinerGrowIndexMapID, size_t);
 namespace luna

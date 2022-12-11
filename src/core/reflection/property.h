@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "core/misc/string.h"
+#include "core/foundation/string.h"
 #include "core/reflection/method.h"
 
 #include "core/reflection/method_traits.h"

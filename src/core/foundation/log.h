@@ -13,9 +13,8 @@
 */
 #pragma once
 
-#include "core\misc\string.h"
+#include "core/foundation/string.h"
 #include <format>
-#include "log_msg.h"
 
 #ifndef CORE_API
 
@@ -37,6 +36,16 @@ namespace luna
  * \author isAk wOng
  *
  */
+
+enum class CORE_API LogLevel
+{
+	Error = 0,
+	Warning = 1,
+	Success = 2,
+	Verbose = 3
+};
+
+
 class CORE_API LogManager
 {
 public:

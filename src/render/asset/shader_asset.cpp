@@ -2,7 +2,7 @@
 
 #include "shader_asset.h"
 #include "core/math/math.h"
-#include "core/misc/string.h"
+#include "core/foundation/string.h"
 #include "core/asset/asset_module.h"
 #include "render/render_module.h"
 

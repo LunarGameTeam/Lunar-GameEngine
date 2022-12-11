@@ -1,11 +1,11 @@
 #include "core/core_library.h"
 #include "core/object/entity.h"
-#include "core/config/config.h"
+#include "core/foundation/config.h"
 #include "core/object/transform.h"
 #include "core/asset/asset_module.h"
 #include "core/framework/application.h"
-#include "core/misc/profile.h"
-#include "core/misc/signal.h"
+#include "core/foundation/profile.h"
+#include "core/foundation/signal.h"
 #include "core/event/EventModule.h"
 
 #include "window/window_module.h"
@@ -33,8 +33,8 @@ void LoadEditorLibrary()
 	gEngine->LoadModule<SceneModule>();
 	gEngine->LoadModule<render::RenderModule>();
 	gEngine->LoadModule<editor::EditorModule>();
-	ConfigManager::instance();
-	ConfigManager::instance().Save();
+	ConfigLoader::instance();
+	ConfigLoader::instance().Save();
 	LBindingModule::Get("luna.editor")->Init();
 }
 

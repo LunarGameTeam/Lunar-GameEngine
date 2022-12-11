@@ -18,6 +18,8 @@
 #include "core/event/EventModule.h"
 #include "core/framework/application.h"
 
+#include "windows.h"
+
 using namespace luna;
 
 

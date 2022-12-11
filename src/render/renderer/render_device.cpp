@@ -56,6 +56,7 @@ void RenderDevice::Init()
 	mFence = mDevice->CreateFence();
 	mGraphicCmd = mDevice->CreateCommondList(RHICmdListType::Graphic3D);
 	mTransferCmd = mDevice->CreateCommondList(RHICmdListType::Copy);
+	mBarrierCmd = mDevice->CreateCommondList(RHICmdListType::Graphic3D);
 
 	//Default
 	{
@@ -97,6 +98,7 @@ void RenderDevice::Init()
 	//记录一些初始化时的命令
 	mGraphicCmd->Reset();
 	mTransferCmd->Reset();
+	mBarrierCmd->Reset();
 
 }
 
@@ -214,18 +216,18 @@ RHIResourcePtr RenderDevice::_CreateTexture(const RHITextureDesc& textureDesc, c
 		dstBarrier.mStateAfter = kCopyDest;
 		mTransferCmd->ResourceBarrierExt(dstBarrier);
 		mTransferCmd->CopyBufferToTexture(textureRes, 0, stagingBuffer, 0);
-		//if (Has(resDesc.mImageUsage, RHIImageUsage::SampledBit))
-		//{
-		//	dstBarrier.mStateBefore = kCopyDest;
-		//	dstBarrier.mStateAfter = kShaderReadOnly;
-		//	mTransferCmd->ResourceBarrierExt(dstBarrier);
-		//}
-		//else if (Has(resDesc.mImageUsage, RHIImageUsage::ColorAttachmentBit))
-		//{
-		//	dstBarrier.mStateBefore = kCopyDest;
-		//	dstBarrier.mStateAfter = kRenderTarget;
-		//	mTransferCmd->ResourceBarrierExt(dstBarrier);
-		//}		
+		if (Has(resDesc.mImageUsage, RHIImageUsage::SampledBit))
+		{
+			dstBarrier.mStateBefore = kCopyDest;
+			dstBarrier.mStateAfter = kShaderReadOnly;
+			mBarrierCmd->ResourceBarrierExt(dstBarrier);
+		}
+		else if (Has(resDesc.mImageUsage, RHIImageUsage::ColorAttachmentBit))
+		{
+			dstBarrier.mStateBefore = kCopyDest;
+			dstBarrier.mStateAfter = kRenderTarget;
+			mBarrierCmd->ResourceBarrierExt(dstBarrier);
+		}		
 	}
 
 
@@ -282,7 +284,12 @@ void RenderDevice::FlushStaging()
 	mTransferQueue->ExecuteCommandLists(mTransferCmd);
 	mTransferQueue->Signal(mFence, ++mFenceValue);
 	mFence->Wait(mFenceValue);
+	mBarrierCmd->CloseCommondList();
+	mGraphicQueue->ExecuteCommandLists(mBarrierCmd);
+	mGraphicQueue->Signal(mFence, ++mFenceValue);
+	mFence->Wait(mFenceValue);
 	mTransferCmd->Reset();
+	mBarrierCmd->Reset();
 	mStagingOffset = 0;
 	historyStagingBuffer.clear();
 }

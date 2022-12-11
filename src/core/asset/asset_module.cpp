@@ -2,8 +2,8 @@
 #include "core/file/platform_module.h"
 #include "core/file/platform_file.h"
 #include "core/framework/luna_core.h"
-#include "core/misc/profile.h"
-#include "core/config/config.h"
+#include "core/foundation/profile.h"
+#include "core/foundation/config.h"
 
 namespace luna
 {

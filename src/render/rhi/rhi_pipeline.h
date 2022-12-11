@@ -78,16 +78,6 @@ struct RHIDepthStencilStateDesc
 };
 
 
-struct RenderDeviceStreamOutputDesc
-{
-	//_Field_size_full_(NumEntries)  const D3D12_SO_DECLARATION_ENTRY* pSODeclaration;
-public:
-	UINT NumEntries;
-	//_Field_size_full_(NumStrides)  const UINT* pBufferStrides;
-	UINT NumStrides;
-	UINT RasterizedStream;
-};
-
 struct RHIPipelineStateObjectDesc
 {
 	RHIShaderBlobPtr            mVertexShader;

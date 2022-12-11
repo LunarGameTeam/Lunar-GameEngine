@@ -1,9 +1,8 @@
 #include "log.h"
-#include "log_msg.h"
 
+#include "core/foundation/string.h"
 
-#include "core/misc/string.h"
-
+#include <windows.h>
 #include <chrono>
 #include <iostream>
 #include <fstream>

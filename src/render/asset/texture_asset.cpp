@@ -2,7 +2,7 @@
 
 #include "texture_asset.h"
 #include "core/math/math.h"
-#include "core/misc/string.h"
+#include "core/foundation/string.h"
 #include "core/framework/luna_core.h"
 
 #include "render/render_module.h"

@@ -1,6 +1,6 @@
 
 
-#include "core/config/config_manager.h"
+#include "core/foundation/config.h"
 
 #include "core/framework/module.h"
 #include "core/framework/luna_core.h"
