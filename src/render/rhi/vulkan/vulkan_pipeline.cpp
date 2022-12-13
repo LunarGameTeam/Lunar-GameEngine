@@ -65,13 +65,27 @@ void VulkanPipelineState::Init()
 	vk::PipelineViewportStateCreateInfo viewportState{};
 	viewportState.viewportCount = 1;
 	viewportState.scissorCount = 1;
-
 	vk::PipelineRasterizationStateCreateInfo rasterizer{};
 	rasterizer.depthClampEnable = false;
 	rasterizer.rasterizerDiscardEnable = false;
 	rasterizer.polygonMode = vk::PolygonMode::eFill;
 	rasterizer.lineWidth = 1.0f;
-	rasterizer.cullMode = vk::CullModeFlagBits::eFront;
+
+	switch (mPSODesc.mGraphicDesc.mPipelineStateDesc.RasterizerState.CullMode)
+	{
+	case RHIRasterizerCullMode::CULL_MODE_BACK:
+		rasterizer.cullMode = vk::CullModeFlagBits::eBack;
+		break;
+	case RHIRasterizerCullMode::CULL_MODE_FRONT:
+		rasterizer.cullMode = vk::CullModeFlagBits::eFront;
+		break;
+	case RHIRasterizerCullMode::CULL_MODE_NONE:
+		rasterizer.cullMode = vk::CullModeFlagBits::eNone;
+		break;
+	default:
+		rasterizer.cullMode = vk::CullModeFlagBits::eBack;
+		break;
+	}
 	rasterizer.frontFace = vk::FrontFace::eClockwise;
 	rasterizer.depthBiasEnable = false;
 

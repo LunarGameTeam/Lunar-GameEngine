@@ -70,7 +70,7 @@ void SceneEditor::OnGUI()
 			auto* transform = mCamera->GetTransform();
 			float delta_y = delta.y / 500.0f;
 			float delta_x = delta.x / 500.0f;
-			auto v = Eigen::AngleAxisf(-delta_y * (float)std::numbers::pi, LVector3f::UnitX());
+			auto v = Eigen::AngleAxisf(delta_y * (float)std::numbers::pi, LVector3f::UnitX());
 			auto h = Eigen::AngleAxisf(delta_x * (float)std::numbers::pi, LVector3f::UnitY());
 			auto pos = transform->GetPosition();
 			auto rotation = transform->GetRotation();

@@ -42,7 +42,7 @@ struct RHIBlendStateDesc
 struct RHIRasterizerStateDesc
 {
 	RHIRasterizerFillMode         FillMode              = RHIRasterizerFillMode::FILL_MODE_SOLID;
-	RHIRasterizerCullMode         CullMode              = RHIRasterizerCullMode::CULL_MODE_NONE;
+	RHIRasterizerCullMode         CullMode              = RHIRasterizerCullMode::CULL_MODE_BACK;
 	bool                          FrontCounterClockwise = false;
 	int32_t                       DepthBias             = 0;
 	float                         DepthBiasClamp        = 0;

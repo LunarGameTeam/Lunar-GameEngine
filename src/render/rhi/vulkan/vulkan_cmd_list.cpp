@@ -384,9 +384,9 @@ void VulkanGraphicCmdList::SetViewPort(size_t x, size_t y, size_t width, size_t 
 
 	VkViewport viewport{};
 	viewport.x = 0.0f;
-	viewport.y = 0.0f;
+	viewport.y = (float)height;
 	viewport.width = (float)width;
-	viewport.height = (float)height;
+	viewport.height = -(float)height;
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 	vkCmdSetViewport(mCommandBuffer, 0, 1, &viewport);
