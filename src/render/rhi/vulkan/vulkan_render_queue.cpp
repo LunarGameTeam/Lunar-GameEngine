@@ -1,5 +1,5 @@
 #pragma once
-#include "render/pch.h"
+#include "render/render_config.h"
 #include "render/render_module.h"
 #include "render/rhi/vulkan/vulkan_render_queue.h"
 #include "render/rhi/vulkan/vulkan_device.h"

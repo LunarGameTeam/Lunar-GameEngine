@@ -2,12 +2,13 @@
 
 #include "editor/ui/ImGuiFileDialog.h"
 
-#include "core/reflection/type.h"
+#include "core/reflection/reflection.h"
 
 #include "core/binding/binding.h"
 #include "core/binding/binding_module.h"
 
 #include "core/math/math.h"
+#include "core/math/math_binding.h"
 
 
 #include "imgui.h"
@@ -48,7 +49,7 @@ static PyObject* DragFloat3(const char* label, const LVector3f& val, float speed
 	return ret_args;
 }
 
-STATIC_INIT()
+STATIC_INIT(imgui)
 {
 		LBindingModule* editor_module = LBindingModule::Get("luna.imgui");
 		editor_module->AddMethod<&ImGui::BeginMenuBar>("begin_menu_bar");

@@ -1,5 +1,5 @@
 #include "main_editor.h"
-#include "core/event/EventModule.h"
+#include "core/event/event_module.h"
 #include "engine/scene_module.h"
 #include "core/asset/asset_module.h"
 #include "imstb_textedit.h"

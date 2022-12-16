@@ -18,8 +18,6 @@ auto_source_group("${ALL_FILES}" DST_FILES)
 
 add_library(render SHARED ${DST_FILES})
 
-target_precompile_headers(render PUBLIC "pch.h")
-
 add_compile_definitions(IMGUI_EXPORT)
 add_compile_definitions(RENDER_EXPORT)
 

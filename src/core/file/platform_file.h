@@ -150,7 +150,7 @@ private:
 
 	static void FileCompleteCallback(unsigned long dwErrorCode, unsigned long dwNumberOfBytesTransfered, OVERLAPPED* lpOverlapped);
 
-	LThread* m_io_thread;
+	LThread* mIOThread;
 };
 
 

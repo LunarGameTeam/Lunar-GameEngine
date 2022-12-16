@@ -13,7 +13,7 @@
 */
 #pragma once
 
-#include "editor/pch.h"
+#include "editor/editor_config.h"
 #include "editor/ui/base_panel.h"
 #include "core/core_library.h"
 #include "core/foundation/container.h"

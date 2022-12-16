@@ -2,7 +2,7 @@
 #include "window_module.h"
 
 #include "imgui_impl_sdl.h"
-#include "core/event/EventModule.h"
+#include "core/event/event_module.h"
 
 #include <d3d11.h>
 #include <windows.h>

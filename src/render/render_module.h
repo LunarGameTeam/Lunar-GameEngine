@@ -15,7 +15,7 @@
 
 
 #include "core/core_library.h"
-#include "render/pch.h"
+#include "render/render_config.h"
 
 #include "render/renderer/render_obj.h"
 #include "render/renderer/render_pass.h"

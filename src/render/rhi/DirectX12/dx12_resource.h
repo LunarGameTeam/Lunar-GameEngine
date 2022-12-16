@@ -1,5 +1,5 @@
 #pragma once
-#include "render/pch.h"
+#include "render/render_config.h"
 #include "dx12_rhi.h"
 #include <DirectXTex.h>
 #include <wincodec.h>

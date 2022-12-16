@@ -44,7 +44,7 @@ luna::LMatrix4f& Transform::GetWorldToLocalMatrix()
 
 void Transform::UpdateMatrix()
 {
-	if (m_dirty)
+	if (mMatrixDirty)
 	{
 		LTransform trans = LTransform::Identity();
 		trans.translate(mPos);
@@ -64,53 +64,53 @@ void Transform::UpdateMatrix()
 		else
 			mWorld2Local = invers.matrix();
 		 
-		m_dirty = false;
+		mMatrixDirty = false;
 	}
 }
 
 void Transform::SetDirty()
 {
-	m_dirty = true;
+	mMatrixDirty = true;
 }
 
 void Transform::SetPosition(const LVector3f &pos)
 {
 	mPos = pos;
-	m_dirty = true;
+	mMatrixDirty = true;
 	UpdateMatrix();
 }
 
 void Transform::SetRotation(const LQuaternion &rota)
 {
 	mRotation = rota;
-	m_dirty = true;
+	mMatrixDirty = true;
 	UpdateMatrix();
 }
 
 void Transform::SetScale(const LVector3f &scale)
 {
 	mScale = scale;
-	m_dirty = true;
+	mMatrixDirty = true;
 	UpdateMatrix();
 }
 
 luna::LVector3f Transform::GetWorldPosition()
 {
-	if(m_dirty)
+	if(mMatrixDirty)
 		mWorldPos = LMath::xyz(GetLocalToWorldMatrix() * LMath::xyzw(mPos));
 	return mWorldPos;
 }
 
 luna::LVector3f Transform::GetWorldScale()
 {
-	if (m_dirty)
+	if (mMatrixDirty)
 		mWorldScale = LMath::xyz(GetLocalToWorldMatrix() * LMath::xyzw(mScale));
 	return mWorldScale;
 }
 
 luna::LQuaternion Transform::GetWorldRoatation()
 {
-	if (m_dirty)
+	if (mMatrixDirty)
 	{
 		mWorldRotation = mRotation * GetWorldRoatation();
 		UpdateMatrix();
@@ -141,7 +141,7 @@ luna::LVector3f Transform::ForwardDirection()
 
 void Transform::SetTransformDirty()
 {
-	m_dirty = true;
+	mMatrixDirty = true;
 }
 
 void Transform::LookAt(const LVector3f &forward)

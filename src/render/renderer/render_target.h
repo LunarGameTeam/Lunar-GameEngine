@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/object/base_object.h"
-#include "render/pch.h"
+#include "render/render_config.h"
 #include "render/asset/texture_asset.h"
 #include "render/rhi/rhi_pch.h"
 

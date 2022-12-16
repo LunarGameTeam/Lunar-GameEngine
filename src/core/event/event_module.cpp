@@ -1,4 +1,4 @@
-#include "EventModule.h"
+#include "event_module.h"
 #include "core/framework/module.h"
 
 namespace luna

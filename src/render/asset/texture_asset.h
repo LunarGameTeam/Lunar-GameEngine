@@ -7,7 +7,7 @@
 #include "core/foundation/string.h"
 #include "render/rhi/rhi_resource.h"
 
-#include "render/pch.h"
+#include "render/render_config.h"
 #include "../rhi/rhi_descriptor_heap.h"
 #include "../rhi/rhi_descriptor.h"
 

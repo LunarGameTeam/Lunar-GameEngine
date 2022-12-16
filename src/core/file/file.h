@@ -54,6 +54,18 @@ private:
 class CORE_API LFileStream
 {
 public:
+	LFileStream() = default;
+	LFileStream(const LFileStream&) = delete;
+	LFileStream& operator=(const LFileStream&) = delete;
+
+	~LFileStream()
+	{
+		if (mFileStream.is_open())
+		{
+			mFileStream.flush();
+			mFileStream.close();
+		}
+	}
 	bool Ready()
 	{
 		return mReady;

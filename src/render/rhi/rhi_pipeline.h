@@ -1,5 +1,5 @@
 #pragma once
-#include "render/pch.h"
+#include "render/render_config.h"
 #include "render/rhi/rhi_types.h"
 #include "render/rhi/rhi_pch.h"
 #include "render/rhi/rhi_binding_set_layout.h"

@@ -11,8 +11,6 @@ auto_source_group("${ALL_FILES}" DST_FILES)
 
 add_library(window SHARED ${DST_FILES})
 
-target_precompile_headers(window PUBLIC "pch.h")
-
 add_compile_definitions(WINDOW_EXPORT)
 
 target_link_libraries(window core SDL2::SDL2 imgui)

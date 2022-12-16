@@ -1,5 +1,5 @@
 #pragma once
-
+#include "core/core_config.h"
 #include "core/foundation/string.h"
 #include "core/foundation/config.h"
 #include "core/foundation/log.h"

@@ -1,5 +1,5 @@
 #pragma once
-#include "render/pch.h"
+#include "render/render_config.h"
 
 #include "core/foundation/container.h"
 #include "core/foundation/string.h"

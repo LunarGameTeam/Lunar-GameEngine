@@ -3,7 +3,6 @@
 
 #include "core/object/component.h"
 #include "core/math/math.h"
-#include "core/math/lunar_math.h"
 
 namespace luna
 {
@@ -48,7 +47,7 @@ private:
 	LMatrix4f mWorld2Local;
 	Transform* mParent;
 
-	bool m_dirty = true;
+	bool mMatrixDirty = true;
 	LVector3f mWorldPos= LVector3f::Zero();
 	LVector3f mWorldScale = LVector3f(1, 1, 1);
 	LQuaternion mWorldRotation = LQuaternion::Identity();

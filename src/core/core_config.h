@@ -122,9 +122,6 @@
 typedef unsigned char byte;
 
 
-
-
-
 // http://blog.bitwigglers.org/using-enum-classes-as-type-safe-bitmasks/
 
 template<typename Enum>

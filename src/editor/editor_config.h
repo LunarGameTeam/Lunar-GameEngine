@@ -1,9 +1,9 @@
 #pragma once
 
-#include "core/pch.h"
-#include "window/pch.h"
-#include "render/pch.h"
-#include "engine/pch.h"
+#include "core/core_config.h"
+#include "window/window_config.h"
+#include "render/render_config.h"
+#include "engine/engine_config.h"
 
 #include "core/core_library.h"
 

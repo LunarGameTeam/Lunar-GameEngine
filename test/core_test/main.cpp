@@ -2,7 +2,7 @@
 #include "core/file/platform_module.h"
 #include "core/framework/application.h"
 #include "core/asset/asset_module.h"
-#include "core/event/eventmodule.h"
+#include "core/event/event_module.h"
 
 #include <gtest/gtest.h>
 

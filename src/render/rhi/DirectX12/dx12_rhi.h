@@ -1,5 +1,5 @@
 #pragma once
-#include "render/pch.h"
+#include "render/render_config.h"
 //临时的dx11头文件(纹理压缩)
 #include<d3d11.h>
 #include<d3d12.h>

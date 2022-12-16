@@ -11,8 +11,6 @@ auto_source_group("${ALL_FILES}" DST_FILES)
 
 add_library(editor SHARED ${DST_FILES})
 
-target_precompile_headers(editor PRIVATE "pch.h")
-
 add_dependencies(editor core window render engine)
 
 target_link_libraries(editor core window render engine)

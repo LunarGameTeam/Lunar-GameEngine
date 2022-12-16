@@ -1,5 +1,5 @@
 #pragma once
-#include "render/pch.h"
+#include "render/render_config.h"
 #include "dx12_shader.h"
 #include "dx12_binding_set_layout.h"
 #include "render/rhi/rhi_pipeline.h"

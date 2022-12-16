@@ -15,7 +15,7 @@
 #include "core/memory/ptr.h"
 #include "core/foundation/container.h"
 #include "core/foundation/log.h"
-#include "core/pch.h"
+#include "core/core_config.h"
 
 
 #ifndef ENGINE_API

@@ -169,8 +169,8 @@ bool WindowsFileManager::DisposeFileManager()
 	io_loop = false;
 	m_pending_lock.unlock();
 
-	delete m_io_thread;
-	m_io_thread = nullptr;
+	delete mIOThread;
+	mIOThread = nullptr;
 	m_pending_lock.lock();
 	while (!m_pending_queue.empty()) m_pending_queue.pop();
 	m_pending_lock.unlock();
@@ -315,7 +315,7 @@ bool WindowsFileManager::InitFileManager()
 	SetDllDirectoryA(m_root_dir + "/bin");
 
 
-	m_io_thread = new LThread(std::bind(&WindowsFileManager::IO_Thread, this));
+	mIOThread = new LThread(std::bind(&WindowsFileManager::IO_Thread, this));
 
 	return true;
 }

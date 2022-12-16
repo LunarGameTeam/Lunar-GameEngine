@@ -1,5 +1,5 @@
 #pragma once
-#include "render/pch.h"
+#include "render/render_config.h"
 #include "render/rhi/rhi_device.h"
 
 
@@ -109,7 +109,7 @@ void VulkanGraphicCmdList::SetScissorRects(size_t x, size_t y, size_t width, siz
 {
 	vk::Rect2D scissor{};
 	scissor.offset = vk::Offset2D(0, 0);
-	scissor.extent = vk::Extent2D( width  , height );
+	scissor.extent = vk::Extent2D((uint32_t)width  , (uint32_t)height );
 	mCommandBuffer.setScissor(0, 1, &scissor);
 }
 
@@ -448,7 +448,7 @@ void VulkanGraphicCmdList::BindDesriptorSetExt(RHIBindingSetPtr bindingSet)
 			vk::PipelineBindPoint::eGraphics,
 			vkBindingSetLayout->mPipelineLayout,
 			0,
-			vkBindingSet->m_descriptors.size(),
+			(uint32_t)vkBindingSet->m_descriptors.size(),
 			vkBindingSet->mDescriptorSets.data(),
 			0,
 			nullptr);
@@ -524,7 +524,7 @@ void VulkanGraphicCmdList::BeginRender(const RenderPassDesc& passDesc)
 	info.viewMask = 0;
 	info.layerCount = 1;
 	info.pColorAttachments = attachments.data();
-	info.colorAttachmentCount = attachments.size();
+	info.colorAttachmentCount = (uint32_t)attachments.size();
 	info.pDepthAttachment = depthAttachments.data();
 	info.pStencilAttachment = stencilAttachments.data();
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "render/pch.h"
+#include "render/render_config.h"
 
 #include <glslang/SPIRV/GlslangToSpv.h>
 #include <glslang/Public/ShaderLang.h>

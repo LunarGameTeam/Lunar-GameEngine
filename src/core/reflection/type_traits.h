@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/core_config.h"
+
 #include <type_traits>
 #include <functional>
 #include <tuple> 

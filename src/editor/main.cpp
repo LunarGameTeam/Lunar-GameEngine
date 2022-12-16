@@ -6,7 +6,7 @@
 #include "core/framework/application.h"
 #include "core/foundation/profile.h"
 #include "core/foundation/signal.h"
-#include "core/event/EventModule.h"
+#include "core/event/event_module.h"
 
 #include "window/window_module.h"
 #include "window/window.h"

@@ -2,7 +2,7 @@
 #include "core/math/math.h"
 #include "core/foundation/container.h"
 #include "core/asset/binary_asset.h"
-#include "render/pch.h"
+#include "render/render_config.h"
 #include "render/rhi/rhi_resource.h"
 
 

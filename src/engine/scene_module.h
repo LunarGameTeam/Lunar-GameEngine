@@ -3,7 +3,7 @@
 #include "core/core_library.h"
 #include "core/framework/module.h"
 #include "scene.h"
-#include "pch.h"
+#include "engine_config.h"
 
 namespace luna
 {

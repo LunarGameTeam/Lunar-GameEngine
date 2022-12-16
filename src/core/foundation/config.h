@@ -18,17 +18,27 @@ namespace luna
 
 struct CORE_API SerializeConfig
 {
-	LString m_group;
-	LString m_key;
-	LString m_value;
+	LString mGroup;
+	LString mKey;
+	LString mValue;
 };
 
+
+/*!
+ * \class ConfigManager
+ *
+ * \brief 配置管理器，负责了配置最基础的序列化和反序列化
+ *
+ * \author isAk wOng
+ *
+ */
 class CORE_API ConfigLoader : public luna::Singleton<ConfigLoader>
 {
 public:
 	ConfigLoader();
 	~ConfigLoader();
 
+	void Load(const LString& val);
 	void Save();
 private:
 	LMap<LString, SerializeConfig> sConfigs;
@@ -58,13 +68,13 @@ public:
 		auto &configs = ins.sConfigs;
 		if (configs.contains(mKey))
 		{
-			mValue = luna::FromString<Type>(configs[mKey].m_value);
+			mValue = luna::FromString<Type>(configs[mKey].mValue);
 		}
 		else
 		{
-			configs[mKey].m_group = mGroup;
-			configs[mKey].m_key = mKey;
-			configs[mKey].m_value = luna::ToString<Type>(mValue);
+			configs[mKey].mGroup = mGroup;
+			configs[mKey].mKey = mKey;
+			configs[mKey].mValue = luna::ToString<Type>(mValue);
 		}
 	}
 };
@@ -76,7 +86,8 @@ class Config<LString>
 	LString mKey;
 	LString mValue;
 public:
-	LString GetValue() {
+	LString GetValue() 
+	{
 		return mValue;
 	}
 
@@ -89,25 +100,17 @@ public:
 		static auto &configs = ins.sConfigs;
 		if (configs.contains(mKey))
 		{
-			mValue = configs[mKey].m_value;
+			mValue = configs[mKey].mValue;
 		}
 		else
 		{
-			configs[mKey].m_group = mGroup;
-			configs[mKey].m_key = mKey;
-			configs[mKey].m_value = mValue;
+			configs[mKey].mGroup = mGroup;
+			configs[mKey].mKey = mKey;
+			configs[mKey].mValue = mValue;
 		}
 	}
 };
 
-/*!
- * \class ConfigManager
- *
- * \brief 配置管理器，负责了配置最基础的序列化和反序列化
- *
- * \author isAk wOng
- *
- */
 #define CONFIG_DECLARE(Type, Group, Key, DefaultValue) extern Config<Type> Config_##Key;
 #define CONFIG_IMPLEMENT(Type, Group, Key, DefaultValue) Config<Type> Config_##Key(#Group, #Key, DefaultValue);
 }

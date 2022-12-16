@@ -12,11 +12,13 @@
  * \note
 */
 #pragma once
-#include "pch.h"
+#include "window/window_config.h"
+
 #include "core/core_library.h"
 #include "core/foundation/container.h"
 #include "core/foundation/config.h"
-#include "core/event/EventModule.h"
+#include "core/event/event_module.h"
+
 #include "window.h"
 
 namespace luna

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "render/pch.h"
+#include "render/render_config.h"
 #include "render/rhi/rhi_types.h"
 #include "render/rhi/rhi_device.h"
 

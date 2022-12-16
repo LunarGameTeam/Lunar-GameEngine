@@ -11,8 +11,6 @@ add_library(engine SHARED ${DST_FILES})
 
 add_compile_definitions(ENGINE_EXPORT)
 
-target_precompile_headers(engine PUBLIC "pch.h")
-
 add_dependencies(engine core window render) 
 target_link_libraries(engine core window render)
 

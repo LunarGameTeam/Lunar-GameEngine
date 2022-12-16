@@ -15,7 +15,7 @@
 
 #include "core/asset/asset_module.h"
 #include "core/file/platform_module.h"
-#include "core/event/EventModule.h"
+#include "core/event/event_module.h"
 #include "core/framework/application.h"
 
 #include "windows.h"
@@ -32,9 +32,33 @@ CORE_API void LoadLib(const luna::LString& val)
 
 void LoadCoreLibrary()
 {
+	std::fstream logFile;
+	std::fstream configFile;
+
+#ifdef WIN32
+	TCHAR tempPath[1000];
+	GetCurrentDirectory(MAX_PATH, tempPath); //获取程序的当前目录
+
+	LString workDir(tempPath);
+	LString logPath = workDir + "/log.txt";
+	LString configPath = workDir + "/config.ini";
+	
+#endif // WIN32
+	configFile.open(configPath.c_str(), std::fstream::in | std::fstream::out);
+	
+	Logger::instance().RedirectLogFile(logPath.str());
+
+	LString configContent;
+	std::ostringstream ss;
+	ss << configFile.rdbuf(); // reading data
+	configContent = ss.str();	
+	
+	ConfigLoader::instance().Load(configContent);
+
 	luna::LApplication::Instance();
 	gEngine->LoadModule<AssetModule>();
 	gEngine->LoadModule<EventModule>();	
+
 }
 
 __declspec(dllexport) BOOL WINAPI DllMain(

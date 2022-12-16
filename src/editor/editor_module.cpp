@@ -14,7 +14,7 @@
 #include "window/window_module.h"
 #include "imgui_impl_sdl.h"
 
-#include "render/pch.h"
+#include "render/render_config.h"
 #include "render/render_module.h"
 
 #include "render/rhi/rhi_frame_buffer.h"

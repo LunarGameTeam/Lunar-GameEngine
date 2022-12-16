@@ -15,6 +15,8 @@
 
 #include "core/foundation/string.h"
 #include <format>
+#include "misc.h"
+#include <fstream>
 
 #ifndef CORE_API
 
@@ -46,16 +48,6 @@ enum class CORE_API LogLevel
 };
 
 
-class CORE_API LogManager
-{
-public:
-	LogManager();
-	~LogManager();
-};
-
-CORE_API extern bool g_Succeed;
-CORE_API extern bool g_Failed;
-
 CORE_API void _LogImpl(
 	const char* scope,
 	const LString& msg,
@@ -64,6 +56,27 @@ CORE_API void _LogImpl(
 	const char* function_name,
 	const uint32_t line
 );
+
+class CORE_API Logger : public Singleton<Logger>
+{
+public:
+	void RedirectLogFile(const std::string& filePath);
+
+	friend CORE_API void _LogImpl(
+		const char* scope,
+		const LString& msg,
+		const LogLevel& level,
+		const char* file_name,
+		const char* function_name,
+		const uint32_t line
+	);
+
+	std::fstream mLogFile;
+};
+
+CORE_API extern bool g_Succeed;
+CORE_API extern bool g_Failed;
+
 
 }
 

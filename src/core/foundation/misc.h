@@ -1,7 +1,8 @@
 #pragma once
+#include "core/core_config.h"
 
 #include <cstdint>
-
+#include <memory>
 
 namespace luna
 {
@@ -11,7 +12,7 @@ template<typename T>
 class Singleton
 {
 public:
-	static T* t;
+	static std::shared_ptr<T> t;
 	virtual ~Singleton() = default;
 	Singleton(const Singleton &) = delete;
 	Singleton(const Singleton &&) = delete;
@@ -20,15 +21,15 @@ public:
 	static T &instance() 
 	{
 		if (!t)
-			t = new T();
-		return *t;
+			t.reset(new T);
+		return *(t.get());
 	}
 protected:
 	Singleton() = default;
 };
 
 template<typename T>
-T *Singleton<T>::t = nullptr;
+std::shared_ptr<T> Singleton<T>::t;
 
 //暂时不能用。。。
 class CORE_API NoCopy

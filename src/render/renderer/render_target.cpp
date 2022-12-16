@@ -1,6 +1,6 @@
 #include "render_target.h"
 
-#include "render/pch.h"
+#include "render/render_config.h"
 #include "render/render_module.h"
 #include <vector>
 

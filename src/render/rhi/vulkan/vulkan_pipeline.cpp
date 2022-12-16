@@ -1,6 +1,6 @@
 #include "render/rhi/vulkan/vulkan_pipeline.h"
 
-#include "render/pch.h"
+#include "render/render_config.h"
 #include "render/rhi/rhi_device.h"
 
 #include "render/rhi/vulkan/vulkan_swapchain.h"
@@ -36,7 +36,7 @@ void VulkanPipelineState::Init()
 		colors.push_back(Convert(it.mFormat));
 	}
 	renderingInfos.pColorAttachmentFormats = colors.data();
-	renderingInfos.colorAttachmentCount = colors.size();
+	renderingInfos.colorAttachmentCount = (uint32_t)colors.size();
 	if (!mPSODesc.mGraphicDesc.mRenderPassDesc.mDepths.empty())
 	{
 		renderingInfos.stencilAttachmentFormat = Convert(mPSODesc.mGraphicDesc.mRenderPassDesc.mDepths[0].mDepthStencilFormat);
@@ -212,12 +212,12 @@ void VulkanPipelineState::Init()
 	for (auto& attr : inputAttributes)
 	{
 		uint32_t format_size = vk::blockSize(attr.format);
-		format_size = Alignment(format_size, 8);
+		format_size = (uint32_t)Alignment(format_size, 8);
 		attr.offset = inputBindings[attr.binding].stride;
 		inputBindings[attr.binding].stride += format_size;
 	}
 	vertexInputInfo.pVertexAttributeDescriptions = inputAttributes.data();
-	vertexInputInfo.vertexAttributeDescriptionCount = inputAttributes.size();
+	vertexInputInfo.vertexAttributeDescriptionCount = (uint32_t)inputAttributes.size();
 	vertexInputInfo.pVertexBindingDescriptions = inputBindings.data();
 	vertexInputInfo.vertexBindingDescriptionCount = inputVertexBufferNum;
 

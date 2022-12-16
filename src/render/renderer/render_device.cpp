@@ -440,7 +440,7 @@ void RenderDevice::DrawRenderOBject(render::RenderObject* ro, render::ShaderAsse
 	mGraphicCmd->SetIndexBuffer(ib);
 	mGraphicCmd->SetDrawPrimitiveTopology(
 		RHIPrimitiveTopology::TriangleList);
-	mGraphicCmd->DrawIndexedInstanced(indexCount, 1, 0, 0, 0);
+	mGraphicCmd->DrawIndexedInstanced((uint32_t)indexCount, 1, 0, 0, 0);
 
 }
 

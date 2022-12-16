@@ -1,13 +1,12 @@
 # CMake 最低版本号要求
 cmake_minimum_required (VERSION 3.24)
 # 项目信息
-cmake_policy(VERSION "3.12.0")
+cmake_policy(VERSION "3.24")
 
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/sdk/vcpkg/scripts/buildsystems/vcpkg.cmake"
   CACHE STRING "Vcpkg toolchain file")
-  
-project(Lunar-Engine)
 
+project(Lunar-Engine)
 
 math(EXPR BITS "8*${CMAKE_SIZEOF_VOID_P}")
 
@@ -25,6 +24,7 @@ SET(SOLUTION_CMAKE_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
+
 # This goes after, since it uses PythonInterp as hint
 find_package(Python3 COMPONENTS Interpreter Development)
 
@@ -39,7 +39,6 @@ find_package(directxtex REQUIRED)
 find_package(boost COMPONENTS system REQUIRED)
 find_package(unofficial-spirv-reflect REQUIRED)
 find_package(GTest REQUIRED)
-
 find_package(Vulkan REQUIRED glslang glslangValidator glslc SPIRV-Tools shaderc_combined)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -76,15 +75,6 @@ add_compile_options("/MP")
 add_compile_options("/bigobj")
 add_compile_options("/Zc:char8_t")
 
-include_directories(
-	src
-	${SDK_PATH}imgui
-	${SDK_PATH}imgui/backends
-	${SDK_PATH}googletest/googletest/include
-	${Python3_INCLUDE_DIRS}
-	${Vulkan_INCLUDE_DIRS}
-)
-
 message(STATUS "python include dir: ${Python3_INCLUDE_DIRS}")
 message(STATUS "python libs: ${Python3_LIBRARIES}")
 message(STATUS "python exe: ${Python3_EXECUTABLE}")
@@ -93,11 +83,19 @@ message(STATUS "vulkan: $ENV{VULKAN_SDK}")
 message(STATUS "vulkan: ${Vulkan_shaderc_combined_LIBRARY}")
 message(STATUS "vulkan: ${Vulkan_SPIRV-Tools_LIBRARY}")
 
-IF(WIN32)
-	link_directories(
+include_directories(
+	src
+	${SDK_PATH}imgui
+	${SDK_PATH}vcpkg/installed/x64-windows/include
+	${SDK_PATH}imgui/backends
+	${Python3_INCLUDE_DIRS}
+	${Vulkan_INCLUDE_DIRS}
+)
+
+link_directories(
 	${Python3_LIBRARY_DIRS}
-	$ENV{VULKAN_SDK}/Lib)
-ENDIF()
+	$ENV{VULKAN_SDK}/Lib
+)
 
 function(auto_source_group src_files dst_files)
     foreach(_source IN ITEMS ${src_files})
@@ -134,27 +132,26 @@ endfunction(auto_source_group)
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
 add_subdirectory(src/core)
-SET_PROPERTY(TARGET core PROPERTY FOLDER "Runtime")
 add_subdirectory(src/render)
-SET_PROPERTY(TARGET render PROPERTY FOLDER "Runtime")
 add_subdirectory(src/window)
+add_subdirectory(sdk/imgui)
+add_subdirectory(src/engine)
+
+add_subdirectory(src/editor)
+add_subdirectory(src/editor_exe)
+
+SET_PROPERTY(TARGET core PROPERTY FOLDER "Runtime")
+SET_PROPERTY(TARGET render PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET window PROPERTY FOLDER "Runtime")
+SET_PROPERTY(TARGET imgui PROPERTY FOLDER "Runtime")
+SET_PROPERTY(TARGET engine PROPERTY FOLDER "Runtime")
+
+SET_PROPERTY(TARGET editor PROPERTY FOLDER "Editor")
+SET_PROPERTY(TARGET editor_exe PROPERTY FOLDER "Editor")
 
 
 add_subdirectory(test/core_test)
 SET_PROPERTY(TARGET core_test PROPERTY FOLDER "Test")
-
-add_subdirectory(src/engine)
-SET_PROPERTY(TARGET engine PROPERTY FOLDER "Runtime")
-
-#add_subdirectory(src/game)
-#SET_PROPERTY(TARGET game PROPERTY FOLDER "Runtime")
-
-add_subdirectory(src/editor)
-SET_PROPERTY(TARGET editor PROPERTY FOLDER "Editor")
-
-add_subdirectory(src/editor_exe)
-SET_PROPERTY(TARGET editor_exe PROPERTY FOLDER "Editor")
 
 if(USING_FBX_TOOLS)
 	add_subdirectory(src/lib/fbx_helper)
@@ -162,8 +159,6 @@ if(USING_FBX_TOOLS)
 	add_subdirectory(test/fbx_test)
 	SET_PROPERTY(TARGET fbx_test PROPERTY FOLDER "Test")
 endif()
-
-add_subdirectory(sdk/imgui)
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT editor_exe)
 
@@ -177,9 +172,7 @@ install(FILES file(GET_RUNTIME_DEPENDENCIES EXECUTABLES $<TARGET_FILE:editor_exe
 	DESTINATION bin)
 
 install(DIRECTORY assets/ DESTINATION assets)
-
 install(FILES bin/jsoncpp.dll DESTINATION bin)
-install(FILES third-party/dxil.dll DESTINATION bin)
-		 
+install(FILES third-party/dxil.dll DESTINATION bin)		 
 install(DIRECTORY assets/ DESTINATION assets)
 install(DIRECTORY editor/ DESTINATION editor)

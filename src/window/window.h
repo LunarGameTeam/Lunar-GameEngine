@@ -12,8 +12,10 @@
  * \note
 */
 #pragma once
+#include "window/window_config.h"
 
 #include "core/core_library.h"
+
 
 #include <SDL.h>
 #include <SDL_syswm.h>

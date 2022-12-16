@@ -9,7 +9,7 @@
 #include "window/window_module.h"
 
 
-#include "engine/pch.h"
+#include "engine/engine_config.h"
 #include "engine/light.h"
 #include "engine/scene_module.h"
 
@@ -49,8 +49,13 @@
 #include "rhi/vulkan/vulkan_render_pass.h"
 #include "editor/ui/icon_font.h"
 
+
+RENDER_API luna::render::RenderModule* luna::sRenderModule = nullptr;
+
 namespace luna::render
 {
+
+
 
 RegisterTypeEmbedd_Imp(RenderModule)
 {

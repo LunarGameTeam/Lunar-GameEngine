@@ -1,5 +1,4 @@
-#include "log.h"
-
+#include "core/foundation/log.h"
 #include "core/foundation/string.h"
 
 #include <windows.h>
@@ -9,45 +8,29 @@
 
 namespace luna
 {
-std::fstream g_log_file;
 
-
-LogManager::LogManager()
+void Logger::RedirectLogFile(const std::string& filePath)
 {
-#ifdef WIN32
-	TCHAR tempPath[1000];
-	GetCurrentDirectory(MAX_PATH, tempPath); //获取程序的当前目录
-
-	LString config_path(tempPath);
-	config_path = config_path + "/log.txt";
-
-#endif // WIN32
-	g_log_file.open(config_path.c_str(), std::fstream::out);
-}
-
-LogManager::~LogManager()
-{
-	g_log_file.flush();
-	g_log_file.close();
+	mLogFile.open(filePath.c_str(), std::ios::out);
 }
 
 void _LogImpl(const char *scope, const LString &msg, const LogLevel &level, const char *file_name, const char *function_name, const uint32_t line)
 {
-	static LogManager s_Log;
+	static Logger& s_Log = Logger::instance();
 
 	auto start = std::chrono::system_clock::now().time_since_epoch();
 
 	auto const time = std::chrono::current_zone()
 		->to_local(std::chrono::system_clock::now());
 		
-	static const char *level_str[10] =
+	static const char *logLevel[10] =
 	{
 		"Error",
 		"Warning",
 		"Success",
 		"Verbose",
 	};
-	LString res = LString::Format("[{:%Y-%m-%d %H:%M:%S}][{}][{}]{}", time, level_str[int(level)], scope, msg);
+	LString res = LString::Format("[{:%Y-%m-%d %H:%M:%S}][{}][{}]{}", time, logLevel[int(level)], scope, msg);
 	
 	HANDLE hCon = GetStdHandle(STD_OUTPUT_HANDLE);
 	switch (level)
@@ -66,8 +49,11 @@ void _LogImpl(const char *scope, const LString &msg, const LogLevel &level, cons
 		break;
 	}
 	std::cout << res.c_str() << std::endl;
-	g_log_file << res.c_str()  << std::endl;
-	g_log_file.flush();
+	if (s_Log.mLogFile.is_open())
+	{
+		s_Log.mLogFile << res.c_str() << std::endl;
+		s_Log.mLogFile.flush();
+	}	
 	SetConsoleTextAttribute(hCon, FOREGROUND_INTENSITY | FOREGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN);
 }
 

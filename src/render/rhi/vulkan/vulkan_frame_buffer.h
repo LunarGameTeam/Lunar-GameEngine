@@ -1,5 +1,5 @@
 #pragma once
-#include "render/pch.h"
+#include "render/render_config.h"
 #include "render/rhi/rhi_frame_buffer.h"
 
 #include "render/render_module.h"

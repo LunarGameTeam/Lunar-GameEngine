@@ -11,12 +11,10 @@ auto_source_group("${ALL_FILES}" DST_FILES)
 
 add_library(core SHARED ${DST_FILES} ${NATVIS_PATH})
 
-target_precompile_headers(core PUBLIC "pch.h")
-
 # add_compile_definitions(TRACY_EXPORTS)
 # add_compile_definitions(IMGUI_EXPORT)
 add_compile_definitions(CORE_EXPORT)
 # add_compile_definitions(FMT_EXPORT)
 
 add_dependencies(core imgui Eigen3::Eigen JsonCpp::JsonCpp)
-target_link_libraries(core Boost::boost bcrypt imgui jsoncpp_lib jsoncpp_object JsonCpp::JsonCpp Eigen3::Eigen ${Python3_LIBRARIES} Tracy::TracyClient )
+target_link_libraries(core PRIVATE Boost::boost bcrypt imgui jsoncpp_lib jsoncpp_object JsonCpp::JsonCpp Eigen3::Eigen ${Python3_LIBRARIES} Tracy::TracyClient )

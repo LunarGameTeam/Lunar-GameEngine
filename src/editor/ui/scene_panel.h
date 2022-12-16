@@ -1,7 +1,7 @@
 #pragma once
 #include "editor/ui/base_panel.h"
 
-#include "core/event/EventModule.h"
+#include "core/event/event_module.h"
 
 #include "engine/camera.h"
 

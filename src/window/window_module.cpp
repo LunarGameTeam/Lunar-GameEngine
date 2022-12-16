@@ -4,7 +4,7 @@
 
 #include "core/core_library.h"
 #include "core/framework/luna_core.h"
-#include "core/event/EventModule.h"
+#include "core/event/event_module.h"
 #include "core/asset/asset_module.h"
 #include "core/asset/asset.h"
 

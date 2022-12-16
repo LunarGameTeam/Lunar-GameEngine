@@ -1,4 +1,5 @@
 #pragma once
+#include "core/core_config.h"
 
 //有时间再造轮子，没时间就用boost的容器了
 

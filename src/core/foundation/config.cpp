@@ -6,6 +6,8 @@
 #include "core/file/platform_module.h"
 #include "core/framework/luna_core.h"
 
+#include <boost/algorithm/string.hpp>
+
 namespace luna
 {
 }
@@ -18,23 +20,21 @@ using namespace boost::algorithm;
 
 ConfigLoader::ConfigLoader()
 {
-	TCHAR tempPath[1000];
-	auto platform_module = LunaCore::Ins()->GetModule<PlatformModule>();
-	IPlatformFileManager* file_manager = platform_module->GetPlatformFileManager();
-	GetCurrentDirectory(MAX_PATH, tempPath); //获取程序的当前目录
-	LString config_path = file_manager->EngineDir();
-	config_path = config_path + "/config.ini";
-	std::fstream fs;
-	fs.open(config_path.c_str(), std::fstream::in | std::fstream::out);
 
-	if (!fs.is_open())
-		return;
+}
 
-	LString line;
+ConfigLoader::~ConfigLoader()
+{
+}
+
+void ConfigLoader::Load(const LString& val)
+{
+	std::vector<std::string> lines;
 	LString group = "";
-
-	while (getline(fs, line.str()))
+	boost::algorithm::split(lines, val.str(), boost::is_any_of("\n"));
+	for (auto& it : lines)
 	{
+		LString line = it;
 		if (line.StartWith("["))
 		{
 			line.EraseFirst("[");
@@ -47,18 +47,12 @@ ConfigLoader::ConfigLoader()
 			{
 				auto pos = line.Find('=');
 				LString key = line.Substr(0, pos);
-				sConfigs[key].m_key = line.Substr(0, pos);
-				sConfigs[key].m_value = line.Substr(pos + 1);
-				sConfigs[key].m_group = group;
+				sConfigs[key].mKey = line.Substr(0, pos);
+				sConfigs[key].mValue = line.Substr(pos + 1);
+				sConfigs[key].mGroup = group;
 			}
 		}
 	}
-	fs.flush();
-	fs.close();
-}
-
-ConfigLoader::~ConfigLoader()
-{
 }
 
 void ConfigLoader::Save()
@@ -74,12 +68,12 @@ void ConfigLoader::Save()
 
 	for (auto& it : sConfigs)
 	{
-		auto& group_config = configs[it.second.m_group];
+		auto& group_config = configs[it.second.mGroup];
 		SerializeConfig config
 		{
-			it.second.m_group,
-			it.second.m_key,
-			it.second.m_value
+			it.second.mGroup,
+			it.second.mKey,
+			it.second.mValue
 		};
 		group_config.push_back(config);
 	}
@@ -90,7 +84,7 @@ void ConfigLoader::Save()
 		fs << group.c_str();
 		for (auto& config : it.second)
 		{
-			fs << config.m_key << "=" << config.m_value << std::endl;
+			fs << config.mKey << "=" << config.mValue << std::endl;
 		}
 	}
 	fs.flush();

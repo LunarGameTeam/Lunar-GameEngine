@@ -1,6 +1,6 @@
 #include "editor/ui/base_panel.h"
 #include "core/object/entity.h"
-#include "core/event/EventModule.h"
+#include "core/event/event_module.h"
 
 #include "window/window.h"
 

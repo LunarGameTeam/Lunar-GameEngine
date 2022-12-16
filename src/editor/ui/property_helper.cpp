@@ -5,7 +5,7 @@
 #include "core/object/component.h"
 #include "core/object/entity.h"
 #include "core/object/transform.h"
-#include "core/event/EventModule.h"
+#include "core/event/event_module.h"
 #include "core/asset/asset_module.h"
 #include "window/window.h"
 

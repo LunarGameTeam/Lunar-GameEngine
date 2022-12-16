@@ -1,11 +1,14 @@
 #pragma once
 
+#include "core/core_config.h"
+
 #include <Eigen/Dense>
 
 #include <numbers>
 
 namespace luna
 {
+
 using LVector2f = Eigen::Vector2f;
 using LVector3f = Eigen::Vector3f;
 using LVector3d = Eigen::Vector3d;

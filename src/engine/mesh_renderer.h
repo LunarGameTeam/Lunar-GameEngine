@@ -1,6 +1,6 @@
 #pragma once
 
-#include "render/pch.h"
+#include "render/render_config.h"
 #include "render/asset/mesh_asset.h"
 #include "render/asset/texture_asset.h"
 

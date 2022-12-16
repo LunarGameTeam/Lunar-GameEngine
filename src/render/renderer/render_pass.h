@@ -1,6 +1,6 @@
 #pragma once
 
-#include "render/pch.h"
+#include "render/render_config.h"
 #include "render/renderer/render_target.h"
 #include "render/renderer/render_obj.h"
 
