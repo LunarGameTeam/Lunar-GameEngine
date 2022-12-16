@@ -1,11 +1,16 @@
 {
-   "00000000-0000-0000-0000-000000000000" : {
-    "textures":[
-        "/assets/built-in/skybox/SkyBox1.png",
-        "/assets/built-in/skybox/SkyBox3.png",
-        "/assets/built-in/skybox/SkyBox4.png",
-        "/assets/built-in/skybox/SkyBox5.png",
-        "/assets/built-in/skybox/SkyBox0.png",
-        "/assets/built-in/skybox/SkyBox2.png"]
-    }
+   "objects" : [
+      {
+         "__class__" : "TextureCube",
+         "__fid__" : 1,
+         "name" : "",
+         "textures" : [
+            "/assets/built-in/skybox/SkyBox0.png",
+            "/assets/built-in/skybox/SkyBox1.png",
+            "/assets/built-in/skybox/SkyBox2.png",
+            "/assets/built-in/skybox/SkyBox3.png",
+            "/assets/built-in/skybox/SkyBox4.png",
+            "/assets/built-in/skybox/SkyBox5.png"]
+      }
+   ]
 }

@@ -64,8 +64,7 @@ RegisterTypeEmbedd_Imp(EditorModule)
 }
 
 
-EditorModule::EditorModule() :
-	mScreenRt(this)
+EditorModule::EditorModule()
 {
 	sEditorModule = this;
 	mNeedTick = true;

@@ -1,39 +1,43 @@
 {
-   "00000000-0000-0000-0000-000000000000" : {
-      "name" : "",
-      "params" : [ "d154f606-3381-436c-9343-71fe0fb101c4",
-      "d154f606-3381-436c-9343-71fe0fb101c5",
-      "d154f606-3381-436c-9343-71fe0fb101c6",
-      "d154f606-3381-436c-9343-71fe0fb101c7"],
-      "shader" : "/assets/built-in/pbr.hlsl",
-      "type_name" : "MaterialInstance"
-   },
-   "d154f606-3381-436c-9343-71fe0fb101c4" : {
-      "name" : "",
-      "param_name" : "_MainTex",
-      "texture" : "/assets/built-in/white.png",
-      "type" : 5,
-      "type_name" : "MaterialParamTexture2D"
-   },
-   "d154f606-3381-436c-9343-71fe0fb101c5" : {
-      "name" : "",
-      "param_name" : "_Metallic",
-      "value" : 0.1,
-      "type" : 1,
-      "type_name" : "MaterialParamFloat"
-   },
-   "d154f606-3381-436c-9343-71fe0fb101c6" : {
-      "name" : "",
-      "param_name" : "_AlebdoColor",
-      "value" : [1,1,1],
-      "type" : 3,
-      "type_name" : "MaterialParamFloat3"
-   },
-   "d154f606-3381-436c-9343-71fe0fb101c7" : {
-      "name" : "",
-      "param_name" : "_Roughness",
-      "value" : 0.1,
-      "type" : 1,
-      "type_name" : "MaterialParamFloat"
-   }
+   "objects" : [
+      {
+         "__class__" : "MaterialTemplateAsset",
+         "__fid__" : 1,
+         "name" : "",
+         "params" : [ 5, 4, 3, 2 ],
+         "shader" : "/assets/built-in/pbr.hlsl"
+      },
+      {
+         "__class__" : "MaterialParamFloat",
+         "__fid__" : 2,
+         "name" : "",
+         "param_name" : "_Roughness",
+         "type" : 1,
+         "value" : 0.10000000149011612
+      },
+      {
+         "__class__" : "MaterialParamFloat3",
+         "__fid__" : 3,
+         "name" : "",
+         "param_name" : "_AlebdoColor",
+         "type" : 3,
+         "value" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "MaterialParamFloat",
+         "__fid__" : 4,
+         "name" : "",
+         "param_name" : "_Metallic",
+         "type" : 1,
+         "value" : 0.10000000149011612
+      },
+      {
+         "__class__" : "MaterialParamTexture2D",
+         "__fid__" : 5,
+         "name" : "",
+         "param_name" : "_MainTex",
+         "texture" : "/assets/built-in/white.png",
+         "type" : 5
+      }
+   ]
 }

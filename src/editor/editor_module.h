@@ -98,7 +98,7 @@ private:
 
 	render::RHISwapchainDesc mWindowDesc;
 	render::RHIDescriptorPool* mImguiSrvHeap;
-	TSubPtr<render::RenderTarget> mScreenRt;
+	render::RenderTarget* mScreenRt;
 	
 
 	bool mNeedResize = false;

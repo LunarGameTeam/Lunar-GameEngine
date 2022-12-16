@@ -32,8 +32,7 @@ void LBinaryWithHeadAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedP
 	Dictionary::FromBinary(json_header, (all_head_size + 1) * sizeof(byte), val);
 	std::string ceshi = (char*)json_header;
 	Dictionary dict(val);
-	BinarySerializer serializer(dict);
-	DeSerialize(serializer);
+	
 	OnAssetBinaryRead(data_header);
 	OnLoad();
 }

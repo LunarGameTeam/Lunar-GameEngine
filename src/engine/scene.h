@@ -37,7 +37,7 @@ public:
 private:
 	bool mInit = false;
 	render::RenderScene* mRenderScene;
-	TSubPtr<DirectionLightComponent> m_main_light;
+	DirectionLightComponent* m_main_light;
 	TSubPtrArray<Entity> m_entities;
 
 	friend class SceneModule;

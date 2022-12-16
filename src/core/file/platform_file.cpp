@@ -180,7 +180,7 @@ bool WindowsFileManager::DisposeFileManager()
 
 LSharedPtr<LFile> WindowsFileManager::WriteSync(const LPath &path, const LVector<byte> &data)
 {
-	HANDLE file_handle = ::CreateFileA(path.AsStringAbs().c_str(), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, NULL, NULL);
+	HANDLE file_handle = ::CreateFileA(path.AsStringAbs().c_str(), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, NULL, NULL);
 	LSharedPtr<LFile> file = MakeShared<LFile>();
 	if (file_handle == INVALID_HANDLE_VALUE)
 	{

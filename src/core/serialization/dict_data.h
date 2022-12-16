@@ -94,6 +94,11 @@ public:
 	{
 		return mValue.size();
 	}
+
+	void Resize(size_t size)
+	{
+		mValue.resize(size);
+	}
 	
 	template<typename T>
 	bool Set(int index, const T &t)

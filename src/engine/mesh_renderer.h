@@ -18,13 +18,14 @@ public:
 		m_mesh(this),
 		m_material(this)
 	{
+
 	}
 
 	bool PopulateRenderNode(RenderObject& render_nodes) override;
 
 	void SetMesh(MeshAsset* mesh)
 	{
-		m_mesh.SetPtr(mesh);
+		m_mesh = mesh;
 		m_dirty = true;
 	}
 

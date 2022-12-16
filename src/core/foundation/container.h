@@ -53,6 +53,11 @@ template<typename T, typename U>
 class DoubleConverter
 {
 public:
+	DoubleConverter()
+	{
+
+	}
+
 	DoubleConverter(std::initializer_list<std::pair<T,U>> list)
 	{
 		for (auto& it : list)
@@ -64,6 +69,12 @@ public:
 	U Get(const T& t)
 	{
 		return mData1[t];
+	}
+
+	void Set(const T& t, const U& u)
+	{
+		mData1[t] = u;
+		mData2[u] = t;
 	}
 
 	T Get(const U& u)

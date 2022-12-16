@@ -34,8 +34,8 @@ luna::Dictionary Dictionary::GetDict(const LString &key)
 
 luna::List Dictionary::GetList(const LString &key)
 {
-	Json::Value &val = mValue[key.c_str()];
-	List res(val);
+	Json::Value &val = mValue[key.c_str()];	
+	List res(val);	
 	detail::convert_from_value(val, res);
 	return res;
 }

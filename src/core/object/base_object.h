@@ -168,6 +168,7 @@ protected:
 
 private:
 	bool                     mTransient     = false;
+	uint64_t                 mInstanceID;
 	LUuid                    mUUID          = boost::uuids::nil_uuid();
 	WeakPtrHandle*           mHandle;
 	TWeakPtr<LObject>        mSelfHandle;
@@ -182,6 +183,7 @@ private:
 
 	friend class LType;
 	friend class SceneSerializer;
+	friend class JsonSerializer;
 	friend class AssetModule;
 	
 	template<typename T>

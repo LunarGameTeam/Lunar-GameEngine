@@ -2,6 +2,7 @@
 #include "render/render_module.h"
 #include "engine/light.h"
 #include "core/serialization/serialization.h"
+#include "core/asset/asset_module.h"
 
 namespace luna
 {
@@ -18,7 +19,6 @@ RegisterTypeEmbedd_Imp(Scene)
 
 
 Scene::Scene() :
-	m_main_light(this),
 	m_entities(this)
 {
 	mRenderScene = sRenderModule->AddScene();
@@ -70,7 +70,7 @@ void Scene::Tick(float deltaTime)
 
 DirectionLightComponent* Scene::GetMainDirectionLight()
 {
-	return m_main_light.Get();
+	return m_main_light;
 }
 
 void Scene::OnLoad()
@@ -92,7 +92,6 @@ void Scene::OnLoad()
 			}			
 		}
 	}
-
 }
 
 }

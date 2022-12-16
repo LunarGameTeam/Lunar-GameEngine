@@ -1,264 +1,216 @@
 {
-   "00000000-0000-0000-0000-000000000000" : {
-      "entities" : [
-         "e12985f5-187d-4b62-a75f-55f18a4c1929",
-         "23ea5d9a-278e-4a24-8fc8-a32ad64647af",
-         "87de21ac-ae22-4dca-8985-a01ca4409ab2",
-         "68a26b36-09f0-4b76-b845-c51db21256f8",
-         "b60bd26f-fefb-44e7-a0c9-f2c99a059e8d",
-         "74c4b8c8-7377-4fac-90b5-b7f3cbcf45e8",
-         "0cdacd26-7166-4692-a652-9ddeb678c147"
-      ],
-      "main_light" : "128b8a04-b42b-4f1d-95e8-36e006625f79",
-      "name" : "",
-      "type_name" : "Scene"
-   },
-   "07ab0537-608a-42ad-b360-f4cc5c74e9fe" : {
-      "material_asset" : "/assets/built-in/skybox/skybox.mat",
-      "name" : "",
-      "params" : null,
-      "type_name" : "MaterialInstance"
-   },
-   "0cdacd26-7166-4692-a652-9ddeb678c147" : {
-      "children" : null,
-      "component_list" : [
-         "482c54b2-706d-44cd-bb3d-1337d02c019d",
-         "128b8a04-b42b-4f1d-95e8-36e006625f79"
-      ],
-      "name" : "DirectionalLight",
-      "type_name" : "Entity"
-   },
-   "11712df8-0224-40b0-a2ac-71b402be8dcd" : {
-      "local_position" : [ -4.0, 2.0, 0.0 ],
-      "local_rotation" : [
-         0.25000002980232239,
-         0.24999979138374329,
-         0.066987387835979462,
-         0.93301272392272949
-      ],
-      "local_scale" : [ 1.0, 1.0, 1.0 ],
-      "name" : "",
-      "type_name" : "Transform"
-   },
-   "128b8a04-b42b-4f1d-95e8-36e006625f79" : {
-      "color" : [ 1.0, 0.94999998807907104, 0.83899998664855957 ],
-      "name" : "",
-      "type_name" : "DirectionLightComponent"
-   },
-   "2399bd8b-b176-4e54-802c-d74ddf3cc54b" : {
-      "local_position" : [ 0.0, 2.0, 0.0 ],
-      "local_rotation" : [ 0.25881904363632202, 0.0, 0.0, 0.96592581272125244 ],
-      "local_scale" : [ 1.0, 1.0, 1.0 ],
-      "name" : "",
-      "type_name" : "Transform"
-   },
-   "23ea5d9a-278e-4a24-8fc8-a32ad64647af" : {
-      "children" : null,
-      "component_list" : [
-         "ee106a6c-c83d-454b-a9f3-27aa0667c0c7",
-         "9b007564-7582-430e-9c11-ebd3341014dc"
-      ],
-      "name" : "Skybox",
-      "type_name" : "Entity"
-   },
-   "292c6a0e-455b-46d2-9ab4-235cbe0788c0" : {
-      "material" : "c5ca5380-16ce-4ab6-ab2f-03464f410ebc",
-      "mesh" : "/assets/built-in/sphere.lmesh",
-      "name" : "",
-      "type_name" : "MeshRenderer"
-   },
-   "482c54b2-706d-44cd-bb3d-1337d02c019d" : {
-      "local_position" : [ 0.0, 0.0, 0.0 ],
-      "local_rotation" : [
-         0.26929685473442078,
-         0.39462968707084656,
-         0.12215859442949295,
-         0.86995631456375122
-      ],
-      "local_scale" : [ 1.0, 1.0, 1.0 ],
-      "name" : "",
-      "type_name" : "Transform"
-   },
-   "5de3f5cc-78a0-4163-9124-7656491e9edd" : {
-      "name" : "",
-      "type_name" : "CameraComponent"
-   },
-   "68a26b36-09f0-4b76-b845-c51db21256f8" : {
-      "children" : null,
-      "component_list" : [
-         "11712df8-0224-40b0-a2ac-71b402be8dcd",
-         "74cae403-a71f-4696-88a4-48445fb097d7"
-      ],
-      "name" : "Box_1",
-      "type_name" : "Entity"
-   },
-   "6f4438c0-6f2a-42d7-857d-a7e382ebc9bf" : {
-      "local_position" : [ 4.0, 2.0, 0.0 ],
-      "local_rotation" : [ 0.0, 0.0, 0.25881904363632202, 0.96592581272125244 ],
-      "local_scale" : [ 1.0, 1.0, 1.0 ],
-      "name" : "",
-      "type_name" : "Transform"
-   },
-   "74c4b8c8-7377-4fac-90b5-b7f3cbcf45e8" : {
-      "children" : null,
-      "component_list" : [
-         "c9757d23-9a5a-438f-bcaa-059f1fcaae09",
-         "b16c1e44-dc4c-494b-a456-1342c9be969f"
-      ],
-      "name" : "Plane",
-      "type_name" : "Entity"
-   },
-   "74cae403-a71f-4696-88a4-48445fb097d7" : {
-      "material" : "b063631c-52f9-4c93-9646-a70dedeabfea",
-      "mesh" : "/assets/built-in/box.lmesh",
-      "name" : "",
-      "type_name" : "MeshRenderer"
-   },
-   "87de21ac-ae22-4dca-8985-a01ca4409ab2" : {
-      "children" : null,
-      "component_list" : [
-         "2399bd8b-b176-4e54-802c-d74ddf3cc54b",
-         "cd0bcb75-cb25-4f08-9829-92181eb29a17"
-      ],
-      "name" : "Box_2",
-      "type_name" : "Entity"
-   },
-   "9b007564-7582-430e-9c11-ebd3341014dc" : {
-      "material" : "07ab0537-608a-42ad-b360-f4cc5c74e9fe",
-      "mesh" : "/assets/built-in/inside_sphere.lmesh",
-      "name" : "",
-      "type_name" : "MeshRenderer"
-   },
-   "a0cd7058-9556-4f11-ad52-44cc30a4546c" : {
-      "material_asset" : "/assets/built-in/pbr.mat",
-      "name" : "",
-      "params" : null,
-      "type_name" : "MaterialInstance"
-   },
-   "b063631c-52f9-4c93-9646-a70dedeabfea" : {
-      "material_asset" : "/assets/built-in/pbr.mat",
-      "name" : "",
-      "params" : null,
-      "type_name" : "MaterialInstance"
-   },
-   "b16c1e44-dc4c-494b-a456-1342c9be969f" : {
-      "material" : "a0cd7058-9556-4f11-ad52-44cc30a4546c",
-      "mesh" : "/assets/built-in/plane.lmesh",
-      "name" : "",
-      "type_name" : "MeshRenderer"
-   },
-   "b60bd26f-fefb-44e7-a0c9-f2c99a059e8d" : {
-      "children" : null,
-      "component_list" : [
-         "6f4438c0-6f2a-42d7-857d-a7e382ebc9bf",
-         "292c6a0e-455b-46d2-9ab4-235cbe0788c0"
-      ],
-      "name" : "Box_3",
-      "type_name" : "Entity"
-   },
-   "c5ca5380-16ce-4ab6-ab2f-03464f410ebc" : {
-      "material_asset" : "/assets/built-in/pbr.mat",
-      "name" : "",
-      "params" : null,
-      "type_name" : "MaterialInstance"
-   },
-   "c6b62383-8d6c-4ae7-8723-7fbe6e03c4a6" : {
-      "local_position" : [ 0.0, 0.0, -30.0 ],
-      "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
-      "local_scale" : [ 1.0, 1.0, 1.0 ],
-      "name" : "",
-      "type_name" : "Transform"
-   },
-   "c9757d23-9a5a-438f-bcaa-059f1fcaae09" : {
-      "local_position" : [ 0.0, 6.0, 0.0 ],
-      "local_rotation" : [
-         0.70710676908493042,
-         3.1188667435344541e-06,
-         -3.1188667435344541e-06,
-         0.70710676908493042
-      ],
-      "local_scale" : [ 30.0, 30.0, 1.0 ],
-      "name" : "",
-      "type_name" : "Transform"
-   },
-   "cd0bcb75-cb25-4f08-9829-92181eb29a17" : {
-      "material" : "d7408183-9e50-4c89-aef4-0fcbccdab284",
-      "mesh" : "/assets/built-in/box.lmesh",
-      "name" : "",
-      "type_name" : "MeshRenderer"
-   },
-   "d7408183-9e50-4c89-aef4-0fcbccdab284" : {
-      "material_asset" : "/assets/built-in/pbr.mat",
-      "name" : "",
-      "params" : null,
-      "type_name" : "MaterialInstance"
-   },
-   "e12985f5-187d-4b62-a75f-55f18a4c1929" : {
-      "children" : null,
-      "component_list" : [
-         "c6b62383-8d6c-4ae7-8723-7fbe6e03c4a6",
-         "5de3f5cc-78a0-4163-9124-7656491e9edd"
-      ],
-      "name" : "MainCamera",
-      "type_name" : "Entity"
-   },
-   "ee106a6c-c83d-454b-a9f3-27aa0667c0c7" : {
-      "local_position" : [ 0.0, 0.0, 0.0 ],
-      "local_rotation" : [
-         5.2108039664568433e-15,
-         1.1920928955078125e-07,
-         4.3711391839451608e-08,
-         1.0
-      ],
-      "local_scale" : [ 100.0, 100.0, 100.0 ],
-      "name" : "",
-      "type_name" : "Transform"
-   }
-}
-}
-54b-a9f3-27aa0667c0c7" : {
-      "local_position" : [ 0.0, 0.0, 0.0 ],
-      "local_rotation" : [
-         2.6627422489156061e-09,
-         -2.6627426930048159e-09,
-         0.70710676908493042,
-         0.70710676908493042
-      ],
-      "local_scale" : [ 100.0, 100.0, 100.0 ],
-      "name" : "",
-      "type_name" : "Transform"
-   }
-}
-.0 ]
-   },
-   "d154f606-3381-436c-9343-71fe0fb101c7" : {
-      "name" : "",
-      "param_name" : "_Roughness",
-      "type" : 1,
-      "type_name" : "MaterialParamFloat",
-      "value" : 0.10000000149011612
-   },
-   "d7408183-9e50-4c89-aef4-0fcbccdab284" : {
-      "material_asset" : "/assets/built-in/pbr.mat",
-      "name" : "",
-      "params" : [
-      ],
-      "type_name" : "MaterialInstance"
-   },
-   "e12985f5-187d-4b62-a75f-55f18a4c1929" : {
-      "children" : null,
-      "component_list" : [
-         "c6b62383-8d6c-4ae7-8723-7fbe6e03c4a6",
-         "5de3f5cc-78a0-4163-9124-7656491e9edd"
-      ],
-      "name" : "MainCamera",
-      "type_name" : "Entity"
-   },
-   "ee106a6c-c83d-454b-a9f3-27aa0667c0c7" : {
-      "local_position" : [ 0.0, 0.0, 0.0 ],
-      "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
-      "local_scale" : [ 100.0, 100.0, 100.0 ],
-      "name" : "",
-      "type_name" : "Transform"
-   }
+   "objects" : [
+      {
+         "__class__" : "Scene",
+         "__fid__" : 1,
+         "entities" : [ 25, 21, 17, 13, 9, 5, 2 ],
+         "name" : ""
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 2,
+         "children" : [],
+         "component_list" : [ 4, 3 ],
+         "name" : "DirectionalLight"
+      },
+      {
+         "__class__" : "DirectionLightComponent",
+         "__fid__" : 3,
+         "color" : [ 1.0, 0.94999998807907104, 0.83899998664855957 ],
+         "name" : ""
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 4,
+         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "local_rotation" : [
+            0.26929685473442078,
+            0.39462968707084656,
+            0.12215859442949295,
+            0.86995631456375122
+         ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ],
+         "name" : ""
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 5,
+         "children" : [],
+         "component_list" : [ 8, 6 ],
+         "name" : "Plane"
+      },
+      {
+         "__class__" : "MeshRenderer",
+         "__fid__" : 6,
+         "material" : 7,
+         "mesh" : "/assets/built-in/plane.lmesh",
+         "name" : ""
+      },
+      {
+         "__class__" : "MaterialInstance",
+         "__fid__" : 7,
+         "material_asset" : "/assets/built-in/pbr.mat",
+         "name" : "",
+         "params" : []
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 8,
+         "local_position" : [ 0.0, 6.0, 0.0 ],
+         "local_rotation" : [
+            0.70710676908493042,
+            3.1188667435344541e-06,
+            -3.1188667435344541e-06,
+            0.70710676908493042
+         ],
+         "local_scale" : [ 30.0, 30.0, 1.0 ],
+         "name" : ""
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 9,
+         "children" : [],
+         "component_list" : [ 12, 10 ],
+         "name" : "Box_3"
+      },
+      {
+         "__class__" : "MeshRenderer",
+         "__fid__" : 10,
+         "material" : 11,
+         "mesh" : "/assets/built-in/sphere.lmesh",
+         "name" : ""
+      },
+      {
+         "__class__" : "MaterialInstance",
+         "__fid__" : 11,
+         "material_asset" : "/assets/built-in/pbr.mat",
+         "name" : "",
+         "params" : []
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 12,
+         "local_position" : [ 4.0, 2.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.25881904363632202, 0.96592581272125244 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ],
+         "name" : ""
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 13,
+         "children" : [],
+         "component_list" : [ 16, 14 ],
+         "name" : "Box_1"
+      },
+      {
+         "__class__" : "MeshRenderer",
+         "__fid__" : 14,
+         "material" : 15,
+         "mesh" : "/assets/built-in/box.lmesh",
+         "name" : ""
+      },
+      {
+         "__class__" : "MaterialInstance",
+         "__fid__" : 15,
+         "material_asset" : "/assets/built-in/pbr.mat",
+         "name" : "",
+         "params" : []
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 16,
+         "local_position" : [ -4.0, 2.0, 0.0 ],
+         "local_rotation" : [
+            0.25000002980232239,
+            0.24999979138374329,
+            0.066987387835979462,
+            0.93301272392272949
+         ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ],
+         "name" : ""
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 17,
+         "children" : [],
+         "component_list" : [ 20, 18 ],
+         "name" : "Box_2"
+      },
+      {
+         "__class__" : "MeshRenderer",
+         "__fid__" : 18,
+         "material" : 19,
+         "mesh" : "/assets/built-in/box.lmesh",
+         "name" : ""
+      },
+      {
+         "__class__" : "MaterialInstance",
+         "__fid__" : 19,
+         "material_asset" : "/assets/built-in/pbr.mat",
+         "name" : "",
+         "params" : []
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 20,
+         "local_position" : [ 0.0, 2.0, 0.0 ],
+         "local_rotation" : [ 0.25881904363632202, 0.0, 0.0, 0.96592581272125244 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ],
+         "name" : ""
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 21,
+         "children" : [],
+         "component_list" : [ 24, 22 ],
+         "name" : "Skybox"
+      },
+      {
+         "__class__" : "MeshRenderer",
+         "__fid__" : 22,
+         "material" : 23,
+         "mesh" : "/assets/built-in/inside_sphere.lmesh",
+         "name" : ""
+      },
+      {
+         "__class__" : "MaterialInstance",
+         "__fid__" : 23,
+         "material_asset" : "/assets/built-in/skybox/skybox.mat",
+         "name" : "",
+         "params" : []
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 24,
+         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "local_rotation" : [
+            5.2108039664568433e-15,
+            1.1920928955078125e-07,
+            4.3711391839451608e-08,
+            1.0
+         ],
+         "local_scale" : [ 100.0, 100.0, 100.0 ],
+         "name" : ""
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 25,
+         "children" : [],
+         "component_list" : [ 27, 26 ],
+         "name" : "MainCamera"
+      },
+      {
+         "__class__" : "CameraComponent",
+         "__fid__" : 26,
+         "name" : ""
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 27,
+         "local_position" : [ 0.0, 0.0, -30.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ],
+         "name" : ""
+      }
+   ]
 }
