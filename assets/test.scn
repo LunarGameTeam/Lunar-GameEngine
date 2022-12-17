@@ -43,7 +43,7 @@
          "__class__" : "MeshRenderer",
          "__fid__" : 6,
          "material" : 7,
-         "mesh" : "/assets/built-in/plane.lmesh",
+         "mesh" : "/assets/built-in/plane.obj",
          "name" : ""
       },
       {
@@ -56,14 +56,9 @@
       {
          "__class__" : "Transform",
          "__fid__" : 8,
-         "local_position" : [ 0.0, 6.0, 0.0 ],
-         "local_rotation" : [
-            0.70710676908493042,
-            3.1188667435344541e-06,
-            -3.1188667435344541e-06,
-            0.70710676908493042
-         ],
-         "local_scale" : [ 30.0, 30.0, 1.0 ],
+         "local_position" : [ 0.0, -6.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, -4.4107437133789062e-06, 1.0 ],
+         "local_scale" : [ 30.0, 1.0, 30.0 ],
          "name" : ""
       },
       {
@@ -77,7 +72,7 @@
          "__class__" : "MeshRenderer",
          "__fid__" : 10,
          "material" : 11,
-         "mesh" : "/assets/built-in/sphere.lmesh",
+         "mesh" : "/assets/built-in/sphere.obj",
          "name" : ""
       },
       {
@@ -106,7 +101,7 @@
          "__class__" : "MeshRenderer",
          "__fid__" : 14,
          "material" : 15,
-         "mesh" : "/assets/built-in/box.lmesh",
+         "mesh" : "/assets/built-in/box.obj",
          "name" : ""
       },
       {
@@ -140,7 +135,7 @@
          "__class__" : "MeshRenderer",
          "__fid__" : 18,
          "material" : 19,
-         "mesh" : "/assets/built-in/box.lmesh",
+         "mesh" : "/assets/built-in/box.obj",
          "name" : ""
       },
       {
@@ -169,7 +164,7 @@
          "__class__" : "MeshRenderer",
          "__fid__" : 22,
          "material" : 23,
-         "mesh" : "/assets/built-in/inside_sphere.lmesh",
+         "mesh" : "/assets/built-in/inside_sphere.obj",
          "name" : ""
       },
       {

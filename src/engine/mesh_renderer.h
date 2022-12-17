@@ -5,6 +5,7 @@
 #include "render/asset/texture_asset.h"
 
 #include "engine/render_component.h"
+#include "render/asset/obj_asset.h"
 
 
 namespace luna::render
@@ -16,7 +17,8 @@ class ENGINE_API MeshRenderer : public RendererComponent
 public:
 	MeshRenderer() :
 		m_mesh(this),
-		m_material(this)
+		m_material(this),
+		mObjAsset(this)
 	{
 
 	}
@@ -41,6 +43,7 @@ public:
 	void OnActivate() override;
 
 private:
+	TSubPtr<ObjAsset> mObjAsset;
 	TSubPtr<MeshAsset> m_mesh;
 	TSubPtr<MaterialInstance> m_material;
 };

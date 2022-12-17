@@ -3,10 +3,9 @@
 #include "core/core_library.h"
 #include "core/framework/module.h"
 
-#include <d3dcompiler.h>
-#include <D3DCompiler.inl>
 
 #include <algorithm>
+
 
 
 namespace luna::render
@@ -108,6 +107,7 @@ void MeshAsset::OnAssetBinaryWrite(LVector<byte>& data)
 		dst += mSubMesh[idx]->mIndexData.size() * sizeof(uint32_t);
 	}
 };
+
 
 // void SubMesh::Bind()
 // {

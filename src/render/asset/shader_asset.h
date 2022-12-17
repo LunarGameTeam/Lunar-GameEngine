@@ -9,6 +9,7 @@
 
 namespace luna::render
 {
+
 class RENDER_API ShaderAsset : public LTextAsset
 {
 	RegisterTypeEmbedd(ShaderAsset, LTextAsset)

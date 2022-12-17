@@ -204,10 +204,6 @@ void JsonSerializer::SerializeProperty(LProperty& prop, LObject* target, Diction
 			else
 			{
 				LBasicAsset *asset = dynamic_cast<LBasicAsset *>(ptr.Get());
-				if (propType->GetTemplateArg()->IsDerivedFrom(LBasicAsset::StaticType()))
-				{
-					sAssetModule->SaveAsset(asset, asset->GetAssetPath());
-				}
 				
 				dict.Set(prop.GetName(), asset->GetAssetPath());
 			}

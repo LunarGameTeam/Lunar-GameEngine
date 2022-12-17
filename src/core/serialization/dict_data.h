@@ -90,12 +90,12 @@ public:
 
 	}
 
-	inline size_t Size()
+	inline uint32_t Size()
 	{
 		return mValue.size();
 	}
 
-	void Resize(size_t size)
+	void Resize(uint32_t size)
 	{
 		mValue.resize(size);
 	}

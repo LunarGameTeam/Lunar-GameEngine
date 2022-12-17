@@ -60,6 +60,7 @@ class CORE_API LTextAsset : public LBasicAsset
 	RegisterTypeEmbedd(LTextAsset, LBasicAsset)
 public:
 	LTextAsset();
+
 	const LString &GetContent() const
 	{
 		return mContent;

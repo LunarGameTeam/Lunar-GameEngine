@@ -10,7 +10,7 @@ namespace render
 RegisterTypeEmbedd_Imp(MeshRenderer)
 {
 	cls->Ctor<MeshRenderer>();
-	cls->Property< &Self::m_mesh>("mesh");
+	cls->Property< &Self::mObjAsset>("mesh");
 	cls->Property< &Self::m_material>("material");
 }
 
@@ -39,7 +39,7 @@ void MeshRenderer::OnCreate()
 	Super::OnCreate();
 	auto ro  = GetScene()->GetRenderScene()->CreateRenderObject();
 	ro->mMaterial = m_material.Get();
-	ro->mMesh = m_mesh->GetSubMeshAt(0);
+	ro->mMesh = mObjAsset->GetSubMeshAt(0);
 	if (ro->mMesh->mVB.get() == nullptr)
 	{
 		ro->mMesh->Init();
