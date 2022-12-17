@@ -1,89 +1,106 @@
 #pragma once
 
 #include <functional>
-#include "core/foundation/container.h"
-#include "core/memory/ptr.h"
+
+#include <list>
+
+#include <memory>
 
 namespace luna
 {
 
-template<typename RetVal, typename... Param>
-class LFunctionList;
-
-template<typename RetVal, typename... Param>
-class LFunction
+struct ActionBase
 {
-	using FunctionType = std::function<RetVal(Param...)>;
-public:
-	FunctionType _func;
-	LWeakPtr<LFunctionList< RetVal, Param...>> _owner;
 
-public:
-	~LFunction()
+};
+
+template<typename RetVal, typename... Param>
+struct SignalActionList;
+
+
+template<typename RetVal, typename... Param>
+struct SignalAction : ActionBase
+{
+	using std_function_t = std::function<RetVal(Param...)>;
+	using action_list_t = SignalActionList<RetVal, Param...>;
+
+	std_function_t mRealFunc;
+	std::weak_ptr<action_list_t> mOwner;
+
+
+	~SignalAction()
 	{
-		auto ptr = _owner.lock();
-		if (ptr)
-		{
-			ptr->m_func_list.remove_if([this](auto ref) {
-				return ref.lock().get() == this;
-			});
-		}
+		auto ptr = mOwner.lock();
+		if (!ptr)
+			return;		
+		ptr->mActions.remove_if([this](auto ref) {
+			return ref.lock().get() == this;
+		});
+		
 	}
 };
 
 template<typename RetVal, typename... Param>
-class LFunctionList
+struct SignalActionList
 {
-public:
-	using FunctionHandleType = LWeakPtr < LFunction<RetVal, Param...> >;
+	using action_t = SignalAction<RetVal, Param...>;
 
-public:
-	LList<FunctionHandleType> m_func_list;
-};
-
-template<typename RetVal, typename... Param>
-class SignalHandle
-{
-	using FunctionType = std::function<RetVal(Param...)>;
-	using SignatureType = LFunction<RetVal, Param...>;
-public:
-	SignalHandle()
+	void Broadcast(Param&& ...params)
 	{
-		_signal = MakeShared<LFunctionList<RetVal, Param... >>();
-	}
-
-	LSharedPtr<SignatureType> Bind(FunctionType func)
-	{
-		LSharedPtr<SignatureType> signature = MakeShared<SignatureType>();
-		signature->_func = func;
-		LWeakPtr< SignatureType> weak = signature;
-		signature->_owner = _signal;
-		_signal->m_func_list.emplace_back(weak);
-		return signature;
-	}
-	void Remove(SignatureType func)
-	{
-		_signal.m_signatures.remove(func);
-	}
-	void BroadCast(Param... param)
-	{
-		for (LWeakPtr<SignatureType> node : _signal->m_func_list)
+		for (auto it : mActions)
 		{
-			if (!node.expired())
+			if (!it.expired())
 			{
-				node.lock()->_func(param...);
+				it.lock()->mRealFunc(std::forward<Param>(params)...);
 			}
 		}
+
 	}
+public:
+	std::list<std::weak_ptr<action_t>> mActions;
+};
+
+using ActionHandle = std::shared_ptr< ActionBase>;
+
+
+template<typename RetVal, typename... Param>
+struct Signal
+{	
+	using action_t = SignalAction<RetVal, Param...>;
+	using action_list_t = SignalActionList<RetVal, Param...>;
+public:
+	Signal()
+	{
+		mListeners.reset(new action_list_t());
+	}
+
+	ActionHandle Bind(action_t::std_function_t func)
+	{
+		action_t* action = new action_t();
+		action->mRealFunc = func;
+		action->mOwner = mListeners;
+
+		ActionHandle actionHandle((ActionBase*)action);
+		std::shared_ptr<action_t> actionHandle2 = std::static_pointer_cast<action_t>(actionHandle);
+		std::weak_ptr<action_t> weakPtr = actionHandle2;
+		mListeners->mActions.emplace_back(weakPtr);
+		return actionHandle;
+	}
+
+	inline void BroadCast(Param&&... param) const
+	{
+		mListeners->Broadcast(std::forward<Param>(param)...);
+	}
+
 	void Clear()
 	{
-		_signal->m_func_list.clear();
+		mListeners->mActions.clear();
 	}
 
 private:
-	LSharedPtr<LFunctionList<RetVal, Param...>> _signal;
+	std::shared_ptr<action_list_t> mListeners;
 };
 
-#define SIGNAL(DelegateTypeName,...) SignalHandle<void, __VA_ARGS__> DelegateTypeName;
+#define SIGNAL(name,...) Signal<void, __VA_ARGS__> name;
 
 }
