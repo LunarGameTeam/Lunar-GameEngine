@@ -31,5 +31,6 @@ class PyHierarchyEditor(editor.HierarchyEditor):
                 luna.imgui.tree_pop()
 
     def on_entity_clicked(self, hovered, held, entity):
-        EditorCore.instance().inspector_panel.set_selected(entity)
+        if held:
+            EditorCore.instance().inspector_panel.set_selected(entity)
         pass

@@ -24,6 +24,9 @@ class PyInspectorEditor(editor.InspectorEditor):
                 if comp:
                     comp_type = comp.__class__
                     properties: list[LProperty] = comp_type.get_properties()
+                    width = 50
+                    for prop in properties:
+                        width = max(luna.imgui.calc_text_size(prop.name))
                     for prop in properties:
                         luna.imgui.text(prop.name)
                         luna.imgui.same_line(50, 16)
