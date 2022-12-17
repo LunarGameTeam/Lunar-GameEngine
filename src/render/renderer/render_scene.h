@@ -17,39 +17,40 @@ class RENDER_API RenderScene :public LObject
 public:
 	RenderScene(int32_t scene_id);
 	~RenderScene() = default;
-	void Init();
+
 	void Render(FrameGraphBuilder* FG);
 
-
 public:
-	void UpdateRenderObject();
-
-	Light* AddMainLight();
-
+	Light* CreateMainDirLight();
 	RenderObject* CreateRenderObject();
 	RenderView* CreateRenderView();
 
-	Light& GetMainDirLight() { return mDirLight; };
-	const int32_t GetSceneId()const { return mSceneID; }
-	const LVector<RenderObject*>& GetRenderObjects()const { return mRenderObjects; };
+	inline void SetSceneBufferDirty() { mBufferDirty = true; }
+	
+	const LVector<RenderObject*>& GetRenderObjects() const { return mRenderObjects; };
 
-	const size_t GetRenderViewNum()const { return mViews.Size(); }
+	size_t GetRenderViewNum()const { return mViews.Size(); }
 
-	const TSubPtrArray<RenderView>& GetAllView()const { return mViews; };
+	const TSubPtrArray<RenderView>& GetAllView() const { return mViews; };
 
 	RenderView* GetRenderView(const int32_t view_id)const { return mViews[view_id]; };
-	RHIResourcePtr									 mROBuffer;
-	RHIViewPtr										 mROBufferView;
 
-	RHIResourcePtr									 mSceneBuffer;
-	RHIViewPtr										 mSceneBufferView;
+	RHIResourcePtr mROBuffer;
+	RHIViewPtr     mROBufferView;
+
+	RHIResourcePtr mSceneBuffer;
+	RHIViewPtr     mSceneBufferView;
+
+protected:
+	void CommitSceneBuffer();
 
 private:
-	bool mInit = false;
-	int32_t                                          mSceneID;
-	Light                                            mDirLight;
-	LVector<Light>                                   mAllLight;
-	LVector<RenderObject*>							 mRenderObjects;
-	TSubPtrArray<RenderView>                         mViews;
+	bool                     mBufferDirty = true;
+	bool                     mInit        = false;
+	int32_t                  mSceneID;
+	Light*                   mDirLight;
+	LVector<Light>           mAllLight;
+	LVector<RenderObject*>   mRenderObjects;
+	TSubPtrArray<RenderView> mViews;
 };
 }

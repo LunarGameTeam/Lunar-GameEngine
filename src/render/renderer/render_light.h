@@ -8,7 +8,7 @@ namespace luna::render
 {
 	struct Light
 	{
-		LVector3f mColor;
+		LVector4f mColor = LVector4f(1, 1, 1, 1);
 		bool      mCastShadow;
 		float     mIndensity;
 		LVector3f mDirection;

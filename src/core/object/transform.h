@@ -3,12 +3,17 @@
 
 #include "core/object/component.h"
 #include "core/math/math.h"
+#include "core/foundation/signal.h"
 
 namespace luna
 {
 class CORE_API Transform : public Component
 {
-	RegisterTypeEmbedd(Transform, Component)
+	RegisterTypeEmbedd(Transform, Component);
+
+public:
+	SIGNAL(OnTransformDirty, Transform*);
+		
 public:
 	void OnCreate() override;
 	void SetTransformDirty();

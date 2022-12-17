@@ -27,6 +27,18 @@ public:
 
 	const TSubPtrArray<Entity>& GetAllEntities();
 
+	uint32_t GetEntityCount()
+	{
+		return m_entities.Size();
+	}
+
+	Entity* GetEntityAt(uint32_t idx) 
+	{
+		if (idx < m_entities.Size())
+			return m_entities[idx];
+		return nullptr;
+	}
+
 	void Tick(float deltaTime);
 
 	render::RenderScene* GetRenderScene() { return mRenderScene; };

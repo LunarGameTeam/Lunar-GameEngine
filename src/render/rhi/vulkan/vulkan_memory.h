@@ -41,6 +41,12 @@ public:
 		vkAllocateMemory(device, &alloc_info, nullptr, &mMemory);
 	}
 
+	virtual ~VulkanMemory()
+	{
+		VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
+		vkFreeMemory(device, mMemory, nullptr);
+	};
+
 	VkDeviceMemory mMemory;
 };
 }

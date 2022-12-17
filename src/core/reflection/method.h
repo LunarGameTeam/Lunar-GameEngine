@@ -55,7 +55,7 @@ public:
 			ptr = wrapper->get_func_ptr();
 		function_pointer_container<FN> p;
 		p.ptr = ptr;
-		return (cls->*(p.fn))(std::forward<Args>(arg)...);
+		return (cls->*(p.fn))(arg...);
 	}
 
 	template<typename Ret, typename... Args>

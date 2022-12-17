@@ -462,6 +462,9 @@ template<>
 struct binding_converter<LVector3f> : struct_converter<LVector3f> { };
 
 template<>
+struct binding_converter<LVector2f> : struct_converter<LVector2f> { };
+
+template<>
 struct binding_converter<LQuaternion> : struct_converter<LQuaternion> { };
 
 template<size_t Count, typename First>

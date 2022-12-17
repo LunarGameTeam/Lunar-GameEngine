@@ -14,6 +14,7 @@ RegisterTypeEmbedd_Imp(LightComponent)
 	cls->Ctor<LightComponent>();
 	cls->Property<&Self::m_color>("color");
 };
+
 RegisterTypeEmbedd_Imp(DirectionLightComponent)
 {
 	cls->Binding<Self>();
@@ -32,25 +33,34 @@ RegisterTypeEmbedd_Imp(PointLightComponent)
 void LightComponent::OnCreate()
 {
 	Component::OnCreate();
+	mTransformDirtyAction = mOwnerEntity->GetComponent<Transform>()->OnTransformDirty.Bind(AutoBind(&Self::OnTransformDirty, this));
+}
+
+void LightComponent::OnTransformDirty(Transform* transform)
+{
+	GetScene()->GetRenderScene()->SetSceneBufferDirty();
+	mLight->mDirection = transform->ForwardDirection();
+	
 }
 
 void DirectionLightComponent::OnCreate()
 {
 	LightComponent::OnCreate();
-	GetScene()->SetMainDirectionLight(this);
+	mLight = GetScene()->GetRenderScene()->CreateMainDirLight();
+	OnTransformDirty(mOwnerEntity->GetComponent<Transform>());
 }
 
 const float DirectionLightComponent::GetIntensity()const
 {
-	return m_indensity;
+	return mIdentisity;
 }
 
 const LMatrix4f &DirectionLightComponent::GetProjectionMatrix(int csm_index)const
 {
-	return m_proj_matrix[csm_index];
+	return mProj[csm_index];
 }
 
-const LVector3f DirectionLightComponent::GetDirection()const
+const LVector3f DirectionLightComponent::GetDirection() const
 {
 	return mTransform->ForwardDirection();
 }
@@ -82,7 +92,7 @@ const LQuaternion DirectionLightComponent::GetRotation()const
 
 void DirectionLightComponent::SetProjectionMatrix(const LMatrix4f& val, int csm_index)
 {
-	m_proj_matrix[csm_index] = val;
+	mProj[csm_index] = val;
 }
 
 void DirectionLightComponent::SetViewMatrix(const LMatrix4f& val, int csm_index)
@@ -107,7 +117,7 @@ void PointLightComponent::OnCreate()
 
 float PointLightComponent::GetIntensity()
 {
-	return m_indensity;
+	return mIdentisity;
 }
 
 LVector3f &PointLightComponent::GetPosition()

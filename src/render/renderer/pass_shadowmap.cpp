@@ -73,10 +73,10 @@ void ShadowRenderPass::BuildRenderPass(
 {
 	RenderPass::BuildRenderPass(builder, view_info, render_scene);
 
-	mLight = &render_scene->GetMainDirLight();
-	std::string name_tail = "Scene" + std::to_string(render_scene->GetSceneId()) + "_View" + std::to_string(view_info->GetViewID());
-	LString shadowMapName = "ShadowMap_" + name_tail;
-	LString shadowMapDepthName = "ShadowMapDepth_" + name_tail;
+	
+	LString shadowMapName = "ShadowMap";
+	LString shadowMapDepthName = "ShadowMapDepth";
+
 	FGTexture* shadowmap = builder->BindExternalTexture(shadowMapName, sRenderModule->mMainRT->mColorTexture);
 	//builder->CreateTexture(mShadowMapName, shadowTextureDesc, textureDesc);
 	FGTexture* shadowmapDepth = builder->CreateTexture(

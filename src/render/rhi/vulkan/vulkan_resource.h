@@ -21,6 +21,18 @@ public:
 	VulkanResource(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc);
 	VulkanResource();
 
+	~VulkanResource()
+	{
+
+		vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+// 		if (mImage)
+// 			device.destroyImage(mImage);
+		if(mBuffer)
+			device.destroy(mBuffer);
+		if (mSampler)
+			device.destroy(mSampler);
+
+	}
 	void UpdateUploadBuffer(size_t offset, const void* copy_data, size_t data_size) override;
 
 	void BindMemory(RHIMemory* memory, uint64_t offset) override;

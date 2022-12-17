@@ -4,6 +4,7 @@
 #include "core/object/transform.h"
 #include "core/object/component.h"
 #include "engine/engine_config.h"
+#include "render/renderer/render_light.h"
 
 namespace luna
 {
@@ -13,12 +14,16 @@ class ENGINE_API LightComponent : public Component
 	RegisterTypeEmbedd(LightComponent, Component)
 public:
 	void OnCreate() override;
-	GET_SET_VALUE(float, m_indensity, Indensity);
+	GET_SET_VALUE(float, mIdentisity, Indensity);
 	GET_SET_VALUE(bool, m_cast_shadow, CastShadow);
+
+	void OnTransformDirty(Transform* transform);
 protected:
+	ActionHandle mTransformDirtyAction;
+	render::Light* mLight = nullptr;
 	LVector3f m_color = LVector3f(0.8f,0.8f,0.8f);
 	bool m_cast_shadow = false;
-	float m_indensity;
+	float mIdentisity;
 	
 };
 
@@ -32,7 +37,7 @@ public:
 	}
 	void OnCreate() override;
 	float GetIntensity() ;
-	LVector3f &GetPosition();
+	LVector3f& GetPosition();
 
 };
 class ENGINE_API DirectionLightComponent : public LightComponent
@@ -60,7 +65,7 @@ public:
 
 private:
 	LMatrix4f m_view_matrix[4];
-	LMatrix4f m_proj_matrix[4];
+	LMatrix4f mProj[4];
 	LVector3f m_csm_split = LVector3f(0.2f, 0.5f, 0.7f);
 	float zFar = 100, zNear = 0.01f;
 	float m_aspect_ratio = 1024.f / 768.f;

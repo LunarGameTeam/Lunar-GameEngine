@@ -34,7 +34,6 @@ STATIC_INIT(Core)
 {
 	LType::Get<SubPtrArray>()->Binding<SubPtrArray>();
 	LBindingModule::Luna()->AddType(LType::Get<SubPtrArray>());
-	
 	LBindingModule::Luna()->AddMethod<&LoadLib>("load_library");
 };
 

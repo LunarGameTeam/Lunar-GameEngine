@@ -181,7 +181,7 @@ protected:
 		Cls* self =(Cls*)(binding_wrap->GetPtr());
 		LProperty* mType = (LProperty*)(closure);
 		assert(mType->GetSetter());
-		Arg value = from_binding<Arg>(arg);
+		auto value = from_binding<Arg>(arg);
 		mType->GetSetter().InvokeMember<void, Cls, Arg>(self, value);
 		return 0;
 	}

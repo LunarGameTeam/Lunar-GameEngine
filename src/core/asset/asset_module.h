@@ -18,7 +18,7 @@ class AssetAsyncHandle
 struct AssetCache
 {
 	LSharedPtr<Dictionary> meta;
-	LBasicAsset* asset;
+	LSharedPtr<LBasicAsset> asset;
 };
 
 class CORE_API AssetModule : public LModule
@@ -53,7 +53,7 @@ public:
 	void CollectAssets();
 private:
 	LFileInfo mRoot;
-	LUnorderedMap<LString, AssetCache> mCachedAssets;
+	LUnorderedMap<LString, AssetCache*> mCachedAssets;
 };
 
 CORE_API extern AssetModule *sAssetModule;

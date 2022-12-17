@@ -40,4 +40,11 @@ VulkanFrameBuffer::VulkanFrameBuffer(const FrameBufferDesc& desc) :
 	}
 }
 
+VulkanFrameBuffer::~VulkanFrameBuffer()
+{
+	VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
+	if (mBuffer)
+		vkDestroyFramebuffer(device, mBuffer, nullptr);
+}
+
 }

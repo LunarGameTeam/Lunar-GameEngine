@@ -9,13 +9,13 @@ RegisterTypeEmbedd_Imp(Transform)
 {
 	cls->Ctor<Transform>();
 
-	cls->Property<&Self::mPos>("local_position")		
+	cls->BindingProperty<&Self::mPos>("local_position")
 		.Setter<&Self::SetPosition>();
 
-	cls->Property<&Self::mRotation>("local_rotation")
+	cls->BindingProperty<&Self::mRotation>("local_rotation")
 		.Setter<&Self::SetRotation>();
 
-	cls->Property<&Self::mScale>("local_scale")
+	cls->BindingProperty<&Self::mScale>("local_scale")
 		.Setter<&Self::SetScale>();
 
 	cls->Binding<Transform>();
@@ -63,7 +63,8 @@ void Transform::UpdateMatrix()
 			mWorld2Local = mParent->GetWorldToLocalMatrix()* invers.matrix();
 		else
 			mWorld2Local = invers.matrix();
-		 
+
+		OnTransformDirty.BroadCast(this);
 		mMatrixDirty = false;
 	}
 }

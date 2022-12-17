@@ -20,10 +20,23 @@ public:
 
 	};
 
+	~VulkanView()
+	{
+		vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+		if (mImageView)
+		{
+			device.destroyImageView(mImageView);
+		}
+		if (mBufferView)
+		{
+			device.destroyBufferView(mBufferView);
+		}
+	}
+
 	void BindResource(RHIResource* buffer_data) override;
 
-	vk::ImageView  mImageView;
-	vk::BufferView mBufferView;
+	vk::ImageView  mImageView = nullptr;
+	vk::BufferView mBufferView = nullptr;
 	vk::DescriptorImageInfo mDescriptorImage = {};
 	vk::DescriptorBufferInfo mDescriptorBuffer = {};
 

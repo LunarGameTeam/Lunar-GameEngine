@@ -34,11 +34,6 @@ RegisterType_Imp(double, double)
 	cls->m_binding_type = &PyFloat_Type;
 }
 
-RegisterType_Imp(LVector2f, LVector2f)
-{	
-
-}
-
 RegisterType_Imp(LString, LString)
 {
 	Py_XINCREF(&PyUnicode_Type);

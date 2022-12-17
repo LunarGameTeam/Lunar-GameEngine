@@ -13,6 +13,8 @@ RegisterTypeEmbedd_Imp(Scene)
 	cls->BindingProperty<&Self::m_main_light>("main_light");
 	cls->Property<&Self::m_entities>("entities");
 	cls->BindingMethod<&Scene::FindEntity>("find_entity");
+	cls->BindingMethod<&Scene::GetEntityAt>("get_entity_at");
+	cls->BindingMethod<&Scene::GetEntityCount>("get_entity_count");
 	cls->Binding<Scene>();
 	LBindingModule::Get("luna")->AddType(cls);
 };

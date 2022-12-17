@@ -24,6 +24,10 @@ struct CORE_API LFileInfo
 struct CORE_API LFile
 {
 public:
+	~LFile()
+	{
+
+	}
 	const LString &GetPath()
 	{
 		return mPath;

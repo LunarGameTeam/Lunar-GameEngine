@@ -97,6 +97,18 @@ public:
 	{
 		return m_components;
 	}
+	Component* GetComponentAt(int idx)
+	{
+		if(idx < m_components.Size())
+			return m_components[idx];
+		return nullptr;
+	}
+
+	uint32_t GetComponetCount()
+	{
+		return m_components.Size();
+	}
+
 	bool GetActive();
 	bool GetActiveSelf();
 	void SetActiveSelf(bool value);

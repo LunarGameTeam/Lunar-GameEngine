@@ -77,7 +77,7 @@ LBinaryAsset::LBinaryAsset()
 
 void LBinaryAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file)
 {
-	m_data = file;
+	mData = file;
 }
 
 }

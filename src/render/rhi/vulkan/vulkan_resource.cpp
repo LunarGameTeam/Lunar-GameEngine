@@ -132,7 +132,7 @@ VulkanResource::VulkanResource(const SamplerDesc& desc)
 	mResDesc.mType = ResourceType::kSampler;
 	mResDesc.Dimension = RHIResDimension::Unknown;
 
-	VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
+	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
 	VkSamplerCreateInfo samplerInfo = {};
 	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 	samplerInfo.magFilter = VkFilter::VK_FILTER_LINEAR;

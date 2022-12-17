@@ -67,9 +67,9 @@ LBasicAsset *AssetModule::LoadAsset(const LPath &path, LType *asset_type)
 
 	if (mCachedAssets.find(path.AsString()) != mCachedAssets.end())
 	{
-		return mCachedAssets[path.AsString()].asset;
+		return mCachedAssets[path.AsString()]->asset.get();
 	}
-	LBasicAsset *asset = asset_type->NewInstance<LBasicAsset>();
+	LSharedPtr<LBasicAsset> asset(asset_type->NewInstance<LBasicAsset>());
 	//去掉
 	asset->mUUID = boost::uuids::nil_uuid();
 	asset->mAssetPath = path;
@@ -83,15 +83,14 @@ LBasicAsset *AssetModule::LoadAsset(const LPath &path, LType *asset_type)
 	LSharedPtr<Dictionary> meta_data = MakeShared<Dictionary>(val);
 
 	if (!file_data->IsOk())
-	{
-		delete asset;
+	{		
 		return nullptr;
 	}
 
-	auto method = asset_type->GetMethod("on_asset_file_read");
-	method.InvokeMember<void>(asset, meta_data, file_data);
-	mCachedAssets[path.AsString()].asset = asset;
-	return asset;
+	asset->OnAssetFileRead(meta_data, file_data);
+	mCachedAssets[path.AsString()] = new AssetCache();
+	mCachedAssets[path.AsString()]->asset = asset;
+	return asset.get();
 }
 
 LBasicAsset* AssetModule::BindingLoadAsset(const char* path, LType* asset_type)

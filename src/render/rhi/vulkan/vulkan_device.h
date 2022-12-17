@@ -68,6 +68,7 @@ public:
 	vk::Device         GetVKDevice() { return mDevice; }
 	vk::DispatchLoaderDynamic& GetLoader(){ return mDldi; }
 
+	const                    bool enableValidationLayers = false;
 private:
 
 	bool InitDeviceData() override;
@@ -81,7 +82,6 @@ private:
 
 	bool checkDeviceExtensionSupport();
 
-
 private:
 	vk::DispatchLoaderDynamic mDldi;
 	vk::Instance			 mInstance;
@@ -90,7 +90,7 @@ private:
 
 	VkDebugUtilsMessengerEXT debugMessenger;
 	const                    std::vector< const char*> validationLayers = { "VK_LAYER_KHRONOS_validation" };
-	const                    bool enableValidationLayers                = true;
+
 	const                    std::vector< const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME };
 
 };

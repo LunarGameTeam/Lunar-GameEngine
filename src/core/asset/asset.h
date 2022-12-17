@@ -43,16 +43,19 @@ class CORE_API LBinaryAsset : public LBasicAsset
 	RegisterTypeEmbedd(LBinaryAsset, LBasicAsset)
 public:
 	LBinaryAsset();
+	virtual ~LBinaryAsset()
+	{
 
+	}
 	LSharedPtr<LFile> GetData() 
 	{
-		return m_data;
+		return mData;
 	};
 public:
 	virtual void OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file);
 
 private:
-	LSharedPtr<LFile> m_data;
+	LSharedPtr<LFile> mData;
 };
 
 class CORE_API LTextAsset : public LBasicAsset

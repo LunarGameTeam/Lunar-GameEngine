@@ -15,6 +15,8 @@ class PyMainEditor(editor.MainEditor):
 		module_name = mymodule.__name__
 		module_name = module_name.replace('.', '/')
 		p = "temp/{0}".format(module_name)
+		if not os.path.exists("temp"):
+			os.mkdir("temp")
 		if not os.path.exists(p):
 			os.mkdir(p)
 

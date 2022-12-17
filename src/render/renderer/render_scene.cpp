@@ -34,13 +34,28 @@ RenderObject* RenderScene::CreateRenderObject()
 	return ro;
 }
 
-void RenderScene::UpdateRenderObject()
+void RenderScene::CommitSceneBuffer()
 {
+	if (!mBufferDirty)
+		return;
+
+	mBufferDirty = true;
 
 	ObjectBuffer objectBuffer;
 	SceneBuffer sceneBuffer;
-	sceneBuffer.mLightDirection = LVector3f(1,1,1);
-	sceneBuffer.mLightDiffuseColor = LVector4f(1, 1, 1, 1);
+	
+	if (mDirLight)
+	{
+		sceneBuffer.mLightDirection = mDirLight->mDirection;
+		sceneBuffer.mLightDiffuseColor = mDirLight->mColor;
+	}
+	else 
+	{
+		sceneBuffer.mLightDirection = LVector3f(0, 0, 1);
+		sceneBuffer.mLightDiffuseColor = LVector4f(1, 1, 1, 1);
+	}
+		
+
 	sceneBuffer.mLightDirection.normalize();
 	for (auto& ro : mRenderObjects)
 	{
@@ -52,16 +67,10 @@ void RenderScene::UpdateRenderObject()
 	sRenderModule->mRenderDevice->UpdateConstantBuffer(mSceneBuffer, &sceneBuffer, sizeof(SceneBuffer));
 }
 
-Light* RenderScene::AddMainLight()
+Light* RenderScene::CreateMainDirLight()
 {
-	mDirLight.mCastShadow = false;
-// 	mDirLight.mColor = light_value->GetColor();
-// 	mDirLight.mDirection = light_value->GetDirection();
-// 	mDirLight.mIndensity = light_value->GetIntensity();
-// 	mDirLight.mViewMatrix = light_value->GetViewMatrix();
-// 	mDirLight.mProjMatrix = light_value->GetProjectionMatrix(0);
-	mAllLight.push_back(mDirLight);
-	return &mAllLight.back();
+	mDirLight = new Light();
+	return mDirLight;
 }
 
 RenderView* RenderScene::CreateRenderView()
@@ -96,7 +105,7 @@ void RenderScene::Render(FrameGraphBuilder* FG)
 		mInit = true;
 	}
 
-	UpdateRenderObject();
+	CommitSceneBuffer();
 
 	for (auto& renderView : mViews)
 	{

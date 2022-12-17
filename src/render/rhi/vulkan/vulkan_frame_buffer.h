@@ -12,6 +12,7 @@ class RENDER_API VulkanFrameBuffer : public RHIFrameBuffer
 {
 public:
 	VulkanFrameBuffer(const FrameBufferDesc& desc);
+	virtual ~VulkanFrameBuffer();
 	VkExtent2D GetExtent() { return VkExtent2D(mWidth, mHeight); }
 
 	RHIViewPtr mRtv;

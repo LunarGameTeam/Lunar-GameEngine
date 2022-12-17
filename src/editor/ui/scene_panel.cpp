@@ -5,6 +5,7 @@
 
 #include "render/rhi/DirectX12/dx12_descriptor_impl.h"
 #include "render/rhi/DirectX12/dx12_view.h"
+#include "core/event/event_module.h"
 
 
 namespace luna::editor
@@ -89,12 +90,12 @@ void SceneEditor::Init()
 {
 	auto func = std::bind(&SceneEditor::OnInputEvent, this, std::placeholders::_1, std::placeholders::_2);
 	static auto handle = sEventModule->OnInput.Bind(func);
-	SetScene(sSceneModule->GetScene(0));
 	mImguiTexture = sRenderModule->AddImguiTexture(sRenderModule->mMainRT->mColorTexture);
 }
 
 void SceneEditor::OnInputEvent(LWindow& window, InputEvent& event)
 {
+	return;
 	if (!mFocus)
 		return;
 

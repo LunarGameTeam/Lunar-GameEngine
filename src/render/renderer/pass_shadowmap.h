@@ -28,7 +28,6 @@ class RENDER_API ShadowRenderPass : public RenderPass
 	 LSharedPtr<ShaderAsset> mShadowShader;
 	 FGResourceView*             mShadowMapName;
 	 FGResourceView*             mShadowMapDepthName;
-	 Light*                  mLight;
  public:
 	ShadowRenderPass() = default;
 
