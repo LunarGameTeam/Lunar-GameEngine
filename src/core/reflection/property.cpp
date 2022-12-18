@@ -10,7 +10,7 @@ RegisterTypeEmbedd_Imp(LProperty)
 	cls->Binding<LProperty>();
 	cls->BindingProperty<&LProperty::mName>("name");
 	cls->BindingProperty<&LProperty::mType>("type");
-	LBindingModule::Luna()->AddType(cls);
+	BindingModule::Luna()->AddType(cls);
 }
 
 LProperty::LProperty()

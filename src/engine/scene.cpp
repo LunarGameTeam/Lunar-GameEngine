@@ -16,7 +16,7 @@ RegisterTypeEmbedd_Imp(Scene)
 	cls->BindingMethod<&Scene::GetEntityAt>("get_entity_at");
 	cls->BindingMethod<&Scene::GetEntityCount>("get_entity_count");
 	cls->Binding<Scene>();
-	LBindingModule::Get("luna")->AddType(cls);
+	BindingModule::Get("luna")->AddType(cls);
 };
 
 

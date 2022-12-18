@@ -20,6 +20,7 @@ namespace luna::binding
 
 struct CORE_API BindingBase  : public PyObject
 {
+
 };
 //用于存储C++对象的PyObject，不受Python引用计数影响
 template<typename T>
@@ -436,6 +437,23 @@ struct binding_converter<long>
 	static const char* binding_fullname()
 	{
 		return "int";
+	}
+};
+
+template<>
+struct binding_converter<uint64_t>
+{
+	inline static PyObject* to_binding(uint64_t val)
+	{
+		return PyLong_FromSize_t(val);
+	}
+	inline static uint64_t from_binding(PyObject* val)
+	{
+		return PyLong_AsSize_t(val);
+	}
+	static const char* binding_fullname()
+	{
+		return "long";
 	}
 };
 

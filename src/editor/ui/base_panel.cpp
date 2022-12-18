@@ -13,7 +13,7 @@ RegisterTypeEmbedd_Imp(EditorBase)
 	cls->BindingMethod<&EditorBase::OnGUI>("on_imgui");
 	cls->BindingMethod<&EditorBase::CustomTreeNode>("custom_treenode");
 	cls->Binding<EditorBase>();
-	LBindingModule::Get("luna.editor")->AddType(cls);
+	BindingModule::Get("luna.editor")->AddType(cls);
 };
 
 void EditorBase::DoIMGUI()

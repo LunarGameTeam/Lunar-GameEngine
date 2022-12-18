@@ -10,14 +10,17 @@
 namespace luna
 {
 
-class CORE_API LBindingModule
+// Luna Engine 对 Python Module 的一个封装
+// 延迟创建Module，等到Python完全初始化后才进行创建
+// 可以提前塞入一些定义
+class CORE_API BindingModule
 {
 protected:
-	LBindingModule(const LString& module_name);
+	BindingModule(const LString& module_name);
 
 public:
 
-	PyObject* GetBinding() { return m_binding_module; };
+	PyObject* GetBinding() { return mPythonModule; };
 	void AddType(LType* type);
 
 	template<auto fn>
@@ -27,7 +30,7 @@ public:
 		constexpr auto args_count = function_traits<FN>::args_count;
 		PyCFunction p = binding::pycfunction_select<fn>(std::make_index_sequence<args_count>{});
 		const LString& method_name = LString::MakeStatic(name);
-		PyMethodDef& def = m_methods[method_name]; 		
+		PyMethodDef& def = mMethods[method_name]; 		
 		def.ml_name = method_name.c_str();
 		def.ml_meth = p;
 		def.ml_flags = METH_VARARGS;
@@ -37,30 +40,41 @@ public:
 
 	void AddObject(const char* name, PyObject* obj);	
 	void AddLObject(const char* name, LObject* obj);
-	void AddConstant(const char* name, long val);
+	void AddConstant(const char* name, const char* val);
+	void AddConstant(const char* name, long val);	
 
 	bool Init();
-	const LString& GetModuleName() { return m_module_name; }
+	const LString& GetModuleName() { return mModuleName; }
 
 	void GenerateDoc();
+
+	static BindingModule* Get(const char* module_name);
+	static BindingModule* Luna();
+
+	
+
 	static PyObject* meta_type_new(PyTypeObject* metatype, PyObject* args, PyObject* kwds);
-public:
-	bool m_inited = false;
-	PyModuleDef m_module_def;
-	static LBindingModule* Get(const char* module_name);
-	static LBindingModule* Luna();
-	std::map<LString, long> m_constants;
-	std::map<LString, PyTypeObject*> m_types;
+private:
+
+	void _AddType(PyTypeObject* type);
+	void _AddObject(const char* name, PyObject* obj);
+
 	std::vector<PyTypeObject*> m_order_types;
-	std::map<LString, PyObject*> m_objects;
-	std::map<LString, PyMethodDef> m_methods;
-	std::vector<PyMethodDef> m_methods_data;
-	LString m_module_name;
-	PyObject* m_binding_module;
+	bool                             mModuleInited = false; 	
+	PyModuleDef                      mModuleDef;
+	std::map<LString, PyObject*>     mConstants;
+	std::map<LString, PyObject*>	 mConstantStr;
+
+	std::map<LString, PyTypeObject*> mTypes;
+	std::map<LString, PyObject*>     mObjects;
+	std::map<LString, PyMethodDef>   mMethods;
+
+	LString                          mModuleName;
+	PyObject*                        mPythonModule = nullptr;
 
 };
 
-CORE_API extern std::map<LString, LBindingModule*>* g_modules;
+CORE_API extern std::map<LString, BindingModule*>* sBindingModules;
 
 
 }

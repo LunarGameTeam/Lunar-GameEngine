@@ -19,7 +19,7 @@ RegisterTypeEmbedd_Imp(Transform)
 		.Setter<&Self::SetScale>();
 
 	cls->Binding<Transform>();
-	LBindingModule::Luna()->AddType(cls);
+	BindingModule::Luna()->AddType(cls);
 }
 
 void Transform::OnCreate()

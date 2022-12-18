@@ -20,7 +20,7 @@ RegisterTypeEmbedd_Imp(SceneModule)
 	cls->BindingMethod<&SceneModule::BindingAddScene>("add_scene")
 		.Doc("def add_scene(self, new_scene: Scene*) -> T:\n\tpass\n");
 
-	LBindingModule::Get("luna")->AddType(cls);
+	BindingModule::Get("luna")->AddType(cls);
 }
 
 void SceneModule::BindingAddScene(Scene* newScene)

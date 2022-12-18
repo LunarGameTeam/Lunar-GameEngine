@@ -17,13 +17,13 @@ RegisterTypeEmbedd_Imp(SubMesh)
 	cls->Property<&Self::mIndexCount>("index_size");
 
 	cls->Binding<Self>();
-	LBindingModule::Get("luna")->AddType(cls);
+	BindingModule::Get("luna")->AddType(cls);
 };
 
 RegisterTypeEmbedd_Imp(MeshAsset)
 {
 	cls->Binding<Self>();
-	LBindingModule::Get("luna")->AddType(cls);
+	BindingModule::Get("luna")->AddType(cls);
 	cls->Ctor<MeshAsset>();
 	cls->Property<&Self::mSubMesh>("submesh");
 };

@@ -10,7 +10,7 @@ namespace luna
 RegisterTypeEmbedd_Imp(LightComponent)
 {
 	cls->Binding<Self>();
-	LBindingModule::Get("luna")->AddType(cls);
+	BindingModule::Get("luna")->AddType(cls);
 	cls->Ctor<LightComponent>();
 	cls->Property<&Self::m_color>("color");
 };
@@ -18,14 +18,14 @@ RegisterTypeEmbedd_Imp(LightComponent)
 RegisterTypeEmbedd_Imp(DirectionLightComponent)
 {
 	cls->Binding<Self>();
-	LBindingModule::Get("luna")->AddType(cls);
+	BindingModule::Get("luna")->AddType(cls);
 	cls->Ctor<DirectionLightComponent>();
 };
 
 RegisterTypeEmbedd_Imp(PointLightComponent)
 {
 	cls->Binding<Self>();
-	LBindingModule::Get("luna")->AddType(cls);
+	BindingModule::Get("luna")->AddType(cls);
 	cls->Ctor<PointLightComponent>();
 };
 

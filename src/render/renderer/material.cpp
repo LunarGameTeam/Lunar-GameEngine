@@ -54,7 +54,7 @@ RegisterTypeEmbedd_Imp(MaterialInstance)
 	cls->Property< &Self::mOverrideParams>("params");
 	cls->Property< &Self::mMaterialTemplate>("material_asset");
 	cls->Binding<MaterialInstance>();
-	LBindingModule::Get("luna")->AddType(cls);
+	BindingModule::Get("luna")->AddType(cls);
 }
 
 MaterialInstance::MaterialInstance() :

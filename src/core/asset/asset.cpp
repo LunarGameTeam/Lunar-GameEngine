@@ -8,7 +8,7 @@ namespace luna
 RegisterTypeEmbedd_Imp(LBasicAsset)
 {
 	cls->Binding<Self>();
-	LBindingModule::Get("luna")->AddType(cls);
+	BindingModule::Get("luna")->AddType(cls);
 
 	cls->Ctor<Self>();	
 	cls->Method<&LBasicAsset::OnAssetFileRead>("on_asset_file_read");
@@ -44,7 +44,7 @@ LString LBasicAsset::GetAssetPath()
 RegisterTypeEmbedd_Imp(LTextAsset)
 {
 	cls->Binding<Self>();
-	LBindingModule::Get("luna")->AddType(cls);
+	BindingModule::Get("luna")->AddType(cls);
 
 	cls->Ctor<LTextAsset>();
 };
@@ -64,7 +64,7 @@ void LTextAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> 
 RegisterTypeEmbedd_Imp(LBinaryAsset)
 {
 	cls->Binding<Self>();
-	LBindingModule::Get("luna")->AddType(cls);
+	BindingModule::Get("luna")->AddType(cls);
 
 	cls->Ctor<LBinaryAsset>();
 };

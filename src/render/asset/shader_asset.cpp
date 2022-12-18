@@ -12,7 +12,7 @@ namespace luna::render
 RegisterTypeEmbedd_Imp(ShaderAsset)
 {
 	cls->Binding<Self>();
-	LBindingModule::Get("luna")->AddType(cls);
+	BindingModule::Get("luna")->AddType(cls);
 	cls->Ctor<ShaderAsset>();
 };
 

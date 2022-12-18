@@ -15,7 +15,7 @@ RegisterTypeEmbedd_Imp(SceneEditor)
 {
 	cls->Ctor<SceneEditor>();
 	cls->Binding<SceneEditor>();
-	LBindingModule::Get("luna.editor")->AddType(cls);
+	BindingModule::Get("luna.editor")->AddType(cls);
 };
 
 

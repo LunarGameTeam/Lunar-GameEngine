@@ -14,7 +14,7 @@ RegisterTypeEmbedd_Imp(Entity)
 	cls->BindingMethod<&Entity::GetComponentAt>("get_component_at");
 	cls->BindingMethod<&Entity::GetComponetCount>("get_component_count");
 	cls->Binding<Entity>();
-	LBindingModule::Get("luna")->AddType(cls);
+	BindingModule::Get("luna")->AddType(cls);
 }
 
 void Entity::OnCreate()

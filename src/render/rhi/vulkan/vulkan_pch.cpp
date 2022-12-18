@@ -45,6 +45,7 @@ vk::CompareOp Convert(RHIComparisionFunc func)
 	default:
 		assert(false);
 	}
+	return vk::CompareOp::eAlways;
 }
 
 DoubleConverter<RHIResDimension, vk::ImageType> sImageTypeConverter =

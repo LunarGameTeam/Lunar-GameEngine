@@ -13,7 +13,7 @@ RegisterTypeEmbedd_Imp(MainEditor)
 {
 	cls->Ctor<MainEditor>();
 	cls->Binding<MainEditor>();
-	LBindingModule::Get("luna.editor")->AddType(cls);
+	BindingModule::Get("luna.editor")->AddType(cls);
 };
 
 

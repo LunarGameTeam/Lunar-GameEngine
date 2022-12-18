@@ -12,6 +12,5 @@ auto_source_group("${ALL_FILES}" DST_FILES)
 
 add_executable(game_test ${DST_FILES})
 
-add_dependencies(game_test core render gtest_main)
-target_link_libraries(game_test core render gtest_main)
+target_link_libraries(game_test PRIVATE python311_d bcrypt imgui jsoncpp_lib jsoncpp_object JsonCpp::JsonCpp Eigen3::Eigen Tracy::TracyClient)
 

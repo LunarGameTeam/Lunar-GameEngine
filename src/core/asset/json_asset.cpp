@@ -9,7 +9,7 @@ namespace luna
 RegisterTypeEmbedd_Imp(LJsonAsset)
 {
 	cls->Binding<Self>();
-	LBindingModule::Get("luna")->AddType(cls);
+	BindingModule::Get("luna")->AddType(cls);
 
 	cls->Ctor<LJsonAsset>();
 

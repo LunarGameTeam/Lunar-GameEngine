@@ -8,7 +8,7 @@ RegisterTypeEmbedd_Imp(Component)
 {
 	cls->Ctor<Component>();
 	cls->Binding<Component>();
-	LBindingModule::Get("luna")->AddType(cls);
+	BindingModule::Get("luna")->AddType(cls);
 }
 
 Component::Component()

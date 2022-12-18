@@ -16,5 +16,5 @@ target_link_libraries(engine core window render)
 
 set_target_properties(engine PROPERTIES
     SUFFIX ".pyd"
-    OUTPUT_NAME "luna"
+    OUTPUT_NAME "luna_d"
 )

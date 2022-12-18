@@ -23,7 +23,7 @@ struct binding_proxy_base
 template<typename T, class = void>
 struct binding_proxy : binding_proxy_base
 {
-	using BindingType = typename T;
+	using BindingType = BindingBase;
 };
 
 template<typename T>

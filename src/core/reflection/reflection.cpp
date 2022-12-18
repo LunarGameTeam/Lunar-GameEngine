@@ -40,10 +40,6 @@ RegisterType_Imp(LString, LString)
 	cls->m_binding_type = &PyUnicode_Type;
 }
 
-RegisterType_Imp(LQuaternion, LQuaternion)
-{
-	cls->Binding<LQuaternion>();
-}
 
 namespace binding
 {

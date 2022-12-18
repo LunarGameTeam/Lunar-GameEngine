@@ -177,10 +177,10 @@ public:
 		};
 
 		binding_type.tp_name = GetName().c_str();
+		binding_type.tp_base = mBase ? mBase->m_binding_type : nullptr;		
 		binding_type.tp_basicsize = sizeof(binding::binding_proxy<T>::BindingType);
 		binding_type.tp_itemsize = 0;
 
-		binding_type.tp_base = mBase ? mBase->m_binding_type : nullptr;
 
 		binding_type.tp_getattro = binding::binding_proxy<T>::get_getattrofunc();
 		binding_type.tp_setattro = binding::binding_proxy<T>::get_setattrofunc();
@@ -305,13 +305,13 @@ private:
 	size_t                   mTypeSize      = 0;
 	LString                  mTypeName;
 	LString                  mFullName;
-	LBindingModule*          mBindingModule = nullptr;
+	BindingModule*          mBindingModule = nullptr;
 
 
 	template<typename first>
 	friend LType* NewTemplateType(const LString& name, size_t size, LType* base);
 
-	friend class LBindingModule;
+	friend class BindingModule;
 	friend class LObject;
 
 };

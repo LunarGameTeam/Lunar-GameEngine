@@ -89,7 +89,7 @@ RegisterType_Imp(LVector3f, LVector3f)
 	methods.nb_add = (binaryfunc)__add__<LVector3f>;
 	typeobject->tp_as_number = &methods;
 
-	LBindingModule::Luna()->AddType(cls);
+	BindingModule::Luna()->AddType(cls);
 }
 
 RegisterType_Imp(LVector2f, LVector2f)
@@ -111,6 +111,14 @@ RegisterType_Imp(LVector2f, LVector2f)
 	methods.nb_add = (binaryfunc)__add__<LVector2f>;
 	typeobject->tp_as_number = &methods;
 
-	LBindingModule::Luna()->AddType(cls);
+	BindingModule::Luna()->AddType(cls);
 }
+
+
+RegisterType_Imp(LQuaternion, LQuaternion)
+{
+	cls->Binding<LQuaternion>();
+	BindingModule::Luna()->AddType(cls);
+}
+
 }

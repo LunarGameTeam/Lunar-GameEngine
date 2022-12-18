@@ -104,7 +104,7 @@ public:
 		return nullptr;
 	}
 
-	uint32_t GetComponetCount()
+	size_t GetComponetCount()
 	{
 		return m_components.Size();
 	}

@@ -35,7 +35,7 @@ void LoadEditorLibrary()
 	gEngine->LoadModule<editor::EditorModule>();
 	ConfigLoader::instance();
 	ConfigLoader::instance().Save();
-	LBindingModule::Get("luna.editor")->Init();
+	BindingModule::Get("luna.editor")->Init();
 }
 
 extern "C" __declspec(dllexport) BOOL WINAPI DllMain(

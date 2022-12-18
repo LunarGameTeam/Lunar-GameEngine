@@ -7,7 +7,7 @@ namespace luna
 RegisterTypeEmbedd_Imp(PlatformModule)
 {	
 	cls->Binding<PlatformModule>();
-	LBindingModule::Luna()->AddType(cls);
+	BindingModule::Luna()->AddType(cls);
 }
 
 

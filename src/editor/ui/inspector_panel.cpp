@@ -22,7 +22,7 @@ RegisterTypeEmbedd_Imp(InspectorEditor)
 {
 	cls->Ctor<InspectorEditor>();
 	cls->Binding<InspectorEditor>();
-	LBindingModule::Get("luna.editor")->AddType(cls);
+	BindingModule::Get("luna.editor")->AddType(cls);
 };
 
 

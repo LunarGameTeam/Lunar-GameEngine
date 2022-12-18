@@ -29,7 +29,7 @@ LunaCore* LunaCore::CreateLunaCore()
 	//唯一的单例
 	gEngine = new LunaCore();
 	gEngine->LoadModule<PlatformModule>();
-	LBindingModule::Luna()->AddMethod<&PyGetModule>("get_module").ml_doc = LString::MakeStatic("def get_module(self, t: Type[T]) -> T:\n\tpass\n");
+	BindingModule::Luna()->AddMethod<&PyGetModule>("get_module").ml_doc = LString::MakeStatic("def get_module(self, t: Type[T]) -> T:\n\tpass\n");
 	return gEngine;
 }
 

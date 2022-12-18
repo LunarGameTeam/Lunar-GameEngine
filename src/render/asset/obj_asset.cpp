@@ -14,7 +14,7 @@ namespace luna::render
 RegisterTypeEmbedd_Imp(ObjAsset)
 {
 	cls->Binding<Self>();
-	LBindingModule::Get("luna")->AddType(cls);
+	BindingModule::Get("luna")->AddType(cls);
 	cls->Ctor<ObjAsset>();
 };
 

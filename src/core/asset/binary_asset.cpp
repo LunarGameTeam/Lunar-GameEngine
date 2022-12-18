@@ -9,7 +9,7 @@ namespace luna
 RegisterTypeEmbedd_Imp(LBinaryWithHeadAsset)
 {
 	cls->Binding<Self>();
-	LBindingModule::Get("luna")->AddType(cls);
+	BindingModule::Get("luna")->AddType(cls);
 
 	cls->Ctor<LBinaryWithHeadAsset>();
 

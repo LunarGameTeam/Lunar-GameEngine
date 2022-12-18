@@ -13,7 +13,7 @@ RegisterTypeEmbedd_Imp(HierarchyEditor)
 {
 	cls->Ctor<HierarchyEditor>();
 	cls->Binding<HierarchyEditor>();
-	LBindingModule::Get("luna.editor")->AddType(cls);
+	BindingModule::Get("luna.editor")->AddType(cls);
 };
 
 void HierarchyEditor::OnGUI()

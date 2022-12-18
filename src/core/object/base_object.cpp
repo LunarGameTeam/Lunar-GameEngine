@@ -21,8 +21,8 @@ RegisterTypeEmbedd_Imp(LObject)
 	cls->Binding<LObject>();
 	cls->BindingProperty<&LObject::mName>("name");
 
-	LBindingModule::Get("luna")->AddType(cls);
-	LBindingModule::Get("luna")->AddMethod<&TestClosure>("test_closure");
+	BindingModule::Get("luna")->AddType(cls);
+	BindingModule::Get("luna")->AddMethod<&TestClosure>("test_closure");
 };
 
 LObject*& LObject::AllocateSubSlot()

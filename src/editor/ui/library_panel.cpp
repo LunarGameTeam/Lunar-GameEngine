@@ -15,7 +15,7 @@ RegisterTypeEmbedd_Imp(LibraryEditor)
 {
 	cls->Ctor<LibraryEditor>();
 	cls->Binding<LibraryEditor>();
-	LBindingModule::Get("luna.editor")->AddType(cls);
+	BindingModule::Get("luna.editor")->AddType(cls);
 };
 
 void LibraryEditor::Init()

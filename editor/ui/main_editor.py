@@ -27,14 +27,14 @@ class PyMainEditor(editor.MainEditor):
 			if inspect.ismodule(obj):
 				my_module_name: str = obj.__name__
 				my_module_name = my_module_name.split('.')[-1]
-				header = header + "from luna import {0}\n".format(my_module_name)
+				header = header + "\nfrom luna import {0}\n".format(my_module_name)
 				self.generate_doc_for_module(obj)
 
 			if inspect.isclass(obj):
 				doc = doc + obj.__doc__ + "\n\n\n"
 		try:
 			doc = header + doc + "\n\ncore : luna.LunaCore = None"
-			f = open(p + "/__init__.py", "w")
+			f = open(p + "/__init__.py", "w", encoding='utf-8')
 			f.write(doc)
 			f.close()
 		except Exception as err:

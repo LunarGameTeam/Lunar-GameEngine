@@ -13,7 +13,7 @@ RegisterTypeEmbedd_Imp(LApplication)
 	cls->BindingMethod<&LApplication::MainLoop>("main_loop");
 	cls->BindingMethod<&LApplication::Instance>("instance");	
 	
-	LBindingModule::Get("luna")->AddType(cls);
+	BindingModule::Get("luna")->AddType(cls);
 }
 
 LApplication::LApplication()
