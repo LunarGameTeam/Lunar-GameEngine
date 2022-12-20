@@ -178,7 +178,7 @@ public:
 
 		binding_type.tp_name = GetName().c_str();
 		binding_type.tp_base = mBase ? mBase->m_binding_type : nullptr;		
-		binding_type.tp_basicsize = sizeof(binding::binding_proxy<T>::BindingType);
+		binding_type.tp_basicsize = sizeof(binding::binding_proxy<T>::binding_object_t);
 		binding_type.tp_itemsize = 0;
 
 

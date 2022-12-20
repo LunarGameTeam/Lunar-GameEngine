@@ -39,16 +39,4 @@ RegisterType_Imp(LString, LString)
 	Py_XINCREF(&PyUnicode_Type);
 	cls->m_binding_type = &PyUnicode_Type;
 }
-
-
-namespace binding
-{
-template<>
-struct binding_proxy<LQuaternion> : struct_binding_proxy<LQuaternion> { };
-}
-
-
-
-
-
 }

@@ -31,7 +31,7 @@ private:
 	D3D12_BLEND GetRenderBlend(const RHIRenderBlend& render_blend);
 	D3D12_BLEND_OP GetRenderBlendOption(const RHIBlendOption& render_blend_option);
 	D3D12_LOGIC_OP GetRenderBlendLogicOption(const RHIBlendLogicOption& render_blend_logic_option);
-	void GetDx12InputElementDesc(const RHIVertexLayout& rhi_layout,LVector<D3D12_INPUT_ELEMENT_DESC> &input_desc_array);
+	void GetDx12InputElementDesc(const RHIVertexLayout& rhi_layout,LArray<D3D12_INPUT_ELEMENT_DESC> &input_desc_array);
 	const char* GetDx12ElementName(VertexElementUsage m_usage);
 	int32_t GetDx12ElementIndex(VertexElementUsage m_usage);
 	DXGI_FORMAT GetDx12ElementFormat(VertexElementType elementType, uint8_t elementCount);

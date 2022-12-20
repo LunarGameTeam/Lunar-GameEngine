@@ -72,7 +72,7 @@ private:
 	bool mPendingExit = false;
 
 	TSubPtrArray<LModule> mModules;
-	LVector<LModule*> mOrderedModules;
+	LArray<LModule*> mOrderedModules;
 	LUnorderedMap<luna::LString, LModule* > mModulesMap;
 
 	float mRealFrameRate = 0.0f;

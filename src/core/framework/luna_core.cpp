@@ -21,7 +21,10 @@ LunaCore* LunaCore::Ins()
 	return gEngine;
 }
 
-LModule* PyGetModule(LType* type) { return gEngine->GetModule(type); };
+LModule* PyGetModule(LType* type) 
+{ 
+	return gEngine->GetModule(type); 
+};
 
 LunaCore* LunaCore::CreateLunaCore()
 {

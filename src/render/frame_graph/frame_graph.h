@@ -50,7 +50,7 @@ private:
 	std::map<RenderPassKey, RenderPassValue> mRHIFrameBuffers;
 
 	std::map<LString, FGResource*> mVirtualRes;	
-	LVector<RHIViewPtr> mConstantBuffer;
+	LArray<RHIViewPtr> mConstantBuffer;
 
 	//frame graph fence
 	RHIFencePtr mFence3D;	

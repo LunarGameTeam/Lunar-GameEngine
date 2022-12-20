@@ -24,7 +24,7 @@ public:
 	//Asset资源读入到内存时回调
 	void OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file) override;
 	//Asset资源写入到磁盘时回调	
-	void OnAssetFileWrite(LSharedPtr<Dictionary> meta, LVector<byte>& data) override;
+	void OnAssetFileWrite(LSharedPtr<Dictionary> meta, LArray<byte>& data) override;
 
 };
 

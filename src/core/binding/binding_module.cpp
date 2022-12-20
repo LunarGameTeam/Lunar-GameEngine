@@ -28,7 +28,7 @@ void BindingModule::GenerateDoc()
 		Py_ssize_t size;
 		doc = doc + LString::Format("{} = {}\n\n", it.first, PyUnicode_AsUTF8AndSize(it.second, &size));
 	}
-	mModuleDef.m_doc = LString::MakeStatic(doc).c_str();
+	mModuleDef.m_doc = LString::MakeStatic(doc);
 
 }
 
@@ -145,6 +145,13 @@ void BindingModule::AddConstant(const char* name, long val)
 	}
 }
 
+void BindingModule::AddSubModule(const char* name, BindingModule* bindingModule)
+{
+	assert(bindingModule->mParent == nullptr);
+	bindingModule->mParent = this;
+	mSubModules[name] = bindingModule;
+}
+
 void BindingModule::_AddType(PyTypeObject* typeobject)
 {
 	LType* type = LType::Get(typeobject);
@@ -200,6 +207,11 @@ bool BindingModule::Init()
 		PyModule_AddObject(bindingModule->mPythonModule, module_name.c_str(), (PyObject*)mPythonModule);
 	}
 
+	for (auto it : mSubModules)
+	{
+		it.second->Init();
+	}
+
 	for (PyTypeObject* typeobject : m_order_types)
 	{
 		_AddType(typeobject);
@@ -232,15 +244,26 @@ bool BindingModule::Init()
 	return true;
 }
 
-BindingModule* BindingModule::Get(const char* module_name)
+BindingModule* BindingModule::Get(const char* name)
 {
+	LString moduleName = name;
 	if (sBindingModules == nullptr)
 		sBindingModules = new std::map<LString, BindingModule*>();
-	auto it = sBindingModules->find(module_name);
-	LString module_name_str(module_name);
+	LArray<LString> modulenames;
+	BindingModule* parentModule = nullptr;
+	moduleName.RSplitOnce(modulenames, ".");
+	if (modulenames.size() > 0)
+	{
+		parentModule = BindingModule::Get(modulenames[0]);
+	}
+	auto it = sBindingModules->find(moduleName);
+	
 	if (it == sBindingModules->end())
 	{
-		return new BindingModule(module_name);
+		auto m = new BindingModule(moduleName);
+		if (parentModule)
+			parentModule->AddSubModule(modulenames[1], m);
+		return m;
 	}
 	return it->second;
 }

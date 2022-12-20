@@ -34,7 +34,7 @@ public:
 
 	void BindDescriptorHeap() override;
 
-	void SetVertexBuffer(const LVector<RHIVertexBufferDesc>& vertex_buffer_in, int32_t begin_slot = 0) override;
+	void SetVertexBuffer(const LArray<RHIVertexBufferDesc>& vertex_buffer_in, int32_t begin_slot = 0) override;
 
 	void SetIndexBuffer(
 		RHIResource* indexRes

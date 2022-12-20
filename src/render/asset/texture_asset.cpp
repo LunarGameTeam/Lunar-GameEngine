@@ -121,7 +121,7 @@ void TextureCube::Init()
 
 	size_t data_size = 0;
 
-	LVector<byte> init_datas;
+	LArray<byte> init_datas;
 
 	for (TSubPtr<LBinaryAsset>& texture : m_textures)
 	{

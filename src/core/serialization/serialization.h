@@ -37,7 +37,6 @@ public:
 	//TODO 优化写法
 	virtual bool Serialize(LObject *obj);
 	virtual bool DeSerialize(LObject *obj);
-	virtual bool DeSerializeV2(LObject* obj);
 
 private:
 	LObject* GetObject(const LUuid& uuid)
@@ -49,7 +48,6 @@ private:
 	}
 	void SerializeProperty(LProperty &prop, LObject *obj, Dictionary &dict);
 	void DeserializeProperty(LProperty& prop, LObject* obj, Dictionary& dict);
-	void DeserializePropertyV2(LProperty& prop, LObject* obj, Dictionary& dict);
 
 	FileIDManager mFileIds;
 

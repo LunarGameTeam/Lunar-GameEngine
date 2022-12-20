@@ -88,6 +88,12 @@ protected:
 };
 
 template<typename T>
+class PPtr
+{
+
+};
+
+template<typename T>
 class TSubPtr : public LSubPtr
 {
 public:

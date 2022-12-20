@@ -41,7 +41,7 @@ bool JsonSerializer::Serialize(LObject *root)
 		FileID fid = mFileIds.Alloc();
 		mFileIDMap.Set(fid, top);
 
-		LVector<LProperty*> properties;
+		LArray<LProperty*> properties;
 		LType* type = top->GetClass();
 		type->GetAllProperties(properties);
 		for (LProperty* prop : properties)
@@ -74,7 +74,7 @@ bool JsonSerializer::Serialize(LObject *root)
 	int index = 0;
 	for (LObject* obj : allObjects)
 	{
-		LVector<LProperty*> properties;
+		LArray<LProperty*> properties;
 		Dictionary objectDict = objectList.GetDict(index);
 		LType* type = obj->GetClass();
 		type->GetAllProperties(properties);
@@ -113,64 +113,12 @@ bool JsonSerializer::DeSerialize(LObject *obj)
 		LObject* object = it.first;
 		LType* type = object->GetClass();		
 		//TODO 优化写法，容错
-		LVector<LProperty*> properties;
+		LArray<LProperty*> properties;
 		type->GetAllProperties(properties);
 		for (LProperty *propIT : properties)
 		{
 			LProperty &prop = *propIT;
 			DeserializeProperty(prop, object, it.second);
-		}
-	}
-	asset->OnLoad();
-	//TODO 优化写法，容错
-	return true;
-}
-
-bool JsonSerializer::DeSerializeV2(LObject* obj)
-{
-	auto* asset = dynamic_cast<LBasicAsset*>(obj);
-	Json::Value& value = mDict.GetJsonValue();
-
-	{
-		LUuid uuid = obj->GetUUID();
-		mObjects[uuid] = obj;
-	}
-
-	//
-
-	for (auto it = value.begin(); it != value.end(); ++it)
-	{
-		std::string strUUID = it.key().as<std::string>();
-		LUuid uuid = boost::lexical_cast<LUuid>(strUUID);
-		Json::Value& val = *it;
-		Dictionary dict(val);
-		LString typeName = dict.Get<LString>("type_name");
-		LType* type = LType::Get(typeName);
-		auto objIt = mObjects.find(uuid);
-		if (objIt == mObjects.end())
-		{
-			LObject* element = NewObject<LObject>(type);
-			assert(element != nullptr);
-			element->GenerateUUID(uuid);
-			mObjects[uuid] = element;
-		}
-	}
-
-	//
-	for (auto it : mObjects)
-	{
-		LString strUUID = boost::uuids::to_string(it.first);
-		LObject* object = it.second;
-		LType* type = object->GetClass();
-		//TODO 优化写法，容错
-		LVector<LProperty*> properties;
-		type->GetAllProperties(properties);
-		for (LProperty* propIT : properties)
-		{
-			LProperty& prop = *propIT;
-			Dictionary dict = mDict.GetDict(strUUID);
-			auto s = dict.ToString();
-			DeserializePropertyV2(prop, object, dict);
 		}
 	}
 	asset->OnLoad();
@@ -316,85 +264,6 @@ void JsonSerializer::DeserializeProperty(LProperty &prop, LObject *obj, Dictiona
 		fn(prop, obj, propDict);
 
 
-}
-
-void JsonSerializer::DeserializePropertyV2(LProperty& prop, LObject* obj, Dictionary& dict)
-{
-	static std::map<LType*, void(*)(LProperty& prop, LObject* obj, Dictionary& dict)> helper = {
-		{LType::Get<float>(),  &PropertyDeserializeHelper<float>},
-		{LType::Get<int>(),  &PropertyDeserializeHelper<int>},
-		{LType::Get<LVector3f>(),  &PropertyDeserializeHelper<LVector3f>},
-		{LType::Get<LVector2f>(),  &PropertyDeserializeHelper<LVector2f>},
-		{LType::Get<LString>(),  &PropertyDeserializeHelper<LString>},
-		{LType::Get<LQuaternion>(),  &PropertyDeserializeHelper<LQuaternion>},
-	};
-
-	LType* obj_type = obj->GetClass();
-	LType* type = prop.GetType();
-	if (!dict.Has(prop.GetNameStr()))
-		return;
-	Dictionary propDict = dict.GetDict(prop.GetNameStr());
-	if (prop.IsSubPointer())
-	{
-		if (type->GetTemplateArg()->IsDerivedFrom(LType::Get<LBasicAsset>()))
-		{
-			LSubPtr& ptr = prop.GetValue<LSubPtr>(obj);
-			LString assetPath = propDict.As<LString>();
-			if (assetPath != "")
-			{
-				LBasicAsset* asset = sAssetModule->LoadAsset(assetPath, type->GetTemplateArg());
-				ptr.SetPtr(asset);
-			}
-			else
-				ptr.SetPtr(nullptr);
-		}
-		else
-		{
-			LSubPtr& ptr = prop.GetValue<LSubPtr>(obj);
-			LString strUUID = propDict.As<LString>();
-			if (strUUID == "")
-			{
-				ptr.SetPtr(nullptr);
-			}
-			else
-			{
-				LUuid uuid = boost::lexical_cast<LUuid>(strUUID);
-				ptr.SetPtr(GetObject(uuid));
-			}
-
-		}
-	}
-	else if (type->IsSubPtrArray())
-	{
-		TSubPtrArray<LObject>& ary = prop.GetValue<TSubPtrArray<LObject>>(obj);
-		if (propDict)
-		{
-
-			List propList = propDict.As<List>();
-
-			if (type->GetTemplateArg()->IsDerivedFrom(LType::Get<LBasicAsset>()))
-			{
-				for (int idx = 0; idx < propList.Size(); idx++)
-				{
-					LString assetPath = propList.Get<LString>(idx);
-					ary.PushBack(sAssetModule->LoadAsset(assetPath, type->GetTemplateArg()));
-				}
-			}
-			else
-			{
-				for (int index = 0; index < propList.Size(); index++)
-				{
-					LString strUUID = propList.Get<LString>(index);
-					LUuid uuid = boost::lexical_cast<LUuid>(strUUID);
-					ary.PushBack(GetObject(uuid));
-				}
-			}
-		}
-
-	}
-	auto fn = helper[type];
-	if (fn)
-		fn(prop, obj, propDict);
 }
 
 }

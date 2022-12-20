@@ -31,12 +31,18 @@ ImVec2 FromVector2(const LVector2f& val)
 static bool MenuItem(const char* label) { return ImGui::MenuItem(label); }
 static void Text(const char* text) { return ImGui::Text(text); }
 static bool Button(const char* text) { return ImGui::Button(text); }
-static void PushID(int id) { return ImGui::PushID(id); }
+static void PushID(int id)
+{
+	return ImGui::PushID(id);
+}
 static void SameLine(float offset, float spacing) 
 { 
 	return ImGui::SameLine(offset, spacing); 
 }
-static bool TreeNode(const char* id, ImGuiTreeNodeFlags flags, const char* name) { return ImGui::TreeNodeEx(id, flags, name); }
+static bool TreeNode(const char* id, ImGuiTreeNodeFlags flags, const char* name) 
+{
+	return ImGui::TreeNodeEx(id, flags, name); 
+}
 
 static PyObject* DragFloat3(const char* label, const LVector3f& val, float speed, float v_min, float v_max)
 {

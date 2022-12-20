@@ -10,9 +10,9 @@ RegisterTypeEmbedd_Imp(RendererComponent)
 	cls->Binding<Self>();
 	BindingModule::Get("luna")->AddType(cls);
 
-	cls->Property<&RendererComponent::m_receive_shadow>("receive_shadow")
+	cls->BindingProperty<&RendererComponent::m_receive_shadow>("receive_shadow")
 		.Setter<&RendererComponent::SetReceiveLight>();
-	cls->Property<&RendererComponent::m_cast_shadow>("cast_shadow").
+	cls->BindingProperty<&RendererComponent::m_cast_shadow>("cast_shadow").
 		Setter<&RendererComponent::SetCastShadow>();
 }
 

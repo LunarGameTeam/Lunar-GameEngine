@@ -41,7 +41,7 @@ void DX12GraphicCmdList::DrawIndexedInstanced(
 		BaseVertexLocation, StartInstanceLocation);
 };
 
-void DX12GraphicCmdList::SetVertexBuffer(const LVector<RHIVertexBufferDesc>& bufferView, int32_t slot)
+void DX12GraphicCmdList::SetVertexBuffer(const LArray<RHIVertexBufferDesc>& bufferView, int32_t slot)
 {
 	std::vector<D3D12_VERTEX_BUFFER_VIEW> dx12BufferView(bufferView.size());	
 	for (int32_t idx = 0; idx < bufferView.size(); ++idx)

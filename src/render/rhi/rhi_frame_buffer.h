@@ -15,7 +15,7 @@ namespace luna::render
 struct FrameBufferDesc
 {
 	RHIRenderPassPtr    mPass;
-	LVector<RHIViewPtr> mColor;
+	LArray<RHIViewPtr> mColor;
 	RHIViewPtr          mDepthStencil;
 	uint32_t            mWidth  = 0;
 	uint32_t            mHeight = 0;

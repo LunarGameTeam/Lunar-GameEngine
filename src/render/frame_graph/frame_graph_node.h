@@ -58,7 +58,7 @@ public:
 
 private:
 	std::vector<FGResourceView*> mVirtureResView;
-	LVector<FGResourceView*> mRT;
+	LArray<FGResourceView*> mRT;
 	FGResourceView* mDS;
 	RenderPassDesc mPassDesc;
 	ExcuteFuncType mExecFunc;

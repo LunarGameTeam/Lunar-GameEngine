@@ -33,8 +33,8 @@ public:
 	
 	int32_t mVertexCount;
 	int32_t mIndexCount;
-	LVector<BaseVertex> mVertexData;
-	LVector<uint32_t> mIndexData;
+	LArray<BaseVertex> mVertexData;
+	LArray<uint32_t> mIndexData;
 
 	RHIResourcePtr mVB;
 	RHIResourcePtr mIB;
@@ -70,6 +70,6 @@ private:
 	bool m_ready = false;
 	void OnAssetBinaryRead(const byte* value) override;
 
-	void OnAssetBinaryWrite(LVector<byte>& data) override;
+	void OnAssetBinaryWrite(LArray<byte>& data) override;
 };
 }

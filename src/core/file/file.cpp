@@ -34,14 +34,14 @@ int64_t LFileStream::Size()
 	return res;
 }
 
-void LFileStream::ReadToVector(LVector<byte> &dest)
+void LFileStream::ReadToVector(LArray<byte> &dest)
 {
 	auto size = Size();
 	dest.reserve(size);
 	Read(dest.data(), size);
 }
 
-void LFileStream::WriteFromVector(LVector<byte> &dest)
+void LFileStream::WriteFromVector(LArray<byte> &dest)
 {
 	auto size = dest.size();
 	Write(dest.data(), size);

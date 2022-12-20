@@ -32,7 +32,7 @@ public:
 	{
 		return mPath;
 	}
-	const LVector<byte> &GetData()
+	const LArray<byte> &GetData()
 	{
 		return mData;
 	}
@@ -42,7 +42,7 @@ public:
 	}
 private:
 	LString mPath;
-	LVector<byte> mData;
+	LArray<byte> mData;
 	bool mIsOk = false;
 	friend class WindowsFileManager;
 };
@@ -87,8 +87,8 @@ public:
 	virtual void Flush(const bool bFullFlush = false);
 	virtual int64_t Size();
 
-	virtual void ReadToVector(LVector<byte> &dest);
-	virtual void WriteFromVector(LVector<byte> &dest);
+	virtual void ReadToVector(LArray<byte> &dest);
+	virtual void WriteFromVector(LArray<byte> &dest);
 
 private:
 	int mMode;

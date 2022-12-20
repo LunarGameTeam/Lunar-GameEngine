@@ -25,8 +25,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
 
-# This goes after, since it uses PythonInterp as hint
-find_package(Python3 COMPONENTS Interpreter Development)
+option(USING_DEBUG_PYTHON "使用Debug版本的Python" OFF)
+
+find_package (Python3 COMPONENTS Interpreter Development)
 
 find_package(stb REQUIRED)
 find_package(Threads REQUIRED)
@@ -61,6 +62,13 @@ set(SPIRV_REFLECT_STATIC_LIB ON CACHE BOOL "" FORCE)
 option(USING_FBX_TOOLS "enable fbx tools" OFF)
 option(USING_ASAN "Enable Snitize Address" OFF)
 
+if(USING_DEBUG_PYTHON)
+    message(STATUS "Using Debug Python")
+    add_compile_definitions(USING_DEBUG_PYTHON)
+else()
+    message(STATUS "Using Release Python")
+endif()
+
 if(USING_ASAN)
 	set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
 	set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fsanitize=address")
@@ -70,10 +78,12 @@ endif()
 add_compile_definitions(NOMINMAX)
 # add_compile_definitions(TRACY_ENABLE)
 
-add_compile_options("/std:c++latest")
-add_compile_options("/MP")
-add_compile_options("/bigobj")
-add_compile_options("/Zc:char8_t")
+add_compile_options(-std:c++latest)
+add_compile_options(/MP)
+add_compile_options(/bigobj)
+add_compile_options(/Zc:char8_t)
+add_compile_options(/GR)
+
 
 message(STATUS "python include dir: ${Python3_INCLUDE_DIRS}")
 message(STATUS "python libs: ${Python3_LIBRARIES}")

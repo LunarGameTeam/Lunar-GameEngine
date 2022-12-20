@@ -39,7 +39,6 @@ Entity *Scene::FindEntity(const LString &name)
 Entity *Scene::CreateEntity(const LString &name, Entity *parent /*= nullptr*/)
 {
 	auto entity = TCreateObject<Entity>();
-	entity->GenerateUUID();
 	entity->mName = name;
 	entity->mScene = this;
 	m_entities.PushBack(entity);

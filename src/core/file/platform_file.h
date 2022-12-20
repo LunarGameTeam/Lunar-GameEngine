@@ -48,7 +48,7 @@ public:
 public:
 	virtual LSharedPtr<LFile> ReadSync(const LPath &path) = 0;
 	virtual LSharedPtr<FileAsyncHandle> ReadAsync(const LPath &path, FileAsyncCallback callback) = 0;
-	virtual LSharedPtr<LFile> WriteSync(const LPath &path, const LVector<byte> &data) = 0;
+	virtual LSharedPtr<LFile> WriteSync(const LPath &path, const LArray<byte> &data) = 0;
 
 public:
 	virtual LSharedPtr<LFileStream> OpenAsStream(const LPath &path, OpenMode mode) = 0;
@@ -118,7 +118,7 @@ public:
 	bool DisposeFileManager() override;
 
 	LSharedPtr<LFile> ReadSync(const LPath& path) override;
-	LSharedPtr<LFile> WriteSync(const LPath& path, const LVector<byte>& data) override;
+	LSharedPtr<LFile> WriteSync(const LPath& path, const LArray<byte>& data) override;
 	LSharedPtr<FileAsyncHandle> ReadAsync(const LPath& path, FileAsyncCallback callback) override;
 	LSharedPtr<LFileStream> OpenAsStream(const LPath& path, OpenMode mode) override;
 

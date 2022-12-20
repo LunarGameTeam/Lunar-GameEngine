@@ -79,7 +79,7 @@ void LightingPass::BuildRenderPass(FrameGraphBuilder* builder, RenderView* view,
 			{
 				params.PushShaderParam(matParam.first, matParam.second);
 			}
-			LVector<RenderObject*> cacheRenderObjects;
+			LArray<RenderObject*> cacheRenderObjects;
 			cacheRenderObjects.push_back(it);
 			RHIResource* instancingBuffer = device->CreateInstancingBufferByRenderObjects(cacheRenderObjects);
 			device->DrawRenderOBject(ro, shader, &params, instancingBuffer,1);

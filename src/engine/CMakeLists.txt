@@ -14,7 +14,12 @@ add_compile_definitions(ENGINE_EXPORT)
 add_dependencies(engine core window render) 
 target_link_libraries(engine core window render)
 
-set_target_properties(engine PROPERTIES
-    SUFFIX ".pyd"
-    OUTPUT_NAME "luna_d"
-)
+if (USING_DEBUG_PYTHON)
+    set_target_properties(engine PROPERTIES
+        SUFFIX ".pyd"
+        OUTPUT_NAME "luna_d")
+else()
+    set_target_properties(engine PROPERTIES
+        SUFFIX ".pyd"
+        OUTPUT_NAME "luna")
+endif()

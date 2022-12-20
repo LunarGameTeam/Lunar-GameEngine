@@ -9,7 +9,7 @@ using LUnorderedSet = std::unordered_set<T>;
 
 #include <vector>
 template<typename T>
-using LVector = std::vector<T>;
+using LArray = std::vector<T>;
 
 #include <utility>
 template<typename T1, typename T2>

@@ -1,9 +1,6 @@
 import os
 import sys
 
-def test():
-    import luna
-    v = luna.LVector3f(1, 1, 1)
 
 def init_editor():
     # app = QtWidgets.QApplication([])
@@ -23,13 +20,14 @@ def init_editor():
 
     app = luna.LApplication.instance()
 
-    from test import test_luna
-    test_luna()
+    from test import binding_test
+
+    # 先做 binding test 再执行
+    binding_test()
 
     app.run()
-    test()
-    # from core.editor_core import EditorCore
-    # EditorCore.instance()
+    from core.editor_core import EditorCore
+    EditorCore.instance()
     app.main_loop()
 
 

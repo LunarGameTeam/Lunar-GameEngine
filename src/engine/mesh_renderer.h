@@ -17,7 +17,7 @@ class ENGINE_API MeshRenderer : public RendererComponent
 public:
 	MeshRenderer() :
 		m_mesh(this),
-		m_material(this),
+		mMaterialInstance(this),
 		mObjAsset(this)
 	{
 
@@ -33,7 +33,7 @@ public:
 
 	void SetMaterial(MaterialInstance* mat)
 	{
-		m_material.SetPtr(mat);
+		mMaterialInstance.SetPtr(mat);
 		m_dirty = true;
 	}
 
@@ -45,7 +45,7 @@ public:
 private:
 	TSubPtr<ObjAsset> mObjAsset;
 	TSubPtr<MeshAsset> m_mesh;
-	TSubPtr<MaterialInstance> m_material;
+	TSubPtr<MaterialInstance> mMaterialInstance;
 };
 
 

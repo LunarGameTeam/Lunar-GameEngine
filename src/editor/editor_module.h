@@ -102,7 +102,7 @@ private:
 	
 
 	bool mNeedResize = false;
-	LVector<EditorBase*> m_editors;
+	LArray<EditorBase*> m_editors;
 
 	render::TRHIPtr<render::RHIFence> frame_fence_3D;
 };

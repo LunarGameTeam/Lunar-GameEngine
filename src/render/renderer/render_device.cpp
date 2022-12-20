@@ -286,7 +286,7 @@ RHIResourcePtr RenderDevice::CreateTexture(const RHITextureDesc& textureDesc, co
 	return _CreateTexture(textureDesc, resDesc, initData, dataSize, nullptr, offset);
 }
 
-RHIResource* RenderDevice::CreateInstancingBufferByRenderObjects(LVector<RenderObject*> RenderObjects)
+RHIResource* RenderDevice::CreateInstancingBufferByRenderObjects(LArray<RenderObject*> RenderObjects)
 {
 	std::vector<int32_t> all_object_id;
 	for (auto it : RenderObjects)
@@ -419,7 +419,7 @@ void RenderDevice::DrawRenderOBject(render::RenderObject* ro, render::ShaderAsse
 	size_t indexStride = mesh->mIndexCount;
 	RHIResource* ib = mesh->mIB;
 
-	LVector<RHIVertexBufferDesc> descs;
+	LArray<RHIVertexBufferDesc> descs;
 	RHIVertexBufferDesc& vbDesc = descs.emplace_back();
 	vbDesc.mOffset = 0;
 	vbDesc.mBufferSize = vertexCount * mesh->GetStridePerVertex();

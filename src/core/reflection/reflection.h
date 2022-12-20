@@ -33,9 +33,15 @@ struct static_type<LSubPtr>
 template<typename T>
 struct static_type<TSubPtr<T>>
 {
+	static LType* InitTSubPtrType()
+	{
+		LType* type = NewTemplateType<T>("TSubPtr", sizeof(TSubPtr<T>), LType::Get<LSubPtr>());
+		type->SetBindingType(binding_type<T>::StaticType());
+		return type;
+	}
 	static LType* StaticType()
 	{
-		static LType* type = NewTemplateType<T>("TSubPtr", sizeof(TSubPtr<T>), LType::Get<LSubPtr>());
+		static LType* type = InitTSubPtrType();
 		return type;
 	}
 };

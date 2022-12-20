@@ -135,15 +135,15 @@ struct RHIVertexLayout
 		return mHash;
 	}
 
-	LVector<size_t> GetSize() const
+	LArray<size_t> GetSize() const
 	{
 		return mSize;
 	}
 
 	bool mDirty = true;
 	size_t mHash = 0;
-	LVector<size_t> mSize;
-	LVector<RHIVertexLayoutElement> mElements;
+	LArray<size_t> mSize;
+	LArray<RHIVertexLayoutElement> mElements;
 };
 
 

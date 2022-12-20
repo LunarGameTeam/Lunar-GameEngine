@@ -58,8 +58,6 @@ RegisterTypeEmbedd_Imp(EditorModule)
 
 	BindingModule* editor_module = BindingModule::Get("luna.editor");
 	editor_module->AddType(cls);
-	editor_module->AddMethod<&ImGUIText>("imgui_text");
-
 	BindingModule::Get("luna.editor.IMGUIFlags")->AddConstant("TextClip", 1);
 }
 

@@ -7,7 +7,7 @@ namespace luna::binding
 
 struct binding_proxy_base
 {
-	using BindingType = void;
+	using binding_object_t = void;
 
 	void* GetNativePtr() { return nullptr; }
 
@@ -17,13 +17,14 @@ struct binding_proxy_base
 	static initproc get_initproc() { return nullptr; }
 	static destructor get_destructor() { return nullptr; }
 	static newfunc get_newfunc() { return nullptr; }
+	static allocfunc get_allocfunc() { return nullptr; }
 
 };
 
 template<typename T, class = void>
 struct binding_proxy : binding_proxy_base
 {
-	using BindingType = BindingBase;
+	using binding_object_t = BindingObject;
 };
 
 template<typename T>
@@ -31,7 +32,7 @@ struct struct_binding_proxy : binding_proxy_base
 {
 	static int get_type_flags() { return Py_TPFLAGS_DEFAULT; };
 
-	using BindingType = BindingStruct<T>;
+	using binding_object_t = BindingStruct<T>;
 
 	static newfunc get_newfunc() { return (newfunc)PyType_GenericNew; }
 
@@ -64,7 +65,7 @@ struct struct_binding_proxy : binding_proxy_base
 template<typename T>
 struct native_binding_proxy : binding_proxy_base
 {
-	using BindingType = BindingNative<T>;
+	using binding_object_t = BindingNative<T>;
 
 	template<typename M>
 	static PyObject* raw_getter(PyObject* s, void* closure)

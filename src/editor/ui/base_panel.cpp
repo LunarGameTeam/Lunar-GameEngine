@@ -39,7 +39,7 @@ int InputTextCallback(ImGuiInputTextCallbackData* data)
 		// If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set them back to what we want.
 		LString* str = user_data->Str;
 		IM_ASSERT(data->Buf == str->c_str());
-		str->str().resize(data->BufTextLen);
+		str->std_str().resize(data->BufTextLen);
 		data->Buf = (char*)str->c_str();
 	}
 	return 0;
@@ -97,7 +97,7 @@ bool InputLString(const char* label, LString* str, ImGuiInputTextFlags flags)
 	InputTextCallback_UserData cb_user_data;
 	cb_user_data.Str = str;
 	cb_user_data.ChainCallback = InputTextCallback;
-	return ImGui::InputText(label, (char*)str->c_str(), str->str().capacity() + 1, flags, InputTextCallback,
+	return ImGui::InputText(label, (char*)str->c_str(), str->std_str().capacity() + 1, flags, InputTextCallback,
 	                        &cb_user_data);
 }
 }

@@ -17,8 +17,8 @@ class RENDER_API RHISwapChain : public RHIObject
 {
 public:
 	RHISwapchainDesc           mWindowDesc;
-	LVector<RHIResourcePtr>    mBackBuffers;
-	LVector<RHIViewPtr>        mViews;
+	LArray<RHIResourcePtr>    mBackBuffers;
+	LArray<RHIViewPtr>        mViews;
 	LWindow*                   mWindow = nullptr;
 
 public:

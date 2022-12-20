@@ -46,7 +46,7 @@ void LoadCoreLibrary()
 #endif // WIN32
 	configFile.open(configPath.c_str(), std::fstream::in | std::fstream::out);
 	
-	Logger::instance().RedirectLogFile(logPath.str());
+	Logger::instance().RedirectLogFile(logPath.std_str());
 
 	LString configContent;
 	std::ostringstream ss;
@@ -57,7 +57,7 @@ void LoadCoreLibrary()
 
 	luna::LApplication::Instance();
 	gEngine->LoadModule<AssetModule>();
-	gEngine->LoadModule<EventModule>();	
+	gEngine->LoadModule<EventModule>();
 
 }
 

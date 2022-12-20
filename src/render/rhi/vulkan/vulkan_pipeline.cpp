@@ -161,7 +161,7 @@ void VulkanPipelineState::Init()
 	vk::PipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	std::vector<vk::VertexInputAttributeDescription> inputAttributes;
 	uint32_t inputLocationIndex = 0;
-	LVector<vk::VertexInputBindingDescription> inputBindings;
+	LArray<vk::VertexInputBindingDescription> inputBindings;
 	inputBindings.resize(16);
 	uint32_t inputVertexBufferNum = 0;
 	for (auto& vertexElement : mPSODesc.mGraphicDesc.mInputLayout.mElements)

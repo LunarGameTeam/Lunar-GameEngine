@@ -51,7 +51,7 @@ void AssetModule::Tick(float delta_time)
 bool AssetModule::SaveAsset(LBasicAsset *asset, const LPath &path)
 {
 	IPlatformFileManager *manager = gEngine->GetModule<PlatformModule>()->GetPlatformFileManager();
-	LVector<byte> data;
+	LArray<byte> data;
 	Json::Value val;
 	LSharedPtr<Dictionary> meta_data = MakeShared<Dictionary>(val);
 	asset->OnAssetFileWrite(meta_data, data);
@@ -70,8 +70,6 @@ LBasicAsset *AssetModule::LoadAsset(const LPath &path, LType *asset_type)
 		return mCachedAssets[path.AsString()]->asset.get();
 	}
 	LSharedPtr<LBasicAsset> asset(asset_type->NewInstance<LBasicAsset>());
-	//去掉
-	asset->mUUID = boost::uuids::nil_uuid();
 	asset->mAssetPath = path;
 	
 	

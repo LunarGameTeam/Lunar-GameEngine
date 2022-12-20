@@ -119,7 +119,7 @@ public:
 		mHasBinding = true;
 		const char* type_name = binding::binding_converter<M>::binding_fullname();
 		
-		mBindingDef.doc = LString::MakeStatic(LString::Format("{0}: {1}", mName, type_name)).c_str();
+		mBindingDef.doc = LString::MakeStatic(LString::Format("{0}: {1}", mName, type_name));
 
 
 		if (!mBindingDef.get)
@@ -164,8 +164,8 @@ protected:
 	template<typename Ret, typename Cls>
 	static PyObject* BindingGetter(PyObject* obj, void* closure)
 	{
-		using BindingType =	binding::binding_proxy<Cls>::BindingType;
-		BindingType* binding_wrap = (BindingType*)(obj);
+		using binding_object_t =	binding::binding_proxy<Cls>::binding_object_t;
+		binding_object_t* binding_wrap = (binding_object_t*)(obj);
 		Cls* self = (Cls*)(binding_wrap->GetPtr());
 		LProperty* mType = (LProperty*)(closure);
 		assert(mType->GetGetter());
@@ -176,8 +176,8 @@ protected:
 	template<typename Cls, typename Arg>
 	static int BindingSetter(PyObject* obj, PyObject* arg, void* closure)
 	{
-		using BindingType = binding::binding_proxy<Cls>::BindingType;
-		BindingType* binding_wrap = (BindingType*)(obj);
+		using binding_object_t = binding::binding_proxy<Cls>::binding_object_t;
+		binding_object_t* binding_wrap = (binding_object_t*)(obj);
 		Cls* self =(Cls*)(binding_wrap->GetPtr());
 		LProperty* mType = (LProperty*)(closure);
 		assert(mType->GetSetter());

@@ -9,3 +9,9 @@ PyMODINIT_FUNC PyInit_luna()
 	luna::BindingModule::Get("luna")->Init();
 	return luna::BindingModule::Get("luna")->GetBinding();
 }
+
+PyMODINIT_FUNC PyInit_luna_math()
+{
+	luna::LApplication::Instance();
+	return luna::BindingModule::Get("luna.math")->GetBinding();
+}

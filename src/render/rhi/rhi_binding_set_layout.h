@@ -106,8 +106,8 @@ struct RHIRootSignatureParamDesc
 
 struct RHIRootSignatureDesc
  {
-	LVector<RHIRootSignatureParamDesc> mParamDescs;
-	LVector<RHIStaticSamplerDesc>      mStaticSamplerDesc;
+	LArray<RHIRootSignatureParamDesc> mParamDescs;
+	LArray<RHIStaticSamplerDesc>      mStaticSamplerDesc;
 	RHIRootSignatureFlag               mFlags = RHIRootSignatureFlag::ROOT_SIGNATURE_FLAG_NONE;
 };
 

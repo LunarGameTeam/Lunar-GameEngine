@@ -38,12 +38,14 @@ public:
 
 #undef main
 
-int main(int argc, const char *argv[])
+int main(int argc, char **argv)
 {
 	testing::InitGoogleTest();
 	TestApp game;
 	game.Run();
 	int result = RUN_ALL_TESTS();
 	game.MainLoop();
+
+	return Py_BytesMain(argc, argv);
 	return 1;
 }

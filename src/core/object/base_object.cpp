@@ -10,11 +10,6 @@ using namespace luna;
 
 size_t binding:: BindingLObject::sBindingObjectNum = 0;
 
-void TestClosure(PyObject* self, int arg)
-{
-	return;
-}
-
 RegisterTypeEmbedd_Imp(LObject)
 {
 	cls->Ctor<LObject>();	
@@ -22,7 +17,6 @@ RegisterTypeEmbedd_Imp(LObject)
 	cls->BindingProperty<&LObject::mName>("name");
 
 	BindingModule::Get("luna")->AddType(cls);
-	BindingModule::Get("luna")->AddMethod<&TestClosure>("test_closure");
 };
 
 LObject*& LObject::AllocateSubSlot()
@@ -35,7 +29,7 @@ LObject::LObject():
 	mHandle( new WeakPtrHandle(this)),
 	mSelfHandle(this)
 {
-	GenerateUUID();	
+
 }
 
 LObject::~LObject()
@@ -75,14 +69,6 @@ void LObject::Serialize(ISerializer &serializer)
 void LObject::DeSerialize(ISerializer &serializer)
 {
 	serializer.DeSerialize(this);
-}
-
-void LObject::GenerateUUID(LUuid default_val /*= boost::uuids::nil_uuid()*/)
-{
-	if (default_val != boost::uuids::nil_uuid())
-		mUUID = default_val;
-	else
-		mUUID = boost::uuids::random_generator()();
 }
 
 void LObject::SetBindingObject(PyObject* val)

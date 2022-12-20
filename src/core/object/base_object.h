@@ -106,13 +106,7 @@ public:
 		return mObjectType;
 	}
 
-	LObject* GetParent();
-		
-	void GenerateUUID(LUuid default_val = boost::uuids::nil_uuid());
-	LUuid GetUUID() { return mUUID; }
-	void ResetUUID() { mUUID = boost::uuids::nil_uuid(); };
-	std::string GetStrUUID() { return boost::uuids::to_string(mUUID); }
-
+	LObject* GetParent();		
 	
 public:
 	/// 
@@ -131,13 +125,13 @@ public:
 
 		binding::Ref<PyObject, binding::KeepRef> method_name = PyUnicode_FromString(name);
 		PyObject* obj = method_name;
-		PyErr_Print();
 		binding::Ref<PyObject, binding::KeepRef> attr = PyObject_GetAttr(self, method_name);
 		if (PyCallable_Check(attr))
 		{
 			Py_XINCREF(attr);
 			cls->mCallableCache[name] = attr;
 			PyObject_CallFunctionObjArgs(attr, to_binding(args)..., NULL);
+			PyErr_Print();
 		}
 		return;
 	}
@@ -147,7 +141,7 @@ public:
 		mObjectType = type;
 	}
 
-	binding:: BindingLObject* GetBindingObject() { return mBindingObject; }
+	binding::BindingLObject* GetBindingObject() { return mBindingObject; }
 	void SetBindingObject(PyObject* val);
 
 protected:
@@ -159,17 +153,15 @@ protected:
 	}
 	LObject();
 
-
+protected:
+	LString mName;
+	LType*  mObjectType = nullptr;
 protected:
 	LList<LObject*> mSubObjects;
-	LString         mName;
-	LType*          mObjectType = nullptr;
-	LObject*        mParent     = nullptr;
+	LObject*        mParent = nullptr;
 
-private:
-	bool                     mTransient     = false;
+private:	
 	uint64_t                 mInstanceID;
-	LUuid                    mUUID          = boost::uuids::nil_uuid();
 	WeakPtrHandle*           mHandle;
 	TWeakPtr<LObject>        mSelfHandle;
 	binding::BindingLObject* mBindingObject = nullptr;
@@ -211,7 +203,7 @@ ObjectType* TCreateObject()
 namespace luna::binding
 {
 
-struct CORE_API BindingLObject  : public BindingBase
+struct CORE_API BindingLObject  : public BindingObject
 {
 	TWeakPtr<LObject> ptr;
 
@@ -234,40 +226,48 @@ struct CORE_API BindingLObject  : public BindingBase
 template<typename T>
 struct binding_proxy<T, typename std::enable_if_t<std::is_base_of_v<LObject, T>>> : binding_proxy_base
 {
-	using BindingType = BindingLObject;
+	using binding_object_t = BindingLObject;
 
 	static int get_type_flags() { return Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE; };
 
-	static void __destructor__(PyObject* self)
+	static void LObject_destructor(PyObject* self)
 	{
 		PyTypeObject* tp = Py_TYPE(self);
 		BindingLObject* obj = (BindingLObject*)(self);
 		obj->~BindingLObject();
 		tp->tp_free(self);
 	}
-	static destructor get_destructor() { return __destructor__; }
+	static destructor get_destructor() { return LObject_destructor; }
 
-	static PyObject* __new__(PyTypeObject* type, PyObject* args, PyObject* kwrds)
+	static PyObject* LObject_allocfunc(PyTypeObject* type, Py_ssize_t size)
+	{
+		BindingLObject* bindingObject = PyType_GenericAlloc(type, size);
+		std::allocator<TWeakPtr<LObject>>::construct(&(bindingObject->ptr));
+		return bindingObject;
+	}
+
+	static allocfunc get_allocfunc() { return LObject_allocfunc; }
+
+	static PyObject* LObject_newfunc(PyTypeObject* type, PyObject* args, PyObject* kwrds)
 	{
 		Py_XINCREF(type);
 		LType* object_type = LType::Get(type);
 		BindingLObject* obj = (BindingLObject*)type->tp_alloc(type, 0);
 		T* t = object_type->NewInstance<T>();		
+
+#ifdef _DEBUG
+		PyObject* dict = PyObject_GenericGetDict(obj, nullptr);
 		//Check一下Dict
-		assert(PyDict_Check(PyObject_GenericGetDict(obj, nullptr)));
+		assert(PyDict_Check(dict));
+		Py_XDECREF(dict);
+#endif
+
 		t->SetType(object_type);
 		t->SetBindingObject(obj);
 		return (PyObject*)obj;
 	}
-	static newfunc get_newfunc() { return __new__; }
+	static newfunc get_newfunc() { return LObject_newfunc; }
 
-	static int __init__(PyObject* self, PyObject* args, PyObject* kwrds)
-	{
-		return 0;
-	}
-	static initproc get_initproc() {
-		return __init__;
-	}
 	template<typename M>
 	static PyObject* raw_getter(PyObject* s, void* closure)
 	{
@@ -300,32 +300,33 @@ struct binding_converter<U*> : std::enable_if_t<std::is_base_of_v<LObject, U>>
 
 	inline static PyObject* to_binding(LObject* obj)
 	{
-		 BindingLObject* wrap;
+		BindingLObject* bindingObject;
+		PyTypeObject* typeobject = LType::Get<T>()->GetBindingType();
 		if (obj)
 		{
+			typeobject = obj->GetClass()->GetBindingType();
 			if (obj->GetBindingObject())
 			{
 				Py_XINCREF(obj->GetBindingObject());
-				return (PyObject*)obj->GetBindingObject();
+				return obj->GetBindingObject();
 			}
 			// first time to binding...
-			wrap = PyObject_New( BindingLObject, obj->GetClass()->GetBindingType());
-			obj->SetBindingObject((PyObject*)wrap);
+			bindingObject = (BindingLObject*) typeobject->tp_alloc(typeobject, 0);
+			obj->SetBindingObject((PyObject*)bindingObject);
 		}
 		else
 		{
-			wrap = PyObject_New( BindingLObject, LType::Get<T>()->m_binding_type);
-			memset(&wrap->ptr, 0, sizeof(TWeakPtr<LObject>));
-			wrap->ptr = obj;
-		}		
-		return (PyObject*)wrap;
+			bindingObject = (BindingLObject*) typeobject->tp_alloc(typeobject, 0);
+			bindingObject->ptr = obj;
+		}
+
+		return (PyObject*)bindingObject;
 	}
 	inline static T* from_binding(PyObject* obj)
 	{
 		 BindingLObject* res = ( BindingLObject*)(obj);		
 		return (T*) res->ptr.get();
 	}
-
 
 	static const char* binding_fullname()
 	{
@@ -342,7 +343,7 @@ struct binding_converter<TSubPtr<U>>
 	inline static PyObject* to_binding(TSubPtr<U>& sub_ptr)
 	{
 		LObject* obj = sub_ptr.Get();
-		 BindingLObject* wrap;
+		 BindingLObject* bindingObject;
 		if (obj)
 		{
 			if (obj->GetBindingObject())
@@ -351,16 +352,16 @@ struct binding_converter<TSubPtr<U>>
 				return (PyObject*)obj->GetBindingObject();
 			}
 			// first time to binding...
-			wrap = PyObject_New( BindingLObject, obj->GetClass()->GetBindingType());
-			obj->SetBindingObject((PyObject*)wrap);
+			bindingObject = PyObject_New( BindingLObject, obj->GetClass()->GetBindingType());
+			obj->SetBindingObject((PyObject*)bindingObject);
 		}
 		else
 		{
-			wrap = PyObject_New( BindingLObject, LType::Get<T>()->m_binding_type);
-			memset(&wrap->ptr, 0, sizeof(TWeakPtr<LObject>));
-			wrap->ptr = obj;
+			bindingObject = PyObject_New( BindingLObject, LType::Get<T>()->m_binding_type);
+			memset(&bindingObject->ptr, 0, sizeof(TWeakPtr<LObject>));
+			bindingObject->ptr = obj;
 		}
-		return (PyObject*)wrap;
+		return (PyObject*)bindingObject;
 	}
 
 	inline static T* from_binding(PyObject* obj)

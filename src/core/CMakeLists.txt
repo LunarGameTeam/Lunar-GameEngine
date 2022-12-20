@@ -17,4 +17,11 @@ add_compile_definitions(CORE_EXPORT)
 # add_compile_definitions(FMT_EXPORT)
 
 add_dependencies(core imgui Eigen3::Eigen JsonCpp::JsonCpp)
-target_link_libraries(core PRIVATE Boost::boost bcrypt imgui jsoncpp_lib jsoncpp_object JsonCpp::JsonCpp Eigen3::Eigen ${Python3_LIBRARIES} Tracy::TracyClient )
+
+if(USING_DEBUG_PYTHON)
+    target_link_libraries(core PRIVATE python311_d)
+else()
+    target_link_libraries(core PRIVATE python311)
+endif()
+
+target_link_libraries(core PRIVATE Boost::boost bcrypt imgui jsoncpp_lib jsoncpp_object JsonCpp::JsonCpp Eigen3::Eigen Tracy::TracyClient)

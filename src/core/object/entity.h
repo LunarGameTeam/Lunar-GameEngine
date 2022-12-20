@@ -81,8 +81,7 @@ public:
 	T *AddComponent()
 	{
 		T *comp = TCreateObject<T>();
-		comp->mOwnerEntity = this;		
-		comp->GenerateUUID();
+		comp->mOwnerEntity = this;
 		m_components.PushBack(comp);
 		comp->mOnCreateCalled = true;
 		comp->OnCreate();

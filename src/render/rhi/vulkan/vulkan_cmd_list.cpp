@@ -308,7 +308,7 @@ void VulkanGraphicCmdList::BindDescriptorHeap()
 
 }
 
-void VulkanGraphicCmdList::SetVertexBuffer(const LVector<RHIVertexBufferDesc>& vb, int32_t begin_slot)
+void VulkanGraphicCmdList::SetVertexBuffer(const LArray<RHIVertexBufferDesc>& vb, int32_t begin_slot)
 {
 	std::vector<vk::Buffer> buffer;
 	std::vector<vk::DeviceSize> offsets;

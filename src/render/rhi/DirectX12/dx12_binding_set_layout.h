@@ -24,12 +24,12 @@ struct DescriptorTableDesc
 struct DX12DescriptorSetLayoutMember
 {
 	uint32_t root_table_indedx_input = -1;
-	LVector<D3D12_DESCRIPTOR_RANGE> each_range_input;
+	LArray<D3D12_DESCRIPTOR_RANGE> each_range_input;
 	uint32_t mShaderInputNum = 0;
 	LUnorderedMap<LString, int32_t> range_name_list_input;
 
 	uint32_t root_table_indedx_sampler = -1;
-	LVector<D3D12_DESCRIPTOR_RANGE> each_range_sampler;
+	LArray<D3D12_DESCRIPTOR_RANGE> each_range_sampler;
 	uint32_t mSamplerNum = 0;
 	LUnorderedMap<LString, int32_t> range_name_list_sampler;
 };

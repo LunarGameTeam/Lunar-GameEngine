@@ -87,17 +87,15 @@ public:
 		{
 			constexpr auto args_count = function_traits<FN>::args_count;
 			py_func = binding::pycfunction_select<fn>(std::make_index_sequence<args_count>{});
-			def.ml_flags = METH_VARARGS;
-			const LString& doc = LString::MakeStatic(binding::method_doc<fn>(name));
-			def.ml_doc = doc.c_str();
+			def.ml_flags = METH_VARARGS;			
+			def.ml_doc = LString::MakeStatic(binding::method_doc<fn>(name));
 		}
 		else
 		{
 			constexpr auto args_count = function_traits<FN>::args_count;
 			py_func = binding::pycfunction_select<fn>(std::make_index_sequence<args_count>{});
-			def.ml_flags = METH_VARARGS | METH_STATIC;
-			const LString& doc = LString::MakeStatic(binding::static_method_doc<fn>(name));
-			def.ml_doc = doc.c_str();
+			def.ml_flags = METH_VARARGS | METH_STATIC;			
+			def.ml_doc = LString::MakeStatic(binding::method_doc<fn>(name));
 		}
 		def.ml_meth = py_func;
 		return *this;
@@ -105,7 +103,7 @@ public:
 
 	void Doc(const char* doc)
 	{
-		mBindingMethodDef.ml_doc = LString::MakeStatic(doc).c_str();
+		mBindingMethodDef.ml_doc = LString::MakeStatic(doc);
 	}
 
 	bool HasBindingMethodDef() {return mBindingMethodDef.ml_name != nullptr ; }

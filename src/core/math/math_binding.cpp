@@ -15,6 +15,8 @@
 #include "core/memory/ptr.h"
 #include "core/foundation/config.h"
 
+#include "math.h"
+
 namespace luna
 {
 
@@ -64,6 +66,17 @@ template<typename T>
 static void set_z(T* self, float val)
 {
 	self->z() = val;
+}
+template<typename T>
+static float get_w(T* self)
+{
+	return self->w();
+}
+
+template<typename T>
+static void set_w(T* self, float val)
+{
+	self->w() = val;
 }
 
 RegisterType_Imp(LVector3f, LVector3f)
@@ -118,7 +131,27 @@ RegisterType_Imp(LVector2f, LVector2f)
 RegisterType_Imp(LQuaternion, LQuaternion)
 {
 	cls->Binding<LQuaternion>();
+	cls->VirtualProperty("x")
+		.Getter<get_x<LQuaternion>>()
+		.Setter<set_x<LQuaternion>>()
+		.Binding<LQuaternion, float>();
+	cls->VirtualProperty("y")
+		.Getter<get_y<LQuaternion>>()
+		.Setter<set_y<LQuaternion>>()
+		.Binding<LQuaternion, float>();
+	cls->VirtualProperty("z")
+		.Getter<get_z<LQuaternion>>()
+		.Setter<set_z<LQuaternion>>()
+		.Binding<LQuaternion, float>();
+	cls->VirtualProperty("w")
+		.Getter<get_w<LQuaternion>>()
+		.Setter<set_w<LQuaternion>>()
+		.Binding<LQuaternion, float>();
 	BindingModule::Luna()->AddType(cls);
+
+	BindingModule::Get("luna.math")->AddMethod<&LMath::FromEuler>("from_euler");
+	BindingModule::Get("luna.math")->AddMethod<&LMath::ToEuler>("to_euler");
+
 }
 
 }

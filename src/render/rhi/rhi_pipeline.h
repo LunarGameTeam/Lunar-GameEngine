@@ -35,7 +35,7 @@ struct RHIBlendStateDesc
 {
 	bool AlphaToCoverageEnable = false;
 	bool IndependentBlendEnable = false;
-	LVector<RHIBlendStateTargetDesc> RenderTarget;
+	LArray<RHIBlendStateTargetDesc> RenderTarget;
 };
 
 

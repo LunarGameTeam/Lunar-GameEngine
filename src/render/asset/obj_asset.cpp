@@ -22,7 +22,7 @@ void ObjAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> fi
 {
 	Super::OnAssetFileRead(meta, file);
 	objl::Loader loader;
-	loader.LoadFile(mContent.str());
+	loader.LoadFile(mContent.std_str());
 	BaseVertex v;
 	
 	for (auto& mesh : loader.LoadedMeshes)

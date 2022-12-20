@@ -31,7 +31,7 @@ void ConfigLoader::Load(const LString& val)
 {
 	std::vector<std::string> lines;
 	LString group = "";
-	boost::algorithm::split(lines, val.str(), boost::is_any_of("\n"));
+	boost::algorithm::split(lines, val.std_str(), boost::is_any_of("\n"));
 	for (auto& it : lines)
 	{
 		LString line = it;
@@ -64,7 +64,7 @@ void ConfigLoader::Save()
 	LString path(tempPath);
 	path = path + "/config.ini";
 	fs.open(path.c_str(), std::fstream::out | std::fstream::trunc);
-	LMap<LString, LVector<SerializeConfig>> configs;
+	LMap<LString, LArray<SerializeConfig>> configs;
 
 	for (auto& it : sConfigs)
 	{

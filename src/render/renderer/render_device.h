@@ -87,7 +87,7 @@ public:
 
 	RHIResourcePtr CreateBuffer(const RHIBufferDesc& resDesc, void* initData = nullptr);
 	RHIResourcePtr CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData = nullptr, size_t dataSize = 0);
-	RHIResource* CreateInstancingBufferByRenderObjects(LVector<RenderObject*> RenderObjects);
+	RHIResource* CreateInstancingBufferByRenderObjects(LArray<RenderObject*> RenderObjects);
 
 	RHIViewPtr CreateView(const ViewDesc& view);
 

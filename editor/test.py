@@ -2,17 +2,25 @@ import luna
 
 
 # Test Luna
-def test_luna():
-	i = luna.LVector3f(0, 0, 0)
-	v = luna.LVector3f(1, 1, 1)
-	p = i + v
+def binding_test():
+	vec3f_1 = luna.LVector3f(0, 0, 0)
+	vec3f_2 = luna.LVector3f(1, 1, 1)
+	result = vec3f_1 + vec3f_2
 
-	print(p.x)
-	print(p.y)
-	print(p.z)
+	quaterion1 = luna.LQuaternion(1, 1, 1, 1)
+	quaterion2 = luna.LQuaternion(1, 1, 1, 1)
+
+	assert (result.x == vec3f_1.x + vec3f_2.x)
+	assert (result.y == vec3f_1.y + vec3f_2.y)
+	assert (result.z == vec3f_1.z + vec3f_2.z)
+
+	del result
+	print("[binding test] Math Test Passed")
 
 	props = luna.Transform.get_properties()
-
+	assert(len(props) != 0)
 	for prop in props:
 		print(prop.name)
 		print(prop.type)
+	del props
+	print("[binding test] Type Test Passed")

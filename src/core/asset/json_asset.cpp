@@ -29,7 +29,7 @@ void LJsonAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> 
 	OnLoad();
 }
 
-void LJsonAsset::OnAssetFileWrite(LSharedPtr<Dictionary> meta, LVector<byte>& data)
+void LJsonAsset::OnAssetFileWrite(LSharedPtr<Dictionary> meta, LArray<byte>& data)
 {
 	Json::Value root;
 	Dictionary dict(root);	
@@ -38,7 +38,7 @@ void LJsonAsset::OnAssetFileWrite(LSharedPtr<Dictionary> meta, LVector<byte>& da
 	Json::StyledWriter fastWriter;
 	std::string output = fastWriter.write(dict.GetJsonValue());
 	LString content(output);
-	data.assign(content.str().begin(), content.str().end());
+	data.assign(content.std_str().begin(), content.std_str().end());
 }
 
 }

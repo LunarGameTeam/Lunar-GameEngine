@@ -37,7 +37,7 @@ void LBinaryWithHeadAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedP
 	OnLoad();
 }
 
-void LBinaryWithHeadAsset::OnAssetFileWrite(LSharedPtr<Dictionary> meta, LVector<byte>& data)
+void LBinaryWithHeadAsset::OnAssetFileWrite(LSharedPtr<Dictionary> meta, LArray<byte>& data)
 {
 	Json::Value root;
 	Dictionary dict(root);	

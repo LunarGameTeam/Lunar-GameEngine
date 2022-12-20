@@ -18,28 +18,6 @@
 namespace luna::binding
 {
 
-struct CORE_API BindingBase  : public PyObject
-{
-
-};
-//用于存储C++对象的PyObject，不受Python引用计数影响
-template<typename T>
-struct BindingNative : public BindingBase
-{
-	T* val;
-
-	T* GetPtr() { return val; }
-};
-
-//用于存储一个Struct的PyObject，值传递
-template<typename T>
-struct BindingStruct : public BindingBase
-{
-	T val;
-
-	T* GetPtr() { return &val; }
-};
-
 template<typename T>
 struct binding_type
 {

@@ -43,35 +43,42 @@ namespace luna
 class CORE_API LString
 {
 public:
-	using StringContainer = std::string;
-	using ElementType = char;
-	using WStringContainer = std::wstring;
+	using container_t = std::string;
+	using element_t = char;
+	using wcontainer_t = std::wstring;
 
 private:
-	StringContainer m_data;
+	container_t mStdStr;
 
 public:
 	LString();
 	LString(const LString &l_val);
-	LString(const StringContainer &l_val) : m_data(l_val) {}
-	LString(const StringContainer &&r_val) : m_data(r_val) {}
+	LString(const container_t &l_val) : mStdStr(l_val) {}
+	LString(const container_t &&r_val) : mStdStr(r_val) {}
+
 	//从字符串指针内新建，需要以\0结尾
-	LString(const ElementType *value) : m_data(value) {}
+	constexpr LString(const element_t *value) : mStdStr(value) 
+	{
+
+	}
+
 	//从字节数组指针中新建，指定Begin和End
-	LString(const ElementType *first, const ElementType *end) :m_data(first, end) {};
+	LString(const element_t *first, const element_t *end) :mStdStr(first, end) {};
 
 	void Assign(const char *str);
-	void Assign(const StringContainer &container);
+	void Assign(const container_t &container);
 	void Assign(const LString &str);
 
 	inline size_t Find(char const ch, size_t offset=0) const;
+
 	inline size_t Find(const char* str) const
 	{
-		return m_data.find(str);
+		return mStdStr.find(str);
 	};
+
 	inline size_t FindLast(const char ch) const
 	{
-		return m_data.find_last_of(ch);
+		return mStdStr.find_last_of(ch);
 	}
 	size_t FindLast(const char *str) const;
 	bool StartWith(const char *str) const;
@@ -79,66 +86,95 @@ public:
 	bool EndsWith(const char *str) const;
 
 	void Replace(const char *str, const char *des);
-	void Replace(const StringContainer &str);
+	void Replace(const container_t &str);
 	void ReplaceAll(const char *str, const char *dest);
 
 	void EraseAt(size_t index);
 
 	operator const char *() const
 	{
-		return m_data.c_str();
+		return mStdStr.c_str();
 	}
 	void Append(const char *str);
-	void Append(const StringContainer &container);
+	void Append(const container_t &container);
 	void Append(const LString &str);
 
 	// 接口
 	inline size_t Length() const
 	{
-		return m_data.length();
+		return mStdStr.length();
 	}
+
 	inline LString Substr(size_t pos, size_t n) const
 	{
-		return m_data.substr(pos, n);
+		return mStdStr.substr(pos, n);
 	}
+
 	inline LString Substr(size_t pos) const
 	{
-		return m_data.substr(pos);
+		return mStdStr.substr(pos);
 	}
+
+	void SplitOnce(std::vector<LString>& result, const char* s) const
+	{
+		auto it = mStdStr.find_first_of(s);
+		if (it == std::string::npos)
+			return;
+		result.resize(2);
+		result[0] = mStdStr.substr(0, it);
+		result[1] = mStdStr.substr(0, it);
+	}
+
+	void RSplitOnce(std::vector<LString>& result, const char* s) const
+	{
+
+		auto it = mStdStr.find_last_of(s);
+		if (it == std::string::npos)
+			return;
+		result.resize(2);
+		result[0] = mStdStr.substr(0, it);
+		result[1] = mStdStr.substr(0, it);
+		return;
+	}
+
 	template<typename T>
 	inline void EraseFirst(T &&v)
 	{
-		boost::algorithm::erase_first(m_data, v);
+		boost::algorithm::erase_first(mStdStr, v);
 	}
 	template<typename T>
 	inline void EraseLast(T &&v)
 	{
-		boost::algorithm::erase_last(m_data, v);
+		boost::algorithm::erase_last(mStdStr, v);
 	}
 	template<typename T>
 	inline bool Contains(T &&v)
 	{
-		return boost::algorithm::contains(m_data, v);
+		return boost::algorithm::contains(mStdStr, v);
 	}
+
 	template<typename T>
 	inline auto Find(T &&v)
 	{
-		return m_data.find(v);
+		return mStdStr.find(v);
 	}
 
-	inline const StringContainer &str() const
+	inline const container_t &std_str() const
 	{
-		return m_data;
+		return mStdStr;
 	}
-	inline StringContainer &str()
+
+	inline container_t &std_str()
 	{
-		return m_data;
+		return mStdStr;
 	}
+
 	inline const char *c_str() const
 	{
-		return m_data.c_str();
+		return mStdStr.c_str();
 	}
-	WStringContainer GetStdUnicodeString() const;
+
+	wcontainer_t GetStdUnicodeString() const;
 
 	// 运算符
 	friend CORE_API LString operator+(const LString &lValue, const LString &rValue);
@@ -148,35 +184,35 @@ public:
 	friend CORE_API size_t hash_value(const luna::LString &key);
 
 	LString &operator=(const char *const string_in);
-	LString &operator=(const StringContainer &string_in);
-	LString &operator=(const WStringContainer &string_in);
+	LString &operator=(const container_t &string_in);
+	LString &operator=(const wcontainer_t &string_in);
 	LString &operator=(const wchar_t *const string_in);
 
 	bool operator!=(const char *const string_in)
 	{
-		return m_data != string_in;
+		return mStdStr != string_in;
 	}
 	bool operator== (const LString &p) const
 	{
-		return m_data == p.m_data;
+		return mStdStr == p.mStdStr;
 	}
 	bool operator== (const char *const p) const
 	{
-		return m_data == p;
+		return mStdStr == p;
 	}
 	bool operator< (const LString &p) const
 	{
-		return m_data < p.m_data;
+		return mStdStr < p.mStdStr;
 	}
 	// 		LString& operator+=(const char* string_in);
 	// 		LString& operator+=(const LString& string_in);
 	// 		LString& operator+=(const ContainerType& string_in);
 	// 		LString& operator+=(const wchar_t* const string_in);
-	ElementType &operator[](size_t index);
-	const ElementType &operator[](size_t index) const;
+	element_t &operator[](size_t index);
+	const element_t &operator[](size_t index) const;
 
-	const ElementType *operator*() const;
-	const ElementType *operator*();
+	const element_t *operator*() const;
+	const element_t *operator*();
 public:
 	auto static constexpr npos { static_cast<size_t>(-1) };
 
@@ -196,6 +232,7 @@ public:
 		return LString(std::move(result));
 	}
 
+
 	template<>
 	inline static LString Format(const LString& format)
 	{		
@@ -208,36 +245,47 @@ public:
 		return LString(format);
 	}
 
-	static const LString& MakeStatic(const LString& source)
+	static const char* MakeStatic(const LString source)
 	{
-		auto& str_pool = StaticStringPool();
-		auto it = str_pool.find(source);
-		if (it != str_pool.end())
+		auto& statiStrPool = StaticStringPool();
+		auto it = statiStrPool.find(source);
+		if (it != statiStrPool.end())
 			return *it;
-		str_pool.insert(source);
-		it = str_pool.find(source);
+		statiStrPool.insert(source);
+		it = statiStrPool.find(source);
 		return *it;
 	}
 
 	static std::set<LString>& StaticStringPool()
 	{
-		if (!s_const_str_pool)
-			s_const_str_pool = new std::set<LString>();
-		return *s_const_str_pool;
+		if (!sStaticStrPool)
+			sStaticStrPool = new std::set<LString>();
+		return *sStaticStrPool;
+	}
+
+	void Split(std::vector<LString>& res, const char* s)
+	{
+		std::vector<std::string> result;
+		boost::split(result, mStdStr, boost::is_any_of(s));
+		res.reserve(result.size());
+		for (auto& it : result)
+		{
+			res.emplace_back(it);
+		}
 	}
 
 	size_t Hash() const;
 
 private:
-	static  std::set<LString>* s_const_str_pool;
+	static  std::set<LString>* sStaticStrPool;
 };
 
 LString CORE_API operator+(const LString &lValue, const LString &rValue);
 LString CORE_API operator+(const LString &lValue, const char *rValue);
 LString CORE_API operator+(const char *lValue, const LString &rValue);
 
-CORE_API LString::WStringContainer StringToWstring(const LString::StringContainer &string_in);
-CORE_API LString::StringContainer WstringToString(const LString::WStringContainer &wstring_in);
+CORE_API LString::wcontainer_t StringToWstring(const LString::container_t &string_in);
+CORE_API LString::container_t WstringToString(const LString::wcontainer_t &wstring_in);
 CORE_API bool SplitString(const LString& Src, const char ch, std::vector<LString>& res);
 
 template<typename Source, typename Target>
@@ -248,7 +296,7 @@ inline Target LexicalCast(const Source &source)
 template<typename Source>
 inline LString ToString(const Source &source)
 {
-	return LString(boost::lexical_cast<LString::StringContainer>(source));
+	return LString(boost::lexical_cast<LString::container_t>(source));
 }
 template<typename Target>
 inline Target FromString(const LString &source)
@@ -266,11 +314,11 @@ inline const char *FromString(const LString &source)
 namespace std
 {
 
-template<> struct std::formatter<luna::LString> : std::formatter<luna::LString::StringContainer>
+template<> struct std::formatter<luna::LString> : std::formatter<luna::LString::container_t>
 {
 	auto format(const luna::LString& p, std::format_context& ctx) const -> decltype(ctx.out()) {
 		// ctx.out() is an output iterator to write to.		
-		return  std::formatter<luna::LString::StringContainer>::format(p.str(), ctx);
+		return  std::formatter<luna::LString::container_t>::format(p.std_str(), ctx);
 	}
 };
 
@@ -278,7 +326,7 @@ template<> struct std::hash<luna::LString>
 {
 	std::size_t operator() (const luna::LString &p) const
 	{
-		return std::hash<luna::LString::StringContainer>()(p.str());
+		return std::hash<luna::LString::container_t>()(p.std_str());
 	}
 };
 }

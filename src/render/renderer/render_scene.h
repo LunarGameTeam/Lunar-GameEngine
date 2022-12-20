@@ -27,7 +27,7 @@ public:
 
 	inline void SetSceneBufferDirty() { mBufferDirty = true; }
 	
-	const LVector<RenderObject*>& GetRenderObjects() const { return mRenderObjects; };
+	const LArray<RenderObject*>& GetRenderObjects() const { return mRenderObjects; };
 
 	size_t GetRenderViewNum()const { return mViews.Size(); }
 
@@ -49,8 +49,8 @@ private:
 	bool                     mInit        = false;
 	int32_t                  mSceneID;
 	Light*                   mDirLight;
-	LVector<Light>           mAllLight;
-	LVector<RenderObject*>   mRenderObjects;
+	LArray<Light>           mAllLight;
+	LArray<RenderObject*>   mRenderObjects;
 	TSubPtrArray<RenderView> mViews;
 };
 }

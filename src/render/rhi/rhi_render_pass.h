@@ -60,9 +60,9 @@ struct PassDepthStencilDesc
 
 struct RenderPassDesc
 {
-	LVector<PassColorDesc>        mColors;
-	LVector<RHIViewPtr>           mColorView;
-	LVector<PassDepthStencilDesc> mDepths;
+	LArray<PassColorDesc>        mColors;
+	LArray<RHIViewPtr>           mColorView;
+	LArray<PassDepthStencilDesc> mDepths;
 	RHIViewPtr                    mDepthStencilView;
 
 	size_t Hash() const

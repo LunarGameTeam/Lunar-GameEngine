@@ -88,7 +88,7 @@ void MeshAsset::OnAssetBinaryRead(const byte* value)
 	return;
 }
 
-void MeshAsset::OnAssetBinaryWrite(LVector<byte>& data)
+void MeshAsset::OnAssetBinaryWrite(LArray<byte>& data)
 {
 	size_t globel_size = data.size();
 	size_t offset = data.size();

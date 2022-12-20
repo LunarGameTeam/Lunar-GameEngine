@@ -46,7 +46,6 @@ struct binding_proxy<LVector3f> : struct_binding_proxy<LVector3f>
 	}
 };
 
-
 template<>
 struct binding_proxy<LVector2f> : struct_binding_proxy<LVector2f>
 {
@@ -78,5 +77,31 @@ struct binding_proxy<LVector2f> : struct_binding_proxy<LVector2f>
 		return 1;
 	}
 };
+
+
+template<>
+struct binding_proxy<LQuaternion> : struct_binding_proxy<LQuaternion>
+{
+	static initproc get_initproc() { return __initproc__; }
+	static int __initproc__(PyObject* s, PyObject* args, PyObject* kwrds)
+	{
+		BindingStruct<LQuaternion>* self = (BindingStruct<LQuaternion>*)s;
+		Py_INCREF(args);
+		Py_ssize_t size = PyTuple_GET_SIZE(args);
+		float x[4] = { 0, 0, 0, 0 };
+		for (int i = 0; i < size; ++i)
+		{
+			PyObject* arg1 = PyTuple_GET_ITEM(args, i);
+			Py_INCREF(arg1);
+			double d = PyFloat_AsDouble(arg1);
+			Py_DECREF(arg1);
+			x[i] = float(d);
+		}
+		self->val = LQuaternion(x[0], x[1], x[2], x[3]);
+		Py_DECREF(args);
+		return 1;
+	}
+};
+
 
 }

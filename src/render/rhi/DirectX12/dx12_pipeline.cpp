@@ -146,7 +146,7 @@ DXGI_FORMAT DX12PipelineState::GetDx12ElementFormat(VertexElementType elementTyp
 	return DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
 }
 
-void DX12PipelineState::GetDx12InputElementDesc(const RHIVertexLayout& rhi_layout, LVector<D3D12_INPUT_ELEMENT_DESC>& input_desc_array)
+void DX12PipelineState::GetDx12InputElementDesc(const RHIVertexLayout& rhi_layout, LArray<D3D12_INPUT_ELEMENT_DESC>& input_desc_array)
 {
 	input_desc_array.resize(rhi_layout.mElements.size());
 	for (int32_t element_index = 0; element_index < rhi_layout.mElements.size(); ++element_index)
@@ -229,7 +229,7 @@ bool DX12PipelineState::InitPipeline(const RHIPipelineStateDesc& psoDesc)
 		DX12ShaderBlob* vertexShader = mPSODesc.mGraphicDesc.mPipelineStateDesc.mVertexShader->As<DX12ShaderBlob>();
 
 		ID3D12ShaderReflection* vertex_shader_reflection = vertexShader->GetDX12ShaderReflection();
-		LVector<D3D12_INPUT_ELEMENT_DESC> input_desc_array;
+		LArray<D3D12_INPUT_ELEMENT_DESC> input_desc_array;
 		GetDx12InputElementDesc(psoDesc.mGraphicDesc.mInputLayout,input_desc_array);
 
 		dx12Desc.InputLayout.pInputElementDescs = input_desc_array.data();

@@ -27,7 +27,7 @@ void LBasicAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile>
 {
 }
 
-void LBasicAsset::OnAssetFileWrite(LSharedPtr<Dictionary> meta, LVector<byte>& data)
+void LBasicAsset::OnAssetFileWrite(LSharedPtr<Dictionary> meta, LArray<byte>& data)
 {
 }
 

@@ -18,18 +18,27 @@ class PyInspectorEditor(editor.InspectorEditor):
         self.selected_entity = entity
 
     def imgui_component_property(self, comp, prop):
+        if prop.name == "name":
+            return
         luna.imgui.text(prop.name)
         val = getattr(comp, prop.name)
-        if prop.type == bool:
+        if prop.type == luna.LQuaternion:
             imgui.same_line(16 + self.width, 16)
-            changed, val = luna.imgui.check_box("##" + prop.name, val)
+            euler = luna.math.to_euler(val)
+            changed, new_val = luna.imgui.drag_float3("##" + prop.name, euler, 0.2, 1, -1)
             if changed:
-                setattr(comp, prop.name, val)
+                q = luna.math.from_euler(new_val)
+                setattr(comp, prop.name, q)
+        elif prop.type == bool:
+            imgui.same_line(16 + self.width, 16)
+            changed, new_val = luna.imgui.checkbox("##" + prop.name, val)
+            if changed:
+                setattr(comp, prop.name, new_val)
         elif prop.type == luna.LVector3f:
             imgui.same_line(16 + self.width, 16)
-            changed, val = luna.imgui.drag_float3("##" + prop.name, val, 0.2, 1, -1)
+            changed, new_val = luna.imgui.drag_float3("##" + prop.name, val, 0.2, 1, -1)
             if changed:
-                setattr(comp, prop.name, val)
+                setattr(comp, prop.name, new_val)
 
     def imgui_property(self):
         count = self.selected_entity.get_component_count()
@@ -39,14 +48,15 @@ class PyInspectorEditor(editor.InspectorEditor):
                 continue
 
             comp_type = comp.__class__
-            imgui.tree_node(comp.__repr__(), imgui.ImGuiTreeNodeFlags_DefaultOpen, comp_type.__name__)
-            properties: list[LProperty] = comp_type.get_properties()
-            self.width = 50
-            for prop in properties:
-                self.width = max(luna.imgui.calc_text_size(prop.name).x, self.width)
-            for prop in properties:
-                self.imgui_component_property(comp, prop)
-            imgui.tree_pop()
+            is_open = imgui.tree_node(comp.__repr__(), imgui.ImGuiTreeNodeFlags_DefaultOpen, comp_type.__name__)
+            if is_open:
+                properties: list[LProperty] = comp_type.get_properties()
+                self.width = 50
+                for prop in properties:
+                    self.width = max(luna.imgui.calc_text_size(prop.name).x, self.width)
+                for prop in properties:
+                    self.imgui_component_property(comp, prop)
+                imgui.tree_pop()
 
     def imgui_menu(self):
         pass

@@ -89,7 +89,7 @@ const LString& LType::GetBindingFullName()
 	assert(false);
 }
 
-void LType::GetAllProperties(LVector<LProperty*>& result)
+void LType::GetAllProperties(LArray<LProperty*>& result)
 {
 	LType *base = mBase;
 	for (auto &prop : mProperties)
@@ -126,8 +126,7 @@ void LType::GenerateBindingDoc()
 	for (LString& it : mExtraDocs)
 		res = LString::Format("{}\n\t{}", res, it);
 		
-	const LString& type_doc = LString::MakeStatic(res);
-	m_binding_type->tp_doc = type_doc.c_str();
+	m_binding_type->tp_doc = LString::MakeStatic(res);
 }
 
 LProperty* LType::GetProperty(const char* value)

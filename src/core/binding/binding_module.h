@@ -34,7 +34,7 @@ public:
 		def.ml_name = method_name.c_str();
 		def.ml_meth = p;
 		def.ml_flags = METH_VARARGS;
-		def.ml_doc = LString::MakeStatic(binding::static_method_doc<fn>(method_name.c_str())).c_str();
+		def.ml_doc = LString::MakeStatic(binding::static_method_doc<fn>(method_name.c_str()));
 		return def;
 	}
 
@@ -42,6 +42,7 @@ public:
 	void AddLObject(const char* name, LObject* obj);
 	void AddConstant(const char* name, const char* val);
 	void AddConstant(const char* name, long val);	
+	void AddSubModule(const char* name, BindingModule* module);
 
 	bool Init();
 	const LString& GetModuleName() { return mModuleName; }
@@ -59,18 +60,19 @@ private:
 	void _AddType(PyTypeObject* type);
 	void _AddObject(const char* name, PyObject* obj);
 
-	std::vector<PyTypeObject*> m_order_types;
-	bool                             mModuleInited = false; 	
-	PyModuleDef                      mModuleDef;
-	std::map<LString, PyObject*>     mConstants;
-	std::map<LString, PyObject*>	 mConstantStr;
+	std::vector<PyTypeObject*>        m_order_types;
+	bool                              mModuleInited = false; 	
+	PyModuleDef                       mModuleDef;
+	std::map<LString, PyObject*>      mConstants;
+	std::map<LString, PyObject*> 	  mConstantStr;
 
-	std::map<LString, PyTypeObject*> mTypes;
-	std::map<LString, PyObject*>     mObjects;
-	std::map<LString, PyMethodDef>   mMethods;
-
-	LString                          mModuleName;
-	PyObject*                        mPythonModule = nullptr;
+	std::map<LString, PyTypeObject*>  mTypes;
+	std::map<LString, PyObject*>      mObjects;
+	std::map<LString, PyMethodDef>    mMethods;
+	BindingModule*                    mParent       = nullptr;
+	std::map<LString, BindingModule*> mSubModules;
+	LString                           mModuleName;
+	PyObject*                         mPythonModule = nullptr;
 
 };
 

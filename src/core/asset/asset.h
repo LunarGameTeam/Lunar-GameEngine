@@ -24,7 +24,7 @@ public:
 	//Asset资源读入到内存时回调
 	virtual void OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file);
 	//Asset资源写入到磁盘时回调	
-	virtual void OnAssetFileWrite(LSharedPtr<Dictionary> meta, LVector<byte>& data);
+	virtual void OnAssetFileWrite(LSharedPtr<Dictionary> meta, LArray<byte>& data);
 	//资源Release
 	virtual void OnAssetRelease();
 

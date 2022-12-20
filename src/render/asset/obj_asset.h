@@ -26,6 +26,6 @@ public:
 
 	void OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file) override;
 private:
-	LVector<SubMesh*> mSubMesh;
+	LArray<SubMesh*> mSubMesh;
 };
 }
