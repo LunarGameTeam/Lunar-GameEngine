@@ -173,6 +173,8 @@ if(LUNA_USING_FBX_TOOLS)
 	add_subdirectory(test/fbx_test)
 	SET_PROPERTY(TARGET fbx_test PROPERTY FOLDER "Test")
 endif()
+add_subdirectory(src/lib/import_scene)
+SET_PROPERTY(TARGET import_scene PROPERTY FOLDER "Lib")
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT AppEditor)
 

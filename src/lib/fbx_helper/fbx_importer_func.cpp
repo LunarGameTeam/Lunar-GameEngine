@@ -1,14 +1,15 @@
 #pragma once
-#include "lib/fbx_helper/fbx_importer_func.h"
-#include "lib/fbx_helper/fbx_importer.h"
-namespace luna
+#include "fbx_loader/fbx_scene_loader.h"
+#include "fbx_importer/fbx_scene_importer.h"
+#include "fbx_importer_func.h"
+namespace luna::lfbx
 {
-	void ImportFbxToLunaMesh(const LString& fbx_file_path, render::MeshAsset* mesh_out)
+	void ImportFbxToLunaMesh(const LString& fbx_file_path, ImportData::LImportScene &importScene)
 	{
-		LFbxImporterHelper importer;
-		LFbxSceneData scene_out;
-		importer.LoadFbxFile(fbx_file_path, scene_out);
-		LFbxMeshAssetHelper asset_builder;
-		asset_builder.ExchangeFbxSceneToLunaMesh(scene_out, mesh_out);
+		LFbxLoaderHelper importer;
+		LFbxSceneData fbxScene;
+		importer.LoadFbxFile(fbx_file_path, fbxScene);
+		instanceFbxSceneImport->ParseScene(&fbxScene, importScene);
+		int a = 0;
 	}
 }

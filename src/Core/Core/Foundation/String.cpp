@@ -52,6 +52,11 @@ void LString::Append(const char *str)
 	mStdStr.append(str);
 }
 
+void LString::PushBack(const char str)
+{
+	m_data.push_back(str);
+}
+
 void LString::Assign(const char *str)
 {
 	mStdStr.assign(str);

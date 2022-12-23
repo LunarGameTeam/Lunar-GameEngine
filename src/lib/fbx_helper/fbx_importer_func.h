@@ -8,7 +8,7 @@
 #define FBX_API __declspec( dllimport )
 #endif
 #endif
-namespace luna
+namespace luna::lfbx
 {
-	void FBX_API ImportFbxToLunaMesh(const LString& fbx_file_path, render::MeshAsset* mesh_out);
+	void FBX_API ImportFbxToLunaMesh(const LString& fbx_file_path, ImportData::LImportScene& importScene);
 }

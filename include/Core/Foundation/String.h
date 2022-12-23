@@ -98,7 +98,7 @@ public:
 	void Append(const char *str);
 	void Append(const container_t &container);
 	void Append(const LString &str);
-
+	void PushBack(const char str);
 	// 接口
 	inline size_t Length() const
 	{
