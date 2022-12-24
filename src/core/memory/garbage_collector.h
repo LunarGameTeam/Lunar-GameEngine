@@ -1,5 +1,4 @@
 #pragma once
-#include "core/memory/ptr.h"
 #include "core/foundation/container.h"
 
 namespace luna
@@ -19,23 +18,6 @@ public:
 		return ins;
 	}
 
-	//托管Object
-	void HostObject(LObject *obj)
-	{
-		m_objects.insert(obj);
-	}
-
-	//后续扩展，分配内存，托管String分配等
-	//托管String
-	void HostString()
-	{
-
-	}
-	//托管小内存物体
-	void HostSmallObj()
-	{
-
-	}
 };
 
 

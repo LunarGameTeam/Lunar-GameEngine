@@ -9,9 +9,6 @@
 #include "core/asset/asset.h"
 
 #include <d3d11.h>
-#include <windows.h>
-#include <psapi.h>
-#include <xhash>
 #include <tchar.h>
 
 namespace luna

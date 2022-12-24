@@ -11,29 +11,9 @@
 namespace luna
 {
 
-#pragma region Legacy Smart Pointer 
-
-template<typename T>
-using LSharedPtr = std::shared_ptr<T>;
-
-template<typename T>
-using LWeakPtr = std::weak_ptr<T>;
-
-template<typename T>
-using LUniquePtr = std::unique_ptr<T>;
-
-template<typename T, typename... Args>
-inline LSharedPtr<T> MakeShared(Args && ... args)
-{
-	return std::make_shared<T>(args...);
-}
-
-#pragma endregion
 
 class LObject;
 class LType;
-
-extern LObject** s_NullPtr;
 
 template<typename T>
 class TSubPtr;
@@ -64,12 +44,13 @@ public:
 	~LSubPtr();
 
 public:
-	void operator=(const LSubPtr & value) 
+	LSubPtr& operator=(const LSubPtr & value)
 	{
 		if (value.mPPtr)
 			*mPPtr = *value.mPPtr;
 		else
 			*mPPtr = nullptr;
+		return *this;
 	};
 
 	//待定
@@ -78,7 +59,8 @@ public:
 		return *mPPtr;
 	}
 
-	void operator=(LObject *val);
+	LSubPtr& operator=(LObject *val);
+
 	void SetPtr(LObject *val);
 
 protected:
@@ -87,11 +69,6 @@ protected:
 
 };
 
-template<typename T>
-class PPtr
-{
-
-};
 
 template<typename T>
 class TSubPtr : public LSubPtr
@@ -139,98 +116,58 @@ public:
 
 };
 
-struct CORE_API WeakPtrHandle
-{
-	WeakPtrHandle(LObject* _ptr) noexcept :
-		ptr(_ptr)
-	{
-
-	}
-	size_t weak_ref = 0;
-	LObject *ptr = nullptr;
-	void Inc() noexcept
-	{
-		++weak_ref;
-	}
-	void Dec() noexcept
-	{
-		--weak_ref;
-		if (weak_ref == 0)
-			delete this;
-	}
-};
-
 template<typename T>
-class TWeakPtr
+class TPPtr
 {
 public:
-	TWeakPtr(T *ptr) noexcept
+	TPPtr(T *ptr) noexcept
 	{
 		static_assert(std::is_base_of<LObject, T>::value, "T should inherit from LObject");
-
-		if(ptr)
-			mWeakHandle = ptr->GetHandle();
-
-		if(mWeakHandle)
-			mWeakHandle->Inc();
 	}
 
-	TWeakPtr(TWeakPtr&& rv) noexcept : mWeakHandle(rv.mWeakHandle) {};
+	TPPtr(TPPtr&& rv) noexcept : mInstanceID(rv.mInstanceID) {};
 
-	TWeakPtr(TWeakPtr &rv) noexcept : mWeakHandle(rv.mWeakHandle) 
+	TPPtr(TPPtr&rv) noexcept : mInstanceID(rv.mInstanceID)
 	{
-		if(mWeakHandle)
-			mWeakHandle->Inc();
 	}
 
-	TWeakPtr() noexcept = default;
+	TPPtr() noexcept = default;
 
 	void operator=(T *val) noexcept
 	{
-		if (val && mWeakHandle == val->GetHandle())
+		if (val && mInstanceID == val->GetInstanceID())
 			return;
 
-		if (mWeakHandle)
-			mWeakHandle->Dec();
 		
 		if (val)
 		{
-			mWeakHandle = val->GetHandle();
-			mWeakHandle->Inc();
+			mInstanceID = val->GetInstanceID();
 		}
 		else
 		{
-			mWeakHandle = nullptr;
+			mInstanceID = 0;
 		}			
 	}
 
-	T* operator*() const noexcept { return mWeakHandle ? mWeakHandle->ptr : nullptr; }
+	T* operator*() const noexcept { return T::InstanceIDToObject(mInstanceID); }
 
-	void operator=(const TWeakPtr& val) noexcept
+	void operator=(const TPPtr& val) noexcept
 	{
-		if (mWeakHandle == val.mWeakHandle)
+		if (mInstanceID == val.mInstanceID)
 			return;
 
-		if (mWeakHandle)
-			mWeakHandle->Dec();
+		mInstanceID = val.mInstanceID;
 
-		mWeakHandle = val.mWeakHandle;
-
-		if (mWeakHandle)
-			mWeakHandle->Inc();
 	}
 
-	T *get() noexcept { return mWeakHandle ? mWeakHandle->ptr : nullptr; }
+	T* get() noexcept { return  T::InstanceIDToObject(mInstanceID); }
 
-	bool Valid() noexcept { return mWeakHandle->ptr != nullptr ? mWeakHandle : false;	}
-
-	~TWeakPtr() noexcept
+	~TPPtr() noexcept
 	{
-		if (mWeakHandle)
-			mWeakHandle->Dec();
+		mInstanceID = 0;
 	}
 
-	WeakPtrHandle* mWeakHandle = nullptr;
+	size_t mInstanceID = 0;	
 };
 
 template<typename T>

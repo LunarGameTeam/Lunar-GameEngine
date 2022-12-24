@@ -2,6 +2,7 @@
 #include "core/reflection/reflection.h"
 #include "core/asset/asset.h"
 #include "core/foundation/container.h"
+#include "core/memory/ptr_binding.h"
 
 namespace luna
 {

@@ -1,12 +1,14 @@
 #include "material_template.h"
 #include "core/asset/asset.h"
 #include "core/asset/asset_module.h"
+
 #include "render/asset/material_template.h"
 #include "render/asset/texture_asset.h"
 
 
 namespace luna::render
 {
+
 RegisterTypeEmbedd_Imp(MaterialTemplateAsset)
 {
 	cls->Ctor<MaterialTemplateAsset>();

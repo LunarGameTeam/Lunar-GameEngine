@@ -1,18 +1,25 @@
 #include "base_object.h"
-#include "core/memory/ptr.h"
 
+#include "core/reflection/type.h"
 #include "core/reflection/reflection.h"
 
 #include "core/binding/binding_module.h"
+#include "core/memory/ptr.h"
 
-using namespace boost;
-using namespace luna;
+#include <unordered_map>
 
-size_t binding:: BindingLObject::sBindingObjectNum = 0;
+
+
+namespace luna
+{
+
+size_t binding::BindingLObject::sBindingObjectNum = 0;
+size_t sInstanceID = 0;
+std::unordered_map<size_t, LObject*> sObjects;
 
 RegisterTypeEmbedd_Imp(LObject)
 {
-	cls->Ctor<LObject>();	
+	cls->Ctor<LObject>();
 	cls->Binding<LObject>();
 	cls->BindingProperty<&LObject::mName>("name");
 
@@ -25,20 +32,18 @@ LObject*& LObject::AllocateSubSlot()
 	return mSubObjects.back();
 }
 
-LObject::LObject():
-	mHandle( new WeakPtrHandle(this)),
-	mSelfHandle(this)
+LObject::LObject() :
+	mInstanceID(sInstanceID++)
 {
-
+	sObjects[mInstanceID] = this;
 }
 
 LObject::~LObject()
 {
 	Py_XDECREF(mBindingObject);
-	mHandle->ptr = nullptr;	
 }
 
-void LObject::DeAllocateSubSlot(LObject **obj)
+void LObject::DeAllocateSubSlot(LObject** obj)
 {
 	if (obj)
 	{
@@ -50,25 +55,30 @@ void LObject::DeAllocateSubSlot(LObject **obj)
 			{
 				mSubObjects.erase(it);
 				break;
-			}			
+			}
 		}
 	}
 
 }
 
-LObject *LObject::GetParent()
+LObject* LObject::GetParent()
 {
 	return mParent;
 }
 
-void LObject::Serialize(ISerializer &serializer)
+void LObject::Serialize(ISerializer& serializer)
 {
 	serializer.Serialize(this);
 }
 
-void LObject::DeSerialize(ISerializer &serializer)
+void LObject::DeSerialize(ISerializer& serializer)
 {
 	serializer.DeSerialize(this);
+}
+
+LObject* LObject::InstanceIDToObject(size_t id)
+{
+	return sObjects[id];
 }
 
 void LObject::SetBindingObject(PyObject* val)
@@ -77,5 +87,6 @@ void LObject::SetBindingObject(PyObject* val)
 	Py_XINCREF(val);
 	mBindingObject = (binding::BindingLObject*)(val);
 	memset(&mBindingObject->ptr, 0, sizeof(mBindingObject->ptr));
-	mBindingObject->ptr = this;	
+	mBindingObject->ptr = this;
+}
 }

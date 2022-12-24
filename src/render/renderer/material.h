@@ -4,7 +4,7 @@
 #include "core/foundation/container.h"
 #include "core/asset/asset.h"
 #include "core/asset/json_asset.h"
-
+#include "core/memory/ptr_binding.h"
 
 #include "render/render_config.h"
 #include "render/renderer/render_device.h"

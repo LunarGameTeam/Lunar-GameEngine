@@ -1,5 +1,6 @@
 #include "core/object/entity.h"
 #include "core/object/transform.h"
+#include "core/memory/ptr_binding.h"
 
 namespace luna
 {

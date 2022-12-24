@@ -1,6 +1,7 @@
 #include "ptr.h"
+
 #include "core/object/base_object.h"
-#include "core/reflection/reflection.h"
+#include "core/memory/ptr_binding.h"
 #include "core/reflection/type.h"
 
 namespace luna
@@ -26,9 +27,10 @@ void LSubPtr::SetPtr(LObject *val)
 }
 
 
-void LSubPtr::operator=(LObject *val)
+LSubPtr& LSubPtr::operator=(LObject *val)
 {
 	SetPtr(val);
+	return *this;
 }
 
 }

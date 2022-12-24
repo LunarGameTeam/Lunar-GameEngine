@@ -219,3 +219,22 @@ inline std::enable_if_t<EnableBitMaskOperators<Enum>::enable, Enum>& operator ^=
 		);
 	return lhs;
 }
+
+#pragma region Legacy Smart Pointer 
+
+template<typename T>
+using LSharedPtr = std::shared_ptr<T>;
+
+template<typename T>
+using LWeakPtr = std::weak_ptr<T>;
+
+template<typename T>
+using LUniquePtr = std::unique_ptr<T>;
+
+template<typename T, typename... Args>
+inline LSharedPtr<T> MakeShared(Args && ... args)
+{
+	return std::make_shared<T>(args...);
+}
+
+#pragma endregion

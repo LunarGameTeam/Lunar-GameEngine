@@ -8,7 +8,7 @@
 
 #include "core/foundation/string.h"
 #include "core/foundation/container.h"
-#include "core/memory/ptr.h"
+
 #include "core/binding/binding.h"
 #include "core/binding/binding_traits.h"
 #include "core/binding/binding_module.h"
@@ -245,6 +245,13 @@ public:
 	bool IsNativeType() const noexcept { return mIsPureBindingType; }
 
 	std::vector<LString>& GetExtraDocs() { return mExtraDocs; }
+
+
+	void SetBindingType(PyTypeObject* binding_type)
+	{
+		m_binding_type = binding_type;
+		sBindingTypes->operator [](binding_type) = this;
+	}
 protected:
 
 	std::vector<PyMethodDef>& GetBindingMethods()
@@ -274,12 +281,6 @@ protected:
 		def.name = nullptr;
 		mPropDefCache.push_back(def);
 		return mPropDefCache;
-	}
-
-	void SetBindingType(PyTypeObject* binding_type)
-	{
-		m_binding_type = binding_type;
-		sBindingTypes->operator [](binding_type) = this;
 	}
 
 	bool                         mIsPureBindingType = false;

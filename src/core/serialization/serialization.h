@@ -39,13 +39,6 @@ public:
 	virtual bool DeSerialize(LObject *obj);
 
 private:
-	LObject* GetObject(const LUuid& uuid)
-	{
-		auto it = mObjects.find(uuid);
-		if (it != mObjects.end())
-			return it->second;
-		return nullptr;
-	}
 	void SerializeProperty(LProperty &prop, LObject *obj, Dictionary &dict);
 	void DeserializeProperty(LProperty& prop, LObject* obj, Dictionary& dict);
 
@@ -53,9 +46,6 @@ private:
 
 	DoubleConverter<FileID, LObject*> mFileIDMap;
 	
-
-	LMap<LUuid, Dictionary> mDatas;
-	LMap<LUuid, LObject*> mObjects;
 	Dictionary mDict;
 };
 

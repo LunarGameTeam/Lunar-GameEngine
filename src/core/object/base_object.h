@@ -1,19 +1,13 @@
 #pragma once
 
 
-
-#include "core/memory/garbage_collector.h"
 #include "core/foundation/container.h"
-#include "core/foundation/uuid.h"
-#include "core/reflection/reflection.h"
-
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_io.hpp>
-
-#include <memory>
-
+#include "core/memory/ptr.h"
+#include "core/reflection/type.h"
 #include "core/binding/binding_traits.h"
 #include "core/reflection/reflection.h"
+#include <memory>
+
 
 namespace luna::binding
 {
@@ -22,49 +16,26 @@ struct  BindingLObject;
 
 namespace luna
 {
-using LUuid = boost::uuids::uuid;
 
+class LType;
 class LObject;
-class LStruct;
 class AssetModule;
-struct WeakPtrHandle;
-
 
 //默认Json
 class CORE_API ISerializer
 {
 public:
-	ISerializer() = default;
 	virtual bool DeSerialize(LObject* obj) = 0;
-	virtual bool Serialize(LObject* obj) = 0;
-	virtual bool DeSerialize(LStruct* obj) { return true; };
-
+	virtual bool Serialize(LObject* obj)   = 0;
 };
 
-static LObject* lroot_object;
-
-/*!
- * \class Object
- *
- * \brief
- *
- * \author
- *
- */
-
-
-class CORE_API LStruct
-{
-public:
-	void Serialize(ISerializer& serializer)
-	{
-		serializer.DeSerialize(this);
-	};
-};
 
 class CORE_API LObject
 {
 	RegisterTypeEmbedd(LObject, InvalidType)
+protected:
+	LObject();
+
 public:
 	virtual ~LObject() noexcept;
 	/// 
@@ -74,7 +45,6 @@ public:
 	/// 
 	virtual LObject*& AllocateSubSlot();
 	virtual void DeAllocateSubSlot(LObject** obj);
-	inline WeakPtrHandle* GetHandle() const noexcept { return mHandle; }
 
 public:
 	/// 
@@ -95,7 +65,6 @@ public:
 	{
 		return mName;
 	}
-
 	inline void SetObjectName(LString& val)
 	{
 		mName = val;
@@ -141,6 +110,9 @@ public:
 		mObjectType = type;
 	}
 
+	inline size_t GetInstanceID() const { return mInstanceID; }
+	static LObject* InstanceIDToObject(size_t id);
+
 	binding::BindingLObject* GetBindingObject() { return mBindingObject; }
 	void SetBindingObject(PyObject* val);
 
@@ -148,22 +120,16 @@ protected:
 	void* operator new(size_t size)
 	{
 		void* p = ::operator new(size);
-		LGcCore::Instance()->HostObject(static_cast<LObject*>(p));
 		return p;
 	}
-	LObject();
 
 protected:
-	LString mName;
-	LType*  mObjectType = nullptr;
-protected:
+	LString         mName       = "";
+	LType*          mObjectType = nullptr;
 	LList<LObject*> mSubObjects;
-	LObject*        mParent = nullptr;
-
-private:	
-	uint64_t                 mInstanceID;
-	WeakPtrHandle*           mHandle;
-	TWeakPtr<LObject>        mSelfHandle;
+	LObject*        mParent     = nullptr;
+	uint64_t        mInstanceID = 0;
+protected:
 	binding::BindingLObject* mBindingObject = nullptr;
 
 private:
@@ -174,7 +140,6 @@ private:
 	friend ObjectType* TCreateObject();
 
 	friend class LType;
-	friend class SceneSerializer;
 	friend class JsonSerializer;
 	friend class AssetModule;
 	
@@ -187,7 +152,6 @@ RET* NewObject(LType* type = LType::Get<RET>())
 {
 	assert(type->Constructbale());
 	LObject* obj = type->NewInstance<LObject>();	
-	obj->SetType(type);
 	return (RET*)obj;
 }
 
@@ -205,7 +169,7 @@ namespace luna::binding
 
 struct CORE_API BindingLObject  : public BindingObject
 {
-	TWeakPtr<LObject> ptr;
+	TPPtr<LObject> ptr;
 
 	LObject* GetPtr() { return ptr.get(); }
 
@@ -242,7 +206,7 @@ struct binding_proxy<T, typename std::enable_if_t<std::is_base_of_v<LObject, T>>
 	static PyObject* LObject_allocfunc(PyTypeObject* type, Py_ssize_t size)
 	{
 		BindingLObject* bindingObject = PyType_GenericAlloc(type, size);
-		std::allocator<TWeakPtr<LObject>>::construct(&(bindingObject->ptr));
+		std::allocator<TPPtr<LObject>>::construct(&(bindingObject->ptr));
 		return bindingObject;
 	}
 
@@ -358,7 +322,7 @@ struct binding_converter<TSubPtr<U>>
 		else
 		{
 			bindingObject = PyObject_New( BindingLObject, LType::Get<T>()->m_binding_type);
-			memset(&bindingObject->ptr, 0, sizeof(TWeakPtr<LObject>));
+			memset(&bindingObject->ptr, 0, sizeof(TPPtr<LObject>));
 			bindingObject->ptr = obj;
 		}
 		return (PyObject*)bindingObject;

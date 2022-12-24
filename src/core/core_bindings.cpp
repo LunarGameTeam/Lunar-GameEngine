@@ -25,6 +25,7 @@
 #include "core/foundation/string.h"
 
 #include "core/memory/ptr.h"
+#include "core/memory/ptr_binding.h"
 #include "core/foundation/config.h"
 
 namespace luna
