@@ -21,11 +21,6 @@
 
 namespace luna::editor
 {
-struct InputTextCallback_UserData
-{
-	LString* Str;
-	ImGuiInputTextCallback ChainCallback;
-};
 
 
 bool InputLString(const char* label, LString* str, ImGuiInputTextFlags flags);

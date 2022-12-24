@@ -127,7 +127,7 @@ void LType::GenerateBindingDoc()
 	for (LString& it : mExtraDocs)
 		res = LString::Format("{}\n\t{}", res, it);
 		
-	m_binding_type->tp_doc = LString::MakeStatic(res);
+	mPyType->tp_doc = LString::MakeStatic(res);
 }
 
 LProperty* LType::GetProperty(const char* value)

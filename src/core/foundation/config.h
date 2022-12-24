@@ -39,7 +39,7 @@ public:
 	~ConfigLoader();
 
 	void Load(const LString& val);
-	void Save();
+	void Save(std::fstream& fs);
 private:
 	LMap<LString, SerializeConfig> sConfigs;
 

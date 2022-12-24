@@ -51,8 +51,8 @@ RegisterTypeEmbedd_Imp(MaterialParamTextureCube)
 RegisterTypeEmbedd_Imp(MaterialInstance)
 {
 	cls->Ctor<MaterialInstance>();
-	cls->Property< &Self::mOverrideParams>("params");
-	cls->Property< &Self::mMaterialTemplate>("material_asset");
+	cls->BindingProperty< &Self::mOverrideParams>("params");
+	cls->BindingProperty< &Self::mMaterialTemplate>("material_asset");
 	cls->Binding<MaterialInstance>();
 	BindingModule::Get("luna")->AddType(cls);
 }

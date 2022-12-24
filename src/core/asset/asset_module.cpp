@@ -70,7 +70,7 @@ LBasicAsset *AssetModule::LoadAsset(const LPath &path, LType *asset_type)
 		return mCachedAssets[path.AsString()]->asset.get();
 	}
 	LSharedPtr<LBasicAsset> asset(asset_type->NewInstance<LBasicAsset>());
-	asset->mAssetPath = path;
+	asset->mAssetPath = path.AsString();
 	
 	
 	LString meta_path = path.AsStringAbs() + ".meta";

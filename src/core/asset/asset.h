@@ -35,7 +35,7 @@ public:
 	
 private:
 	friend class AssetModule;
-	LPath mAssetPath;//统一的Asset URL path
+	LString mAssetPath;//统一的Asset URL path
 };
 
 class CORE_API LBinaryAsset : public LBasicAsset

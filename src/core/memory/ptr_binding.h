@@ -25,7 +25,7 @@ struct static_type<TSubPtr<T>>
 	static LType* InitTSubPtrType()
 	{
 		LType* type = NewTemplateType<T>("TSubPtr", sizeof(TSubPtr<T>), LType::Get<LSubPtr>());
-		type->SetBindingType(binding::binding_type<T>::StaticType());
+		type->mPyType = binding::binding_type<T>::StaticType();
 		return type;
 	}
 	static LType* StaticType()

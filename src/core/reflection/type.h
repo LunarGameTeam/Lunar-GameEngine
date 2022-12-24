@@ -163,21 +163,21 @@ public:
 	template<typename T>
 	void Binding()
 	{
-		m_binding_type = new PyTypeObject();
+		mPyType = new PyTypeObject();
 
 		if (sBindingTypes == nullptr)
 			sBindingTypes = new std::map<PyTypeObject*, LType*>();
 
-		(*sBindingTypes)[m_binding_type] = this;
+		(*sBindingTypes)[mPyType] = this;
 
-		PyTypeObject& binding_type = *m_binding_type;
+		PyTypeObject& binding_type = *mPyType;
 
 		binding_type = {
 			PyVarObject_HEAD_INIT(&PyType_Type, 0)
 		};
 
 		binding_type.tp_name = GetName().c_str();
-		binding_type.tp_base = mBase ? mBase->m_binding_type : nullptr;		
+		binding_type.tp_base = mBase ? mBase->mPyType : nullptr;		
 		binding_type.tp_basicsize = sizeof(binding::binding_proxy<T>::binding_object_t);
 		binding_type.tp_itemsize = 0;
 
@@ -224,8 +224,8 @@ public:
 
 	PyTypeObject* GetBindingType() const
 	{
-		if (m_binding_type)
-			return m_binding_type;
+		if (mPyType)
+			return mPyType;
 		if (mBase)
 			return mBase->GetBindingType();
 		// No Binding??
@@ -233,7 +233,7 @@ public:
 		return nullptr;
 	};
 
-	PyTypeObject* m_binding_type = nullptr;
+	PyTypeObject* mPyType = nullptr;
 
 	LType* GetBase() const noexcept { return mBase; }
 
@@ -249,7 +249,7 @@ public:
 
 	void SetBindingType(PyTypeObject* binding_type)
 	{
-		m_binding_type = binding_type;
+		mPyType = binding_type;
 		sBindingTypes->operator [](binding_type) = this;
 	}
 protected:

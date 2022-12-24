@@ -18,6 +18,44 @@
 namespace luna
 {
 
+
+struct InputTextCallback_UserData
+{
+	LString Str;
+	ImGuiInputTextCallback ChainCallback;
+};
+
+int InputTextCallback(ImGuiInputTextCallbackData* data)
+{
+	InputTextCallback_UserData* user_data = (InputTextCallback_UserData*)data->UserData;
+	if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+	{
+		// Resize string callback
+		// If for some reason we refuse the new length (BufTextLen) and/or capacity (BufSize) we need to set them back to what we want.
+		LString& str = user_data->Str;
+		IM_ASSERT(data->Buf == str.c_str());
+		str.std_str().resize(data->BufTextLen);
+		data->Buf = (char*)str.c_str();
+	}
+	return 0;
+}
+
+
+PyObject* InputLString(const LString& str, ImGuiInputTextFlags flags)
+{
+	IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
+	flags |= ImGuiInputTextFlags_CallbackResize;
+	InputTextCallback_UserData data;
+	data.Str = str;
+	bool changed = ImGui::InputText("##", (char*)data.Str.c_str(), data.Str.std_str().size() + 1, flags, InputTextCallback, &data);
+
+	PyObject* ret_args = PyTuple_New(2);
+	PyObject* new_val = changed ? to_binding(data.Str) : Py_NewRef(Py_None);
+	PyTuple_SetItem(ret_args, 0, to_binding(changed));
+	PyTuple_SetItem(ret_args, 1, new_val);
+	return ret_args;
+}
+
 LVector2f ToVector2(const ImVec2& val) 
 {
 	return LVector2f(val.x, val.y);
@@ -101,7 +139,8 @@ STATIC_INIT(imgui)
 		imguiModule->AddConstant("ICON_FA_COMPRESS", ICON_FA_COMPRESS);
 		imguiModule->AddConstant("ICON_FA_CUBE", ICON_FA_CUBE);
 
-		
+
+		imguiModule->AddMethod<&InputLString>("input");
 		imguiModule->AddMethod<&ImGui::BeginMenuBar>("begin_menu_bar");
 		imguiModule->AddMethod<&ImGui::EndMenuBar>("end_menu_bar");
 		imguiModule->AddMethod<&ImGui::BeginMenu>("begin_menu");

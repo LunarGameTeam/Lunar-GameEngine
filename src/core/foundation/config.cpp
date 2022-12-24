@@ -1,12 +1,7 @@
-#include "core/foundation/config.h"
 #include "config.h"
-#include <tchar.h>
-#include "windows.h"
-
-#include "core/file/platform_module.h"
-#include "core/framework/luna_core.h"
 
 #include <boost/algorithm/string.hpp>
+#include <fstream>
 
 namespace luna
 {
@@ -55,15 +50,9 @@ void ConfigLoader::Load(const LString& val)
 	}
 }
 
-void ConfigLoader::Save()
+void ConfigLoader::Save(std::fstream& fs)
 {
 
-	std::fstream fs;
-	TCHAR tempPath[1000];
-	GetCurrentDirectory(MAX_PATH, tempPath); //获取程序的当前目录
-	LString path(tempPath);
-	path = path + "/config.ini";
-	fs.open(path.c_str(), std::fstream::out | std::fstream::trunc);
 	LMap<LString, LArray<SerializeConfig>> configs;
 
 	for (auto& it : sConfigs)
@@ -77,7 +66,6 @@ void ConfigLoader::Save()
 		};
 		group_config.push_back(config);
 	}
-
 	for (auto& it : configs)
 	{
 		LString group = LString::Format("[{0}]\n", it.first.c_str());
@@ -88,7 +76,6 @@ void ConfigLoader::Save()
 		}
 	}
 	fs.flush();
-	fs.close();
 }
 
 

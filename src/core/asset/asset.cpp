@@ -7,11 +7,12 @@ namespace luna
 
 RegisterTypeEmbedd_Imp(LBasicAsset)
 {
+	cls->Ctor<Self>();
+	cls->BindingProperty<&Self::mAssetPath>("path");
 	cls->Binding<Self>();
+
 	BindingModule::Get("luna")->AddType(cls);
 
-	cls->Ctor<Self>();	
-	cls->Method<&LBasicAsset::OnAssetFileRead>("on_asset_file_read");
 };
 
 LBasicAsset::LBasicAsset()
@@ -38,7 +39,7 @@ void LBasicAsset::OnAssetRelease()
 
 LString LBasicAsset::GetAssetPath()
 {
-	return mAssetPath.AsString();
+	return mAssetPath;
 }
 
 RegisterTypeEmbedd_Imp(LTextAsset)

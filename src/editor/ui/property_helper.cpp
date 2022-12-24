@@ -47,7 +47,6 @@ struct property_editor<LString>
 		LType* prop_type = prop->GetType();
 		LType* target_type = target->GetClass();
 		LString& prop_val = prop->GetValue<LString>(target);
-		InputLString("##" + prop->GetName(), &prop_val, ImGuiInputTextFlags_CallbackAlways);
 	}
 };
 
@@ -158,17 +157,7 @@ void property_helper_func(LProperty* prop, LObject* target)
 			LString path;
 			if (asset)
 				path = asset->GetAssetPath();
-			if (InputLString("path/" + prop->GetName(), &path,
-			                 ImGuiInputTextFlags_CallbackAlways | ImGuiInputTextFlags_EnterReturnsTrue))
-			{
-				asset = sAssetModule->LoadAsset(path, temp_type);
-				LSubPtr value(target);
-				value.SetPtr(asset);
-				if (prop->GetSetter().Valid())
-					prop->SetValue(target, asset);
-				else
-					prop->SetValue(target, value);
-			}
+			
 			if (ImGui::BeginDragDropTarget())
 			{
 				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("LIBRARY"))

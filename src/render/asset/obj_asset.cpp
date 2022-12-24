@@ -13,9 +13,9 @@ namespace luna::render
 
 RegisterTypeEmbedd_Imp(ObjAsset)
 {
+	cls->Ctor<ObjAsset>();
 	cls->Binding<Self>();
 	BindingModule::Get("luna")->AddType(cls);
-	cls->Ctor<ObjAsset>();
 };
 
 void ObjAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file)

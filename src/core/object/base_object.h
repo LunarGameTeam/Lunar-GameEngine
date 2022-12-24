@@ -140,9 +140,7 @@ private:
 	friend ObjectType* TCreateObject();
 
 	friend class LType;
-	friend class JsonSerializer;
-	friend class AssetModule;
-	
+
 	template<typename T>
 	friend struct binding_proxy;
 };
@@ -321,7 +319,7 @@ struct binding_converter<TSubPtr<U>>
 		}
 		else
 		{
-			bindingObject = PyObject_New( BindingLObject, LType::Get<T>()->m_binding_type);
+			bindingObject = PyObject_New( BindingLObject, LType::Get<T>()->mPyType);
 			memset(&bindingObject->ptr, 0, sizeof(TPPtr<LObject>));
 			bindingObject->ptr = obj;
 		}
@@ -340,4 +338,29 @@ struct binding_converter<TSubPtr<U>>
 	}
 };
 
+template<typename U>
+struct binding_converter<TSubPtrArray<U>>
+{
+
+	inline static PyObject* to_binding(const TSubPtrArray<U>& array)
+	{
+		PyObject* res = PyList_New(array.Size());
+		for (auto& it: array)
+		{
+			PyList_Append(res, to_binding(it.Get()));
+		}
+		return (PyObject*)res;
+	}
+
+	inline static TSubPtrArray<U> from_binding(PyObject* obj)
+	{
+		assert(false);
+		return nullptr;
+	}
+
+	static const char* binding_fullname()
+	{
+		return LType::Get<U>()->GetBindingFullName();
+	}
+};
 }

@@ -34,7 +34,6 @@ void LoadEditorLibrary()
 	gEngine->LoadModule<render::RenderModule>();
 	gEngine->LoadModule<editor::EditorModule>();
 	ConfigLoader::instance();
-	ConfigLoader::instance().Save();
 	BindingModule::Get("luna.editor")->Init();
 }
 
