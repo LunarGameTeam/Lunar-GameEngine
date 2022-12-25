@@ -4,10 +4,11 @@ from core.editor_core import EditorCore
 from luna import editor
 
 
-class PyHierarchyEditor(editor.HierarchyEditor):
+class PyHierarchyPanel(editor.PanelBase):
     def __init__(self) -> None:
-        super(PyHierarchyEditor, self).__init__()
+        super(PyHierarchyPanel, self).__init__()
         self.scene = None
+        self.title = "场景树"
 
     def set_scene(self, scene):
         self.scene = scene

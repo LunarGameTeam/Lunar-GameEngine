@@ -7,9 +7,9 @@ from luna import editor
 from luna import imgui
 
 
-class PyMainEditor(editor.MainEditor):
+class PyMainPanel(editor.MainPanel):
 	def __init__(self) -> None:
-		super(PyMainEditor, self).__init__()
+		super(PyMainPanel, self).__init__()
 
 	def generate_doc_for_module(self, mymodule: types.ModuleType) -> object:
 		module_name = mymodule.__name__
@@ -42,7 +42,7 @@ class PyMainEditor(editor.MainEditor):
 		return
 
 	def on_imgui(self) -> None:
-		super(PyMainEditor, self).on_imgui()
+		super(PyMainPanel, self).on_imgui()
 		if imgui.begin_menu_bar():
 			if imgui.begin_menu("文件"):
 				if imgui.menu_item("生成 Python API"):

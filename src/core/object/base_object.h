@@ -347,7 +347,7 @@ struct binding_converter<TSubPtrArray<U>>
 		PyObject* res = PyList_New(array.Size());
 		for (auto& it: array)
 		{
-			PyList_Append(res, to_binding(it.Get()));
+			PyList_Append(res, binding_converter<U*>::to_binding(it.Get()));
 		}
 		return (PyObject*)res;
 	}
@@ -355,7 +355,8 @@ struct binding_converter<TSubPtrArray<U>>
 	inline static TSubPtrArray<U> from_binding(PyObject* obj)
 	{
 		assert(false);
-		return nullptr;
+		TSubPtrArray<U> u;
+		return u;
 	}
 
 	static const char* binding_fullname()

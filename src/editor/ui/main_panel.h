@@ -22,15 +22,13 @@
 
 namespace luna::editor
 {
-class MainEditor : public EditorBase
+class MainPanel : public PanelBase
 {
-	RegisterTypeEmbedd(MainEditor, EditorBase);
+	RegisterTypeEmbedd(MainPanel, PanelBase);
 public:
-	MainEditor() = default;
+	MainPanel() = default;
 	void OnInputEvent(LWindow& window, InputEvent& event);
 	void Init() override;
-	void OnGUI() override;
-
 	void OnWindowResize(LWindow& window, WindowEvent& evt);
 	void DoIMGUI() override;
 

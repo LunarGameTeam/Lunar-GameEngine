@@ -14,11 +14,11 @@
 
 namespace luna::editor
 {
-class SceneEditor : public EditorBase
+class ScenePanel : public PanelBase
 {
-	RegisterTypeEmbedd(SceneEditor, EditorBase)
+	RegisterTypeEmbedd(ScenePanel, PanelBase)
 public:
-	SceneEditor()
+	ScenePanel()
 	{
 		mTitle = "Scene";
 	}

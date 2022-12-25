@@ -17,8 +17,7 @@
 #include "core/foundation/container.h"
 #include "core/foundation/config.h"
 
-#include "editor/main_editor.h"
-#include "editor/ui/task_panel.h"
+#include "editor/ui/main_panel.h"
 
 #include "render/rhi/rhi_descriptor_heap.h"
 #include "render/rhi/rhi_types.h"
@@ -27,6 +26,7 @@
 
 #include <d3d12.h>
 #include "vulkan/vulkan.h"
+#include "engine/scene.h"
 
 
 namespace luna::editor
@@ -34,7 +34,7 @@ namespace luna::editor
 
 class HierarchyEditor;
 class InspectorEditor;
-class SceneEditor;
+class ScenePanel;
 class LibraryEditor;
 
 
@@ -53,13 +53,13 @@ public:
 	void OnFrameEnd(float deltaTime) override;
 
 public:
-	EditorBase* RegisterEditor(EditorBase* base);
+	PanelBase* RegisterPanel(PanelBase* base);
 
 
 	template<typename T>
 	T* GetEditor() 
 	{
-		for (EditorBase* edi : m_editors)
+		for (PanelBase* edi : m_editors)
 		{
 			if (edi->GetClass()->IsDerivedFrom(LType::Get<T>()))
 			{
@@ -72,8 +72,8 @@ public:
 	HierarchyEditor* GetHierarchyEditor();
 	LibraryEditor* GetLibraryEditor();
 	InspectorEditor* GetInspectorEditor();
-	SceneEditor* GetSceneEditor();
-	MainEditor* GetMainEditor();
+	ScenePanel* GetSceneEditor();
+	MainPanel* GetMainEditor();
 
 
 private:
@@ -82,12 +82,8 @@ private:
 	Scene* mScene;
 
 	render::RHIViewPtr mRtvImgui;
-	HierarchyEditor* mHierarchy = nullptr;
-	LibraryEditor* mLibrary = nullptr;
-	InspectorEditor* mInspector = nullptr;
-	TodoTaskEditor* mTask = nullptr;
-	SceneEditor* mSceneEditor = nullptr;
-	MainEditor* mMainEditor = nullptr;
+	ScenePanel* mSceneEditor = nullptr;
+	MainPanel* mMainEditor = nullptr;
 	
 	
 	//Render
@@ -102,7 +98,7 @@ private:
 	
 
 	bool mNeedResize = false;
-	LArray<EditorBase*> m_editors;
+	LArray<PanelBase*> m_editors;
 
 	render::TRHIPtr<render::RHIFence> frame_fence_3D;
 };

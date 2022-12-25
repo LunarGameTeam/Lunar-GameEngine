@@ -7,16 +7,17 @@ namespace luna::editor
 {
 
 
-RegisterTypeEmbedd_Imp(EditorBase)
+RegisterTypeEmbedd_Imp(PanelBase)
 {	
-	cls->Ctor<EditorBase>();
-	cls->BindingMethod<&EditorBase::OnGUI>("on_imgui");
-	cls->BindingMethod<&EditorBase::CustomTreeNode>("custom_treenode");
-	cls->Binding<EditorBase>();
+	cls->Ctor<PanelBase>();
+	cls->BindingMethod<&PanelBase::OnGUI>("on_imgui");
+	cls->BindingMethod<&PanelBase::CustomTreeNode>("custom_treenode");
+	cls->BindingProperty<&PanelBase::mTitle>("title");
+	cls->Binding<PanelBase>();
 	BindingModule::Get("luna.editor")->AddType(cls);
 };
 
-void EditorBase::DoIMGUI()
+void PanelBase::DoIMGUI()
 {
 	ImGui::Begin(mTitle.c_str(), nullptr, ImGuiWindowFlags_MenuBar);
 	mFocus = ImGui::IsWindowFocused();
@@ -30,7 +31,7 @@ void EditorBase::DoIMGUI()
 	ImGui::End();
 }
 
-bool EditorBase::CustomTreeNode(const char* label, ImGuiTreeNodeFlags flag, std::function<void(bool, bool)> func)
+bool PanelBase::CustomTreeNode(const char* label, ImGuiTreeNodeFlags flag, std::function<void(bool, bool)> func)
 {
 	ImGuiIO& io = ImGui::GetIO();
 
@@ -70,7 +71,7 @@ bool EditorBase::CustomTreeNode(const char* label, ImGuiTreeNodeFlags flag, std:
 	return opened;
 }
 
-void EditorBase::OnGUI()
+void PanelBase::OnGUI()
 {
 }
 }

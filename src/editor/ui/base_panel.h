@@ -26,14 +26,14 @@ namespace luna::editor
 bool InputLString(const char* label, LString* str, ImGuiInputTextFlags flags);
 
 
-class EditorBase : public LObject
+class PanelBase : public LObject
 {
-	RegisterTypeEmbedd(EditorBase, LObject)
+	RegisterTypeEmbedd(PanelBase, LObject)
 public:
-	EditorBase()
+	PanelBase()
 	{
 	}
-	~EditorBase()
+	~PanelBase()
 	{
 
 	}

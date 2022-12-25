@@ -49,10 +49,17 @@ struct static_type<SubPtrArray>
 template<typename T>
 struct static_type<TSubPtrArray<T>>
 {
+	static LType* InitTSubPtrType()
+	{
+		LType* type = NewTemplateType<T>("TSubPtrArray", sizeof(TSubPtrArray<T>), LType::Get<SubPtrArray>());
+		Py_XINCREF(&PyList_Type);
+		type->mPyType = &PyList_Type;
+		return type;
+	}
+
 	static LType* StaticType()
 	{
-		static LType* type = NewTemplateType<T>("TSubPtrArray", sizeof(TSubPtrArray<T>),
-												LType::Get<SubPtrArray>());
+		static LType* type = InitTSubPtrType();
 		return type;
 	}
 };

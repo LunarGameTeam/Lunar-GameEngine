@@ -13,24 +13,24 @@ class EditorCore(object):
     def __init__(self):
         super(EditorCore, self).__init__()
 
-        from ui.hierarchy_editor import PyHierarchyEditor
-        from ui.main_editor import PyMainEditor
-        from ui.inspector import PyInspectorEditor
-        from ui.scene_editor import PySceneEditor
-        from ui.library_editor import PyLibraryEditor
+        from ui.hierarchy_panel import PyHierarchyPanel
+        from ui.main_panel import PyMainPanel
+        from ui.inspector_panel import PyInspectorPanel
+        from ui.scene_panel import PyScenePanel
+        from ui.library_panel import PyLibraryPanel
 
-        self.hierarchy_editor = PyHierarchyEditor()
-        self.main_editor = PyMainEditor()
-        self.scene_editor = PySceneEditor()
-        self.library_editor = PyLibraryEditor()
-        self.inspector_panel = PyInspectorEditor()
+        self.hierarchy_panel = PyHierarchyPanel()
+        self.main_panel = PyMainPanel()
+        self.scene_panel = PyScenePanel()
+        self.library_panel = PyLibraryPanel()
+        self.inspector_panel = PyInspectorPanel()
         editor_module = self.editor_module = luna.get_module(luna.editor.EditorModule)
 
-        editor_module.register_editor(self.main_editor)
-        editor_module.register_editor(self.hierarchy_editor)
-        editor_module.register_editor(self.scene_editor)
-        editor_module.register_editor(self.library_editor)
-        editor_module.register_editor(self.inspector_panel)
+        editor_module.register_panel(self.main_panel)
+        editor_module.register_panel(self.hierarchy_panel)
+        editor_module.register_panel(self.scene_panel)
+        editor_module.register_panel(self.library_panel)
+        editor_module.register_panel(self.inspector_panel)
 
         global asset_module, scene_module, render_module
         asset_module = luna.get_module(luna.AssetModule)
@@ -43,7 +43,7 @@ class EditorCore(object):
         entity = scn.find_entity("MainCamera")
         camera = entity.get_component(luna.CameraComponent)
         scene_module.add_scene(scn)
-        self.hierarchy_editor.set_scene(scn)
+        self.hierarchy_panel.set_scene(scn)
 
     @staticmethod
     def instance() -> 'EditorCore':

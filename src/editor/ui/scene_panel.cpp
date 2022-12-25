@@ -11,15 +11,15 @@
 namespace luna::editor
 {
 
-RegisterTypeEmbedd_Imp(SceneEditor)
+RegisterTypeEmbedd_Imp(ScenePanel)
 {
-	cls->Ctor<SceneEditor>();
-	cls->Binding<SceneEditor>();
+	cls->Ctor<ScenePanel>();
+	cls->Binding<ScenePanel>();
 	BindingModule::Get("luna.editor")->AddType(cls);
 };
 
 
-void SceneEditor::OnGUI()
+void ScenePanel::OnGUI()
 {
 	ImVec2 new_size = ImGui::GetContentRegionAvail();
 
@@ -86,14 +86,14 @@ void SceneEditor::OnGUI()
 	mOldSize = new_size;
 }
 
-void SceneEditor::Init()
+void ScenePanel::Init()
 {
-	auto func = std::bind(&SceneEditor::OnInputEvent, this, std::placeholders::_1, std::placeholders::_2);
+	auto func = std::bind(&ScenePanel::OnInputEvent, this, std::placeholders::_1, std::placeholders::_2);
 	static auto handle = sEventModule->OnInput.Bind(func);
 	mImguiTexture = sRenderModule->AddImguiTexture(sRenderModule->mMainRT->mColorTexture);
 }
 
-void SceneEditor::OnInputEvent(LWindow& window, InputEvent& event)
+void ScenePanel::OnInputEvent(LWindow& window, InputEvent& event)
 {
 	return;
 	if (!mFocus)
@@ -212,12 +212,12 @@ void SceneEditor::OnInputEvent(LWindow& window, InputEvent& event)
 	}
 }
 
-void SceneEditor::UpdateRT()
+void ScenePanel::UpdateRT()
 {
 	mNeedUpdate = true;
 }
 
-void SceneEditor::SetScene(Scene* val)
+void ScenePanel::SetScene(Scene* val)
 {
 	mScene = val;
 	for (auto& it : sSceneModule->GetScene(0)->GetAllEntities())

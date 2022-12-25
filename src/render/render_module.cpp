@@ -115,6 +115,11 @@ void RenderModule::SetupIMGUI()
 	(void)io;
 
 	ImGui::StyleColorsLight();
+	ImGui::GetStyle().FrameRounding = 2.0f;
+	ImGui::GetStyle().FrameBorderSize = 1.0f;
+	ImGui::GetStyle().IndentSpacing = 16.0f;
+	ImGui::GetStyle().WindowPadding = ImVec2(4, 4);
+	ImGui::GetStyle().ItemSpacing = ImVec2(8, 6);
 
 	ImGuiStyle* style = &ImGui::GetStyle();
 }

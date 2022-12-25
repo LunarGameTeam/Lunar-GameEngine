@@ -41,13 +41,13 @@ int InputTextCallback(ImGuiInputTextCallbackData* data)
 }
 
 
-PyObject* InputLString(const LString& str, ImGuiInputTextFlags flags)
+PyObject* InputLString(const char* id,const LString& str, ImGuiInputTextFlags flags)
 {
 	IM_ASSERT((flags & ImGuiInputTextFlags_CallbackResize) == 0);
 	flags |= ImGuiInputTextFlags_CallbackResize;
 	InputTextCallback_UserData data;
 	data.Str = str;
-	bool changed = ImGui::InputText("##", (char*)data.Str.c_str(), data.Str.std_str().size() + 1, flags, InputTextCallback, &data);
+	bool changed = ImGui::InputText(id, (char*)data.Str.c_str(), data.Str.std_str().size() + 1, flags, InputTextCallback, &data);
 
 	PyObject* ret_args = PyTuple_New(2);
 	PyObject* new_val = changed ? to_binding(data.Str) : Py_NewRef(Py_None);
@@ -147,6 +147,7 @@ STATIC_INIT(imgui)
 		imguiModule->AddMethod<&ImGui::EndMenu>("end_menu");
 		imguiModule->AddMethod<&ImGui::BeginGroup>("begin_group");
 		imguiModule->AddMethod<&ImGui::EndGroup>("end_group");
+		
 		imguiModule->AddMethod<&TreeNode>("tree_node");
 		imguiModule->AddMethod<&ImGui::TreePop>("tree_pop");
 		imguiModule->AddMethod<&PushID>("push_id");
@@ -161,6 +162,11 @@ STATIC_INIT(imgui)
 		imguiModule->AddMethod<&DragFloat3>("drag_float3");
 		imguiModule->AddMethod<&DragFloat>("drag_float");
 		imguiModule->AddMethod<&CheckBox>("checkbox");
+
+
+		imguiModule->AddMethod<&ImGui::AlignTextToFramePadding>("align_text_to_frame_padding");
+		imguiModule->AddMethod<&ImGui::Separator>("separator");
+
 		imguiModule->Init();
 
 }

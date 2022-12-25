@@ -1,81 +1,41 @@
-#include "main_editor.h"
+#include "main_panel.h"
 #include "core/event/event_module.h"
 #include "engine/scene_module.h"
 #include "core/asset/asset_module.h"
 #include "imstb_textedit.h"
-#include "editor/ui/ImGuiFileDialog.h"
 
 
 namespace luna::editor
 {
 
-RegisterTypeEmbedd_Imp(MainEditor)
+RegisterTypeEmbedd_Imp(MainPanel)
 {
-	cls->Ctor<MainEditor>();
-	cls->Binding<MainEditor>();
+	cls->Ctor<MainPanel>();
+	cls->Binding<MainPanel>();
 	BindingModule::Get("luna.editor")->AddType(cls);
 };
 
 
-void MainEditor::OnInputEvent(LWindow& window, InputEvent& event)
+void MainPanel::OnInputEvent(LWindow& window, InputEvent& event)
 {
 }
 
-void MainEditor::OnWindowResize(LWindow& window, WindowEvent& evt)
+void MainPanel::OnWindowResize(LWindow& window, WindowEvent& evt)
 {
 	mWidth = evt.width;
 	mHeight = evt.height;
 }
 
 
-void MainEditor::Init()
+void MainPanel::Init()
 {
-	auto func = std::bind(&MainEditor::OnInputEvent, this, std::placeholders::_1, std::placeholders::_2);
+	auto func = std::bind(&MainPanel::OnInputEvent, this, std::placeholders::_1, std::placeholders::_2);
 	static auto handle = sEventModule->OnInput.Bind(func);
-	auto resize_func = std::bind(&MainEditor::OnWindowResize, this, std::placeholders::_1, std::placeholders::_2);
+	auto resize_func = std::bind(&MainPanel::OnWindowResize, this, std::placeholders::_1, std::placeholders::_2);
 	sWindowModule->OnWindowResize.Bind(resize_func);
 }
 
-void MainEditor::OnGUI()
-{
-	if (ImGui::BeginMenuBar())
-	{
-		if (ImGui::BeginMenu("文件"))
-		{
-			if (ImGui::MenuItem("打开"))
-			{
-				ImGuiFileDialog::Instance()->OpenDialog("ChooseFileDlgKey", "选择文件", ".scn", ".");
-				ImGui::SetNextWindowSize(ImVec2(500, 300));
-			}
-			if (ImGui::MenuItem("保存场景"))
-			{
-				auto* scene = sSceneModule->GetScene(0);
-				sAssetModule->SaveAsset(scene, scene->GetAssetPath());
-			}
-			ImGui::EndMenu();
-		}
-		if (ImGui::BeginMenu("编辑"))
-		{
-			ImGui::EndMenu();
-		}
-		ImGui::EndMenuBar();
-	}
-	if (ImGuiFileDialog::Instance()->Display("ChooseFileDlgKey"))
-	{
-		// action if OK
-		if (ImGuiFileDialog::Instance()->IsOk())
-		{
-			std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
-			std::string filePath = ImGuiFileDialog::Instance()->GetCurrentPath();
-			// action
-		}
-
-		// close
-		ImGuiFileDialog::Instance()->Close();
-	}
-}
-
-void MainEditor::DoIMGUI()
+void MainPanel::DoIMGUI()
 {
 	WindowModule* window = gEngine->GetModule<WindowModule>();
 	auto main_window = window->GetMainWindow();

@@ -5,11 +5,8 @@
 
 #include "engine/camera.h"
 
-#include "editor/ui/hierarchy_panel.h"
 #include "editor/ui/scene_panel.h"
 #include "editor/ui/icon_font.h"
-#include "editor/ui/inspector_panel.h"
-#include "editor/ui/library_panel.h"
 
 #include "window/window_module.h"
 #include "imgui_impl_sdl.h"
@@ -23,21 +20,8 @@
 #include "render/rhi/rhi_cmd_list.h"
 
 #include "imgui_impl_dx12.h"
-#include "render/rhi/DirectX12/dx12_command_list.h"
-#include "render/rhi/DirectX12/dx12_device.h"
-#include "render/rhi/DirectX12/dx12_descriptor_pool.h"
-#include "render/rhi/DirectX12/dx12_view.h"
-
 #include "imgui_impl_dx12.h"
 #include "imgui_impl_vulkan.h"
-#include "render/rhi/vulkan/vulkan_device.h"
-#include "render/rhi/vulkan/vulkan_render_queue.h"
-#include "render/rhi/vulkan/vulkan_descriptor_pool.h"
-#include "render/rhi/vulkan/vulkan_render_pass.h"
-#include "render/rhi/vulkan/vulkan_cmd_list.h"
-#include "render/rhi/vulkan/vulkan_resource.h"
-#include "render/rhi/vulkan/vulkan_view.h"
-
 
 
 
@@ -52,7 +36,7 @@ static void ImGUIText(const LString& name)
 
 RegisterTypeEmbedd_Imp(EditorModule)
 {
-	cls->BindingMethod<&EditorModule::RegisterEditor>("register_editor").GetBindingMethodDef().ml_doc = LString::MakeStatic("def register_editor(self, t: typing.Type[T] ) -> T:\n\tpass\n");
+	cls->BindingMethod<&EditorModule::RegisterPanel>("register_panel").GetBindingMethodDef().ml_doc = LString::MakeStatic("def register_editor(self, t: typing.Type[T] ) -> T:\n\tpass\n");
 
 	cls->Binding<EditorModule>();
 
@@ -80,7 +64,7 @@ bool EditorModule::OnInit()
 		
 	gEngine->GetModule<render::RenderModule>();
 
-	for (EditorBase* editro : m_editors)
+	for (PanelBase* editro : m_editors)
 	{
 		if (!editro->mInited)
 		{
@@ -105,7 +89,7 @@ void EditorModule::Tick(float delta_time)
 
 void EditorModule::OnIMGUI()
 {
-	for (EditorBase* ed : m_editors)
+	for (PanelBase* ed : m_editors)
 	{
 		ed->DoIMGUI();
 	}
@@ -129,7 +113,7 @@ void EditorModule::OnWindowResize(LWindow&, WindowEvent& evt)
 
 }
 
-EditorBase* EditorModule::RegisterEditor(EditorBase* base)
+PanelBase* EditorModule::RegisterPanel(PanelBase* base)
 {
 	m_editors.push_back(base);
 
@@ -141,39 +125,17 @@ EditorBase* EditorModule::RegisterEditor(EditorBase* base)
 	return base;
 }
 
-InspectorEditor* EditorModule::GetInspectorEditor()
-{
-	if (!mInspector)
-		mInspector = GetEditor < InspectorEditor>();
-	return mInspector;
-}
-
-SceneEditor* EditorModule::GetSceneEditor()
+ScenePanel* EditorModule::GetSceneEditor()
 {
 	if (!mSceneEditor)
-		mSceneEditor = GetEditor<SceneEditor>();
+		mSceneEditor = GetEditor<ScenePanel>();
 	return mSceneEditor;
 }
 
-HierarchyEditor* EditorModule::GetHierarchyEditor()
-{
-
-	if (!mHierarchy)
-		mHierarchy = GetEditor < HierarchyEditor>();
-	return mHierarchy;
-}
-
-LibraryEditor* EditorModule::GetLibraryEditor()
-{
-	if (!mLibrary)
-		mLibrary = GetEditor < LibraryEditor>();
-	return mLibrary;
-}
-
-MainEditor* EditorModule::GetMainEditor()
+MainPanel* EditorModule::GetMainEditor()
 {
 	if (!mMainEditor)
-		mMainEditor = GetEditor < MainEditor>();
+		mMainEditor = GetEditor < MainPanel>();
 	return mMainEditor;
 }
 
