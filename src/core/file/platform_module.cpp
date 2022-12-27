@@ -7,6 +7,9 @@ namespace luna
 RegisterTypeEmbedd_Imp(PlatformModule)
 {	
 	cls->Binding<PlatformModule>();
+	cls->VirtualProperty("engine_dir")
+		.Getter<&Self::GetEngineDir>()
+		.Binding<PlatformModule, LString>();
 	BindingModule::Luna()->AddType(cls);
 }
 
@@ -38,6 +41,11 @@ bool PlatformModule::OnShutdown()
 	mPlatformFile->DisposeFileManager();
 	delete mPlatformFile;
 	return true;
+}
+
+LString PlatformModule::GetEngineDir()
+{
+	return mPlatformFile->EngineDir();
 }
 
 void luna::PlatformModule::Tick(float delta_time)

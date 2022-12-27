@@ -44,8 +44,11 @@ class PyMainPanel(editor.MainPanel):
 	def on_imgui(self) -> None:
 		super(PyMainPanel, self).on_imgui()
 		if imgui.begin_menu_bar():
-			if imgui.begin_menu("文件"):
+			if imgui.begin_menu("文件", True):
 				if imgui.menu_item("生成 Python API"):
 					self.generate_doc_for_module(luna)
+				if imgui.menu_item("退出"):
+					self.generate_doc_for_module(luna)
 				imgui.end_menu()
+
 			imgui.end_menu_bar()

@@ -1,7 +1,5 @@
 #include "imstb_textedit.h"
 
-#include "editor/ui/ImGuiFileDialog.h"
-
 #include "core/reflection/reflection.h"
 
 #include "core/binding/binding.h"
@@ -129,6 +127,8 @@ LVector2f CalcTextSize(const char* val)
 	return res;
 }
 
+
+
 STATIC_INIT(imgui)
 {
 		BindingModule* imguiModule = BindingModule::Get("luna.imgui");
@@ -141,6 +141,9 @@ STATIC_INIT(imgui)
 
 
 		imguiModule->AddMethod<&InputLString>("input");
+		imguiModule->AddMethod<[](){
+			ImGui::ShowDemoWindow(nullptr);
+		}>("show_demo_window");
 		imguiModule->AddMethod<&ImGui::BeginMenuBar>("begin_menu_bar");
 		imguiModule->AddMethod<&ImGui::EndMenuBar>("end_menu_bar");
 		imguiModule->AddMethod<&ImGui::BeginMenu>("begin_menu");

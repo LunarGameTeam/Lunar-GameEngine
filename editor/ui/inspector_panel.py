@@ -26,9 +26,9 @@ class PyInspectorPanel(editor.PanelBase):
             luna.imgui.align_text_to_frame_padding()
             luna.imgui.text(prop.name)
             imgui.same_line(16 + self.width, 16)
-            changed, new_val = luna.imgui.input(prop.name, val.path, 0)
+            changed, new_val = luna.imgui.input("##" + prop.name, val.path, 0)
             if changed:
-                print(new_val)
+                pass
         elif issubclass(prop.type, luna.LObject):
             luna.imgui.align_text_to_frame_padding()
             luna.imgui.text(prop.name)
@@ -74,7 +74,6 @@ class PyInspectorPanel(editor.PanelBase):
         else:
             for prop in properties:
                 self.imgui_obj_property(obj, prop)
-
 
     def imgui_menu(self):
         pass

@@ -30,16 +30,9 @@
 
 #include <vulkan//vulkan.h>
 #include "render/rhi/DirectX12/dx12_descriptor_pool.h"
+#include "renderer/imgui_texture.h"
 namespace luna::render
 {
-//IMGUI
-struct ImguiTexture
-{
-	render::RHIViewPtr	mView;
-	TRHIPtr<DX12GpuDescriptorSegment> descriptorPoolSave;
-	void* mImg;
-};
-
 class RenderDevice;
 
 

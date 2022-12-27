@@ -28,6 +28,8 @@ public:
 	bool OnShutdown() override;
 	void Tick(float delta_time) override;
 
+	LString GetEngineDir();
+
 	IPlatformFileManager *GetPlatformFileManager() const {
 		return mPlatformFile;
 	}

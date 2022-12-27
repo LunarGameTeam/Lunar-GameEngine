@@ -56,7 +56,6 @@ namespace luna::render
 {
 
 
-
 RegisterTypeEmbedd_Imp(RenderModule)
 {
 	cls->Binding<Self>();

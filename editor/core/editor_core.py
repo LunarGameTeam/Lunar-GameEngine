@@ -1,10 +1,10 @@
 from luna import *
 import luna
 
-
 asset_module: 'luna.AssetModule' = None
 render_module: 'luna.RenderModule' = None
 scene_module: 'luna.SceneModule' = None
+platform_module: 'luna.PlatformModule' = None
 
 
 class EditorCore(object):
@@ -18,8 +18,16 @@ class EditorCore(object):
         from ui.inspector_panel import PyInspectorPanel
         from ui.scene_panel import PyScenePanel
         from ui.library_panel import PyLibraryPanel
+        from ui.imgui_demo import DemoPanel
+
+        global asset_module, scene_module, render_module, platform_module
+        asset_module = luna.get_module(luna.AssetModule)
+        render_module = luna.get_module(luna.RenderModule)
+        scene_module = luna.get_module(luna.SceneModule)
+        platform_module = luna.get_module(luna.PlatformModule)
 
         self.hierarchy_panel = PyHierarchyPanel()
+        self.demo_panel = DemoPanel()
         self.main_panel = PyMainPanel()
         self.scene_panel = PyScenePanel()
         self.library_panel = PyLibraryPanel()
@@ -31,11 +39,8 @@ class EditorCore(object):
         editor_module.register_panel(self.scene_panel)
         editor_module.register_panel(self.library_panel)
         editor_module.register_panel(self.inspector_panel)
+        editor_module.register_panel(self.demo_panel)
 
-        global asset_module, scene_module, render_module
-        asset_module = luna.get_module(luna.AssetModule)
-        render_module = luna.get_module(luna.RenderModule)
-        scene_module = luna.get_module(luna.SceneModule)
         self.init()
 
     def init(self):
