@@ -48,6 +48,13 @@ namespace luna::lfbx
 			std::unordered_map<LFbxDataType, LVector<NodeDataPack>> &nodeData
 		);
 
-		fbxsdk::FbxAMatrix ComputeNodeMatrix(fbxsdk::FbxNode* Node);
+		//fbxsdk::FbxAMatrix ComputeNodeMatrix(fbxsdk::FbxNode* Node);
+		void ComputeLclTransform(
+			fbxsdk::FbxNode* pNode,
+			FbxPropertyT<FbxDouble3> &lclPosition,
+			FbxPropertyT<FbxDouble3>& lclRotation,
+			FbxPropertyT<FbxDouble3>& lclScale,
+			fbxsdk::FbxAMatrix& globalTransform
+		);
 	};
 }

@@ -50,14 +50,15 @@ namespace luna::ImportData
 		LString mName;
 		LVector<uint32_t> mIndices;
 		size_t mMaterialUse;
-	};
-	class LImportNodeDataMesh : public LImportNodeDataBase
-	{
+
 		LVector<LVector3f> mVertexPosition;
 		LVector<LVector3f> mVertexNormal;
 		LVector<LVector4f> mVertexTangent;
 		LVector<LVector<LVector2f>> mVertexUv;
 		LVector<LVector4f> mVertexColor;
+	};
+	class LImportNodeDataMesh : public LImportNodeDataBase
+	{
 		LVector<LImportSubmesh> mSubmesh;
 	public:
 		LImportNodeDataMesh(const size_t index) :LImportNodeDataBase(LImportNodeDataType::ImportDataMesh, index)
@@ -65,7 +66,14 @@ namespace luna::ImportData
 
 		};
 
-		void AddFullVertex(const LVector3f pos, const LVector3f norm, const LVector4f tangent, const LVector<LVector2f> uv, const LVector4f color);
+		void AddFullVertex(
+			const size_t subMeshIndex,
+			const LVector3f pos,
+			const LVector3f norm,
+			const LVector4f tangent,
+			const LVector<LVector2f> uv,
+			const LVector4f color
+		);
 		
 		size_t AddSubMeshMessage(const LString &name, const size_t materialUse);
 
@@ -93,6 +101,7 @@ namespace luna::ImportData
 			size_t newIndex = mDatas.size();
 			std::shared_ptr<LImportNodeDataBase> newData = std::make_shared<ImportDataType>(newIndex);
 			mDatas.push_back(newData);
+			return newIndex;
 		};
 
 		template<typename ImportDataType>

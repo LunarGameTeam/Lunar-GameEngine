@@ -9,11 +9,13 @@ namespace luna::lfbx
 
 	void LFbxDataMesh::SetNormalDataType(
 		fbxsdk::FbxLayerElement::EMappingMode mapMode,
-		fbxsdk::FbxLayerElement::EReferenceMode refMode
+		fbxsdk::FbxLayerElement::EReferenceMode refMode,
+		fbxsdk::FbxLayerElementTemplate<fbxsdk::FbxVector4>* layerData
 	)
 	{
 		mNormalLayer.mMapMode = mapMode;
 		mNormalLayer.mRefMode = refMode;
+		mNormalLayer.mLayerMapRefData = layerData;
 	}
 
 	void LFbxDataMesh::AddNormal(const fbxsdk::FbxVector4& normal)
@@ -23,11 +25,13 @@ namespace luna::lfbx
 
 	void LFbxDataMesh::SetTangentDataType(
 		fbxsdk::FbxLayerElement::EMappingMode mapMode,
-		fbxsdk::FbxLayerElement::EReferenceMode refMode
+		fbxsdk::FbxLayerElement::EReferenceMode refMode,
+		fbxsdk::FbxLayerElementTemplate<fbxsdk::FbxVector4>* layerData
 	)
 	{
 		mTangentLayer.mMapMode = mapMode;
 		mTangentLayer.mRefMode = refMode;
+		mTangentLayer.mLayerMapRefData = layerData;
 	}
 
 	void LFbxDataMesh::AddTangent(const fbxsdk::FbxVector4& tangent)
@@ -37,11 +41,13 @@ namespace luna::lfbx
 
 	void LFbxDataMesh::SetColorDataType(
 		fbxsdk::FbxLayerElement::EMappingMode mapMode,
-		fbxsdk::FbxLayerElement::EReferenceMode refMode
+		fbxsdk::FbxLayerElement::EReferenceMode refMode,
+		fbxsdk::FbxLayerElementTemplate<fbxsdk::FbxColor>* layerData
 	)
 	{
 		mColorLayer.mMapMode = mapMode;
 		mColorLayer.mRefMode = refMode;
+		mColorLayer.mLayerMapRefData = layerData;
 	}
 
 	void LFbxDataMesh::AddColor(const fbxsdk::FbxColor& color)
@@ -52,7 +58,8 @@ namespace luna::lfbx
 	void LFbxDataMesh::SetUvDataType(
 		int32_t channel,
 		fbxsdk::FbxLayerElement::EMappingMode mapMode,
-		fbxsdk::FbxLayerElement::EReferenceMode refMode
+		fbxsdk::FbxLayerElement::EReferenceMode refMode,
+		fbxsdk::FbxLayerElementTemplate<fbxsdk::FbxVector2>* layerData
 	)
 	{
 		while (channel >= mUvLayer.size())
@@ -61,6 +68,7 @@ namespace luna::lfbx
 		}
 		mUvLayer[channel].mMapMode = mapMode;
 		mUvLayer[channel].mRefMode = refMode;
+		mUvLayer[channel].mLayerMapRefData = layerData;
 	}
 
 	void LFbxDataMesh::AddUv(const fbxsdk::FbxVector2& uv, int32_t channel)
@@ -74,6 +82,249 @@ namespace luna::lfbx
 		mFace.push_back(face_data);
 	}
 
+	const fbxsdk::FbxColor LFbxDataMesh::GetColorByIndex(const size_t vertIndex, const size_t polygenIndex) const
+	{
+		fbxsdk::FbxColor newColor;
+		newColor.mRed = 0;
+		newColor.mGreen = 0;
+		newColor.mBlue = 0;
+		newColor.mAlpha = 0;
+		if (mColorLayer.mLayerData.size() < 1)
+		{
+			return newColor;
+		}
+		switch (mColorLayer.mMapMode)
+		{
+		case FbxGeometryElement::eByControlPoint:
+		{
+			switch (mColorLayer.mRefMode)
+			{
+			case FbxGeometryElement::eDirect:
+			{
+				newColor = mColorLayer.mLayerData[vertIndex];
+			}
+			break;
+
+			case FbxGeometryElement::eIndexToDirect:
+			{
+				int id = mColorLayer.mLayerMapRefData->GetIndexArray().GetAt(vertIndex);
+				newColor = mColorLayer.mLayerData[id];
+			}
+			break;
+
+			default:
+				break;
+			}
+		}
+		break;
+
+		case FbxGeometryElement::eByPolygonVertex:
+		{
+			switch (mColorLayer.mRefMode)
+			{
+			case FbxGeometryElement::eDirect:
+			{
+				newColor = mColorLayer.mLayerData[polygenIndex];
+			}
+			break;
+			case FbxGeometryElement::eIndexToDirect:
+			{
+				int id = mColorLayer.mLayerMapRefData->GetIndexArray().GetAt(polygenIndex);
+				newColor = mColorLayer.mLayerData[id];
+			}
+			break;
+			default:
+				break;
+			}
+		}
+		break;
+		}
+		return newColor;
+	}
+
+	const fbxsdk::FbxVector4 LFbxDataMesh::GetNormalByIndex(const size_t vertIndex, const size_t polygenIndex) const
+	{
+		fbxsdk::FbxVector4 newNormal;
+		newNormal.mData[0] = 0;
+		newNormal.mData[1] = 0;
+		newNormal.mData[2] = 0;
+		newNormal.mData[3] = 0;
+		if (mNormalLayer.mLayerData.size() < 1)
+		{
+			return newNormal;
+		}
+		switch (mNormalLayer.mMapMode)
+		{
+		case FbxGeometryElement::eByControlPoint:
+		{
+			switch (mNormalLayer.mRefMode)
+			{
+			case FbxGeometryElement::eDirect:
+			{
+				newNormal = mNormalLayer.mLayerData[vertIndex];
+			}
+			break;
+			case FbxGeometryElement::eIndexToDirect:
+			{
+				int id = mNormalLayer.mLayerMapRefData->GetIndexArray().GetAt(vertIndex);
+				newNormal = mNormalLayer.mLayerData[id];
+			}
+			break;
+
+			default:
+				break;
+			}
+		}
+		break;
+		case FbxGeometryElement::eByPolygonVertex:
+		{
+			switch (mNormalLayer.mRefMode)
+			{
+			case FbxGeometryElement::eDirect:
+			{
+				newNormal = mNormalLayer.mLayerData[polygenIndex];
+			}
+			break;
+			case FbxGeometryElement::eIndexToDirect:
+			{
+				int id = mNormalLayer.mLayerMapRefData->GetIndexArray().GetAt(polygenIndex);
+				newNormal = mNormalLayer.mLayerData[id];
+			}
+			break;
+			default:
+				break;
+			}
+		}
+		break;
+		}
+		return newNormal;
+	}
+
+	const fbxsdk::FbxVector4 LFbxDataMesh::GetTangentByIndex(const size_t vertIndex, const size_t polygenIndex) const
+	{
+		fbxsdk::FbxVector4 newTangent;
+		newTangent.mData[0] = 0;
+		newTangent.mData[1] = 0;
+		newTangent.mData[2] = 0;
+		newTangent.mData[3] = 0;
+		if (mNormalLayer.mLayerData.size() < 1)
+		{
+			return newTangent;
+		}
+
+		switch (mTangentLayer.mMapMode)
+		{
+		case FbxGeometryElement::eByControlPoint:
+		{
+			switch (mTangentLayer.mRefMode)
+			{
+			case FbxGeometryElement::eDirect:
+			{
+				newTangent = mTangentLayer.mLayerData[vertIndex];
+			}
+			break;
+
+			case FbxGeometryElement::eIndexToDirect:
+			{
+				int id = mTangentLayer.mLayerMapRefData->GetIndexArray().GetAt(vertIndex);
+				newTangent = mTangentLayer.mLayerData[id];
+			}
+			break;
+
+			default:
+				break;
+			}
+		}
+		break;
+
+		case FbxGeometryElement::eByPolygonVertex:
+		{
+			switch (mTangentLayer.mRefMode)
+			{
+			case FbxGeometryElement::eDirect:
+			{
+				newTangent = mTangentLayer.mLayerData[polygenIndex];
+			}
+			break;
+
+			case FbxGeometryElement::eIndexToDirect:
+			{
+				int id = mTangentLayer.mLayerMapRefData->GetIndexArray().GetAt(polygenIndex);
+				newTangent = mTangentLayer.mLayerData[id];
+			}
+			break;
+
+			default:
+				break;
+			}
+		}
+		break;
+		}
+		//todo:计算切线朝向
+		/*
+		TempValue = LayerElementBinormal->GetDirectArray().GetAt(BinormalValueIndex);
+		TempValue = TotalMatrixForNormal.MultT(TempValue);
+		FVector TangentY = -FFbxConvert::ConvertDir(TempValue);
+		VertexInstanceBinormalSigns[AddedVertexInstanceId] = FbxGetBasisDeterminantSign(TangentX.GetSafeNormal(), TangentY.GetSafeNormal(), TangentZ.GetSafeNormal());
+		*/
+		return newTangent;
+	}
+
+	const fbxsdk::FbxVector2 LFbxDataMesh::GetUvByIndex(const size_t vertIndex, const size_t polygenTextureIndex, const size_t uv_channel) const
+	{
+		fbxsdk::FbxVector2 newUv;
+		newUv.mData[0] = 0;
+		newUv.mData[1] = 0;
+		if (uv_channel >= mUvLayer.size())
+		{
+			return newUv;
+		}
+		const LFbxLayerData<fbxsdk::FbxVector2>& pVertexUV = mUvLayer[uv_channel];
+		switch (pVertexUV.mMapMode)
+		{
+		case FbxGeometryElement::eByControlPoint:
+		{
+			switch (pVertexUV.mRefMode)
+			{
+			case FbxGeometryElement::eDirect:
+			{
+				newUv = pVertexUV.mLayerData[vertIndex];
+			}
+			break;
+
+			case FbxGeometryElement::eIndexToDirect:
+			{
+				int id = pVertexUV.mLayerMapRefData->GetIndexArray().GetAt(vertIndex);
+				newUv = pVertexUV.mLayerData[id];
+			}
+			break;
+
+			default:
+				break;
+			}
+		}
+		break;
+
+		case FbxGeometryElement::eByPolygonVertex:
+		{
+			switch (pVertexUV.mRefMode)
+			{
+			case FbxGeometryElement::eDirect:
+			case FbxGeometryElement::eIndexToDirect:
+			{
+				newUv = pVertexUV.mLayerData[polygenTextureIndex];
+			}
+			break;
+
+			default:
+				break;
+			}
+		}
+		break;
+		}
+		return newUv;
+	}
+
 	std::shared_ptr<LFbxDataBase> LFbxLoaderMesh::ParsingDataImpl(const LVector<LFbxNodeBase>& sceneNodes, fbxsdk::FbxNode* pNode, FbxManager* pManager)
 	{
 		std::shared_ptr<LFbxDataMesh> newMesh = std::make_shared<LFbxDataMesh>();
@@ -82,6 +333,16 @@ namespace luna::lfbx
 		{
 			return nullptr;
 		}
+		//获取几何体的matrix
+		fbxsdk::FbxAMatrix Geometry;
+		fbxsdk::FbxVector4 Translation, Rotation, Scaling;
+		Translation = pNode->GetGeometricTranslation(fbxsdk::FbxNode::eSourcePivot);
+		Rotation = pNode->GetGeometricRotation(fbxsdk::FbxNode::eSourcePivot);
+		Scaling = pNode->GetGeometricScaling(fbxsdk::FbxNode::eSourcePivot);
+		Geometry.SetT(Translation);
+		Geometry.SetR(Rotation);
+		Geometry.SetS(Scaling);
+		newMesh->SetMatrixGeometry(Geometry);
 		//设置材质引用信息
 		if (pMesh->GetElementMaterial())
 		{
@@ -128,7 +389,7 @@ namespace luna::lfbx
 		}
 		if (leNormal != nullptr)
 		{
-			newMesh->SetNormalDataType(leNormal->GetMappingMode(), leNormal->GetReferenceMode());
+			newMesh->SetNormalDataType(leNormal->GetMappingMode(), leNormal->GetReferenceMode(), leNormal);
 			fbxsdk::FbxLayerElementArrayTemplate<fbxsdk::FbxVector4> &normalArray = leNormal->GetDirectArray();
 			for (int32_t i = 0; i < normalArray.GetCount(); ++i)
 			{
@@ -143,7 +404,7 @@ namespace luna::lfbx
 		}
 		if (leTangent != nullptr)
 		{
-			newMesh->SetTangentDataType(leTangent->GetMappingMode(), leTangent->GetReferenceMode());
+			newMesh->SetTangentDataType(leTangent->GetMappingMode(), leTangent->GetReferenceMode(), leTangent);
 			fbxsdk::FbxLayerElementArrayTemplate<fbxsdk::FbxVector4> &tangentArray = leTangent->GetDirectArray();
 			for (int32_t i = 0; i < tangentArray.GetCount(); ++i)
 			{
@@ -158,7 +419,7 @@ namespace luna::lfbx
 		}
 		if (leColor != nullptr)
 		{
-			newMesh->SetColorDataType(leColor->GetMappingMode(), leColor->GetReferenceMode());
+			newMesh->SetColorDataType(leColor->GetMappingMode(), leColor->GetReferenceMode(), leColor);
 			fbxsdk::FbxLayerElementArrayTemplate<fbxsdk::FbxColor> &colorArray = leColor->GetDirectArray();
 			for (int32_t i = 0; i < colorArray.GetCount(); ++i)
 			{
@@ -178,7 +439,7 @@ namespace luna::lfbx
 				LString channel_id_str = uv_channel_name.Substr(10, uv_channel_name.Length() - 10);
 				channel_id = atoi(channel_id_str.c_str()) - 1;
 			}
-			newMesh->SetUvDataType(channel_id,pVertexUV->GetMappingMode(), pVertexUV->GetReferenceMode());
+			newMesh->SetUvDataType(channel_id,pVertexUV->GetMappingMode(), pVertexUV->GetReferenceMode(), pVertexUV);
 			fbxsdk::FbxLayerElementArrayTemplate<fbxsdk::FbxVector2> &uvArray = pVertexUV->GetDirectArray();
 			for (int32_t i = 0; i < uvArray.GetCount(); ++i)
 			{
@@ -199,6 +460,10 @@ namespace luna::lfbx
 			else
 			{
 				newFace.mMaterialIndex = pMesh->GetElementMaterial()->GetIndexArray()[triangleId];
+			}
+			if(newMesh->GetMaterialCount() < newFace.mMaterialIndex + 1)
+			{
+				newMesh->SetMaterialCount(newFace.mMaterialIndex + 1);
 			}
 			int face_verte_size = pMesh->GetPolygonSize(triangleId);
 			for (int triangleIndexId = 0; triangleIndexId < face_verte_size; triangleIndexId++)

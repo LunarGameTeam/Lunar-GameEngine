@@ -20,7 +20,10 @@ namespace luna::lfbx
 	{
 		size_t mParent;
 		LVector<size_t> mChild;
-		fbxsdk::FbxAMatrix mTransform;
+		FbxPropertyT<FbxDouble3> mLocalTranslation;
+		FbxPropertyT<FbxDouble3> mLocalRotation;
+		FbxPropertyT<FbxDouble3> mLocalScaling;
+		fbxsdk::FbxAMatrix mGlobelTransform;
 		size_t mIndex;
 		LString mName;
 	};

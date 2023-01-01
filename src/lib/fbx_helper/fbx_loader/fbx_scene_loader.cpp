@@ -262,21 +262,19 @@ namespace luna::lfbx
 		}
 	}
 
-	fbxsdk::FbxAMatrix LFbxLoaderHelper::ComputeNodeMatrix(fbxsdk::FbxNode* Node)
+	void LFbxLoaderHelper::ComputeLclTransform(
+		fbxsdk::FbxNode* pNode,
+		FbxPropertyT<FbxDouble3>& lclPosition,
+		FbxPropertyT<FbxDouble3>& lclRotation,
+		FbxPropertyT<FbxDouble3>& lclScale,
+		fbxsdk::FbxAMatrix& globalTransform
+	)
 	{
-		fbxsdk::FbxAMatrix Geometry;
-		fbxsdk::FbxVector4 Translation, Rotation, Scaling;
-		Translation = Node->GetGeometricTranslation(fbxsdk::FbxNode::eSourcePivot);
-		Rotation = Node->GetGeometricRotation(fbxsdk::FbxNode::eSourcePivot);
-		Scaling = Node->GetGeometricScaling(fbxsdk::FbxNode::eSourcePivot);
-		Geometry.SetT(Translation);
-		Geometry.SetR(Rotation);
-		Geometry.SetS(Scaling);
-		//For Single Matrix situation, obtain transfrom matrix from eDESTINATION_SET, which include pivot offsets and pre/post rotations.
-		fbxsdk::FbxAMatrix& GlobalTransform = lScene->GetAnimationEvaluator()->GetNodeGlobalTransform(Node);
-		//We must always add the geometric transform. Only Max use the geometric transform which is an offset to the local transform of the node
-		fbxsdk::FbxAMatrix NodeMatrix = GlobalTransform * Geometry;
-		return NodeMatrix;
+		lclPosition = pNode->LclTranslation;
+		lclRotation = pNode->LclRotation;
+		lclScale = pNode->LclScaling;
+
+		globalTransform = lScene->GetAnimationEvaluator()->GetNodeGlobalTransform(pNode);
 	}
 
 	void LFbxLoaderHelper::ProcessNode(
@@ -291,7 +289,7 @@ namespace luna::lfbx
 		newNode.mName = pNode->GetName();
 		newNode.mIndex = node_index;
 		newNode.mParent = nodeParent;
-		newNode.mTransform = ComputeNodeMatrix(pNode);
+		ComputeLclTransform(pNode,newNode.mLocalTranslation, newNode.mLocalRotation, newNode.mLocalScaling, newNode.mGlobelTransform);
 		if (pNode->GetNodeAttribute())
 		{
 			switch (pNode->GetNodeAttribute()->GetAttributeType())

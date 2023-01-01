@@ -1,7 +1,14 @@
 #include"import_scene.h"
 namespace luna::ImportData
 {
-	void LImportNodeDataMesh::AddFullVertex(const LVector3f pos, const LVector3f norm, const LVector4f tangent, const LVector<LVector2f> uv, const LVector4f color)
+	void LImportNodeDataMesh::AddFullVertex(
+		const size_t subMeshIndex,
+		const LVector3f pos,
+		const LVector3f norm,
+		const LVector4f tangent,
+		const LVector<LVector2f> uv,
+		const LVector4f color
+	)
 	{
 		mVertexPosition.push_back(pos);
 		mVertexNormal.push_back(norm);
