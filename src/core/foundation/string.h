@@ -174,6 +174,11 @@ public:
 		return mStdStr.c_str();
 	}
 
+	inline void AddLine(const char* newLine)
+	{
+		mStdStr = LString::Format("{0}\n{1}", mStdStr, newLine);
+	}
+
 	wcontainer_t GetStdUnicodeString() const;
 
 	// 运算符
@@ -293,18 +298,33 @@ inline Target LexicalCast(const Source &source)
 {
 	return boost::lexical_cast<Target>(Source);
 }
+
 template<typename Source>
 inline LString ToString(const Source &source)
 {
 	return LString(boost::lexical_cast<LString::container_t>(source));
 }
+
+template<>
+inline LString ToString<LString>(const LString& source)
+{
+	return source;
+}
+
 template<typename Target>
 inline Target FromString(const LString &source)
 {
 	return boost::lexical_cast<Target>(source.c_str());
 }
+
+template<>
+inline LString FromString<LString>(const LString& source)
+{
+	return source;
+}
+
 template<typename const char *>
-inline const char *FromString(const LString &source)
+const char *FromString(const LString &source)
 {
 	return source.c_str();
 }

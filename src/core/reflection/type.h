@@ -294,19 +294,19 @@ protected:
 	bool                         mConstructable         = false;
 
 private:
-	LType*                   mBase          = nullptr;
-	LType*                   mTemplate      = nullptr;
+	LType*               mBase          = nullptr;
+	LType*               mTemplate      = nullptr;
 
-	PropertyMap              mProperties;
-	MethodMap                mMethods;
+	PropertyMap          mProperties;
+	MethodMap            mMethods;
 
 	//额外的binding属性和binding method，以及binding method doc
-	std::vector<LString>     mExtraDocs;
+	std::vector<LString> mExtraDocs;
 
-	size_t                   mTypeSize      = 0;
-	LString                  mTypeName;
-	LString                  mFullName;
-	BindingModule*          mBindingModule = nullptr;
+	size_t               mTypeSize      = 0;
+	LString              mTypeName;
+	LString              mFullName;
+	BindingModule*       mBindingModule = nullptr;
 
 
 	template<typename first>

@@ -103,31 +103,37 @@ void LType::GetAllProperties(LArray<LProperty*>& result)
 
 void LType::GenerateBindingDoc()
 {
-	LType* base_type = GetBase();
-	LString self_name = GetName();
-	LString base_name = "object";
-	if (base_type)
-		base_name = base_type->GetBindingFullName();
-	LString res = LString::Format("class {0}({1}):\n\tpass\n\tdef __init__(self):\n\t\tpass", self_name, base_name);
+	LType* base = GetBase();
+	LString selfType = GetName();
+	LString baseType = "object";
+	if (base)
+		baseType = base->GetBindingFullName();
+	LString typeDoc = LString::Format("class {0}({1}):", selfType, baseType);
+	typeDoc.AddLine("");
 	auto properties = GetBindingGetSet();
 
 	for (PyGetSetDef& it : properties)
 	{
 		if (it.name)
-			res = LString::Format("{}\n\t{}", res, it.doc);
+			typeDoc.AddLine(LString::Format("\t{}", it.doc));
 	}
 
-	auto methods = GetBindingMethods();
-	for (PyMethodDef& it : methods)
+	typeDoc.AddLine("\n\tdef __init__(self):");
+	typeDoc.AddLine(LString::Format("\t\tsuper({0}, self).__init__()", selfType));
+	
+	for (PyMethodDef& it : GetBindingMethods())
 	{
 		if (it.ml_name)
-			res = LString::Format("{}\n\t{}\n", res, it.ml_doc);
-	}	
+		{
+			typeDoc.AddLine(LString::Format("\t{}", it.ml_doc));
+			typeDoc.AddLine("\t\tpass");
+		}
+	}
 
 	for (LString& it : mExtraDocs)
-		res = LString::Format("{}\n\t{}", res, it);
+		typeDoc = LString::Format("{}\n\t{}", typeDoc, it);
 		
-	mPyType->tp_doc = LString::MakeStatic(res);
+	mPyType->tp_doc = LString::MakeStatic(typeDoc);
 }
 
 LProperty* LType::GetProperty(const char* value)

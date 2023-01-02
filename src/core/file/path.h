@@ -26,11 +26,15 @@ public:
 
 	const LString &AsString() const
 	{
-		return mPath;
+		return mRelativePath;
 	}
-	const LString &AsStringAbs() const
+	const LString &AsEnginePathString() const
 	{
-		return mAbsPath;
+		return mEngineAbsPath;
+	}
+	const LString& AsProjectPathString() const
+	{
+		return mProjectAbsPath;
 	}
 	bool IsRelative() const;
 
@@ -39,7 +43,9 @@ public:
 
 	static LString ConvertToEnginePath(const LString& path);
 private:
-	LString mAbsPath;
-	LString mPath;
+	void Init();
+	LString mEngineAbsPath;
+	LString mProjectAbsPath;
+	LString mRelativePath;
 };
 }

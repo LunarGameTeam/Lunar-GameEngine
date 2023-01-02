@@ -90,7 +90,7 @@ void ScenePanel::Init()
 {
 	auto func = std::bind(&ScenePanel::OnInputEvent, this, std::placeholders::_1, std::placeholders::_2);
 	static auto handle = sEventModule->OnInput.Bind(func);
-	mImguiTexture = sRenderModule->AddImguiTexture(sRenderModule->mMainRT->mColorTexture);
+	mImguiTexture = sRenderModule->AddImguiTexture("SceneColor", sRenderModule->mMainRT->mColorTexture);
 }
 
 void ScenePanel::OnInputEvent(LWindow& window, InputEvent& event)

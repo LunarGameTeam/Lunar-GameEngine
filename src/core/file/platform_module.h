@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/framework/module.h"
+#include "core/foundation/config.h"
 #include "platform_file.h"
 
 namespace luna
@@ -18,6 +19,8 @@ namespace luna
  *
  *
  */
+CORE_API CONFIG_DECLARE(LString, Start, DefaultProject, "");
+
 class CORE_API PlatformModule : public LModule
 {
 	RegisterTypeEmbedd(PlatformModule, LModule)
@@ -29,6 +32,13 @@ public:
 	void Tick(float delta_time) override;
 
 	LString GetEngineDir();
+	LString GetProjectDir();
+
+	void SetProjectDir(const LString& val)
+	{
+		Config_DefaultProject.SetValue(val);
+		mPlatformFile->SetProjectDir(val);
+	}
 
 	IPlatformFileManager *GetPlatformFileManager() const {
 		return mPlatformFile;

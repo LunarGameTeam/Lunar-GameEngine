@@ -82,8 +82,7 @@ ShaderAsset* MaterialInstance::GetShaderAsset()
 void MaterialInstance::Init()
 {
 	if (mMaterialTemplate)
-	{
-		
+	{		
 
 		auto& defaultParams = mMaterialTemplate->GetAllParams();
 		for (TSubPtr<MaterialParam>& p : defaultParams)

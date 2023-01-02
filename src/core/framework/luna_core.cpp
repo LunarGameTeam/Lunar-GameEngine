@@ -26,6 +26,17 @@ LModule* PyGetModule(LType* type)
 	return gEngine->GetModule(type); 
 };
 
+LString PyGetConfig(const LString& key)
+{
+	return ConfigLoader::instance().GetValue(key);
+};
+
+void PySetConfig(const LString& key, const LString& val)
+{
+	ConfigLoader::instance().SetValue(key, val);
+};
+
+
 LunaCore* LunaCore::CreateLunaCore()
 {
 	assert(gEngine == nullptr);
@@ -33,6 +44,8 @@ LunaCore* LunaCore::CreateLunaCore()
 	gEngine = new LunaCore();
 	gEngine->LoadModule<PlatformModule>();
 	BindingModule::Luna()->AddMethod<&PyGetModule>("get_module").ml_doc = LString::MakeStatic("def get_module(self, t: Type[T]) -> T:\n\tpass\n");
+	BindingModule::Luna()->AddMethod<&PyGetConfig>("get_config");
+	BindingModule::Luna()->AddMethod<&PyGetConfig>("set_config");
 	return gEngine;
 }
 

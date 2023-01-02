@@ -20,7 +20,7 @@ struct args_traits_impl
 	static LString args_name()
 	{
 		LString binding_type_name = binding_converter<arg_t> ::binding_fullname();
-		LString res = LString::Format(", param{0} : ", Idx - 1) + binding_type_name;
+		LString res = LString::Format(", param{0}: '{1}'", Idx - 1, binding_type_name);
 		res = args_traits_impl<Args, Idx - 1>::args_name() + res;
 		return res;
 	}
@@ -39,7 +39,7 @@ struct args_traits_impl<Args, 1>
 	static LString args_name()
 	{
 		LString binding_type_name = binding_converter<arg_t>::binding_fullname();
-		LString res = LString::Format("param{0} : ", 0) + binding_type_name;
+		LString res = LString::Format("param{0}: '{1}'", 0, binding_type_name);
 		return res;
 	}
 };
@@ -118,11 +118,11 @@ LString method_doc(const char* name)
 	if constexpr (function_traits<FN>::args_count != 0)
 	{
 		LString res = detail::args_traits_impl<args_type, function_traits<FN>::args_count>::args_name();
-		format = LString::Format("def {0}(self{1})->{2}:\n\tpass", name, res, return_name);
+		format = LString::Format("def {0}(self, {1})->'{2}':", name, res, return_name);
 	}
 	else
 	{
-		format = LString::Format("def {0}(self) -> {1}:\n\tpass", name, return_name);
+		format = LString::Format("def {0}(self) -> '{1}':", name, return_name);
 	}
 	return format;
 }
@@ -141,11 +141,11 @@ LString static_method_doc(const char* name)
 	{
 		LString res = detail::args_traits_impl<args_type, function_traits<FN>::args_count>::args_name();
 
-		format = LString::Format("@staticmethod\ndef {0}({1}) -> {2}:\n\tpass", name, res, return_name);
+		format = LString::Format("def {0}({1}) -> '{2}':\n", name, res, return_name);
 	}
 	else
 	{
-		format = LString::Format("@staticmethod\ndef {}() -> {}:\n\tpass", name, return_name);
+		format = LString::Format("def {}() -> '{}':\n", name, return_name);
 	}
 	return format;
 }

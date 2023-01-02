@@ -129,7 +129,7 @@ bool JsonSerializer::DeSerialize(LObject *obj)
 
 void JsonSerializer::SerializeProperty(LProperty& prop, LObject* target, Dictionary& dict)
 {
-	if (prop.CheckMeta(MetaInfo::Transient))
+	if (prop.CheckFlag(PropertyFlag::Transient))
 		return;
 	static std::map<LType *, void(*)(LProperty &prop, LObject *target, Dictionary &dict)> helper = {
 		{LType::Get<float>(),  &PropertySerializeHelper<float>},

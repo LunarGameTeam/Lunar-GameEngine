@@ -35,12 +35,22 @@ class PyLibraryPanel(editor.PanelBase):
         self.asset_root = Directory(self.asset_path)
 
     def on_imgui_folder(self, folder: 'Directory'):
-        def item_clicked(hovered, held):
-            luna.imgui.text(folder.name)
 
-        if self.custom_treenode(folder.name, 0, item_clicked):
-            for f in folder.child_list:
-                self.on_imgui_folder(f)
+        if isinstance(folder, Directory):
+            flag = 0
+        elif isinstance(folder, FileInfo):
+            flag = luna.imgui.ImGuiTreeNodeFlags_Leaf
+
+        def item_clicked(hovered, held):
+            if isinstance(folder, Directory):
+                luna.imgui.text(" {} {}".format(luna.imgui.ICON_FA_FOLDER, folder.name))
+            else:
+                luna.imgui.text(" {} {}".format(luna.imgui.ICON_FA_FILE, folder.name))
+
+        if self.custom_treenode(folder.name, flag, item_clicked):
+            if isinstance(folder, Directory):
+                for f in folder.child_list:
+                    self.on_imgui_folder(f)
             luna.imgui.tree_pop()
 
     def on_imgui(self) -> None:

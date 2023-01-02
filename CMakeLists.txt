@@ -84,8 +84,10 @@ add_compile_options(/bigobj)
 add_compile_options(/Zc:char8_t)
 add_compile_options(/GR)
 
+add_definitions(-DPYTHON3_PATH="${Python3_RUNTIME_LIBRARY_DIRS}")
 
 message(STATUS "python include dir: ${Python3_INCLUDE_DIRS}")
+message(STATUS "python runtime dir: ${Python3_RUNTIME_LIBRARY_DIRS}")
 message(STATUS "python libs: ${Python3_LIBRARIES}")
 message(STATUS "python exe: ${Python3_EXECUTABLE}")
 message(STATUS "vulkan glslang: ${Vulkan_glslang_LIBRARY}")

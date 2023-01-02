@@ -36,7 +36,7 @@ static void ImGUIText(const LString& name)
 
 RegisterTypeEmbedd_Imp(EditorModule)
 {
-	cls->BindingMethod<&EditorModule::RegisterPanel>("register_panel").GetBindingMethodDef().ml_doc = LString::MakeStatic("def register_editor(self, t: typing.Type[T] ) -> T:\n\tpass\n");
+	cls->BindingMethod<&EditorModule::RegisterPanel>("register_panel").GetBindingMethodDef().ml_doc = LString::MakeStatic("def register_editor(self, t: typing.Type[T] ) -> T:\n");
 
 	cls->Binding<EditorModule>();
 

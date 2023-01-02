@@ -17,43 +17,30 @@ luna::LString LPath::GetFileNameWithoutExt() const
 	return "";
 }
 
-LPath::LPath(const char *str) : mPath(str)
+LPath::LPath(const char *str) : mRelativePath(str)
 {
-	static PlatformModule *fileSub = gEngine->GetModule<PlatformModule>();
-	assert(fileSub != nullptr);
-	static IPlatformFileManager *file = fileSub->GetPlatformFileManager();
-	assert(file != nullptr);
-
-	mPath.ReplaceAll("\\", "/");
-	//Relative Path
-	if (mPath.StartWith('/'))
-	{
-		mAbsPath = file->EngineDir() + str;
-	}
-	else
-	{
-		mAbsPath = str;
-	}
+	Init();
 }
 
-LPath::LPath(const LString &str) :mPath(str)
+LPath::LPath(const LString &str) : mRelativePath(str)
 {
-	static PlatformModule *fileSub = gEngine->GetModule<PlatformModule>();
-	assert(fileSub != nullptr);
-	static IPlatformFileManager *file = fileSub->GetPlatformFileManager();
-	assert(file != nullptr);
-
-	mPath.ReplaceAll("\\", "/");
-	//Relative Path
-	if (mPath.StartWith('/'))
-	{
-		mAbsPath = file->EngineDir() + str;
-	}
-	else
-	{
-		mAbsPath = str;
-	}
+	Init();
 }
+
+void LPath::Init()
+{
+	static PlatformModule* fileSub = gEngine->GetModule<PlatformModule>();
+	assert(fileSub != nullptr);
+	static IPlatformFileManager* file = fileSub->GetPlatformFileManager();
+	assert(file != nullptr);
+	mRelativePath.ReplaceAll("\\", "/");
+	if (!mRelativePath.StartWith('/'))
+		mRelativePath = "/" + mRelativePath;
+	//Relative Path
+	mEngineAbsPath = file->EngineDir() + mRelativePath;	
+	mProjectAbsPath = file->ProjectDir() + mRelativePath;
+}
+
 
 LString luna::LPath::GetFileNameWithExt() const
 {
@@ -62,7 +49,7 @@ LString luna::LPath::GetFileNameWithExt() const
 
 bool LPath::IsRelative() const
 {
-	return mPath.StartWith("/");
+	return mRelativePath.StartWith("/");
 }
 
 luna::LString LPath::ConvertToEnginePath(const LString& path)

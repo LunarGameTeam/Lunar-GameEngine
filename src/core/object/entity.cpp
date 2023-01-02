@@ -10,7 +10,7 @@ RegisterTypeEmbedd_Imp(Entity)
 	cls->Ctor<Entity>();
 	cls->Property<&Self::m_components>("component_list");
 	cls->Property<&Self::m_children>("children");
-	cls->BindingMethod<&Entity::GetComponentByType>("get_component").GetBindingMethodDef().ml_doc = LString::MakeStatic("def get_component(self, name: str,t: Type[T] ) -> T:\n\tpass\n");
+	cls->BindingMethod<&Entity::GetComponentByType>("get_component").GetBindingMethodDef().ml_doc = LString::MakeStatic("def get_component(self, name: str,t: Type[T] ) -> T:");
 
 	cls->BindingMethod<&Entity::GetComponentAt>("get_component_at");
 	cls->BindingMethod<&Entity::GetComponetCount>("get_component_count");

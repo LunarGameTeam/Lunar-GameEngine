@@ -311,9 +311,9 @@ RenderScene* RenderModule::AddScene()
 	return scene;
 }
 
-ImguiTexture* RenderModule::AddImguiTexture(RHIResource* res)
+ImguiTexture* RenderModule::AddImguiTexture(const LString& key, RHIResource* res)
 {
-	ImguiTexture* imguiTexture = &mImguiTextures.emplace_back();
+	ImguiTexture* imguiTexture = &mImguiTextures[key];
 	ViewDesc desc;
 	desc.mViewType = RHIViewType::kTexture;
 	desc.mViewDimension = RHIViewDimension::TextureView2D;
@@ -321,8 +321,8 @@ ImguiTexture* RenderModule::AddImguiTexture(RHIResource* res)
 	imguiTexture->mView->BindResource(res);
 	if (sRenderModule->GetDeviceType() == render::RenderDeviceType::Vulkan)
 	{
-		VkDescriptorSet  new_set = ImGui_ImplVulkan_AddTexture(mRenderDevice->mClampSampler->As<render::VulkanResource>()->mSampler, imguiTexture->mView->As<VulkanView>()->mImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		imguiTexture->mImg = new_set;
+		VkDescriptorSet  newSet = ImGui_ImplVulkan_AddTexture(mRenderDevice->mClampSampler->As<render::VulkanResource>()->mSampler, imguiTexture->mView->As<VulkanView>()->mImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		imguiTexture->mImg = newSet;
 	}
 	else
 	{
@@ -362,9 +362,9 @@ void RenderModule::RenderIMGUI()
 	mRenderDevice->mGraphicCmd->BindDescriptorHeap();
 	mRenderDevice->mGraphicCmd->BeginEvent("IMGUI");
 
-	for (ImguiTexture& it : mImguiTextures)
+	for (auto& it : mImguiTextures)
 	{
-		mRenderDevice->mGraphicCmd->ResourceBarrierExt({ it.mView->mBindResource, render::ResourceState::kUndefined, render::ResourceState::kShaderReadOnly });
+		mRenderDevice->mGraphicCmd->ResourceBarrierExt({ it.second.mView->mBindResource, render::ResourceState::kUndefined, render::ResourceState::kShaderReadOnly });
 	}
 
 	mRenderDevice->mGraphicCmd->ResourceBarrierExt({ sRenderModule->GetSwapChain()->GetBackBuffer(index), render::ResourceState::kUndefined, render::ResourceState::kRenderTarget });

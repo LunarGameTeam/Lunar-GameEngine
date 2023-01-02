@@ -19,12 +19,14 @@ class LType;
 class LProperty;
 
 
-enum class MetaInfo
+enum class PropertyFlag : uint32_t
 {
-	None = 0x0000,
-	Transient = 0x0001,
-	EditorInvisible = 0x0002
+	None = 0,
+	Transient = 1 << 0,
+	HasBinding = 1 << 1,
 };
+
+ENABLE_BITMASK_OPERATORS(PropertyFlag);
 
 class CORE_API LProperty  : public binding::BindingProperty
 {
@@ -39,14 +41,16 @@ public:
 	inline LType* GetType() const { return mType; }
 	
 	inline bool HasBinding() const { return mHasBinding; }
-	inline bool CheckMeta(MetaInfo info) const { return int(mMeta) & (int)(info); }
 	inline LType* GetOwnerType() { return mOwner; }
 	inline LMethod& GetSetter() { return mSetter; }
 	inline LMethod& GetGetter() { return mGetter; }
 
-	LProperty &Meta(MetaInfo val)
+
+	inline bool CheckFlag(PropertyFlag info) const { return int(mFlags) & (int)(info); }
+
+	inline LProperty& SetFlag(PropertyFlag val)
 	{
-		mMeta = (MetaInfo)((int)mMeta | (int)val);
+		mFlags = (PropertyFlag)((int)mFlags | (int)val);
 		return *this;
 	}
 
@@ -128,6 +132,7 @@ public:
 		if (!mBindingDef.set)
 			mBindingDef.set = (setter)binding::binding_proxy<class_type>::template raw_setter<M>;
 
+		mFlags = mFlags | PropertyFlag::HasBinding;
 
 		return *this;
 
@@ -186,17 +191,17 @@ protected:
 		return 0;
 	}
 private:
-	bool   mHasBinding = false;
-	bool   mDefing     = true;
-	LType* mType       = nullptr;
-	LType* mOwner      = nullptr;
+	bool         mHasBinding = false;
+	bool         mDefing     = true;
+	LType*       mType       = nullptr;
+	LType*       mOwner      = nullptr;
 
-	LString  mName;
-	bool     mIsSubPtr = false;
-	MetaInfo mMeta     = MetaInfo::None;
+	LString      mName;
+	bool         mIsSubPtr   = false;
+	PropertyFlag mFlags      = PropertyFlag::None;
 
-	LMethod  mSetter;
-	LMethod  mGetter;
+	LMethod      mSetter;
+	LMethod      mGetter;
 	friend class LType;
 };
 

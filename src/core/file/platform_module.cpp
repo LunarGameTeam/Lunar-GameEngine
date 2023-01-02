@@ -4,9 +4,16 @@ namespace luna
 {
 
 
+CONFIG_IMPLEMENT(LString, Start, DefaultProject, "");
+
 RegisterTypeEmbedd_Imp(PlatformModule)
 {	
 	cls->Binding<PlatformModule>();
+	cls->BindingMethod<&Self::SetProjectDir>("set_project_dir");		
+
+	cls->VirtualProperty("project_dir")
+		.Getter<&Self::GetProjectDir>()
+		.Binding<PlatformModule, LString>();
 	cls->VirtualProperty("engine_dir")
 		.Getter<&Self::GetEngineDir>()
 		.Binding<PlatformModule, LString>();
@@ -33,6 +40,7 @@ bool PlatformModule::OnLoad()
 
 bool PlatformModule::OnInit()
 {
+	mPlatformFile->SetProjectDir(Config_DefaultProject.GetValue());
 	return true;
 }
 
@@ -46,6 +54,11 @@ bool PlatformModule::OnShutdown()
 LString PlatformModule::GetEngineDir()
 {
 	return mPlatformFile->EngineDir();
+}
+
+LString PlatformModule::GetProjectDir()
+{
+	return mPlatformFile->ProjectDir();
 }
 
 void luna::PlatformModule::Tick(float delta_time)

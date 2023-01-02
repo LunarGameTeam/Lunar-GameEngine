@@ -101,7 +101,8 @@ public:
 	RenderDevice* mRenderDevice;
 	TSubPtr<RenderTarget>     mMainRT;
 
-	ImguiTexture* AddImguiTexture(RHIResource* res);
+	ImguiTexture* GetImguiTexture(const LString& key) { return &mImguiTextures[key]; }
+	ImguiTexture* AddImguiTexture(const LString& key, RHIResource* res);
 private:
 	LSharedPtr<Texture2D> mDefaultWhiteTexture;
 
@@ -113,7 +114,7 @@ private:
 	LMap<LWindow*, RHISwapChainPtr> mSwapchains;
 
 
-	std::vector<ImguiTexture> mImguiTextures;
+	std::map<LString, ImguiTexture> mImguiTextures;
 
 	render::RHIRenderPassPtr  mRenderPass;
 	render::RHIFrameBufferPtr mFrameBuffer[2];

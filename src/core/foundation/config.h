@@ -18,6 +18,11 @@ namespace luna
 
 struct CORE_API SerializeConfig
 {
+	SerializeConfig()
+	{
+
+	}
+	bool b = true;
 	LString mGroup;
 	LString mKey;
 	LString mValue;
@@ -40,8 +45,11 @@ public:
 
 	void Load(const LString& val);
 	void Save(std::fstream& fs);
+
+	LString GetValue(const LString& val) { return sConfigs[val]->mValue; }
+	void SetValue(const LString& key, const LString& val) { sConfigs[key]->mValue = val; }
 private:
-	LMap<LString, SerializeConfig> sConfigs;
+	LMap<LString, SerializeConfig*> sConfigs;
 
 	template<typename T>
 	friend class Config; // every B<T> is a friend of A
@@ -49,67 +57,37 @@ private:
 
 
 template<typename Type>
-class Config
+class Config : public SerializeConfig
 {
-	LString mGroup;
-	LString mKey;
-	Type mValue;
 public:
-	Type GetValue() {
-		return mValue;
+	Type GetValue()
+	{
+		return luna::FromString<Type>(mValue);
+	}
+	void SetValue(const Type& val)
+	{
+		mValue = luna::ToString(val);
 	}
 
-	Config(const char *group, const char *key, const Type &value) :
-		mGroup(group),
-		mKey(key),
-		mValue(value)
+	Config(const char *group, const char *key, const Type &value)		
 	{
+		mGroup = group;
+		mKey = key;
+		mValue = luna::ToString(value);
 		auto &ins = ConfigLoader::instance();
 		auto &configs = ins.sConfigs;
 		if (configs.contains(mKey))
 		{
-			mValue = luna::FromString<Type>(configs[mKey].mValue);
+			mValue = configs[mKey]->mValue;
 		}
 		else
 		{
-			configs[mKey].mGroup = mGroup;
-			configs[mKey].mKey = mKey;
-			configs[mKey].mValue = luna::ToString<Type>(mValue);
+			ins.sConfigs[key] = this;
 		}
+		
 	}
 };
 
-template<>
-class Config<LString>
-{
-	LString mGroup;
-	LString mKey;
-	LString mValue;
-public:
-	LString GetValue() 
-	{
-		return mValue;
-	}
-
-	Config(const char *group, const char *key, const char *value) :
-		mGroup(group),
-		mKey(key),
-		mValue(value)
-	{
-		static auto &ins = ConfigLoader::instance();
-		static auto &configs = ins.sConfigs;
-		if (configs.contains(mKey))
-		{
-			mValue = configs[mKey].mValue;
-		}
-		else
-		{
-			configs[mKey].mGroup = mGroup;
-			configs[mKey].mKey = mKey;
-			configs[mKey].mValue = mValue;
-		}
-	}
-};
 
 #define CONFIG_DECLARE(Type, Group, Key, DefaultValue) extern Config<Type> Config_##Key;
 #define CONFIG_IMPLEMENT(Type, Group, Key, DefaultValue) Config<Type> Config_##Key(#Group, #Key, DefaultValue);

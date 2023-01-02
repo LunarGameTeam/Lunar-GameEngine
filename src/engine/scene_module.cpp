@@ -13,6 +13,9 @@ namespace luna
 
 SceneModule* sSceneModule = nullptr;
 
+CONFIG_DECLARE(LString, Start, DefaultScene, "");
+CONFIG_IMPLEMENT(LString, Start, DefaultScene, "");
+
 RegisterTypeEmbedd_Imp(SceneModule)
 {
 	cls->Binding<SceneModule>();

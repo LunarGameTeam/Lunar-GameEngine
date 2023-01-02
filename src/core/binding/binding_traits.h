@@ -218,6 +218,27 @@ struct binding_converter<bool>
 	}
 };
 
+template<>
+struct binding_converter<void*>
+{
+	inline static PyObject* to_binding(const void* val)
+	{
+		size_t repr = reinterpret_cast<size_t>(val);
+		return PyLong_FromLongLong(repr);
+	}
+
+	inline static void* from_binding(PyObject* obj)
+	{
+		size_t repr = PyLong_AsLongLong(obj);
+		return reinterpret_cast<void*>(repr);
+	}
+
+	static const char* binding_fullname()
+	{
+		return "long";
+	}
+};
+
 
 template<>
 struct binding_converter<void>

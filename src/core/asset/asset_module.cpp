@@ -17,8 +17,6 @@ RegisterTypeEmbedd_Imp(AssetModule)
 }
 
 
-Config<int> g_create_meta("Asset", "IsAutoCreateAssetMeta", 0);
-
 CORE_API AssetModule *sAssetModule = nullptr;
 
 AssetModule::AssetModule()
@@ -73,7 +71,7 @@ LBasicAsset *AssetModule::LoadAsset(const LPath &path, LType *asset_type)
 	asset->mAssetPath = path.AsString();
 	
 	
-	LString meta_path = path.AsStringAbs() + ".meta";
+	LString meta_path = path.AsEnginePathString() + ".meta";
 	LString meta_str;
 
 	LSharedPtr<LFile> file_data = manager->ReadSync(path);

@@ -11,8 +11,39 @@
 
 #include "imgui.h"
 #include "editor/ui/icon_font.h"
+#include "render/renderer/imgui_texture.h"
 
 
+namespace luna::binding
+{
+
+
+template<>
+struct binding_converter<const ImGuiPayload*>
+{
+	inline static PyObject* to_binding(const ImGuiPayload* val)
+	{
+		PyObject* data = *(PyObject**)(val->Data);
+		PyObject* res = PyDict_New();
+		PyDict_SetItemString(res, "data", data);
+		PyDict_SetItemString(res, "type", binding_converter<const char*>::to_binding(val->DataType));
+		return res;
+	}
+
+	inline static const ImGuiPayload* from_binding(PyObject* val)
+	{
+		return nullptr;
+	}
+
+	static const char* binding_fullname()
+	{
+		return "dict";
+	}
+};
+
+
+
+}
 namespace luna
 {
 
@@ -22,6 +53,16 @@ struct InputTextCallback_UserData
 	LString Str;
 	ImGuiInputTextCallback ChainCallback;
 };
+
+inline ImVec2 ToVec2(const LVector2f& val)
+{
+	return ImVec2(val.x(), val.y());
+}
+
+inline ImVec4 ToVec4(const LVector4f& val)
+{
+	return ImVec4(val.x(), val.y(), val.z(), val.w());
+}
 
 int InputTextCallback(ImGuiInputTextCallbackData* data)
 {
@@ -64,23 +105,20 @@ ImVec2 FromVector2(const LVector2f& val)
 	return ImVec2(val.x(), val.y());
 }
 
-static bool MenuItem(const char* label) { return ImGui::MenuItem(label); }
-static void Text(const char* text) { return ImGui::Text(text); }
-static bool Button(const char* text) { return ImGui::Button(text); }
-static void PushID(int id)
-{
-	return ImGui::PushID(id);
-}
-static void SameLine(float offset, float spacing) 
-{ 
-	return ImGui::SameLine(offset, spacing); 
-}
-static bool TreeNode(const char* id, ImGuiTreeNodeFlags flags, const char* name) 
+static bool PyMenuItem(const char* label) { return ImGui::MenuItem(label); }
+
+static void PyText(const char* text) { return ImGui::Text(text); }
+
+static bool PyButton(const char* text) { return ImGui::Button(text); }
+
+static void PyPushID(void* id){ return ImGui::PushID(id); }
+
+static bool PyTreeNode(void* id, ImGuiTreeNodeFlags flags, const char* name) 
 {
 	return ImGui::TreeNodeEx(id, flags, name); 
 }
 
-static PyObject* DragFloat3(const char* label, const LVector3f& val, float speed, float v_min, float v_max)
+static PyObject* PyDragFloat3(const char* label, const LVector3f& val, float speed, float v_min, float v_max)
 {
 	float float_val[3];
 	float_val[0] = val.x();
@@ -95,7 +133,7 @@ static PyObject* DragFloat3(const char* label, const LVector3f& val, float speed
 	return ret_args;
 }
 
-static PyObject* DragFloat(const char* label, float val, float speed, float v_min, float v_max)
+static PyObject* PyDragFloat(const char* label, float val, float speed, float v_min, float v_max)
 {
 	float float_val = val;
 	bool res = ImGui::DragFloat(label, &float_val, speed, v_min, v_max);
@@ -107,7 +145,7 @@ static PyObject* DragFloat(const char* label, float val, float speed, float v_mi
 	return ret_args;
 }
 
-static PyObject* CheckBox(const char* label, bool value)
+static PyObject* PyCheckBox(const char* label, bool value)
 {
 	bool modify = ImGui::Checkbox(label, &value);
 
@@ -118,7 +156,7 @@ static PyObject* CheckBox(const char* label, bool value)
 	return ret;
 }
 
-LVector2f CalcTextSize(const char* val)
+LVector2f PyCalcTextSize(const char* val)
 {
 	LVector2f res;
 	auto vec = ImGui::CalcTextSize(val);
@@ -127,44 +165,80 @@ LVector2f CalcTextSize(const char* val)
 	return res;
 }
 
+void PyImage(render::ImguiTexture* texture, const LVector2f& size, const LVector2f& uv0, const LVector2f& uv1)
+{
+	ImGui::Image(texture->mView, ToVec2(size), ToVec2(uv0), ToVec2(uv1));
+}
 
+bool PySetDragDropPayload(const char* type, PyObject* data, ImGuiCond cond)
+{
+	return ImGui::SetDragDropPayload(type, &data, sizeof(PyObject*), cond);
+}
+
+const ImGuiPayload* PyAcceptDragDropPayload(const char* type, ImGuiDragDropFlags flags /* = 0 */)
+{
+	const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(type, flags);
+	return payload;
+}
+
+#define AddIMGUIConstant(name) imguiModule->AddConstant(#name, name);
 
 STATIC_INIT(imgui)
 {
 		BindingModule* imguiModule = BindingModule::Get("luna.imgui");
-		
-		imguiModule->AddConstant("ImGuiTreeNodeFlags_DefaultOpen", ImGuiTreeNodeFlags_DefaultOpen);
-		imguiModule->AddConstant("ImGuiTreeNodeFlags_Leaf", ImGuiTreeNodeFlags_Leaf);
 
-		imguiModule->AddConstant("ICON_FA_COMPRESS", ICON_FA_COMPRESS);
-		imguiModule->AddConstant("ICON_FA_CUBE", ICON_FA_CUBE);
+		AddIMGUIConstant(ImGuiCond_Always);
+		AddIMGUIConstant(ImGuiCond_FirstUseEver);
+		AddIMGUIConstant(ImGuiCond_Once);
 
+		AddIMGUIConstant(ImGuiDragDropFlags_None);
+		AddIMGUIConstant(ImGuiDragDropFlags_AcceptBeforeDelivery);		
+
+		AddIMGUIConstant(ImGuiTreeNodeFlags_DefaultOpen);
+		AddIMGUIConstant(ImGuiTreeNodeFlags_Leaf);
+		AddIMGUIConstant(ImGuiTreeNodeFlags_OpenOnArrow);
+		AddIMGUIConstant(ImGuiTreeNodeFlags_OpenOnDoubleClick);
+
+		AddIMGUIConstant(ICON_FA_COMPRESS);
+		AddIMGUIConstant(ICON_FA_CUBE);
+		AddIMGUIConstant(ICON_FA_FOLDER);
+		AddIMGUIConstant(ICON_FA_FILE);
+		AddIMGUIConstant(ICON_FA_IMAGE);
 
 		imguiModule->AddMethod<&InputLString>("input");
 		imguiModule->AddMethod<[](){
 			ImGui::ShowDemoWindow(nullptr);
 		}>("show_demo_window");
+
 		imguiModule->AddMethod<&ImGui::BeginMenuBar>("begin_menu_bar");
 		imguiModule->AddMethod<&ImGui::EndMenuBar>("end_menu_bar");
 		imguiModule->AddMethod<&ImGui::BeginMenu>("begin_menu");
 		imguiModule->AddMethod<&ImGui::EndMenu>("end_menu");
+		imguiModule->AddMethod<&PyMenuItem>("menu_item");
+
 		imguiModule->AddMethod<&ImGui::BeginGroup>("begin_group");
 		imguiModule->AddMethod<&ImGui::EndGroup>("end_group");
 		
-		imguiModule->AddMethod<&TreeNode>("tree_node");
+		imguiModule->AddMethod<&PyTreeNode>("tree_node");
 		imguiModule->AddMethod<&ImGui::TreePop>("tree_pop");
-		imguiModule->AddMethod<&PushID>("push_id");
+		imguiModule->AddMethod<&PyPushID>("push_id");
 		imguiModule->AddMethod<&ImGui::PopID>("pop_id");
-		imguiModule->AddMethod<&SameLine>("same_line");
-		imguiModule->AddMethod<&MenuItem>("menu_item");
-		imguiModule->AddMethod<&Text>("text");
-		imguiModule->AddMethod<&Button>("button");
-		imguiModule->AddMethod<&CalcTextSize>("calc_text_size");
+		imguiModule->AddMethod<&ImGui::SameLine>("same_line");
+		imguiModule->AddMethod<&PyText>("text");
+		imguiModule->AddMethod<&PyButton>("button");
+		imguiModule->AddMethod<&PyCalcTextSize>("calc_text_size");
 
 
-		imguiModule->AddMethod<&DragFloat3>("drag_float3");
-		imguiModule->AddMethod<&DragFloat>("drag_float");
-		imguiModule->AddMethod<&CheckBox>("checkbox");
+		imguiModule->AddMethod<&PyDragFloat3>("drag_float3");
+		imguiModule->AddMethod<&PyDragFloat>("drag_float");
+		imguiModule->AddMethod<&PyCheckBox>("checkbox");
+
+		imguiModule->AddMethod<&ImGui::BeginDragDropSource>("begin_drag_drop_souce");
+		imguiModule->AddMethod<&ImGui::EndDragDropSource>("end_drag_drop_souce");
+		imguiModule->AddMethod<&ImGui::BeginDragDropTarget>("begin_drag_drop_target");
+		imguiModule->AddMethod<&ImGui::EndDragDropTarget>("end_drag_drop_target");
+		imguiModule->AddMethod<&PyAcceptDragDropPayload>("accept_drag_drop_payload");
+		imguiModule->AddMethod<&PySetDragDropPayload>("set_drag_drop_payload");
 
 
 		imguiModule->AddMethod<&ImGui::AlignTextToFramePadding>("align_text_to_frame_padding");

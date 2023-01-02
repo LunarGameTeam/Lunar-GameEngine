@@ -29,7 +29,7 @@ public:
 
 	uint32_t GetEntityCount()
 	{
-		return m_entities.Size();
+		return (uint32_t)m_entities.Size();
 	}
 
 	Entity* GetEntityAt(uint32_t idx) 

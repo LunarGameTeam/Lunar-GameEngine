@@ -77,10 +77,11 @@ __declspec(dllexport) BOOL WINAPI DllMain(
 		break;
 
 	case DLL_THREAD_DETACH:
-		// Do thread-specific cleanup.
+		
 		break;
 
 	case DLL_PROCESS_DETACH:
+	{
 		std::fstream fs;
 		// Perform any necessary cleanup.
 		TCHAR tempPath[1000];
@@ -90,6 +91,7 @@ __declspec(dllexport) BOOL WINAPI DllMain(
 		fs.open(path.c_str(), std::fstream::out | std::fstream::trunc);
 		ConfigLoader::instance().Save(fs);
 		fs.close();
+	}
 		break;
 	}
 	return TRUE;  // Successful DLL_PROCESS_ATTACH.

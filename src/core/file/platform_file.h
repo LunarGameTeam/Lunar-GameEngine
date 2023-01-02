@@ -34,7 +34,7 @@ enum class CORE_API OpenMode : int
 /*!
  * \class IPlatformFileManager
  *
- * \brief 平台文件操作接口，不同平台需要继承并实现所有接口
+ * \brief 平台文件操作接口，不同平台需要继承并实现所有接口，读取文件顺序优先ProjectDir，其次EngineDir
  *
  * \author isAk wOng
  *
@@ -49,6 +49,7 @@ public:
 	virtual LSharedPtr<LFile> ReadSync(const LPath &path) = 0;
 	virtual LSharedPtr<FileAsyncHandle> ReadAsync(const LPath &path, FileAsyncCallback callback) = 0;
 	virtual LSharedPtr<LFile> WriteSync(const LPath &path, const LArray<byte> &data) = 0;
+	virtual void SetProjectDir(const LString& path) = 0;
 
 public:
 	virtual LSharedPtr<LFileStream> OpenAsStream(const LPath &path, OpenMode mode) = 0;
@@ -95,11 +96,13 @@ public:
 	virtual bool Create_Directory(const LPath &path) = 0;
 	virtual bool Create_File(const LPath &path) = 0;
 
-	virtual const LString &EngineDir() = 0;
+	virtual const LString& ProjectDir() = 0;
+	virtual const LString& EngineDir() = 0;
 	virtual const LString& ApplicationDir() = 0;
 protected:
-	LString m_root_dir;
-	LString m_exe_path;
+	LString mProjectDir;
+	LString mEngineDir;
+	LString mExecPath;
 };
 
 /*!
@@ -122,6 +125,7 @@ public:
 	LSharedPtr<FileAsyncHandle> ReadAsync(const LPath& path, FileAsyncCallback callback) override;
 	LSharedPtr<LFileStream> OpenAsStream(const LPath& path, OpenMode mode) override;
 
+	void SetProjectDir(const LString& path) override;
 	bool ReadStringFromFile(const LPath& path, LString& res) override;
 	bool WriteStringToFile(const LPath& path, const LString& res) override;
 
@@ -138,6 +142,9 @@ public:
 
 	bool GetFileInfoRecursive(const LPath& path, LFileInfo& result, bool recursive = false) override;
 	bool io_loop = true;
+
+
+	const LString& ProjectDir() override;
 
 private:
 	std::mutex m_pending_lock;

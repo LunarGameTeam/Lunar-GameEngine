@@ -19,24 +19,28 @@ namespace luna
 LSharedPtr<LFileStream> WindowsFileManager::OpenAsStream(const LPath &path, OpenMode mode)
 {
 	LSharedPtr<LFileStream> file = MakeShared<LFileStream>();
-	file->mFileStream.open(path.AsStringAbs(), (int)mode);
+	
+	file->mFileStream.open(mEngineDir + "/" + path.AsString(), (int)mode);
 	if (file->mFileStream.fail())
 	{
-		LogError("Core", "Open File: {0} Failed", path.AsString().c_str());
-		return NULL;
+		file->mFileStream.open(mProjectDir + "/" + path.AsString(), (int)mode);		
 	}
 	return file;
+}
+
+void WindowsFileManager::SetProjectDir(const LString& path)
+{
+	mProjectDir = path;
 }
 
 bool WindowsFileManager::ReadStringFromFile(const LPath &path, LString &res)
 {
 	LSharedPtr<LFileStream> file = MakeShared<LFileStream>();
-	file->mFileStream.open(path.AsStringAbs(), (int)OpenMode::In);
+	file->mFileStream.open(mEngineDir + "/" + path.AsString(), (int)OpenMode::In);
 
 	if (file->mFileStream.fail())
 	{
-		LogError("Core", "Open File: {0} Failed", path.AsString().c_str());
-		return false;
+		file->mFileStream.open(mProjectDir + "/" + path.AsString(), (int)OpenMode::In);
 	}
 	std::stringstream stream;
 	stream << file->mFileStream.rdbuf();
@@ -76,17 +80,17 @@ bool WindowsFileManager::Create_File(const LPath &path)
 
 const LString &WindowsFileManager::EngineDir()
 {
-	return m_root_dir;
+	return mEngineDir;
 }
 
 const LString& WindowsFileManager::ApplicationDir()
 {
-	return m_exe_path;
+	return mExecPath;
 }
 
 bool WindowsFileManager::GetFileInfo(const LPath &path, LFileInfo &result, bool recursive /*= false*/)
 {
-	std::filesystem::path p(path.AsStringAbs().c_str());
+	std::filesystem::path p(path.AsEnginePathString().c_str());
 	if (!std::filesystem::exists(p))
 	{
 		return false;
@@ -124,7 +128,7 @@ bool WindowsFileManager::GetFileInfo(const LPath &path, LFileInfo &result, bool 
 
 bool WindowsFileManager::GetFileInfoRecursive(const LPath &path, LFileInfo &result, bool recursive /*= false*/)
 {
-	std::filesystem::path p(path.AsStringAbs().c_str());
+	std::filesystem::path p(path.AsEnginePathString().c_str());
 	if (!std::filesystem::exists(p))
 	{
 		return false;
@@ -147,10 +151,15 @@ bool WindowsFileManager::GetFileInfoRecursive(const LPath &path, LFileInfo &resu
 	return true;
 }
 
+const luna::LString& WindowsFileManager::ProjectDir()
+{
+	return mProjectDir;
+}
+
 bool WindowsFileManager::WriteStringToFile(const LPath &path, const LString &res)
 {
 	LSharedPtr<LFileStream> file = MakeShared<LFileStream>();
-	file->mFileStream.open(path.AsStringAbs(), (int)OpenMode::Out | (int)OpenMode::Trunc);
+	file->mFileStream.open(path.AsEnginePathString(), (int)OpenMode::Out | (int)OpenMode::Trunc);
 
 	if (file->mFileStream.fail())
 	{
@@ -180,16 +189,16 @@ bool WindowsFileManager::DisposeFileManager()
 
 LSharedPtr<LFile> WindowsFileManager::WriteSync(const LPath &path, const LArray<byte> &data)
 {
-	HANDLE file_handle = ::CreateFileA(path.AsStringAbs().c_str(), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, NULL, NULL);
+	HANDLE file_handle = ::CreateFileA(path.AsEnginePathString(), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
 	LSharedPtr<LFile> file = MakeShared<LFile>();
 	if (file_handle == INVALID_HANDLE_VALUE)
 	{
-		LogError("Core", "Open File: {0} Failed", path.AsString().c_str());
+		file_handle = ::CreateFileA(path.AsProjectPathString(), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, NULL, NULL);
 		return file;
 	}
 	DWORD size = (DWORD)data.size();
 	file->mData = data;
-	file->mPath = path.AsStringAbs();
+	file->mPath = path.AsEnginePathString();
 	DWORD actual_size = 0;
 	::WriteFile(file_handle, file->mData.data(), size, &actual_size, NULL);
 	file->mIsOk = true;
@@ -204,7 +213,7 @@ LSharedPtr<FileAsyncHandle> WindowsFileManager::ReadAsync(const LPath &path, Fil
 	async_handle->mCallback = callback;
 	async_handle->mFile = MakeShared<LFile>();
 	async_handle->mAsyncState = AsyncState::PendingQueue;
-	async_handle->mPath = path.AsStringAbs();
+	async_handle->mPath = path.AsEnginePathString();
 
 	m_pending_lock.lock();
 	m_pending_queue.push(async_handle);
@@ -215,16 +224,20 @@ LSharedPtr<FileAsyncHandle> WindowsFileManager::ReadAsync(const LPath &path, Fil
 
 LSharedPtr<LFile> WindowsFileManager::ReadSync(const LPath &path)
 {
-	HANDLE file_handle = ::CreateFileA(path.AsStringAbs().c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
+	HANDLE file_handle = ::CreateFileA(path.AsEnginePathString(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
 	LSharedPtr<LFile> file = MakeShared<LFile>();
 	if (file_handle == INVALID_HANDLE_VALUE)
 	{
-		LogError("Core", "Open File: {0} Failed", path.AsString().c_str());
-		return file;
+		file_handle = ::CreateFileA(path.AsProjectPathString(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
+		if (file_handle == INVALID_HANDLE_VALUE)
+		{
+			LogError("Core", "Open File: {0} Failed", path.AsString().c_str());
+			return file;
+		}		
 	}
 	DWORD size = GetFileSize(file_handle, NULL);
 	file->mData.resize(size);
-	file->mPath = path.AsStringAbs();
+	file->mPath = path.AsEnginePathString();
 	DWORD actual_size = 0;
 	::ReadFile(file_handle, file->mData.data(), size, &actual_size, NULL);
 	file->mIsOk = true;
@@ -299,24 +312,25 @@ bool WindowsFileManager::InitFileManager()
 {
 	TCHAR tempPath[1000];
 	GetModuleFileName(NULL, tempPath, MAX_PATH);
-	m_exe_path = LString(tempPath);
+	mExecPath = LString(tempPath);
 
 	GetCurrentDirectory(MAX_PATH, tempPath); //获取程序的当前目录
-	m_root_dir = LString(tempPath);
-	if (m_root_dir.Find("\\bin") != luna::LString::npos)
+	mEngineDir = LString(tempPath);
+	if (mEngineDir.Find("\\bin") != luna::LString::npos)
 	{
-		m_root_dir.Replace("\\bin", "");
+		mEngineDir.Replace("\\bin", "");
 	}
 
-	m_root_dir.ReplaceAll("\\", "/");
-	m_exe_path.ReplaceAll("\\", "/");
+	mEngineDir.ReplaceAll("\\", "/");
+	mExecPath.ReplaceAll("\\", "/");
 
-	SetCurrentDirectory(m_root_dir.c_str());
-	SetDllDirectoryA(m_root_dir + "/bin");
+	SetCurrentDirectory(mEngineDir.c_str());
+	SetDllDirectoryA(mEngineDir + "/bin");
 
 
 	mIOThread = new LThread(std::bind(&WindowsFileManager::IO_Thread, this));
 
 	return true;
 }
+
 }

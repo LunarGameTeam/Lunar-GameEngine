@@ -16,7 +16,7 @@ void BindingModule::GenerateDoc()
 	for (auto method : mMethods)
 	{
 		if(method.second.ml_doc)
-			doc = doc + method.second.ml_doc + "\n\n";
+			doc = doc + method.second.ml_doc + "\tpass\n\n";
 	}
 	for (auto it : mConstants)
 	{
@@ -26,7 +26,7 @@ void BindingModule::GenerateDoc()
 	for (auto it : mConstantStr)
 	{
 		Py_ssize_t size;
-		doc = doc + LString::Format("{} = {}\n\n", it.first, PyUnicode_AsUTF8AndSize(it.second, &size));
+		doc = doc + LString::Format("{} = \"{}\"\n\n", it.first, PyUnicode_AsUTF8AndSize(it.second, &size));
 	}
 	mModuleDef.m_doc = LString::MakeStatic(doc);
 

@@ -2,6 +2,7 @@ import os
 import sys
 
 
+
 def init_editor():
     # app = QtWidgets.QApplication([])
     # widget = QWidget()
@@ -20,7 +21,7 @@ def init_editor():
 
     app = luna.LApplication.instance()
 
-    from test import binding_test
+    from luna_test.luna_test import binding_test
 
     # 先做 binding test 再执行
     binding_test()
@@ -33,7 +34,11 @@ def init_editor():
 
 if __name__ == '__main__':
     bin_dir = os.getcwd() + "\\bin"
+    editor_dir = os.getcwd() + "\\editor"
+    sys.path.append(editor_dir)
     sys.path.append(bin_dir)
+    print(os.getcwd())
+    print(sys.path)
     is_looping = True
     init_editor()
 

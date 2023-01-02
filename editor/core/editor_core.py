@@ -1,10 +1,10 @@
 from luna import *
 import luna
 
-asset_module: 'luna.AssetModule' = None
-render_module: 'luna.RenderModule' = None
-scene_module: 'luna.SceneModule' = None
-platform_module: 'luna.PlatformModule' = None
+asset_module: 'luna.AssetModule' = luna.get_module(luna.AssetModule)
+render_module: 'luna.RenderModule' = luna.get_module(luna.RenderModule)
+scene_module: 'luna.SceneModule' = luna.get_module(luna.SceneModule)
+platform_module: 'luna.PlatformModule' = luna.get_module(luna.PlatformModule)
 
 
 class EditorCore(object):
@@ -21,10 +21,6 @@ class EditorCore(object):
         from ui.imgui_demo import DemoPanel
 
         global asset_module, scene_module, render_module, platform_module
-        asset_module = luna.get_module(luna.AssetModule)
-        render_module = luna.get_module(luna.RenderModule)
-        scene_module = luna.get_module(luna.SceneModule)
-        platform_module = luna.get_module(luna.PlatformModule)
 
         self.hierarchy_panel = PyHierarchyPanel()
         self.demo_panel = DemoPanel()
@@ -41,7 +37,7 @@ class EditorCore(object):
         editor_module.register_panel(self.inspector_panel)
         editor_module.register_panel(self.demo_panel)
 
-        self.init()
+      #self.init()
 
     def init(self):
         scn = asset_module.load_asset("/assets/test.scn", luna.Scene)
