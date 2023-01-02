@@ -1,6 +1,12 @@
+#define RESOURCE_IMPORT_EXPORT
 #include"import_scene.h"
 namespace luna::ImportData
 {
+	LImportNodeDataMesh::LImportNodeDataMesh(const size_t index) :LImportNodeDataBase(LImportNodeDataType::ImportDataMesh, index)
+	{
+
+	};
+
 	void LImportNodeDataMesh::AddFullVertex(
 		const size_t subMeshIndex,
 		const LVector3f pos,
@@ -10,11 +16,11 @@ namespace luna::ImportData
 		const LVector4f color
 	)
 	{
-		mVertexPosition.push_back(pos);
-		mVertexNormal.push_back(norm);
-		mVertexTangent.push_back(tangent);
-		mVertexUv.push_back(uv);
-		mVertexColor.push_back(color);
+		mSubmesh[subMeshIndex].mVertexPosition.push_back(pos);
+		mSubmesh[subMeshIndex].mVertexNormal.push_back(norm);
+		mSubmesh[subMeshIndex].mVertexTangent.push_back(tangent);
+		mSubmesh[subMeshIndex].mVertexUv.push_back(uv);
+		mSubmesh[subMeshIndex].mVertexColor.push_back(color);
 	};
 
 	size_t LImportNodeDataMesh::AddSubMeshMessage(

@@ -4,8 +4,8 @@ namespace luna::lfbx
 {
 	struct LFbxSceneData
 	{
-		FbxAxisSystem mAxis;
-		FbxSystemUnit mUnit;
+		fbxsdk::FbxAxisSystem mAxis;
+		fbxsdk::FbxSystemUnit mUnit;
 		LVector<LFbxNodeBase> mNodes;
 		LVector<std::shared_ptr<LFbxDataBase>> mDatas;
 	};
@@ -51,9 +51,9 @@ namespace luna::lfbx
 		//fbxsdk::FbxAMatrix ComputeNodeMatrix(fbxsdk::FbxNode* Node);
 		void ComputeLclTransform(
 			fbxsdk::FbxNode* pNode,
-			FbxPropertyT<FbxDouble3> &lclPosition,
-			FbxPropertyT<FbxDouble3>& lclRotation,
-			FbxPropertyT<FbxDouble3>& lclScale,
+			FbxDouble3 &lclPosition,
+			FbxDouble3 &lclRotation,
+			FbxDouble3 &lclScale,
 			fbxsdk::FbxAMatrix& globalTransform
 		);
 	};

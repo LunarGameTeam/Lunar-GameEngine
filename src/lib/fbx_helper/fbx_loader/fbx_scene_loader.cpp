@@ -37,6 +37,8 @@ namespace luna::lfbx
 				std::shared_ptr<LFbxDataBase> newImportData = singleLoaderInterface->LoadFbxData(eachDataGroup.first, sceneOut.mNodes, eachData.pNode, lSdkManager);
 				if (newImportData != nullptr)
 				{
+					sceneOut.mNodes[eachData.nodeIndex].mNodeData.insert(std::pair<LFbxDataType, size_t>(eachDataGroup.first, sceneOut.mDatas.size()));
+					newImportData->SetNodeIndex(eachData.nodeIndex);
 					sceneOut.mDatas.push_back(newImportData);
 				}
 			}
@@ -264,9 +266,9 @@ namespace luna::lfbx
 
 	void LFbxLoaderHelper::ComputeLclTransform(
 		fbxsdk::FbxNode* pNode,
-		FbxPropertyT<FbxDouble3>& lclPosition,
-		FbxPropertyT<FbxDouble3>& lclRotation,
-		FbxPropertyT<FbxDouble3>& lclScale,
+		FbxDouble3& lclPosition,
+		FbxDouble3& lclRotation,
+		FbxDouble3& lclScale,
 		fbxsdk::FbxAMatrix& globalTransform
 	)
 	{
@@ -300,7 +302,7 @@ namespace luna::lfbx
 				newDataPack.nodeIndex = node_index;
 				newDataPack.pNode = pNode;
 				nodeData[LFbxDataType::FbxMeshData].push_back(newDataPack);
-				nodeData[LFbxDataType::FbxMaterialData].push_back(newDataPack);
+				//nodeData[LFbxDataType::FbxMaterialData].push_back(newDataPack);
 			}
 			break;
 			}

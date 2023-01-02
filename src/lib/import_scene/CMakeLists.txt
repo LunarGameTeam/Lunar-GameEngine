@@ -2,6 +2,7 @@
 cmake_minimum_required (VERSION 3.24)
 # 项目信息
 SET( Sources
+	import_data_common.h
     import_scene.h
     import_scene.cpp
 	forsythtriangleorderoptimizer.h

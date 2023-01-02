@@ -47,7 +47,7 @@ namespace luna::lfbx
 
 	}
 
-	void LFbxImporterMesh::ParsingDataImpl(const LFbxDataBase* fbxDataInput, ImportData::LImportScene& outputScene)
+	void LFbxImporterMesh::ParsingDataImpl(const LFbxDataBase* fbxDataInput, const LFbxNodeBase& fbxNodeInput, ImportData::LImportScene& outputScene)
 	{
 		const LFbxDataMesh* meshData = static_cast<const LFbxDataMesh*>(fbxDataInput);
 		size_t newDataIndex = outputScene.AddNewData<ImportData::LImportNodeDataMesh>();
@@ -60,6 +60,8 @@ namespace luna::lfbx
 		OptimizeCombineVert(newCombineData, newOptimizeData, newOptimizeIndex);
 		for (int32_t submeshId = 0; submeshId < newOptimizeData.size(); ++submeshId)
 		{
+			//暂时认为submeshid就是材质id
+			size_t realSubIndex = nowOutData->AddSubMeshMessage(fbxNodeInput.mName, submeshId);
 			VertexDataFullCombine &newOptimizeDataMember = newOptimizeData[submeshId];
 			LVector<int32_t>& newOptimizeIndexMember = newOptimizeIndex[submeshId];
 			for (int32_t vertId = 0; vertId < newOptimizeDataMember.mVertexs.size(); ++vertId)
@@ -77,11 +79,13 @@ namespace luna::lfbx
 				{
 					FbxVector2ToVector2(newVertData.mUvs[uvChannel],vertUv[uvChannel]);
 				}
-				nowOutData->AddFullVertex();
+				nowOutData->AddFullVertex(realSubIndex,vertPosition, vertNormal, vertTangent, vertUv, vertColor);
+			}
+			for (int32_t vertId = 0; vertId < newOptimizeIndexMember.size(); ++vertId)
+			{
+				nowOutData->AddFaceIndexDataToSubmesh(realSubIndex, newOptimizeIndexMember[vertId]);
 			}
 		}
-	
-		int a = 0;
 	}
 
 	void LFbxImporterMesh::CombineVertexData(const LFbxDataMesh* meshData, LVector<VertexDataFullCombine>& vertexCombineData)

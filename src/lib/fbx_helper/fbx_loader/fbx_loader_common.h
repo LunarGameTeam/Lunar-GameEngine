@@ -16,18 +16,6 @@ namespace luna::lfbx
 		void AddLog(const LString log, ...);
 	};
 
-	struct LFbxNodeBase
-	{
-		size_t mParent;
-		LVector<size_t> mChild;
-		FbxPropertyT<FbxDouble3> mLocalTranslation;
-		FbxPropertyT<FbxDouble3> mLocalRotation;
-		FbxPropertyT<FbxDouble3> mLocalScaling;
-		fbxsdk::FbxAMatrix mGlobelTransform;
-		size_t mIndex;
-		LString mName;
-	};
-
 	enum LFbxDataType
 	{
 		FbxMeshData = 0,
@@ -37,11 +25,27 @@ namespace luna::lfbx
 		FbxCameraData,
 	};
 
+	struct LFbxNodeBase
+	{
+		size_t mParent;
+		LVector<size_t> mChild;
+		FbxDouble3 mLocalTranslation;
+		FbxDouble3 mLocalRotation;
+		FbxDouble3 mLocalScaling;
+		fbxsdk::FbxAMatrix mGlobelTransform;
+		std::unordered_map<LFbxDataType, size_t> mNodeData;
+		size_t mIndex;
+		LString mName;
+	};
+
 	class LFbxDataBase
 	{
 		LFbxDataType mType;
+		size_t mNodeIndex;
 	public:
 		LFbxDataBase(LFbxDataType type) { mType = type; };
+		void SetNodeIndex(size_t nodeIndex) { mNodeIndex = nodeIndex; }
+		size_t GetNodeIndex() const{ return mNodeIndex; };
 		LFbxDataType GetType() const { return mType; };
 	};
 

@@ -66,9 +66,9 @@ IF(WIN32)
 		set(FBX_LIB_DIR ${FBX_ROOT_DIR}/lib/vs2019/x86/release/libfbxsdk.lib)
 	endif()
 ENDIF()
-add_dependencies(fbx_helper core)
+add_dependencies(fbx_helper import_scene core)
 
-target_link_libraries(fbx_helper core ${FBX_LIB_DIR})
+target_link_libraries(fbx_helper import_scene core ${FBX_LIB_DIR})
 
 add_custom_command(TARGET fbx_helper
   POST_BUILD  

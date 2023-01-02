@@ -1,7 +1,5 @@
 #pragma once
-#include "core/math/math.h"
-#include "core/foundation/container.h"
-#include "core/foundation/string.h"
+#include"import_data_common.h"
 namespace luna::ImportData
 {
 	enum class LImportNodeDataType : std::uint8_t
@@ -24,16 +22,18 @@ namespace luna::ImportData
 		ImportUnitCenterMeter,
 		ImportUnitInch
 	};
-	class LImportSceneNode
+	struct LImportSceneNode
 	{
 		size_t mIndex;
 		size_t mParent;
-		size_t mName;
-		LTransform mTransformLocal;
+		LString mName;
+		LVector3f mTranslation;
+		LQuaternion mRotation;
+		LVector3f mScal;
 		std::unordered_map<LImportNodeDataType, size_t> mNodeData;
 		std::vector<size_t> mChild;
 	};
-	class LImportNodeDataBase
+	class RESOURCE_IMPORT_API LImportNodeDataBase
 	{
 		LImportNodeDataType mType;
 		size_t mIndex;
@@ -57,14 +57,12 @@ namespace luna::ImportData
 		LVector<LVector<LVector2f>> mVertexUv;
 		LVector<LVector4f> mVertexColor;
 	};
-	class LImportNodeDataMesh : public LImportNodeDataBase
+
+	class RESOURCE_IMPORT_API LImportNodeDataMesh : public LImportNodeDataBase
 	{
 		LVector<LImportSubmesh> mSubmesh;
 	public:
-		LImportNodeDataMesh(const size_t index) :LImportNodeDataBase(LImportNodeDataType::ImportDataMesh, index)
-		{
-
-		};
+		LImportNodeDataMesh(const size_t index);
 
 		void AddFullVertex(
 			const size_t subMeshIndex,
@@ -80,7 +78,6 @@ namespace luna::ImportData
 		void AddFaceIndexDataToSubmesh(const size_t subMeshIndex, const uint32_t index);
 	};
 
-
 	struct LImportNodeDataMaterial : public LImportNodeDataBase
 	{
 		LUnorderedMap<LString,LString> mMaterialParam;
@@ -91,10 +88,21 @@ namespace luna::ImportData
 	class LImportScene
 	{
 		LImportAxisType mAxis;
-		LImportAxisType mUnit;
+		LImportUnitType mUnit;
 		LVector<LImportSceneNode> mNodes;
 		LVector<std::shared_ptr<LImportNodeDataBase>> mDatas;
 	public:
+		void SetAxisAndUnit(LImportAxisType axis, LImportUnitType unit)
+		{
+			mAxis = axis;
+			mUnit = unit;
+		}
+
+		void AddNodeData(LImportSceneNode node)
+		{
+			mNodes.push_back(node);
+		}
+
 		template<typename ImportDataType>
 		size_t AddNewData()
 		{

@@ -10,7 +10,18 @@ namespace luna::lfbx
 		LFbxSceneImportHelper();
 		void ParseScene(const LFbxSceneData* fbxDataInput, ImportData::LImportScene& outputScene);
 	private:
-		void ParseSceneData(ImportData::LImportNodeDataType type, const LFbxDataBase* fbxDataInput, ImportData::LImportScene& outputScene);
+		void ParseSceneAxisAndUnit(
+			fbxsdk::FbxAxisSystem axis,
+			fbxsdk::FbxSystemUnit unit,
+			ImportData::LImportScene& outputScene
+		);
+
+		void ParseSceneData(
+			ImportData::LImportNodeDataType type,
+			const LFbxDataBase* fbxDataInput,
+			const LFbxNodeBase& fbxNodeInput,
+			ImportData::LImportScene& outputScene
+		);
 		ImportData::LImportNodeDataType GetTypeByFbxType(LFbxDataType inType);
 	};
 
