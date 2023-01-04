@@ -10,5 +10,5 @@
 #endif
 namespace luna::lfbx
 {
-	void FBX_API ImportFbxToLunaMesh(const LString& fbx_file_path, ImportData::LImportScene& importScene);
+	void FBX_API ImportFbxToLunaMesh(const LString& fbx_file_path, resimport::LImportScene& importScene);
 }

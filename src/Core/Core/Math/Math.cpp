@@ -141,5 +141,28 @@ bool LAabb::IntersectRay(const LRay& ray)
 	// 		}
 	return true;
 }
+LMatrix4f LMath::MatrixCompose(LVector3f& translation, LQuaternion& rotation, LVector3f& scale)
+{
+	LTransform transformvalue;
+	transformvalue.setIdentity();
+	transformvalue.translate(translation);
+	transformvalue.rotate(rotation);
+	transformvalue.scale(scale);
 
+	return transformvalue.matrix();
 }
+
+void LMath::MatrixDecompose(const LMatrix4f& m, LVector3f &translation, LQuaternion &rotation, LVector3f &scale)
+{
+	translation = m.block<3, 1>(0, 3);
+	LTransform newTransformValue;
+	newTransformValue.setIdentity();
+	newTransformValue.affine().block<3, 3>(0, 0) = m.block<3, 3>(0, 0);
+
+	LMatrix3f mat_rotation, mat_scaling;
+	newTransformValue.computeScalingRotation(&mat_scaling, &mat_rotation);
+	rotation = LQuaternion(mat_rotation);
+	scale.x() = mat_scaling(0, 0);
+	scale.y() = mat_scaling(1, 1);
+	scale.z() = mat_scaling(2, 2);
+}}

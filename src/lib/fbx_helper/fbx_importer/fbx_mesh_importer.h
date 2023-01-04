@@ -25,7 +25,7 @@ namespace luna::lfbx
 	public:
 		LFbxImporterMesh() {};
 	private:
-		void ParsingDataImpl(const LFbxDataBase* fbxDataInput, const LFbxNodeBase& fbxNodeInput, ImportData::LImportScene& outputScene) override;
+		void ParsingDataImpl(const LFbxDataBase* fbxDataInput, const LFbxNodeBase& fbxNodeInput, resimport::LImportScene& outputScene) override;
 
 		void CombineVertexData(const LFbxDataMesh* meshData, LVector<VertexDataFullCombine>& vertexCombineData);
 

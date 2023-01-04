@@ -11,6 +11,6 @@ source_group(Source  FILES ${Sources})
 
 add_library(asset_import SHARED ${Sources})
 
-add_dependencies(import_scene asset_import)
+add_dependencies(asset_import import_scene)
 
-target_link_libraries(import_scene asset_import)
+target_link_libraries(asset_import import_scene)

@@ -47,11 +47,11 @@ namespace luna::lfbx
 
 	}
 
-	void LFbxImporterMesh::ParsingDataImpl(const LFbxDataBase* fbxDataInput, const LFbxNodeBase& fbxNodeInput, ImportData::LImportScene& outputScene)
+	void LFbxImporterMesh::ParsingDataImpl(const LFbxDataBase* fbxDataInput, const LFbxNodeBase& fbxNodeInput, resimport::LImportScene& outputScene)
 	{
 		const LFbxDataMesh* meshData = static_cast<const LFbxDataMesh*>(fbxDataInput);
-		size_t newDataIndex = outputScene.AddNewData<ImportData::LImportNodeDataMesh>();
-		ImportData::LImportNodeDataMesh* nowOutData = outputScene.GetData<ImportData::LImportNodeDataMesh>(newDataIndex);
+		size_t newDataIndex = outputScene.AddNewData<resimport::LImportNodeDataMesh>();
+		resimport::LImportNodeDataMesh* nowOutData = outputScene.GetData<resimport::LImportNodeDataMesh>(newDataIndex);
 		LVector<VertexDataFullCombine> newCombineData;
 		newCombineData.resize(meshData->GetMaterialCount());
 		CombineVertexData(meshData, newCombineData);
@@ -60,7 +60,7 @@ namespace luna::lfbx
 		OptimizeCombineVert(newCombineData, newOptimizeData, newOptimizeIndex);
 		for (int32_t submeshId = 0; submeshId < newOptimizeData.size(); ++submeshId)
 		{
-			//ÔİÊ±ÈÏÎªsubmeshid¾ÍÊÇ²ÄÖÊid
+			//æš‚æ—¶è®¤ä¸ºsubmeshidå°±æ˜¯æè´¨id
 			size_t realSubIndex = nowOutData->AddSubMeshMessage(fbxNodeInput.mName, submeshId);
 			VertexDataFullCombine &newOptimizeDataMember = newOptimizeData[submeshId];
 			LVector<int32_t>& newOptimizeIndexMember = newOptimizeIndex[submeshId];
@@ -90,7 +90,7 @@ namespace luna::lfbx
 
 	void LFbxImporterMesh::CombineVertexData(const LFbxDataMesh* meshData, LVector<VertexDataFullCombine>& vertexCombineData)
 	{
-		//ÕâÒ»²½ÏÈ°ÑËùÓĞµÄfbx layerÊı¾İËúÏİµ½Èı½ÇÍø¸ñÉÏÃæ
+		//è¿™ä¸€æ­¥å…ˆæŠŠæ‰€æœ‰çš„fbx layeræ•°æ®å¡Œé™·åˆ°ä¸‰è§’ç½‘æ ¼ä¸Šé¢
 		for (int i = 0; i < meshData->GetFaceSize(); ++i)
 		{
 			const FbxFaceData& faceData = meshData->GetFaceDataByIndex(i);
@@ -120,7 +120,7 @@ namespace luna::lfbx
 		LVector<LVector<int32_t>> &OptimizeIndex
 	)
 	{
-		//ÕâÒ»²½½øĞĞ¶¥µãÓÅ»¯£¬°Ñ¶¥µãÊôĞÔÏàÍ¬µÄ¶¥µã½øĞĞºÏ²¢£¬²¢¼ÇÂ¼ÏÂ¶¥µãµÄË÷Òı
+		//è¿™ä¸€æ­¥è¿›è¡Œé¡¶ç‚¹ä¼˜åŒ–ï¼ŒæŠŠé¡¶ç‚¹å±æ€§ç›¸åŒçš„é¡¶ç‚¹è¿›è¡Œåˆå¹¶ï¼Œå¹¶è®°å½•ä¸‹é¡¶ç‚¹çš„ç´¢å¼•
 		vertexCombineDataOut.resize(vertexCombineDataIn.size());
 		OptimizeIndex.resize(vertexCombineDataIn.size());
 		for (size_t submesshId = 0; submesshId < vertexCombineDataIn.size(); ++submesshId)

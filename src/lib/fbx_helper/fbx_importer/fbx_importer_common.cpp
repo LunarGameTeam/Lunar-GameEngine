@@ -45,7 +45,7 @@ namespace luna::lfbx
 		out.y() = in.mData[1];
 	}
 
-	void LFbxImporterBase::ParsingData(const LFbxDataBase* fbxDataInput, const LFbxNodeBase& fbxNodeInput, ImportData::LImportScene& outputScene)
+	void LFbxImporterBase::ParsingData(const LFbxDataBase* fbxDataInput, const LFbxNodeBase& fbxNodeInput, resimport::LImportScene& outputScene)
 	{
 		ParsingDataImpl(fbxDataInput, fbxNodeInput,outputScene);
 	}

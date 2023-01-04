@@ -3,12 +3,15 @@ cmake_minimum_required (VERSION 3.24)
 # 项目信息
 SET( Sources
 	import_data_common.h
+	import_data_common.cpp
     import_scene.h
     import_scene.cpp
 	forsythtriangleorderoptimizer.h
 	forsythtriangleorderoptimizer.cpp
 	mikktspace.h
 	mikktspace.cpp
+	import_data_mesh.h
+	import_data_mesh.cpp
     )
 source_group(Source  FILES ${Sources})
 

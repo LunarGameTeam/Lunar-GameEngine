@@ -9,22 +9,22 @@ namespace luna::lfbx
 	LFbxSceneImportHelper::LFbxSceneImportHelper()
 	{
 		mImporters.insert(std::pair<
-			ImportData::LImportNodeDataType, 
+			resimport::LImportNodeDataType, 
 			std::shared_ptr<LFbxImporterBase>
 		>
 			(
-				ImportData::LImportNodeDataType::ImportDataMesh,
+				resimport::LImportNodeDataType::ImportDataMesh,
 				std::make_shared<LFbxImporterMesh>()
 			)
 		);
 	}
 
-	void LFbxSceneImportHelper::ParseScene(const LFbxSceneData* fbxDataInput, ImportData::LImportScene& outputScene)
+	void LFbxSceneImportHelper::ParseScene(const LFbxSceneData* fbxDataInput, resimport::LImportScene& outputScene)
 	{
 		ParseSceneAxisAndUnit(fbxDataInput->mAxis, fbxDataInput->mUnit, outputScene);
 		for (auto& eachData : fbxDataInput->mNodes)
 		{
-			ImportData::LImportSceneNode node_value;
+			resimport::LImportSceneNode node_value;
 			node_value.mIndex = eachData.mIndex;
 			node_value.mName = eachData.mName;
 			node_value.mParent = eachData.mParent;
@@ -34,17 +34,17 @@ namespace luna::lfbx
 			node_value.mChild = eachData.mChild;
 			for (auto &eachNodeDataRef : eachData.mNodeData)
 			{
-				ImportData::LImportNodeDataType newDataType;
+				resimport::LImportNodeDataType newDataType;
 				switch (eachNodeDataRef.first)
 				{
 				case FbxMeshData:
-					newDataType = ImportData::LImportNodeDataType::ImportDataMesh;
+					newDataType = resimport::LImportNodeDataType::ImportDataMesh;
 					break;
 				default:
 					assert(0);
 					break;
 				};
-				node_value.mNodeData.insert(std::pair<ImportData::LImportNodeDataType, size_t>(newDataType, eachNodeDataRef.second));
+				node_value.mNodeData.insert(std::pair<resimport::LImportNodeDataType, size_t>(newDataType, eachNodeDataRef.second));
 			}
 			outputScene.AddNodeData(node_value);
 		}
@@ -59,18 +59,18 @@ namespace luna::lfbx
 	void LFbxSceneImportHelper::ParseSceneAxisAndUnit(
 		fbxsdk::FbxAxisSystem axis,
 		fbxsdk::FbxSystemUnit unit,
-		ImportData::LImportScene& outputScene
+		resimport::LImportScene& outputScene
 	)
 	{
-		ImportData::LImportAxisType axisType;
-		ImportData::LImportUnitType unitType;
+		resimport::LImportAxisType axisType;
+		resimport::LImportUnitType unitType;
 		if (axis == fbxsdk::FbxAxisSystem::eMayaZUp)
 		{
-			axisType = ImportData::LImportAxisType::ImportAxisZupRightHand;
+			axisType = resimport::LImportAxisType::ImportAxisZupRightHand;
 		}
 		else if (axis == fbxsdk::FbxAxisSystem::eMayaYUp)
 		{
-			axisType = ImportData::LImportAxisType::ImportAxisYupRightHand;
+			axisType = resimport::LImportAxisType::ImportAxisYupRightHand;
 		}
 		else
 		{
@@ -78,19 +78,19 @@ namespace luna::lfbx
 		}
 		if (unit == fbxsdk::FbxSystemUnit::cm)
 		{
-			unitType = ImportData::LImportUnitType::ImportUnitCenterMeter;
+			unitType = resimport::LImportUnitType::ImportUnitCenterMeter;
 		}
 		else if (unit == fbxsdk::FbxSystemUnit::dm)
 		{
-			unitType = ImportData::LImportUnitType::ImportUnitDeciMeter;
+			unitType = resimport::LImportUnitType::ImportUnitDeciMeter;
 		}
 		else if (unit == fbxsdk::FbxSystemUnit::m)
 		{
-			unitType = ImportData::LImportUnitType::ImportUnitMeter;
+			unitType = resimport::LImportUnitType::ImportUnitMeter;
 		}
 		else if (unit == fbxsdk::FbxSystemUnit::Inch)
 		{
-			unitType = ImportData::LImportUnitType::ImportUnitInch;
+			unitType = resimport::LImportUnitType::ImportUnitInch;
 		}
 		else
 		{
@@ -100,10 +100,10 @@ namespace luna::lfbx
 	}
 
 	void LFbxSceneImportHelper::ParseSceneData(
-		ImportData::LImportNodeDataType type,
+		resimport::LImportNodeDataType type,
 		const LFbxDataBase* fbxDataInput,
 		const LFbxNodeBase &fbxNodeInput,
-		ImportData::LImportScene& outputScene
+		resimport::LImportScene& outputScene
 	)
 	{
 		auto needImporter = mImporters.find(type);
@@ -114,24 +114,24 @@ namespace luna::lfbx
 		return needImporter->second->ParsingData(fbxDataInput, fbxNodeInput, outputScene);
 	}
 
-	ImportData::LImportNodeDataType LFbxSceneImportHelper::GetTypeByFbxType(LFbxDataType inType)
+	resimport::LImportNodeDataType LFbxSceneImportHelper::GetTypeByFbxType(LFbxDataType inType)
 	{
 		switch (inType)
 		{
 		case luna::lfbx::FbxMeshData:
-			return ImportData::LImportNodeDataType::ImportDataMesh;
+			return resimport::LImportNodeDataType::ImportDataMesh;
 			break;
 		case luna::lfbx::FbxMaterialData:
-			return ImportData::LImportNodeDataType::ImportDataMaterial;
+			return resimport::LImportNodeDataType::ImportDataMaterial;
 			break;
 		case luna::lfbx::FbxCameraData:
-			return ImportData::LImportNodeDataType::ImportDataCamera;
+			return resimport::LImportNodeDataType::ImportDataCamera;
 			break;
 		default:
 			assert(0);
 			break;
 		}
-		return ImportData::LImportNodeDataType::ImportDataMesh;
+		return resimport::LImportNodeDataType::ImportDataMesh;
 	}
 
 }

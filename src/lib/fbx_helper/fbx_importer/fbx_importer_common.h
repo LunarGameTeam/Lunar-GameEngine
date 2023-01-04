@@ -19,8 +19,8 @@ namespace luna::lfbx
 	{
 	public:
 		LFbxImporterBase() {};
-		void ParsingData(const LFbxDataBase* fbxDataInput, const LFbxNodeBase& fbxNodeInput, ImportData::LImportScene& outputScene);
+		void ParsingData(const LFbxDataBase* fbxDataInput, const LFbxNodeBase& fbxNodeInput, resimport::LImportScene& outputScene);
 	private:
-		virtual void ParsingDataImpl(const LFbxDataBase* fbxDataInput, const LFbxNodeBase& fbxNodeInput, ImportData::LImportScene& outputScene) = 0;
+		virtual void ParsingDataImpl(const LFbxDataBase* fbxDataInput, const LFbxNodeBase& fbxNodeInput, resimport::LImportScene& outputScene) = 0;
 	};
 }

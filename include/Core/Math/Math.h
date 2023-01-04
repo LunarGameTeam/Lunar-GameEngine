@@ -41,6 +41,8 @@ public:
 	}
 	static LQuaternion FromEuler(const LVector3f &euler);
 	static LVector3f ToEuler(const LQuaternion& quat);
+	static void MatrixDecompose(const LMatrix4f& m, LVector3f& translation, LQuaternion& rotation, LVector3f& scale);
+	static LMatrix4f MatrixCompose(LVector3f& translation, LQuaternion& rotation, LVector3f& scale);
 
 	static LQuaternion AngleAxisf(float val, const LVector3f& axis);
 	inline static LVector3f xyz(const LVector4f& val) { return LVector3f(val.x(), val.y(), val.z()); }
