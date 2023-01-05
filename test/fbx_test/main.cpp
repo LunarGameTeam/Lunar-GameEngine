@@ -15,6 +15,7 @@ int main()
 	luna::resimport::LImportScene importScene;
 	luna::lfbx::ImportFbxToLunaMesh("E:/LunarEngine1.1/Lunar-GameEngine/assets/built-in/fbx/inside_sphere.FBX", importScene);
 	importScene.ConvertDataAxisAndUnit(luna::resimport::LImportAxisType::ImportAxisYupLeftHand, luna::resimport::LImportUnitType::ImportUnitMeter);
+	importScene.PostProcessData();
 	//luna::g_asset_sys->SaveAsset(m_render_mesh, "E:/LunarEngine/lunar-engine-branch/Lunar-GameEngine/assets/built-in/sphere.lmesh");
 	//auto mesh = luna::g_asset_sys->LoadAsset<luna::render::MeshAsset>("E:/LunarEngine/lunar-engine-branch/Lunar-GameEngine/assets/built-in/sphere.lmesh");
 	return 0;

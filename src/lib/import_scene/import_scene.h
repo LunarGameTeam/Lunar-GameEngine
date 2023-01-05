@@ -15,6 +15,8 @@ namespace luna::resimport
 
 		void ConvertDataAxisAndUnit(LImportAxisType axis, LImportUnitType unit);
 
+		void PostProcessData();
+
 		float GetUnitValue(LImportUnitType unit);
 
 		template<typename ImportDataType>

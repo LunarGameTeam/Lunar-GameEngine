@@ -34,8 +34,16 @@ namespace luna::resimport
 		size_t AddSubMeshMessage(const LString& name, const size_t materialUse);
 
 		void AddFaceIndexDataToSubmesh(const size_t subMeshIndex, const uint32_t index);
+
+		void GenerateMikkTspaceTangent();
+
+		void ComputeVertexCache();
 	private:
 		void ConvertDataAxisAndUnitImpl(LMatrix4f convertInvMatrix, LMatrix4f convertMatrix) override;
+
+		void CopyAndClearSubmeshVertex(LImportSubmesh &src, LImportSubmesh& dst);
+
+		void CopyVertexData(LImportSubmesh& src, LImportSubmesh& dst,size_t srcId,size_t dstId);
 	};
 
 	//struct LImportNodeDataMaterial : public LImportNodeDataBase

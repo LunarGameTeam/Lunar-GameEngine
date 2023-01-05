@@ -122,4 +122,23 @@ namespace luna::resimport
 		}
 	}
 
+	void LImportScene::PostProcessData()
+	{
+		for (auto each_data : mDatas)
+		{
+			switch (each_data->GetType())
+			{
+			case LImportNodeDataType::ImportDataMesh:
+			{
+				LImportNodeDataMesh* meshPt = dynamic_cast<LImportNodeDataMesh*>(each_data.get());
+				meshPt->GenerateMikkTspaceTangent();
+				meshPt->ComputeVertexCache();
+				break;
+			}
+			default:
+				break;
+			}
+		}
+	}
+
 }
