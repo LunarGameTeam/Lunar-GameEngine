@@ -34,7 +34,7 @@ public:
 	void Tick(float delta_time) override;
 
 public:
-	bool SaveAsset(LBasicAsset *asset, const LPath &path);
+	bool SaveAsset(LBasicAsset *asset, const LString &path);
 	LBasicAsset *LoadAsset(const LPath &path, LType* asset_type);
 	LBasicAsset* BindingLoadAsset(const char* path, LType* asset_type);
 	template<typename T>

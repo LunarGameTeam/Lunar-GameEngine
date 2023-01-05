@@ -141,17 +141,17 @@ public:
 	bool GetFileInfo(const LPath& path, LFileInfo& result, bool recursive = false) override;
 
 	bool GetFileInfoRecursive(const LPath& path, LFileInfo& result, bool recursive = false) override;
-	bool io_loop = true;
+	bool mIOLooping = true;
 
 
 	const LString& ProjectDir() override;
 
 private:
-	std::mutex m_pending_lock;
-	std::mutex m_running_lock;
+	std::mutex mPendingLock;
+	std::mutex mRunningLock;
 
-	std::queue<LSharedPtr<FileAsyncHandle>> m_pending_queue;
-	LMap<OVERLAPPED*, LSharedPtr<FileAsyncHandle>> m_running_handles;
+	std::queue<LSharedPtr<FileAsyncHandle>> mPendingQueue;
+	LMap<OVERLAPPED*, LSharedPtr<FileAsyncHandle>> mRunningHandles;
 
 	void IO_Thread();
 

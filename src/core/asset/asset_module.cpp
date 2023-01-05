@@ -11,9 +11,11 @@ namespace luna
 RegisterTypeEmbedd_Imp(AssetModule)
 {
 	cls->Binding<Self>();
-	BindingModule::Get("luna")->AddType(cls);
+	cls->BindingMethod<&Self::SaveAsset>("save_asset");
 	cls->BindingMethod<&AssetModule::BindingLoadAsset>("load_asset")
 		.Doc("def load_asset(self, asset_name: str, t: Type[T]) -> T:\n\tpass\n");
+	BindingModule::Get("luna")->AddType(cls);
+	
 }
 
 
@@ -46,7 +48,7 @@ void AssetModule::Tick(float delta_time)
 {
 }
 
-bool AssetModule::SaveAsset(LBasicAsset *asset, const LPath &path)
+bool AssetModule::SaveAsset(LBasicAsset *asset, const LString &path)
 {
 	IPlatformFileManager *manager = gEngine->GetModule<PlatformModule>()->GetPlatformFileManager();
 	LArray<byte> data;

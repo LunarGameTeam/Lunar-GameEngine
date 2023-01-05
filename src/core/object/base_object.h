@@ -36,15 +36,7 @@ class CORE_API LObject
 protected:
 	LObject();
 
-public:
 	virtual ~LObject() noexcept;
-	/// 
-	/// <summary>
-	/// 内存
-	/// </summary>
-	/// 
-	virtual LObject*& AllocateSubSlot();
-	virtual void DeAllocateSubSlot(LObject** obj);
 
 public:
 	/// 
@@ -116,6 +108,17 @@ public:
 	binding::BindingLObject* GetBindingObject() { return mBindingObject; }
 	void SetBindingObject(PyObject* val);
 
+	void SetParent(LObject* obj);
+
+	void ForEachSubObject(std::function<void(size_t, LObject*)> func);
+
+	size_t Index() const;
+
+	const LList<LObject*>& GetSubObejcts() { return mSubObjects; }
+
+	bool IsSerializable() const { return mSerializable; }
+	void SetSerializable(bool val) { mSerializable = val; }
+
 protected:
 	void* operator new(size_t size)
 	{
@@ -124,11 +127,12 @@ protected:
 	}
 
 protected:
-	LString         mName       = "";
-	LType*          mObjectType = nullptr;
+	bool            mSerializable = true;
+	LString         mName         = "";
+	LType*          mObjectType   = nullptr;
 	LList<LObject*> mSubObjects;
-	LObject*        mParent     = nullptr;
-	uint64_t        mInstanceID = 0;
+	LObject*        mParent       = nullptr;
+	uint64_t        mInstanceID   = 0;
 protected:
 	binding::BindingLObject* mBindingObject = nullptr;
 

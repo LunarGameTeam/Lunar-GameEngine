@@ -59,6 +59,7 @@ namespace luna::render
 RegisterTypeEmbedd_Imp(RenderModule)
 {
 	cls->Binding<Self>();
+	cls->BindingMethod<&Self::GetImguiTexture>("get_imgui_texture");
 	BindingModule::Get("luna")->AddType(cls);
 
 }

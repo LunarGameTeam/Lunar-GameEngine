@@ -11,7 +11,7 @@ RegisterTypeEmbedd_Imp(Scene)
 {
 	cls->Ctor<Scene>();
 	cls->BindingProperty<&Self::m_main_light>("main_light");
-	cls->Property<&Self::m_entities>("entities");
+	cls->Property<&Self::mEntites>("entities");
 	cls->BindingMethod<&Scene::FindEntity>("find_entity");
 	cls->BindingMethod<&Scene::GetEntityAt>("get_entity_at");
 	cls->BindingMethod<&Scene::GetEntityCount>("get_entity_count");
@@ -21,14 +21,14 @@ RegisterTypeEmbedd_Imp(Scene)
 
 
 Scene::Scene() :
-	m_entities(this)
+	mEntites(this)
 {
 	mRenderScene = sRenderModule->AddScene();
 }
 
 Entity *Scene::FindEntity(const LString &name)
 {
-	for (TSubPtr<Entity> &entity : m_entities)
+	for (TSubPtr<Entity> &entity : mEntites)
 	{
 		if (entity->GetObjectName() == name)
 			return entity.Get();
@@ -38,10 +38,12 @@ Entity *Scene::FindEntity(const LString &name)
 
 Entity *Scene::CreateEntity(const LString &name, Entity *parent /*= nullptr*/)
 {
-	auto entity = TCreateObject<Entity>();
+	Entity* entity = TCreateObject<Entity>();
+	entity->SetParent(this);
 	entity->mName = name;
 	entity->mScene = this;
-	m_entities.PushBack(entity);
+		
+	mEntites.PushBack(entity);
 	return entity;
 }
 
@@ -52,12 +54,12 @@ void Scene::SetMainDirectionLight(DirectionLightComponent *light)
 
 const TSubPtrArray<Entity>& Scene::GetAllEntities()
 {
-	return m_entities;
+	return mEntites;
 };
 
 void Scene::Tick(float deltaTime)
 {
-	for (TSubPtr<Entity>& entity : m_entities)
+	for (TSubPtr<Entity>& entity : mEntites)
 	{
 		for (TSubPtr<Component>& comp : entity->m_components)
 		{
@@ -76,16 +78,18 @@ DirectionLightComponent* Scene::GetMainDirectionLight()
 
 void Scene::OnLoad()
 {
-	for (TSubPtr<Entity>& entity : m_entities)
+	for (TSubPtr<Entity>& entity : mEntites)
 	{
 		entity->mScene = this;
 		entity->OnCreate();		
 	}
-	for (TSubPtr<Entity>& entity : m_entities)
+	for (TSubPtr<Entity>& entity : mEntites)
 	{
+		entity->SetParent(this);
 		for (TSubPtr<Component>& comp : entity->m_components)
 		{
 			comp->mOwnerEntity = entity.Get();
+			comp->SetParent(entity.Get());
 			if(comp->mOnCreateCalled == false)
 			{
 				comp->mOnCreateCalled = true;

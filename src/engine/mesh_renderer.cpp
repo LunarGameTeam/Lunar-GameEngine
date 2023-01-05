@@ -36,7 +36,10 @@ bool MeshRenderer::PopulateRenderNode(RenderObject& render_nodes)
 void MeshRenderer::OnCreate()
 {
 	if (!mMaterialInstance)
+	{
 		mMaterialInstance = NewObject<MaterialInstance>();
+	}
+	mMaterialInstance->SetParent(this);
 	mMaterialInstance->Ready();
 	Super::OnCreate();
 	auto ro  = GetScene()->GetRenderScene()->CreateRenderObject();

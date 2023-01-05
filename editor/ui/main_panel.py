@@ -52,15 +52,19 @@ def generate_doc_for_module(target: 'types.ModuleType') -> object:
 
 
 class PyMainPanel(editor.MainPanel):
+	main_scene: 'luna.Scene' = None
 	def __init__(self) -> None:
 		super(PyMainPanel, self).__init__()
+		self.main_scene = None
 
 	def set_main_scene(self, scn):
 		if scn:
+			self.main_scene = scn
 			entity = scn.find_entity("MainCamera")
 			camera = entity.get_component(luna.CameraComponent)
 			scene_module.add_scene(scn)
 			EditorCore.instance().hierarchy_panel.set_scene(scn)
+			EditorCore.instance().scene_panel.set_scene(scn)
 
 	def on_imgui(self) -> None:
 		super(PyMainPanel, self).on_imgui()
@@ -80,6 +84,8 @@ class PyMainPanel(editor.MainPanel):
 						self.set_main_scene(scn)
 				if imgui.menu_item("生成 Python API"):
 					generate_doc_for_module(luna)
+				if imgui.menu_item("保存场景"):
+					asset_module.save_asset(self.main_scene, "/assets/new_test.scn")
 				if imgui.menu_item("退出"):
 					exit(0)
 				imgui.end_menu()

@@ -10,7 +10,7 @@ namespace render
 {
 
 //IMGUI
-struct ImguiTexture
+struct RENDER_API ImguiTexture
 {
 	RegisterTypeEmbedd(ImguiTexture, InvalidType);
 public:

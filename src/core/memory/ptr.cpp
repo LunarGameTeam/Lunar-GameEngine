@@ -10,8 +10,7 @@ namespace luna
 LObject** s_NullPtr = nullptr;
 
 LSubPtr::LSubPtr(LObject *parent) :
-	mParent(parent),
-	mPPtr(&parent->AllocateSubSlot())
+	mParent(parent)
 {
 }
 
@@ -23,7 +22,7 @@ LSubPtr::~LSubPtr()
 
 void LSubPtr::SetPtr(LObject *val)
 {
-	*mPPtr = val;
+	mPPtr = val;
 }
 
 

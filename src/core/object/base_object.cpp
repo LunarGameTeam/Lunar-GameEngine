@@ -39,12 +39,6 @@ RegisterTypeEmbedd_Imp(LObject)
 	BindingModule::Get("luna")->AddType(cls);
 };
 
-LObject*& LObject::AllocateSubSlot()
-{
-	mSubObjects.emplace_back(nullptr);
-	return mSubObjects.back();
-}
-
 LObject::LObject() :
 	mInstanceID(sInstanceID++)
 {
@@ -53,25 +47,51 @@ LObject::LObject() :
 
 LObject::~LObject()
 {
+	if (mParent)
+	{
+		mParent->mSubObjects.remove(this);
+		mParent = nullptr;
+	}
+	for (auto& it : mSubObjects)
+	{
+		delete it;
+	}
+	mSubObjects.clear();
 	Py_XDECREF(mBindingObject);
 }
 
-void LObject::DeAllocateSubSlot(LObject** obj)
+void LObject::SetParent(LObject* parent)
 {
-	if (obj)
+	if (mParent != nullptr)
+		return;
+	mParent = parent;
+	parent->mSubObjects.push_back(this);
+}
+
+void LObject::ForEachSubObject(std::function<void(size_t, LObject*)> func)
+{
+	size_t idx = 0;
+	for (LObject* it : mSubObjects)
 	{
-		for (auto it = mSubObjects.begin(); it != mSubObjects.end(); it++)
-		{
-			auto& ref = *it;
-
-			if (ref == *obj && &ref == obj)
-			{
-				mSubObjects.erase(it);
-				break;
-			}
-		}
+		func(idx, it);
 	}
+}
 
+size_t LObject::Index() const
+{
+	size_t idx = 0;
+	if (mParent)
+	{
+		
+		for (LObject* obj : mParent->mSubObjects)
+		{
+			if (obj == this)
+				break;				
+			idx++;
+		}
+		
+	}
+	return idx;
 }
 
 LObject* LObject::GetParent()
@@ -102,4 +122,6 @@ void LObject::SetBindingObject(PyObject* val)
 	memset(&mBindingObject->ptr, 0, sizeof(mBindingObject->ptr));
 	mBindingObject->ptr = this;
 }
+
+
 }

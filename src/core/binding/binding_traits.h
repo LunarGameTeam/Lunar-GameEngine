@@ -158,7 +158,7 @@ struct native_converter
 		return (PyObject*)wrap;
 	}
 
-	inline static T from_binding(PyObject* obj)
+	inline static T* from_binding(PyObject* obj)
 	{
 		BindingNative<T>* res = (BindingNative<T>*)(obj);
 		return res->val;

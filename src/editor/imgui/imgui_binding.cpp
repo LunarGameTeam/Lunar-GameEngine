@@ -211,12 +211,17 @@ bool TreeNodeCallbackEx(void* ptr_id, ImGuiTreeNodeFlags flag, std::function<voi
 
 void PyImage(render::ImguiTexture* texture, const LVector2f& size, const LVector2f& uv0, const LVector2f& uv1)
 {
-	ImGui::Image(texture->mView, ToVec2(size), ToVec2(uv0), ToVec2(uv1));
+	ImGui::Image((ImTextureID)texture->mImg, ToVec2(size), ToVec2(uv0), ToVec2(uv1));
 }
 
 bool PySetDragDropPayload(const char* type, PyObject* data, ImGuiCond cond)
 {
 	return ImGui::SetDragDropPayload(type, &data, sizeof(PyObject*), cond);
+}
+
+LVector2f PyGetContent()
+{
+	return ToVector2(ImGui::GetContentRegionAvail());
 }
 
 const ImGuiPayload* PyAcceptDragDropPayload(const char* type, ImGuiDragDropFlags flags /* = 0 */)
@@ -260,6 +265,7 @@ STATIC_INIT(imgui)
 		imguiModule->AddMethod<&ImGui::BeginMenu>("begin_menu");
 		imguiModule->AddMethod<&ImGui::EndMenu>("end_menu");
 		imguiModule->AddMethod<&PyMenuItem>("menu_item");
+		imguiModule->AddMethod<&PyImage>("image");
 
 		imguiModule->AddMethod<&ImGui::BeginGroup>("begin_group");
 		imguiModule->AddMethod<&ImGui::EndGroup>("end_group");
@@ -275,6 +281,7 @@ STATIC_INIT(imgui)
 		imguiModule->AddMethod<&PyButton>("button");
 		
 		imguiModule->AddMethod<&PyCalcTextSize>("calc_text_size");
+		imguiModule->AddMethod<&PyGetContent>("get_content_region_avail");
 
 
 		imguiModule->AddMethod<&PyDragFloat3>("drag_float3");

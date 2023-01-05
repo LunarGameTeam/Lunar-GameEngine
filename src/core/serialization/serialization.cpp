@@ -41,7 +41,11 @@ bool JsonSerializer::Serialize(LObject *root)
 		allObjects.push_back(top);
 		FileID fid = mFileIds.Alloc();
 		mFileIDMap.Set(fid, top);
-
+		top->ForEachSubObject([&](size_t idx, LObject* subobject)
+		{
+			toSerializeObjects.push(subobject);
+			allObjects.push_back(subobject);
+		});
 		LArray<LProperty*> properties;
 		LType* type = top->GetClass();
 		type->GetAllProperties(properties);
@@ -53,7 +57,6 @@ bool JsonSerializer::Serialize(LObject *root)
 				if (!propType->GetTemplateArg()->IsAsset())
 				{
 					LSubPtr& propRef = prop->GetValue<LSubPtr>(top);
-					toSerializeObjects.push(propRef.Get());
 				}
 			}
 			else if (propType->IsSubPtrArray())
@@ -62,7 +65,6 @@ bool JsonSerializer::Serialize(LObject *root)
 				for (TSubPtr<LObject>& ptr : propValue)
 				{
 					LObject* aryElement = ptr.Get();
-					toSerializeObjects.push(aryElement);
 				}
 			}
 		}
@@ -81,6 +83,8 @@ bool JsonSerializer::Serialize(LObject *root)
 		type->GetAllProperties(properties);
 		objectDict.Set("__class__", type->GetName());
 		objectDict.Set("__fid__", mFileIDMap.Get(obj));
+		objectDict.Set("__parent__", mFileIDMap.Get(obj->GetParent()));
+		objectDict.Set("__index__", obj->Index());
 		for (LProperty* prop : properties)
 		{			
 			SerializeProperty(*prop, obj, objectDict);

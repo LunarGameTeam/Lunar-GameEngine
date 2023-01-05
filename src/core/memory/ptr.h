@@ -47,16 +47,16 @@ public:
 	LSubPtr& operator=(const LSubPtr & value)
 	{
 		if (value.mPPtr)
-			*mPPtr = *value.mPPtr;
+			mPPtr = value.mPPtr;
 		else
-			*mPPtr = nullptr;
+			mPPtr = nullptr;
 		return *this;
 	};
 
 	//待定
 	LObject* Get()
 	{
-		return *mPPtr;
+		return mPPtr;
 	}
 
 	LSubPtr& operator=(LObject *val);
@@ -64,7 +64,7 @@ public:
 	void SetPtr(LObject *val);
 
 protected:
-	LObject **mPPtr = nullptr;
+	LObject *mPPtr = nullptr;
 	LObject *mParent = nullptr;
 
 };
@@ -92,19 +92,19 @@ public:
 	}
 	void operator=(const TSubPtr & val)
 	{
-		SetPtr(*val.mPPtr);
+		SetPtr(val.mPPtr);
 	}
 
 	~TSubPtr() = default;
 	//待定
 	T* Get() const
 	{
-		return static_cast<T*>(*mPPtr);
+		return static_cast<T*>(mPPtr);
 	};
 
 	explicit operator bool() const noexcept
 	{
-		return *mPPtr != nullptr;
+		return mPPtr != nullptr;
 	}
 
 	void operator=(T *val)
@@ -112,7 +112,7 @@ public:
 		SetPtr(static_cast<LObject*>(val));
 	}
 
-	T *operator->() const throw() { return static_cast<T *>(*mPPtr); }
+	T *operator->() const throw() { return static_cast<T *>(mPPtr); }
 
 };
 

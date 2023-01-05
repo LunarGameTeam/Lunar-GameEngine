@@ -33,6 +33,7 @@ public:
 
 	void SetMaterial(MaterialInstance* mat)
 	{
+		mat->SetParent(this);
 		mMaterialInstance.SetPtr(mat);
 		m_dirty = true;
 	}

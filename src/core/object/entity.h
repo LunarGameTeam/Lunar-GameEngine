@@ -81,6 +81,7 @@ public:
 	T *AddComponent()
 	{
 		T *comp = TCreateObject<T>();
+		comp->SetParent(this);
 		comp->mOwnerEntity = this;
 		m_components.PushBack(comp);
 		comp->mOnCreateCalled = true;

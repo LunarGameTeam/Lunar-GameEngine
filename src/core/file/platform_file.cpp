@@ -174,36 +174,38 @@ bool WindowsFileManager::WriteStringToFile(const LPath &path, const LString &res
 
 bool WindowsFileManager::DisposeFileManager()
 {
-	m_pending_lock.lock();
-	io_loop = false;
-	m_pending_lock.unlock();
+	mPendingLock.lock();
+	mIOLooping = false;
+	mPendingLock.unlock();
 
 	delete mIOThread;
 	mIOThread = nullptr;
-	m_pending_lock.lock();
-	while (!m_pending_queue.empty()) m_pending_queue.pop();
-	m_pending_lock.unlock();
+	mPendingLock.lock();
+	while (!mPendingQueue.empty()) mPendingQueue.pop();
+	mPendingLock.unlock();
 
 	return true;
 }
 
 LSharedPtr<LFile> WindowsFileManager::WriteSync(const LPath &path, const LArray<byte> &data)
 {
-	HANDLE file_handle = ::CreateFileA(path.AsEnginePathString(), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
+	HANDLE fileHandle = ::CreateFileA(path.AsProjectPathString(), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, NULL, NULL);
 	LSharedPtr<LFile> file = MakeShared<LFile>();
-	if (file_handle == INVALID_HANDLE_VALUE)
+	file->mPath = path.AsProjectPathString();
+	if (fileHandle == INVALID_HANDLE_VALUE)
 	{
-		file_handle = ::CreateFileA(path.AsProjectPathString(), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, NULL, NULL);
+		fileHandle = ::CreateFileA(path.AsEnginePathString(), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, NULL, NULL);
+		file->mPath = path.AsEnginePathString();
 		return file;
 	}
 	DWORD size = (DWORD)data.size();
 	file->mData = data;
-	file->mPath = path.AsEnginePathString();
-	DWORD actual_size = 0;
-	::WriteFile(file_handle, file->mData.data(), size, &actual_size, NULL);
-	file->mIsOk = true;
-
-	return LSharedPtr<LFile>();
+	DWORD actualSize = 0;
+	bool result = ::WriteFile(fileHandle, file->mData.data(), size, &actualSize, NULL);
+	::CloseHandle(fileHandle);
+	file->mIsOk = result;
+	assert(result);
+	return file;
 }
 
 LSharedPtr<FileAsyncHandle> WindowsFileManager::ReadAsync(const LPath &path, FileAsyncCallback callback)
@@ -215,32 +217,33 @@ LSharedPtr<FileAsyncHandle> WindowsFileManager::ReadAsync(const LPath &path, Fil
 	async_handle->mAsyncState = AsyncState::PendingQueue;
 	async_handle->mPath = path.AsEnginePathString();
 
-	m_pending_lock.lock();
-	m_pending_queue.push(async_handle);
-	m_pending_lock.unlock();
+	mPendingLock.lock();
+	mPendingQueue.push(async_handle);
+	mPendingLock.unlock();
 
 	return async_handle;
 }
 
 LSharedPtr<LFile> WindowsFileManager::ReadSync(const LPath &path)
 {
-	HANDLE file_handle = ::CreateFileA(path.AsEnginePathString(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
+	HANDLE fileHandle = ::CreateFileA(path.AsEnginePathString(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
 	LSharedPtr<LFile> file = MakeShared<LFile>();
-	if (file_handle == INVALID_HANDLE_VALUE)
+	if (fileHandle == INVALID_HANDLE_VALUE)
 	{
-		file_handle = ::CreateFileA(path.AsProjectPathString(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
-		if (file_handle == INVALID_HANDLE_VALUE)
+		fileHandle = ::CreateFileA(path.AsProjectPathString(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
+		if (fileHandle == INVALID_HANDLE_VALUE)
 		{
 			LogError("Core", "Open File: {0} Failed", path.AsString().c_str());
 			return file;
 		}		
 	}
-	DWORD size = GetFileSize(file_handle, NULL);
+	DWORD size = GetFileSize(fileHandle, NULL);
 	file->mData.resize(size);
 	file->mPath = path.AsEnginePathString();
-	DWORD actual_size = 0;
-	::ReadFile(file_handle, file->mData.data(), size, &actual_size, NULL);
+	DWORD actualSize = 0;
+	::ReadFile(fileHandle, file->mData.data(), size, &actualSize, NULL);
 	file->mIsOk = true;
+	::CloseHandle(fileHandle);
 	return file;
 }
 
@@ -252,30 +255,30 @@ VOID CALLBACK WindowsFileManager::FileCompleteCallback(
 {
 	static WindowsFileManager *instance = (WindowsFileManager *)gEngine->GetModule<PlatformModule>()->GetPlatformFileManager();
 
-	LSharedPtr<FileAsyncHandle> handle = instance->m_running_handles[lpOverlapped];
+	LSharedPtr<FileAsyncHandle> handle = instance->mRunningHandles[lpOverlapped];
 
 	handle->mCallback(handle);
 	handle->mAsyncState = AsyncState::Finished;
 
-	instance->m_running_lock.lock();
-	instance->m_running_handles.erase(lpOverlapped);
+	instance->mRunningLock.lock();
+	instance->mRunningHandles.erase(lpOverlapped);
 	delete lpOverlapped;
-	instance->m_running_lock.unlock();
+	instance->mRunningLock.unlock();
 }
 
 void WindowsFileManager::IO_Thread()
 {
-	while (io_loop)
+	while (mIOLooping)
 	{
 		{
-			if (m_pending_queue.empty())
+			if (mPendingQueue.empty())
 				goto END;
 
 			//取AsyncHandle并进行处理
-			LSharedPtr<FileAsyncHandle> async_handle = m_pending_queue.front();
-			m_pending_lock.lock();
-			m_pending_queue.pop();
-			m_pending_lock.unlock();
+			LSharedPtr<FileAsyncHandle> async_handle = mPendingQueue.front();
+			mPendingLock.lock();
+			mPendingQueue.pop();
+			mPendingLock.unlock();
 
 			HANDLE file_handle = ::CreateFileA(async_handle->mPath.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, NULL);
 			if (file_handle == INVALID_HANDLE_VALUE)
@@ -297,9 +300,9 @@ void WindowsFileManager::IO_Thread()
 			if (!rc)
 				goto END;
 
-			m_running_lock.lock();
-			m_running_handles[overlap] = async_handle;
-			m_running_lock.unlock();
+			mRunningLock.lock();
+			mRunningHandles[overlap] = async_handle;
+			mRunningLock.unlock();
 		}
 
 	END:

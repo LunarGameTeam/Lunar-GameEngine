@@ -29,13 +29,13 @@ public:
 
 	uint32_t GetEntityCount()
 	{
-		return (uint32_t)m_entities.Size();
+		return (uint32_t)mEntites.Size();
 	}
 
 	Entity* GetEntityAt(uint32_t idx) 
 	{
-		if (idx < m_entities.Size())
-			return m_entities[idx];
+		if (idx < mEntites.Size())
+			return mEntites[idx];
 		return nullptr;
 	}
 
@@ -50,7 +50,7 @@ private:
 	bool mInit = false;
 	render::RenderScene* mRenderScene;
 	DirectionLightComponent* m_main_light;
-	TSubPtrArray<Entity> m_entities;
+	TSubPtrArray<Entity> mEntites;
 
 	friend class SceneModule;
 };
