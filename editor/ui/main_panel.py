@@ -54,11 +54,6 @@ def generate_doc_for_module(target: 'types.ModuleType') -> object:
 class PyMainPanel(editor.MainPanel):
 	def __init__(self) -> None:
 		super(PyMainPanel, self).__init__()
-		project_dir = luna.get_config("DefaultProject")
-		default_scene = luna.get_config("DefaultScene")
-		if default_scene and project_dir:
-			scn = asset_module.load_asset(default_scene, luna.Scene)
-			self.set_main_scene(scn)
 
 	def set_main_scene(self, scn):
 		if scn:

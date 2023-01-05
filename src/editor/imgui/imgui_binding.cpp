@@ -1,5 +1,3 @@
-#include "imstb_textedit.h"
-
 #include "core/reflection/reflection.h"
 
 #include "core/binding/binding.h"
@@ -10,8 +8,12 @@
 
 
 #include "imgui.h"
-#include "editor/ui/icon_font.h"
+#include "imgui_internal.h"
+
 #include "render/renderer/imgui_texture.h"
+
+#include "editor/ui/icon_font.h"
+
 
 
 namespace luna::binding
@@ -23,6 +25,8 @@ struct binding_converter<const ImGuiPayload*>
 {
 	inline static PyObject* to_binding(const ImGuiPayload* val)
 	{
+		if (!val)
+			Py_RETURN_NONE;
 		PyObject* data = *(PyObject**)(val->Data);
 		PyObject* res = PyDict_New();
 		PyDict_SetItemString(res, "data", data);
@@ -165,6 +169,46 @@ LVector2f PyCalcTextSize(const char* val)
 	return res;
 }
 
+bool TreeNodeCallbackEx(void* ptr_id, ImGuiTreeNodeFlags flag, std::function<void(bool, bool)> func)
+{
+	ImGuiIO& io = ImGui::GetIO();
+
+	
+
+	ImGuiID id = ImGui::GetID(ptr_id);
+	ImGuiWindow* window = ImGui::GetCurrentContext()->CurrentWindow;
+	ImVec2 pos = window->DC.CursorPos;
+	ImRect bb(pos, ImVec2(pos.x + ImGui::GetContentRegionAvail().x, pos.y + ImGui::GetFontSize()));
+	bool opened = ImGui::TreeNodeBehaviorIsOpen(id, flag);
+	bool hovered, held;
+	bool clicked = false;
+
+	if (ImGui::ButtonBehavior(bb, id, &hovered, &held, true))
+	{
+		clicked = true;
+		window->DC.StateStorage->SetInt(id, opened ? 0 : 1);
+	}
+	if (hovered || held || (flag & ImGuiTreeNodeFlags_Selected))
+		window->DrawList->AddRectFilled(bb.Min, bb.Max,
+										ImGui::GetColorU32(held ? ImGuiCol_HeaderActive : ImGuiCol_HeaderHovered));
+
+	float x = ImGui::GetCursorPosX();
+	if (!(flag & ImGuiTreeNodeFlags_Leaf))
+	{
+		ImGui::Text(opened ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
+	}
+	else
+	{
+		ImGui::Text(" ");
+	}
+	ImGui::SameLine(x + 16);
+	ImGui::ItemAdd(bb, id);
+	func(hovered, clicked);
+	if (opened)
+		ImGui::TreePush(ptr_id);
+	return opened;
+}
+
 void PyImage(render::ImguiTexture* texture, const LVector2f& size, const LVector2f& uv0, const LVector2f& uv1)
 {
 	ImGui::Image(texture->mView, ToVec2(size), ToVec2(uv0), ToVec2(uv1));
@@ -178,7 +222,7 @@ bool PySetDragDropPayload(const char* type, PyObject* data, ImGuiCond cond)
 const ImGuiPayload* PyAcceptDragDropPayload(const char* type, ImGuiDragDropFlags flags /* = 0 */)
 {
 	const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(type, flags);
-	return payload;
+	return payload;	
 }
 
 #define AddIMGUIConstant(name) imguiModule->AddConstant(#name, name);
@@ -204,6 +248,7 @@ STATIC_INIT(imgui)
 		AddIMGUIConstant(ICON_FA_FOLDER);
 		AddIMGUIConstant(ICON_FA_FILE);
 		AddIMGUIConstant(ICON_FA_IMAGE);
+		AddIMGUIConstant(ICON_FA_LAYER_GROUP);
 
 		imguiModule->AddMethod<&InputLString>("input");
 		imguiModule->AddMethod<[](){
@@ -220,12 +265,15 @@ STATIC_INIT(imgui)
 		imguiModule->AddMethod<&ImGui::EndGroup>("end_group");
 		
 		imguiModule->AddMethod<&PyTreeNode>("tree_node");
+		imguiModule->AddMethod<&TreeNodeCallbackEx>("tree_node_callback");
+
 		imguiModule->AddMethod<&ImGui::TreePop>("tree_pop");
 		imguiModule->AddMethod<&PyPushID>("push_id");
 		imguiModule->AddMethod<&ImGui::PopID>("pop_id");
 		imguiModule->AddMethod<&ImGui::SameLine>("same_line");
 		imguiModule->AddMethod<&PyText>("text");
 		imguiModule->AddMethod<&PyButton>("button");
+		
 		imguiModule->AddMethod<&PyCalcTextSize>("calc_text_size");
 
 

@@ -12,7 +12,7 @@ RegisterTypeEmbedd_Imp(LightComponent)
 	cls->Binding<Self>();
 	BindingModule::Get("luna")->AddType(cls);
 	cls->Ctor<LightComponent>();
-	cls->Property<&Self::m_color>("color");
+	cls->BindingProperty<&Self::m_color>("color");
 };
 
 RegisterTypeEmbedd_Imp(DirectionLightComponent)

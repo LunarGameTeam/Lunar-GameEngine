@@ -9,6 +9,5 @@ target_link_libraries(editor_exe editor)
 
 set_target_properties(editor_exe PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY "${SOLUTION_CMAKE_SOURCE_PATH}"
-    VS_DEBUGGER_COMMAND_ARGUMENTS "${SOLUTION_CMAKE_SOURCE_PATH}/editor/main.py"
     OUTPUT_NAME "LunaEditor"   
 )

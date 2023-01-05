@@ -38,19 +38,28 @@ void ScenePanel::OnGUI()
 			mDragging = false;
 		}
 	}
+	auto scene = sSceneModule->GetScene(0);
 	if (mNeedUpdate)
 	{
-		render::RenderTarget* rt = sRenderModule->GetRenderScene(0)->GetRenderView(0)->GetRenderTarget();
-		rt->SetWidth((uint32_t)new_size.x);
-		rt->SetHeight((uint32_t)new_size.y);
-		mNeedUpdate = false;
-		const TSubPtrArray<Entity>& entities = sSceneModule->GetScene(0)->GetAllEntities();
-		for (auto it = entities.begin(); it != entities.end(); ++it)
+		if (scene)
 		{
-			CameraComponent* cameraComp = it->Get()->GetComponent<CameraComponent>();
-			if (cameraComp != nullptr)
+			render::RenderTarget* rt = sRenderModule->GetRenderScene(0)->GetRenderView(0)->GetRenderTarget();
+			rt->SetWidth((uint32_t)new_size.x);
+			rt->SetHeight((uint32_t)new_size.y);
+		}
+
+		mNeedUpdate = false;
+
+		if (scene)
+		{
+			const TSubPtrArray<Entity>& entities = scene->GetAllEntities();
+			for (auto it = entities.begin(); it != entities.end(); ++it)
 			{
-				cameraComp->SetAspectRatio(new_size.x / new_size.y);
+				CameraComponent* cameraComp = it->Get()->GetComponent<CameraComponent>();
+				if (cameraComp != nullptr)
+				{
+					cameraComp->SetAspectRatio(new_size.x / new_size.y);
+				}
 			}
 		}
 	}

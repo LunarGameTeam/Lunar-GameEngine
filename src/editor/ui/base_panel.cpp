@@ -19,7 +19,10 @@ RegisterTypeEmbedd_Imp(PanelBase)
 
 void PanelBase::DoIMGUI()
 {
-	ImGui::Begin(mTitle.c_str(), nullptr, ImGuiWindowFlags_MenuBar);
+	ImGuiWindowFlags flags = ImGuiWindowFlags_NoCollapse;
+	if (mHasMenu)
+		flags = flags | ImGuiWindowFlags_MenuBar;
+	ImGui::Begin(mTitle.c_str(), nullptr, flags);
 	mFocus = ImGui::IsWindowFocused();
 	ImVec2 vec2 = ImGui::GetWindowSize();
 	mWidth = vec2.x;

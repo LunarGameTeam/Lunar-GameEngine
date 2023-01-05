@@ -18,7 +18,9 @@ static ID3D11RenderTargetView *g_mainRenderTargetView = NULL;
 
 LWindow::WindowHandle window_id = 0;
 
-LWindow::LWindow()
+LWindow::LWindow(int32_t width , int32_t heght):
+	mWidth(width),
+	mHeight(heght)
 {
 }
 
@@ -30,7 +32,7 @@ bool LWindow::Init()
 		return false;
 	}
 	
-	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_VULKAN);
+	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_VULKAN | SDL_WINDOW_BORDERLESS);
 	
 	mSDLWindow = SDL_CreateWindow("Luna Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, mWidth, mHeight, window_flags);
 	if (mSDLWindow == nullptr)

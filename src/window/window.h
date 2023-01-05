@@ -29,7 +29,7 @@ class WINDOW_API LWindow
 public:
 	using WindowHandle = Uint32;
 
-	LWindow();
+	LWindow(int32_t width = 1024, int32_t heght = 768);
 	virtual bool Init();
 
 

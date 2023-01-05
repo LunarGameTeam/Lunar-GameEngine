@@ -37,7 +37,7 @@ WindowModule::WindowModule()
 LWindow *WindowModule::CreateLunaWindow(const luna::LString &name, int width, int height)
 {
 #ifdef _WIN64
-	auto win32Window = MakeShared<LWindow>();
+	auto win32Window = MakeShared<LWindow>(width, height);
 	win32Window->Init();
 	mWindows[win32Window->Id()] = win32Window;
 #endif // _WIN32
@@ -109,7 +109,7 @@ bool WindowModule::OnLoad()
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 
-	mMainWindow = CreateLunaWindow("MainWindow", 1024, 768);
+	mMainWindow = CreateLunaWindow("MainWindow", Config_DefaultWidth.GetValue(), Config_DefaultHeight.GetValue());
 	
 
 		//("[Window]MainWindow Created");

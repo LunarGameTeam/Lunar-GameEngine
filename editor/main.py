@@ -37,8 +37,6 @@ if __name__ == '__main__':
     editor_dir = os.getcwd() + "\\editor"
     sys.path.append(editor_dir)
     sys.path.append(bin_dir)
-    print(os.getcwd())
-    print(sys.path)
     is_looping = True
     init_editor()
 

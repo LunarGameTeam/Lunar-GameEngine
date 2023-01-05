@@ -36,19 +36,22 @@ class EditorCore(object):
         editor_module.register_panel(self.library_panel)
         editor_module.register_panel(self.inspector_panel)
         editor_module.register_panel(self.demo_panel)
-
-      #self.init()
+        from ui.main_panel import generate_doc_for_module
+        generate_doc_for_module(luna)
 
     def init(self):
-        scn = asset_module.load_asset("/assets/test.scn", luna.Scene)
-        entity = scn.find_entity("MainCamera")
-        camera = entity.get_component(luna.CameraComponent)
-        scene_module.add_scene(scn)
-        self.hierarchy_panel.set_scene(scn)
+
+        project_dir = luna.get_config("DefaultProject")
+        default_scene = luna.get_config("DefaultScene")
+        if default_scene and project_dir:
+            scn = asset_module.load_asset(default_scene, luna.Scene)
+            self.main_panel.set_main_scene(scn)
 
     @staticmethod
     def instance() -> 'EditorCore':
         if EditorCore._instance is None:
             EditorCore._instance = EditorCore()
+            EditorCore._instance.init()
+
         return EditorCore._instance
 

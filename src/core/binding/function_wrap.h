@@ -62,40 +62,73 @@ constexpr inline auto arg_get(PyObject* args) noexcept
 }
 
 template<auto fn, size_t ...I>
-PyObject* static_wrap_impl(PyObject* self, PyObject* args)
+PyObject* METH_STATIC_impl(PyObject* self, PyObject* args)
 {
 	using FN = decltype(fn);
 	using return_type = function_traits<FN>::return_type;
 	using args_type = function_traits<FN>::args_type;
+
 	if constexpr (std::is_same_v<return_type, void>)
 	{
 		std::invoke(fn, arg_get<I, args_type>(args)...);
 		Py_RETURN_NONE;
 	}
-	else
-	{
+	else		
 		return to_binding<return_type>(std::invoke(fn, arg_get<I, args_type>(args)...));
-	}
 }
 
 template<auto fn, size_t ...I>
-PyObject* wrap_impl(PyObject* self, PyObject* args)
+PyObject* METH_CLASS_impl(PyObject* self, PyObject* args)
+{
+	using FN = decltype(fn);
+	using return_type = function_traits<FN>::return_type;
+	using args_type = function_traits<FN>::args_type;
+	if constexpr (std::is_same_v<return_type, void>)
+	{
+		std::invoke(fn, self, arg_get<I + 1, args_type>(args)...);
+		Py_RETURN_NONE;
+	}
+	else
+	{
+		return to_binding<return_type>(std::invoke(fn, self, arg_get<I + 1, args_type>(args)...));
+	}
+	
+}
+
+template<auto fn, size_t ...I>
+PyObject* METH_impl(PyObject* self, PyObject* args)
 {
 	using FN = decltype(fn);
 	using return_type = function_traits<FN>::return_type;
 	using args_type = function_traits<FN>::args_type;
 	using class_type = function_traits<FN>::class_type;
-	class_type* cls = (class_type*)binding_converter<class_type*>::from_binding(self);
 	if constexpr (std::is_same_v<return_type, void>)
 	{
-		std::invoke(fn, cls, arg_get<I, args_type>(args)...);
+		if constexpr (std::is_member_function_pointer_v<FN>)
+		{
+			class_type* cls = (class_type*)binding_converter<class_type*>::from_binding(self);
+			std::invoke(fn, cls, arg_get<I, args_type>(args)...);
+		}
+		else
+		{
+			std::invoke(fn, self, arg_get<I, args_type>(args)...);
+		}		
 		Py_RETURN_NONE;
 	}
 	else
 	{
-		return to_binding<return_type>(std::invoke(fn, cls, arg_get<I, args_type>(args)...));
-	}
+		if constexpr (std::is_member_function_pointer_v<FN>)
+		{
+			class_type* cls = (class_type*)binding_converter<class_type*>::from_binding(self);
+			return to_binding<return_type>(std::invoke(fn, cls, arg_get<I, args_type>(args)...));
+		}
+		else
+		{
+			return to_binding<return_type>(std::invoke(fn, self, arg_get<I, args_type>(args)...));
+		}
+	}	
 }
+
 }
 
 namespace luna::binding
@@ -153,11 +186,23 @@ LString static_method_doc(const char* name)
 template<auto fn, size_t ...I>
 PyCFunction pycfunction_select(std::index_sequence<I...>)
 {
-	using FN = decltype(fn);
-	if constexpr (std::is_member_function_pointer_v<FN>)
-		return (PyCFunction)detail::wrap_impl<fn, I...>;
-	else
-		return (PyCFunction)detail::static_wrap_impl<fn, I...>;
+	return (PyCFunction)detail::METH_impl<fn, I...>;
 }
+
+
+template<auto fn, size_t ...I>
+PyCFunction class_pycfunction_select(std::index_sequence<I...>)
+{
+	using FN = decltype(fn);
+	return (PyCFunction)detail::METH_CLASS_impl<fn, I...>;
+}
+
+template<auto fn, size_t ...I>
+PyCFunction static_pycfunction_select(std::index_sequence<I...>)
+{
+	using FN = decltype(fn);
+	return (PyCFunction)detail::METH_STATIC_impl<fn, I...>;
+}
+
 
 }

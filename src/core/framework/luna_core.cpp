@@ -45,7 +45,7 @@ LunaCore* LunaCore::CreateLunaCore()
 	gEngine->LoadModule<PlatformModule>();
 	BindingModule::Luna()->AddMethod<&PyGetModule>("get_module").ml_doc = LString::MakeStatic("def get_module(self, t: Type[T]) -> T:\n\tpass\n");
 	BindingModule::Luna()->AddMethod<&PyGetConfig>("get_config");
-	BindingModule::Luna()->AddMethod<&PyGetConfig>("set_config");
+	BindingModule::Luna()->AddMethod<&PySetConfig>("set_config");
 	return gEngine;
 }
 

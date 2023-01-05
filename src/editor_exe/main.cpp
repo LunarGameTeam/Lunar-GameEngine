@@ -19,9 +19,9 @@ int main(int argc, char** argv)
 
 	PyConfig config;
 	PyConfig_InitPythonConfig(&config);
-	auto path = luna::StringToWstring(PYTHON3_PATH);
+
+	auto pythonHome = luna::StringToWstring(PYTHON3_PATH);
 	config.isolated = 1;
-	auto dllPath = path + L"/DLLs";
 	
 	TCHAR tempPath[1000];
 	GetCurrentDirectory(MAX_PATH, tempPath); //获取程序的当前目录	
@@ -29,19 +29,16 @@ int main(int argc, char** argv)
 	luna::LString luna_dir = luna::LString(tempPath);
 	luna::LString init_script = luna_dir + luna::Config_InitScript.GetValue();
 
-	status = PyConfig_SetString(&config, &config.home, path.c_str());
+	status = PyConfig_SetString(&config, &config.home, pythonHome.c_str());
 
-	if (argc == 1)
-	{
-		char** argv2 = new char*[2];
-		argc = 2;
-		argv2[0] = argv[0];
-		argv2[1] = new char[init_script.Length() + 1];
-		memcpy(argv2[1], init_script.c_str(), init_script.Length());
-		argv2[1][init_script.Length()] = 0;
-		status = PyConfig_SetBytesArgv(&config, argc, argv2);
-	}else
-		status = PyConfig_SetBytesArgv(&config, argc, argv);
+
+	char** argv2 = new char* [2];
+	argc = 2;
+	argv2[0] = argv[0];
+	argv2[1] = new char[init_script.Length() + 1];
+	memcpy(argv2[1], init_script.c_str(), init_script.Length());
+	argv2[1][init_script.Length()] = 0;
+	status = PyConfig_SetBytesArgv(&config, argc, argv2);
 
 	if (PyStatus_Exception(status))
 	{
@@ -49,6 +46,7 @@ int main(int argc, char** argv)
 	}
 
 	status = Py_InitializeFromConfig(&config);
+
 	if (PyStatus_Exception(status))
 	{
 		return -1;

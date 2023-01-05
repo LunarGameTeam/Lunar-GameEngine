@@ -89,7 +89,12 @@ public:
 
 	void OnFrameEnd(float deltaTime) override;
 
-	RenderScene* GetRenderScene(int32_t scene_id) { return mRenderScenes[scene_id]; }
+	RenderScene* GetRenderScene(int32_t scene_id) 
+	{ 
+		if(scene_id < mRenderScenes.Size())
+			return mRenderScenes[scene_id]; 
+		return nullptr;
+	}
 	int32_t GetRenderSeneSize() { return (int32_t)mRenderScenes.Size(); }
 
 	void UpdateFrameBuffer();

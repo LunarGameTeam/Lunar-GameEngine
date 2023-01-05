@@ -190,12 +190,30 @@ struct binding_converter<int>
 	{
 		assert(PyLong_Check(obj));
 		long res = PyLong_AsLong(obj);
-		return res;		
+		return res;			
 	}
 
 	static const char* binding_fullname()
 	{
 		return "int";
+	}
+};
+
+template<>
+struct binding_converter<void>
+{
+	inline static PyObject* to_binding(void)
+	{
+		Py_RETURN_NONE;
+	}
+
+	inline static void from_binding(PyObject* obj)
+	{		
+	}
+
+	static const char* binding_fullname()
+	{
+		return "None";
 	}
 };
 
@@ -238,17 +256,6 @@ struct binding_converter<void*>
 		return "long";
 	}
 };
-
-
-template<>
-struct binding_converter<void>
-{
-	inline static PyObject* to_binding()
-	{
-		Py_RETURN_NONE;
-	}	
-};
-
 
 template<>
 struct binding_converter<char>

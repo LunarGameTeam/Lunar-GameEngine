@@ -2,6 +2,8 @@
 #include "core/event/event_module.h"
 #include "engine/scene_module.h"
 #include "core/asset/asset_module.h"
+
+#include "editor/ui/icon_font.h"
 #include "imstb_textedit.h"
 
 
@@ -33,6 +35,7 @@ void MainPanel::Init()
 	static auto handle = sEventModule->OnInput.Bind(func);
 	auto resize_func = std::bind(&MainPanel::OnWindowResize, this, std::placeholders::_1, std::placeholders::_2);
 	sWindowModule->OnWindowResize.Bind(resize_func);
+	mTitle =  LString::Format(" {0} Luna Engine Editor", ICON_FA_MOON);
 }
 
 void MainPanel::DoIMGUI()
@@ -58,12 +61,19 @@ void MainPanel::DoIMGUI()
 
 	static ImGuiID dockspaceID = 0;
 	bool active = true;
-	ImGui::SetNextWindowSize(ImVec2((float)mWidth, (float)mHeight));	
+	ImGui::SetNextWindowSize(ImVec2((float)main_window->GetWindowWidth(), (float)main_window->GetWindowHeight()));
 	ImGui::SetNextWindowPos(ImVec2(0, 0));
-	ImGui::Begin(mTitle.c_str(), nullptr, ImGuiWindowFlags_MenuBar |
-		ImGuiWindowFlags_NoTitleBar| ImGuiWindowFlags_NoBringToFrontOnFocus |
-		ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+
+	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(16, 8));
+	ImGui::Begin(mTitle.c_str(), &open,
+				 ImGuiWindowFlags_MenuBar |
+				 ImGuiWindowFlags_NoBringToFrontOnFocus |
+				 ImGuiWindowFlags_NoMove |
+				 ImGuiWindowFlags_NoCollapse);
+
+	ImGuiContext* context = ImGui::GetCurrentContext();
 	InvokeBinding("on_imgui");
+	ImGui::PopStyleVar();
 	dockspaceID = ImGui::GetID("MainEditor");
 	ImGui::DockSpace(dockspaceID, ImVec2(0.0f, 0.0f),
 	                 ImGuiDockNodeFlags_None | ImGuiDockNodeFlags_PassthruCentralNode);
@@ -77,6 +87,7 @@ void MainPanel::DoIMGUI()
 	}
 
 	ImGui::End();
+
 	ImGui::SetNextWindowDockID(dockspaceID, ImGuiCond_FirstUseEver);
 	if (!open)
 		gEngine->SetPendingExit(!open);

@@ -28,7 +28,7 @@ public:
 	{
 		using FN = decltype(fn);
 		constexpr auto args_count = function_traits<FN>::args_count;
-		PyCFunction p = binding::pycfunction_select<fn>(std::make_index_sequence<args_count>{});
+		PyCFunction p = binding::static_pycfunction_select<fn>(std::make_index_sequence<args_count>{});
 		const LString& method_name = LString::MakeStatic(name);
 		PyMethodDef& def = mMethods[method_name]; 		
 		def.ml_name = method_name.c_str();

@@ -123,8 +123,16 @@ void LType::GenerateBindingDoc()
 	
 	for (PyMethodDef& it : GetBindingMethods())
 	{
+
+
 		if (it.ml_name)
 		{
+			if (it.ml_flags & METH_STATIC)
+				typeDoc.AddLine("\t@staticmethod");
+
+			if (it.ml_flags & METH_CLASS)
+				typeDoc.AddLine("\t@classmethod");
+
 			typeDoc.AddLine(LString::Format("\t{}", it.ml_doc));
 			typeDoc.AddLine("\t\tpass");
 		}

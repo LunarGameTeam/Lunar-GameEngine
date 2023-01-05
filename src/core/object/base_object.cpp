@@ -17,10 +17,23 @@ size_t binding::BindingLObject::sBindingObjectNum = 0;
 size_t sInstanceID = 0;
 std::unordered_map<size_t, LObject*> sObjects;
 
+
+PyObject* GetPropertiese(PyObject* cls, PyObject* args)
+{
+	LType* type = LType::Get((PyTypeObject*)cls);
+	std::vector<LProperty*> props;
+	if (type)
+	{
+		type->GetAllProperties(props);
+	}
+	return to_binding(props);
+}
+
 RegisterTypeEmbedd_Imp(LObject)
 {
 	cls->Ctor<LObject>();
 	cls->Binding<LObject>();
+	cls->BindingMethod<&GetPropertiese, MethodType::ClassFunction>("get_properties");
 	cls->BindingProperty<&LObject::mName>("name");
 
 	BindingModule::Get("luna")->AddType(cls);

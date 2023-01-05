@@ -16,6 +16,7 @@ class LType;
 enum class MethodType
 {
 	StaticFunction,
+	ClassFunction,
 	MemberFunction
 };
 
@@ -73,7 +74,7 @@ public:
 	inline operator bool() const { return ptr != nullptr; }
 
 
-	template<auto fn>
+	template<auto fn, MethodType methodType = MethodType::MemberFunction>
 	LMethod& Binding()
 	{
 
@@ -83,20 +84,31 @@ public:
 		PyMethodDef& def = mBindingMethodDef;
 		def.ml_name = name.c_str();
 
-		if constexpr (std::is_member_function_pointer<FN>::value)
+		int pymethodFlags = METH_VARARGS;
+
+		constexpr auto args_count = function_traits<FN>::args_count;
+
+		if constexpr (methodType == MethodType::ClassFunction)
 		{
-			constexpr auto args_count = function_traits<FN>::args_count;
-			py_func = binding::pycfunction_select<fn>(std::make_index_sequence<args_count>{});
-			def.ml_flags = METH_VARARGS;			
-			def.ml_doc = LString::MakeStatic(binding::method_doc<fn>(name));
+			static_assert(!std::is_member_function_pointer<FN>::value);
+			pymethodFlags = pymethodFlags | METH_CLASS;
+			py_func = binding::class_pycfunction_select<fn>(std::make_index_sequence<args_count - 1>{});
+		}
+		else if constexpr (methodType == MethodType::StaticFunction)
+		{
+			static_assert(!std::is_member_function_pointer<FN>::value);
+			pymethodFlags = pymethodFlags | METH_STATIC;
+			py_func = binding::static_pycfunction_select<fn>(std::make_index_sequence<args_count>{});
 		}
 		else
 		{
-			constexpr auto args_count = function_traits<FN>::args_count;
 			py_func = binding::pycfunction_select<fn>(std::make_index_sequence<args_count>{});
-			def.ml_flags = METH_VARARGS | METH_STATIC;			
-			def.ml_doc = LString::MakeStatic(binding::method_doc<fn>(name));
 		}
+		def.ml_meth = py_func;
+		def.ml_flags = pymethodFlags;
+		def.ml_doc = LString::MakeStatic(binding::method_doc<fn>(name));
+
+
 		def.ml_meth = py_func;
 		return *this;
 	}
@@ -110,9 +122,10 @@ public:
 	PyMethodDef& GetBindingMethodDef() { return mBindingMethodDef; };
 
 public:
+	MethodType                   mMethodType = MethodType::MemberFunction;
 	PyMethodDef                  mBindingMethodDef;
-	std::vector<LType*>          m_args_type;
-	LType*                       m_return_type;
+	std::vector<LType*>          mArgsType;
+	LType*                       mReturnType;
 	detail::method_wrapper_base* wrapper;
 	void* ptr = nullptr;
 };

@@ -23,7 +23,12 @@ public:
 
 	void AddScene(LType* new_scene);
 
-	Scene* GetScene(int32_t index_scene) { return mScenes[index_scene]; }
+	Scene* GetScene(int32_t index_scene) 
+	{ 
+		if(index_scene < mScenes.Size())
+			return mScenes[index_scene]; 
+		return nullptr;		   
+	}
 
 	void OnIMGUI() override;
 private:

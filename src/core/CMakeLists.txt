@@ -18,7 +18,7 @@ add_compile_definitions(CORE_EXPORT)
 
 add_dependencies(core imgui Eigen3::Eigen JsonCpp::JsonCpp)
 
-if(USING_DEBUG_PYTHON)
+if(LUNA_USING_DEBUG_PYTHON)
     target_link_libraries(core PRIVATE python311_d)
 else()
     target_link_libraries(core PRIVATE python311)

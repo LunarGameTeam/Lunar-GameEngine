@@ -53,6 +53,7 @@ protected:
 	bool    mFocus  = false;
 	bool    mInited = false;
 	LString mTitle  = "Editor";
+	bool	mHasMenu = false;
 
 	friend class EditorModule;
 

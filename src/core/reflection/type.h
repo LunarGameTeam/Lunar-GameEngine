@@ -93,28 +93,29 @@ public:
 	}
 
 	template<auto fn>
-	LMethod& Method(const char* name)
+	LMethod& Method(const char* name, MethodType methodType = MethodType::MemberFunction)
 	{
 		using FN = decltype(fn);
 		using return_type = function_traits<FN>::return_type;
 		using args_type = function_traits<FN>::args_type;
 		//函数指针存储
 		LMethod& func = mMethods[name];
+		func.mMethodType = methodType;
 		func.wrapper = new detail::method_wrapper<fn>();
 		func.name = name;
 		return mMethods[name];
 	}
-	template<auto fn>
+	template<auto fn, MethodType methodType = MethodType::MemberFunction>
 	LMethod& BindingMethod(const char* name)
 	{
 		using FN = decltype(fn);
 		auto it = mMethods.find(name);
 		if (it == mMethods.end())
 		{
-			Method<fn>(name);
+			Method<fn>(name, methodType);
 			it = mMethods.find(name);
 		}
-		it->second.Binding<fn>();
+		it->second.Binding<fn, methodType>();
 		return it->second;
 	}
 
