@@ -74,9 +74,9 @@ void MeshAsset::OnAssetBinaryRead(const byte* value)
 {
 	LType* obj_type = this->GetClass();
 	auto prop = obj_type->GetProperty("submesh");
-	TSubPtrArray<SubMesh>& ary = prop->GetValue<TSubPtrArray<SubMesh>>(this);
+	TPPtrArray<SubMesh>& ary = prop->GetValue<TPPtrArray<SubMesh>>(this);
 	const byte* ptr = value;
-	for (TSubPtr<SubMesh>& it : mSubMesh)
+	for (auto& it : mSubMesh)
 	{
 		it->mVertexData.resize(it->mVertexCount);
 		it->mIndexData.resize(it->mIndexCount);

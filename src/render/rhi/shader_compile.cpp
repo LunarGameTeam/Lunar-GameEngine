@@ -102,7 +102,7 @@ HRESULT STDMETHODCALLTYPE LunaIncludeHandler::LoadSource(_In_z_ LPCWSTR pFilenam
 		*ppIncludeSource = pEncoding.Detach();
 		return S_OK;
 	}
-	LString context = sAssetModule->LoadAsset<LTextAsset>(path)->GetContent();
+	LString context = sAssetModule->LoadAsset<TextAsset>(path)->GetContent();
 	uint32_t codePage = CP_UTF8;
 	hr = sDxcLib->CreateBlobWithEncodingOnHeapCopy(context.c_str(), (uint32_t)context.Length(), codePage, &pEncoding);
 	ComPtr<IDxcOperationResult> result;

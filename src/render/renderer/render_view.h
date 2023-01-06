@@ -77,7 +77,7 @@ private:
 	LVector3f mViewPos;
 
 	uint64_t mViewID;
-	TSubPtr<RenderTarget> mRT;
+	TPPtr<RenderTarget> mRT;
 };
 
 

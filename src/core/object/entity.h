@@ -33,7 +33,7 @@ public:
 	template<typename T>
 	T *GetComponent()
 	{
-		for (TSubPtr<Component>& it : m_components)
+		for (auto& it : m_components)
 		{
 			T *res = dynamic_cast<T *>(it.Get());
 			if (res != nullptr)
@@ -45,7 +45,7 @@ public:
 	template<typename T>
 	const T* GetComponent() const
 	{
-		for (const TSubPtr<Component>& it : m_components)
+		for (const auto& it : m_components)
 		{
 			T* res = dynamic_cast<T*>(it.Get());
 			if (res != nullptr)
@@ -57,7 +57,7 @@ public:
 	Component* GetComponentByType(LType* val)
 	{
 
-		for (TSubPtr<Component>& it : m_components)
+		for (auto& it : m_components)
 		{
 			LType* cls = it->GetClass();
 			if(cls->IsDerivedFrom(val))
@@ -89,11 +89,11 @@ public:
 		return comp;
 	}
 
-	TSubPtrArray<Component> &GetAllComponents()
+	TPPtrArray<Component> &GetAllComponents()
 	{
 		return m_components;
 	}
-	const TSubPtrArray<Component>& GetAllComponents()const
+	const TPPtrArray<Component>& GetAllComponents()const
 	{
 		return m_components;
 	}
@@ -131,8 +131,8 @@ protected:
 	Transform *mChildren = nullptr;
 
 private:
-	TSubPtrArray<Entity> m_children;
-	TSubPtrArray<Component> m_components;
+	TPPtrArray<Entity> m_children;
+	TPPtrArray<Component> m_components;
 
 	Entity *mParent = nullptr;
 

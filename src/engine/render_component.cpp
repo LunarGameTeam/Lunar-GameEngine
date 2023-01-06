@@ -7,13 +7,17 @@ namespace luna::render
 
 RegisterTypeEmbedd_Imp(RendererComponent)
 {
-	cls->Binding<Self>();
-	BindingModule::Get("luna")->AddType(cls);
+	cls->Binding<RendererComponent>();
 
 	cls->BindingProperty<&RendererComponent::m_receive_shadow>("receive_shadow")
-		.Setter<&RendererComponent::SetReceiveLight>();
-	cls->BindingProperty<&RendererComponent::m_cast_shadow>("cast_shadow").
-		Setter<&RendererComponent::SetCastShadow>();
+		.Setter<&RendererComponent::SetReceiveLight>()
+		.Serialize();
+
+	cls->BindingProperty<&RendererComponent::m_cast_shadow>("cast_shadow")
+		.Setter<&RendererComponent::SetCastShadow>()
+		.Serialize();
+
+	BindingModule::Get("luna")->AddType(cls);
 }
 
 void RendererComponent::OnCreate()

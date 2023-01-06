@@ -52,9 +52,9 @@ protected:
 };
 
 
-class RENDER_API Texture2D : public LBasicAsset, public ITexture
+class RENDER_API Texture2D : public Asset, public ITexture
 {
-	RegisterTypeEmbedd(Texture2D, LBasicAsset)
+	RegisterTypeEmbedd(Texture2D, Asset)
 
 public:
 	Texture2D()
@@ -78,11 +78,14 @@ private:
 };
 
 
-class RENDER_API TextureCube : public LJsonAsset, public ITexture
+class RENDER_API TextureCube : public JsonAsset, public ITexture
 {
-	RegisterTypeEmbedd(TextureCube, LJsonAsset)
+	RegisterTypeEmbedd(TextureCube, JsonAsset)
 public:
 	TextureCube();
+
+
+	void OnLoad() override;
 
 public:
 	void Init();
@@ -96,7 +99,7 @@ private:
 	RHITextureDesc mTexDesc;
 	RHIResDesc mBufferDesc;
 	RHIViewPtr mResView;
-	TSubPtrArray<LBinaryAsset> m_textures;
+	TPPtrArray<LBinaryAsset> mTextures;
 	const byte* m_data;
 	size_t m_init_data_size;
 	bool m_init = false;

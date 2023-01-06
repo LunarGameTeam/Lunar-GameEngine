@@ -16,9 +16,9 @@ namespace luna
 {
 
 //Json Asset
-class CORE_API LBinaryWithHeadAsset : public LBasicAsset
+class CORE_API LBinaryWithHeadAsset : public Asset
 {
-	RegisterTypeEmbedd(LBinaryWithHeadAsset, LBasicAsset)
+	RegisterTypeEmbedd(LBinaryWithHeadAsset, Asset)
 public:
 	virtual ~LBinaryWithHeadAsset();
 	//Asset资源读入到内存时回调

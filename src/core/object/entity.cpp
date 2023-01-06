@@ -7,13 +7,22 @@ namespace luna
 
 RegisterTypeEmbedd_Imp(Entity)
 {
-	cls->Ctor<Entity>();
-	cls->Property<&Self::m_components>("component_list");
+	cls->Ctor<Entity>();	
+
+	cls->BindingProperty<&Self::mName>("name")
+		.Serialize();
+
+	cls->Property<&Self::m_components>("component_list")
+		.Serialize();
+
 	cls->Property<&Self::m_children>("children");
+
 	cls->BindingMethod<&Entity::GetComponentByType>("get_component").GetBindingMethodDef().ml_doc = LString::MakeStatic("def get_component(self, name: str,t: Type[T] ) -> T:");
 
 	cls->BindingMethod<&Entity::GetComponentAt>("get_component_at");
+
 	cls->BindingMethod<&Entity::GetComponetCount>("get_component_count");
+
 	cls->Binding<Entity>();
 	BindingModule::Get("luna")->AddType(cls);
 }
@@ -92,7 +101,7 @@ void Entity::UpdateActiveStatus()
 		if (mActive)
 			OnActivate();
 
-	for (TSubPtr<Component> &comp : m_components)
+	for (auto& comp : m_components)
 	{
 		comp->UpdateActiveState();
 	}

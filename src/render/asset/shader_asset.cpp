@@ -11,14 +11,14 @@ namespace luna::render
 {
 RegisterTypeEmbedd_Imp(ShaderAsset)
 {
-	cls->Binding<Self>();
-	BindingModule::Get("luna")->AddType(cls);
+	cls->Binding<Self>();;
 	cls->Ctor<ShaderAsset>();
+	BindingModule::Get("luna")->AddType(cls);
 };
 
 void ShaderAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file)
 {
-	LTextAsset::OnAssetFileRead(meta, file);
+	TextAsset::OnAssetFileRead(meta, file);
 	Init();
 	// 	size_t pos;
 	// 	std::vector<std::string> m_lines;

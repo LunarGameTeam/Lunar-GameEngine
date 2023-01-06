@@ -32,6 +32,6 @@ public:
 
 	void OnIMGUI() override;
 private:
-	TSubPtrArray<Scene> mScenes;
+	TPPtrArray<Scene> mScenes;
 };
 }

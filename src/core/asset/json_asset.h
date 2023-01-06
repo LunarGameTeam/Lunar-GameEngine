@@ -16,11 +16,11 @@ namespace luna
 {
 
 //Json Asset
-class CORE_API LJsonAsset : public LBasicAsset
+class CORE_API JsonAsset : public Asset
 {
-	RegisterTypeEmbedd(LJsonAsset, LBasicAsset)
+	RegisterTypeEmbedd(JsonAsset, Asset)
 public:
-	virtual ~LJsonAsset();
+	virtual ~JsonAsset();
 	//Asset资源读入到内存时回调
 	void OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file) override;
 	//Asset资源写入到磁盘时回调	

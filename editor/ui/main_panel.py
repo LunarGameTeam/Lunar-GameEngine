@@ -4,10 +4,9 @@ import tkinter.filedialog
 import types
 
 import luna
-from core.editor_core import EditorCore, asset_module, scene_module
 from luna import editor
 from luna import imgui
-from core.editor_core import platform_module
+from core.editor_core import platform_module, EditorCore, asset_module, scene_module
 
 
 def generate_class_doc(cls: 'type'):
@@ -65,6 +64,7 @@ class PyMainPanel(editor.MainPanel):
 			scene_module.add_scene(scn)
 			EditorCore.instance().hierarchy_panel.set_scene(scn)
 			EditorCore.instance().scene_panel.set_scene(scn)
+			asset_module.save_asset(scn, "/assets/new_test.scn")
 
 	def on_imgui(self) -> None:
 		super(PyMainPanel, self).on_imgui()

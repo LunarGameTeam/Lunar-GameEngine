@@ -44,9 +44,9 @@ public:
 	void OnActivate() override;
 
 private:
-	TSubPtr<ObjAsset> mObjAsset;
-	TSubPtr<MeshAsset> m_mesh;
-	TSubPtr<MaterialInstance> mMaterialInstance;
+	TPPtr<ObjAsset> mObjAsset;
+	TPPtr<MeshAsset> m_mesh;
+	TPPtr<MaterialInstance> mMaterialInstance;
 };
 
 

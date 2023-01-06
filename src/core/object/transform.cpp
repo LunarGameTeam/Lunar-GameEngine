@@ -10,13 +10,16 @@ RegisterTypeEmbedd_Imp(Transform)
 	cls->Ctor<Transform>();
 
 	cls->BindingProperty<&Self::mPos>("local_position")
-		.Setter<&Self::SetPosition>();
+		.Setter<&Self::SetPosition>()
+		.Serialize();
 
 	cls->BindingProperty<&Self::mRotation>("local_rotation")
-		.Setter<&Self::SetRotation>();
+		.Setter<&Self::SetRotation>()
+		.Serialize();
 
 	cls->BindingProperty<&Self::mScale>("local_scale")
-		.Setter<&Self::SetScale>();
+		.Setter<&Self::SetScale>()
+		.Serialize();
 
 	cls->Binding<Transform>();
 	BindingModule::Luna()->AddType(cls);

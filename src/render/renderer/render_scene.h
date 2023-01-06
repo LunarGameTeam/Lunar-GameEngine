@@ -31,7 +31,7 @@ public:
 
 	size_t GetRenderViewNum()const { return mViews.Size(); }
 
-	const TSubPtrArray<RenderView>& GetAllView() const { return mViews; };
+	const TPPtrArray<RenderView>& GetAllView() const { return mViews; };
 
 	RenderView* GetRenderView(const int32_t view_id)const { return mViews[view_id]; };
 
@@ -51,6 +51,6 @@ private:
 	Light*                   mDirLight;
 	LArray<Light>           mAllLight;
 	LArray<RenderObject*>   mRenderObjects;
-	TSubPtrArray<RenderView> mViews;
+	TPPtrArray<RenderView> mViews;
 };
 }

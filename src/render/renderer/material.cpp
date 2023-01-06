@@ -14,45 +14,57 @@ namespace luna::render
 RegisterTypeEmbedd_Imp(MaterialParam)
 {
 	cls->Ctor<MaterialParam>();
-	cls->Property<&Self::mParamType>("type");
-	cls->Property<&Self::mParamName>("param_name");
+	cls->Property<&Self::mParamType>("type")
+		.Serialize();
+	cls->BindingProperty<&Self::mParamName>("param_name")
+		.Serialize();
 }
 
 RegisterTypeEmbedd_Imp(MaterialParamInt)
 {
 	cls->Ctor<MaterialParamInt>();
-	cls->Property<&Self::mValue>("value");
+	cls->BindingProperty<&Self::mValue>("value")
+		.Serialize();
 }
 
 RegisterTypeEmbedd_Imp(MaterialParamFloat)
 {
 	cls->Ctor<MaterialParamFloat>();
-	cls->Property<&Self::mValue>("value");
+	cls->BindingProperty<&Self::mValue>("value")
+		.Serialize();
 }
 
 RegisterTypeEmbedd_Imp(MaterialParamFloat3)
 {
 	cls->Ctor<MaterialParamFloat3>();
-	cls->Property<&Self::mValue>("value");
+	cls->BindingProperty<&Self::mValue>("value")
+		.Serialize();
 }
 
 RegisterTypeEmbedd_Imp(MaterialParamTexture2D)
 {
 	cls->Ctor<MaterialParamTexture2D>();
-	cls->Property< &Self::mValue>("texture");
+	cls->BindingProperty< &Self::mValue>("texture")
+		.Serialize();
 }
 
 RegisterTypeEmbedd_Imp(MaterialParamTextureCube)
 {
 	cls->Ctor<MaterialParamTextureCube>();
-	cls->Property< &Self::mValue>("texture");
+	cls->BindingProperty< &Self::mValue>("texture")
+		.Serialize();
 }
 
 RegisterTypeEmbedd_Imp(MaterialInstance)
 {
 	cls->Ctor<MaterialInstance>();
-	cls->BindingProperty< &Self::mOverrideParams>("params");
-	cls->BindingProperty< &Self::mMaterialTemplate>("material_asset");
+
+	cls->BindingProperty< &Self::mOverrideParams>("params")
+		.Serialize();
+
+	cls->BindingProperty< &Self::mMaterialTemplate>("material_asset")
+		.Serialize();
+
 	cls->Binding<MaterialInstance>();
 	BindingModule::Get("luna")->AddType(cls);
 }
@@ -85,7 +97,7 @@ void MaterialInstance::Init()
 	{		
 
 		auto& defaultParams = mMaterialTemplate->GetAllParams();
-		for (TSubPtr<MaterialParam>& p : defaultParams)
+		for (TPPtr<MaterialParam>& p : defaultParams)
 		{
 			mAllParams.PushBack(p.Get());
 			mParamIndexMap[p->mParamName] = mAllParams.Size() - 1;
@@ -114,7 +126,7 @@ void MaterialInstance::Init()
 
 
 
-TSubPtrArray<MaterialParam>& MaterialInstance::GetAllParams()
+TPPtrArray<MaterialParam>& MaterialInstance::GetAllParams()
 {
 	return mAllParams;
 }
@@ -127,7 +139,7 @@ void MaterialInstance::UpdateParamsToBuffer()
 	std::vector<byte> data;
 	data.resize(matBufferDesc.mBufferSize);
 	mMaterialParams.Clear();
-	for (TSubPtr<MaterialParam>& param : params)
+	for (auto& param : params)
 	{
 		switch (param->mParamType)
 		{

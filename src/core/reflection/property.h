@@ -22,7 +22,7 @@ class LProperty;
 enum class PropertyFlag : uint32_t
 {
 	None = 0,
-	Transient = 1 << 0,
+	Serializable = 1 << 0,
 	HasBinding = 1 << 1,
 };
 
@@ -47,6 +47,11 @@ public:
 
 
 	inline bool CheckFlag(PropertyFlag info) const { return int(mFlags) & (int)(info); }
+
+	inline LProperty& Serialize()
+	{
+		return SetFlag(PropertyFlag::Serializable);		 
+	}
 
 	inline LProperty& SetFlag(PropertyFlag val)
 	{
@@ -120,6 +125,9 @@ public:
 	template<typename class_type, typename M>
 	LProperty& Binding()
 	{
+		if (mHasBinding)
+			return *this;
+
 		mHasBinding = true;
 		const char* type_name = binding::binding_converter<M>::binding_fullname();
 		

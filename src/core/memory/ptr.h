@@ -13,98 +13,132 @@ namespace luna
 
 
 class LObject;
+class SharedObject;
 class LType;
 
 template<typename T>
-class TSubPtr;
+class TPPtr;
 
-class CORE_API LSubPtr
+class CORE_API SharedPtr
 {
 public:
-	LSubPtr() noexcept
+	SharedPtr() noexcept
+	{
+
+	}
+
+	SharedPtr(const SharedPtr& rv) :
+		mPtr(rv.mPtr)
+	{
+
+	};
+
+	SharedPtr(const SharedPtr&& rv) noexcept :
+		mPtr(std::move(rv.mPtr))
+	{
+
+	};
+
+	SharedPtr& operator=(const SharedPtr& value)
+	{
+		mPtr = value.mPtr;
+		return *this;
+	};
+
+	SharedObject* operator->() const { return mPtr.get(); }
+
+	std::shared_ptr<SharedObject> mPtr;
+};
+class CORE_API PPtr
+{
+public:
+	PPtr() noexcept
 	{
 		//SubPtr必须拥有Parent
 		assert(0);
 	}
 
-	LSubPtr(const LSubPtr &rv)
+	explicit PPtr(LObject* Parent);
+
+	PPtr(const PPtr& rv) :
+		mInstanceID(rv.mInstanceID)
 	{
-		assert(0);
+		
 	};
 
-	LSubPtr(const LSubPtr &&rv) noexcept
-		:mPPtr(rv.mPPtr),
-		mParent(rv.mParent)
+	PPtr(const PPtr&& rv) noexcept :
+		mInstanceID(rv.mInstanceID)
 	{
 
 	};
 
-	explicit LSubPtr(LObject *Parent);
-
-	~LSubPtr();
-
-public:
-	LSubPtr& operator=(const LSubPtr & value)
+	PPtr& operator=(const PPtr& value)
 	{
-		if (value.mPPtr)
-			mPPtr = value.mPPtr;
+		if (value.mInstanceID)
+			mInstanceID = value.mInstanceID;
 		else
-			mPPtr = nullptr;
+			mInstanceID = 0;
 		return *this;
 	};
 
-	//待定
-	LObject* Get()
-	{
-		return mPPtr;
-	}
+	~PPtr();
 
-	LSubPtr& operator=(LObject *val);
+public:
+
+	//待定
+	LObject* Get();
+
+	PPtr& operator=(LObject *val);
 
 	void SetPtr(LObject *val);
 
 protected:
-	LObject *mPPtr = nullptr;
+	size_t mInstanceID = 0;
 	LObject *mParent = nullptr;
 
 };
 
 
 template<typename T>
-class TSubPtr : public LSubPtr
+class TPPtr : public PPtr
 {
 public:
-	TSubPtr()
+	TPPtr()
 	{
 		assert(0);
 	}
-	explicit TSubPtr(LObject *Parent) : LSubPtr(Parent)
+
+	explicit TPPtr(LObject *Parent) : PPtr(Parent)
 	{
 		
 	}
-	TSubPtr(const TSubPtr && val) noexcept : LSubPtr(std::move(val))
+
+	TPPtr(const TPPtr && val) noexcept : PPtr(std::move(val))
 	{
 		//static_assert(std::is_base_of<LObject, T>::value, "T should inherit from LObject");
 	};
-	TSubPtr(const TSubPtr &)
+
+	TPPtr(const TPPtr &)
 	{
 		assert(0);
 	}
-	void operator=(const TSubPtr & val)
+
+	TPPtr& operator=(const TPPtr & val)
 	{
-		SetPtr(val.mPPtr);
+		PPtr::operator=(val);
+		return *this;
 	}
 
-	~TSubPtr() = default;
+	~TPPtr() = default;
 	//待定
 	T* Get() const
 	{
-		return static_cast<T*>(mPPtr);
+		return static_cast<T*>(T::InstanceIDToObject(mInstanceID));
 	};
 
 	explicit operator bool() const noexcept
 	{
-		return mPPtr != nullptr;
+		return mInstanceID != 0;
 	}
 
 	void operator=(T *val)
@@ -112,134 +146,81 @@ public:
 		SetPtr(static_cast<LObject*>(val));
 	}
 
-	T *operator->() const throw() { return static_cast<T *>(mPPtr); }
+	T *operator->() const throw() { return static_cast<T *>(T::InstanceIDToObject(mInstanceID)); }
 
 };
 
-template<typename T>
-class TPPtr
-{
-public:
-	TPPtr(T *ptr) noexcept
-	{
-		static_assert(std::is_base_of<LObject, T>::value, "T should inherit from LObject");
-	}
-
-	TPPtr(TPPtr&& rv) noexcept : mInstanceID(rv.mInstanceID) {};
-
-	TPPtr(TPPtr&rv) noexcept : mInstanceID(rv.mInstanceID)
-	{
-	}
-
-	TPPtr() noexcept = default;
-
-	void operator=(T *val) noexcept
-	{
-		if (val && mInstanceID == val->GetInstanceID())
-			return;
-
-		
-		if (val)
-		{
-			mInstanceID = val->GetInstanceID();
-		}
-		else
-		{
-			mInstanceID = 0;
-		}			
-	}
-
-	T* operator*() const noexcept { return T::InstanceIDToObject(mInstanceID); }
-
-	void operator=(const TPPtr& val) noexcept
-	{
-		if (mInstanceID == val.mInstanceID)
-			return;
-
-		mInstanceID = val.mInstanceID;
-
-	}
-
-	T* get() noexcept { return  T::InstanceIDToObject(mInstanceID); }
-
-	~TPPtr() noexcept
-	{
-		mInstanceID = 0;
-	}
-
-	size_t mInstanceID = 0;	
-};
 
 template<typename T>
-class TSubPtrArray
+class TPPtrArray
 {
 private:
-	luna::LObject* m_parent = nullptr;
-	std::vector<TSubPtr<T>> m_container;
+	LObject* mReferencer = nullptr;
+	std::vector<TPPtr<T>> mArray;
 public:
 
-	inline std::vector<TSubPtr<T>>::iterator begin()
+	inline std::vector<TPPtr<T>>::iterator begin()
 	{
-		return m_container.begin();
+		return mArray.begin();
 	}
 
-	inline std::vector<TSubPtr<T>>::iterator end()
+	inline std::vector<TPPtr<T>>::iterator end()
 	{
-		return m_container.end();
+		return mArray.end();
 	}
 
-	inline std::vector<TSubPtr<T>>::const_iterator begin() const
+	inline std::vector<TPPtr<T>>::const_iterator begin() const
 	{
-		return m_container.begin();
+		return mArray.begin();
 	}
 
-	inline std::vector<TSubPtr<T>>::const_iterator end() const
+	inline std::vector<TPPtr<T>>::const_iterator end() const
 	{
-		return m_container.end();
+		return mArray.end();
 	}
 
-	TSubPtrArray()
+	TPPtrArray()
 	{
 		assert(0);
 	}
 
-	explicit TSubPtrArray(LObject* parent) :
-		m_parent(parent)
+	explicit TPPtrArray(LObject* referencer) :
+		mReferencer(referencer)
 	{
 
 	}
 
-	void operator=(const TSubPtrArray<T>& rv)
+	void operator=(const TPPtrArray<T>& rv)
 	{
-		m_container = rv.m_container;
+		mArray = rv.mArray;
 	}
 
-	void PushBack(T* val)
+	inline void PushBack(T* val)
 	{
-		m_container.emplace_back(m_parent).SetPtr(val);
+		mArray.emplace_back(mReferencer).SetPtr(val);
 	}
 
 	void Erase(T* val)
 	{
-		for (auto it = m_container.begin(); it != m_container.end(); it++)
+		for (auto it = mArray.begin(); it != mArray.end(); it++)
 		{
 			if (it->Get() == val)
 			{
-				m_container.erase(it);
+				mArray.erase(it);
 				break;
 			}
 		}
 
 	}
 
-	size_t Size() const
+	inline size_t Size() const
 	{
-		return m_container.size();
+		return mArray.size();
 	}
 
 	T* operator[](size_t index) const
 	{
-		return m_container[index].Get();
+		return mArray[index].Get();
 	}
 
 };

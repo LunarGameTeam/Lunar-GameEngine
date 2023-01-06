@@ -11,7 +11,10 @@ RegisterTypeEmbedd_Imp(Scene)
 {
 	cls->Ctor<Scene>();
 	cls->BindingProperty<&Self::m_main_light>("main_light");
-	cls->Property<&Self::mEntites>("entities");
+
+	cls->Property<&Self::mEntites>("entities")
+		.Serialize();
+
 	cls->BindingMethod<&Scene::FindEntity>("find_entity");
 	cls->BindingMethod<&Scene::GetEntityAt>("get_entity_at");
 	cls->BindingMethod<&Scene::GetEntityCount>("get_entity_count");
@@ -28,7 +31,7 @@ Scene::Scene() :
 
 Entity *Scene::FindEntity(const LString &name)
 {
-	for (TSubPtr<Entity> &entity : mEntites)
+	for (auto& entity : mEntites)
 	{
 		if (entity->GetObjectName() == name)
 			return entity.Get();
@@ -52,16 +55,16 @@ void Scene::SetMainDirectionLight(DirectionLightComponent *light)
 	m_main_light = light;
 }
 
-const TSubPtrArray<Entity>& Scene::GetAllEntities()
+const TPPtrArray<Entity>& Scene::GetAllEntities()
 {
 	return mEntites;
 };
 
 void Scene::Tick(float deltaTime)
 {
-	for (TSubPtr<Entity>& entity : mEntites)
+	for (auto& entity : mEntites)
 	{
-		for (TSubPtr<Component>& comp : entity->m_components)
+		for (auto& comp : entity->m_components)
 		{
 			if (comp->mNeedTick)
 			{
@@ -78,15 +81,15 @@ DirectionLightComponent* Scene::GetMainDirectionLight()
 
 void Scene::OnLoad()
 {
-	for (TSubPtr<Entity>& entity : mEntites)
+	for (auto& entity : mEntites)
 	{
 		entity->mScene = this;
 		entity->OnCreate();		
 	}
-	for (TSubPtr<Entity>& entity : mEntites)
+	for (auto& entity : mEntites)
 	{
 		entity->SetParent(this);
-		for (TSubPtr<Component>& comp : entity->m_components)
+		for (auto& comp : entity->m_components)
 		{
 			comp->mOwnerEntity = entity.Get();
 			comp->SetParent(entity.Get());

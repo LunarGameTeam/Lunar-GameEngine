@@ -6,20 +6,20 @@
 namespace luna
 {
 
-RegisterTypeEmbedd_Imp(LJsonAsset)
+RegisterTypeEmbedd_Imp(JsonAsset)
 {
 	cls->Binding<Self>();
 	BindingModule::Get("luna")->AddType(cls);
 
-	cls->Ctor<LJsonAsset>();
+	cls->Ctor<JsonAsset>();
 
 };
 
-LJsonAsset::~LJsonAsset()
+JsonAsset::~JsonAsset()
 {
 }
 
-void LJsonAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file)
+void JsonAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file)
 {
 	Json::Value val;
 	assert(Dictionary::FromBinary(file->GetData().data(), file->GetData().size(), val));
@@ -29,7 +29,7 @@ void LJsonAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> 
 	OnLoad();
 }
 
-void LJsonAsset::OnAssetFileWrite(LSharedPtr<Dictionary> meta, LArray<byte>& data)
+void JsonAsset::OnAssetFileWrite(LSharedPtr<Dictionary> meta, LArray<byte>& data)
 {
 	Json::Value root;
 	Dictionary dict(root);	

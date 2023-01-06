@@ -7,26 +7,27 @@
 namespace luna
 {
 
-LObject** s_NullPtr = nullptr;
-
-LSubPtr::LSubPtr(LObject *parent) :
+PPtr::PPtr(LObject *parent) :
 	mParent(parent)
 {
 }
 
-LSubPtr::~LSubPtr()
+PPtr::~PPtr()
 {
-	if (mPPtr != nullptr)
-		mPPtr = nullptr;
+	mInstanceID = 0;
 };
 
-void LSubPtr::SetPtr(LObject *val)
+LObject* PPtr::Get()
 {
-	mPPtr = val;
+	return LObject::InstanceIDToObject(mInstanceID);
 }
 
+void PPtr::SetPtr(LObject *val)
+{
+	mInstanceID = val->GetInstanceID();
+}
 
-LSubPtr& LSubPtr::operator=(LObject *val)
+PPtr& PPtr::operator=(LObject *val)
 {
 	SetPtr(val);
 	return *this;

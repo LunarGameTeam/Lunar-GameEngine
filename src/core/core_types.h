@@ -8,9 +8,10 @@ namespace luna
 class LObject;
 
 class LString;
-class LBasicAsset;
-class LJsonAsset;
+class Asset;
+class JsonAsset;
 class LBinaryAsset;
+class Serializer;
 class AssetModule;
 
 
@@ -19,7 +20,7 @@ class EventModule;
 
 
 /* Memory */
-class LSubPtr;
+class PPtr;
 
 
 /* Reflection */

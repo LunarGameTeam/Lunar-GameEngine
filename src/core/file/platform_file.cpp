@@ -196,7 +196,6 @@ LSharedPtr<LFile> WindowsFileManager::WriteSync(const LPath &path, const LArray<
 	{
 		fileHandle = ::CreateFileA(path.AsEnginePathString(), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, NULL, NULL);
 		file->mPath = path.AsEnginePathString();
-		return file;
 	}
 	DWORD size = (DWORD)data.size();
 	file->mData = data;

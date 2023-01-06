@@ -8,11 +8,13 @@ namespace luna
 {
 
 RegisterTypeEmbedd_Imp(LightComponent)
-{
-	cls->Binding<Self>();
-	BindingModule::Get("luna")->AddType(cls);
+{	
 	cls->Ctor<LightComponent>();
-	cls->BindingProperty<&Self::m_color>("color");
+	cls->Binding<Self>();
+
+	cls->BindingProperty<&Self::m_color>("color")
+		.Serialize();
+	BindingModule::Get("luna")->AddType(cls);
 };
 
 RegisterTypeEmbedd_Imp(DirectionLightComponent)

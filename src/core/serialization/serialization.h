@@ -26,7 +26,16 @@ struct FileIDManager
 	FileID mMax = 1;
 };
 
-class CORE_API JsonSerializer : public ISerializer
+//默认Json
+class CORE_API Serializer
+{
+public:
+	virtual bool DeSerialize(LObject* obj) = 0;
+	virtual bool Serialize(LObject* obj) = 0;
+};
+
+
+class CORE_API JsonSerializer : public Serializer
 {
 public:
 	JsonSerializer(luna::Dictionary &_dict) :

@@ -30,7 +30,7 @@ LType::LType(const LString &name, size_t size, LType *base)
 
 bool LType::IsSubPtrArray()
 {
-	return mBase == LType::Get<SubPtrArray>();
+	return mBase == LType::Get<PPtrArray>();
 }
 
 bool LType::IsDerivedFrom(LType* base)
@@ -49,7 +49,7 @@ bool LType::IsDerivedFrom(LType* base)
 
 bool LType::IsAsset()
 {
-	return IsDerivedFrom(LType::Get<LBasicAsset>());
+	return IsDerivedFrom(LType::Get<Asset>());
 }
 
 bool LType::IsObject()

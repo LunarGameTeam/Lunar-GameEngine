@@ -11,8 +11,8 @@ RegisterTypeEmbedd_Imp(PanelBase)
 {	
 	cls->Ctor<PanelBase>();
 	cls->BindingMethod<&PanelBase::OnGUI>("on_imgui");
-	cls->BindingMethod<&PanelBase::CustomTreeNode>("custom_treenode");
 	cls->BindingProperty<&PanelBase::mTitle>("title");
+	cls->BindingProperty<&PanelBase::mHasMenu>("has_menubar");
 	cls->Binding<PanelBase>();
 	BindingModule::Get("luna.editor")->AddType(cls);
 };

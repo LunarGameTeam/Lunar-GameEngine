@@ -71,7 +71,7 @@ private:
 	LunaCore();
 	bool mPendingExit = false;
 
-	TSubPtrArray<LModule> mModules;
+	TPPtrArray<LModule> mModules;
 	LArray<LModule*> mOrderedModules;
 	LUnorderedMap<luna::LString, LModule* > mModulesMap;
 

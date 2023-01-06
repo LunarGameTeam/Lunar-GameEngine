@@ -13,9 +13,9 @@ namespace luna
 
 class DirectionLightComponent;
 
-class ENGINE_API Scene : public LJsonAsset
+class ENGINE_API Scene : public JsonAsset
 {
-	RegisterTypeEmbedd(Scene, LJsonAsset)
+	RegisterTypeEmbedd(Scene, JsonAsset)
 public:
 	Scene();
 
@@ -25,7 +25,7 @@ public:
 	void SetMainDirectionLight(DirectionLightComponent *light);
 	DirectionLightComponent* GetMainDirectionLight();
 
-	const TSubPtrArray<Entity>& GetAllEntities();
+	const TPPtrArray<Entity>& GetAllEntities();
 
 	uint32_t GetEntityCount()
 	{
@@ -50,7 +50,7 @@ private:
 	bool mInit = false;
 	render::RenderScene* mRenderScene;
 	DirectionLightComponent* m_main_light;
-	TSubPtrArray<Entity> mEntites;
+	TPPtrArray<Entity> mEntites;
 
 	friend class SceneModule;
 };

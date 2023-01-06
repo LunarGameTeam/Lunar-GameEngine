@@ -3,6 +3,8 @@
       {
          "__class__" : "TextureCube",
          "__fid__" : 1,
+         "__index__" : 0,
+         "__parent__" : 0,
          "name" : "",
          "textures" : [
             "/assets/built-in/skybox/SkyBox1.png",
@@ -10,7 +12,8 @@
             "/assets/built-in/skybox/SkyBox4.png",
             "/assets/built-in/skybox/SkyBox5.png",
             "/assets/built-in/skybox/SkyBox0.png",
-            "/assets/built-in/skybox/SkyBox2.png"]
+            "/assets/built-in/skybox/SkyBox2.png"
+         ]
       }
    ]
 }

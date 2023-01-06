@@ -39,7 +39,7 @@ class EditorBase(object):
         if prop_name == "name":
             return
         val = getattr(comp, prop_name)
-        if issubclass(prop_type, luna.LBasicAsset):
+        if issubclass(prop_type, luna.Asset):
             luna.imgui.align_text_to_frame_padding()
             luna.imgui.text(prop_name)
             imgui.same_line(16 + self.indent, 16)
@@ -136,7 +136,6 @@ class ComponentEditor(EditorBase):
                 self.imgui_obj_property(self.target, prop.name, prop.type)
             imgui.tree_pop()
         luna.imgui.separator()
-
 
 
 @register_type_editor

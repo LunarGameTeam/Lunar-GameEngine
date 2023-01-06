@@ -3,21 +3,37 @@
       {
          "__class__" : "MaterialTemplateAsset",
          "__fid__" : 1,
+         "__index__" : 0,
+         "__parent__" : 0,
          "name" : "",
-         "params" : [ 5, 4, 3, 2 ],
+         "params" : [ 2, 3, 4, 5 ],
          "shader" : "/assets/built-in/pbr.hlsl"
       },
       {
-         "__class__" : "MaterialParamFloat",
+         "__class__" : "MaterialParamTexture2D",
          "__fid__" : 2,
+         "__index__" : 3,
+         "__parent__" : 1,
          "name" : "",
-         "param_name" : "_Roughness",
+         "param_name" : "_MainTex",
+         "texture" : "/assets/built-in/white.png",
+         "type" : 5
+      },
+      {
+         "__class__" : "MaterialParamFloat",
+         "__fid__" : 3,
+         "__index__" : 2,
+         "__parent__" : 1,
+         "name" : "",
+         "param_name" : "_Metallic",
          "type" : 1,
          "value" : 0.10000000149011612
       },
       {
          "__class__" : "MaterialParamFloat3",
-         "__fid__" : 3,
+         "__fid__" : 4,
+         "__index__" : 1,
+         "__parent__" : 1,
          "name" : "",
          "param_name" : "_AlebdoColor",
          "type" : 3,
@@ -25,19 +41,13 @@
       },
       {
          "__class__" : "MaterialParamFloat",
-         "__fid__" : 4,
+         "__fid__" : 5,
+         "__index__" : 0,
+         "__parent__" : 1,
          "name" : "",
-         "param_name" : "_Metallic",
+         "param_name" : "_Roughness",
          "type" : 1,
          "value" : 0.10000000149011612
-      },
-      {
-         "__class__" : "MaterialParamTexture2D",
-         "__fid__" : 5,
-         "name" : "",
-         "param_name" : "_MainTex",
-         "texture" : "/assets/built-in/white.png",
-         "type" : 5
       }
    ]
 }

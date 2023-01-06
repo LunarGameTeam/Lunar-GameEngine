@@ -48,7 +48,7 @@ void AssetModule::Tick(float delta_time)
 {
 }
 
-bool AssetModule::SaveAsset(LBasicAsset *asset, const LString &path)
+bool AssetModule::SaveAsset(Asset *asset, const LString &path)
 {
 	IPlatformFileManager *manager = gEngine->GetModule<PlatformModule>()->GetPlatformFileManager();
 	LArray<byte> data;
@@ -59,17 +59,17 @@ bool AssetModule::SaveAsset(LBasicAsset *asset, const LString &path)
 	return true;
 }
 
-LBasicAsset *AssetModule::LoadAsset(const LPath &path, LType *asset_type)
+Asset *AssetModule::LoadAsset(const LPath &path, LType *asset_type)
 {
 	ScopedProfileGuard g(LString::Format("Load {0}", path.AsString()));
-	assert(asset_type->IsDerivedFrom(LType::Get<LBasicAsset>()));
+	assert(asset_type->IsDerivedFrom(LType::Get<Asset>()));
 	static IPlatformFileManager *manager = gEngine->GetModule<PlatformModule>()->GetPlatformFileManager();
 
 	if (mCachedAssets.find(path.AsString()) != mCachedAssets.end())
 	{
 		return mCachedAssets[path.AsString()]->asset.get();
 	}
-	LSharedPtr<LBasicAsset> asset(asset_type->NewInstance<LBasicAsset>());
+	LSharedPtr<Asset> asset(asset_type->NewInstance<Asset>());
 	asset->mAssetPath = path.AsString();
 	
 	
@@ -91,7 +91,7 @@ LBasicAsset *AssetModule::LoadAsset(const LPath &path, LType *asset_type)
 	return asset.get();
 }
 
-LBasicAsset* AssetModule::BindingLoadAsset(const char* path, LType* asset_type)
+Asset* AssetModule::BindingLoadAsset(const char* path, LType* asset_type)
 {
 	return LoadAsset(path, asset_type);
 }

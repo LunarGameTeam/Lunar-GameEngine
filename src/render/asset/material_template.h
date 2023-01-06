@@ -13,21 +13,21 @@
 
 namespace luna::render
 {
-class RENDER_API MaterialTemplateAsset : public LJsonAsset
+class RENDER_API MaterialTemplateAsset : public JsonAsset
 {
-	RegisterTypeEmbedd(MaterialTemplateAsset, LJsonAsset)
+	RegisterTypeEmbedd(MaterialTemplateAsset, JsonAsset)
 
 public:
 	MaterialTemplateAsset();
 	ShaderAsset* GetShaderAsset() { return mShader.Get(); }
-	TSubPtrArray<MaterialParam>& GetAllParams() { return mTemplateParams; }
+	TPPtrArray<MaterialParam>& GetAllParams() { return mTemplateParams; }
 	MaterialInstance* CreateInstance();
 
 public:
 	void OnLoad() override;
 
 private:
-	TSubPtrArray<MaterialParam> mTemplateParams;
-	TSubPtr<ShaderAsset> mShader;
+	TPPtrArray<MaterialParam> mTemplateParams;
+	TPPtr<ShaderAsset> mShader;
 };
 }

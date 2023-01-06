@@ -93,7 +93,7 @@ public:
 		mParamType = MaterialParamType::Texture2D;
 	}
 
-	TSubPtr<Texture2D> mValue;
+	TPPtr<Texture2D> mValue;
 };
 
 
@@ -107,7 +107,7 @@ public:
 		mParamType = MaterialParamType::TextureCube;
 	}
 
-	TSubPtr<TextureCube> mValue;
+	TPPtr<TextureCube> mValue;
 };
 
 
@@ -135,7 +135,7 @@ public:
 
 	bool mReady = false;
 	LUnorderedMap<LString, size_t> mParamIndexMap;
-	TSubPtrArray<MaterialParam>& GetAllParams();
+	TPPtrArray<MaterialParam>& GetAllParams();
 
 	PackedParams* GetPackedParams() { return &mMaterialParams; }
 public:
@@ -144,10 +144,10 @@ public:
 	RHIResourcePtr mParamsBuffer;
 	RHIViewPtr mParamsView;
 
-	TSubPtrArray<MaterialParam> mOverrideParams;
-	TSubPtrArray<MaterialParam> mAllParams;
+	TPPtrArray<MaterialParam> mOverrideParams;
+	TPPtrArray<MaterialParam> mAllParams;
 
-	TSubPtr<MaterialTemplateAsset> mMaterialTemplate;
+	TPPtr<MaterialTemplateAsset> mMaterialTemplate;
 
 	
 };

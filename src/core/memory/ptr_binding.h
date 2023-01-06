@@ -10,21 +10,21 @@ namespace luna
 
 
 template<>
-struct static_type<LSubPtr>
+struct static_type<PPtr>
 {
 	static LType* StaticType()
 	{
-		static LType* type = NewType("LSubPtr", sizeof(LSubPtr), nullptr);
+		static LType* type = NewType("PPtr", sizeof(PPtr), nullptr);
 		return type;
 	}
 };
 
 template<typename T>
-struct static_type<TSubPtr<T>>
+struct static_type<TPPtr<T>>
 {
 	static LType* InitTSubPtrType()
 	{
-		LType* type = NewTemplateType<T>("TSubPtr", sizeof(TSubPtr<T>), LType::Get<LSubPtr>());
+		LType* type = NewTemplateType<T>("TPPtr", sizeof(TPPtr<T>), LType::Get<PPtr>());
 		type->mPyType = binding::binding_type<T>::StaticType();
 		return type;
 	}
@@ -36,27 +36,25 @@ struct static_type<TSubPtr<T>>
 };
 
 template<>
-struct static_type<SubPtrArray>
+struct static_type<PPtrArray>
 {
 	static LType* StaticType()
 	{
-		static LType* type = NewType("SubPtrArray", sizeof(SubPtrArray),
-									 nullptr);
+		static LType* type = NewType("PPtrArray", sizeof(PPtrArray), nullptr);
 		return type;
 	}
 };
 
 template<typename T>
-struct static_type<TSubPtrArray<T>>
+struct static_type<TPPtrArray<T>>
 {
 	static LType* InitTSubPtrType()
 	{
-		LType* type = NewTemplateType<T>("TSubPtrArray", sizeof(TSubPtrArray<T>), LType::Get<SubPtrArray>());
+		LType* type = NewTemplateType<T>("TPPtrArray", sizeof(TPPtrArray<T>), LType::Get<PPtrArray>());
 		Py_XINCREF(&PyList_Type);
 		type->mPyType = &PyList_Type;
 		return type;
 	}
-
 	static LType* StaticType()
 	{
 		static LType* type = InitTSubPtrType();

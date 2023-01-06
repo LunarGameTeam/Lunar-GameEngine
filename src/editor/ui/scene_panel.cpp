@@ -52,7 +52,7 @@ void ScenePanel::OnGUI()
 
 		if (scene)
 		{
-			const TSubPtrArray<Entity>& entities = scene->GetAllEntities();
+			const TPPtrArray<Entity>& entities = scene->GetAllEntities();
 			for (auto it = entities.begin(); it != entities.end(); ++it)
 			{
 				CameraComponent* cameraComp = it->Get()->GetComponent<CameraComponent>();

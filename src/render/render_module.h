@@ -104,7 +104,7 @@ protected:
 public:
 
 	RenderDevice* mRenderDevice;
-	TSubPtr<RenderTarget>     mMainRT;
+	TPPtr<RenderTarget>     mMainRT;
 
 	ImguiTexture* GetImguiTexture(const LString& key) { return &mImguiTextures[key]; }
 	ImguiTexture* AddImguiTexture(const LString& key, RHIResource* res);
@@ -114,7 +114,7 @@ private:
 	RenderDeviceType          mDeviceType = RenderDeviceType::DirectX12;
 
 
-	TSubPtrArray<RenderScene> mRenderScenes;	//主交换链
+	TPPtrArray<RenderScene> mRenderScenes;	//主交换链
 
 	LMap<LWindow*, RHISwapChainPtr> mSwapchains;
 

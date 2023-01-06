@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/object/base_object.h"
+#include "core/object/shared_object.h"
 #include "core/memory/ptr.h"
 #include "core/foundation/string.h"
 #include "core/foundation/container.h"
@@ -13,12 +13,12 @@ namespace luna
 {
 class AssetModule;
 
-class CORE_API LBasicAsset : public LObject
+class CORE_API Asset : public SharedObject
 {
-	RegisterTypeEmbedd(LBasicAsset, LObject)
+	RegisterTypeEmbedd(Asset, SharedObject)
 public:	
-	LBasicAsset();
-	virtual ~LBasicAsset();
+	Asset();
+	virtual ~Asset();
 
 public:
 	//Asset资源读入到内存时回调
@@ -38,9 +38,9 @@ private:
 	LString mAssetPath;//统一的Asset URL path
 };
 
-class CORE_API LBinaryAsset : public LBasicAsset
+class CORE_API LBinaryAsset : public Asset
 {
-	RegisterTypeEmbedd(LBinaryAsset, LBasicAsset)
+	RegisterTypeEmbedd(LBinaryAsset, Asset)
 public:
 	LBinaryAsset();
 	virtual ~LBinaryAsset()
@@ -58,11 +58,11 @@ private:
 	LSharedPtr<LFile> mData;
 };
 
-class CORE_API LTextAsset : public LBasicAsset
+class CORE_API TextAsset : public Asset
 {
-	RegisterTypeEmbedd(LTextAsset, LBasicAsset)
+	RegisterTypeEmbedd(TextAsset, Asset)
 public:
-	LTextAsset();
+	TextAsset();
 
 	const LString &GetContent() const
 	{

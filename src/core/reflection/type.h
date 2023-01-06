@@ -140,7 +140,7 @@ public:
 
 		LProperty& proerpty = mProperties[name];
 
-		proerpty.mIsSubPtr = std::is_base_of<luna::LSubPtr, member_raw_type>::value;
+		proerpty.mIsSubPtr = std::is_base_of<luna::PPtr, member_raw_type>::value;
 		proerpty.mType = LType::Get<member_raw_type>();
 		proerpty.SetPropertyName(name);
 

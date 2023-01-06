@@ -1,11 +1,14 @@
 #pragma once
 
 
+#include "core/core_types.h"
+
 #include "core/foundation/container.h"
 #include "core/memory/ptr.h"
 #include "core/reflection/type.h"
 #include "core/binding/binding_traits.h"
 #include "core/reflection/reflection.h"
+
 #include <memory>
 
 
@@ -17,26 +20,13 @@ struct  BindingLObject;
 namespace luna
 {
 
-class LType;
-class LObject;
-class AssetModule;
-
-//默认Json
-class CORE_API ISerializer
-{
-public:
-	virtual bool DeSerialize(LObject* obj) = 0;
-	virtual bool Serialize(LObject* obj)   = 0;
-};
-
-
 class CORE_API LObject
 {
 	RegisterTypeEmbedd(LObject, InvalidType)
+
 protected:
 	LObject();
-
-	virtual ~LObject() noexcept;
+	virtual ~LObject();
 
 public:
 	/// 
@@ -44,8 +34,8 @@ public:
 	/// 序列化反序列化
 	/// </summary>
 	/// 
-	virtual void Serialize(ISerializer& serializer);
-	virtual void DeSerialize(ISerializer& serializer);
+	virtual void Serialize(Serializer& serializer);
+	virtual void DeSerialize(Serializer& serializer);
 
 public:
 	/// 
@@ -163,8 +153,10 @@ ObjectType* TCreateObject()
 	ObjectType* obj = new ObjectType();
 	return obj;
 }
+
 }
 
+//Binding相关
 
 namespace luna::binding
 {
@@ -173,7 +165,7 @@ struct CORE_API BindingLObject  : public BindingObject
 {
 	TPPtr<LObject> ptr;
 
-	LObject* GetPtr() { return ptr.get(); }
+	LObject* GetPtr() { return ptr.Get(); }
 
 	BindingLObject()
 	{
@@ -238,7 +230,7 @@ struct binding_proxy<T, typename std::enable_if_t<std::is_base_of_v<LObject, T>>
 	static PyObject* raw_getter(PyObject* s, void* closure)
 	{
 		BindingLObject* o = ( BindingLObject*)(s);
-		LObject* obj = o->ptr.get();
+		LObject* obj = o->ptr.Get();
 		LProperty& prop = *(LProperty*)(closure);
 		size_t offset = prop.GetOffset();
 		M* mem_ptr = (M*)((char*)obj + offset);
@@ -250,7 +242,7 @@ struct binding_proxy<T, typename std::enable_if_t<std::is_base_of_v<LObject, T>>
 	static int raw_setter(PyObject* s, PyObject* val, void* closure)
 	{
 		BindingLObject* o = ( BindingLObject*)(s);
-		LObject* obj = o->ptr.get();
+		LObject* obj = o->ptr.Get();
 		LProperty& prop = *(LProperty*)(closure);
 		size_t offset = prop.GetOffset();
 		M* mem_ptr = (M*)((char*)obj + offset);
@@ -291,7 +283,7 @@ struct binding_converter<U*> : std::enable_if_t<std::is_base_of_v<LObject, U>>
 	inline static T* from_binding(PyObject* obj)
 	{
 		 BindingLObject* res = ( BindingLObject*)(obj);		
-		return (T*) res->ptr.get();
+		return (T*) res->ptr.Get();
 	}
 
 	static const char* binding_fullname()
@@ -302,38 +294,21 @@ struct binding_converter<U*> : std::enable_if_t<std::is_base_of_v<LObject, U>>
 };
 
 template<typename U>
-struct binding_converter<TSubPtr<U>>
+struct binding_converter<TPPtr<U>>
 {
 	using T = U;
 
-	inline static PyObject* to_binding(TSubPtr<U>& sub_ptr)
+	inline static PyObject* to_binding(TPPtr<U>& sub_ptr)
 	{
 		LObject* obj = sub_ptr.Get();
-		 BindingLObject* bindingObject;
-		if (obj)
-		{
-			if (obj->GetBindingObject())
-			{
-				Py_XINCREF(obj->GetBindingObject());
-				return (PyObject*)obj->GetBindingObject();
-			}
-			// first time to binding...
-			bindingObject = PyObject_New( BindingLObject, obj->GetClass()->GetBindingType());
-			obj->SetBindingObject((PyObject*)bindingObject);
-		}
-		else
-		{
-			bindingObject = PyObject_New( BindingLObject, LType::Get<T>()->mPyType);
-			memset(&bindingObject->ptr, 0, sizeof(TPPtr<LObject>));
-			bindingObject->ptr = obj;
-		}
+		BindingLObject* bindingObject = static_cast<BindingLObject*>(binding_converter<U*>::to_binding(obj));
 		return (PyObject*)bindingObject;
 	}
 
 	inline static T* from_binding(PyObject* obj)
 	{
-		 BindingLObject* res = ( BindingLObject*)(obj);
-		return (T*)res->ptr.get();
+		BindingLObject* res = ( BindingLObject*)(obj);
+		return (T*)res->ptr.Get();
 	}
 
 	static const char* binding_fullname()
@@ -343,10 +318,10 @@ struct binding_converter<TSubPtr<U>>
 };
 
 template<typename U>
-struct binding_converter<TSubPtrArray<U>>
+struct binding_converter<TPPtrArray<U>>
 {
 
-	inline static PyObject* to_binding(const TSubPtrArray<U>& array)
+	inline static PyObject* to_binding(const TPPtrArray<U>& array)
 	{
 		PyObject* res = PyList_New(array.Size());
 		for (auto& it: array)
@@ -356,10 +331,10 @@ struct binding_converter<TSubPtrArray<U>>
 		return (PyObject*)res;
 	}
 
-	inline static TSubPtrArray<U> from_binding(PyObject* obj)
+	inline static TPPtrArray<U> from_binding(PyObject* obj)
 	{
 		assert(false);
-		TSubPtrArray<U> u;
+		TPPtrArray<U> u;
 		return u;
 	}
 

@@ -44,7 +44,6 @@ bool JsonSerializer::Serialize(LObject *root)
 		top->ForEachSubObject([&](size_t idx, LObject* subobject)
 		{
 			toSerializeObjects.push(subobject);
-			allObjects.push_back(subobject);
 		});
 		LArray<LProperty*> properties;
 		LType* type = top->GetClass();
@@ -56,13 +55,13 @@ bool JsonSerializer::Serialize(LObject *root)
 			{
 				if (!propType->GetTemplateArg()->IsAsset())
 				{
-					LSubPtr& propRef = prop->GetValue<LSubPtr>(top);
+					PPtr& propRef = prop->GetValue<PPtr>(top);
 				}
 			}
 			else if (propType->IsSubPtrArray())
 			{
-				TSubPtrArray<LObject>& propValue = prop->GetValue<TSubPtrArray<LObject>>(top);
-				for (TSubPtr<LObject>& ptr : propValue)
+				TPPtrArray<LObject>& propValue = prop->GetValue<TPPtrArray<LObject>>(top);
+				for (auto& ptr : propValue)
 				{
 					LObject* aryElement = ptr.Get();
 				}
@@ -95,7 +94,7 @@ bool JsonSerializer::Serialize(LObject *root)
 }
 bool JsonSerializer::DeSerialize(LObject *obj)
 {
-	auto *asset = dynamic_cast<LBasicAsset *>(obj);
+	auto *asset = dynamic_cast<Asset *>(obj);
 	List list = mDict.GetList("objects");
 	std::vector<std::pair<LObject*, Dictionary>> datas;
 	for (int i = 0; i < list.Size(); ++i)
@@ -103,12 +102,20 @@ bool JsonSerializer::DeSerialize(LObject *obj)
 		Dictionary dict = list.GetDict(i);
 		LString typeName = dict.Get<LString>("__class__");
 		FileID fid = dict.Get<FileID>("__fid__");
+		FileID parentFid = dict.Get<FileID>("__parent__");
+		size_t index = dict.Get<size_t>("__index__");
 		LType* type = LType::Get(typeName);
 		LObject* element;
 		if (fid == 1)
 			element = obj;
 		else
+		{
 			element = NewObject<LObject>(type);
+			LObject* parent = mFileIDMap.Get(parentFid);
+			element->SetParent(parent);
+			auto newIndex = element->Index();
+			//assert(newIndex == index);
+		}
 		mFileIDMap.Set(fid, element);
 		datas.emplace_back(element, dict);
 	}
@@ -133,7 +140,7 @@ bool JsonSerializer::DeSerialize(LObject *obj)
 
 void JsonSerializer::SerializeProperty(LProperty& prop, LObject* target, Dictionary& dict)
 {
-	if (prop.CheckFlag(PropertyFlag::Transient))
+	if (!prop.CheckFlag(PropertyFlag::Serializable))
 		return;
 	static std::map<LType *, void(*)(LProperty &prop, LObject *target, Dictionary &dict)> helper = {
 		{LType::Get<float>(),  &PropertySerializeHelper<float>},
@@ -149,21 +156,21 @@ void JsonSerializer::SerializeProperty(LProperty& prop, LObject* target, Diction
 	{
 		if (propType->GetTemplateArg()->IsAsset())
 		{
-			LSubPtr &ptr = prop.GetValue<LSubPtr>(target);
+			PPtr &ptr = prop.GetValue<PPtr>(target);
 			if (ptr.Get() == nullptr)
 			{
 				dict.Set(prop.GetName(), "");
 			}
 			else
 			{
-				LBasicAsset *asset = dynamic_cast<LBasicAsset *>(ptr.Get());
+				Asset *asset = dynamic_cast<Asset *>(ptr.Get());
 				
 				dict.Set(prop.GetName(), asset->GetAssetPath());
 			}
 		}
 		else
 		{
-			LSubPtr &propRef = prop.GetValue<LSubPtr>(target);
+			PPtr &propRef = prop.GetValue<PPtr>(target);
 			JsonSerializer propSerializer(mDict);
 			if (propRef.Get())
 			{
@@ -173,22 +180,32 @@ void JsonSerializer::SerializeProperty(LProperty& prop, LObject* target, Diction
 	}
 	else if (propType->IsSubPtrArray())
 	{
-		TSubPtrArray<LObject> &propValue = prop.GetValue<TSubPtrArray<LObject>>(target);
+		TPPtrArray<LObject> &propValue = prop.GetValue<TPPtrArray<LObject>>(target);
 		List propList = dict.GetList(prop.GetName());
 		int index = 0;
 		propList.Resize(propValue.Size());
-		for (TSubPtr<LObject> &ptr : propValue)
+		for (auto& ptr : propValue)
 		{
 			Json::Value val;
 			Dictionary element_dict(val);
-			LObject *aryElement = ptr.Get();
 			JsonSerializer elementSerializer(mDict);
-			if (aryElement)
+			if (propType->GetTemplateArg()->IsAsset())
 			{
-				propList.Set(index, mFileIDMap.Get(aryElement));
+				Asset* aryElement = (Asset*)ptr.Get();
+				propList.Set(index, aryElement->GetAssetPath());
 			}
 			else
-				propList.Set(index, Json::nullValue);
+			{
+				LObject* aryElement = ptr.Get();
+				if (aryElement)
+				{
+					propList.Set(index, mFileIDMap.Get(aryElement));
+				}
+				else
+				{
+					propList.Set(index, 0);
+				}
+			}
 			index++;
 		}
 		dict.Set(prop.GetNameStr(), propList);
@@ -200,6 +217,8 @@ void JsonSerializer::SerializeProperty(LProperty& prop, LObject* target, Diction
 
 void JsonSerializer::DeserializeProperty(LProperty &prop, LObject *obj, Dictionary &dict)
 {
+	if (!prop.CheckFlag(PropertyFlag::Serializable))
+		return;
 	static std::map<LType *, void(*)(LProperty &prop, LObject *obj, Dictionary &dict)> helper = {
 		{LType::Get<float>(),  &PropertyDeserializeHelper<float>},
 		{LType::Get<int>(),  &PropertyDeserializeHelper<int>},
@@ -216,13 +235,13 @@ void JsonSerializer::DeserializeProperty(LProperty &prop, LObject *obj, Dictiona
 	Dictionary propDict = dict.GetDict(prop.GetNameStr());
 	if (prop.IsSubPointer())
 	{
-		if (type->GetTemplateArg()->IsDerivedFrom(LType::Get<LBasicAsset>()))
+		if (type->GetTemplateArg()->IsDerivedFrom(LType::Get<Asset>()))
 		{
-			LSubPtr &ptr = prop.GetValue<LSubPtr>(obj);
+			PPtr &ptr = prop.GetValue<PPtr>(obj);
 			LString assetPath = propDict.As<LString>();
 			if(assetPath != "")
 			{
-				LBasicAsset *asset = sAssetModule->LoadAsset(assetPath, type->GetTemplateArg());				
+				Asset *asset = sAssetModule->LoadAsset(assetPath, type->GetTemplateArg());				
 				ptr.SetPtr(asset);
 			}
 			else
@@ -230,7 +249,7 @@ void JsonSerializer::DeserializeProperty(LProperty &prop, LObject *obj, Dictiona
 		}
 		else 
 		{
-			LSubPtr &ptr = prop.GetValue<LSubPtr>(obj);
+			PPtr &ptr = prop.GetValue<PPtr>(obj);
 			FileID strUUID = propDict.As<FileID>();
 			ptr.SetPtr(mFileIDMap.Get(strUUID));
 			
@@ -239,13 +258,13 @@ void JsonSerializer::DeserializeProperty(LProperty &prop, LObject *obj, Dictiona
 	}
 	else if (type->IsSubPtrArray())
 	{
-		TSubPtrArray<LObject> &ary = prop.GetValue<TSubPtrArray<LObject>>(obj);
+		TPPtrArray<LObject> &ary = prop.GetValue<TPPtrArray<LObject>>(obj);
 		if (propDict)
 		{
 
 			List propList = propDict.As<List>();
 
-			if (type->GetTemplateArg()->IsDerivedFrom(LType::Get<LBasicAsset>()))
+			if (type->GetTemplateArg()->IsDerivedFrom(LType::Get<Asset>()))
 			{
 				for (int idx = 0; idx < propList.Size(); idx++)
 				{

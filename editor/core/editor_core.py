@@ -7,6 +7,11 @@ scene_module: 'luna.SceneModule' = luna.get_module(luna.SceneModule)
 platform_module: 'luna.PlatformModule' = luna.get_module(luna.PlatformModule)
 
 
+def update_asset(path, asset_type):
+    asset = asset_module.load_asset(path, asset_type)
+    asset_module.save_asset(asset, path)
+
+
 class EditorCore(object):
     _instance = None
 
@@ -19,6 +24,7 @@ class EditorCore(object):
         from ui.scene_panel import PyScenePanel
         from ui.library_panel import PyLibraryPanel
         from ui.imgui_demo import DemoPanel
+        from ui.main_panel import generate_doc_for_module
 
         global asset_module, scene_module, render_module, platform_module
 
@@ -36,8 +42,13 @@ class EditorCore(object):
         editor_module.register_panel(self.library_panel)
         editor_module.register_panel(self.inspector_panel)
         editor_module.register_panel(self.demo_panel)
-        from ui.main_panel import generate_doc_for_module
-        generate_doc_for_module(luna)
+
+        if False:
+            generate_doc_for_module(luna)
+            update_asset("/assets/test.scn", luna.Scene)
+            update_asset("/assets/built-in/skybox/skybox.mat", luna.MaterialTemplateAsset)
+            update_asset("/assets/built-in/skybox/sky_box.cubemap", luna.TextureCube)
+            update_asset("/assets/built-in/pbr.mat", luna.MaterialTemplateAsset)
 
     def init(self):
 

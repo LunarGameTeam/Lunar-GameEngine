@@ -12,8 +12,15 @@ namespace luna::render
 RegisterTypeEmbedd_Imp(MaterialTemplateAsset)
 {
 	cls->Ctor<MaterialTemplateAsset>();
-	cls->Property<&Self::mTemplateParams>("params");
-	cls->Property<&Self::mShader>("shader");
+
+	cls->Property<&Self::mTemplateParams>("params")
+		.Serialize();
+
+	cls->Property<&Self::mShader>("shader")
+		.Serialize();
+
+	cls->Binding<MaterialTemplateAsset>();
+	BindingModule::Get("luna")->AddType(cls);
 }
 
 MaterialTemplateAsset::MaterialTemplateAsset() :
@@ -25,7 +32,7 @@ MaterialTemplateAsset::MaterialTemplateAsset() :
 MaterialInstance* MaterialTemplateAsset::CreateInstance()
 {
 	MaterialInstance* mat = NewObject<MaterialInstance>();
-	for (TSubPtr<MaterialParam>& p : mTemplateParams)
+	for (auto& p : mTemplateParams)
 	{
 		auto& params = mat->GetAllParams();
 		params.PushBack(p.Get());
@@ -35,7 +42,10 @@ MaterialInstance* MaterialTemplateAsset::CreateInstance()
 
 void MaterialTemplateAsset::OnLoad()
 {
-
+	for (auto& it : mTemplateParams)
+	{
+		it->SetParent(this);
+	}
 }
 
 }

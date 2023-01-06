@@ -45,7 +45,7 @@ namespace luna
 class LType;
 class LObject;
 
-class CORE_API SubPtrArray
+class CORE_API PPtrArray
 {
 
 };

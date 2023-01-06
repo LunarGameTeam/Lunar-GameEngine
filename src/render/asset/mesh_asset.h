@@ -50,7 +50,7 @@ private:
 
 class RENDER_API MeshAsset : public LBinaryWithHeadAsset
 {
-	RegisterTypeEmbedd(MeshAsset, LBasicAsset)
+	RegisterTypeEmbedd(MeshAsset, Asset)
 public:
 	MeshAsset():
 		mSubMesh(this)
@@ -65,7 +65,7 @@ public:
 	{
 		return mSubMesh[index];
 	};
-	TSubPtrArray<SubMesh> mSubMesh;
+	TPPtrArray<SubMesh> mSubMesh;
 private:
 	bool m_ready = false;
 	void OnAssetBinaryRead(const byte* value) override;

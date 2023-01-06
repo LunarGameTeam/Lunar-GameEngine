@@ -3,6 +3,7 @@
 #include "core/reflection/type.h"
 #include "core/reflection/reflection.h"
 
+#include "core/serialization/serialization.h"
 #include "core/binding/binding_module.h"
 #include "core/memory/ptr.h"
 
@@ -34,6 +35,7 @@ RegisterTypeEmbedd_Imp(LObject)
 	cls->Ctor<LObject>();
 	cls->Binding<LObject>();
 	cls->BindingMethod<&GetPropertiese, MethodType::ClassFunction>("get_properties");
+
 	cls->BindingProperty<&LObject::mName>("name");
 
 	BindingModule::Get("luna")->AddType(cls);
@@ -64,8 +66,11 @@ void LObject::SetParent(LObject* parent)
 {
 	if (mParent != nullptr)
 		return;
+	if (mParent == parent)
+		return;
 	mParent = parent;
-	parent->mSubObjects.push_back(this);
+	if(parent)
+		parent->mSubObjects.push_back(this);
 }
 
 void LObject::ForEachSubObject(std::function<void(size_t, LObject*)> func)
@@ -99,12 +104,12 @@ LObject* LObject::GetParent()
 	return mParent;
 }
 
-void LObject::Serialize(ISerializer& serializer)
+void LObject::Serialize(Serializer& serializer)
 {
 	serializer.Serialize(this);
 }
 
-void LObject::DeSerialize(ISerializer& serializer)
+void LObject::DeSerialize(Serializer& serializer)
 {
 	serializer.DeSerialize(this);
 }

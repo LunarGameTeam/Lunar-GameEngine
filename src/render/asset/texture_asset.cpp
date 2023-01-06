@@ -15,15 +15,23 @@
 
 namespace luna::render
 {
+
 RegisterTypeEmbedd_Imp(Texture2D)
 {
-	cls->Ctor<Texture2D>();
+	cls->Ctor<Texture2D>(); 
+	cls->Binding<Texture2D>();
+	BindingModule::Luna()->AddType(cls);
 };
 
 RegisterTypeEmbedd_Imp(TextureCube)
 {
 	cls->Ctor<TextureCube>();
-	cls->Property<&Self::m_textures>("textures");
+	
+	cls->Property<&Self::mTextures>("textures")
+		.Serialize();
+
+	cls->Binding<TextureCube>();
+	BindingModule::Luna()->AddType(cls);
 };
 
 void ITexture::Release()
@@ -108,7 +116,7 @@ void Texture2D::CreateDescriptor()
 }
 
 TextureCube::TextureCube():
-	m_textures(this)
+	mTextures(this)
 {
 	m_fomat = RHITextureFormat::FORMAT_R8G8BB8A8_UNORM;
 }
@@ -123,7 +131,7 @@ void TextureCube::Init()
 
 	LArray<byte> init_datas;
 
-	for (TSubPtr<LBinaryAsset>& texture : m_textures)
+	for (auto& texture : mTextures)
 	{
 		auto file = texture->GetData();
 		int w, h, n;
@@ -164,7 +172,7 @@ void TextureCube::Init()
 
 void TextureCube::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file)
 {
-	LJsonAsset::OnAssetFileRead(meta, file);
+	JsonAsset::OnAssetFileRead(meta, file);
 	Init();
 }
 
@@ -182,4 +190,9 @@ void TextureCube::Release()
 {
 	free((void*)m_data);
 }
+
+void TextureCube::OnLoad()
+{
+}
+
 }

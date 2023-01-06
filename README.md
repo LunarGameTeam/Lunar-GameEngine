@@ -13,28 +13,36 @@ Lunar GameEngie是几个渣渣业余写的基于C++的游戏引擎。
 
 **To The Moon and Beyond!**
 
+
+
+# 更新日志
+
+## 2022.12 Updates
+- 编辑器功能
+- 标准Python + luna.pyd库。支持Pycharm进行编写脚本，使用vcpkg管理三方库
+- 支持 Vulkan DirectX12 两个Device
+## 2023.1 TODO
+- 新版内存生命周期管理
+
+
 # 项目结构
 
-## 更新日志
-- 2022.7 更新启动，Install流程，现在是一个标准Python。支持Pycharm进行编写脚本。
-- 2022.8 更新子仓库，更新build脚本，移动工具到third-party文件夹
+对于资源文件，可以从引擎目录加载，也可以从项目目录加载，优先读写到项目目录
 
-## 目录结构
+## 引擎结构
 - assets (引擎内置资源/资源)
   - built-in/...  
 - sdk (第三方库)
-  - boost
-  - jsoncpp
-  - DirectXTex
-  - DirectXTK
   - ...
 - editor (编辑器代码)
-- log (日志 ignored)
+- log.txt (日志 ignored)
 - build (构建 ignored)
 - src (源码)
-- lib/bin (build后的二进制和库 ignored)
-- release (发布目录，包含完整引擎 ignored)
+- bin (build后的二进制和库 ignored)
 
+## 项目结构
+- assets
+  - ...
 
 ## 编译须知
 
@@ -46,25 +54,20 @@ https://www.autodesk.com/developer-network/platform-technologies/fbx-sdk-2020-2-
 
 cmake配置项中FBX_ROOT_DIR XXX/Autodesk/FBX/FBX SDK/2020.2.1
 
-
 C++标准：C++ 20
-Python版本：3.10
+Python版本：3.11
 CMake版本：3.24
+
 PyCharm：自选
 
 C++ VS启动项目：editor_exe
-
-Pycharm启动脚本：editor/main.py
+Pycharm 启动脚本：editor/main.py
 
 ## 工作目录
 
 工作目录：Lunar-GameEngine/
 
 ## 编码规范
-
-遵循Goole C++编码规范
-
-[Google C++ 编码规范](https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/naming/)
 
 - 文件名小写 
   - xxx_xxx.cpp 
@@ -76,10 +79,9 @@ Pycharm启动脚本：editor/main.py
   - GetAAA()
   - DoBBB()
 - 变量名
-  - xx_xx 参数
-  - m_xx_xx 成员
-  - s_xx_xx 静态成员
-  - g_xx_xx 全局
+  - aaBb 参数
+  - mAaBb 成员
+  - sAaBb 静态成员  
 
 
 

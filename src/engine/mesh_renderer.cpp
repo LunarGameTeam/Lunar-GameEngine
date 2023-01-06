@@ -11,8 +11,13 @@ RegisterTypeEmbedd_Imp(MeshRenderer)
 {
 	cls->Ctor<MeshRenderer>();
 	cls->Binding<Self>();
-	cls->BindingProperty<&Self::mObjAsset>("mesh");
-	cls->BindingProperty<&Self::mMaterialInstance>("material");
+
+	cls->BindingProperty<&Self::mObjAsset>("mesh")
+		.Serialize();
+
+	cls->BindingProperty<&Self::mMaterialInstance>("material")
+		.Serialize();
+
 	BindingModule::Luna()->AddType(cls);
 }
 

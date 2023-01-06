@@ -5,59 +5,59 @@
 namespace luna
 {
 
-RegisterTypeEmbedd_Imp(LBasicAsset)
+RegisterTypeEmbedd_Imp(Asset)
 {
 	cls->Ctor<Self>();
 	cls->BindingProperty<&Self::mAssetPath>("path");
+		
 	cls->Binding<Self>();
 
 	BindingModule::Get("luna")->AddType(cls);
 
 };
 
-LBasicAsset::LBasicAsset()
+Asset::Asset()
+{
+}
+
+Asset::~Asset()
+{
+}
+
+void Asset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file)
+{
+}
+
+void Asset::OnAssetFileWrite(LSharedPtr<Dictionary> meta, LArray<byte>& data)
+{
+}
+
+void Asset::OnAssetRelease()
 {
 
 }
 
-LBasicAsset::~LBasicAsset()
-{
-}
-
-void LBasicAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file)
-{
-}
-
-void LBasicAsset::OnAssetFileWrite(LSharedPtr<Dictionary> meta, LArray<byte>& data)
-{
-}
-
-void LBasicAsset::OnAssetRelease()
-{
-
-}
-
-LString LBasicAsset::GetAssetPath()
+LString Asset::GetAssetPath()
 {
 	return mAssetPath;
 }
 
-RegisterTypeEmbedd_Imp(LTextAsset)
+RegisterTypeEmbedd_Imp(TextAsset)
 {
 	cls->Binding<Self>();
 	BindingModule::Get("luna")->AddType(cls);
 
-	cls->Ctor<LTextAsset>();
+	cls->Ctor<TextAsset>();
 };
 
-LTextAsset::LTextAsset()
+TextAsset::TextAsset()
 {
 
 }
 
-void LTextAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file)
+void TextAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file)
 {
-	LBasicAsset::OnAssetFileRead(meta, file);
+	Asset::OnAssetFileRead(meta, file);
 	auto begin = (const char *)file->GetData().data();
 	mContent = LString(begin, begin + file->GetData().size());
 }
