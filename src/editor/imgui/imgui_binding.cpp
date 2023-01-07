@@ -15,10 +15,74 @@
 #include "editor/ui/icon_font.h"
 
 
+namespace luna
+{
+
+
+inline LVector2f ToVector2(const ImVec2& val)
+{
+	return LVector2f(val.x, val.y);
+}
+
+inline ImVec2 ToVec2(const LVector2f& val)
+{
+	return ImVec2(val.x(), val.y());
+}
+
+inline LVector4f ToVector4(const ImVec4& val)
+{
+	return LVector4f(val.x, val.y, val.z, val.w);
+}
+
+
+inline ImVec4 ToVec4(const LVector4f& val)
+{
+	return ImVec4(val.x(), val.y(), val.z(), val.w());
+}
+
+}
 
 namespace luna::binding
 {
 
+
+template<>
+struct binding_converter<ImVec2>
+{
+	inline static PyObject* to_binding(const ImVec2& val)
+	{		
+		return binding_converter<LVector2f>::to_binding(ToVector2(val));
+	}
+
+	inline static ImVec2 from_binding(PyObject* val)
+	{		
+		return ToVec2(binding_converter<LVector2f>::from_binding(val));
+	}
+
+	static const char* binding_fullname()
+	{
+		return "luna.LVector2f";
+	}
+};
+
+template<>
+struct binding_converter<ImVec4>
+{
+	inline static PyObject* to_binding(const ImVec4& val)
+	{
+		return binding_converter<LVector4f>::to_binding(ToVector4(val));
+	}
+
+	inline static ImVec4 from_binding(PyObject* val)
+	{
+		return ToVec4(binding_converter<LVector4f>::from_binding(val));
+	}
+
+	static const char* binding_fullname()
+	{
+		return "luna.LVector4f";
+	}
+};
 
 template<>
 struct binding_converter<const ImGuiPayload*>
@@ -51,22 +115,11 @@ struct binding_converter<const ImGuiPayload*>
 namespace luna
 {
 
-
 struct InputTextCallback_UserData
 {
 	LString Str;
 	ImGuiInputTextCallback ChainCallback;
 };
-
-inline ImVec2 ToVec2(const LVector2f& val)
-{
-	return ImVec2(val.x(), val.y());
-}
-
-inline ImVec4 ToVec4(const LVector4f& val)
-{
-	return ImVec4(val.x(), val.y(), val.z(), val.w());
-}
 
 int InputTextCallback(ImGuiInputTextCallbackData* data)
 {
@@ -97,16 +150,6 @@ PyObject* InputLString(const char* id,const LString& str, ImGuiInputTextFlags fl
 	PyTuple_SetItem(ret_args, 0, to_binding(changed));
 	PyTuple_SetItem(ret_args, 1, new_val);
 	return ret_args;
-}
-
-LVector2f ToVector2(const ImVec2& val) 
-{
-	return LVector2f(val.x, val.y);
-}
-
-ImVec2 FromVector2(const LVector2f& val)
-{
-	return ImVec2(val.x(), val.y());
 }
 
 static bool PyMenuItem(const char* label) { return ImGui::MenuItem(label); }
@@ -219,11 +262,6 @@ bool PySetDragDropPayload(const char* type, PyObject* data, ImGuiCond cond)
 	return ImGui::SetDragDropPayload(type, &data, sizeof(PyObject*), cond);
 }
 
-LVector2f PyGetContent()
-{
-	return ToVector2(ImGui::GetContentRegionAvail());
-}
-
 const ImGuiPayload* PyAcceptDragDropPayload(const char* type, ImGuiDragDropFlags flags /* = 0 */)
 {
 	const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(type, flags);
@@ -260,6 +298,12 @@ STATIC_INIT(imgui)
 			ImGui::ShowDemoWindow(nullptr);
 		}>("show_demo_window");
 
+		imguiModule->AddMethod<&ImGui::GetWindowContentRegionMin> ("get_window_content_min");
+		imguiModule->AddMethod<&ImGui::GetWindowContentRegionMax>("get_window_content_max");
+		
+		imguiModule->AddMethod<&ImGui::IsMouseHoveringRect>("is_mouse_hovering_rect");
+		imguiModule->AddMethod<&ImGui::ResetMouseDragDelta>("reset_mouse_drag_delta");
+
 		imguiModule->AddMethod<&ImGui::BeginMenuBar>("begin_menu_bar");
 		imguiModule->AddMethod<&ImGui::EndMenuBar>("end_menu_bar");
 		imguiModule->AddMethod<&ImGui::BeginMenu>("begin_menu");
@@ -280,8 +324,8 @@ STATIC_INIT(imgui)
 		imguiModule->AddMethod<&PyText>("text");
 		imguiModule->AddMethod<&PyButton>("button");
 		
-		imguiModule->AddMethod<&PyCalcTextSize>("calc_text_size");
-		imguiModule->AddMethod<&PyGetContent>("get_content_region_avail");
+		imguiModule->AddMethod<&ImGui::CalcTextSize>("calc_text_size");
+		imguiModule->AddMethod<&ImGui::GetContentRegionAvail>("get_content_region_avail");
 
 
 		imguiModule->AddMethod<&PyDragFloat3>("drag_float3");
@@ -292,7 +336,7 @@ STATIC_INIT(imgui)
 		imguiModule->AddMethod<&ImGui::EndDragDropSource>("end_drag_drop_souce");
 		imguiModule->AddMethod<&ImGui::BeginDragDropTarget>("begin_drag_drop_target");
 		imguiModule->AddMethod<&ImGui::EndDragDropTarget>("end_drag_drop_target");
-		imguiModule->AddMethod<&PyAcceptDragDropPayload>("accept_drag_drop_payload");
+		imguiModule->AddMethod<&ImGui::AcceptDragDropPayload>("accept_drag_drop_payload");
 		imguiModule->AddMethod<&PySetDragDropPayload>("set_drag_drop_payload");
 
 

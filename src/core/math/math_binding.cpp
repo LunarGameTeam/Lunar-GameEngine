@@ -69,6 +69,28 @@ static void set_w(T* self, float val)
 	self->w() = val;
 }
 
+RegisterType_Imp(LVector2f, LVector2f)
+{
+	cls->Binding<LVector2f>();
+	cls->VirtualProperty("x")
+		.Getter<get_x<LVector2f>>()
+		.Setter<set_x<LVector2f>>()
+		.Binding<LVector2f, float>();
+	cls->VirtualProperty("y")
+		.Getter<get_y<LVector2f>>()
+		.Setter<set_y<LVector2f>>()
+		.Binding<LVector2f, float>();
+
+	cls->GetExtraDocs().push_back("def __init__(self, x: float, y: float):\n\tpass");
+
+	PyTypeObject* typeobject = cls->GetBindingType();
+	static PyNumberMethods methods;
+	methods.nb_add = (binaryfunc)__add__<LVector2f>;
+	typeobject->tp_as_number = &methods;
+
+	BindingModule::Luna()->AddType(cls);
+}
+
 RegisterType_Imp(LVector3f, LVector3f)
 {
 	cls->Binding<LVector3f>();
@@ -95,23 +117,31 @@ RegisterType_Imp(LVector3f, LVector3f)
 	BindingModule::Luna()->AddType(cls);
 }
 
-RegisterType_Imp(LVector2f, LVector2f)
+RegisterType_Imp(LVector4f, LVector4f)
 {
-	cls->Binding<LVector2f>();
+	cls->Binding<LVector4f>();
 	cls->VirtualProperty("x")
-		.Getter<get_x<LVector2f>>()
-		.Setter<set_x<LVector2f>>()
-		.Binding<LVector2f, float>();
+		.Getter<get_x<LVector4f>>()
+		.Setter<set_x<LVector4f>>()
+		.Binding<LVector4f, float>();
 	cls->VirtualProperty("y")
-		.Getter<get_y<LVector2f>>()
-		.Setter<set_y<LVector2f>>()
-		.Binding<LVector2f, float>();	
+		.Getter<get_y<LVector4f>>()
+		.Setter<set_y<LVector4f>>()
+		.Binding<LVector4f, float>();
+	cls->VirtualProperty("z")
+		.Getter<get_z<LVector4f>>()
+		.Setter<set_z<LVector4f>>()
+		.Binding<LVector4f, float>();
+	cls->VirtualProperty("w")
+		.Getter<get_w<LVector4f>>()
+		.Setter<set_w<LVector4f>>()
+		.Binding<LVector4f, float>();
 
-	cls->GetExtraDocs().push_back("def __init__(self, x: float, y: float):\n\tpass");
+	cls->GetExtraDocs().push_back("def __init__(self, x: float, y: float, z: float, w: float):\n\tpass");
 
 	PyTypeObject* typeobject = cls->GetBindingType();
 	static PyNumberMethods methods;
-	methods.nb_add = (binaryfunc)__add__<LVector2f>;
+	methods.nb_add = (binaryfunc)__add__<LVector3f>;
 	typeobject->tp_as_number = &methods;
 
 	BindingModule::Luna()->AddType(cls);
