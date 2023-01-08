@@ -424,6 +424,7 @@ struct binding_converter<unsigned int>
 	}
 	inline static unsigned int from_binding(PyObject* obj)
 	{
+		assert(PyLong_Check(obj));
 		unsigned int res = PyLong_AsLong(obj);
 		return res;
 	}

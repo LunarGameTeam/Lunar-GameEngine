@@ -18,6 +18,7 @@ struct binding_proxy_base
 	static constexpr allocfunc get_allocfunc = nullptr;
 	static constexpr binaryfunc get_multiply = nullptr;
 	static constexpr binaryfunc get_add = nullptr;
+	static constexpr richcmpfunc get_richcmpfunc = nullptr;
 
 	void* GetNativePtr() { return nullptr; }
 

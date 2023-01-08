@@ -13,6 +13,11 @@ RegisterTypeEmbedd_Imp(RenderTarget)
 	cls->Ctor<RenderTarget>();
 	cls->Binding<RenderTarget>();
 	cls->BindingProperty<&RenderTarget::mWidth>("width");
+
+	cls->VirtualProperty("color_texture")
+		.Getter<&RenderTarget::GetColor>()
+		.Binding<RenderTarget, RHIResource*>();
+
 	cls->BindingProperty<&RenderTarget::mHeight>("height");
 	cls->BindingMethod<&RenderTarget::Update>("update");
 	BindingModule::Get("luna")->AddType(cls);

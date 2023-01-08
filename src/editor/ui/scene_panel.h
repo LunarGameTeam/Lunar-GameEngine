@@ -36,6 +36,5 @@ protected:
 	bool                  mNeedUpdate = false;
 	bool                  mDragging   = false;
 	ImVec2                mOldSize    = ImVec2(0, 0);
-	render::ImguiTexture* mImguiTexture = nullptr;
 };
 }

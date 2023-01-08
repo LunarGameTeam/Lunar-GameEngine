@@ -59,7 +59,6 @@ namespace luna::render
 RegisterTypeEmbedd_Imp(RenderModule)
 {
 	cls->Binding<Self>();
-	cls->BindingMethod<&Self::GetImguiTexture>("get_imgui_texture");
 	BindingModule::Get("luna")->AddType(cls);
 
 }
@@ -221,7 +220,7 @@ bool RenderModule::OnInit()
 		mainWindow, windowDesc);
 
 
-	mMainRT.SetPtr(TCreateObject<render::RenderTarget>());
+	mMainRT.SetPtr(NewObject<render::RenderTarget>());
 	mMainRT->Ready();
 
 	mRenderDevice->mFence->Wait(mRenderDevice->mFenceValue);	
@@ -362,9 +361,9 @@ RenderScene* RenderModule::AddScene()
 	return scene;
 }
 
-ImguiTexture* RenderModule::AddImguiTexture(const LString& key, RHIResource* res)
+ImguiTexture* RenderModule::AddImguiTexture(RHIResource* res)
 {
-	ImguiTexture* imguiTexture = &mImguiTextures[key];
+	ImguiTexture* imguiTexture = &mImguiTextures[res];
 	ViewDesc desc;
 	desc.mViewType = RHIViewType::kTexture;
 	desc.mViewDimension = RHIViewDimension::TextureView2D;

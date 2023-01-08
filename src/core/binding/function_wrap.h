@@ -101,11 +101,11 @@ PyObject* METH_impl(PyObject* self, PyObject* args)
 	using FN = decltype(fn);
 	using return_type = function_traits<FN>::return_type;
 	using args_type = function_traits<FN>::args_type;
-	using class_type = function_traits<FN>::class_type;
 	if constexpr (std::is_same_v<return_type, void>)
 	{
 		if constexpr (std::is_member_function_pointer_v<FN>)
 		{
+			using class_type = function_traits<FN>::class_type;
 			class_type* cls = (class_type*)binding_converter<class_type*>::from_binding(self);
 			std::invoke(fn, cls, arg_get<I, args_type>(args)...);
 		}
@@ -119,6 +119,7 @@ PyObject* METH_impl(PyObject* self, PyObject* args)
 	{
 		if constexpr (std::is_member_function_pointer_v<FN>)
 		{
+			using class_type = function_traits<FN>::class_type;
 			class_type* cls = (class_type*)binding_converter<class_type*>::from_binding(self);
 			return to_binding<return_type>(std::invoke(fn, cls, arg_get<I, args_type>(args)...));
 		}

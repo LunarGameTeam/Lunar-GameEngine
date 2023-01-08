@@ -97,7 +97,7 @@ bool JsonSerializer::DeSerialize(LObject *obj)
 	auto *asset = dynamic_cast<Asset *>(obj);
 	List list = mDict.GetList("objects");
 	std::vector<std::pair<LObject*, Dictionary>> datas;
-	for (int i = 0; i < list.Size(); ++i)
+	for (auto i = 0; i < list.Size(); ++i)
 	{
 		Dictionary dict = list.GetDict(i);
 		LString typeName = dict.Get<LString>("__class__");
@@ -266,7 +266,7 @@ void JsonSerializer::DeserializeProperty(LProperty &prop, LObject *obj, Dictiona
 
 			if (type->GetTemplateArg()->IsDerivedFrom(LType::Get<Asset>()))
 			{
-				for (int idx = 0; idx < propList.Size(); idx++)
+				for (uint32_t idx = 0; idx < propList.Size(); idx++)
 				{
 					LString assetPath = propList.Get<LString>(idx);
 					ary.PushBack(sAssetModule->LoadAsset(assetPath, type->GetTemplateArg()));
@@ -274,7 +274,7 @@ void JsonSerializer::DeserializeProperty(LProperty &prop, LObject *obj, Dictiona
 			}
 			else
 			{
-				for (int index = 0; index < propList.Size(); index++)
+				for (uint32_t index = 0; index < propList.Size(); index++)
 				{
 					FileID strUUID = propList.Get<FileID>(index);					
 					ary.PushBack(mFileIDMap.Get(strUUID));

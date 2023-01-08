@@ -15,6 +15,33 @@ static PyObject* __add__(PyObject* left, PyObject* right)
 	return to_binding<T>(l->val + r->val);
 }
 
+template<typename T>
+static PyObject* __richcmp__(PyObject* left, PyObject* right, int op)
+{
+	BindingStruct<T>* l = (BindingStruct<T>*)left;
+	if (!PyObject_TypeCheck(right, static_type<T>::StaticType()->GetBindingType()))
+		Py_RETURN_FALSE;
+	BindingStruct<T>* r = (BindingStruct<T>*)right;
+	switch (op)
+	{
+	case Py_EQ:
+		if (l->val == r->val)
+			Py_RETURN_TRUE;
+		else
+			Py_RETURN_FALSE;
+		break;
+	case Py_NE:
+		if (l->val != r->val)
+			Py_RETURN_TRUE;
+		else
+			Py_RETURN_FALSE;
+		break;
+	default:
+		break;
+	}
+	Py_RETURN_FALSE;
+}
+
 
 template<>
 struct binding_proxy<LVector2f> : struct_binding_proxy<LVector2f>
@@ -39,6 +66,7 @@ struct binding_proxy<LVector2f> : struct_binding_proxy<LVector2f>
 	}
 	constexpr static initproc get_initproc = __initproc__;
 	constexpr static binaryfunc get_add = __add__<LVector2f>;
+	constexpr static richcmpfunc get_richcmpfunc = __richcmp__<LVector2f>;
 };
 
 template<>
@@ -64,6 +92,7 @@ struct binding_proxy<LVector3f> : struct_binding_proxy<LVector3f>
 	}
 	constexpr static initproc get_initproc = __initproc__;
 	constexpr static binaryfunc get_add = __add__<LVector3f>;
+	constexpr static richcmpfunc get_richcmpfunc = __richcmp__<LVector3f>;
 };
 
 template<>
@@ -89,6 +118,7 @@ struct binding_proxy<LVector4f> : struct_binding_proxy<LVector4f>
 	}
 	constexpr static initproc get_initproc = __initproc__;
 	constexpr static binaryfunc get_add = __add__<LVector4f>;
+	constexpr static richcmpfunc get_richcmpfunc = __richcmp__<LVector4f>;
 };
 
 template<>
@@ -117,12 +147,22 @@ struct binding_proxy<LQuaternion> : struct_binding_proxy<LQuaternion>
 	static PyObject* __multiply__(PyObject* l, PyObject* r)
 	{
 		BindingStruct<LQuaternion>* left = (BindingStruct<LQuaternion>*)(l);
-		BindingStruct<LQuaternion>* right = (BindingStruct<LQuaternion>*)(r);
-		return to_binding(left->val * right->val);
+		if (CheckBindingType<LQuaternion>(r))
+		{
+			BindingStruct<LQuaternion>* right = (BindingStruct<LQuaternion>*)(r);
+			return to_binding(left->val * right->val);
+		}
+		else if (CheckBindingType<LVector3f>(r))
+		{
+			BindingStruct<LVector3f>* right = (BindingStruct<LVector3f>*)(r);
+			return to_binding(left->val * right->val);
+		}
+		Py_RETURN_NONE;
 	}
 
 	constexpr static binaryfunc get_multiply = __multiply__;
 	constexpr static initproc get_initproc = __initproc__;
+	constexpr static richcmpfunc get_richcmpfunc = __richcmp__<LQuaternion>;
 };
 
 

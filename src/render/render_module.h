@@ -108,15 +108,16 @@ public:
 	RenderDevice* mRenderDevice;
 	TPPtr<RenderTarget>     mMainRT;
 
-	ImguiTexture* GetImguiTexture(const LString& key) { return &mImguiTextures[key]; }
-	ImguiTexture* AddImguiTexture(const LString& key, RHIResource* res);
+	ImguiTexture* GetImguiTexture(RHIResource* key) { return &mImguiTextures[key]; }
+	ImguiTexture* AddImguiTexture(RHIResource* res);
+	bool IsImuiTexture(RHIResource* key) { return mImguiTextures.find(key) != mImguiTextures.end(); }
 private:
 	LSharedPtr<Texture2D>       mDefaultWhiteTexture;
 
 	LArray<RenderScene*>        mRenderScenes;
 	//LMap<LWindow*, RHISwapChainPtr> mSwapchains;
 
-	LMap<LString, ImguiTexture> mImguiTextures;
+	LMap<RHIResourcePtr, ImguiTexture> mImguiTextures;
 
 	render::RHIRenderPassPtr    mRenderPass;
 	render::RHIFrameBufferPtr   mFrameBuffer[2];

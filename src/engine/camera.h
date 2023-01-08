@@ -40,7 +40,7 @@ public:
 	GET_SET_VALUE(LVector3f, mDirection, FlyDirection);
 	GET_SET_VALUE(float, mSpeed, Speed);
 
-	render::RenderTarget* GetRenderViewTarget() { if (mRenderView) return mRenderView->GetRenderTarget(); return nullptr; }
+	render::RenderTarget* GetRenderViewTarget();
 	void SetRenderViewTarget(render::RenderTarget* target);
 
 	void SetAspectRatio(float val);

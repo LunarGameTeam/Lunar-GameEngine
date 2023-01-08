@@ -10,6 +10,7 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 
+#include "render/render_module.h"
 #include "render/renderer/imgui_texture.h"
 
 #include "editor/ui/icon_font.h"
@@ -64,6 +65,27 @@ struct binding_converter<ImVec2>
 		return "luna.LVector2f";
 	}
 };
+
+
+template<>
+struct binding_converter<ImGuiKey>
+{
+	inline static PyObject* to_binding(ImGuiKey val)
+	{
+		return binding_converter<int>::to_binding(int(val));
+	}
+
+	inline static ImGuiKey from_binding(PyObject* val)
+	{
+		return (ImGuiKey)(binding_converter<int>::from_binding(val));
+	}
+
+	static const char* binding_fullname()
+	{
+		return "int";
+	}
+};
+
 
 template<>
 struct binding_converter<ImVec4>
@@ -252,9 +274,11 @@ bool TreeNodeCallbackEx(void* ptr_id, ImGuiTreeNodeFlags flag, std::function<voi
 	return opened;
 }
 
-void PyImage(render::ImguiTexture* texture, const LVector2f& size, const LVector2f& uv0, const LVector2f& uv1)
+void PyImage(render::RHIResource* texture, const LVector2f& size, const LVector2f& uv0, const LVector2f& uv1)
 {
-	ImGui::Image((ImTextureID)texture->mImg, ToVec2(size), ToVec2(uv0), ToVec2(uv1));
+	if (!sRenderModule->IsImuiTexture(texture))
+		sRenderModule->AddImguiTexture(texture);	
+	ImGui::Image((ImTextureID)sRenderModule->GetImguiTexture(texture)->mImg, ToVec2(size), ToVec2(uv0), ToVec2(uv1));
 }
 
 bool PySetDragDropPayload(const char* type, PyObject* data, ImGuiCond cond)
@@ -288,6 +312,48 @@ STATIC_INIT(imgui)
 		AddIMGUIConstant(ImGuiTreeNodeFlags_Leaf);
 		AddIMGUIConstant(ImGuiTreeNodeFlags_OpenOnArrow);
 		AddIMGUIConstant(ImGuiTreeNodeFlags_OpenOnDoubleClick);
+
+		AddIMGUIConstant(ImGuiKey_A);
+		AddIMGUIConstant(ImGuiKey_B);
+		AddIMGUIConstant(ImGuiKey_C);
+		AddIMGUIConstant(ImGuiKey_D);
+		AddIMGUIConstant(ImGuiKey_E);
+		AddIMGUIConstant(ImGuiKey_F);
+		AddIMGUIConstant(ImGuiKey_G);
+		AddIMGUIConstant(ImGuiKey_H);
+		AddIMGUIConstant(ImGuiKey_I);
+		AddIMGUIConstant(ImGuiKey_J);
+		AddIMGUIConstant(ImGuiKey_K);
+		AddIMGUIConstant(ImGuiKey_L);
+		AddIMGUIConstant(ImGuiKey_M);
+		AddIMGUIConstant(ImGuiKey_N);
+		AddIMGUIConstant(ImGuiKey_O);
+		AddIMGUIConstant(ImGuiKey_P);
+		AddIMGUIConstant(ImGuiKey_Q);
+		AddIMGUIConstant(ImGuiKey_R);
+		AddIMGUIConstant(ImGuiKey_S);
+		AddIMGUIConstant(ImGuiKey_T);
+		AddIMGUIConstant(ImGuiKey_U);
+		AddIMGUIConstant(ImGuiKey_V);
+		AddIMGUIConstant(ImGuiKey_W);
+		AddIMGUIConstant(ImGuiKey_X);
+		AddIMGUIConstant(ImGuiKey_Y);
+		AddIMGUIConstant(ImGuiKey_Z);
+
+		AddIMGUIConstant(ImGuiKey_Space);
+		AddIMGUIConstant(ImGuiKey_Delete);
+		AddIMGUIConstant(ImGuiKey_Enter);
+		AddIMGUIConstant(ImGuiKey_0);
+		AddIMGUIConstant(ImGuiKey_1);
+		AddIMGUIConstant(ImGuiKey_2);
+		AddIMGUIConstant(ImGuiKey_3);
+		AddIMGUIConstant(ImGuiKey_4);
+		AddIMGUIConstant(ImGuiKey_5);
+		AddIMGUIConstant(ImGuiKey_6);
+		AddIMGUIConstant(ImGuiKey_7);
+		AddIMGUIConstant(ImGuiKey_8);
+		AddIMGUIConstant(ImGuiKey_9);
+
 
 		AddIMGUIConstant(ICON_FA_COMPRESS);
 		AddIMGUIConstant(ICON_FA_CUBE);
@@ -324,6 +390,14 @@ STATIC_INIT(imgui)
 		
 		imguiModule->AddMethod<&PyTreeNode>("tree_node");
 		imguiModule->AddMethod<&TreeNodeCallbackEx>("tree_node_callback");
+
+		imguiModule->AddMethod<&ImGui::IsMouseDragging>("is_mouse_dragging");
+		imguiModule->AddMethod<static_cast<bool(*)(ImGuiMouseButton)>(&ImGui::IsMouseReleased)>("is_mouse_released");
+		imguiModule->AddMethod<static_cast<bool(*)(ImGuiMouseButton, bool)>(&ImGui::IsMouseClicked)>("is_mouse_clicked");
+
+		imguiModule->AddMethod<static_cast<bool(*)(ImGuiKey)>(&ImGui::IsKeyDown)>("is_key_down");
+		imguiModule->AddMethod<static_cast<bool(*)(ImGuiKey, bool)>(&ImGui::IsKeyPressed)>("is_key_pressed");
+		imguiModule->AddMethod<static_cast<bool(*)(ImGuiKey)>(&ImGui::IsKeyReleased)>("is_key_released");
 
 		imguiModule->AddMethod<&ImGui::TreePop>("tree_pop");
 		imguiModule->AddMethod<&PyPushID>("push_id");

@@ -102,7 +102,14 @@ public:
 		}
 		else
 		{
-			py_func = binding::pycfunction_select<fn>(std::make_index_sequence<args_count>{});
+			if constexpr (std::is_member_function_pointer_v<FN>)
+			{
+				py_func = binding::pycfunction_select<fn>(std::make_index_sequence<args_count>{});
+			}
+			else
+			{
+				py_func = binding::pycfunction_select<fn>(std::make_index_sequence<args_count - 1>{});
+			}
 		}
 		def.ml_meth = py_func;
 		def.ml_flags = pymethodFlags;

@@ -187,8 +187,9 @@ public:
 
 		binding_type.tp_getattro = binding::binding_proxy<T>::get_getattrofunc;
 		binding_type.tp_setattro = binding::binding_proxy<T>::get_setattro;
+		binding_type.tp_richcompare = binding::binding_proxy<T>::get_richcmpfunc;
 		binding_type.tp_init = binding::binding_proxy<T>::get_initproc;
-
+		
 		binding_type.tp_flags = binding::binding_proxy<T>::get_type_flags();
 
 
@@ -196,7 +197,7 @@ public:
 		memset(&mPyNumberMethods, 0, sizeof(PyNumberMethods));
 		binding_type.tp_as_number = &mPyNumberMethods;
 		mPyNumberMethods.nb_bool = binding::binding_proxy<T>::get_bool;
-		mPyNumberMethods.nb_add = binding::binding_proxy<T>::get_add;
+		mPyNumberMethods.nb_add = binding::binding_proxy<T>::get_add;				
 		mPyNumberMethods.nb_multiply = binding::binding_proxy<T>::get_multiply;
 
 	}

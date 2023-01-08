@@ -1,11 +1,13 @@
 #include "imgui_texture.h"
 
-namespace luna::render
+
+namespace luna
 {
 
-RegisterTypeEmbedd_Imp(ImguiTexture)
+RegisterType_Imp(render::RHIResource, RHIResource)
 {
-	cls->Binding<ImguiTexture>();
+
+	cls->Binding<render::RHIResource>();
 	BindingModule::Luna()->AddType(cls);
 }
 

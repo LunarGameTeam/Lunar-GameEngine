@@ -61,6 +61,20 @@ static void set_w(T* self, float val)
 	self->w() = val;
 }
 
+template<typename T>
+float get_size(PyObject* obj)
+{
+	BindingStruct<T>* t = (BindingStruct<T>*)(obj);	
+	return t->val.norm();
+}
+
+template<typename T>
+void normarlize(PyObject* obj)
+{
+	BindingStruct<T>* t = (BindingStruct<T>*)(obj);
+	return t->val.normalize();
+}
+
 RegisterType_Imp(LVector2f, LVector2f)
 {
 	cls->Binding<LVector2f>();
@@ -73,6 +87,9 @@ RegisterType_Imp(LVector2f, LVector2f)
 		.Setter<set_y<LVector2f>>()
 		.Binding<LVector2f, float>();
 
+	cls->BindingMethod<&get_size<LVector2f>>("size");
+	cls->BindingMethod<&normarlize<LVector2f>>("normalize");
+	
 	cls->GetExtraDocs().push_back("def __init__(self, x: float, y: float):\n\t\tsuper(LVector2f, self).__init__()");
 	BindingModule::Luna()->AddType(cls);
 }
@@ -92,6 +109,9 @@ RegisterType_Imp(LVector3f, LVector3f)
 		.Getter<get_z<LVector3f>>()
 		.Setter<set_z<LVector3f>>()
 		.Binding<LVector3f, float>();
+
+	cls->BindingMethod<&get_size<LVector3f>>("size");
+	cls->BindingMethod<&normarlize<LVector3f>>("normalize");
 	
 	cls->GetExtraDocs().push_back("def __init__(self, x: float, y: float, z: float):\n\t\tsuper(LVector3f, self).__init__()");
 	BindingModule::Luna()->AddType(cls);
@@ -116,6 +136,9 @@ RegisterType_Imp(LVector4f, LVector4f)
 		.Getter<get_w<LVector4f>>()
 		.Setter<set_w<LVector4f>>()
 		.Binding<LVector4f, float>();
+
+	cls->BindingMethod<&get_size<LVector4f>>("size");
+	cls->BindingMethod<&normarlize<LVector4f>>("normalize");
 
 	cls->GetExtraDocs().push_back("def __init__(self, x: float, y: float, z: float, w: float):\n\t\tsuper(LVector4f, self).__init__()");
 	BindingModule::Luna()->AddType(cls);
@@ -147,6 +170,8 @@ RegisterType_Imp(LQuaternion, LQuaternion)
 	BindingModule::Get("luna.math")->AddMethod<&LMath::FromEuler>("from_euler");
 	BindingModule::Get("luna.math")->AddMethod<&LMath::ToEuler>("to_euler");
 	BindingModule::Get("luna.math")->AddMethod<&LMath::AngleAxisf>("angle_axis");
+
+	cls->BindingMethod<&normarlize<LQuaternion>>("normalize");
 
 	BindingModule::Luna()->AddType(cls);
 

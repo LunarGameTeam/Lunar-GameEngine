@@ -21,85 +21,13 @@ RegisterTypeEmbedd_Imp(ScenePanel)
 
 void ScenePanel::OnGUI()
 {
-	ImVec2 new_size = ImGui::GetContentRegionAvail();
 
-	if (ImGui::IsMouseDragging(0))
-	{
-		if (new_size.x != mOldSize.x)
-		{
-			mDragging = true;
-		}
-	}
-	if (mDragging)
-	{
-		if (ImGui::IsMouseReleased(0))
-		{
-			mNeedUpdate = true;
-			mDragging = false;
-		}
-	}
-	auto scene = sSceneModule->GetScene(0);
-	if (mNeedUpdate)
-	{
-		if (scene)
-		{
-			render::RenderTarget* rt = sRenderModule->GetRenderSceneAt(0)->GetRenderView(0)->GetRenderTarget();
-			rt->SetWidth((uint32_t)new_size.x);
-			rt->SetHeight((uint32_t)new_size.y);
-		}
-
-		mNeedUpdate = false;
-
-		if (scene)
-		{
-			const TPPtrArray<Entity>& entities = scene->GetAllEntities();
-			for (auto it = entities.begin(); it != entities.end(); ++it)
-			{
-				CameraComponent* cameraComp = it->Get()->GetComponent<CameraComponent>();
-				if (cameraComp != nullptr)
-				{
-					cameraComp->SetAspectRatio(new_size.x / new_size.y);
-				}
-			}
-		}
-	}
-// 	if (mImguiTexture)
-// 		ImGui::Image((ImTextureID)(mImguiTexture->mImg), ImGui::GetContentRegionAvail());
-	{
-		ImVec2 vMin = ImGui::GetWindowContentRegionMin();
-		ImVec2 vMax = ImGui::GetWindowContentRegionMax();
-
-		vMin.x += ImGui::GetWindowPos().x;
-		vMin.y += ImGui::GetWindowPos().y;
-		vMax.x += ImGui::GetWindowPos().x;
-		vMax.y += ImGui::GetWindowPos().y;
-		if (ImGui::IsMouseHoveringRect(vMin, vMax) && mCamera)
-		{
-			ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
-
-			auto* transform = mCamera->GetTransform();
-			float delta_y = delta.y / 500.0f;
-			float delta_x = delta.x / 500.0f;
-			auto v = Eigen::AngleAxisf(delta_y * (float)std::numbers::pi, LVector3f::UnitX());
-			auto h = Eigen::AngleAxisf(delta_x * (float)std::numbers::pi, LVector3f::UnitY());
-			auto pos = transform->GetPosition();
-			auto rotation = transform->GetRotation();
-			rotation = h * rotation  * v;
-			transform->SetRotation(rotation);
-			ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
-		}
-	}
-
-
-	mOldSize = new_size;
-	mOldSize = new_size;
 }
 
 void ScenePanel::Init()
 {
 	auto func = std::bind(&ScenePanel::OnInputEvent, this, std::placeholders::_1, std::placeholders::_2);
-	static auto handle = sEventModule->OnInput.Bind(func);
-	mImguiTexture = sRenderModule->AddImguiTexture("SceneColor", sRenderModule->mMainRT->mColorTexture);
+	static auto handle = sEventModule->OnInput.Bind(func);	
 }
 
 void ScenePanel::OnInputEvent(LWindow& window, InputEvent& event)

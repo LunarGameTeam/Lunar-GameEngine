@@ -4,13 +4,19 @@
 #include "binding_proxy.h"
 #include "function_wrap.h"
 
+#include "core/reflection/type_traits.h"
+
 #include <tuple>
 #include <type_traits>
 
 namespace luna
 {
 
-
+template<typename T>
+bool CheckBindingType(PyObject* obj)
+{
+	return PyObject_TypeCheck(obj, static_type<T>::StaticType()->GetBindingType());
+}
 
 template<typename T>
 inline PyObject* to_binding(T t)

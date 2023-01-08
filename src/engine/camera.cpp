@@ -9,13 +9,20 @@ namespace luna
 RegisterTypeEmbedd_Imp(CameraComponent)
 {
 	cls->Binding<Self>();
-	cls->VirtualProperty("transform")
+	cls->BindingProperty<&CameraComponent::mAspect>("aspect");
+	cls->VirtualProperty("render_target")
 		.Getter<&CameraComponent::GetRenderViewTarget>()
 		.Setter<&CameraComponent::SetRenderViewTarget>()
 		.Binding<CameraComponent, render::RenderTarget*>();
 	cls->VirtualProperty("transform")
 		.Getter<&CameraComponent::GetTransform>()
 		.Binding<CameraComponent, Transform*>();
+
+
+	cls->BindingProperty<&CameraComponent::mSpeed>("fly_speed");
+	cls->BindingProperty<&CameraComponent::mDirection>("direction");
+
+
 	BindingModule::Get("luna")->AddType(cls);
 	cls->Ctor<CameraComponent>();
 }
@@ -80,6 +87,17 @@ void CameraComponent::SetFar(float val)
 void CameraComponent::SetNear(float val)
 {
 	mNear = val;
+}
+
+render::RenderTarget* CameraComponent::GetRenderViewTarget()
+{
+	if (mRenderView)
+	{
+		if(mRenderView->GetRenderTarget())
+			return mRenderView->GetRenderTarget();
+		return sRenderModule->mMainRT.Get();
+	}
+	return nullptr;
 }
 
 void CameraComponent::SetRenderViewTarget(render::RenderTarget* target)
