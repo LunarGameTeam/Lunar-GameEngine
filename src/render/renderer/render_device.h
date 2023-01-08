@@ -95,7 +95,7 @@ public:
 	void FlushStaging();
 	void FlushFrameInstancingBuffer() { mInstancingIdMemory.Reset(); };
 
-	void BeginRendering(const RenderPassDesc&);
+	void BeginRenderPass(const RenderPassDesc&);
 	void EndRenderPass();
 
 	void DrawRenderOBject(render::RenderObject* mesh, render::ShaderAsset* shader, PackedParams* params, render::RHIResource* instanceMessage = nullptr,int32_t instancingSize = 1);

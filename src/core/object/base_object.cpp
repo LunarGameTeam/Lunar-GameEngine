@@ -15,7 +15,7 @@ namespace luna
 {
 
 size_t binding::BindingLObject::sBindingObjectNum = 0;
-size_t sInstanceID = 0;
+size_t sInstanceID = 1;
 std::unordered_map<size_t, LObject*> sObjects;
 
 

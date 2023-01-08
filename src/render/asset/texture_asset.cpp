@@ -2,10 +2,13 @@
 
 #include "texture_asset.h"
 #include "core/math/math.h"
+#include "core/memory/ptr_binding.h"
 #include "core/foundation/string.h"
 #include "core/framework/luna_core.h"
 
 #include "render/render_module.h"
+#include "render/asset/mesh_asset.h"
+#include "render/renderer/material.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"

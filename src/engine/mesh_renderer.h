@@ -1,10 +1,13 @@
 #pragma once
 
+#include "engine/render_component.h"
+
 #include "render/render_config.h"
+#include "render/renderer/material.h"
+
 #include "render/asset/mesh_asset.h"
 #include "render/asset/texture_asset.h"
 
-#include "engine/render_component.h"
 #include "render/asset/obj_asset.h"
 
 

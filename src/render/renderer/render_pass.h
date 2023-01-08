@@ -5,7 +5,6 @@
 
 #include "render/render_config.h"
 #include "render/renderer/render_target.h"
-#include "render/renderer/render_obj.h"
 #include "render/frame_graph/frame_graph.h"
 
 #include <functional>

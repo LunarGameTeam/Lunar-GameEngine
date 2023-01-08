@@ -183,7 +183,7 @@ void FrameGraphBuilder::Flush()
 		cmdlist->BeginEvent(node->GetName());
 		node->PreExecute(this);
 
-		renderDevice->BeginRendering(node->mPassDesc);
+		renderDevice->BeginRenderPass(node->mPassDesc);
 		cmdlist->SetViewPort(0, 0, width, height);
 		cmdlist->SetScissorRects(0, 0, width, width);
 

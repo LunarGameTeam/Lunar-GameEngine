@@ -1,9 +1,11 @@
 #include "render_pass.h"
 
 #include "core/math/math.h"
-#include "render/renderer/render_obj.h"
+
+#include "render/renderer/render_scene.h"
 #include "render/renderer/render_target.h"
 #include "render/render_module.h"
+
 #include "window/window_module.h"
 #include <core/asset/asset_module.h>
 

@@ -9,10 +9,9 @@ namespace luna::render
 {
 
 RenderView::RenderView(uint64_t view_id) :
+	mRT(nullptr),
 	mViewID(view_id)
 {
-	mRT.SetPtr(TCreateObject<RenderTarget>());
-	mRT->Ready();
 	mDebugPass = new DebugRenderPass();
 	mLightingPass = new LightingPass();
 

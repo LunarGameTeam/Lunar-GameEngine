@@ -1,6 +1,9 @@
 #include "render/renderer/pass_lighting.h"
+#include "render/renderer/material.h"
+#include "render/asset/mesh_asset.h"
 
 #include "core/asset/asset_module.h"
+
 #include "render/render_module.h"
 #include "core/reflection/type_traits.h"
 

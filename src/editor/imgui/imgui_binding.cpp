@@ -326,7 +326,7 @@ STATIC_INIT(imgui)
 		imguiModule->AddMethod<&PyText>("text");
 		imguiModule->AddMethod<&PyButton>("button");
 		
-		imguiModule->AddMethod<&ImGui::CalcTextSize>("calc_text_size");
+		imguiModule->AddMethod<&PyCalcTextSize>("calc_text_size");
 		imguiModule->AddMethod<&ImGui::GetContentRegionAvail>("get_content_region_avail");
 
 

@@ -1,6 +1,8 @@
 #include "scene.h"
 #include "render/render_module.h"
 #include "engine/light.h"
+
+#include "core/memory/ptr_binding.h"
 #include "core/serialization/serialization.h"
 #include "core/asset/asset_module.h"
 

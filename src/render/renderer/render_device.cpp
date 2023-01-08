@@ -1,6 +1,4 @@
 #include "render/renderer/render_device.h"
-#include "render/renderer/render_obj.h"
-
 
 #include "render/rhi/vulkan/vulkan_device.h"
 #include "render/rhi/vulkan/vulkan_render_queue.h"
@@ -353,7 +351,7 @@ void RenderDevice::FlushStaging()
 	mStagingMemory.Reset();
 }
 
-void RenderDevice::BeginRendering(const RenderPassDesc& desc)
+void RenderDevice::BeginRenderPass(const RenderPassDesc& desc)
 {
 	mGraphicCmd->BeginRender(desc);
 	mCurRenderPass = desc;
