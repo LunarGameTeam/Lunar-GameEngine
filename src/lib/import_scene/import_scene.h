@@ -20,16 +20,31 @@ namespace luna::resimport
 		float GetUnitValue(LImportUnitType unit);
 
 		template<typename ImportDataType>
-		size_t AddNewData()
+		ImportDataType* AddNewData()
 		{
 			size_t newIndex = mDatas.size();
 			std::shared_ptr<LImportNodeDataBase> newData = std::make_shared<ImportDataType>(newIndex);
 			mDatas.push_back(newData);
-			return newIndex;
+			return dynamic_cast<ImportDataType*>(newData.get());
+		};
+
+		size_t GetNodeSize()const
+		{
+			return mNodes.size();
+		};
+
+		const LImportSceneNode& GetNode(size_t dataIndex) const
+		{
+			return mNodes[dataIndex];
+		};
+
+		size_t GetNodeDataSize()const
+		{
+			return mDatas.size();
 		};
 
 		template<typename ImportDataType>
-		ImportDataType* GetData(size_t dataIndex)
+		const ImportDataType* GetData(size_t dataIndex) const
 		{
 			if (dataIndex >= mDatas.size())
 			{

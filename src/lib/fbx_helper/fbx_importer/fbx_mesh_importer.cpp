@@ -50,8 +50,7 @@ namespace luna::lfbx
 	void LFbxImporterMesh::ParsingDataImpl(const LFbxDataBase* fbxDataInput, const LFbxNodeBase& fbxNodeInput, resimport::LImportScene& outputScene)
 	{
 		const LFbxDataMesh* meshData = static_cast<const LFbxDataMesh*>(fbxDataInput);
-		size_t newDataIndex = outputScene.AddNewData<resimport::LImportNodeDataMesh>();
-		resimport::LImportNodeDataMesh* nowOutData = outputScene.GetData<resimport::LImportNodeDataMesh>(newDataIndex);
+		resimport::LImportNodeDataMesh* nowOutData = outputScene.AddNewData<resimport::LImportNodeDataMesh>();
 		LVector<VertexDataFullCombine> newCombineData;
 		newCombineData.resize(meshData->GetMaterialCount());
 		CombineVertexData(meshData, newCombineData);

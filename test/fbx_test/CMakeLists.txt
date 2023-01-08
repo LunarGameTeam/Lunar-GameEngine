@@ -12,6 +12,6 @@ auto_source_group(fbx_test "${ALL_FILES}" DST_FILES)
 
 add_executable(fbx_test ${DST_FILES})
 
-add_dependencies(fbx_test core fbx_helper)
-target_link_libraries(fbx_test core fbx_helper)
+add_dependencies(fbx_test  fbx_helper asset_import)
+target_link_libraries(fbx_test fbx_helper asset_import)
 

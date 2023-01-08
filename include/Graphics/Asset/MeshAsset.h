@@ -48,7 +48,7 @@ private:
 
 
 
-class RENDER_API MeshAsset : public LBinaryWithHeadAsset
+class RENDER_API MeshAsset : public LBasicAsset
 {
 	RegisterTypeEmbedd(MeshAsset, Asset)
 public:

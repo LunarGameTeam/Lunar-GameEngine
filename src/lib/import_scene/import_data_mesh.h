@@ -38,6 +38,16 @@ namespace luna::resimport
 		void GenerateMikkTspaceTangent();
 
 		void ComputeVertexCache();
+
+		inline size_t GetSubMeshSize()const
+		{
+			return mSubmesh.size();
+		}
+
+		inline const LImportSubmesh& GettSubMesh(size_t index)const 
+		{
+			return mSubmesh[index];
+		}
 	private:
 		void ConvertDataAxisAndUnitImpl(LMatrix4f convertInvMatrix, LMatrix4f convertMatrix) override;
 
