@@ -24,7 +24,10 @@ LObject* PPtr::Get()
 
 void PPtr::SetPtr(LObject *val)
 {
-	mInstanceID = val->GetInstanceID();
+	if (val)
+		mInstanceID = val->GetInstanceID();
+	else
+		mInstanceID = 0;
 }
 
 PPtr& PPtr::operator=(LObject *val)

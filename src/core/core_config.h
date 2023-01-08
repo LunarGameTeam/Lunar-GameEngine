@@ -31,30 +31,18 @@
  */
 
 #define GETTER_REF(type,var,name) \
-	type& Get##name()  \
-	{ \
-		return var; \
-	};\
 	const type& Get##name() const\
 	{ \
 		return var; \
 	};
 
 #define GETTER_REF_CONST(type,var,name) \
-	const type& Get##name()  \
-	{ \
-		return var; \
-	};\
 	const type& Get##name() const\
 	{ \
 		return var; \
 	};
 
 #define GETTER(type,var,name) \
-	type Get##name()\
-	{ \
-		return var; \
-	};\
 	type Get##name() const\
 	{ \
 		return var; \

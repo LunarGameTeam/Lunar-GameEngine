@@ -9,6 +9,9 @@ namespace luna
 RegisterTypeEmbedd_Imp(CameraComponent)
 {
 	cls->Binding<Self>();
+	cls->VirtualProperty("transform")
+		.Getter<&CameraComponent::GetTransform>()
+		.Binding<CameraComponent, Transform*>();
 	BindingModule::Get("luna")->AddType(cls);
 	cls->Ctor<CameraComponent>();
 }

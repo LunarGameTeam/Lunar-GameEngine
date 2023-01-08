@@ -33,6 +33,12 @@ namespace luna
 
 STATIC_INIT(Core)
 {
+
+	LType::Get<LVector2f>();
+	LType::Get<LVector3f>();
+	LType::Get<LVector4f>();
+	LType::Get<LQuaternion>();
+
 	LType::Get<PPtrArray>()->Binding<PPtrArray>();
 	BindingModule::Luna()->AddType(LType::Get<PPtrArray>());
 	BindingModule::Luna()->AddMethod<&LoadLib>("load_library");

@@ -29,7 +29,12 @@ public:
 	const float GetNear()const;
 	void SetFar(float val);
 	void SetNear(float val);
-	GET_SET_VALUE(Transform*, mTransform, Transform);
+
+	Transform* GetTransform()
+	{
+		return mTransform;
+	}
+	
 	GET_SET_VALUE(LVector3f, mDirection, FlyDirection);
 	GET_SET_VALUE(float, mSpeed, Speed);
 	void SetAspectRatio(float val);

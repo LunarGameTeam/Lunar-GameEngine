@@ -22,6 +22,7 @@ static PyObject* __add__(BindingStruct<T>* left, BindingStruct<T>* right)
 	return ret;
 }
 
+
 template<typename T>
 static float get_x(T* self)
 {
@@ -81,7 +82,7 @@ RegisterType_Imp(LVector2f, LVector2f)
 		.Setter<set_y<LVector2f>>()
 		.Binding<LVector2f, float>();
 
-	cls->GetExtraDocs().push_back("def __init__(self, x: float, y: float):\n\tpass");
+	cls->GetExtraDocs().push_back("def __init__(self, x: float, y: float):\n\t\tsuper(LVector2f, self).__init__()");
 
 	PyTypeObject* typeobject = cls->GetBindingType();
 	static PyNumberMethods methods;
@@ -107,7 +108,7 @@ RegisterType_Imp(LVector3f, LVector3f)
 		.Setter<set_z<LVector3f>>()
 		.Binding<LVector3f, float>();
 	
-	cls->GetExtraDocs().push_back("def __init__(self, x: float, y: float, z: float):\n\tpass");
+	cls->GetExtraDocs().push_back("def __init__(self, x: float, y: float, z: float):\n\t\tsuper(LVector3f, self).__init__()");
 
 	PyTypeObject* typeobject = cls->GetBindingType();	
 	static PyNumberMethods methods;
@@ -137,17 +138,22 @@ RegisterType_Imp(LVector4f, LVector4f)
 		.Setter<set_w<LVector4f>>()
 		.Binding<LVector4f, float>();
 
-	cls->GetExtraDocs().push_back("def __init__(self, x: float, y: float, z: float, w: float):\n\tpass");
+	cls->GetExtraDocs().push_back("def __init__(self, x: float, y: float, z: float, w: float):\n\t\tsuper(LVector4f, self).__init__()");
 
 	PyTypeObject* typeobject = cls->GetBindingType();
 	static PyNumberMethods methods;
-	methods.nb_add = (binaryfunc)__add__<LVector3f>;
+	methods.nb_add = (binaryfunc)__add__<LVector4f>;
 	typeobject->tp_as_number = &methods;
 
 	BindingModule::Luna()->AddType(cls);
 }
 
-
+PyObject* LQuaternion_multiply(PyObject* l, PyObject* r)
+{
+	BindingStruct<LQuaternion>* left = (BindingStruct<LQuaternion>*)(l);
+	BindingStruct<LQuaternion>* right = (BindingStruct<LQuaternion>*)(r);
+	return to_binding(left->val * right->val);
+}
 RegisterType_Imp(LQuaternion, LQuaternion)
 {
 	cls->Binding<LQuaternion>();
@@ -169,8 +175,16 @@ RegisterType_Imp(LQuaternion, LQuaternion)
 		.Binding<LQuaternion, float>();
 	BindingModule::Luna()->AddType(cls);
 
+	cls->GetExtraDocs().push_back("def __init__(self, x: float, y: float, z: float, w: float):\n\t\tsuper(LQuaternion, self).__init__()");
+	PyTypeObject* typeobject = cls->GetBindingType();
+
 	BindingModule::Get("luna.math")->AddMethod<&LMath::FromEuler>("from_euler");
 	BindingModule::Get("luna.math")->AddMethod<&LMath::ToEuler>("to_euler");
+	BindingModule::Get("luna.math")->AddMethod<&LMath::AngleAxisf>("angle_axis");
+	static PyNumberMethods methods;
+	
+	methods.nb_multiply = (binaryfunc)LQuaternion_multiply;
+	typeobject->tp_as_number = &methods;
 
 }
 

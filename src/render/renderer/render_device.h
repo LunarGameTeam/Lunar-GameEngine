@@ -46,12 +46,12 @@ struct PackedParams
 
 class DynamicMemoryBuffer
 {
-	RHIDevice* mDevice;
-	RHIBufferUsage mBufferUsage;
-	RHIMemoryPtr mFullMemory;
+	RHIDevice*                  mDevice;
+	RHIBufferUsage              mBufferUsage;
+	RHIMemoryPtr                mFullMemory;
 	std::vector<RHIResourcePtr> mhistoryBuffer;
-	size_t mBufferOffset = 0;
-	size_t mMaxSize;
+	size_t                      mBufferOffset = 0;
+	size_t                      mMaxSize;
 public:
 	DynamicMemoryBuffer(size_t maxSize, RHIBufferUsage bufferUsage) :mMaxSize(maxSize), mBufferUsage(bufferUsage) {};
 	void Init(RHIDevice* device,const RHIHeapType memoryHeapType, const int32_t memoryType);
@@ -69,10 +69,10 @@ public:
 
 	void Init();
 
-	RHIRenderQueuePtr mGraphicQueue;
-	RHIRenderQueuePtr mTransferQueue;
-	RHIDevice* mDevice;
-	RenderDeviceType    mDeviceType = RenderDeviceType::DirectX12;
+	RHIRenderQueuePtr    mGraphicQueue;
+	RHIRenderQueuePtr    mTransferQueue;
+	RHIDevice*           mDevice;
+	RenderDeviceType     mDeviceType = RenderDeviceType::DirectX12;
 	RHIGraphicCmdListPtr mGraphicCmd;
 	RHIGraphicCmdListPtr mTransferCmd;
 	RHIGraphicCmdListPtr mBarrierCmd;

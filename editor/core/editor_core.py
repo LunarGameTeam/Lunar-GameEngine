@@ -43,8 +43,8 @@ class EditorCore(object):
         editor_module.register_panel(self.inspector_panel)
         editor_module.register_panel(self.demo_panel)
 
+        generate_doc_for_module(luna)
         if False:
-            generate_doc_for_module(luna)
             update_asset("/assets/test.scn", luna.Scene)
             update_asset("/assets/built-in/skybox/skybox.mat", luna.MaterialTemplateAsset)
             update_asset("/assets/built-in/skybox/sky_box.cubemap", luna.TextureCube)

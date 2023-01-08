@@ -12,7 +12,7 @@ RegisterTypeEmbedd_Imp(LightComponent)
 	cls->Ctor<LightComponent>();
 	cls->Binding<Self>();
 
-	cls->BindingProperty<&Self::m_color>("color")
+	cls->BindingProperty<&Self::mColor>("color")
 		.Serialize();
 	BindingModule::Get("luna")->AddType(cls);
 };
@@ -72,9 +72,9 @@ const luna::LMatrix4f DirectionLightComponent::GetWorldMatrix()const
 	return mTransform->GetLocalToWorldMatrix();
 }
 
-const LMatrix4f DirectionLightComponent::GetViewMatrix(int csm_index)const
+const LMatrix4f DirectionLightComponent::GetViewMatrix(int idx)const
 {
-	return m_view_matrix[csm_index];
+	return mViewMatrix[idx];
 }
 
 const LMatrix4f DirectionLightComponent::GetViewMatrix()const
@@ -84,7 +84,7 @@ const LMatrix4f DirectionLightComponent::GetViewMatrix()const
 
 const LVector3f DirectionLightComponent::GetColor()const
 {
-	return m_color;
+	return mColor;
 }
 
 const LQuaternion DirectionLightComponent::GetRotation()const
@@ -99,17 +99,17 @@ void DirectionLightComponent::SetProjectionMatrix(const LMatrix4f& val, int csm_
 
 void DirectionLightComponent::SetViewMatrix(const LMatrix4f& val, int csm_index)
 {
-	m_view_matrix[csm_index] = val;
+	mViewMatrix[csm_index] = val;
 }
 
 const LVector3f DirectionLightComponent::GetCSMSplit()const
 {
-	return m_csm_split;
+	return mCSMSplit;
 }
 
 void DirectionLightComponent::SetCSMSplits(const LVector3f& val)
 {
-	m_csm_split = val;
+	mCSMSplit = val;
 }
 
 void PointLightComponent::OnCreate()
@@ -122,7 +122,7 @@ float PointLightComponent::GetIntensity()
 	return mIdentisity;
 }
 
-LVector3f &PointLightComponent::GetPosition()
+LVector3f PointLightComponent::GetPosition()
 {
 	return mTransform->GetPosition();
 }

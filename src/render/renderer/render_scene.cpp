@@ -20,9 +20,9 @@ struct SceneBuffer
 	LVector4f mLightDiffuseColor;
 };
 
-RenderScene::RenderScene(int32_t scene_id) : mViews(this)
+RenderScene::RenderScene()
 {
-	mSceneID = scene_id;
+
 }
 
 
@@ -67,17 +67,17 @@ void RenderScene::CommitSceneBuffer()
 	sRenderModule->mRenderDevice->UpdateConstantBuffer(mSceneBuffer, &sceneBuffer, sizeof(SceneBuffer));
 }
 
-Light* RenderScene::CreateMainDirLight()
+RenderLight* RenderScene::CreateMainDirLight()
 {
-	mDirLight = new Light();
+	mDirLight = new RenderLight();
 	return mDirLight;
 }
 
 RenderView* RenderScene::CreateRenderView()
 {
-	RenderView* new_view = new RenderView(mViews.Size());
-	mViews.PushBack(new_view);
-	return new_view;
+	RenderView* newView = new RenderView(mViews.size());
+	mViews.push_back(newView);
+	return newView;
 }
 
 void RenderScene::Render(FrameGraphBuilder* FG)
@@ -114,23 +114,7 @@ void RenderScene::Render(FrameGraphBuilder* FG)
 
 	for (auto& renderView : mViews)
 	{
-		
-		switch (renderView->mViewType)
-		{
-		case RenderViewType::SceneView:
-		{
-			renderView->GenerateSceneViewPass(this, FG);			
-		}
-		break;
-		case RenderViewType::CSMShadowView:
-		{
-			renderView->GenerateShadowViewPass(this, FG);			
-		}
-		break;
-		default:
-			break;
-		}
-
+		renderView->ScenePipeline(this, FG);		
 	}
 }
 

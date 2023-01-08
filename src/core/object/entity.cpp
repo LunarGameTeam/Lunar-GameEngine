@@ -17,7 +17,7 @@ RegisterTypeEmbedd_Imp(Entity)
 
 	cls->Property<&Self::m_children>("children");
 
-	cls->BindingMethod<&Entity::GetComponentByType>("get_component").GetBindingMethodDef().ml_doc = LString::MakeStatic("def get_component(self, name: str,t: Type[T] ) -> T:");
+	cls->BindingMethod<&Entity::GetComponentByType>("get_component").GetBindingMethodDef().ml_doc = LString::MakeStatic("def get_component(self, t: typing.Type[T] ) -> T:");
 
 	cls->BindingMethod<&Entity::GetComponentAt>("get_component_at");
 

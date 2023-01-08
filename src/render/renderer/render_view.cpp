@@ -9,7 +9,6 @@ namespace luna::render
 {
 
 RenderView::RenderView(uint64_t view_id) :
-	mRT(this),
 	mViewID(view_id)
 {
 	mRT.SetPtr(TCreateObject<RenderTarget>());
@@ -57,16 +56,30 @@ void RenderView::PrepareViewBuffer()
 void RenderView::GenerateSceneViewPass(RenderScene* scene, FrameGraphBuilder* FG)
 {
 	//mDebugPass->BuildRenderPass(FG, this, scene);	
-	mLightingPass->BuildRenderPass(FG, this, scene);
 }
 
 void RenderView::GenerateShadowViewPass(RenderScene* scene, FrameGraphBuilder* FG)
 {
-	for (RenderObject* ro : scene->GetRenderObjects())
-	{
-
-	}
 }
 
+void RenderView::ScenePipeline(RenderScene* scene, FrameGraphBuilder* FG)
+{
+	switch (mViewType)
+	{
+	case RenderViewType::SceneView:
+	{
+		mLightingPass->BuildRenderPass(FG, this, scene);
+		break;
+	}	
+	case RenderViewType::ShadowMapView:
+	{
+		break;
+	}
+	default:
+		break;
+	}
+
+
+}
 
 }

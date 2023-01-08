@@ -12,40 +12,43 @@ namespace luna::render
 void LightingPass::BuildRenderPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene)
 {
 	RenderPass::BuildRenderPass(builder, view, renderScene);
-
+	
 	//用lambda
 	auto& node = builder->AddPass("LightingPass");
 
-	node.SetupFunc(builder, [=](FrameGraphBuilder* builder, FGNode& node){
-			LString rtName = "MainColor";
-			LString rtDepthName = "MainDepth";
-			builder->BindExternalTexture(rtName, sRenderModule->mMainRT->mColorTexture);
-			builder->BindExternalTexture(rtDepthName, sRenderModule->mMainRT->mDepthTexture);
+	node.SetupFunc(builder, [=](FrameGraphBuilder* builder, FGNode& node)
+	{
+		LString rtName = "MainColor";
+		LString rtDepthName = "MainDepth";
+		RHIResourcePtr colorTexture = view->GetRenderTarget() ? view->GetRenderTarget()->mColorTexture : sRenderModule->mMainRT->mColorTexture;
+		RHIResourcePtr depthTexture = view->GetRenderTarget() ? view->GetRenderTarget()->mDepthTexture : sRenderModule->mMainRT->mDepthTexture;
+		builder->BindExternalTexture(rtName, colorTexture);
+		builder->BindExternalTexture(rtDepthName, depthTexture);
 
-			//builder->BindExternalTexture(mShadowMapDsName, view->GetRenderTarget()->mDepthTexture);
+		//builder->BindExternalTexture(mShadowMapDsName, view->GetRenderTarget()->mDepthTexture);
 
-			FGTexture* color = builder->GetTexture(rtName);
-			FGTexture* depth = builder->GetTexture(rtDepthName);
+		FGTexture* color = builder->GetTexture(rtName);
+		FGTexture* depth = builder->GetTexture(rtDepthName);
 
-			assert(color);
-			assert(depth);
+		assert(color);
+		assert(depth);
 
-			ViewDesc srvDesc;
-			srvDesc.mViewType = RHIViewType::kTexture;
-			srvDesc.mViewDimension = RHIViewDimension::TextureView2D;
+		ViewDesc srvDesc;
+		srvDesc.mViewType = RHIViewType::kTexture;
+		srvDesc.mViewDimension = RHIViewDimension::TextureView2D;
 
-			ViewDesc rtvDesc;
-			rtvDesc.mViewType = RHIViewType::kRenderTarget;
-			rtvDesc.mViewDimension = RHIViewDimension::TextureView2D;
+		ViewDesc rtvDesc;
+		rtvDesc.mViewType = RHIViewType::kRenderTarget;
+		rtvDesc.mViewDimension = RHIViewDimension::TextureView2D;
 
-			ViewDesc dsvDesc;
-			dsvDesc.mViewType = RHIViewType::kDepthStencil;
-			dsvDesc.mViewDimension = RHIViewDimension::TextureView2D;
+		ViewDesc dsvDesc;
+		dsvDesc.mViewType = RHIViewType::kDepthStencil;
+		dsvDesc.mViewDimension = RHIViewDimension::TextureView2D;
 
-			auto colorView = node.AddRTV(color, rtvDesc);
-			auto depthView = node.AddDSV(depth, dsvDesc);
-			node.SetColorAttachment(colorView);
-			node.SetDepthStencilAttachment(depthView);
+		auto colorView = node.AddRTV(color, rtvDesc);
+		auto depthView = node.AddDSV(depth, dsvDesc);
+		node.SetColorAttachment(colorView);
+		node.SetDepthStencilAttachment(depthView);
 	});	
 	
 	node.ExcuteFunc([view, renderScene](FrameGraphBuilder* builder, FGNode& node, RenderDevice* device){

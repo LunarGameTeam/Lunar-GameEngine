@@ -43,7 +43,7 @@ void ScenePanel::OnGUI()
 	{
 		if (scene)
 		{
-			render::RenderTarget* rt = sRenderModule->GetRenderScene(0)->GetRenderView(0)->GetRenderTarget();
+			render::RenderTarget* rt = sRenderModule->GetRenderSceneAt(0)->GetRenderView(0)->GetRenderTarget();
 			rt->SetWidth((uint32_t)new_size.x);
 			rt->SetHeight((uint32_t)new_size.y);
 		}

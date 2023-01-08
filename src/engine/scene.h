@@ -47,10 +47,10 @@ public:
 	void OnLoad() override;
 
 private:
-	bool mInit = false;
-	render::RenderScene* mRenderScene;
+	bool                     mInit = false;
+	render::RenderScene*     mRenderScene;
 	DirectionLightComponent* m_main_light;
-	TPPtrArray<Entity> mEntites;
+	TPPtrArray<Entity>       mEntites;
 
 	friend class SceneModule;
 };

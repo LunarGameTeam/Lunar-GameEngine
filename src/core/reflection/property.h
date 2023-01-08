@@ -125,6 +125,7 @@ public:
 	template<typename class_type, typename M>
 	LProperty& Binding()
 	{
+		mType = static_type< std::remove_pointer_t<std::decay_t<M>>>::StaticType();
 		if (mHasBinding)
 			return *this;
 

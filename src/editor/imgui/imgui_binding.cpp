@@ -302,12 +302,14 @@ STATIC_INIT(imgui)
 		imguiModule->AddMethod<&ImGui::GetWindowContentRegionMax>("get_window_content_max");
 		
 		imguiModule->AddMethod<&ImGui::IsMouseHoveringRect>("is_mouse_hovering_rect");
+		imguiModule->AddMethod<&ImGui::GetMouseDragDelta>("get_mouse_drag_delta");
 		imguiModule->AddMethod<&ImGui::ResetMouseDragDelta>("reset_mouse_drag_delta");
 
 		imguiModule->AddMethod<&ImGui::BeginMenuBar>("begin_menu_bar");
 		imguiModule->AddMethod<&ImGui::EndMenuBar>("end_menu_bar");
 		imguiModule->AddMethod<&ImGui::BeginMenu>("begin_menu");
 		imguiModule->AddMethod<&ImGui::EndMenu>("end_menu");
+		imguiModule->AddMethod<&ImGui::GetWindowPos>("get_window_pos");
 		imguiModule->AddMethod<&PyMenuItem>("menu_item");
 		imguiModule->AddMethod<&PyImage>("image");
 

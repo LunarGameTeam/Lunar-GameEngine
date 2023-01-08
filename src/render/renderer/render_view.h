@@ -31,16 +31,18 @@ struct PerViewBuffer
 enum class RenderViewType
 {
 	SceneView,
-	CSMShadowView
+	ShadowMapView
 };
 
-class RENDER_API RenderView : public LObject
+class RENDER_API RenderView
 {
 public:
 	RenderView(uint64_t view_id);
 
 	~RenderView() = default;
 public:
+	void ScenePipeline(RenderScene* scene, FrameGraphBuilder* FG);
+
 	void GenerateSceneViewPass(RenderScene* scene,FrameGraphBuilder* FG);
 	void GenerateShadowViewPass(RenderScene* scene, FrameGraphBuilder* FG);
 
@@ -57,15 +59,18 @@ public:
 	void SetViewPosition(const LVector3f& val) { mViewPos = val; }
 	void SetProjectionMatrix(const LMatrix4f& val) { mProjMatrix = val; }
 
-	RenderViewType mViewType = RenderViewType::SceneView;;
-	float mNear;
-	float mFar;
+	RenderViewType mViewType = RenderViewType::SceneView;
+	
 
 	RHIView* GetPerViewBufferView() 
 	{
 		return mPerViewBufferView; 
 	}
+
 private:
+	float mNear = 0.1f;
+	float mFar = 1000.0f;
+
 	RenderPass* mDebugPass;
 	RenderPass* mLightingPass;
 

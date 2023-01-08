@@ -5,7 +5,6 @@
 #include "render/renderer/render_pass.h"
 #include "render/renderer/render_target.h"
 #include "render/renderer/render_view.h"
-#include "render/renderer/render_light.h"
 #include "render/renderer/render_scene.h"
 #include "render/renderer/render_device.h"
 

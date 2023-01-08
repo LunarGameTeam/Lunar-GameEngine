@@ -258,7 +258,7 @@ struct binding_converter<U*> : std::enable_if_t<std::is_base_of_v<LObject, U>>
 
 	inline static PyObject* to_binding(LObject* obj)
 	{
-		BindingLObject* bindingObject;
+		BindingLObject* bindingObject = nullptr;
 		PyTypeObject* typeobject = LType::Get<T>()->GetBindingType();
 		if (obj)
 		{
@@ -274,9 +274,9 @@ struct binding_converter<U*> : std::enable_if_t<std::is_base_of_v<LObject, U>>
 		}
 		else
 		{
-			bindingObject = (BindingLObject*) typeobject->tp_alloc(typeobject, 0);
-			bindingObject->ptr = obj;
+			Py_RETURN_NONE;		
 		}
+		
 
 		return (PyObject*)bindingObject;
 	}

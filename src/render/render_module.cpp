@@ -64,8 +64,7 @@ RegisterTypeEmbedd_Imp(RenderModule)
 
 }
 RenderModule::RenderModule() :
-	mMainRT(this),
-	mRenderScenes(this)
+	mMainRT(this)
 {
 	mNeedTick = true;
 	sRenderModule = this;	
@@ -284,8 +283,6 @@ bool RenderModule::OnInit()
 
 		sRenderModule->mRenderDevice->mGraphicCmd->Reset();
 
-		sRenderModule->mRenderDevice->mGraphicCmd->ResourceBarrierExt({ sRenderModule->mMainRT->mColorTexture, render::ResourceState::kUndefined, render::ResourceState::kShaderReadOnly });
-
 		ImGui_ImplVulkan_CreateFontsTexture(sRenderModule->mRenderDevice->mGraphicCmd->As<render::VulkanGraphicCmdList>()->mCommandBuffer);
 
 		sRenderModule->mRenderDevice->mGraphicCmd->CloseCommondList();
@@ -360,8 +357,8 @@ void RenderModule::OnFrameEnd(float deltaTime)
 
 RenderScene* RenderModule::AddScene()
 {
-	RenderScene* scene = new RenderScene(mRenderScenes.Size());
-	mRenderScenes.PushBack(scene);
+	RenderScene* scene = new RenderScene();
+	mRenderScenes.push_back(scene);
 	return scene;
 }
 

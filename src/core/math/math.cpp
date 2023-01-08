@@ -86,4 +86,9 @@ luna::LVector3f LMath::ToEuler(const LQuaternion& quat)
 	return res;
 }
 
+LQuaternion LMath::AngleAxisf(float val, const LVector3f& axis)
+{
+	return LQuaternion(Eigen::AngleAxisf(val, axis).toRotationMatrix());
+}
+
 }

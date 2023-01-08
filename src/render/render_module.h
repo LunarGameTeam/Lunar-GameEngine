@@ -78,6 +78,17 @@ public:
 
 	RenderDeviceType GetDeviceType() { return mRenderDevice->mDeviceType; }
 	LSharedPtr<ShaderAsset> mDefaultShader;
+
+
+	RenderScene* GetRenderSceneAt(int32_t idx)
+	{
+		if (idx < mRenderScenes.size())
+			return mRenderScenes[idx];
+		return nullptr;
+	}
+
+	size_t GetRenderSeneSize() { return mRenderScenes.size(); }
+
 public:
 	bool OnLoad() override;	
 	bool OnInit() override;
@@ -88,15 +99,6 @@ public:
 	void Tick(float delta_time) override;
 
 	void OnFrameEnd(float deltaTime) override;
-
-	RenderScene* GetRenderScene(int32_t scene_id) 
-	{ 
-		if(scene_id < mRenderScenes.Size())
-			return mRenderScenes[scene_id]; 
-		return nullptr;
-	}
-	int32_t GetRenderSeneSize() { return (int32_t)mRenderScenes.Size(); }
-
 	void UpdateFrameBuffer();
 protected:
 	void Render();
@@ -109,23 +111,18 @@ public:
 	ImguiTexture* GetImguiTexture(const LString& key) { return &mImguiTextures[key]; }
 	ImguiTexture* AddImguiTexture(const LString& key, RHIResource* res);
 private:
-	LSharedPtr<Texture2D> mDefaultWhiteTexture;
+	LSharedPtr<Texture2D>       mDefaultWhiteTexture;
 
-	RenderDeviceType          mDeviceType = RenderDeviceType::DirectX12;
+	LArray<RenderScene*>        mRenderScenes;
+	//LMap<LWindow*, RHISwapChainPtr> mSwapchains;
 
+	LMap<LString, ImguiTexture> mImguiTextures;
 
-	TPPtrArray<RenderScene> mRenderScenes;	//主交换链
+	render::RHIRenderPassPtr    mRenderPass;
+	render::RHIFrameBufferPtr   mFrameBuffer[2];
 
-	LMap<LWindow*, RHISwapChainPtr> mSwapchains;
-
-
-	std::map<LString, ImguiTexture> mImguiTextures;
-
-	render::RHIRenderPassPtr  mRenderPass;
-	render::RHIFrameBufferPtr mFrameBuffer[2];
-
-	RHISwapChainPtr           mMainSwapchain;
+	RHISwapChainPtr             mMainSwapchain;
 	//framegraph
-	FrameGraphBuilder* mFrameGraph = nullptr;
+	FrameGraphBuilder*          mFrameGraph = nullptr;
 };
 }
