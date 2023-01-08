@@ -30,7 +30,8 @@ class PyScenePanel(editor.ScenePanel):
     def on_imgui(self) -> None:
         super(PyScenePanel, self).on_imgui()
         content = luna.imgui.get_content_region_avail()
-        luna.imgui.image(self.scene_texture, content, luna.LVector2f(0, 0), luna.LVector2f(1, 1))
+        if self.scene_texture:
+            luna.imgui.image(self.scene_texture, content, luna.LVector2f(0, 0), luna.LVector2f(1, 1))
         vmin = imgui.get_window_content_min()
         vmax = imgui.get_window_content_max()
         vmin.x += imgui.get_window_pos().x

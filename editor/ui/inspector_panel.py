@@ -28,6 +28,6 @@ class PyInspectorPanel(luna.editor.PanelBase):
 
     def on_imgui(self) -> None:
         super(PyInspectorPanel, self).on_imgui()
-        if self.editor:
+        if self.editor and self.editor.target:
             self.editor.on_imgui()
         return

@@ -10,6 +10,10 @@ RegisterTypeEmbedd_Imp(CameraComponent)
 {
 	cls->Binding<Self>();
 	cls->VirtualProperty("transform")
+		.Getter<&CameraComponent::GetRenderViewTarget>()
+		.Setter<&CameraComponent::SetRenderViewTarget>()
+		.Binding<CameraComponent, render::RenderTarget*>();
+	cls->VirtualProperty("transform")
 		.Getter<&CameraComponent::GetTransform>()
 		.Binding<CameraComponent, Transform*>();
 	BindingModule::Get("luna")->AddType(cls);
@@ -29,7 +33,7 @@ const LMatrix4f &CameraComponent::GetProjectionMatrix()const
 	return mProjMat;
 }
 
-const luna::LFrustum CameraComponent::GetFrustum() const
+const LFrustum CameraComponent::GetFrustum() const
 {
 	float half_fov = mFovY * 0.5f;
 	float half_y = std::tan(half_fov) * mNear;
@@ -78,9 +82,19 @@ void CameraComponent::SetNear(float val)
 	mNear = val;
 }
 
+void CameraComponent::SetRenderViewTarget(render::RenderTarget* target)
+{
+	mRenderView->SetRenderTarget(target);
+}
+
 void CameraComponent::SetAspectRatio(float val)
 {
 	mAspect = val;
+}
+
+CameraComponent::~CameraComponent()
+{
+	GetScene()->GetRenderScene()->DestroyRenderView(mRenderView);
 }
 
 void CameraComponent::OnCreate()

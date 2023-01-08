@@ -9,16 +9,19 @@ struct binding_proxy_base
 {
 	using binding_object_t = void;
 
+	static constexpr setattrofunc get_setattro = nullptr;
+	static constexpr initproc get_initproc = nullptr;
+	static constexpr inquiry get_bool = nullptr;
+	static constexpr destructor get_destructor = nullptr;
+	static constexpr getattrofunc get_getattrofunc = nullptr;
+	static constexpr newfunc get_newfunc = nullptr;
+	static constexpr allocfunc get_allocfunc = nullptr;
+	static constexpr binaryfunc get_multiply = nullptr;
+	static constexpr binaryfunc get_add = nullptr;
+
 	void* GetNativePtr() { return nullptr; }
 
 	static int get_type_flags() { return Py_TPFLAGS_DEFAULT; };
-	static setattrofunc get_setattrofunc() { return nullptr; };
-	static getattrofunc get_getattrofunc() { return nullptr; };
-	static initproc get_initproc() { return nullptr; }
-	static destructor get_destructor() { return nullptr; }
-	static newfunc get_newfunc() { return nullptr; }
-	static allocfunc get_allocfunc() { return nullptr; }
-
 };
 
 template<typename T, class = void>
@@ -30,18 +33,12 @@ struct binding_proxy : binding_proxy_base
 template<typename T>
 struct struct_binding_proxy : binding_proxy_base
 {
-	static int get_type_flags() { return Py_TPFLAGS_DEFAULT; };
-
 	using binding_object_t = BindingStruct<T>;
 
-	static newfunc get_newfunc() { return (newfunc)PyType_GenericNew; }
+	constexpr static newfunc get_newfunc = PyType_GenericNew;
 
-	static BindingStruct<T>* new_binding_object()
-	{
-		PyTypeObject* type = binding_type<T>::StaticType();
-		return PyObject_NEW(BindingStruct<T>, type);
-	}
-
+	static int get_type_flags() { return Py_TPFLAGS_DEFAULT; };
+		
 	template<typename M>
 	static PyObject* raw_getter(BindingStruct<T>* o, void* closure)
 	{

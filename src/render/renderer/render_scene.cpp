@@ -118,4 +118,32 @@ void RenderScene::Render(FrameGraphBuilder* FG)
 	}
 }
 
+void RenderScene::DestroyRenderView(RenderView* renderView)
+{
+
+	for (auto it = mViews.begin(); it != mViews.end(); ++it)
+	{
+		if (renderView == *it)
+		{			
+			mViews.erase(it);			
+			delete renderView;
+			return;
+		}
+	}
+}
+
+void RenderScene::DestroyRenderObject(RenderObject* ro)
+{
+	for (auto it = mRenderObjects.begin(); it != mRenderObjects.end(); ++it)
+	{
+		if (ro == *it)
+		{
+			mRenderObjects.erase(it);
+			delete ro;
+			break;
+		}
+	}
+	mBufferDirty = true;
+}
+
 }

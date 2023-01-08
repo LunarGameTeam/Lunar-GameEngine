@@ -44,6 +44,9 @@ struct static_type<LType>
 class LString;
 
 RegisterType(CORE_API, bool, bool)
+RegisterType(CORE_API, unsigned int, unsigned_int)
+RegisterType(CORE_API, unsigned long, unsigned_long)
+RegisterType(CORE_API, unsigned long long, unsigned_long_long)
 RegisterType(CORE_API, const char*, const_char)
 RegisterType(CORE_API, int, int)
 RegisterType(CORE_API, float, float)

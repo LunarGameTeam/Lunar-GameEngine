@@ -16,7 +16,9 @@ class ENGINE_API CameraComponent : public Component
 {
 	RegisterTypeEmbedd(CameraComponent, Component)
 public:
+	virtual ~CameraComponent();
 	void OnCreate() override;
+	
 	void OnTick(float delta_time) override;
 
 
@@ -37,6 +39,10 @@ public:
 	
 	GET_SET_VALUE(LVector3f, mDirection, FlyDirection);
 	GET_SET_VALUE(float, mSpeed, Speed);
+
+	render::RenderTarget* GetRenderViewTarget() { if (mRenderView) return mRenderView->GetRenderTarget(); return nullptr; }
+	void SetRenderViewTarget(render::RenderTarget* target);
+
 	void SetAspectRatio(float val);
 
 private:

@@ -26,6 +26,8 @@ public:
 
 	}
 
+	virtual ~MeshRenderer();
+
 	bool PopulateRenderNode(RenderObject& render_nodes) override;
 
 	void SetMesh(MeshAsset* mesh)
@@ -47,6 +49,7 @@ public:
 	void OnActivate() override;
 
 private:
+	render::RenderObject* mRO;
 	TPPtr<ObjAsset> mObjAsset;
 	TPPtr<MeshAsset> m_mesh;
 	TPPtr<MaterialInstance> mMaterialInstance;

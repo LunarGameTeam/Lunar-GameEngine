@@ -1,6 +1,7 @@
 #pragma once
 
-#include "core/object/base_object.h"
+#include "core/core_library.h"
+
 #include "render/render_config.h"
 #include "render/asset/texture_asset.h"
 #include "render/rhi/rhi_pch.h"
@@ -12,6 +13,7 @@ namespace luna::render
 
 class RENDER_API RenderTarget : public LObject
 {
+	RegisterTypeEmbedd(RenderTarget, LObject)
 public:
 	RenderTarget();
 

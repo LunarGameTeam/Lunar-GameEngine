@@ -281,6 +281,9 @@ STATIC_INIT(imgui)
 		AddIMGUIConstant(ImGuiDragDropFlags_None);
 		AddIMGUIConstant(ImGuiDragDropFlags_AcceptBeforeDelivery);		
 
+		AddIMGUIConstant(ImGuiPopupFlags_None);
+		AddIMGUIConstant(ImGuiPopupFlags_MouseButtonRight);
+
 		AddIMGUIConstant(ImGuiTreeNodeFlags_DefaultOpen);
 		AddIMGUIConstant(ImGuiTreeNodeFlags_Leaf);
 		AddIMGUIConstant(ImGuiTreeNodeFlags_OpenOnArrow);
@@ -304,6 +307,9 @@ STATIC_INIT(imgui)
 		imguiModule->AddMethod<&ImGui::IsMouseHoveringRect>("is_mouse_hovering_rect");
 		imguiModule->AddMethod<&ImGui::GetMouseDragDelta>("get_mouse_drag_delta");
 		imguiModule->AddMethod<&ImGui::ResetMouseDragDelta>("reset_mouse_drag_delta");
+
+		imguiModule->AddMethod<&ImGui::BeginPopupContextItem>("begin_popup_context_item");
+		imguiModule->AddMethod<&ImGui::EndPopup>("end_popup");
 
 		imguiModule->AddMethod<&ImGui::BeginMenuBar>("begin_menu_bar");
 		imguiModule->AddMethod<&ImGui::EndMenuBar>("end_menu_bar");
@@ -339,6 +345,7 @@ STATIC_INIT(imgui)
 		imguiModule->AddMethod<&ImGui::BeginDragDropTarget>("begin_drag_drop_target");
 		imguiModule->AddMethod<&ImGui::EndDragDropTarget>("end_drag_drop_target");
 		imguiModule->AddMethod<&ImGui::AcceptDragDropPayload>("accept_drag_drop_payload");
+				
 		imguiModule->AddMethod<&PySetDragDropPayload>("set_drag_drop_payload");
 
 

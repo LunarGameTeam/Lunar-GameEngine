@@ -182,13 +182,22 @@ public:
 		binding_type.tp_basicsize = sizeof(binding::binding_proxy<T>::binding_object_t);
 		binding_type.tp_itemsize = 0;
 
+		binding_type.tp_dealloc = binding::binding_proxy<T>::get_destructor;
+		binding_type.tp_new = binding::binding_proxy<T>::get_newfunc;
 
-		binding_type.tp_getattro = binding::binding_proxy<T>::get_getattrofunc();
-		binding_type.tp_setattro = binding::binding_proxy<T>::get_setattrofunc();
+		binding_type.tp_getattro = binding::binding_proxy<T>::get_getattrofunc;
+		binding_type.tp_setattro = binding::binding_proxy<T>::get_setattro;
+		binding_type.tp_init = binding::binding_proxy<T>::get_initproc;
+
 		binding_type.tp_flags = binding::binding_proxy<T>::get_type_flags();
-		binding_type.tp_init = binding::binding_proxy<T>::get_initproc();
-		binding_type.tp_dealloc = binding::binding_proxy<T>::get_destructor();
-		binding_type.tp_new = binding::binding_proxy<T>::get_newfunc();
+
+
+
+		memset(&mPyNumberMethods, 0, sizeof(PyNumberMethods));
+		binding_type.tp_as_number = &mPyNumberMethods;
+		mPyNumberMethods.nb_bool = binding::binding_proxy<T>::get_bool;
+		mPyNumberMethods.nb_add = binding::binding_proxy<T>::get_add;
+		mPyNumberMethods.nb_multiply = binding::binding_proxy<T>::get_multiply;
 
 	}
 
@@ -290,6 +299,7 @@ protected:
 	std::map<LString, PyObject*> mCallableCache;
 	std::vector<PyMethodDef>     mMethodDefCache;
 	std::vector<PyGetSetDef>     mPropDefCache;
+	PyNumberMethods              mPyNumberMethods;
 
 	std::function<void* ()>      mCtor;
 	bool                         mConstructable         = false;

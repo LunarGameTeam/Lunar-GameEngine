@@ -17,9 +17,14 @@ RegisterTypeEmbedd_Imp(Entity)
 
 	cls->Property<&Self::m_children>("children");
 
+
+	cls->BindingMethod<&Entity::PyGetScene>("get_scene");
+
 	cls->BindingMethod<&Entity::GetComponentByType>("get_component").GetBindingMethodDef().ml_doc = LString::MakeStatic("def get_component(self, t: typing.Type[T] ) -> T:");
 
 	cls->BindingMethod<&Entity::GetComponentAt>("get_component_at");
+
+	cls->BindingMethod<&Entity::Destroy>("destroy");
 
 	cls->BindingMethod<&Entity::GetComponetCount>("get_component_count");
 
@@ -50,6 +55,11 @@ void Entity::OnTick(float delta_time)
 {
 }
 
+void Entity::Destroy()
+{
+	delete this;
+}
+
 Entity *Entity::Parent()
 {
 	if (!mParent) return nullptr;
@@ -59,6 +69,11 @@ Entity *Entity::Parent()
 Scene *Entity::GetScene()
 {
 	return mScene;
+}
+
+LObject* Entity::PyGetScene()
+{
+	return (LObject*)mScene;
 }
 
 Transform *Entity::GetTransform()

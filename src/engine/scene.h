@@ -18,9 +18,11 @@ class ENGINE_API Scene : public JsonAsset
 	RegisterTypeEmbedd(Scene, JsonAsset)
 public:
 	Scene();
+	~Scene();
 
 	Entity *FindEntity(const LString &name);
 	Entity *CreateEntity(const LString &name, Entity *parent = nullptr);
+	void DestroyEntity(Entity* entity);
 
 	void SetMainDirectionLight(DirectionLightComponent *light);
 	DirectionLightComponent* GetMainDirectionLight();

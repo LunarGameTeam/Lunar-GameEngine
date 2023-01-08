@@ -20,6 +20,11 @@ RegisterTypeEmbedd_Imp(RendererComponent)
 	BindingModule::Get("luna")->AddType(cls);
 }
 
+RendererComponent::~RendererComponent()
+{
+
+}
+
 void RendererComponent::OnCreate()
 {
 	Component::OnCreate();

@@ -16,6 +16,24 @@ RegisterType_Imp(const char*, const_char)
 	cls->mPyType = &PyUnicode_Type;
 }
 
+RegisterType_Imp(unsigned int, unsigned_int)
+{
+	Py_XINCREF(&PyLong_Type);
+	cls->mPyType = &PyLong_Type;
+}
+
+RegisterType_Imp(unsigned long, unsigned_long)
+{
+	Py_XINCREF(&PyLong_Type);
+	cls->mPyType = &PyLong_Type;
+}
+
+RegisterType_Imp(unsigned long long, unsigned_long_long)
+{
+	Py_XINCREF(&PyLong_Type);
+	cls->mPyType = &PyLong_Type;
+}
+
 RegisterType_Imp(int, int)
 {
 	Py_XINCREF(&PyLong_Type);

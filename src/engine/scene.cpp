@@ -18,6 +18,7 @@ RegisterTypeEmbedd_Imp(Scene)
 		.Serialize();
 
 	cls->BindingMethod<&Scene::FindEntity>("find_entity");
+	cls->BindingMethod<&Scene::DestroyEntity>("destroy_entity");
 	cls->BindingMethod<&Scene::GetEntityAt>("get_entity_at");
 	cls->BindingMethod<&Scene::GetEntityCount>("get_entity_count");
 	cls->Binding<Scene>();
@@ -29,6 +30,11 @@ Scene::Scene() :
 	mEntites(this)
 {
 	mRenderScene = sRenderModule->AddScene();
+}
+
+Scene::~Scene()
+{
+
 }
 
 Entity *Scene::FindEntity(const LString &name)
@@ -50,6 +56,12 @@ Entity *Scene::CreateEntity(const LString &name, Entity *parent /*= nullptr*/)
 		
 	mEntites.PushBack(entity);
 	return entity;
+}
+
+void Scene::DestroyEntity(Entity* entity)
+{
+	mEntites.Erase(entity);
+	entity->Destroy();
 }
 
 void Scene::SetMainDirectionLight(DirectionLightComponent *light)

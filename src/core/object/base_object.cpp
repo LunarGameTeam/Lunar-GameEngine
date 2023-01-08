@@ -54,11 +54,13 @@ LObject::~LObject()
 		mParent->mSubObjects.remove(this);
 		mParent = nullptr;
 	}
-	for (auto& it : mSubObjects)
+	auto tmp = mSubObjects;
+	for (LObject* it : tmp)
 	{
 		delete it;
 	}
 	mSubObjects.clear();
+	sObjects.erase(mInstanceID);
 	Py_XDECREF(mBindingObject);
 }
 
@@ -99,6 +101,7 @@ size_t LObject::Index() const
 	return idx;
 }
 
+
 LObject* LObject::GetParent()
 {
 	return mParent;
@@ -127,6 +130,51 @@ void LObject::SetBindingObject(PyObject* val)
 	memset(&mBindingObject->ptr, 0, sizeof(mBindingObject->ptr));
 	mBindingObject->ptr = this;
 }
+}
 
+namespace luna::binding
+{
+
+PyObject* BindingLObject::__alloc__(PyTypeObject* type, Py_ssize_t size)
+{
+	BindingLObject* bindingObject = (BindingLObject*)PyType_GenericAlloc(type, size);
+	std::construct_at<PPtr>(&(bindingObject->ptr));
+	return bindingObject;
+}
+
+void BindingLObject::__destrctor__(PyObject* self)
+{
+	PyTypeObject* tp = Py_TYPE(self);
+	binding::BindingLObject* obj = (binding::BindingLObject*)(self);
+	obj->~BindingLObject();
+	tp->tp_free(self);
+}
+
+int BindingLObject::__bool__(PyObject* self)
+{
+	binding::BindingLObject* obj = (binding::BindingLObject*)(self);
+	if (obj->ptr.Get())
+		return 1;
+	return 0;
+}
+
+PyObject* BindingLObject::__new__(PyTypeObject* type, PyObject* args, PyObject* kwrds)
+{
+	Py_XINCREF(type);
+	LType* object_type = LType::Get(type);
+	binding::BindingLObject* obj = (binding::BindingLObject*)type->tp_alloc(type, 0);
+	LObject* t = object_type->NewInstance<LObject>();
+
+#ifdef _DEBUG
+	PyObject* dict = PyObject_GenericGetDict(obj, nullptr);
+	//CheckÒ»ÏÂDict
+	assert(PyDict_Check(dict));
+	Py_XDECREF(dict);
+#endif
+
+	t->SetType(object_type);
+	t->SetBindingObject(obj);
+	return (PyObject*)obj;
+}
 
 }

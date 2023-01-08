@@ -8,6 +8,7 @@ RegisterTypeEmbedd_Imp(Component)
 {
 	cls->Ctor<Component>();
 	cls->Binding<Component>();
+	cls->BindingMethod<&Component::Destroy>("destroy");
 	BindingModule::Get("luna")->AddType(cls);
 }
 
@@ -59,6 +60,7 @@ void Component::UpdateActiveState()
 
 void Component::Destroy()
 {
+	delete this;
 }
 
 Scene *Component::GetScene()

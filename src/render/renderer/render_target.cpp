@@ -8,6 +8,17 @@
 namespace luna::render
 {
 
+RegisterTypeEmbedd_Imp(RenderTarget)
+{
+	cls->Ctor<RenderTarget>();
+	cls->Binding<RenderTarget>();
+	cls->BindingProperty<&RenderTarget::mWidth>("width");
+	cls->BindingProperty<&RenderTarget::mHeight>("height");
+	cls->BindingMethod<&RenderTarget::Update>("update");
+	BindingModule::Get("luna")->AddType(cls);
+};
+
+
 RenderTarget::RenderTarget()
 {
 

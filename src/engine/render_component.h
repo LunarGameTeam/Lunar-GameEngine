@@ -16,6 +16,7 @@ class ENGINE_API RendererComponent : public Component
 {
 	RegisterTypeEmbedd(RendererComponent, Component)
 public:
+	virtual ~RendererComponent();
 	virtual bool PopulateRenderNode(RenderObject& render_nodes) = 0;
 
 	GET_SET_VALUE(bool, m_dirty, RendererDirty);

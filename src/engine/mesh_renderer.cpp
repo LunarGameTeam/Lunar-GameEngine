@@ -48,18 +48,24 @@ void MeshRenderer::OnCreate()
 	mMaterialInstance->SetParent(this);
 	mMaterialInstance->Ready();
 	Super::OnCreate();
-	auto ro  = GetScene()->GetRenderScene()->CreateRenderObject();
-	ro->mMaterial = mMaterialInstance.Get();
-	ro->mMesh = mObjAsset->GetSubMeshAt(0);
-	if (ro->mMesh->mVB.get() == nullptr)
+	mRO = GetScene()->GetRenderScene()->CreateRenderObject();
+	mRO->mMaterial = mMaterialInstance.Get();
+	mRO->mMesh = mObjAsset->GetSubMeshAt(0);
+	if (mRO->mMesh->mVB.get() == nullptr)
 	{
-		ro->mMesh->Init();
+		mRO->mMesh->Init();
 	}
-	ro->mWorldMat = &(mTransform->GetLocalToWorldMatrix());
+	mRO->mWorldMat = &(mTransform->GetLocalToWorldMatrix());
 }
 
 void MeshRenderer::OnActivate()
 {
+}
+
+MeshRenderer::~MeshRenderer()
+{
+	if (mRO)
+		GetScene()->GetRenderScene()->DestroyRenderObject(mRO);
 }
 
 }

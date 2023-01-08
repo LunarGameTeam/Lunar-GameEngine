@@ -14,7 +14,7 @@
 
 namespace luna::binding
 {
-struct  BindingLObject;
+struct BindingLObject;
 }
 
 namespace luna
@@ -134,9 +134,6 @@ private:
 	friend ObjectType* TCreateObject();
 
 	friend class LType;
-
-	template<typename T>
-	friend struct binding_proxy;
 };
 
 template<typename RET>
@@ -178,6 +175,11 @@ struct CORE_API BindingLObject  : public BindingObject
 	}
 
 	static size_t sBindingObjectNum;
+
+	static PyObject* __alloc__(PyTypeObject* type, Py_ssize_t size);
+	static void __destrctor__(PyObject* self);
+	static int __bool__(PyObject* self);
+	static PyObject* __new__(PyTypeObject* type, PyObject* args, PyObject* kwrds);
 };
 
 
@@ -187,50 +189,19 @@ struct binding_proxy<T, typename std::enable_if_t<std::is_base_of_v<LObject, T>>
 	using binding_object_t = BindingLObject;
 
 	static int get_type_flags() { return Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE; };
-
-	static void LObject_destructor(PyObject* self)
-	{
-		PyTypeObject* tp = Py_TYPE(self);
-		BindingLObject* obj = (BindingLObject*)(self);
-		obj->~BindingLObject();
-		tp->tp_free(self);
-	}
-	static destructor get_destructor() { return LObject_destructor; }
-
-	static PyObject* LObject_allocfunc(PyTypeObject* type, Py_ssize_t size)
-	{
-		BindingLObject* bindingObject = PyType_GenericAlloc(type, size);
-		std::allocator<TPPtr<LObject>>::construct(&(bindingObject->ptr));
-		return bindingObject;
-	}
-
-	static allocfunc get_allocfunc() { return LObject_allocfunc; }
-
-	static PyObject* LObject_newfunc(PyTypeObject* type, PyObject* args, PyObject* kwrds)
-	{
-		Py_XINCREF(type);
-		LType* object_type = LType::Get(type);
-		BindingLObject* obj = (BindingLObject*)type->tp_alloc(type, 0);
-		T* t = object_type->NewInstance<T>();		
-
-#ifdef _DEBUG
-		PyObject* dict = PyObject_GenericGetDict(obj, nullptr);
-		//Check一下Dict
-		assert(PyDict_Check(dict));
-		Py_XDECREF(dict);
-#endif
-
-		t->SetType(object_type);
-		t->SetBindingObject(obj);
-		return (PyObject*)obj;
-	}
-	static newfunc get_newfunc() { return LObject_newfunc; }
+		
+	constexpr static destructor get_destructor = binding_object_t::__destrctor__;
+	constexpr static allocfunc get_allocfunc = binding_object_t::__alloc__;
+	constexpr static newfunc get_newfunc = binding_object_t::__new__;
+	constexpr static inquiry get_bool = binding_object_t::__bool__;
 
 	template<typename M>
 	static PyObject* raw_getter(PyObject* s, void* closure)
 	{
 		BindingLObject* o = ( BindingLObject*)(s);
 		LObject* obj = o->ptr.Get();
+		if (!obj)
+			Py_RETURN_NONE;
 		LProperty& prop = *(LProperty*)(closure);
 		size_t offset = prop.GetOffset();
 		M* mem_ptr = (M*)((char*)obj + offset);
@@ -243,6 +214,8 @@ struct binding_proxy<T, typename std::enable_if_t<std::is_base_of_v<LObject, T>>
 	{
 		BindingLObject* o = ( BindingLObject*)(s);
 		LObject* obj = o->ptr.Get();
+		if (!obj)
+			return -1;
 		LProperty& prop = *(LProperty*)(closure);
 		size_t offset = prop.GetOffset();
 		M* mem_ptr = (M*)((char*)obj + offset);
@@ -298,9 +271,9 @@ struct binding_converter<TPPtr<U>>
 {
 	using T = U;
 
-	inline static PyObject* to_binding(TPPtr<U>& sub_ptr)
+	inline static PyObject* to_binding(TPPtr<U>& pptr)
 	{
-		LObject* obj = sub_ptr.Get();
+		LObject* obj = pptr.Get();
 		BindingLObject* bindingObject = static_cast<BindingLObject*>(binding_converter<U*>::to_binding(obj));
 		return (PyObject*)bindingObject;
 	}

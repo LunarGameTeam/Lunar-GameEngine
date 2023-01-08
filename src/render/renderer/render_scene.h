@@ -57,6 +57,8 @@ public:
 	RenderLight* CreateMainDirLight();
 	RenderObject* CreateRenderObject();
 	RenderView* CreateRenderView();
+	void DestroyRenderObject(RenderObject* ro);
+	void DestroyRenderView(RenderView* renderView);
 
 public:
 	void        SetSceneBufferDirty()             { mBufferDirty = true; }

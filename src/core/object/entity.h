@@ -8,6 +8,8 @@ namespace luna
 {
 class Transform;
 class Scene;
+class Entity;
+
 
 class CORE_API Entity : public LObject
 {
@@ -27,6 +29,7 @@ public:
 	Entity *Parent();
 
 	Scene* GetScene();
+	LObject* PyGetScene();
 
 	Transform *GetTransform();
 
