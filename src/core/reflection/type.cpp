@@ -7,8 +7,9 @@
 namespace luna
 {
 
-CORE_API std::map<LString, LType*>* sTypes = nullptr;
-CORE_API std::map<PyTypeObject*, LType*>* sBindingTypes = nullptr;
+LMap<LString, LType*>* sTypes = nullptr;
+
+LMap<PyTypeObject*, LType*>* sBindingTypes = nullptr;
 
 LType* LType::StaticType()
 {	
@@ -26,6 +27,8 @@ LType::LType(const LString &name, size_t size, LType *base)
 {	
 	PyMethodDef end = { NULL };
 	mMethodDefCache.push_back(end);
+	if (sBindingTypes == nullptr)
+		sBindingTypes = new LMap<PyTypeObject*, LType*>();
 }
 
 bool LType::IsSubPtrArray()
@@ -172,12 +175,12 @@ LProperty* LType::GetProperty(const char* value)
 LType *NewType(const char* name, size_t size, LType *base)
 {	
 	if (sTypes == nullptr)
-		sTypes = new std::map<LString, LType *>();
+		sTypes = new LMap<LString, LType *>();
 	auto it = sTypes->find(name);
 	if (it == sTypes->end())
 	{
 		LType *type = new LType(name, size, base);
-		sTypes->insert(std::make_pair(name, type));
+		sTypes->operator[](name) = type;
 		return type;
 	}
 	return it->second;	

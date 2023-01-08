@@ -1,6 +1,9 @@
 #pragma once
 #include "core/core_config.h"
 
+#include <map>
+#include <mutex>
+
 //有时间再造轮子，没时间就用boost的容器了
 
 #include <unordered_set>
@@ -19,9 +22,64 @@ using LPair = std::pair<T1,T2>;
 template<typename K, typename Value>
 using LUnorderedMap = std::unordered_map<K, Value>;
 
-#include <map>
-template<typename K, typename Value>
-using LMap = std::map<K, Value>;
+
+template<typename Key, typename Val>
+class LMap
+{
+public:
+	typedef typename std::map<Key, Val>::iterator this_iterator;
+	typedef typename std::map<Key, Val>::const_iterator this_const_iterator;
+	Val& operator [](const Key& key)
+	{
+		std::lock_guard<std::mutex> lk(mtx_);
+		return dataMap_[key];
+	}
+
+	size_t erase(const Key& key)
+	{
+		std::lock_guard<std::mutex> lk(mtx_);
+		return dataMap_.erase(key);
+	}
+	this_iterator find(const Key& key)
+	{
+		std::lock_guard<std::mutex> lk(mtx_);
+		return dataMap_.find(key);
+	}
+	this_const_iterator find(const Key& key) const
+	{
+		std::lock_guard<std::mutex> lk(mtx_);
+		return dataMap_.find(key);
+	}
+
+	bool contains(const Key& key) const
+	{
+		return dataMap_.contains(key);
+	}
+
+	this_iterator begin()
+	{
+		return dataMap_.begin();
+	}
+
+	this_const_iterator begin() const
+	{
+		return dataMap_.begin();
+	}
+
+	this_iterator end()
+	{
+		return dataMap_.end();
+	}
+
+	this_const_iterator end() const
+	{
+		return dataMap_.end();
+	}
+
+private:
+	std::map<Key, Val> dataMap_;
+	std::mutex mtx_;
+};
 
 #include <list>
 template<typename Value>

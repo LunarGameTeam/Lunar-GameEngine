@@ -18,6 +18,7 @@
 #include <type_traits>
 #include <functional>
 #include <tuple>
+#include <mutex>
 
 namespace luna::binding
 {
@@ -34,8 +35,8 @@ template<typename T>
 concept Reflecable = requires  { typename T::StaticClass; };
 
 CORE_API extern PyTypeObject* sMetaType;
-CORE_API extern std::map<LString, LType*>* sTypes;
-CORE_API extern std::map<PyTypeObject*, LType*>* sBindingTypes;
+CORE_API extern LMap<LString, LType*>* sTypes;
+CORE_API extern LMap<PyTypeObject*, LType*>* sBindingTypes;
 
 
 class CORE_API LType
@@ -166,9 +167,6 @@ public:
 	{
 		mPyType = new PyTypeObject();
 
-		if (sBindingTypes == nullptr)
-			sBindingTypes = new std::map<PyTypeObject*, LType*>();
-
 		(*sBindingTypes)[mPyType] = this;
 
 		PyTypeObject& binding_type = *mPyType;
@@ -221,7 +219,7 @@ public:
 	static LType* Get(PyTypeObject* binding_type)
 	{
 		if (sBindingTypes == nullptr)
-			sBindingTypes = new std::map<PyTypeObject*, LType*>();
+			sBindingTypes = new LMap<PyTypeObject*, LType*>();
 		return sBindingTypes->operator [](binding_type);
 	}
 

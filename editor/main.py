@@ -1,3 +1,4 @@
+import inspect
 import os
 import sys
 
@@ -17,6 +18,9 @@ def init_editor():
     # 	QCoreApplication.instance().processEvents()
     # return
     import luna
+
+    for name, mem in inspect.getmembers(luna):
+        print(name, mem)
     luna.load_library("editor.dll")
 
     app = luna.LApplication.instance()
@@ -33,10 +37,14 @@ def init_editor():
 
 
 if __name__ == '__main__':
-    bin_dir = os.getcwd() + "\\bin"
+    bin_dir = os.getcwd()
+    sys.path.append(bin_dir)
+    bin_dir = os.getcwd() + "\\bin\\Debug"
+    sys.path.append(bin_dir)
+    bin_dir = os.getcwd() + "\\bin\\Release"
+    sys.path.append(bin_dir)
     editor_dir = os.getcwd() + "\\editor"
     sys.path.append(editor_dir)
-    sys.path.append(bin_dir)
     is_looping = True
     init_editor()
 
