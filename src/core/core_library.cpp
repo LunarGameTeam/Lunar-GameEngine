@@ -53,7 +53,7 @@ void LoadCoreLibrary()
 	ss << configFile.rdbuf(); // reading data
 	configContent = ss.str();	
 	
-	ConfigLoader::instance().Load(configContent);
+	ConfigLoader::instance().LoadFromJson(configContent);
 
 	luna::LApplication::Instance();
 	gEngine->LoadModule<AssetModule>();
@@ -89,7 +89,7 @@ __declspec(dllexport) BOOL WINAPI DllMain(
 		LString path(tempPath);
 		path = path + "/config.ini";
 		fs.open(path.c_str(), std::fstream::out | std::fstream::trunc);
-		ConfigLoader::instance().Save(fs);
+		ConfigLoader::instance().SaveJson(fs);
 		fs.close();
 	}
 		break;

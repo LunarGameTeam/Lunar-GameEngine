@@ -64,7 +64,6 @@ class PyMainPanel(editor.MainPanel):
 			scene_module.add_scene(scn)
 			EditorCore.instance().hierarchy_panel.set_scene(scn)
 			EditorCore.instance().scene_panel.set_scene(scn)
-			asset_module.save_asset(scn, "/assets/new_test.scn")
 
 	def on_imgui(self) -> None:
 		super(PyMainPanel, self).on_imgui()
@@ -85,7 +84,7 @@ class PyMainPanel(editor.MainPanel):
 				if imgui.menu_item("生成 Python API"):
 					generate_doc_for_module(luna)
 				if imgui.menu_item("保存场景"):
-					asset_module.save_asset(self.main_scene, "/assets/new_test.scn")
+					asset_module.save_asset(self.main_scene, self.main_scene.path)
 				if imgui.menu_item("退出"):
 					exit(0)
 				imgui.end_menu()

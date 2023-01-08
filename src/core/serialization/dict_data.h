@@ -193,6 +193,11 @@ public:
 		return !mValue.isNull();
 	}
 
+	uint32_t Size() const
+	{
+		return mValue.size();
+	}
+
 	template<typename T>
 	T Get(const LString &key, const T& default_val = detail::default_value<T>::value)
 	{
@@ -202,6 +207,23 @@ public:
 		const Json::Value& val = mValue[key.c_str()];	
 		detail::convert_from_value(val, res);
  		return res;
+	}
+
+	template<typename T>
+	T Get(uint32_t key, const T& default_val = detail::default_value<T>::value)
+	{
+		if (!mValue.isMember(key.c_str()))
+			return default_val;
+		T res;
+		const Json::Value& val = mValue.get(key, Json::nullValue);
+		detail::convert_from_value(val, res);
+		return res;
+	}
+
+
+	Json::Value GetItem(uint32_t index)
+	{
+		return mValue.get(index, Json::nullValue);
 	}
 
 	Dictionary GetDict(const LString &key);

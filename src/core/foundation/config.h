@@ -43,6 +43,8 @@ public:
 	ConfigLoader();
 	~ConfigLoader();
 
+	void LoadFromJson(const LString& val);
+	void SaveJson(std::fstream& fs);
 	void Load(const LString& val);
 	void Save(std::fstream& fs);
 
