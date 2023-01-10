@@ -22,7 +22,7 @@ struct CORE_API SerializeConfig
 	{
 
 	}
-	bool b = true;
+
 	LString mGroup;
 	LString mKey;
 	LString mValue;

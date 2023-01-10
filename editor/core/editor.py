@@ -2,6 +2,7 @@ import typing
 from typing import Type, List, Any
 
 import luna
+from core.editor_core import asset_module
 from luna import LObject, imgui, ObjAsset
 
 editors = dict()
@@ -45,9 +46,12 @@ class EditorBase(object):
             imgui.same_line(16 + self.indent, 16)
             changed, new_val = luna.imgui.input("##" + prop_name, val.path, 0)
             if luna.imgui.begin_drag_drop_target():
-                accept_drop = luna.imgui.accept_drag_drop_payload("LibraryItem", 1024)
+                accept_drop = luna.imgui.accept_drag_drop_payload("LibraryItem", 0)
                 if accept_drop:
-                    luna.imgui.end_drag_drop_target()
+                    f = accept_drop["data"]
+                    new_val = asset_module.load_asset(f.path, prop_type)
+                    setattr(comp, prop_name, new_val)
+                luna.imgui.end_drag_drop_target()
         elif prop_type == luna.LQuaternion:
             luna.imgui.align_text_to_frame_padding()
             luna.imgui.text(prop_name)
@@ -97,17 +101,16 @@ class EntityEditor(EditorBase):
             it.on_imgui()
 
     def create_child_editor(self):
-        count = self.target.get_component_count()
         child_editor = []
         indent = 0
-        for i in range(0, count):
+        for i in range(0, self.target.component_count):
             comp = self.target.get_component_at(i)
             comp_type = comp.__class__
             properties = comp_type.get_properties()
             for prop in properties:
                 indent = max(indent, luna.imgui.calc_text_size(prop.name).x)
 
-        for i in range(0, count):
+        for i in range(0, self.target.component_count):
             comp = self.target.get_component_at(i)
             editor = ComponentEditor(comp)
             editor.indent = indent

@@ -3,7 +3,7 @@
 
 #include "core/event/event_module.h"
 
-#include "engine/camera.h"
+#include "game/camera.h"
 
 #include "window/window.h"
 #include "render/render_module.h"

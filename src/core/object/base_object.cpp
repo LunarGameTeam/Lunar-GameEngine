@@ -168,7 +168,7 @@ PyObject* BindingLObject::__new__(PyTypeObject* type, PyObject* args, PyObject* 
 #ifdef _DEBUG
 	PyObject* dict = PyObject_GenericGetDict(obj, nullptr);
 	//CheckÒ»ÏÂDict
-	assert(PyDict_Check(dict));
+	LUNA_ASSERT(PyDict_Check(dict));
 	Py_XDECREF(dict);
 #endif
 

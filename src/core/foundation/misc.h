@@ -1,5 +1,12 @@
 #pragma once
-#include "core/core_config.h"
+
+#ifndef CORE_API
+#ifdef CORE_EXPORT
+#define CORE_API __declspec( dllexport )//宏定义
+#else
+#define CORE_API __declspec( dllimport )
+#endif
+#endif
 
 #include <cstdint>
 #include <memory>
@@ -44,6 +51,7 @@ private:
 
 size_t CORE_API SizeAligned(const size_t &size_in, const size_t &size_aligned_in);
 size_t CORE_API SizeAligned2Pow(const size_t &size_in, const size_t &size_aligned_in);
+
 const static size_t CommonSize1K = 1024;
 const static size_t CommonSize64K = 65536;
 const static size_t CommonSize128K = 131072;

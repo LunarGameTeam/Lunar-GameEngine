@@ -3,7 +3,7 @@
 #include "core/asset/asset_module.h"
 #include "core/foundation/profile.h"
 
-#include "engine/camera.h"
+#include "game/camera.h"
 
 #include "editor/ui/scene_panel.h"
 #include "editor/ui/icon_font.h"

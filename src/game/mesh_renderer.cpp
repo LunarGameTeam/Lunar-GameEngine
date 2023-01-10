@@ -1,6 +1,6 @@
 #include "mesh_renderer.h"
 #include "core/object/transform.h"
-#include "engine/scene.h"
+#include "game/scene.h"
 
 
 namespace luna
@@ -14,6 +14,7 @@ RegisterTypeEmbedd_Imp(MeshRenderer)
 	cls->Binding<Self>();
 
 	cls->BindingProperty<&Self::mObjAsset>("mesh")
+		.Setter<&MeshRenderer::SetObjAsset>()
 		.Serialize();
 
 	cls->BindingProperty<&Self::mMaterialInstance>("material")

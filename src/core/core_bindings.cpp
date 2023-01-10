@@ -28,9 +28,41 @@
 #include "core/memory/ptr_binding.h"
 #include "core/foundation/config.h"
 
+#include "core/core_library.h"
+#include "windows.h"
+
 namespace luna
 {
 
+CORE_API void LoadLib(const luna::LString& val)
+{
+	HINSTANCE hDll = LoadLibraryExA(val.c_str(), NULL, 0);
+	auto e =GetLastError();
+	assert(hDll != nullptr);
+	return;
+}
+
+CORE_API void AddLibDir(const luna::LString& val)
+{
+	SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+	AddDllDirectory(StringToWstring(val.std_str()).c_str());
+	return;
+}
+
+
+CORE_API PyObject* Print(PyObject* self, PyObject* args)
+{
+	auto count = PyTuple_GET_SIZE(args);
+	for (int i = 0; i < count; ++i)
+	{
+		PyObject* arg = PyTuple_GetItem(args, i);
+		PyObject* objectsRepresentation = PyObject_Repr(arg);
+		const char* msg = PyUnicode_AsUTF8(objectsRepresentation);
+		Log("Python", msg);
+		Py_XDECREF(objectsRepresentation);
+	}
+	Py_RETURN_NONE;
+}
 STATIC_INIT(Core)
 {
 
@@ -42,6 +74,8 @@ STATIC_INIT(Core)
 	LType::Get<PPtrArray>()->Binding<PPtrArray>();
 	BindingModule::Luna()->AddType(LType::Get<PPtrArray>());
 	BindingModule::Luna()->AddMethod<&LoadLib>("load_library");
+	BindingModule::Luna()->AddMethod<&AddLibDir>("add_library_dir");
+	BindingModule::Luna()->AddCFunction<&Print>("print");
 };
 
 }

@@ -24,7 +24,7 @@ uint32_t DX12SwapChain::GetNowFrameID()
 bool DX12SwapChain::InitSwapchain(ID3D12CommandQueue* cmdQueue)
 {
 	mCmdQueue = cmdQueue;
-	assert(Reset(mWindowDesc));
+	LUNA_ASSERT(Reset(mWindowDesc));
 	return true;
 }
 
@@ -55,7 +55,7 @@ bool DX12SwapChain::Reset(const RHISwapchainDesc& window_width_in)
 		nullptr,
 		&swapChain
 	);
-	assert(SUCCEEDED(hr));
+	LUNA_ASSERT(SUCCEEDED(hr));
 	swapChain.As(&mSwapChain);
 	for (uint32_t frameIndex = 0; frameIndex < swapChainDesc.BufferCount; ++frameIndex)
 	{

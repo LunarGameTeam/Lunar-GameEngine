@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/engine_config.h"
+#include "game/game_config.h"
 
 #include "core/core_library.h"
 #include "core/object/component.h"
@@ -12,7 +12,7 @@
 
 namespace luna::render
 {
-class ENGINE_API RendererComponent : public Component
+class GAME_API RendererComponent : public Component
 {
 	RegisterTypeEmbedd(RendererComponent, Component)
 public:

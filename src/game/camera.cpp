@@ -1,5 +1,5 @@
-#include "engine/camera.h"
-#include "engine/scene.h"
+#include "game/camera.h"
+#include "game/scene.h"
 #include "render/render_module.h"
 #include "core/object/entity.h"
 

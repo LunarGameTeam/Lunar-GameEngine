@@ -3,7 +3,7 @@
 #include "core/core_config.h"
 #include "window/window_config.h"
 #include "render/render_config.h"
-#include "engine/engine_config.h"
+#include "game/game_config.h"
 
 #include "core/core_library.h"
 

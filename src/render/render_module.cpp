@@ -9,11 +9,6 @@
 #include "window/window_module.h"
 
 
-#include "engine/engine_config.h"
-#include "engine/light.h"
-#include "engine/scene_module.h"
-
-
 ////临时先写DX11的Device
 #include "imgui.h"
 #include "imgui_impl_dx12.h"
@@ -23,7 +18,7 @@
 #include "render/renderer/pass_lighting.h"
 #include "render/renderer/pass_shadowmap.h"
 
-#include "engine/camera.h"
+#include "game/camera.h"
 #include "render/rhi/DirectX12/dx12_device.h"
 #include "render/rhi/DirectX12/dx12_render_queue.h"
 #include "render/rhi/DirectX12/dx12_memory.h"

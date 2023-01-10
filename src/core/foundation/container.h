@@ -1,8 +1,6 @@
 #pragma once
 #include "core/core_config.h"
 
-#include <map>
-#include <mutex>
 
 //有时间再造轮子，没时间就用boost的容器了
 
@@ -22,9 +20,13 @@ using LPair = std::pair<T1,T2>;
 template<typename K, typename Value>
 using LUnorderedMap = std::unordered_map<K, Value>;
 
+#include <map>
+#include <mutex>
+template<typename K, typename Value>
+using LMap = std::map<K, Value>;
 
 template<typename Key, typename Val>
-class LMap
+class LThreadSafeMap
 {
 public:
 	typedef typename std::map<Key, Val>::iterator this_iterator;

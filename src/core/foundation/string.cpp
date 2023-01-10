@@ -21,9 +21,9 @@ LString &LString::operator=(const char *const string_in)
 	mStdStr = string_in;
 	return *this;
 }
-LString &LString::operator=(const container_t &string_in)
+LString &LString::operator=(const container_t &lv)
 {
-	mStdStr = string_in.c_str();
+	mStdStr = lv.c_str();
 	return *this;
 }
 LString &LString::operator=(const wchar_t *string_in)
@@ -31,20 +31,20 @@ LString &LString::operator=(const wchar_t *string_in)
 	mStdStr = WstringToString(string_in);
 	return *this;
 }
-LString &LString::operator=(const wcontainer_t &string_in)
+LString &LString::operator=(const wcontainer_t &lv)
 {
-	auto unicode_string = WstringToString(string_in.c_str());
+	auto unicode_string = WstringToString(lv.c_str());
 	return *this;
 }
 
-void LString::Append(const LString &str)
+void LString::Append(const LString &lv)
 {
-	mStdStr.append(str.mStdStr);
+	mStdStr.append(lv.mStdStr);
 }
 
-void LString::Append(const container_t &container)
+void LString::Append(const container_t &lv)
 {
-	mStdStr.append(container);
+	mStdStr.append(lv);
 }
 
 void LString::Append(const char *str)
@@ -57,14 +57,14 @@ void LString::Assign(const char *str)
 	mStdStr.assign(str);
 }
 
-void LString::Assign(const container_t &container)
+void LString::Assign(const container_t &lv)
 {
-	mStdStr.assign(container);
+	mStdStr.assign(lv);
 }
 
-void LString::Assign(const LString &str)
+void LString::Assign(const LString &lv)
 {
-	mStdStr.assign(str.mStdStr);
+	mStdStr.assign(lv.mStdStr);
 }
 
 char &LString::operator[](size_t index)

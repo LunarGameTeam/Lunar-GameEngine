@@ -1,6 +1,6 @@
 #include "scene.h"
 #include "render/render_module.h"
-#include "engine/light.h"
+#include "game/light.h"
 
 #include "core/memory/ptr_binding.h"
 #include "core/serialization/serialization.h"
@@ -17,6 +17,7 @@ RegisterTypeEmbedd_Imp(Scene)
 	cls->Property<&Self::mEntites>("entities")
 		.Serialize();
 
+	cls->BindingMethod<&Scene::CreateEntity>("create_entity");
 	cls->BindingMethod<&Scene::FindEntity>("find_entity");
 	cls->BindingMethod<&Scene::DestroyEntity>("destroy_entity");
 	cls->BindingMethod<&Scene::GetEntityAt>("get_entity_at");
@@ -78,7 +79,7 @@ void Scene::Tick(float deltaTime)
 {
 	for (auto& entity : mEntites)
 	{
-		for (auto& comp : entity->m_components)
+		for (auto& comp : entity->mComponents)
 		{
 			if (comp->mNeedTick)
 			{
@@ -103,7 +104,7 @@ void Scene::OnLoad()
 	for (auto& entity : mEntites)
 	{
 		entity->SetParent(this);
-		for (auto& comp : entity->m_components)
+		for (auto& comp : entity->mComponents)
 		{
 			comp->mOwnerEntity = entity.Get();
 			comp->SetParent(entity.Get());

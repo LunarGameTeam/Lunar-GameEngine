@@ -22,7 +22,7 @@ JsonAsset::~JsonAsset()
 void JsonAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file)
 {
 	Json::Value val;
-	assert(Dictionary::FromBinary(file->GetData().data(), file->GetData().size(), val));
+	LUNA_ASSERT(Dictionary::FromBinary(file->GetData().data(), file->GetData().size(), val));
 	Dictionary dict(val);
 	JsonSerializer serializer(dict);
 	DeSerialize(serializer);

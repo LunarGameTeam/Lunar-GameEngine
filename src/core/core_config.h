@@ -225,4 +225,13 @@ inline LSharedPtr<T> MakeShared(Args && ... args)
 	return std::make_shared<T>(args...);
 }
 
+#include "core/foundation/log.h"
+
+#ifdef NDEBUG
+#define LUNA_ASSERT(exp) if(!(exp)) LogError("Assert", "File:{} Line:{}", __FILE__, __LINE__);
+#else
+#define LUNA_ASSERT(exp) assert(exp);
+#endif
+
+
 #pragma endregion

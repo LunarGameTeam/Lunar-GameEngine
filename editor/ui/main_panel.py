@@ -52,6 +52,7 @@ def generate_doc_for_module(target: 'types.ModuleType') -> object:
 
 class PyMainPanel(editor.MainPanel):
 	main_scene: 'luna.Scene' = None
+
 	def __init__(self) -> None:
 		super(PyMainPanel, self).__init__()
 		self.main_scene = None

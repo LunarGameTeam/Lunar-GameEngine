@@ -20,11 +20,8 @@ SET(NATVIS_PATH
 
 SET(SOLUTION_CMAKE_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin/Debug)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_SOURCE_DIR}/bin/Debug)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/bin/Release)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_SOURCE_DIR}/bin/Release)
-
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
 option(LUNA_USING_DEBUG_PYTHON "使用Debug版本的Python" OFF)
 
@@ -148,19 +145,23 @@ add_subdirectory(src/core)
 add_subdirectory(src/render)
 add_subdirectory(src/window)
 add_subdirectory(sdk/imgui)
-add_subdirectory(src/engine)
+add_subdirectory(src/game)
+add_subdirectory(src/luna)
 
 add_subdirectory(src/editor)
-add_subdirectory(src/editor_exe)
-
 SET_PROPERTY(TARGET core PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET render PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET window PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET imgui PROPERTY FOLDER "Runtime")
-SET_PROPERTY(TARGET engine PROPERTY FOLDER "Runtime")
+SET_PROPERTY(TARGET game PROPERTY FOLDER "Runtime")
+SET_PROPERTY(TARGET luna PROPERTY FOLDER "Runtime")
+SET_PROPERTY(TARGET editor PROPERTY FOLDER "Runtime")
 
-SET_PROPERTY(TARGET editor PROPERTY FOLDER "Editor")
-SET_PROPERTY(TARGET editor_exe PROPERTY FOLDER "Editor")
+add_subdirectory(src/app_game)
+add_subdirectory(src/app_editor)
+
+SET_PROPERTY(TARGET app_editor PROPERTY FOLDER "App")
+SET_PROPERTY(TARGET app_game PROPERTY FOLDER "App")
 
 
 add_subdirectory(test/core_test)
@@ -173,15 +174,15 @@ if(LUNA_USING_FBX_TOOLS)
 	SET_PROPERTY(TARGET fbx_test PROPERTY FOLDER "Test")
 endif()
 
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT editor_exe)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT app_editor)
 
 SET(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/release)
 
-install(TARGETS core render window engine editor editor_exe
+install(TARGETS core render window game editor app_editor app_game
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION bin)
 
-install(FILES file(GET_RUNTIME_DEPENDENCIES EXECUTABLES $<TARGET_FILE:editor_exe>)
+install(FILES file(GET_RUNTIME_DEPENDENCIES EXECUTABLES $<TARGET_FILE:app_editor>)
 	DESTINATION bin)
 
 install(DIRECTORY assets/ DESTINATION assets)

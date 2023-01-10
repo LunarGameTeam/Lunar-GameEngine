@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine_config.h"
+#include "game_config.h"
 #include "core/core_library.h"
 #include "core/object/entity.h"
 #include "core/framework/module.h"
@@ -13,7 +13,7 @@ namespace luna
 
 class DirectionLightComponent;
 
-class ENGINE_API Scene : public JsonAsset
+class GAME_API Scene : public JsonAsset
 {
 	RegisterTypeEmbedd(Scene, JsonAsset)
 public:

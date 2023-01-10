@@ -41,7 +41,7 @@ class PyHierarchyPanel(editor.PanelBase):
             luna.imgui.pop_id()
 
         for entity in to_destroy_entity:
-            entity.get_scene().destroy_entity(entity)
+            entity.owner_scene.destroy_entity(entity)
 
     def on_entity_clicked(self, hovered, held, entity):
         if held and entity:

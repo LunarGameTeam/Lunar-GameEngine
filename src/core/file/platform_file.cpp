@@ -225,11 +225,11 @@ LSharedPtr<FileAsyncHandle> WindowsFileManager::ReadAsync(const LPath &path, Fil
 
 LSharedPtr<LFile> WindowsFileManager::ReadSync(const LPath &path)
 {
-	HANDLE fileHandle = ::CreateFileA(path.AsEnginePathString(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
+	HANDLE fileHandle = ::CreateFileA(path.AsProjectPathString(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
 	LSharedPtr<LFile> file = MakeShared<LFile>();
 	if (fileHandle == INVALID_HANDLE_VALUE)
 	{
-		fileHandle = ::CreateFileA(path.AsProjectPathString(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
+		fileHandle = ::CreateFileA(path.AsEnginePathString(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
 		if (fileHandle == INVALID_HANDLE_VALUE)
 		{
 			LogError("Core", "Open File: {0} Failed", path.AsString().c_str());

@@ -1,16 +1,3 @@
-/*!
- * \file core.h
- * \date 2020/08/09 10:11
- *
- * \author IsakWong
- * Contact: isakwong@outlook.com
- *
- * \brief 提供给其他模块包含的头文件，会包含本模块的基本内容和接口
- *
- * TODO: long description
- *
- * \note
-*/
 #include "core_library.h"
 
 #include "core/asset/asset_module.h"
@@ -23,14 +10,7 @@
 using namespace luna;
 
 
-CORE_API void LoadLib(const luna::LString& val)
-{
-	HINSTANCE hDll = LoadLibraryA(val.c_str());
-	assert(hDll != nullptr);
-	return;
-}
-
-void LoadCoreLibrary()
+void LoadCoreLib()
 {
 	std::fstream logFile;
 	std::fstream configFile;
@@ -38,12 +18,12 @@ void LoadCoreLibrary()
 #ifdef WIN32
 	TCHAR tempPath[1000];
 	GetCurrentDirectory(MAX_PATH, tempPath); //获取程序的当前目录
-
 	LString workDir(tempPath);
+#endif // WIN32
+
 	LString logPath = workDir + "/log.txt";
 	LString configPath = workDir + "/config.ini";
 	
-#endif // WIN32
 	configFile.open(configPath.c_str(), std::fstream::in | std::fstream::out);
 	
 	Logger::instance().RedirectLogFile(logPath.std_str());
@@ -58,9 +38,20 @@ void LoadCoreLibrary()
 	luna::LApplication::Instance();
 	gEngine->LoadModule<AssetModule>();
 	gEngine->LoadModule<EventModule>();
-
 }
 
+void UnLoadCoreLib()
+{
+	std::fstream fs;
+	// Perform any necessary cleanup.
+	TCHAR tempPath[1000];
+	GetCurrentDirectory(MAX_PATH, tempPath); //获取程序的当前目录
+	LString path(tempPath);
+	path = path + "/config.ini";
+	fs.open(path.c_str(), std::fstream::out | std::fstream::trunc);
+	ConfigLoader::instance().SaveJson(fs);
+	fs.close();
+}
 __declspec(dllexport) BOOL WINAPI DllMain(
 	HINSTANCE hinstDLL,  // handle to DLL module
 	DWORD fdwReason,     // reason for calling function
@@ -70,28 +61,15 @@ __declspec(dllexport) BOOL WINAPI DllMain(
 	switch (fdwReason)
 	{
 	case DLL_PROCESS_ATTACH:
-		LoadCoreLibrary();
+		LoadCoreLib();
 		break;
 	case DLL_THREAD_ATTACH:
 		// Do thread-specific initialization.
 		break;
-
-	case DLL_THREAD_DETACH:
-		
+	case DLL_THREAD_DETACH:		
 		break;
-
 	case DLL_PROCESS_DETACH:
-	{
-		std::fstream fs;
-		// Perform any necessary cleanup.
-		TCHAR tempPath[1000];
-		GetCurrentDirectory(MAX_PATH, tempPath); //获取程序的当前目录
-		LString path(tempPath);
-		path = path + "/config.ini";
-		fs.open(path.c_str(), std::fstream::out | std::fstream::trunc);
-		ConfigLoader::instance().SaveJson(fs);
-		fs.close();
-	}
+		UnLoadCoreLib();
 		break;
 	}
 	return TRUE;  // Successful DLL_PROCESS_ATTACH.

@@ -1,7 +1,7 @@
 #include "editor/ui/scene_panel.h"
 #include "editor/editor_module.h"
 
-#include "engine/scene_module.h"
+#include "game/scene_module.h"
 
 #include "render/rhi/DirectX12/dx12_descriptor_impl.h"
 #include "render/rhi/DirectX12/dx12_view.h"

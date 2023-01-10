@@ -1,11 +1,13 @@
 import os
 import luna
+from core.editor_core import platform_module
 from luna import editor
 
 
 class FileInfo(object):
     def __init__(self, file_path):
         self.abs_path = file_path
+        self.path = os.path.relpath(file_path, platform_module.engine_dir)
         self.name = os.path.basename(file_path)
 
 

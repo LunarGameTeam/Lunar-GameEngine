@@ -4,6 +4,7 @@
 #include "core/binding/binding.h"
 #include "core/core_types.h"
 #include "core/foundation/string.h"
+#include "core/foundation/container.h"
 #include <map>
 #include <vector>
 
@@ -38,6 +39,19 @@ public:
 		return def;
 	}
 
+	template<auto fn>
+	PyMethodDef& AddCFunction(const char* name)
+	{
+		using FN = decltype(fn);
+		const LString& method_name = LString::MakeStatic(name);
+		PyMethodDef& def = mMethods[method_name];
+		def.ml_name = method_name.c_str();
+		def.ml_meth = fn;
+		def.ml_flags = METH_VARARGS;
+		def.ml_doc = LString::MakeStatic(binding::static_method_doc<fn>(method_name.c_str()));
+		return def;
+	}
+
 	void AddObject(const char* name, PyObject* obj);	
 	void AddLObject(const char* name, LObject* obj);
 	void AddConstant(const char* name, const char* val);
@@ -60,7 +74,7 @@ private:
 	void _AddType(PyTypeObject* type);
 	void _AddObject(const char* name, PyObject* obj);
 
-	std::vector<PyTypeObject*>        m_order_types;
+	std::vector<PyTypeObject*>        mInitTypes;
 	bool                              mModuleInited = false; 	
 	PyModuleDef                       mModuleDef;
 	std::map<LString, PyObject*>      mConstants;
@@ -76,7 +90,7 @@ private:
 
 };
 
-CORE_API extern std::map<LString, BindingModule*>* sBindingModules;
+CORE_API extern LMap<LString, BindingModule*>* sBindingModules;
 
 
 }

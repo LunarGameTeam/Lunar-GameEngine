@@ -142,7 +142,7 @@ DX12BindingSetLayout::DX12BindingSetLayout(const std::vector<RHIBindPoint>& desc
 
 	ComPtr<ID3DBlob> signature;
 	ComPtr<ID3DBlob> errorBlob;
-	assert(SUCCEEDED(D3D12SerializeRootSignature(&rootsignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &errorBlob),
+	LUNA_ASSERT(SUCCEEDED(D3D12SerializeRootSignature(&rootsignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &errorBlob),
 		"%s", static_cast<char*>(errorBlob->GetBufferPointer())
 	));
 	HRESULT hr = sRenderModule->GetDevice<DX12Device>()->GetDx12Device()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&mRootsignature));	

@@ -11,6 +11,6 @@ auto_source_group("${ALL_FILES}" DST_FILES)
 
 add_library(editor SHARED ${DST_FILES})
 
-add_dependencies(editor core window render engine)
+add_dependencies(editor core window render game)
 
-target_link_libraries(editor core window render engine)
+target_link_libraries(editor core window render game)

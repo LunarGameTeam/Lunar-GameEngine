@@ -126,6 +126,7 @@ public:
 	}
 
 	bool HasBindingMethodDef() {return mBindingMethodDef.ml_name != nullptr ; }
+	void SetDoc(const char* doc) { mBindingMethodDef.ml_doc = LString::MakeStatic(doc); }
 	PyMethodDef& GetBindingMethodDef() { return mBindingMethodDef; };
 
 public:

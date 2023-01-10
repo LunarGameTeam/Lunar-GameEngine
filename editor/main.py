@@ -3,7 +3,6 @@ import os
 import sys
 
 
-
 def init_editor():
     # app = QtWidgets.QApplication([])
     # widget = QWidget()
@@ -19,8 +18,9 @@ def init_editor():
     # return
     import luna
 
-    for name, mem in inspect.getmembers(luna):
-        print(name, mem)
+    editor_dir = os.getcwd() + "\\editor"
+    sys.path.append(editor_dir)
+
     luna.load_library("editor.dll")
 
     app = luna.LApplication.instance()
@@ -36,15 +36,14 @@ def init_editor():
     app.main_loop()
 
 
+work_dir = os.getcwd()
+bin_dir = os.path.dirname(sys.executable)
+editor_dir = work_dir + "\\editor"
+
 if __name__ == '__main__':
-    bin_dir = os.getcwd()
     sys.path.append(bin_dir)
-    bin_dir = os.getcwd() + "\\bin\\Debug"
-    sys.path.append(bin_dir)
-    bin_dir = os.getcwd() + "\\bin\\Release"
-    sys.path.append(bin_dir)
-    editor_dir = os.getcwd() + "\\editor"
-    sys.path.append(editor_dir)
+    import luna
+    luna.add_library_dir(bin_dir)
     is_looping = True
     init_editor()
 

@@ -11,10 +11,10 @@
 #include "window/window_module.h"
 #include "window/window.h"
 
-#include "engine/camera.h"
-#include "engine/scene_module.h"
-#include "engine/light.h"
-#include "engine/mesh_renderer.h"
+#include "game/camera.h"
+#include "game/scene_module.h"
+#include "game/light.h"
+#include "game/mesh_renderer.h"
 
 #include <numbers>
 
@@ -37,6 +37,11 @@ void LoadEditorLibrary()
 	BindingModule::Get("luna.editor")->Init();
 }
 
+void UnLoadEditorLibrary()
+{
+
+}
+
 extern "C" __declspec(dllexport) BOOL WINAPI DllMain(
 	HINSTANCE hinstDLL,  // handle to DLL module
 	DWORD fdwReason,     // reason for calling function
@@ -57,6 +62,7 @@ extern "C" __declspec(dllexport) BOOL WINAPI DllMain(
 		break;
 
 	case DLL_PROCESS_DETACH:
+		UnLoadEditorLibrary();
 		// Perform any necessary cleanup.
 		break;
 	}

@@ -74,7 +74,7 @@ bool DxcCompile(RHIShaderType stage, const LString& pShader, std::vector<uint32_
 		&includeHandler, // pIncludeHandler
 		&result); // ppResult
 
-	assert(SUCCEEDED(hres));
+	LUNA_ASSERT(SUCCEEDED(hres));
 	result->GetResult(&code);
 	ComPtr<IDxcBlobEncoding> error;
 	result->GetErrorBuffer(error.GetAddressOf());
@@ -83,7 +83,7 @@ bool DxcCompile(RHIShaderType stage, const LString& pShader, std::vector<uint32_
 	result->GetStatus(&hres);
 	if (FAILED(hres))
 		LogError("Render", str.c_str());
-	assert(SUCCEEDED(hres));
+	LUNA_ASSERT(SUCCEEDED(hres));
 	spirv.resize(code->GetBufferSize() / 4);
 	memcpy(spirv.data(), code->GetBufferPointer(), code->GetBufferSize());
 	return true;

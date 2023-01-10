@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/engine_config.h"
+#include "game/game_config.h"
 
 #include "core/core_library.h"
 #include "core/object/transform.h"
@@ -12,7 +12,7 @@
 namespace luna
 {
 
-class ENGINE_API CameraComponent : public Component
+class GAME_API CameraComponent : public Component
 {
 	RegisterTypeEmbedd(CameraComponent, Component)
 public:

@@ -1,6 +1,6 @@
 #include "main_panel.h"
 #include "core/event/event_module.h"
-#include "engine/scene_module.h"
+#include "game/scene_module.h"
 #include "core/asset/asset_module.h"
 
 #include "editor/ui/icon_font.h"

@@ -19,6 +19,9 @@ class PyScenePanel(editor.ScenePanel):
         self.last_max = None
         self.dragging = False
         self.need_update_texture = False
+    def create_editor_camera(self, scene: 'luna.Scene'):
+        e: 'luna.Entity' = scene.create_entity("_EditorCamera", None)
+        camera = e.add_component(luna.CameraComponent)
 
     def set_scene(self, scene):
         self.scene = scene

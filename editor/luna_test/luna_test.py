@@ -15,12 +15,12 @@ def binding_test():
 	assert (result.z == vec3f_1.z + vec3f_2.z)
 
 	del result
-	print("[binding test] Math Test Passed")
+	luna.print("Math Test Passed")
 
 	props = luna.Transform.get_properties()
 	assert(len(props) != 0)
 	for prop in props:
-		print(prop.name)
-		print(prop.type)
+		luna.print(prop.name)
+		luna.print(prop.type)
 	del props
-	print("[binding test] Type Test Passed")
+	luna.print("Type Test Passed")

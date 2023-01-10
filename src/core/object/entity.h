@@ -36,7 +36,7 @@ public:
 	template<typename T>
 	T *GetComponent()
 	{
-		for (auto& it : m_components)
+		for (auto& it : mComponents)
 		{
 			T *res = dynamic_cast<T *>(it.Get());
 			if (res != nullptr)
@@ -48,7 +48,7 @@ public:
 	template<typename T>
 	const T* GetComponent() const
 	{
-		for (const auto& it : m_components)
+		for (const auto& it : mComponents)
 		{
 			T* res = dynamic_cast<T*>(it.Get());
 			if (res != nullptr)
@@ -60,7 +60,7 @@ public:
 	Component* GetComponentByType(LType* val)
 	{
 
-		for (auto& it : m_components)
+		for (auto& it : mComponents)
 		{
 			LType* cls = it->GetClass();
 			if(cls->IsDerivedFrom(val))
@@ -82,11 +82,16 @@ public:
 
 	template<typename T>
 	T *AddComponent()
+	{		
+		return static_cast<T*>(AddComponent(LType::Get<T>()));
+	}
+
+	Component* AddComponent(LType* type)
 	{
-		T *comp = TCreateObject<T>();
+		Component* comp = type->NewInstance<Component>();
 		comp->SetParent(this);
 		comp->mOwnerEntity = this;
-		m_components.PushBack(comp);
+		mComponents.PushBack(comp);
 		comp->mOnCreateCalled = true;
 		comp->OnCreate();
 		return comp;
@@ -94,22 +99,22 @@ public:
 
 	TPPtrArray<Component> &GetAllComponents()
 	{
-		return m_components;
+		return mComponents;
 	}
 	const TPPtrArray<Component>& GetAllComponents()const
 	{
-		return m_components;
+		return mComponents;
 	}
 	Component* GetComponentAt(int idx)
 	{
-		if(idx < m_components.Size())
-			return m_components[idx];
+		if(idx < mComponents.Size())
+			return mComponents[idx];
 		return nullptr;
 	}
 
 	size_t GetComponetCount()
 	{
-		return m_components.Size();
+		return mComponents.Size();
 	}
 
 	bool GetActive();
@@ -135,7 +140,7 @@ protected:
 
 private:
 	TPPtrArray<Entity> m_children;
-	TPPtrArray<Component> m_components;
+	TPPtrArray<Component> mComponents;
 
 	Entity *mParent = nullptr;
 

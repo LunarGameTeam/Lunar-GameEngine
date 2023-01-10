@@ -12,21 +12,29 @@ RegisterTypeEmbedd_Imp(Entity)
 	cls->BindingProperty<&Self::mName>("name")
 		.Serialize();
 
-	cls->Property<&Self::m_components>("component_list")
+	cls->Property<&Self::mComponents>("component_list")
 		.Serialize();
+
+	cls->VirtualProperty("component_count")
+		.Getter<&Entity::GetComponetCount>()
+		.Binding<Entity, size_t>();
+
+	cls->VirtualProperty("owner_scene")
+		.Getter<&Entity::PyGetScene>()
+		.Binding<Entity, LObject*>();
 
 	cls->Property<&Self::m_children>("children");
 
+	cls->BindingMethod<&Entity::GetComponentByType>("get_component")
+		.SetDoc("def get_component(self, t: typing.Type[T] ) -> T:");
 
-	cls->BindingMethod<&Entity::PyGetScene>("get_scene");
-
-	cls->BindingMethod<&Entity::GetComponentByType>("get_component").GetBindingMethodDef().ml_doc = LString::MakeStatic("def get_component(self, t: typing.Type[T] ) -> T:");
+	cls->BindingMethod<(Component* (Entity::*)(LType*))& Entity::AddComponent>("add_component")
+		.SetDoc("def add_component(self, t: typing.Type[T] ) -> T:");
 
 	cls->BindingMethod<&Entity::GetComponentAt>("get_component_at");
 
 	cls->BindingMethod<&Entity::Destroy>("destroy");
 
-	cls->BindingMethod<&Entity::GetComponetCount>("get_component_count");
 
 	cls->Binding<Entity>();
 	BindingModule::Get("luna")->AddType(cls);
@@ -116,7 +124,7 @@ void Entity::UpdateActiveStatus()
 		if (mActive)
 			OnActivate();
 
-	for (auto& comp : m_components)
+	for (auto& comp : mComponents)
 	{
 		comp->UpdateActiveState();
 	}
@@ -148,7 +156,7 @@ bool Entity::AddChild(Entity* child)
 }
 
 Entity::Entity():
-	m_components(this),
+	mComponents(this),
 	m_children(this)
 {
 	mNeedTick = false;

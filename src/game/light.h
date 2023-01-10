@@ -6,13 +6,13 @@
 
 #include "render/renderer/render_scene.h"
 
-#include "engine/engine_config.h"
+#include "game/game_config.h"
 
 
 namespace luna
 {
 
-class ENGINE_API LightComponent : public Component
+class GAME_API LightComponent : public Component
 {
 	RegisterTypeEmbedd(LightComponent, Component)
 public:
@@ -30,7 +30,7 @@ protected:
 	
 };
 
-class ENGINE_API PointLightComponent : public LightComponent
+class GAME_API PointLightComponent : public LightComponent
 {
 	RegisterTypeEmbedd(PointLightComponent, LightComponent)
 public:
@@ -43,7 +43,7 @@ public:
 	LVector3f GetPosition();
 };
 
-class ENGINE_API DirectionLightComponent : public LightComponent
+class GAME_API DirectionLightComponent : public LightComponent
 {
 	RegisterTypeEmbedd(DirectionLightComponent, LightComponent)
 public:

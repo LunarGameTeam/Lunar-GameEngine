@@ -18,12 +18,12 @@
 #include "core/core_config.h"
 
 
-#ifndef ENGINE_API
+#ifndef GAME_API
 
-#ifdef ENGINE_EXPORT
-#define ENGINE_API __declspec( dllexport )//宏定义
+#ifdef GAME_EXPORT
+#define GAME_API __declspec( dllexport )//宏定义
 #else
-#define ENGINE_API __declspec( dllimport )
+#define GAME_API __declspec( dllimport )
 #endif
 
 
@@ -36,6 +36,6 @@ namespace luna
 {
 class SceneModule;
 
-ENGINE_API extern SceneModule *sSceneModule;
+GAME_API extern SceneModule *sSceneModule;
 }
 

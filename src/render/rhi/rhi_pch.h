@@ -7,7 +7,7 @@
 namespace luna::render
 {
 
-#define VULKAN_ASSERT(res) ((res) == vk::Result::eSuccess)
+#define VULKAN_ASSERT(res) LUNA_ASSERT((res) == vk::Result::eSuccess)
 
 //vb&ib
 struct RHIVertexBufferDesc

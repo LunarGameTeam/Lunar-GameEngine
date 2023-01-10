@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/render_component.h"
+#include "game/render_component.h"
 
 #include "render/render_config.h"
 #include "render/renderer/material.h"
@@ -14,7 +14,7 @@
 namespace luna::render
 {
 
-class ENGINE_API MeshRenderer : public RendererComponent
+class GAME_API MeshRenderer : public RendererComponent
 {
 	RegisterTypeEmbedd(MeshRenderer, RendererComponent)
 public:
@@ -35,7 +35,12 @@ public:
 		m_mesh = mesh;
 		m_dirty = true;
 	}
-
+	void SetObjAsset(ObjAsset* obj)
+	{
+		if (mRO)
+			mRO->mMesh = obj->GetSubMeshAt(0);
+		mObjAsset = obj;
+	}
 	void SetMaterial(MaterialInstance* mat)
 	{
 		mat->SetParent(this);

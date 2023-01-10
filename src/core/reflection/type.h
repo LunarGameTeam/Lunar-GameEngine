@@ -82,7 +82,7 @@ public:
 	{
 		//目前还不支持从C++侧构造Python的类实例
 		LType* ret_type = LType::Get<T>();
-		assert(IsDerivedFrom(ret_type));
+		LUNA_ASSERT(IsDerivedFrom(ret_type));
 		if (mCtor)
 		{
 			void* ptr = mCtor();

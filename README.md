@@ -60,7 +60,7 @@ CMake版本：3.24
 
 PyCharm：自选
 
-C++ VS启动项目：editor_exe
+C++ VS启动项目：app_editor
 Pycharm 启动脚本：editor/main.py
 
 ## 工作目录
@@ -83,5 +83,13 @@ Pycharm 启动脚本：editor/main.py
   - mAaBb 成员
   - sAaBb 静态成员  
 
+## Tips
+- Luna的Editor和Game执行程序的入口是一个标准的python执行脚本文件流程，所以可以用系统的python + editor/main.py脚本启动，工作目录要设置引擎根目录
+- 不要用标准的assert()，使用LUNA_ASSERT，标准assert在Release版本下不执行，LUNA_ASSERT会log报错信息。
+- 使用luna的log
+- core模块提供了STATIC_INIT静态结构体初始化函数段功能，但是尽量不要用，函数段初始化顺序不一致。
+- include头文件请写全相对src的路径，方便重构
+- core提供了thread safe map，但是目前还是单线程
+- 反射模块主要是为了序列化和binding而写的，别的地方尽量不要用
 
 

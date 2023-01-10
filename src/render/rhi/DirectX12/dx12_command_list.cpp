@@ -94,8 +94,8 @@ void DX12GraphicCmdList::CopyBufferToTexture(
 	DX12Resource* dx12DstRes = target_resource->As<DX12Resource>();
 	DX12Resource* dx12SrcRes = source_resource->As<DX12Resource>();
 
-	assert(dx12DstRes->mLayout.pTotalBytes <= source_resource->GetMemoryRequirements().size);
-	assert(dx12DstRes->GetMemoryRequirements().size == source_resource->GetMemoryRequirements().size);
+	LUNA_ASSERT(dx12DstRes->mLayout.pTotalBytes <= source_resource->GetMemoryRequirements().size);
+	LUNA_ASSERT(dx12DstRes->GetMemoryRequirements().size == source_resource->GetMemoryRequirements().size);
 	for (UINT i = 0; i < dx12DstRes->mLayout.pLayouts.size(); ++i)
 	{
 		D3D12_TEXTURE_COPY_LOCATION dstCopy = {};
@@ -402,8 +402,8 @@ void DX12GraphicCmdList::Reset()
 {
 	if (mClosed)
 	{
-		assert(SUCCEEDED(mDxCmdAllocator->Reset()));
-		assert(SUCCEEDED(mDxCmdList->Reset(mDxCmdAllocator.Get(), nullptr)));
+		LUNA_ASSERT(SUCCEEDED(mDxCmdAllocator->Reset()));
+		LUNA_ASSERT(SUCCEEDED(mDxCmdList->Reset(mDxCmdAllocator.Get(), nullptr)));
 	}
 	mClosed = false;
 }
@@ -412,7 +412,7 @@ void DX12GraphicCmdList::CloseCommondList()
 {
 	if (!mClosed)
 	{
-		assert(SUCCEEDED(mDxCmdList->Close()));
+		LUNA_ASSERT(SUCCEEDED(mDxCmdList->Close()));
 		mClosed = true;
 	}
 }
@@ -443,7 +443,7 @@ void DX12GraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier)
 	std::vector<D3D12_RESOURCE_BARRIER> dxBarriers;
 	if (!barrier.mBarrierRes)
 	{
-		assert(false);
+		LUNA_ASSERT(false);
 		return;
 	}
 	if (barrier.mStateBefore == ResourceState::kRaytracingAccelerationStructure)
@@ -459,8 +459,8 @@ void DX12GraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier)
 	if (dx_state_before == dx_state_after)
 		return;
 
-	assert(barrier.mBaseMipLevel + barrier.mMipLevels <= dxRes->mDxDesc.MipLevels);
-	assert(barrier.mBaseDepth + barrier.mDepth <= dxRes->mDxDesc.DepthOrArraySize);
+	LUNA_ASSERT(barrier.mBaseMipLevel + barrier.mMipLevels <= dxRes->mDxDesc.MipLevels);
+	LUNA_ASSERT(barrier.mBaseDepth + barrier.mDepth <= dxRes->mDxDesc.DepthOrArraySize);
 
 	if (barrier.mBaseMipLevel == 0 && barrier.mMipLevels == dxRes->mDxDesc.MipLevels &&
 		barrier.mBaseDepth == 0 && barrier.mDepth == dxRes->mDxDesc.DepthOrArraySize)

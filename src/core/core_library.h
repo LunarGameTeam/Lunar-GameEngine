@@ -18,3 +18,4 @@
 #include "core/math/math.h"
 
 CORE_API void LoadLib(const luna::LString& val);
+CORE_API void Print(PyObject* self, PyObject* args);

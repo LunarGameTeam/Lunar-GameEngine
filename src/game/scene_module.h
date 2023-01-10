@@ -3,13 +3,13 @@
 #include "core/core_library.h"
 #include "core/framework/module.h"
 #include "scene.h"
-#include "engine_config.h"
+#include "game_config.h"
 
 namespace luna
 {
 class CameraComponent;
 
-class ENGINE_API SceneModule : public LModule
+class GAME_API SceneModule : public LModule
 {
 	RegisterTypeEmbedd(SceneModule, LModule)
 public:

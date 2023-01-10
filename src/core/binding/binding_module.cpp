@@ -8,7 +8,7 @@
 namespace luna
 {
 
-std::map<LString, BindingModule*>* sBindingModules;
+LMap<LString, BindingModule*>* sBindingModules;
 
 void BindingModule::GenerateDoc()
 {
@@ -73,7 +73,7 @@ void InitMetaType()
 	Py_INCREF(sMetaType);
 	if (PyType_Ready(sMetaType) < 0)
 	{
-		assert(0);
+		LUNA_ASSERT(0);
 	}
 }
 
@@ -86,13 +86,13 @@ BindingModule::BindingModule(const LString& module_name)
 
 void BindingModule::AddType(LType* type)
 {
-	assert(type->mBindingModule == nullptr);
+	LUNA_ASSERT(type->mBindingModule == nullptr);
 
 	LString type_name = type->GetName();
 	PyTypeObject* typeobject = type->GetBindingType();
 	type->mBindingModule = this;
 	mTypes[type_name] = typeobject;
-	m_order_types.push_back(typeobject);
+	mInitTypes.push_back(typeobject);
 
 	if (mPythonModule)
 	{
@@ -105,7 +105,7 @@ void BindingModule::AddObject(const char* name, PyObject* object)
 	if (mPythonModule)
 	{
 		Py_INCREF(object);
-		assert(PyModule_AddObject(mPythonModule, name, object) == 0);
+		LUNA_ASSERT(PyModule_AddObject(mPythonModule, name, object) == 0);
 	}else
 	{
 		mObjects[name] = object;
@@ -118,7 +118,7 @@ void BindingModule::AddLObject(const char* name, LObject* val)
 	if (mPythonModule)
 	{
 		Py_INCREF(obj);
-		assert(PyModule_AddObject(mPythonModule, name, obj) == 0);
+		LUNA_ASSERT(PyModule_AddObject(mPythonModule, name, obj) == 0);
 	}
 	else
 	{
@@ -131,7 +131,7 @@ void BindingModule::AddConstant(const char* name, const char* val)
 	mConstantStr[name] = to_binding(val);
 	if (mPythonModule)
 	{
-		assert(PyModule_AddObject(mPythonModule, name, mConstantStr[name]) == 0);
+		LUNA_ASSERT(PyModule_AddObject(mPythonModule, name, mConstantStr[name]) == 0);
 	}
 }
 
@@ -141,13 +141,13 @@ void BindingModule::AddConstant(const char* name, long val)
 	mConstants[name] = to_binding(val);
 	if (mPythonModule)
 	{
-		assert(PyModule_AddIntConstant(mPythonModule, name, val) == 0);
+		LUNA_ASSERT(PyModule_AddIntConstant(mPythonModule, name, val) == 0);
 	}
 }
 
 void BindingModule::AddSubModule(const char* name, BindingModule* bindingModule)
 {
-	assert(bindingModule->mParent == nullptr);
+	LUNA_ASSERT(bindingModule->mParent == nullptr);
 	bindingModule->mParent = this;
 	mSubModules[name] = bindingModule;
 }
@@ -155,7 +155,7 @@ void BindingModule::AddSubModule(const char* name, BindingModule* bindingModule)
 void BindingModule::_AddType(PyTypeObject* typeobject)
 {
 	LType* type = LType::Get(typeobject);
-	assert(type != nullptr);
+	LUNA_ASSERT(type != nullptr);
 	type->GenerateBindingDoc();
 	if (type->GetBindingMethods().size() > 1)
 		typeobject->tp_methods = type->GetBindingMethods().data();
@@ -170,9 +170,9 @@ void BindingModule::_AddType(PyTypeObject* typeobject)
 	if (PyType_Ready(typeobject) < 0)
 	{
 		PyErr_Print();
-		assert(false);
+		LUNA_ASSERT(false);
 	}
-	assert(PyModule_AddObject(mPythonModule, typeobject->tp_name, (PyObject*)typeobject) == 0);
+	LUNA_ASSERT(PyModule_AddObject(mPythonModule, typeobject->tp_name, (PyObject*)typeobject) == 0);
 }
 
 void BindingModule::_AddObject(const char* name, PyObject* object)
@@ -212,7 +212,7 @@ bool BindingModule::Init()
 		it.second->Init();
 	}
 
-	for (PyTypeObject* typeobject : m_order_types)
+	for (PyTypeObject* typeobject : mInitTypes)
 	{
 		_AddType(typeobject);
 	}
@@ -248,7 +248,7 @@ BindingModule* BindingModule::Get(const char* name)
 {
 	LString moduleName = name;
 	if (sBindingModules == nullptr)
-		sBindingModules = new std::map<LString, BindingModule*>();
+		sBindingModules = new LMap<LString, BindingModule*>();
 	LArray<LString> modulenames;
 	BindingModule* parentModule = nullptr;
 	moduleName.RSplitOnce(modulenames, ".");

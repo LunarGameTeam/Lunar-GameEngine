@@ -43,8 +43,7 @@ enum class CORE_API LogLevel
 {
 	Error = 0,
 	Warning = 1,
-	Success = 2,
-	Verbose = 3
+	Verbose = 2
 };
 
 

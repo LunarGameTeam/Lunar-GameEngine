@@ -30,7 +30,7 @@ DX12GpuDescriptorSegment::DX12GpuDescriptorSegment(
 
 void DX12GpuDescriptorSegment::AllocDescriptorSet(const uint32_t size, Dx12DescriptorSet& m_set)
 {
-	assert(mSegmentOffset + size < mDescriptorNumber);
+	LUNA_ASSERT(mSegmentOffset + size < mDescriptorNumber);
 	m_set.mDescriptorLists[mType].mDescriptorDescriptorNum = size;
 	m_set.mDescriptorLists[mType].mCPUHandle.ptr = mCPUHandle.ptr + mSegmentOffset * mPerDescriptorSize;
 	m_set.mDescriptorLists[mType].mGPUHandle.ptr = mGPUHandle.ptr + mSegmentOffset * mPerDescriptorSize;
