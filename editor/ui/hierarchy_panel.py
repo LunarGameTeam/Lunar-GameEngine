@@ -1,10 +1,11 @@
 import os
 import luna
-from core.editor_core import EditorCore
+from core.editor_module import EditorModule
 from luna import editor, imgui
+from ui.panel import PanelBase
 
 
-class PyHierarchyPanel(editor.PanelBase):
+class PyHierarchyPanel(PanelBase):
     def __init__(self) -> None:
         super(PyHierarchyPanel, self).__init__()
         self.scene = None
@@ -47,5 +48,5 @@ class PyHierarchyPanel(editor.PanelBase):
         if held and entity:
             from core.editor import create_editor
             editor = create_editor(entity)
-            EditorCore.instance().inspector_panel.set_editor(editor)
+            EditorModule.instance().inspector_panel.set_editor(editor)
         pass

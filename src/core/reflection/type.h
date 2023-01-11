@@ -83,13 +83,27 @@ public:
 		//目前还不支持从C++侧构造Python的类实例
 		LType* ret_type = LType::Get<T>();
 		LUNA_ASSERT(IsDerivedFrom(ret_type));
-		if (mCtor)
+		if (IsNativeType())
 		{
-			void* ptr = mCtor();
-			T* obj = (T*)ptr;
-			obj->SetType(this);
-			return (T*)(ptr);
+			if (mCtor)
+			{
+				void* ptr = mCtor();
+				T* obj = (T*)ptr;
+				obj->SetType(this);
+				return (T*)(ptr);
+			}
 		}
+		else
+		{
+			LType* base = GetBase();
+			while (!base->IsNativeType() && base)
+			{
+				base = base->GetBase();
+			}
+			if (base)
+				return (T*)base->NewInstance<T>();		
+		}
+		LUNA_ASSERT(false);
 		return nullptr;
 	}
 
@@ -251,7 +265,7 @@ public:
 	//是否是Python binding
 	bool IsPureBindingType() const noexcept { return mIsPureBindingType; }
 	//是否 C++ native
-	bool IsNativeType() const noexcept { return mIsPureBindingType; }
+	bool IsNativeType() const noexcept { return !mIsPureBindingType; }
 
 	std::vector<LString>& GetExtraDocs() { return mExtraDocs; }
 

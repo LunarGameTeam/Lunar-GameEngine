@@ -15,9 +15,7 @@ LunaCore* gEngine = nullptr;
 LunaCore* LunaCore::Ins()
 {
 	if (gEngine == nullptr)
-	{
 		gEngine = CreateLunaCore();
-	}
 	return gEngine;
 }
 
@@ -25,6 +23,12 @@ LModule* PyGetModule(LType* type)
 { 
 	return gEngine->GetModule(type); 
 };
+
+LModule* PyLoadModule(LModule* m)
+{
+	return gEngine->LoadModule(m);
+};
+
 
 LString PyGetConfig(const LString& key)
 {
@@ -43,7 +47,9 @@ LunaCore* LunaCore::CreateLunaCore()
 	//唯一的单例
 	gEngine = new LunaCore();
 	gEngine->LoadModule<PlatformModule>();
-	BindingModule::Luna()->AddMethod<&PyGetModule>("get_module").ml_doc = LString::MakeStatic("def get_module(self, t: Type[T]) -> T:\n\tpass\n");
+	BindingModule::Luna()->AddMethod<&PyGetModule>("get_module").ml_doc = LString::MakeStatic("def get_module(t: Type[T]) -> T:\n\tpass\n");
+	BindingModule::Luna()->AddMethod<&PyLoadModule>("load_module").ml_doc = LString::MakeStatic("def load_module(t: Type[T]) -> T:\n\tpass\n");
+
 	BindingModule::Luna()->AddMethod<&PyGetConfig>("get_config");
 	BindingModule::Luna()->AddMethod<&PySetConfig>("set_config");
 	return gEngine;
@@ -56,26 +62,47 @@ LunaCore::LunaCore() : mModules(this)
 
 void LunaCore::Run()
 {
-	for (LModule* it : mOrderedModules)
-	{
-		it->OnInit();
-		it->mIsInitialized = true;
-	}
+
+}
+
+LModule* LunaCore::LoadModule(LModule* m)
+{
+	LType* type = m->GetClass();
+	luna::LString name = type->GetName();
+
+	if (type->IsNativeType())
+		m->OnLoad();
+	else
+		m->InvokeBinding("on_load");
+
+	mModules.PushBack(m);
+	mModulesMap[name] = m;
+	mOrderedModules.push_back(m);
+	return m;
 }
 
 void LunaCore::OnRender()
 {
+
 }
 
 void LunaCore::OnTick(float delta_time)
 {
 	ZoneScoped;
+	float logicDelta = mFrameDelta / 1000.0f;
 	for (LModule* it : mOrderedModules)
 	{
 		const char* name = it->GetName();
 		if (it->mNeedTick)
 		{
-			it->Tick(mFrameDelta / 1000.0f);
+			if (it->GetClass()->IsNativeType())
+			{
+				it->Tick(logicDelta);
+			}
+			else
+			{
+				it->InvokeBinding("on_tick", logicDelta);
+			}			
 		}
 	}
 }
@@ -84,13 +111,35 @@ void LunaCore::OnIMGUI()
 {
 	for (auto& it : mOrderedModules)
 	{
-		it->OnIMGUI();
+		if (it->GetClass()->IsNativeType())
+		{
+			it->OnIMGUI();
+		}
+		else
+		{
+			it->InvokeBinding("on_imgui");
+		}
 	}
 	
 }
 
 void LunaCore::OnFrameBegin(float delta_time)
 {
+	for (LModule* it : mOrderedModules)
+	{
+		if (!it->mIsInitialized)
+		{
+			if (it->GetClass()->IsNativeType())
+			{
+				it->OnInit();
+			}
+			else
+			{
+				it->InvokeBinding("on_init");
+			}
+			it->mIsInitialized = true;
+		}
+	}
 	for (LModule* it : mOrderedModules)
 	{
 		if (it->mNeedTick)

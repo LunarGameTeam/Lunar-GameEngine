@@ -29,11 +29,8 @@ public:
 	MainPanel() = default;
 	void OnInputEvent(LWindow& window, InputEvent& event);
 	void Init() override;
-	void OnWindowResize(LWindow& window, WindowEvent& evt);
 	void DoIMGUI() override;
 
-	uint32_t mWidth = 1024;
-	uint32_t mHeight = 768;
 private:
 	bool open = true;
 	int moveOffsetX = 0;

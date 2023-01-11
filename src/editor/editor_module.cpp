@@ -5,7 +5,6 @@
 
 #include "game/camera.h"
 
-#include "editor/ui/scene_panel.h"
 #include "editor/ui/icon_font.h"
 
 #include "window/window_module.h"
@@ -29,20 +28,8 @@ namespace luna::editor
 {
 EditorModule* sEditorModule = nullptr;
 
-static void ImGUIText(const LString& name)
-{
-	ImGui::Text(name.c_str());
-}
-
 RegisterTypeEmbedd_Imp(EditorModule)
 {
-	cls->BindingMethod<&EditorModule::RegisterPanel>("register_panel").GetBindingMethodDef().ml_doc = LString::MakeStatic("def register_editor(self, t: typing.Type[T] ) -> T:\n");
-
-	cls->Binding<EditorModule>();
-
-	BindingModule* editor_module = BindingModule::Get("luna.editor");
-	editor_module->AddType(cls);
-	BindingModule::Get("luna.editor.IMGUIFlags")->AddConstant("TextClip", 1);
 }
 
 
@@ -59,11 +46,6 @@ bool EditorModule::OnLoad()
 
 bool EditorModule::OnInit()
 {
-	auto func = std::bind(&EditorModule::OnWindowResize, this, std::placeholders::_1, std::placeholders::_2);
-	static auto handle = sWindowModule->OnWindowResize.Bind(func);
-		
-	gEngine->GetModule<render::RenderModule>();
-
 	for (PanelBase* editro : m_editors)
 	{
 		if (!editro->mInited)
@@ -83,8 +65,6 @@ bool EditorModule::OnShutdown()
 void EditorModule::Tick(float delta_time)
 {
 
-
-	render::RenderDevice* device = sRenderModule->GetRenderDevice();
 }
 
 void EditorModule::OnIMGUI()
@@ -93,23 +73,6 @@ void EditorModule::OnIMGUI()
 	{
 		ed->DoIMGUI();
 	}
-// 	if (ImGui::TreeNode("Editor"))
-// 	{
-// 		ImGui::Text("PyLObject数量: %d", binding:: BindingLObject::sBindingObjectNum);
-// 		ImGui::TreePop();
-// 	}
-
-}
-
-void EditorModule::OnWindowResize(LWindow&, WindowEvent& evt)
-{
-	GetMainEditor()->mWidth = evt.width;
-	GetMainEditor()->mHeight = evt.height;
-
-	mWindowDesc.mFrameNumber = 2;
-	mWindowDesc.mHeight = evt.height;
-	mWindowDesc.mWidth = evt.width;
-	mNeedResize = true;
 
 }
 
@@ -125,29 +88,11 @@ PanelBase* EditorModule::RegisterPanel(PanelBase* base)
 	return base;
 }
 
-ScenePanel* EditorModule::GetSceneEditor()
-{
-	if (!mSceneEditor)
-		mSceneEditor = GetEditor<ScenePanel>();
-	return mSceneEditor;
-}
-
 MainPanel* EditorModule::GetMainEditor()
 {
 	if (!mMainEditor)
 		mMainEditor = GetEditor < MainPanel>();
 	return mMainEditor;
-}
-
-void EditorModule::OnFrameEnd(float deltaTime)
-{
-
-	if (mNeedResize)
-	{
-		sRenderModule->GetSwapChain()->Reset(mWindowDesc);
-		sRenderModule->UpdateFrameBuffer();
-		mNeedResize = false;
-	}
 }
 
 }

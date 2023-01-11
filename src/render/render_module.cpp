@@ -53,6 +53,7 @@ namespace luna::render
 
 RegisterTypeEmbedd_Imp(RenderModule)
 {
+	cls->Ctor<RenderModule>();
 	cls->Binding<Self>();
 	BindingModule::Get("luna")->AddType(cls);
 
@@ -81,6 +82,7 @@ bool RenderModule::OnShutdown()
 {
 	if (mFrameGraph)
 		delete mFrameGraph;
+	ImGui::SaveIniSettingsToDisk("layout.ini");
 	return true;
 }
 
@@ -106,6 +108,16 @@ void RenderModule::SetupIMGUI()
 	//ImGui::PushFont(font);
 	io.ConfigFlags = io.ConfigFlags | ImGuiConfigFlags_DockingEnable;
 	(void)io;
+
+	io.IniFilename = nullptr;
+	LSharedPtr<TextAsset> defaultLayout;
+	defaultLayout.reset(sAssetModule->LoadAsset<TextAsset>("default_layout.ini"));
+	LSharedPtr<TextAsset> layout;
+	layout.reset(sAssetModule->LoadAsset<TextAsset>("layout.ini"));
+	if(layout)
+		ImGui::LoadIniSettingsFromMemory(layout->GetContent().c_str(), layout->GetContent().Length());
+	else
+		ImGui::LoadIniSettingsFromMemory(defaultLayout->GetContent().c_str(), defaultLayout->GetContent().Length());
 
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.Colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
@@ -197,22 +209,17 @@ bool RenderModule::OnInit()
 {
 	mRenderDevice = new RenderDevice();
 	mRenderDevice->Init();
-	render::RHIDevice* rhiDevice = GetRHIDevice();
 
-	RHIRenderQueue* m_queue_core = mRenderDevice->mGraphicQueue;
+	render::RHIDevice* rhiDevice = GetRHIDevice();	
 	//此处做Render系统的Init
-	LWindow* mainWindow = gEngine->GetModule<WindowModule>()->GetMainWindow();
-#ifdef _WIN32
-	auto hwnd = mainWindow->GetWin32HWND();
-#endif // _WIN32
 
-
-	RHISwapchainDesc windowDesc;
-	windowDesc.mWidth = mainWindow->GetWindowWidth();
-	windowDesc.mHeight = mainWindow->GetWindowHeight();
-	windowDesc.mFrameNumber = 2;
+	gEngine->GetModule<WindowModule>()->OnWindowResize.Bind(AutoBind(&RenderModule::OnMainWindowResize, this));
+	LWindow* mainWindow = gEngine->GetModule<WindowModule>()->GetMainWindow();	
+	mSwapchainDesc.mWidth = mainWindow->GetWindowWidth();
+	mSwapchainDesc.mHeight = mainWindow->GetWindowHeight();
+	mSwapchainDesc.mFrameNumber = 2;
 	mMainSwapchain = sRenderModule->GetCmdQueueCore()->CreateSwapChain(
-		mainWindow, windowDesc);
+		mainWindow, mSwapchainDesc);
 
 
 	mMainRT.SetPtr(NewObject<render::RenderTarget>());
@@ -225,7 +232,6 @@ bool RenderModule::OnInit()
 	mDefaultWhiteTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/white.png"));
 
 	SetupIMGUI();
-
 
 	render::RenderDevice* renderDevice = sRenderModule->GetRenderDevice();
 	render::RenderPassDesc renderPassDesc;
@@ -316,6 +322,7 @@ void RenderModule::Tick(float delta_time)
 	mRenderDevice->mTransferCmd->EndEvent();
 
 	Render();
+
 	mRenderDevice->FlushStaging();
 	mFrameGraph->Flush();
 
@@ -347,6 +354,12 @@ void RenderModule::OnFrameEnd(float deltaTime)
 	mRenderDevice->OnFrameEnd();
 	mRenderDevice->mGraphicQueue->Wait(mRenderDevice->mFence, mRenderDevice->mFenceValue);
 	mRenderDevice->mGraphicQueue->Present(mMainSwapchain);
+
+	if (mNeedResizeSwapchain)
+	{
+		mMainSwapchain->Reset(mSwapchainDesc);
+		UpdateFrameBuffer();
+	}
 }
 
 RenderScene* RenderModule::AddScene()
@@ -355,6 +368,14 @@ RenderScene* RenderModule::AddScene()
 	mRenderScenes.push_back(scene);
 	return scene;
 }
+
+void RenderModule::RemoveScene(RenderScene* val)
+{
+	if (val)
+		delete val;
+	std::erase(mRenderScenes, val);
+}
+
 
 ImguiTexture* RenderModule::AddImguiTexture(RHIResource* res)
 {
@@ -426,6 +447,14 @@ void RenderModule::RenderIMGUI()
 
 	graphQueue->ExecuteCommandLists(mRenderDevice->mGraphicCmd);
 	graphQueue->Signal(mRenderDevice->mFence, ++fenceValue);
+}
+
+void RenderModule::OnMainWindowResize(LWindow& window, WindowEvent&evt)
+{
+	mNeedResizeSwapchain = true;
+	mSwapchainDesc.mFrameNumber = 2;
+	mSwapchainDesc.mHeight = evt.height;
+	mSwapchainDesc.mWidth = evt.width;
 }
 
 }

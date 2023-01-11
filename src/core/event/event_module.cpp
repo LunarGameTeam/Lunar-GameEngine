@@ -7,6 +7,7 @@ namespace luna
 
 RegisterTypeEmbedd_Imp(EventModule)
 {
+	cls->Ctor<EventModule>();
 
 }
 

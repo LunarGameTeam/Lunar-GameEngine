@@ -12,9 +12,11 @@
  * \note
 */
 #pragma once
-#include "window/window_config.h"
 
+#include "window/window_config.h"
+#include "core/reflection/type_traits.h"
 #include "core/core_library.h"
+#include "core/binding/binding.h"
 
 
 #include <SDL.h>
@@ -26,6 +28,7 @@ namespace luna
 
 class WINDOW_API LWindow
 {
+	RegisterTypeEmbedd(LWindow, InvalidType);
 public:
 	using WindowHandle = Uint32;
 
@@ -41,6 +44,12 @@ public:
 	{
 		return mHeight;
 	}
+
+	int GetWindowX();
+	int GetWindowY();
+
+	void SetWindowPos(int x, int y);
+
 	HWND GetWin32HWND();
 
 	bool Tick();
@@ -55,6 +64,16 @@ protected:
 	int32_t mWidth = 1024;
 	int32_t mHeight = 768;
 };
+
+
+namespace binding
+{
+
+template<> struct binding_converter<LWindow*> : native_converter<LWindow> { };
+template<> struct binding_proxy<LWindow> : native_binding_proxy<LWindow> { };
+
+}
+
 
 
 }

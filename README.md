@@ -14,15 +14,28 @@ Lunar GameEngie是几个渣渣业余写的基于C++的游戏引擎。
 **To The Moon and Beyond!**
 
 
-
 # 更新日志
 
+## 目前提供的功能
+
+- Vulkan/DirectX12双device
+- Render FrameGraph和基础的PBR Pass，ShadowMap
+- 多View，多RenderScene
+- Python binding 和 doc生成
+- ImGui 及 ImGui的Python binding
+- LunaCore 以及Library，Module流程框架，支持Python侧扩展模块（EditorModule）
+- ECS系统
+- 简单的引擎+项目文件系统
+- 简单的反射和基于反射的自动序列化，反序列化
+- 简单的Python Editor框架（基于IMGUI和Editor）
+
+## 2023.1 TODO
+- 新版内存生命周期管理
+  
 ## 2022.12 Updates
 - 编辑器功能
 - 标准Python + luna.pyd库。支持Pycharm进行编写脚本，使用vcpkg管理三方库
 - 支持 Vulkan DirectX12 两个Device
-## 2023.1 TODO
-- 新版内存生命周期管理
 
 
 # 项目结构

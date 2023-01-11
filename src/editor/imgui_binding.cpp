@@ -291,6 +291,19 @@ const ImGuiPayload* PyAcceptDragDropPayload(const char* type, ImGuiDragDropFlags
 	const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(type, flags);
 	return payload;	
 }
+bool PyBeginPopupModal(const char* name, bool p_open, ImGuiWindowFlags flags /* = 0 */)
+{
+	return ImGui::BeginPopupModal(name, &p_open, flags);
+}
+
+bool PyBegin(const char* name, ImGuiWindowFlags flags /* = 0 */)
+{
+	return ImGui::Begin(name, nullptr, flags);
+}
+void PyDockSpace(ImGuiID id, const ImVec2& size /* = ImVec2(0, 0) */, ImGuiDockNodeFlags flags /* = 0 */)
+{
+	ImGui::DockSpace(id, size, flags);	
+}
 
 #define AddIMGUIConstant(name) imguiModule->AddConstant(#name, name);
 
@@ -298,21 +311,52 @@ STATIC_INIT(imgui)
 {
 		BindingModule* imguiModule = BindingModule::Get("luna.imgui");
 
+		//Cond
 		AddIMGUIConstant(ImGuiCond_Always);
 		AddIMGUIConstant(ImGuiCond_FirstUseEver);
 		AddIMGUIConstant(ImGuiCond_Once);
 
+		//Window Flags
+		AddIMGUIConstant(ImGuiWindowFlags_NoTitleBar);
+		AddIMGUIConstant(ImGuiWindowFlags_NoResize);
+		AddIMGUIConstant(ImGuiWindowFlags_NoMove);
+		AddIMGUIConstant(ImGuiWindowFlags_NoScrollbar);
+		AddIMGUIConstant(ImGuiWindowFlags_NoScrollWithMouse);
+		AddIMGUIConstant(ImGuiWindowFlags_NoCollapse);
+		AddIMGUIConstant(ImGuiWindowFlags_AlwaysAutoResize);
+		AddIMGUIConstant(ImGuiWindowFlags_NoBackground);
+		AddIMGUIConstant(ImGuiWindowFlags_NoSavedSettings);
+		AddIMGUIConstant(ImGuiWindowFlags_NoMouseInputs);
+		AddIMGUIConstant(ImGuiWindowFlags_MenuBar);
+		AddIMGUIConstant(ImGuiWindowFlags_HorizontalScrollbar);
+		AddIMGUIConstant(ImGuiWindowFlags_NoFocusOnAppearing);
+		AddIMGUIConstant(ImGuiWindowFlags_NoBringToFrontOnFocus);
+		AddIMGUIConstant(ImGuiWindowFlags_AlwaysVerticalScrollbar);
+		AddIMGUIConstant(ImGuiWindowFlags_AlwaysHorizontalScrollbar);
+		AddIMGUIConstant(ImGuiWindowFlags_AlwaysUseWindowPadding);
+		AddIMGUIConstant(ImGuiWindowFlags_NoNavInputs);
+		AddIMGUIConstant(ImGuiWindowFlags_NoNavFocus);
+		AddIMGUIConstant(ImGuiWindowFlags_UnsavedDocument);
+		AddIMGUIConstant(ImGuiWindowFlags_NoDocking);
+		AddIMGUIConstant(ImGuiWindowFlags_NoNav);
+		AddIMGUIConstant(ImGuiWindowFlags_NoDecoration);
+		AddIMGUIConstant(ImGuiWindowFlags_NoInputs);
+
+		//DragDrop
 		AddIMGUIConstant(ImGuiDragDropFlags_None);
 		AddIMGUIConstant(ImGuiDragDropFlags_AcceptBeforeDelivery);		
 
+		//Popup Flags
 		AddIMGUIConstant(ImGuiPopupFlags_None);
 		AddIMGUIConstant(ImGuiPopupFlags_MouseButtonRight);
 
+		//TreeNode Flags
 		AddIMGUIConstant(ImGuiTreeNodeFlags_DefaultOpen);
 		AddIMGUIConstant(ImGuiTreeNodeFlags_Leaf);
 		AddIMGUIConstant(ImGuiTreeNodeFlags_OpenOnArrow);
 		AddIMGUIConstant(ImGuiTreeNodeFlags_OpenOnDoubleClick);
 
+		//Key
 		AddIMGUIConstant(ImGuiKey_A);
 		AddIMGUIConstant(ImGuiKey_B);
 		AddIMGUIConstant(ImGuiKey_C);
@@ -354,7 +398,7 @@ STATIC_INIT(imgui)
 		AddIMGUIConstant(ImGuiKey_8);
 		AddIMGUIConstant(ImGuiKey_9);
 
-
+		//ICON
 		AddIMGUIConstant(ICON_FA_COMPRESS);
 		AddIMGUIConstant(ICON_FA_CUBE);
 		AddIMGUIConstant(ICON_FA_FOLDER);
@@ -367,6 +411,9 @@ STATIC_INIT(imgui)
 			ImGui::ShowDemoWindow(nullptr);
 		}>("show_demo_window");
 
+		imguiModule->AddMethod<&PyBegin> ("begin");
+		imguiModule->AddMethod<&ImGui::End>("end");
+
 		imguiModule->AddMethod<&ImGui::GetWindowContentRegionMin> ("get_window_content_min");
 		imguiModule->AddMethod<&ImGui::GetWindowContentRegionMax>("get_window_content_max");
 		
@@ -375,7 +422,9 @@ STATIC_INIT(imgui)
 		imguiModule->AddMethod<&ImGui::ResetMouseDragDelta>("reset_mouse_drag_delta");
 
 		imguiModule->AddMethod<&ImGui::BeginPopupContextItem>("begin_popup_context_item");
-		imguiModule->AddMethod<&ImGui::EndPopup>("end_popup");
+		imguiModule->AddMethod<&ImGui::BeginPopup>("begin_popup");
+		imguiModule->AddMethod<&ImGui::EndPopup>("begin_popup");
+		imguiModule->AddMethod<&PyBeginPopupModal>("begin_popup_modal");
 
 		imguiModule->AddMethod<&ImGui::BeginMenuBar>("begin_menu_bar");
 		imguiModule->AddMethod<&ImGui::EndMenuBar>("end_menu_bar");
@@ -425,6 +474,15 @@ STATIC_INIT(imgui)
 
 		imguiModule->AddMethod<&ImGui::AlignTextToFramePadding>("align_text_to_frame_padding");
 		imguiModule->AddMethod<&ImGui::Separator>("separator");
+
+		imguiModule->AddMethod<&ImGui::SetNextWindowSize>("set_next_window_size");
+		imguiModule->AddMethod<&ImGui::SetNextWindowPos>("set_next_window_pos");
+		imguiModule->AddMethod<&PyDockSpace>("dock_space");
+
+		imguiModule->AddMethod<&ImGui::GetCursorPos>("get_cursor_pos");		
+
+		imguiModule->AddMethod<(void(*)(int, float))&ImGui::PushStyleVar>("push_style_float");
+		imguiModule->AddMethod<(void(*)(int, const ImVec2&))&ImGui::PushStyleVar>("push_style_vec2");
 
 		imguiModule->Init();
 

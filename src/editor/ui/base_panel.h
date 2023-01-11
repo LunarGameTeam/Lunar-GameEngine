@@ -16,14 +16,10 @@
 #include "core/core_library.h"
 #include "core/reflection/reflection.h"
 
-#include "imgui.h"
 
 
 namespace luna::editor
 {
-
-
-bool InputLString(const char* label, LString* str, ImGuiInputTextFlags flags);
 
 
 class PanelBase : public LObject
@@ -46,7 +42,6 @@ public:
 protected:
 	virtual void OnGUI();
 
-	bool CustomTreeNode(const char* id, ImGuiTreeNodeFlags flag, std::function<void(bool, bool)> func);
 
 	float   mWidth  = 100;
 	float   mHeight = 100;

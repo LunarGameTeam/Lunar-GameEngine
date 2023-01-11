@@ -18,17 +18,14 @@ public:
 	~LunaCore() {};
 	//TODO 使用自带反射库，而不是RTTI
 	template<typename T>
-	void LoadModule()
+	LModule* LoadModule()
 	{
-		T* subSystem = new T();		
-		subSystem->SetType(LType::Get<T>());
-		LModule* sys = static_cast<LModule*>(subSystem);
-		luna::LString name = LType::Get<T>()->GetName();
-		sys->OnLoad();
-		mModules.PushBack(sys);
-		mModulesMap[name] = sys;
-		mOrderedModules.push_back(sys);
+		LType* type = LType::Get<T>();
+		LModule* m = type->NewInstance<LModule>();
+		return LoadModule(m);
 	}
+
+	LModule* LoadModule(LModule* m);
 
 	void OnRender();
 
@@ -42,9 +39,8 @@ public:
 
 	template<typename T>
 	T* GetModule()
-	{
-		luna::LString name = LType::Get<T>()->GetName();
-		return static_cast<T*>(mModulesMap[name]);
+	{		
+		return (T*)GetModule(LType::Get<T>());
 	}
 
 	LModule* GetModule(LType* type)

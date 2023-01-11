@@ -32,7 +32,6 @@ void LoadEditorLibrary()
 	gEngine->LoadModule<WindowModule>();
 	gEngine->LoadModule<SceneModule>();
 	gEngine->LoadModule<render::RenderModule>();
-	gEngine->LoadModule<editor::EditorModule>();
 	ConfigLoader::instance();
 	BindingModule::Get("luna.editor")->Init();
 }

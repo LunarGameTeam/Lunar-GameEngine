@@ -10,6 +10,7 @@ namespace luna
 
 RegisterTypeEmbedd_Imp(AssetModule)
 {
+	cls->Ctor<AssetModule>();
 	cls->Binding<Self>();
 	cls->BindingMethod<&Self::SaveAsset>("save_asset");
 	cls->BindingMethod<&AssetModule::BindingLoadAsset>("load_asset")

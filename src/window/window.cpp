@@ -1,5 +1,5 @@
-#include "window.h"
-#include "window_module.h"
+#include "window/window.h"
+#include "window/window_module.h"
 
 #include "imgui_impl_sdl.h"
 #include "core/event/event_module.h"
@@ -10,11 +10,20 @@
 
 namespace luna
 {
-// Data
-static ID3D11Device *g_pd3dDevice = NULL;
-static ID3D11DeviceContext *g_pd3dDeviceContext = NULL;
-static IDXGISwapChain *g_pSwapChain = NULL;
-static ID3D11RenderTargetView *g_mainRenderTargetView = NULL;
+
+RegisterTypeEmbedd_Imp(LWindow)
+{
+
+	cls->Binding<LWindow>();
+	cls->BindingProperty<&LWindow::mWidth>("width");
+	cls->BindingProperty<&LWindow::mHeight>("height");
+	cls->BindingMethod<&LWindow::GetWindowX>("get_window_x");
+	cls->BindingMethod<&LWindow::GetWindowY>("get_window_y");
+	cls->BindingMethod<&LWindow::SetWindowPos>("set_window_pos");
+
+	BindingModule::Luna()->AddType(cls);
+}
+
 
 LWindow::WindowHandle window_id = 0;
 
@@ -49,6 +58,25 @@ bool LWindow::Init()
 	return true;
 }
 
+int LWindow::GetWindowX()
+{
+	int x, y;
+	SDL_GetWindowPosition(mSDLWindow, &x, &y);
+	return x;
+}
+
+int LWindow::GetWindowY()
+{
+	int x, y;
+	SDL_GetWindowPosition(mSDLWindow, &x, &y);
+	return y;
+}
+
+void LWindow::SetWindowPos(int x, int y)
+{
+	SDL_SetWindowPosition(mSDLWindow, x, y);
+}
+
 HWND LWindow::GetWin32HWND()
 {
 	SDL_SysWMinfo wmInfo;
@@ -66,7 +94,6 @@ bool LWindow::Tick()
 void LWindow::OnDestroy()
 {
 	// Release all outstanding references to the swap chain's buffers before resizing.
-	g_pSwapChain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
 }
 
 luna::LWindow::WindowHandle LWindow::Id()

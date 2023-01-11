@@ -158,21 +158,14 @@ int BindingLObject::__bool__(PyObject* self)
 	return 0;
 }
 
-PyObject* BindingLObject::__new__(PyTypeObject* type, PyObject* args, PyObject* kwrds)
+
+PyObject* BindingLObject::__new__(PyTypeObject* pytype, PyObject* args, PyObject* kwrds)
 {
-	Py_XINCREF(type);
-	LType* object_type = LType::Get(type);
-	binding::BindingLObject* obj = (binding::BindingLObject*)type->tp_alloc(type, 0);
-	LObject* t = object_type->NewInstance<LObject>();
-
-#ifdef _DEBUG
-	PyObject* dict = PyObject_GenericGetDict(obj, nullptr);
-	//CheckÒ»ÏÂDict
-	LUNA_ASSERT(PyDict_Check(dict));
-	Py_XDECREF(dict);
-#endif
-
-	t->SetType(object_type);
+	Py_XINCREF(pytype);
+	LType* type = LType::Get(pytype);
+	binding::BindingLObject* obj = (binding::BindingLObject*)pytype->tp_alloc(pytype, 0);	
+	LObject* t = type->NewInstance<LObject>();
+	t->SetType(type);
 	t->SetBindingObject(obj);
 	return (PyObject*)obj;
 }

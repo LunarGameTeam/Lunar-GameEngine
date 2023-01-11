@@ -2,7 +2,7 @@ import typing
 from typing import Type, List, Any
 
 import luna
-from core.editor_core import asset_module
+from core.editor_module import asset_module
 from luna import LObject, imgui, ObjAsset
 
 editors = dict()

@@ -35,7 +35,8 @@ Scene::Scene() :
 
 Scene::~Scene()
 {
-
+	if(mRenderScene)
+		sRenderModule->RemoveScene(mRenderScene);
 }
 
 Entity *Scene::FindEntity(const LString &name)

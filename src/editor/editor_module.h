@@ -34,7 +34,6 @@ namespace luna::editor
 
 class HierarchyEditor;
 class InspectorEditor;
-class ScenePanel;
 class LibraryEditor;
 
 
@@ -50,7 +49,6 @@ public:
 	bool OnShutdown() override;
 	void Tick(float delta_time) override;
 	void OnIMGUI() override;
-	void OnFrameEnd(float deltaTime) override;
 
 public:
 	PanelBase* RegisterPanel(PanelBase* base);
@@ -68,38 +66,11 @@ public:
 		}
 		return nullptr;
 	}
-
-	HierarchyEditor* GetHierarchyEditor();
-	LibraryEditor* GetLibraryEditor();
-	InspectorEditor* GetInspectorEditor();
-	ScenePanel* GetSceneEditor();
 	MainPanel* GetMainEditor();
 
 
 private:
-	void OnWindowResize(LWindow&, WindowEvent&);
-
-	Scene* mScene;
-
-	render::RHIViewPtr mRtvImgui;
-	ScenePanel* mSceneEditor = nullptr;
-	MainPanel* mMainEditor = nullptr;
-	
-	
-	//Render
-
-
-
-	render::RHIDevice* mRHIDevice = nullptr;	
-
-	render::RHISwapchainDesc mWindowDesc;
-	render::RHIDescriptorPool* mImguiSrvHeap;
-	render::RenderTarget* mScreenRt;
-	
-
-	bool mNeedResize = false;
+	MainPanel* mMainEditor = nullptr;	
 	LArray<PanelBase*> m_editors;
-
-	render::TRHIPtr<render::RHIFence> frame_fence_3D;
 };
 }

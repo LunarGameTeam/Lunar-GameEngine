@@ -28,8 +28,6 @@ public:
 
 	virtual ~MeshRenderer();
 
-	bool PopulateRenderNode(RenderObject& render_nodes) override;
-
 	void SetMesh(MeshAsset* mesh)
 	{
 		m_mesh = mesh;

@@ -23,23 +23,6 @@ RegisterTypeEmbedd_Imp(MeshRenderer)
 	BindingModule::Luna()->AddType(cls);
 }
 
-bool MeshRenderer::PopulateRenderNode(RenderObject& render_nodes)
-{
-	if (m_mesh && mMaterialInstance)
-	{
-		render_nodes.mMaterial = mMaterialInstance.Get();
-		render_nodes.mMesh = m_mesh->GetSubMeshAt(0);
-		if (render_nodes.mMesh->mVB.get() == nullptr)
-		{
-			render_nodes.mMesh->Init();
-		}
-		render_nodes.mWorldMat = &(mTransform->GetLocalToWorldMatrix());
-		render_nodes.mCastShadow = GetCastShadow();
-		return true;
-	}
-	return false;
-}
-
 void MeshRenderer::OnCreate()
 {
 	if (!mMaterialInstance)

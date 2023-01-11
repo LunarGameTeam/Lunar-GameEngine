@@ -18,6 +18,7 @@ CONFIG_IMPLEMENT(LString, Start, DefaultScene, "");
 
 RegisterTypeEmbedd_Imp(SceneModule)
 {
+	cls->Ctor<SceneModule>();
 	cls->Binding<SceneModule>();
 
 	cls->BindingMethod<&SceneModule::BindingAddScene>("add_scene")

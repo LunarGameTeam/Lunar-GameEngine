@@ -7,7 +7,8 @@ namespace luna
 CONFIG_IMPLEMENT(LString, Start, DefaultProject, "");
 
 RegisterTypeEmbedd_Imp(PlatformModule)
-{	
+{
+	cls->Ctor<PlatformModule>();
 	cls->Binding<PlatformModule>();
 	cls->BindingMethod<&Self::SetProjectDir>("set_project_dir");		
 

@@ -6,7 +6,9 @@ import types
 import luna
 from luna import editor
 from luna import imgui
-from core.editor_core import platform_module, EditorCore, asset_module, scene_module
+from core.editor_module import platform_module, EditorModule, asset_module, scene_module
+
+from ui.panel import PanelBase
 
 
 def generate_class_doc(cls: 'type'):
@@ -50,11 +52,12 @@ def generate_doc_for_module(target: 'types.ModuleType') -> object:
 	return
 
 
-class PyMainPanel(editor.MainPanel):
+class PyMainPanel(PanelBase):
 	main_scene: 'luna.Scene' = None
 
 	def __init__(self) -> None:
 		super(PyMainPanel, self).__init__()
+		self.title = "Luna Editor"
 		self.main_scene = None
 
 	def set_main_scene(self, scn):
@@ -63,8 +66,19 @@ class PyMainPanel(editor.MainPanel):
 			entity = scn.find_entity("MainCamera")
 			camera = entity.get_component(luna.CameraComponent)
 			scene_module.add_scene(scn)
-			EditorCore.instance().hierarchy_panel.set_scene(scn)
-			EditorCore.instance().scene_panel.set_scene(scn)
+			EditorModule.instance().hierarchy_panel.set_scene(scn)
+			EditorModule.instance().scene_panel.set_scene(scn)
+
+	def do_imgui(self):
+		window_module = luna.get_module(luna.WindowModule)
+		main_window = window_module.main_window
+		size = luna.LVector2f(main_window.width, main_window.height)
+		imgui.set_next_window_size(size, 0)
+		imgui.set_next_window_pos(luna.LVector2f(0, 0), 0, luna.LVector2f(0, 0))
+		imgui.begin(self.title, 0)
+		self.on_imgui()
+		imgui.dock_space(1, luna.LVector2f(0, 0), 0)
+		imgui.end()
 
 	def on_imgui(self) -> None:
 		super(PyMainPanel, self).on_imgui()
@@ -76,7 +90,8 @@ class PyMainPanel(editor.MainPanel):
 						platform_module.set_project_dir(name)
 					pass
 				if imgui.menu_item("打开场景"):
-					name = tkinter.filedialog.askopenfilename(filetypes= (("scene files", "*.scn"),), initialdir=platform_module.project_dir)
+					name = tkinter.filedialog.askopenfilename(filetypes=(("scene files", "*.scn"),),
+															  initialdir=platform_module.project_dir)
 					if name:
 						engine_path = os.path.relpath(name, platform_module.project_dir)
 						luna.set_config("DefaultScene", engine_path)

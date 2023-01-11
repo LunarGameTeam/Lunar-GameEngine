@@ -31,8 +31,11 @@
 #include <vulkan//vulkan.h>
 #include "render/rhi/DirectX12/dx12_descriptor_pool.h"
 #include "renderer/imgui_texture.h"
+#include "core/event/event_module.h"
+
 namespace luna::render
 {
+
 class RenderDevice;
 
 
@@ -49,6 +52,7 @@ public:
 public:
 
 	RenderScene* AddScene();
+	void RemoveScene(RenderScene*);
 
 	RHISwapChainPtr& GetSwapChain()
 	{
@@ -103,6 +107,8 @@ public:
 protected:
 	void Render();
 	void RenderIMGUI();
+
+	void OnMainWindowResize(LWindow& window, WindowEvent& event);
 public:
 
 	RenderDevice* mRenderDevice;
@@ -119,11 +125,14 @@ private:
 
 	LMap<RHIResourcePtr, ImguiTexture> mImguiTextures;
 
-	render::RHIRenderPassPtr    mRenderPass;
-	render::RHIFrameBufferPtr   mFrameBuffer[2];
+	render::RHIRenderPassPtr  mRenderPass;
+	render::RHIFrameBufferPtr mFrameBuffer[2];
+	render::RHISwapchainDesc  mSwapchainDesc;
 
-	RHISwapChainPtr             mMainSwapchain;
+	RHISwapChainPtr                    mMainSwapchain;
 	//framegraph
-	FrameGraphBuilder*          mFrameGraph = nullptr;
+	FrameGraphBuilder*                 mFrameGraph          = nullptr;
+
+	bool                               mNeedResizeSwapchain = false;
 };
 }

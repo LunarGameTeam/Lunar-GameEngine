@@ -1,7 +1,8 @@
 import os
 import luna
-from core.editor_core import platform_module
+from core.editor_module import platform_module
 from luna import editor
+from ui.panel import PanelBase
 
 
 class FileInfo(object):
@@ -28,7 +29,7 @@ class FolderInfo(FileInfo):
                 self.child_list.append(file)
 
 
-class PyLibraryPanel(editor.PanelBase):
+class PyLibraryPanel(PanelBase):
     def __init__(self) -> None:
         super(PyLibraryPanel, self).__init__()
         self.title = "资源库"

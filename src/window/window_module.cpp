@@ -16,7 +16,11 @@ namespace luna
 
 RegisterTypeEmbedd_Imp(WindowModule)
 {
+	cls->Ctor<WindowModule>();
 	cls->Binding<Self>();
+	cls->VirtualProperty("main_window")
+		.Getter<&WindowModule::GetMainWindow>()
+		.Binding<WindowModule, LWindow*>();
 	BindingModule::Get("luna")->AddType(cls);
 }
 

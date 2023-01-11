@@ -14,6 +14,8 @@ class CORE_API LModule : public LObject
 {
 	RegisterTypeEmbedd(LModule, LObject)
 public:
+	LModule() {};
+
 	bool IsInitialized();
 	bool Shutdown();
 
@@ -29,7 +31,6 @@ public:
 
 	virtual const char *GetName();
 protected:
-	LModule() {};	
 	bool mIsInitialized = false;
 	bool mNeedTick = false;
 

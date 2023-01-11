@@ -180,6 +180,13 @@ struct CORE_API BindingLObject  : public BindingObject
 	static void __destrctor__(PyObject* self);
 	static int __bool__(PyObject* self);
 	static PyObject* __new__(PyTypeObject* type, PyObject* args, PyObject* kwrds);
+
+	template<typename T>
+	static int __init__(PyObject* self, PyObject* args, PyObject* kwrds)
+	{
+		T* o = (T*)self;		
+		return 0;
+	}
 };
 
 
@@ -192,7 +199,9 @@ struct binding_proxy<T, typename std::enable_if_t<std::is_base_of_v<LObject, T>>
 		
 	constexpr static destructor get_destructor = binding_object_t::__destrctor__;
 	constexpr static allocfunc get_allocfunc = binding_object_t::__alloc__;
-	constexpr static newfunc get_newfunc = binding_object_t::__new__;
+
+	static constexpr newfunc get_newfunc = binding_object_t::__new__;
+	constexpr static initproc get_initproc = binding_object_t::__init__<T>;
 	constexpr static inquiry get_bool = binding_object_t::__bool__;
 
 	template<typename M>
@@ -255,7 +264,7 @@ struct binding_converter<U*> : std::enable_if_t<std::is_base_of_v<LObject, U>>
 	}
 	inline static T* from_binding(PyObject* obj)
 	{
-		 BindingLObject* res = ( BindingLObject*)(obj);		
+		BindingLObject* res = ( BindingLObject*)(obj);		
 		return (T*) res->ptr.Get();
 	}
 

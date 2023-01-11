@@ -5,9 +5,10 @@ from typing import Type, List, Any
 import core.editor
 import luna
 from luna import imgui
+from ui.panel import PanelBase
 
 
-class PyInspectorPanel(luna.editor.PanelBase):
+class PyInspectorPanel(PanelBase):
     editor_list: list[core.editor.EditorBase]
     editor: core.editor.EditorBase
     selected_entity: luna.Entity

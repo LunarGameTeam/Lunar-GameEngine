@@ -89,7 +89,7 @@ struct API static_type<type>\
 	static LType *StaticType()\
 	{\
 		if(_##unique_typename) return _##unique_typename;\
-		_##unique_typename = NewType(#type, sizeof(type), nullptr);\
+		_##unique_typename = NewType(#unique_typename, sizeof(type), nullptr);\
 		init_##unique_typename(_##unique_typename);\
 		return _##unique_typename;\
 	}\

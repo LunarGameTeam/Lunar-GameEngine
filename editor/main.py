@@ -3,6 +3,11 @@ import os
 import sys
 
 
+work_dir = os.getcwd()
+bin_dir = os.path.dirname(sys.executable)
+editor_dir = work_dir + "\\editor"
+
+
 def init_editor():
     # app = QtWidgets.QApplication([])
     # widget = QWidget()
@@ -18,7 +23,6 @@ def init_editor():
     # return
     import luna
 
-    editor_dir = os.getcwd() + "\\editor"
     sys.path.append(editor_dir)
 
     luna.load_library("editor.dll")
@@ -30,15 +34,10 @@ def init_editor():
     # 先做 binding test 再执行
     binding_test()
 
-    app.run()
-    from core.editor_core import EditorCore
-    EditorCore.instance()
+    from core.editor_module import EditorModule
+    luna.load_module(EditorModule.instance())
     app.main_loop()
 
-
-work_dir = os.getcwd()
-bin_dir = os.path.dirname(sys.executable)
-editor_dir = work_dir + "\\editor"
 
 if __name__ == '__main__':
     sys.path.append(bin_dir)

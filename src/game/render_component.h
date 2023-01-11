@@ -17,7 +17,6 @@ class GAME_API RendererComponent : public Component
 	RegisterTypeEmbedd(RendererComponent, Component)
 public:
 	virtual ~RendererComponent();
-	virtual bool PopulateRenderNode(RenderObject& render_nodes) = 0;
 
 	GET_SET_VALUE(bool, m_dirty, RendererDirty);
 	GET_SET_VALUE_DIRTY(bool, m_cast_shadow, CastShadow, m_dirty);

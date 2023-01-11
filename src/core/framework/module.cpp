@@ -12,6 +12,7 @@ namespace luna
 
 RegisterTypeEmbedd_Imp(LModule)
 {
+	cls->Ctor<LModule>();
 	cls->Binding<Self>();
 	BindingModule::Get("luna")->AddType(cls);
 }

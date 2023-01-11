@@ -14,7 +14,7 @@ struct binding_proxy_base
 	static constexpr inquiry get_bool = nullptr;
 	static constexpr destructor get_destructor = nullptr;
 	static constexpr getattrofunc get_getattrofunc = nullptr;
-	static constexpr newfunc get_newfunc = nullptr;
+	static constexpr newfunc get_newfunc = PyType_GenericNew;
 	static constexpr allocfunc get_allocfunc = nullptr;
 	static constexpr binaryfunc get_multiply = nullptr;
 	static constexpr binaryfunc get_add = nullptr;
@@ -35,8 +35,6 @@ template<typename T>
 struct struct_binding_proxy : binding_proxy_base
 {
 	using binding_object_t = BindingStruct<T>;
-
-	constexpr static newfunc get_newfunc = PyType_GenericNew;
 
 	static int get_type_flags() { return Py_TPFLAGS_DEFAULT; };
 		
