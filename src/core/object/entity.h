@@ -154,6 +154,6 @@ private:
 
 	friend class Scene;
 	friend class Component;
-	friend class SceneModule;
+	friend class GameModule;
 };
 }

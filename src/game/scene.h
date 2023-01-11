@@ -54,6 +54,6 @@ private:
 	DirectionLightComponent* m_main_light;
 	TPPtrArray<Entity>       mEntites;
 
-	friend class SceneModule;
+	friend class GameModule;
 };
 }

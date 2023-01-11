@@ -9,11 +9,11 @@ namespace luna
 {
 class CameraComponent;
 
-class GAME_API SceneModule : public LModule
+class GAME_API GameModule : public LModule
 {
-	RegisterTypeEmbedd(SceneModule, LModule)
+	RegisterTypeEmbedd(GameModule, LModule)
 public:
-	SceneModule();;
+	GameModule();;
 	bool OnLoad() override;
 	bool OnInit() override;
 	bool OnShutdown() override;

@@ -1,13 +1,13 @@
 import os
 import luna
 from core.editor_module import EditorModule
-from luna import editor, imgui
+from luna import imgui
 from ui.panel import PanelBase
 
 
-class PyHierarchyPanel(PanelBase):
+class HierarchyPanel(PanelBase):
     def __init__(self) -> None:
-        super(PyHierarchyPanel, self).__init__()
+        super(HierarchyPanel, self).__init__()
         self.scene = None
         self.title = "场景树"
 

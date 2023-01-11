@@ -1,7 +1,7 @@
 #include "light.h"
 #include "core/object/transform.h"
 #include "render/render_module.h"
-#include "game/scene_module.h"
+#include "game/game_module.h"
 #include "game/camera.h"
 
 namespace luna

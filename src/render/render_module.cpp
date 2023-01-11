@@ -42,7 +42,8 @@
 #include "rhi/vulkan/vulkan_cmd_list.h"
 #include "rhi/vulkan/vulkan_descriptor_pool.h"
 #include "rhi/vulkan/vulkan_render_pass.h"
-#include "editor/ui/icon_font.h"
+
+#include "imgui_binding/icon_font.h"
 
 
 RENDER_API luna::render::RenderModule* luna::sRenderModule = nullptr;

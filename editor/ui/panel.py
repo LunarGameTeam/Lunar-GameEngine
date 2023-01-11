@@ -11,6 +11,6 @@ class PanelBase(object):
 		pass
 
 	def do_imgui(self):
-		luna.imgui.begin(self.title, luna.imgui.ImGuiWindowFlags_NoCollapse)
+		luna.imgui.begin(self.title, luna.imgui.ImGuiWindowFlags_NoCollapse | luna.imgui.ImGuiWindowFlags_MenuBar, False)
 		self.on_imgui()
 		luna.imgui.end()

@@ -1,9 +1,7 @@
-import os
 import luna
-from core.editor_module import EditorModule
-from luna import editor
 
 from ui.panel import PanelBase
+
 
 class DemoPanel(PanelBase):
     def __init__(self) -> None:

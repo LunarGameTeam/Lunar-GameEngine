@@ -1,7 +1,7 @@
 import os
+
 import luna
 from core.editor_module import platform_module
-from luna import editor
 from ui.panel import PanelBase
 
 
@@ -29,9 +29,9 @@ class FolderInfo(FileInfo):
                 self.child_list.append(file)
 
 
-class PyLibraryPanel(PanelBase):
+class LibraryPanel(PanelBase):
     def __init__(self) -> None:
-        super(PyLibraryPanel, self).__init__()
+        super(LibraryPanel, self).__init__()
         self.title = "资源库"
         self.asset_path = os.path.join(luna.get_module(luna.PlatformModule).engine_dir, "assets")
         self.asset_root = FolderInfo(self.asset_path)
@@ -64,9 +64,6 @@ class PyLibraryPanel(PanelBase):
             luna.imgui.tree_pop()
 
     def on_imgui(self) -> None:
-        super(PyLibraryPanel, self).on_imgui()
+        super(LibraryPanel, self).on_imgui()
         for f in self.asset_root.child_list:
             self.on_imgui_folder(f)
-
-
-

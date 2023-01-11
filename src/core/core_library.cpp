@@ -36,6 +36,7 @@ void LoadCoreLib()
 	ConfigLoader::instance().LoadFromJson(configContent);
 
 	luna::LApplication::Instance();
+
 	gEngine->LoadModule<AssetModule>();
 	gEngine->LoadModule<EventModule>();
 }

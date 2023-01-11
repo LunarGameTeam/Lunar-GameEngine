@@ -1,4 +1,4 @@
-#include "scene_module.h"
+#include "game_module.h"
 #include "game/scene.h"
 #include "core/object/entity.h"
 #include "render/render_module.h"
@@ -11,49 +11,49 @@
 namespace luna
 {
 
-SceneModule* sSceneModule = nullptr;
+GameModule* sGameModule = nullptr;
 
 CONFIG_DECLARE(LString, Start, DefaultScene, "");
 CONFIG_IMPLEMENT(LString, Start, DefaultScene, "");
 
-RegisterTypeEmbedd_Imp(SceneModule)
+RegisterTypeEmbedd_Imp(GameModule)
 {
-	cls->Ctor<SceneModule>();
-	cls->Binding<SceneModule>();
+	cls->Ctor<GameModule>();
+	cls->Binding<GameModule>();
 
-	cls->BindingMethod<&SceneModule::BindingAddScene>("add_scene")
+	cls->BindingMethod<&GameModule::BindingAddScene>("add_scene")
 		.Doc("def add_scene(self, new_scene: Scene*) -> T:\n\tpass\n");
 
 	BindingModule::Get("luna")->AddType(cls);
 }
 
-void SceneModule::BindingAddScene(Scene* newScene)
+void GameModule::BindingAddScene(Scene* newScene)
 {
 	mScenes.PushBack(newScene);	
 }
 
-SceneModule::SceneModule():mScenes(this)
+GameModule::GameModule():mScenes(this)
 {
-	sSceneModule = this;
+	sGameModule = this;
 }
 
-bool SceneModule::OnLoad()
+bool GameModule::OnLoad()
 {
 	return true;
 }
 
-bool SceneModule::OnInit()
+bool GameModule::OnInit()
 {
 	mNeedTick = true;
 	return true;
 }
 
-bool SceneModule::OnShutdown()
+bool GameModule::OnShutdown()
 {
 	return true;
 }
 
-void SceneModule::Tick(float delta_time)
+void GameModule::Tick(float delta_time)
 {
 	for (auto& it : mScenes)
 	{
@@ -61,7 +61,7 @@ void SceneModule::Tick(float delta_time)
 	}
 }
 
-void SceneModule::OnIMGUI()
+void GameModule::OnIMGUI()
 {
 }
 

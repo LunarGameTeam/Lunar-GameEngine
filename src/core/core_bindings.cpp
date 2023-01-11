@@ -74,7 +74,7 @@ STATIC_INIT(Core)
 	LType::Get<PPtrArray>()->Binding<PPtrArray>();
 	BindingModule::Luna()->AddType(LType::Get<PPtrArray>());
 	BindingModule::Luna()->AddMethod<&LoadLib>("load_library");
-	BindingModule::Luna()->AddMethod<&AddLibDir>("add_library_dir");
+	BindingModule::Luna()->AddMethod<&AddLibDir>("add_library_dir");	
 	BindingModule::Luna()->AddCFunction<&Print>("print");
 };
 

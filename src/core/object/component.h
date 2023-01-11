@@ -42,7 +42,7 @@ private:
 
 	friend class Entity;
 	friend class Scene;
-	friend class SceneModule;
+	friend class GameModule;
 
 };
 }

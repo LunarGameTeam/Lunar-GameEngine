@@ -1,4 +1,3 @@
-import inspect
 import os
 import sys
 
@@ -25,12 +24,12 @@ def init_editor():
 
     sys.path.append(editor_dir)
 
-    luna.load_library("editor.dll")
+    luna.load_library("imgui_binding.dll")
+    luna.load_library("game.dll")
 
     app = luna.LApplication.instance()
 
-    from luna_test.luna_test import binding_test
-
+    from core.test import binding_test
     # 先做 binding test 再执行
     binding_test()
 
@@ -42,7 +41,9 @@ def init_editor():
 if __name__ == '__main__':
     sys.path.append(bin_dir)
     import luna
+
     luna.add_library_dir(bin_dir)
     is_looping = True
     init_editor()
+
 

@@ -10,10 +10,10 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 
-#include "render/render_module.h"
-#include "render/renderer/imgui_texture.h"
+#include "icon_font.h"
 
-#include "editor/ui/icon_font.h"
+#include "render/rhi/rhi_resource.h"
+#include "render/render_module.h"
 
 
 namespace luna
@@ -291,14 +291,30 @@ const ImGuiPayload* PyAcceptDragDropPayload(const char* type, ImGuiDragDropFlags
 	const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(type, flags);
 	return payload;	
 }
-bool PyBeginPopupModal(const char* name, bool p_open, ImGuiWindowFlags flags /* = 0 */)
+
+PyObject* PyBeginPopupModal(const char* name, bool p_open, ImGuiWindowFlags flags /* = 0 */)
 {
-	return ImGui::BeginPopupModal(name, &p_open, flags);
+	PyObject* ret_args = PyTuple_New(2);
+	bool show = ImGui::BeginPopupModal(name, &p_open, flags);
+	PyTuple_SetItem(ret_args, 0, to_binding(show));
+	PyTuple_SetItem(ret_args, 1, to_binding(p_open));
+	return ret_args;
 }
 
-bool PyBegin(const char* name, ImGuiWindowFlags flags /* = 0 */)
+bool PyBegin(const char* name, ImGuiWindowFlags flags, bool showClose)
 {
-	return ImGui::Begin(name, nullptr, flags);
+	bool b = true;
+	if (showClose)
+	{
+		ImGui::Begin(name, &b, flags);
+	}
+	else
+	{
+		ImGui::Begin(name, nullptr, flags);
+	}	
+	if(showClose)
+		return b;
+	return true;
 }
 void PyDockSpace(ImGuiID id, const ImVec2& size /* = ImVec2(0, 0) */, ImGuiDockNodeFlags flags /* = 0 */)
 {
@@ -315,7 +331,9 @@ STATIC_INIT(imgui)
 		AddIMGUIConstant(ImGuiCond_Always);
 		AddIMGUIConstant(ImGuiCond_FirstUseEver);
 		AddIMGUIConstant(ImGuiCond_Once);
-
+		
+		AddIMGUIConstant(ImGuiDockNodeFlags_PassthruCentralNode);
+		AddIMGUIConstant(ImGuiDockNodeFlags_AutoHideTabBar);
 		//Window Flags
 		AddIMGUIConstant(ImGuiWindowFlags_NoTitleBar);
 		AddIMGUIConstant(ImGuiWindowFlags_NoResize);
@@ -398,6 +416,7 @@ STATIC_INIT(imgui)
 		AddIMGUIConstant(ImGuiKey_8);
 		AddIMGUIConstant(ImGuiKey_9);
 
+		AddIMGUIConstant(ImGuiStyleVar_FramePadding);
 		//ICON
 		AddIMGUIConstant(ICON_FA_COMPRESS);
 		AddIMGUIConstant(ICON_FA_CUBE);
@@ -405,6 +424,7 @@ STATIC_INIT(imgui)
 		AddIMGUIConstant(ICON_FA_FILE);
 		AddIMGUIConstant(ICON_FA_IMAGE);
 		AddIMGUIConstant(ICON_FA_LAYER_GROUP);
+		AddIMGUIConstant(ICON_FA_MOON);
 
 		imguiModule->AddMethod<&InputLString>("input");
 		imguiModule->AddMethod<[](){
@@ -423,7 +443,8 @@ STATIC_INIT(imgui)
 
 		imguiModule->AddMethod<&ImGui::BeginPopupContextItem>("begin_popup_context_item");
 		imguiModule->AddMethod<&ImGui::BeginPopup>("begin_popup");
-		imguiModule->AddMethod<&ImGui::EndPopup>("begin_popup");
+		imguiModule->AddMethod<(void(*)(const char*, int))&ImGui::OpenPopup>("open_popup");
+		imguiModule->AddMethod<&ImGui::EndPopup>("end_popup");
 		imguiModule->AddMethod<&PyBeginPopupModal>("begin_popup_modal");
 
 		imguiModule->AddMethod<&ImGui::BeginMenuBar>("begin_menu_bar");
@@ -477,12 +498,14 @@ STATIC_INIT(imgui)
 
 		imguiModule->AddMethod<&ImGui::SetNextWindowSize>("set_next_window_size");
 		imguiModule->AddMethod<&ImGui::SetNextWindowPos>("set_next_window_pos");
+		imguiModule->AddMethod<&ImGui::SetNextWindowDockID>("set_next_window_dock_id");
 		imguiModule->AddMethod<&PyDockSpace>("dock_space");
 
 		imguiModule->AddMethod<&ImGui::GetCursorPos>("get_cursor_pos");		
 
 		imguiModule->AddMethod<(void(*)(int, float))&ImGui::PushStyleVar>("push_style_float");
-		imguiModule->AddMethod<(void(*)(int, const ImVec2&))&ImGui::PushStyleVar>("push_style_vec2");
+		imguiModule->AddMethod<(void(*)(int, const ImVec2&))& ImGui::PushStyleVar>("push_style_vec2");
+		imguiModule->AddMethod<&ImGui::PopStyleVar>("pop_style_var");
 
 		imguiModule->Init();
 

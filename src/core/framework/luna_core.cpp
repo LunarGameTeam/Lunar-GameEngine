@@ -40,6 +40,11 @@ void PySetConfig(const LString& key, const LString& val)
 	ConfigLoader::instance().SetValue(key, val);
 };
 
+void Exit()
+{
+	gEngine->SetPendingExit(true);
+}
+
 
 LunaCore* LunaCore::CreateLunaCore()
 {
@@ -49,6 +54,8 @@ LunaCore* LunaCore::CreateLunaCore()
 	gEngine->LoadModule<PlatformModule>();
 	BindingModule::Luna()->AddMethod<&PyGetModule>("get_module").ml_doc = LString::MakeStatic("def get_module(t: Type[T]) -> T:\n\tpass\n");
 	BindingModule::Luna()->AddMethod<&PyLoadModule>("load_module").ml_doc = LString::MakeStatic("def load_module(t: Type[T]) -> T:\n\tpass\n");
+
+	BindingModule::Luna()->AddMethod<&Exit>("exit");
 
 	BindingModule::Luna()->AddMethod<&PyGetConfig>("get_config");
 	BindingModule::Luna()->AddMethod<&PySetConfig>("set_config");

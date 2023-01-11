@@ -3,7 +3,7 @@ import luna
 
 asset_module: 'luna.AssetModule' = luna.get_module(luna.AssetModule)
 render_module: 'luna.RenderModule' = luna.get_module(luna.RenderModule)
-scene_module: 'luna.SceneModule' = luna.get_module(luna.SceneModule)
+scene_module: 'luna.GameModule' = luna.get_module(luna.GameModule)
 platform_module: 'luna.PlatformModule' = luna.get_module(luna.PlatformModule)
 
 
@@ -18,6 +18,7 @@ class EditorModule(luna.LModule):
 	def __init__(self):
 		super(EditorModule, self).__init__()
 		self.editor_list = []
+		self.project_dir = ""
 		if False:
 			update_asset("/assets/test.scn", luna.Scene)
 			update_asset("/assets/built-in/skybox/skybox.mat", luna.MaterialTemplateAsset)
@@ -29,22 +30,22 @@ class EditorModule(luna.LModule):
 
 	def on_init(self):
 
-		from ui.hierarchy_panel import PyHierarchyPanel
-		from ui.main_panel import PyMainPanel
-		from ui.inspector_panel import PyInspectorPanel
-		from ui.scene_panel import PyScenePanel
-		from ui.library_panel import PyLibraryPanel
+		from ui.hierarchy_panel import HierarchyPanel
+		from ui.main_panel import MainPanel
+		from ui.inspector_panel import InspectorPanel
+		from ui.scene_panel import ScenePanel
+		from ui.library_panel import LibraryPanel
 		from ui.imgui_demo import DemoPanel
 		from ui.main_panel import generate_doc_for_module
 
 		global asset_module, scene_module, render_module, platform_module
 
-		self.hierarchy_panel = PyHierarchyPanel()
+		self.hierarchy_panel = HierarchyPanel()
 		self.demo_panel = DemoPanel()
-		self.main_panel = PyMainPanel()
-		self.scene_panel = PyScenePanel()
-		self.library_panel = PyLibraryPanel()
-		self.inspector_panel = PyInspectorPanel()
+		self.main_panel = MainPanel()
+		self.scene_panel = ScenePanel()
+		self.library_panel = LibraryPanel()
+		self.inspector_panel = InspectorPanel()
 
 		self.editor_list.append(self.main_panel)
 		self.editor_list.append(self.hierarchy_panel)
@@ -55,10 +56,11 @@ class EditorModule(luna.LModule):
 
 		generate_doc_for_module(luna)
 
-		project_dir = luna.get_config("DefaultProject")
-		default_scene = luna.get_config("DefaultScene")
-		if default_scene and project_dir:
-			scn = asset_module.load_asset(default_scene, luna.Scene)
+		self.project_dir = luna.get_config("DefaultProject")
+		self.default_scene = luna.get_config("DefaultScene")
+		if self.default_scene and self.project_dir:
+
+			scn = asset_module.load_asset(self.default_scene, luna.Scene)
 			self.main_panel.set_main_scene(scn)
 
 	def on_tick(self, delta_time):

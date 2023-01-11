@@ -34,8 +34,8 @@
 /// 
 namespace luna
 {
-class SceneModule;
+class GameModule;
 
-GAME_API extern SceneModule *sSceneModule;
+GAME_API extern GameModule *sGameModule;
 }
 
