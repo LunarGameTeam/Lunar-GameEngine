@@ -72,43 +72,69 @@ void SubMesh::Init()
 	Update();
 }
 
-void MeshAsset::OnAssetBinaryRead(const byte* value)
+void MeshAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file)
 {
-	LType* obj_type = this->GetClass();
-	auto prop = obj_type->GetProperty("submesh");
-	TPPtrArray<SubMesh>& ary = prop->GetValue<TPPtrArray<SubMesh>>(this);
-	const byte* ptr = value;
-	for (auto& it : mSubMesh)
+	const byte* data_header = file->GetData().data();
+	size_t offset = 0;
+	const byte* ptr = data_header;
+	size_t submeshSize;
+	memcpy(&submeshSize, ptr, sizeof(size_t));
+	for (size_t id = 0; id < submeshSize; ++id)
 	{
-		it->mVertexData.resize(it->mVertexCount);
-		it->mIndexData.resize(it->mIndexCount);
-		memcpy(it->mVertexData.data(), ptr, it->mVertexCount * sizeof(BaseVertex));
-		ptr += it->mVertexCount * sizeof(BaseVertex);
-		memcpy(it->mIndexData.data(), ptr, it->mIndexCount * sizeof(uint32_t));
-		ptr += it->mIndexCount * sizeof(uint32_t);
+		render::SubMesh* sub_mesh = TCreateObject<render::SubMesh>();
+		size_t submeshVertexSize;
+		size_t submeshIndexSize;
+		ptr += sizeof(size_t);
+		memcpy(&submeshVertexSize, ptr, sizeof(size_t));
+		ptr += sizeof(size_t);
+		memcpy(&submeshIndexSize, ptr, sizeof(size_t));
+		sub_mesh->mVertexCount = submeshVertexSize;
+		sub_mesh->mVertexData.resize(submeshVertexSize);
+		sub_mesh->mIndexCount = submeshVertexSize;
+		sub_mesh->mIndexData.resize(submeshIndexSize);
 	}
-	return;
+
+	for (size_t idx = 0; idx < mSubMesh.Size(); ++idx)
+	{
+		memcpy(mSubMesh[idx]->mVertexData.data(), ptr, mSubMesh[idx]->mVertexData.size() * sizeof(BaseVertex));
+		ptr += mSubMesh[idx]->mVertexData.size() * sizeof(BaseVertex);
+		memcpy(mSubMesh[idx]->mIndexData.data(), ptr, mSubMesh[idx]->mIndexData.size() * sizeof(uint32_t));
+		ptr += mSubMesh[idx]->mIndexData.size() * sizeof(uint32_t);
+	}
+	OnLoad();
 }
 
-void MeshAsset::OnAssetBinaryWrite(LArray<byte>& data)
+void MeshAsset::OnAssetFileWrite(LSharedPtr<Dictionary> meta, LVector<byte>& data)
 {
-	size_t globel_size = data.size();
-	size_t offset = data.size();
-	for (int32_t id = 0; id < mSubMesh.Size(); ++id)
+	size_t globel_size = 0;
+	size_t offset = 0;
+	globel_size += sizeof(size_t);
+	for (size_t id = 0; id < mSubMesh.Size(); ++id)
 	{
+		globel_size += 2 * sizeof(size_t);
 		globel_size += mSubMesh[id]->mVertexData.size() * sizeof(BaseVertex);
 		globel_size += mSubMesh[id]->mIndexData.size() * sizeof(uint32_t);
 	}
 	data.resize(globel_size);
-	byte* dst = data.data() + offset;
-	for (int32_t idx = 0; idx < mSubMesh.Size(); ++idx)
+	byte* dst = data.data();
+	size_t submeshSize = mSubMesh.Size();
+	memcpy(dst, &submeshSize, sizeof(size_t));
+	for(size_t submeshIndex = 0; submeshIndex < mSubMesh.Size(); ++submeshIndex)
+	{
+		size_t submeshVertexSize = mSubMesh[submeshIndex]->mVertexData.size();
+		size_t submeshIndexSize = mSubMesh[submeshIndex]->mIndexData.size();
+		memcpy(dst, &submeshVertexSize, sizeof(size_t));
+		memcpy(dst, &submeshIndexSize, sizeof(size_t));
+	}
+
+	for (size_t idx = 0; idx < mSubMesh.Size(); ++idx)
 	{
 		memcpy(dst, mSubMesh[idx]->mVertexData.data(), mSubMesh[idx]->mVertexData.size() * sizeof(BaseVertex));
 		dst += mSubMesh[idx]->mVertexData.size() * sizeof(BaseVertex);
 		memcpy(dst, mSubMesh[idx]->mIndexData.data(), mSubMesh[idx]->mIndexData.size() * sizeof(uint32_t));
 		dst += mSubMesh[idx]->mIndexData.size() * sizeof(uint32_t);
 	}
-};
+}
 
 
 // void SubMesh::Bind()

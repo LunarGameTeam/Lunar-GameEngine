@@ -39,7 +39,7 @@ public:
 	RHIResourcePtr mVB;
 	RHIResourcePtr mIB;
 	RHIVertexLayout mVeretexLayout;
-	//����mesh buffer����ʱ��Ϊbuffer0Ϊ������pervertex��buffer1Ϊ������perinstance
+	//????mesh buffer????????buffer0???????pervertex??buffer1???????perinstance
 	size_t GetStridePerVertex() { return mVeretexLayout.GetSize()[0]; };
 	size_t GetStridePerInstance() { return mVeretexLayout.GetSize()[1]; };
 private:
@@ -66,10 +66,11 @@ public:
 		return mSubMesh[index];
 	};
 	TPPtrArray<SubMesh> mSubMesh;
+
+	void OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file) override;
+
+	void OnAssetFileWrite(LSharedPtr<Dictionary> meta, LVector<byte>& data) override;
 private:
 	bool m_ready = false;
-	void OnAssetBinaryRead(const byte* value) override;
-
-	void OnAssetBinaryWrite(LArray<byte>& data) override;
 };
 }

@@ -9,8 +9,7 @@ namespace luna::assetimport
 		for (LBasicAsset* assetValue : mAssetDatas)
 		{
 			LString newPath = rootPath + "/" + assetValue->GetObjectName();
-			LType::Get<render::MeshAsset>()->GetName();
-			if (assetValue->StaticType()->GetName() == LType::Get<render::MeshAsset>()->GetName())
+			if (assetValue->GetClass()->GetName() == LType::Get<render::MeshAsset>()->GetName())
 			{
 				newPath = newPath + ".lmesh";
 			}
