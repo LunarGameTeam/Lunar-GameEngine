@@ -16,12 +16,12 @@ add_library(core SHARED ${DST_FILES} ${NATVIS_PATH})
 add_compile_definitions(CORE_EXPORT)
 # add_compile_definitions(FMT_EXPORT)
 
-add_dependencies(core imgui Eigen3::Eigen JsonCpp::JsonCpp)
+add_dependencies(core imgui Eigen3::Eigen JsonCpp::JsonCpp SDL2::SDL2)
 
 if(LUNA_USING_DEBUG_PYTHON)
-    target_link_libraries(core PRIVATE python311_d)
+    target_link_libraries(core PUBLIC python311_d)
 else()
-    target_link_libraries(core PRIVATE python311)
+    target_link_libraries(core PUBLIC python311)
 endif()
 
-target_link_libraries(core PRIVATE Boost::boost bcrypt imgui jsoncpp_lib jsoncpp_object JsonCpp::JsonCpp Eigen3::Eigen Tracy::TracyClient)
+target_link_libraries(core PUBLIC Boost::boost bcrypt imgui JsonCpp::JsonCpp Eigen3::Eigen Tracy::TracyClient SDL2::SDL2)

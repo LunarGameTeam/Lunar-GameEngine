@@ -1,33 +1,10 @@
 import os
 
 import luna
-from core.editor_module import platform_module
+from core.asset import FolderInfo, FileInfo
+from core.editor_module import platform_module, EditorModule
 from luna import imgui
 from ui.panel import PanelBase
-
-
-class FileInfo(object):
-    def __init__(self, file_path):
-        self.abs_path = file_path
-        self.path = os.path.relpath(file_path, platform_module.engine_dir)
-        self.name = os.path.basename(file_path)
-
-
-class FolderInfo(FileInfo):
-    def __init__(self, dir_path):
-        super().__init__(dir_path)
-        self.child_list = []
-        self.init()
-
-    def init(self):
-        for f in os.listdir(self.abs_path):
-            abs_path = os.path.join(self.abs_path, f)
-            if os.path.isdir(abs_path):
-                d = FolderInfo(abs_path)
-                self.child_list.append(d)
-            elif os.path.isfile(abs_path):
-                file = FileInfo(abs_path)
-                self.child_list.append(file)
 
 
 class LibraryPanel(PanelBase):
@@ -55,6 +32,8 @@ class LibraryPanel(PanelBase):
             imgui.text("{} {}".format(imgui.ICON_FA_FOLDER, cur_item.name))
         else:
             imgui.text("{} {}".format(imgui.ICON_FA_FILE, cur_item.name))
+            if clicked:
+                EditorModule.instance().open_asset(cur_item)
 
         if expand:
             if isinstance(cur_item, FolderInfo):

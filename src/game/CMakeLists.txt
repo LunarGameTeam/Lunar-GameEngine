@@ -11,5 +11,5 @@ add_library(game SHARED ${DST_FILES})
 
 add_compile_definitions(GAME_EXPORT)
 
-add_dependencies(game core window render) 
-target_link_libraries(game core window render)
+add_dependencies(game core render) 
+target_link_libraries(game core render)

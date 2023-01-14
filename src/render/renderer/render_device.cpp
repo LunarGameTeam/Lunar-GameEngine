@@ -10,7 +10,8 @@
 #include "render/rhi/DirectX12/dx12_descriptor_pool.h"
 
 #include "render/asset/mesh_asset.h"
-#include "material.h"
+#include "render/renderer/material.h"
+#include "render/asset/material_template.h"
 
 
 namespace luna::render 
@@ -324,11 +325,16 @@ PipelinePair RenderDevice::CreatePipelineState(MaterialInstance* mat, const Rend
 		return it->second;
 
 	RHIPipelineStateDesc desc = {};
+	RenderPipelineStateDescGraphic& graphicDesc = desc.mGraphicDesc;
 	desc.mType = RHICmdListType::Graphic3D;
-	desc.mGraphicDesc.mInputLayout = *layout;
-	desc.mGraphicDesc.mPipelineStateDesc.mVertexShader = mat->GetShaderVS();
-	desc.mGraphicDesc.mPipelineStateDesc.mPixelShader = mat->GetShaderPS();
-	desc.mGraphicDesc.mRenderPassDesc = mCurRenderPass;
+
+	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthEnable = mat->mMaterialTemplate->IsDepthTestEnable();
+	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthWrite = mat->mMaterialTemplate->IsDepthTestEnable();
+	graphicDesc.mInputLayout = *layout;
+	graphicDesc.mPipelineStateDesc.mVertexShader = mat->GetShaderVS();
+	graphicDesc.mPipelineStateDesc.mPixelShader = mat->GetShaderPS();
+
+	graphicDesc.mRenderPassDesc = mCurRenderPass;
 
 	RHIBlendStateTargetDesc blend = {};
 	desc.mGraphicDesc.mPipelineStateDesc.BlendState.RenderTarget.push_back(blend);

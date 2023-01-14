@@ -31,7 +31,7 @@ public:
 protected:
 	Component();
 	bool mNeedTick = false;
-	Transform *mTransform;
+	Transform *mTransform = nullptr;
 	Entity *mOwnerEntity;
 
 private:

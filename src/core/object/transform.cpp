@@ -21,6 +21,9 @@ RegisterTypeEmbedd_Imp(Transform)
 		.Setter<&Self::SetScale>()
 		.Serialize();
 
+	cls->BindingProperty<&Self::mLocal2World>("world_matrix")
+		.Getter<&Transform::GetLocalToWorldMatrix>();
+
 	cls->Binding<Transform>();
 	BindingModule::Luna()->AddType(cls);
 }

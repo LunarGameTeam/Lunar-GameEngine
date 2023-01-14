@@ -78,7 +78,7 @@ LQuaternion LMath::FromEuler(const LVector3f &euler)
 	return q;
 }
 
-luna::LVector3f LMath::ToEuler(const LQuaternion& quat)
+LVector3f LMath::ToEuler(const LQuaternion& quat)
 {
 	LVector3f res = quat.toRotationMatrix().eulerAngles(1, 0, 2);
 	res = res / std::numbers::pi_v<float> *180.f;	
@@ -90,5 +90,6 @@ LQuaternion LMath::AngleAxisf(float val, const LVector3f& axis)
 {
 	return LQuaternion(Eigen::AngleAxisf(val, axis).toRotationMatrix());
 }
+
 
 }

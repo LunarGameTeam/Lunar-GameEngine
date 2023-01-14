@@ -127,6 +127,7 @@ struct CORE_API WindowEvent : public LEvent
 	uint32_t width;
 	uint32_t height;
 };
+
 class CORE_API EventModule : public LModule
 {
 	RegisterTypeEmbedd(EventModule, LModule)

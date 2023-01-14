@@ -6,8 +6,6 @@
 #include "core/framework/luna_core.h"
 #include "core/foundation/profile.h"
 
-#include "window/window_module.h"
-
 
 ////临时先写DX11的Device
 #include "imgui.h"
@@ -107,7 +105,7 @@ void RenderModule::SetupIMGUI()
 	io.Fonts->AddFontFromMemoryTTF((void*)data3->GetData().data(), (int)data3->GetData().size(), 16.0f, &config,
 		icon_ranges);
 	//ImGui::PushFont(font);
-	io.ConfigFlags = io.ConfigFlags | ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
+	io.ConfigFlags = io.ConfigFlags | ImGuiConfigFlags_DockingEnable;
 	(void)io;
 
 	io.IniFilename = nullptr;
@@ -117,7 +115,7 @@ void RenderModule::SetupIMGUI()
 	layout.reset(sAssetModule->LoadAsset<TextAsset>("layout.ini"));
 	if(layout)
 		ImGui::LoadIniSettingsFromMemory(layout->GetContent().c_str(), layout->GetContent().Length());
-	else
+	else if(defaultLayout)
 		ImGui::LoadIniSettingsFromMemory(defaultLayout->GetContent().c_str(), defaultLayout->GetContent().Length());
 
 	ImGuiStyle& style = ImGui::GetStyle();
@@ -214,8 +212,8 @@ bool RenderModule::OnInit()
 	render::RHIDevice* rhiDevice = GetRHIDevice();	
 	//此处做Render系统的Init
 
-	gEngine->GetModule<WindowModule>()->OnWindowResize.Bind(AutoBind(&RenderModule::OnMainWindowResize, this));
-	LWindow* mainWindow = gEngine->GetModule<WindowModule>()->GetMainWindow();	
+	gEngine->GetModule<PlatformModule>()->OnWindowResize.Bind(AutoBind(&RenderModule::OnMainWindowResize, this));
+	LWindow* mainWindow = gEngine->GetModule<PlatformModule>()->GetMainWindow();
 	mSwapchainDesc.mWidth = mainWindow->GetWindowWidth();
 	mSwapchainDesc.mHeight = mainWindow->GetWindowHeight();
 	mSwapchainDesc.mFrameNumber = 2;
@@ -256,7 +254,7 @@ bool RenderModule::OnInit()
 
 
 		dx12Pool->SelectSegment(render::DescriptorHeapType::CBV_SRV_UAV)->AllocDescriptorSet(1, sDx12FontDescriptor);
-		ImGui_ImplSDL2_InitForD3D(sWindowModule->GetMainWindow()->GetWindow());
+		ImGui_ImplSDL2_InitForD3D(sPlatformModule->GetMainWindow()->GetWindow());
 		ImGui_ImplDX12_Init(dx12_device->GetDx12Device(), 2,
 			DXGI_FORMAT_R8G8B8A8_UNORM,
 			sRenderModule->GetDevice<render::DX12Device>()->GetGpuDescriptorHeapByType(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)->GetDeviceHeap(),
@@ -267,7 +265,7 @@ bool RenderModule::OnInit()
 	break;
 	case render::RenderDeviceType::Vulkan:
 	{
-		ImGui_ImplSDL2_InitForVulkan(sWindowModule->GetMainWindow()->GetWindow());
+		ImGui_ImplSDL2_InitForVulkan(sPlatformModule->GetMainWindow()->GetWindow());
 		ImGui_ImplVulkan_InitInfo vulkanInit = {};
 		vulkanInit.Instance = mRenderDevice->mDevice->As<render::VulkanDevice>()->GetVkInstance();
 		vulkanInit.PhysicalDevice = mRenderDevice->mDevice->As<render::VulkanDevice>()->GetPhysicalDevice();

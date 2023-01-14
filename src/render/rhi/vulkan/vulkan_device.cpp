@@ -1,6 +1,5 @@
 #include "render/rhi/vulkan/vulkan_device.h"
 #include "render/render_module.h"
-#include "window/window_module.h"
 
 #include <stdexcept>
 // --- other includes ---
@@ -27,6 +26,7 @@
 #include "render/rhi/vulkan/vulkan_pipeline.h"
 #include "render/rhi/vulkan/vulkan_binding_set_layout.h"
 #include "render/rhi/vulkan/vulkan_binding_set.h"
+#include "core/file/platform_module.h"
 
 namespace luna::render
 {
@@ -204,7 +204,7 @@ bool VulkanDevice::InitDeviceData()
 	appInfo.apiVersion = VK_API_VERSION_1_3;
 
 	unsigned int ext_count = 0;
-	if (!SDL_Vulkan_GetInstanceExtensions(sWindowModule->GetMainWindow()->GetWindow(), &ext_count, nullptr))
+	if (!SDL_Vulkan_GetInstanceExtensions(sPlatformModule->GetMainWindow()->GetWindow(), &ext_count, nullptr))
 	{
 		LogError("Device", "Unable to query the number of Vulkan instance extensions");
 
@@ -212,7 +212,7 @@ bool VulkanDevice::InitDeviceData()
 	// Providing an already created VkInstance and a function pointer resolving vkGetInstanceProcAddr, all functions are fetched
 
 	std::vector<const char*> ext_names(ext_count);
-	if (!SDL_Vulkan_GetInstanceExtensions(sWindowModule->GetMainWindow()->GetWindow(), &ext_count, ext_names.data()))
+	if (!SDL_Vulkan_GetInstanceExtensions(sPlatformModule->GetMainWindow()->GetWindow(), &ext_count, ext_names.data()))
 	{
 		LogError("Device", "Unable to query the number of Vulkan instance extension names");
 	}

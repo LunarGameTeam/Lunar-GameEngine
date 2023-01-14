@@ -18,6 +18,7 @@ RegisterTypeEmbedd_Imp(MeshRenderer)
 		.Serialize();
 
 	cls->BindingProperty<&Self::mMaterialAsset>("material")
+		.Setter<&MeshRenderer::SetMaterial>()
 		.Serialize();
 
 	BindingModule::Luna()->AddType(cls);
@@ -25,23 +26,13 @@ RegisterTypeEmbedd_Imp(MeshRenderer)
 
 void MeshRenderer::OnCreate()
 {
+	Super::OnCreate();
 	if (mMaterialAsset)
 	{
 		mMaterialInstance = mMaterialAsset->GetDefaultInstance();
 		mMaterialInstance->Ready();
 	}
-	Super::OnCreate();
-	if (mMaterialInstance)
-	{
-		mRO = GetScene()->GetRenderScene()->CreateRenderObject();
-		mRO->mMaterial = mMaterialInstance.Get();
-		mRO->mMesh = mObjAsset->GetSubMeshAt(0);
-		if (mRO->mMesh->mVB.get() == nullptr)
-		{
-			mRO->mMesh->Init();
-		}
-		mRO->mWorldMat = &(mTransform->GetLocalToWorldMatrix());
-	}
+	CreateRenderObject();
 }
 
 void MeshRenderer::OnActivate()
@@ -52,6 +43,54 @@ MeshRenderer::~MeshRenderer()
 {
 	if (mRO)
 		GetScene()->GetRenderScene()->DestroyRenderObject(mRO);
+}
+
+void MeshRenderer::CreateRenderObject()
+{	
+	if (mRO)
+		return;
+
+	if (mMaterialInstance && mObjAsset)
+	{
+		mRO = GetScene()->GetRenderScene()->CreateRenderObject();
+		mRO->mMaterial = mMaterialInstance.Get();
+		mRO->mMesh = mObjAsset->GetSubMeshAt(0);
+		if (mRO->mMesh->mVB.get() == nullptr)
+		{
+			mRO->mMesh->Init();
+		}
+		mRO->mWorldMat = &(mTransform->GetLocalToWorldMatrix());
+	}
+	
+}
+
+void MeshRenderer::SetMaterial(MaterialTemplateAsset* mat)
+{
+	mMaterialAsset = mat;
+	mMaterialInstance = mat->CreateInstance();
+	if (mMaterialInstance)
+		mMaterialInstance->Ready();
+	if (!mRO)
+	{
+		CreateRenderObject();
+	}
+	else
+	{
+		mRO->mMaterial = mMaterialInstance.Get();
+	}
+}
+
+void MeshRenderer::SetObjAsset(ObjAsset* obj)
+{
+	mObjAsset = obj;
+	if (!mRO)
+	{
+		CreateRenderObject();
+	}
+	else
+	{
+		mRO->mMesh = obj->GetSubMeshAt(0);
+	}
 }
 
 }

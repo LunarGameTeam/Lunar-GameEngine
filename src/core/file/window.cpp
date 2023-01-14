@@ -1,5 +1,4 @@
-#include "window/window.h"
-#include "window/window_module.h"
+#include "window.h"
 
 #include "imgui_impl_sdl.h"
 #include "core/event/event_module.h"
@@ -20,12 +19,12 @@ RegisterTypeEmbedd_Imp(LWindow)
 	cls->BindingMethod<&LWindow::GetWindowX>("get_window_x");
 	cls->BindingMethod<&LWindow::GetWindowY>("get_window_y");
 	cls->BindingMethod<&LWindow::SetWindowPos>("set_window_pos");
+	cls->BindingMethod<&LWindow::GetMousePos>("get_mouse_pos");
 
 	BindingModule::Luna()->AddType(cls);
 }
 
 
-LWindow::WindowHandle window_id = 0;
 
 LWindow::LWindow(int32_t width , int32_t heght):
 	mWidth(width),
@@ -77,6 +76,15 @@ void LWindow::SetWindowPos(int x, int y)
 	SDL_SetWindowPosition(mSDLWindow, x, y);
 }
 
+luna::LVector2f LWindow::GetMousePos()
+{
+	int x,  y;
+	SDL_GetMouseState(&x, &y);
+	int windowX, windowY;
+	SDL_GetWindowPosition(mSDLWindow, &windowX, &windowY);
+	return LVector2f(windowX + x, windowY + y);
+}
+
 HWND LWindow::GetWin32HWND()
 {
 	SDL_SysWMinfo wmInfo;
@@ -96,7 +104,7 @@ void LWindow::OnDestroy()
 	// Release all outstanding references to the swap chain's buffers before resizing.
 }
 
-luna::LWindow::WindowHandle LWindow::Id()
+uint32_t LWindow::Id()
 {
 	return SDL_GetWindowID(mSDLWindow);
 }

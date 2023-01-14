@@ -5,15 +5,13 @@
 
 #include "windows.h"
 #include "render/render_module.h"
-#include "window/window_module.h"
 #include "game_module.h"
 
 using namespace luna;
 
 
 void LoadGameLib()
-{
-	gEngine->LoadModule<WindowModule>();
+{	
 	gEngine->LoadModule<render::RenderModule>();
 	gEngine->LoadModule<GameModule>();
 }

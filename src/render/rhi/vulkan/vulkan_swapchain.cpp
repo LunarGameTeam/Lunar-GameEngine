@@ -3,7 +3,6 @@
 #include "render/rhi/vulkan/vulkan_swapchain.h"
 #include "render/rhi/vulkan/vulkan_device.h"
 #include "render/rhi/vulkan/vulkan_render_queue.h"
-#include "window/window_module.h"
 #include "render/render_module.h"
 
 

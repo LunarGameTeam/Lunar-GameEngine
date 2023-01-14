@@ -3,6 +3,7 @@
 #include "core/framework/module.h"
 #include "core/foundation/config.h"
 #include "platform_file.h"
+#include "core/event/event_module.h"
 
 namespace luna
 {
@@ -20,16 +21,29 @@ namespace luna
  *
  */
 CORE_API CONFIG_DECLARE(LString, Start, DefaultProject, "");
+CORE_API CONFIG_DECLARE(int, Window, UsingImGUI, 1);
+CORE_API CONFIG_DECLARE(int, Window, DefaultWidth, 1024);
+CORE_API CONFIG_DECLARE(int, Window, DefaultHeight, 768);
+
+using WindowHandle = uint32_t;
+
+class LWindow;
 
 class CORE_API PlatformModule : public LModule
 {
 	RegisterTypeEmbedd(PlatformModule, LModule)
 public:
-	PlatformModule();;
+	SIGNAL(OnWindowResize, LWindow&, WindowEvent&);
+
+	PlatformModule();
 	bool OnLoad() override;
 	bool OnInit() override;
 	bool OnShutdown() override;
 	void Tick(float delta_time) override;
+	LWindow* CreateLunaWindow(const luna::LString& name, int width, int height);
+	LWindow* GetMainWindow();
+	LWindow* GetWindowByHandle(WindowHandle handle);
+
 
 	LString GetEngineDir();
 	LString GetProjectDir();
@@ -45,7 +59,9 @@ public:
 	}
 
 private:
-	IPlatformFileManager *mPlatformFile;
+	IPlatformFileManager* mPlatformFile;
+	LMap<WindowHandle, LWindow*> mWindows;
+	LWindow* mMainWindow;
 };
 
 CORE_API extern PlatformModule *sPlatformModule;

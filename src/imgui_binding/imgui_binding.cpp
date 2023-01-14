@@ -15,6 +15,8 @@
 #include "render/rhi/rhi_resource.h"
 #include "render/render_module.h"
 
+#include "ImGuizmo.h"
+
 
 namespace luna
 {
@@ -167,11 +169,7 @@ PyObject* InputLString(const char* id,const LString& str, ImGuiInputTextFlags fl
 	data.Str = str;
 	bool changed = ImGui::InputText(id, (char*)data.Str.c_str(), data.Str.std_str().size() + 1, flags, InputTextCallback, &data);
 
-	PyObject* ret_args = PyTuple_New(2);
-	PyObject* new_val = changed ? to_binding(data.Str) : Py_NewRef(Py_None);
-	PyTuple_SetItem(ret_args, 0, to_binding(changed));
-	PyTuple_SetItem(ret_args, 1, new_val);
-	return ret_args;
+	return binding_return(changed, changed  ? to_binding(data.Str) : Py_NewRef(Py_None));
 }
 
 static bool PyMenuItem(const char* label) { return ImGui::MenuItem(label); }
@@ -195,11 +193,7 @@ static PyObject* PyDragFloat3(const char* label, const LVector3f& val, float spe
 	float_val[2] = val.z();
 	bool res = ImGui::DragFloat3(label, float_val, speed, v_min, v_max);
 
-	PyObject* ret_args = PyTuple_New(2);	
-	PyObject* new_val = res ? to_binding(LVector3f(float_val[0], float_val[1], float_val[2])) : Py_NewRef(Py_None);
-	PyTuple_SetItem(ret_args, 0, to_binding(res));	
-	PyTuple_SetItem(ret_args, 1, new_val);
-	return ret_args;
+	return binding_return(res, res ? to_binding(LVector3f(float_val[0], float_val[1], float_val[2])) : Py_NewRef(Py_None));
 }
 
 static PyObject* PyDragFloat(const char* label, float val, float speed, float v_min, float v_max)
@@ -207,22 +201,14 @@ static PyObject* PyDragFloat(const char* label, float val, float speed, float v_
 	float float_val = val;
 	bool res = ImGui::DragFloat(label, &float_val, speed, v_min, v_max);
 
-	PyObject* ret_args = PyTuple_New(2);
-	PyObject* new_val = to_binding(float_val);
-	PyTuple_SetItem(ret_args, 0, to_binding(res));
-	PyTuple_SetItem(ret_args, 1, new_val);
-	return ret_args;
+	return binding_return(res, float_val);
 }
 
 static PyObject* PyCheckBox(const char* label, bool value)
 {
 	bool modify = ImGui::Checkbox(label, &value);
 
-	PyObject* ret = PyTuple_New(2);
-	PyObject* newVal = to_binding(value);
-	PyTuple_SetItem(ret, 0, to_binding(modify));
-	PyTuple_SetItem(ret, 1, newVal);
-	return ret;
+	return binding_return(modify, value);
 }
 
 LVector2f PyCalcTextSize(const char* val)
@@ -274,11 +260,7 @@ PyObject* TreeNodeCallbackEx(void* treeID, ImGuiTreeNodeFlags flag)
 		ImGui::TreePush(treeID);
 
 
-	PyObject* ret = PyTuple_New(2);
-	PyTuple_SetItem(ret, 0, to_binding(clicked));
-	PyTuple_SetItem(ret, 1, to_binding(expand));
-
-	return ret;
+	return binding_return(clicked, expand);
 }
 
 void PyImage(render::RHIResource* texture, const LVector2f& size, const LVector2f& uv0, const LVector2f& uv1)
@@ -303,9 +285,7 @@ PyObject* PyBeginPopupModal(const char* name, bool p_open, ImGuiWindowFlags flag
 {
 	PyObject* ret_args = PyTuple_New(2);
 	bool show = ImGui::BeginPopupModal(name, &p_open, flags);
-	PyTuple_SetItem(ret_args, 0, to_binding(show));
-	PyTuple_SetItem(ret_args, 1, to_binding(p_open));
-	return ret_args;
+	return binding_return(show, p_open);
 }
 
 bool PyBegin(const char* name, ImGuiWindowFlags flags, bool showClose)
@@ -357,10 +337,71 @@ void SetStyleColorUint(int col, uint32_t val)
 	ImGuiStyle& style = ImGui::GetStyle();
 	style.Colors[col] = ImGui::ColorConvertU32ToFloat4(val);
 }
+
+ImGuiID GetID(const char* val)
+{
+	return ImGui::GetID(val);
+}
+
+void PySetDrawList()
+{
+	ImGuizmo::SetDrawlist(nullptr);
+}
+
+void PyDrawGrid(const LMatrix4f& view, const LMatrix4f& projection, const LMatrix4f& matrix, float size)
+{
+	LMatrix4f tView = view.transpose();
+	LMatrix4f tProjection = projection.transpose();
+	LMatrix4f tObject = matrix.transpose();
+	ImGuizmo::DrawGrid(tView.data(), tProjection.data(), tObject.data(), size);
+
+}
+void PyDrawCube(const LMatrix4f& view, const LMatrix4f& projection, const LMatrix4f& matrix, int count)
+{
+	LMatrix4f tView = view.transpose();
+	LMatrix4f tProjection = projection.transpose();
+	LMatrix4f tObject = matrix.transpose();
+	ImGuizmo::DrawCubes(tView.data(), tProjection.data(), tObject.data(), count);
+}
+
+PyObject* PyManipulate(const LMatrix4f& view, const LMatrix4f& projection, int op, int mode,
+	const LMatrix4f& obj)
+{
+	LMatrix4f tView = view.transpose();
+	LMatrix4f tProjection = projection.transpose();
+	LMatrix4f tObject = obj.transpose();
+	
+	bool handled = ImGuizmo::Manipulate(tView.data(), tProjection.data(), ImGuizmo::OPERATION(op), ImGuizmo::MODE(mode), tObject.data());
+	LMatrix4f result = tObject.transpose();
+	return binding_return(handled, result);
+}
+
+bool PyIsOver(int op)
+{	
+	return ImGuizmo::IsOver(ImGuizmo::OPERATION(op));
+}
+
 #define AddIMGUIConstant(name) imguiModule->AddConstant(#name, name);
 
 STATIC_INIT(imgui)
 {
+		BindingModule* gizmosModule = BindingModule::Get("luna.imgui.gizmos");
+		gizmosModule->AddMethod<&ImGuizmo::SetRect>("set_rect");
+		gizmosModule->AddMethod<&ImGuizmo::SetOrthographic>("set_orthographic");
+		gizmosModule->AddMethod<&ImGuizmo::BeginFrame>("begin_frame");
+		gizmosModule->AddMethod<&ImGuizmo::IsUsing>("is_using");
+		gizmosModule->AddMethod<&PyIsOver>("is_over");
+		gizmosModule->AddMethod<&PySetDrawList>("set_draw_list");
+		gizmosModule->AddMethod<&PyDrawGrid>("draw_grid");
+		gizmosModule->AddMethod<&PyDrawCube>("draw_cubes");
+		gizmosModule->AddMethod<&PyManipulate>("manipulate");
+		gizmosModule->AddConstant("Mode_Local", ImGuizmo::MODE::LOCAL);
+		gizmosModule->AddConstant("Mode_WORLD", ImGuizmo::MODE::WORLD);
+		gizmosModule->AddConstant("Operation_BOUNDS", ImGuizmo::OPERATION::BOUNDS);
+		gizmosModule->AddConstant("Operation_TRANSLATE", ImGuizmo::OPERATION::TRANSLATE);
+		gizmosModule->AddConstant("Operation_ROTATE", ImGuizmo::OPERATION::ROTATE);
+		gizmosModule->AddConstant("Operation_SCALE", ImGuizmo::OPERATION::SCALE);
+
 		BindingModule* imguiModule = BindingModule::Get("luna.imgui");
 		//Cond
 		AddIMGUIConstant(ImGuiCond_Always);
@@ -534,6 +575,7 @@ STATIC_INIT(imgui)
 		imguiModule->AddMethod<&ImGui::GetWindowContentRegionMax>("get_window_content_max");
 		
 		imguiModule->AddMethod<&ImGui::IsMouseHoveringRect>("is_mouse_hovering_rect");
+		imguiModule->AddMethod<(bool(*)(ImGuiMouseButton))&ImGui::IsMouseDown>("is_mouse_down");
 		imguiModule->AddMethod<&ImGui::GetMouseDragDelta>("get_mouse_drag_delta");
 		imguiModule->AddMethod<&ImGui::ResetMouseDragDelta>("reset_mouse_drag_delta");
 
@@ -560,7 +602,7 @@ STATIC_INIT(imgui)
 		imguiModule->AddMethod<&ImGui::IsMouseDragging>("is_mouse_dragging");
 		imguiModule->AddMethod<static_cast<bool(*)(ImGuiMouseButton)>(&ImGui::IsMouseReleased)>("is_mouse_released");
 		imguiModule->AddMethod<static_cast<bool(*)(ImGuiMouseButton, bool)>(&ImGui::IsMouseClicked)>("is_mouse_clicked");
-
+		
 		imguiModule->AddMethod<static_cast<bool(*)(ImGuiKey)>(&ImGui::IsKeyDown)>("is_key_down");
 		imguiModule->AddMethod<static_cast<bool(*)(ImGuiKey, bool)>(&ImGui::IsKeyPressed)>("is_key_pressed");
 		imguiModule->AddMethod<static_cast<bool(*)(ImGuiKey)>(&ImGui::IsKeyReleased)>("is_key_released");
@@ -601,10 +643,10 @@ STATIC_INIT(imgui)
 		imguiModule->AddMethod<&ImGui::SetNextWindowDockID>("set_next_window_dock_id");
 		imguiModule->AddMethod<&ImGui::SetNextWindowViewport>("set_next_window_viewport");
 		imguiModule->AddMethod<&ImGui::GetWindowSize>("get_window_size");
-
 		imguiModule->AddMethod<&PyDockSpace>("dock_space");
 
-		imguiModule->AddMethod<&ImGui::GetCursorPos>("get_cursor_pos");		
+		imguiModule->AddMethod<&ImGui::GetCursorPos>("get_cursor_pos");
+		imguiModule->AddMethod<&ImGui::GetMousePos>("get_mouse_pos");
 
 		imguiModule->AddMethod<(void(*)(int, float))& ImGui::PushStyleVar>("push_style_float");
 		imguiModule->AddMethod<(void(*)(int, const ImVec4&))& ImGui::PushStyleColor>("push_style_color");
@@ -614,6 +656,9 @@ STATIC_INIT(imgui)
 
 		imguiModule->AddMethod<&SetStyleColor>("set_color");
 		imguiModule->AddMethod<&SetStyleColorUint>("set_color_uint");
+		imguiModule->AddMethod<&GetID>("get_id");
+
+
 
 		imguiModule->Init();
 

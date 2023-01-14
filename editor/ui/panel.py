@@ -8,6 +8,7 @@ from luna import imgui
 class WindowBase(object):
     editor_list: 'list[PanelBase]'
     id = 1
+    window_name = "MainWindow"
 
     def __init__(self):
         super().__init__()
@@ -16,6 +17,12 @@ class WindowBase(object):
         self.title = "###Luna Editor"
         self.id = WindowBase.id
         WindowBase.id = WindowBase.id + 1
+
+        if self.id == 1:
+            self.view_port = imgui.get_main_viewport_id()
+        else:
+            self.view_port = imgui.get_id(self.window_name)
+
         self.editor_list = []
 
         self.view_pos = luna.LVector2f(0, 0)
@@ -31,6 +38,8 @@ class WindowBase(object):
         self._dialog_msg = ""
         self._dialog_title = "Title"
 
+        self.press_pos = None
+        self.press_titlebar = None
 
     def add_panel(self, panel_type: 'typing.Type[T]') -> 'T':
         panel = panel_type()
@@ -57,6 +66,7 @@ class WindowBase(object):
         view_pos = self.view_pos
         view_pos.x += self.width / 2.0
         view_pos.y += self.height / 2.0
+
         imgui.set_next_window_pos(view_pos, imgui.ImGuiCond_Always, luna.LVector2f(0.5, 0.5))
         show, is_open = imgui.begin_popup_modal(self._dialog_title, self._dialog_open, 0)
         if show:
@@ -77,34 +87,64 @@ class WindowBase(object):
     def setup_color(self):
         imgui.set_color(imgui.ImGuiCol_FrameBgActive, 0x4296FA59)
 
+    def handle_window_move(self):
+        window_module = luna.get_module(luna.PlatformModule)
+        main_window = window_module.main_window
+        mouse_pos = main_window.get_mouse_pos()
+        if imgui.is_mouse_dragging(0, -1) and self.press_pos:
+            if self.press_titlebar:
+                delta_x = self.press_pos.x - mouse_pos.x
+                delta_y = self.press_pos.y - mouse_pos.y
+                new_x = main_window.get_window_x() - delta_x
+                new_y = main_window.get_window_y() - delta_y
+
+                main_window.set_window_pos(int(new_x), int(new_y))
+                self.press_pos = mouse_pos
+
+        if imgui.is_mouse_down(0):
+            pos = imgui.get_mouse_pos()
+            y = pos.y - imgui.get_window_pos().y
+            if y < 20 and not self.press_titlebar:
+                self.press_titlebar = True
+                self.press_pos = main_window.get_mouse_pos()
+
+        if imgui.is_mouse_released(0):
+            if self.press_titlebar:
+                self.press_titlebar = None
+
     def do_imgui(self, delta_time):
         self.setup_color()
         self.on_title()
-        window_module = luna.get_module(luna.WindowModule)
+        window_module = luna.get_module(luna.PlatformModule)
         main_window = window_module.main_window
         size = luna.LVector2f(main_window.width, main_window.height)
         imgui.set_next_window_size(size, 0)
-        main_viewport = imgui.get_main_viewport_id()
-        self.view_pos = imgui.get_viewport_pos(main_viewport)
-        imgui.set_next_window_pos(self.view_pos, 0, luna.LVector2f(0, 0))
+
         exiting = False
 
         imgui.push_style_vec2(imgui.ImGuiStyleVar_FramePadding, luna.LVector2f(16, 8))
         flags = imgui.ImGuiWindowFlags_MenuBar \
                 | imgui.ImGuiWindowFlags_NoCollapse \
-                | imgui.ImGuiWindowFlags_NoBringToFrontOnFocus \
-                | imgui.ImGuiWindowFlags_NoMove
-        imgui.set_next_window_viewport(main_viewport)
-        exiting = not imgui.begin(self.title, flags, True)
+                | imgui.ImGuiWindowFlags_NoMove \
+                | imgui.ImGuiWindowFlags_NoBringToFrontOnFocus
+        imgui.set_next_window_viewport(self.view_port)
+        imgui.set_next_window_pos(luna.LVector2f(0, 0), 0, luna.LVector2f(0, 0))
+
+        dock_id = imgui.get_id(self.__class__.window_name)
+
+        exiting = not imgui.begin(self.title + "###" + self.__class__.window_name, flags, True)
+
+        imgui.dock_space(dock_id, luna.LVector2f(0, 0), imgui.ImGuiDockNodeFlags_PassthruCentralNode)
         self.on_imgui(delta_time)
         imgui.pop_style_var(1)
-        imgui.dock_space(self.id, luna.LVector2f(0, 0), imgui.ImGuiDockNodeFlags_PassthruCentralNode)
-
         for editor in self.editor_list:
+            imgui.set_next_window_viewport(self.view_port)
+            imgui.set_next_window_dock_id(dock_id, imgui.ImGuiCond_FirstUseEver)
             editor.do_imgui(delta_time)
 
+        self.handle_window_move()
+
         imgui.end()
-        imgui.set_next_window_dock_id(1, imgui.ImGuiCond_FirstUseEver)
         if exiting:
             luna.exit()
 
@@ -129,7 +169,7 @@ class WindowBase(object):
         if self._status_open:
             imgui.push_style_color(imgui.ImGuiCol_WindowBg, luna.LVector4f(0.08, 0.08, 0.09, 1.00))
             imgui.begin("Status",
-                        imgui.ImGuiWindowFlags_NoCollapse | imgui.ImGuiWindowFlags_NoTitleBar | imgui.ImGuiWindowFlags_NoInputs)
+                        imgui.ImGuiWindowFlags_NoCollapse)
             imgui.text(self._status_msg)
             imgui.end()
             imgui.pop_style_color(1)
@@ -147,6 +187,9 @@ class PanelBase(object):
         self.has_menu = False
         self.parent_window = None
 
+        self.window_size = luna.LVector2f.zero()
+        self.window_pos = luna.LVector2f.zero()
+
     def on_imgui(self, delta_time):
         vmax = imgui.get_window_content_max()
         vmin = imgui.get_window_content_min()
@@ -154,7 +197,12 @@ class PanelBase(object):
         self.height = vmax.y - vmin.y
 
     def do_imgui(self, delta_time):
-        luna.imgui.begin(self.title, luna.imgui.ImGuiWindowFlags_NoCollapse | luna.imgui.ImGuiWindowFlags_MenuBar,
-                         False)
+        imgui.begin(self.title + "###" + self.title + self.parent_window.window_name,
+                    luna.imgui.ImGuiWindowFlags_NoCollapse | luna.imgui.ImGuiWindowFlags_MenuBar,
+                    False)
+        self.window_pos = imgui.get_window_pos()
+        self.window_size = imgui.get_window_size()
+        imgui.push_id(imgui.get_id(self.parent_window.window_name))
         self.on_imgui(delta_time)
+        imgui.pop_id()
         luna.imgui.end()

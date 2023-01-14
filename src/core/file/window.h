@@ -13,9 +13,11 @@
 */
 #pragma once
 
-#include "window/window_config.h"
-#include "core/reflection/type_traits.h"
-#include "core/core_library.h"
+
+
+#include "core/reflection/reflection.h"
+
+
 #include "core/binding/binding.h"
 
 
@@ -26,11 +28,10 @@
 namespace luna
 {
 
-class WINDOW_API LWindow
+class CORE_API LWindow
 {
 	RegisterTypeEmbedd(LWindow, InvalidType);
 public:
-	using WindowHandle = Uint32;
 
 	LWindow(int32_t width = 1024, int32_t heght = 768);
 	virtual bool Init();
@@ -49,13 +50,14 @@ public:
 	int GetWindowY();
 
 	void SetWindowPos(int x, int y);
+	LVector2f GetMousePos();
 
 	HWND GetWin32HWND();
 
 	bool Tick();
 	void OnDestroy();
 
-	WindowHandle Id();
+	uint32_t Id();
 	GETTER(SDL_Window*, mSDLWindow, Window);
 protected:
 	SDL_Window *mSDLWindow;

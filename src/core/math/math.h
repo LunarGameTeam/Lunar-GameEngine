@@ -45,6 +45,18 @@ public:
 	static LQuaternion AngleAxisf(float val, const LVector3f& axis);
 	inline static LVector3f xyz(const LVector4f& val) { return LVector3f(val.x(), val.y(), val.z()); }
 	inline static LVector4f xyzw(const LVector3f& val, float w = 1.0f) { return LVector4f(val.x(), val.y(), val.z(), w); }
+
+	static LVector3f GetMatrixTranslaton(const LMatrix4f& mat)
+	{
+		LTransform transform(mat);
+		return transform.translation();
+	}
+
+	static LQuaternion GetMatrixRotation(const LMatrix4f& mat)
+	{
+		LTransform transform(mat);
+		return LQuaternion(transform.rotation());		
+	}
 };
 
 

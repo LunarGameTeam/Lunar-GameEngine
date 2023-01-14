@@ -51,7 +51,7 @@ Entity *Scene::FindEntity(const LString &name)
 
 Entity *Scene::CreateEntity(const LString &name, Entity *parent /*= nullptr*/)
 {
-	Entity* entity = TCreateObject<Entity>();
+	Entity* entity = NewObject<Entity>();
 	entity->SetParent(this);
 	entity->mName = name;
 	entity->mScene = this;

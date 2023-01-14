@@ -35,26 +35,17 @@ public:
 		m_mesh = mesh;
 		m_dirty = true;
 	}
-	void SetObjAsset(ObjAsset* obj)
-	{
-		if (mRO)
-			mRO->mMesh = obj->GetSubMeshAt(0);
-		mObjAsset = obj;
-	}
-	void SetMaterial(MaterialInstance* mat)
-	{
-		mat->SetParent(this);
-		mMaterialInstance.SetPtr(mat);
-		m_dirty = true;
-	}
+	void SetObjAsset(ObjAsset* obj);
+	void SetMaterial(MaterialTemplateAsset* mat);
 
 	void OnCreate() override;
 
 
 	void OnActivate() override;
-
+protected:
+	void CreateRenderObject();
 private:
-	render::RenderObject* mRO;
+	render::RenderObject* mRO = nullptr;
 	TPPtr<ObjAsset> mObjAsset;
 	TPPtr<MeshAsset> m_mesh;
 	TPPtr<render::MaterialTemplateAsset> mMaterialAsset;

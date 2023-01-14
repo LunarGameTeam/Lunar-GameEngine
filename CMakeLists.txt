@@ -143,7 +143,6 @@ SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
 add_subdirectory(src/core)
 add_subdirectory(src/render)
-add_subdirectory(src/window)
 add_subdirectory(sdk/imgui)
 add_subdirectory(src/game)
 add_subdirectory(src/luna)
@@ -151,7 +150,6 @@ add_subdirectory(src/luna)
 add_subdirectory(src/imgui_binding)
 SET_PROPERTY(TARGET core PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET render PROPERTY FOLDER "Runtime")
-SET_PROPERTY(TARGET window PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET imgui PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET game PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET luna PROPERTY FOLDER "Runtime")
@@ -178,7 +176,7 @@ set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT a
 
 SET(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/release)
 
-install(TARGETS core render window game imgui_binding app_editor app_game
+install(TARGETS core render game imgui_binding app_editor app_game
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION bin)
 

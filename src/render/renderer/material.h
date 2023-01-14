@@ -138,6 +138,7 @@ public:
 	TPPtrArray<MaterialParam>& GetAllParams();
 
 	PackedParams* GetPackedParams() { return &mMaterialParams; }
+
 public:
 	PackedParams mMaterialParams;
 	size_t mMaterialBufferSize = 0;

@@ -86,6 +86,8 @@ LObject* Entity::PyGetScene()
 
 Transform *Entity::GetTransform()
 {
+	if (!mChildren)
+		mChildren = GetComponent<Transform>();
 	return mChildren;
 }
 

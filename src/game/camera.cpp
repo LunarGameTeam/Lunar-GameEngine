@@ -18,6 +18,9 @@ RegisterTypeEmbedd_Imp(CameraComponent)
 		.Getter<&CameraComponent::GetTransform>()
 		.Binding<CameraComponent, Transform*>();
 
+	cls->BindingProperty<&CameraComponent::mViewMat>("view_matrix");
+	cls->BindingProperty<&CameraComponent::mProjMat>("proj_matrix");
+
 
 	cls->BindingProperty<&CameraComponent::mSpeed>("fly_speed");
 	cls->BindingProperty<&CameraComponent::mDirection>("direction");

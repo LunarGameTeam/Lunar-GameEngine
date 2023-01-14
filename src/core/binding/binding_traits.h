@@ -190,6 +190,8 @@ struct binding_converter<int>
 	{
 		if(PyObject_TypeCheck(obj, &PyLong_Type))
 			return PyLong_AsLong(obj);
+		if(PyObject_TypeCheck(obj, &PyFloat_Type))
+			return PyFloat_AsDouble(obj);
 		return 0;			
 	}
 
@@ -408,6 +410,9 @@ struct binding_converter<float>
 	{
 		if(PyObject_TypeCheck(obj, &PyFloat_Type))
 			return (float)PyFloat_AsDouble(obj);
+		if (PyObject_TypeCheck(obj, &PyLong_Type))
+			return (float)PyLong_AsLong(obj);
+		LogError("Binding", "Convert to float error");
 		return 0.0;
 	}
 	static const char* binding_fullname()
@@ -497,6 +502,9 @@ struct binding_converter<LVector4f> : struct_converter<LVector4f> { };
 
 template<>
 struct binding_converter<LQuaternion> : struct_converter<LQuaternion> { };
+
+template<>
+struct binding_converter<LMatrix4f> : struct_converter<LMatrix4f> { };
 
 template<size_t Count, typename First>
 void pack_binding_args(PyObject* tup, size_t idx, First first_arg)

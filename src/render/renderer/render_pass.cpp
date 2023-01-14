@@ -6,7 +6,6 @@
 #include "render/renderer/render_target.h"
 #include "render/render_module.h"
 
-#include "window/window_module.h"
 #include <core/asset/asset_module.h>
 
 

@@ -37,7 +37,7 @@ def generate_doc_for_module(target: 'types.ModuleType') -> object:
         if inspect.ismodule(mem):
             my_module_name: str = mem.__name__
             my_module_name = my_module_name.split('.')[-1]
-            header = header + "\nfrom luna import {0}\n".format(my_module_name)
+            header = header + "\nfrom {} import {}\n".format(target.__name__, my_module_name)
             generate_doc_for_module(mem)
         elif inspect.isclass(mem):
             class_doc = generate_class_doc(mem)
@@ -54,6 +54,7 @@ def generate_doc_for_module(target: 'types.ModuleType') -> object:
 
 class MainPanel(WindowBase):
     main_scene: 'luna.Scene' = None
+    window_name = "Scene Window"
 
     def __init__(self) -> None:
         super().__init__()
@@ -76,7 +77,7 @@ class MainPanel(WindowBase):
         proj_dir = EditorModule.instance().project_dir
         scene_path = EditorModule.instance().default_scene
         app_title = imgui.ICON_FA_MOON + "  Luna Editor"
-        self.title = "{}\t\t{}\t\t{} ###Luna Editor".format(app_title, proj_dir, scene_path)
+        self.title = "{}\t\t{}\t\t{}".format(app_title, proj_dir, scene_path)
 
     def set_main_scene(self, scn):
         if not scn:
@@ -108,7 +109,8 @@ class MainPanel(WindowBase):
             if imgui.menu_item("保存场景"):
                 asset_module.save_asset(self.main_scene, self.main_scene.path)
             if imgui.menu_item("退出"):
-                exit(0)
+                EditorModule.instance().open_asset(None)
+
             imgui.end_menu()
 
     def on_help_menu(self):

@@ -1,9 +1,9 @@
 # encoding:utf-8
 import time
 
-from core.hot_patch import reload_module
 import luna
-from luna import *
+from core.asset import FileInfo
+from core.hot_patch import reload_module
 from ui.panel import WindowBase
 
 asset_module: 'luna.AssetModule' = luna.get_module(luna.AssetModule)
@@ -18,7 +18,7 @@ def update_asset(path, asset_type):
 
 
 class EditorModule(luna.LModule):
-    main_panel: 'WindowBase'
+    main_scene_window: 'WindowBase'
     _instance = None
 
     def __init__(self):
@@ -26,7 +26,8 @@ class EditorModule(luna.LModule):
 
         self.project_dir = luna.get_config("DefaultProject")
         self.default_scene = luna.get_config("DefaultScene")
-        self.main_panel = None
+        self.main_scene_window = None
+        self.material_window = None
         self.now = time.time()
         self.reload_module = set()
 
@@ -36,28 +37,33 @@ class EditorModule(luna.LModule):
             update_asset("/assets/built-in/skybox/Skybox.cubemap", luna.TextureCube)
             update_asset("/assets/built-in/Pbr.mat", luna.MaterialTemplateAsset)
 
+    def open_asset(self, f: 'FileInfo'):
+        if not self.material_window:
+            from ui.material_window import MaterialWindow
+            self.material_window = MaterialWindow()
+
     def on_load(self):
         pass
 
     def on_init(self):
 
-        from ui.main_window import MainPanel
-        from ui.main_window import generate_doc_for_module
+        from ui.scene_window import MainPanel
+        from ui.scene_window import generate_doc_for_module
 
         global asset_module, game_module, render_module, platform_module
 
-        self.main_panel: 'MainPanel' = MainPanel()
+        self.main_scene_window: 'MainPanel' = MainPanel()
 
         generate_doc_for_module(luna)
 
         if not self.project_dir:
-            self.main_panel.show_message_box("提示", "请点击文件打开项目")
+            self.main_scene_window.show_message_box("提示", "请点击文件打开项目")
         elif not self.default_scene:
-            self.main_panel.show_message_box("提示", "请点击文件打开默认场景")
+            self.main_scene_window.show_message_box("提示", "请点击文件打开默认场景")
 
         if self.default_scene and self.project_dir:
             scn = asset_module.load_asset(self.default_scene, luna.Scene)
-            self.main_panel.set_main_scene(scn)
+            self.main_scene_window.set_main_scene(scn)
 
     def on_tick(self, delta_time):
         pass
@@ -67,10 +73,12 @@ class EditorModule(luna.LModule):
             for m in self.reload_module:
                 reload_module(m)
             self.reload_module.clear()
-            self.main_panel.show_status("重载Python代码")
+            self.main_scene_window.show_status("重载Python代码")
         now = time.time()
         delta = now - self.now
-        self.main_panel.do_imgui(delta)
+        self.main_scene_window.do_imgui(delta)
+        if self.material_window:
+            self.material_window.do_imgui(delta)
         self.now = now
 
     @staticmethod

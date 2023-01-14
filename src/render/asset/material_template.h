@@ -25,11 +25,22 @@ public:
 	MaterialInstance* GetDefaultInstance() { 
 		if (!mDefaultInstance)
 			mDefaultInstance = CreateInstance();
-		return mDefaultInstance.Get(); }
+		return mDefaultInstance.Get();
+	}
+
+	bool IsDepthWriteEnable();
+	void SetDepthWriteEnable(bool val);
+
+	bool IsDepthTestEnable();
+	void SetDepthTestEnable(bool val);
+
 public:
 	void OnLoad() override;
 
 private:
+	bool mDepthTestEnable = true;
+	bool mDepthWriteEnable = true;
+	
 	TPPtr< MaterialInstance> mDefaultInstance;
 	TPPtrArray<MaterialParam> mTemplateParams;
 	TPPtr<ShaderAsset> mShader;

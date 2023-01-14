@@ -20,6 +20,7 @@ class ScenePanel(PanelBase):
         self.last_max = None
         self.dragging = False
         self.need_update_texture = False
+        self.operation = imgui.gizmos.Operation_TRANSLATE
 
     def create_editor_camera(self, scene: 'luna.Scene'):
         e: 'luna.Entity' = scene.create_entity("_EditorCamera", None)
@@ -55,9 +56,9 @@ class ScenePanel(PanelBase):
             delta.z -= 1
         if imgui.is_key_down(imgui.ImGuiKey_D):
             delta.x += 1
-        if imgui.is_key_down(imgui.ImGuiKey_Q):
-            delta.y += 1
         if imgui.is_key_down(imgui.ImGuiKey_E):
+            delta.y += 1
+        if imgui.is_key_down(imgui.ImGuiKey_Q):
             delta.y -= 1
         if delta.size() > 0.01:
             delta.normalize()
@@ -75,7 +76,7 @@ class ScenePanel(PanelBase):
         vmin.y += imgui.get_window_pos().y
         vmax.x += imgui.get_window_pos().x
         vmax.y += imgui.get_window_pos().y
-        if imgui.is_mouse_hovering_rect(vmin, vmax, True) and self.camera:
+        if imgui.is_mouse_hovering_rect(vmin, vmax, True) and self.camera and imgui.is_mouse_dragging(0, -1):
             delta = imgui.get_mouse_drag_delta(0, -1.0)
             transform = self.camera.transform
             delta_y = delta.y / 500.0
@@ -87,22 +88,69 @@ class ScenePanel(PanelBase):
             transform.local_rotation = rotation
             imgui.reset_mouse_drag_delta(0)
 
+    def create_cube(self):
+        if self.scene:
+            entity = self.scene.create_entity("Cube")
+            transform = entity.add_component(luna.Transform)
+            renderer = entity.add_component(luna.MeshRenderer)
+            from core.editor_module import asset_module
+            renderer.mesh = asset_module.load_asset("/assets/built-in/box.obj", luna.ObjAsset)
+            renderer.material = asset_module.load_asset("/assets/built-in/Pbr.mat", luna.MaterialTemplateAsset)
+
     def on_menu(self):
         if luna.imgui.begin_menu_bar():
             if luna.imgui.begin_menu("创建", True):
                 if imgui.menu_item("Cube"):
-                    pass
+                    self.create_cube()
                 if imgui.menu_item("Sphere"):
                     pass
                 luna.imgui.end_menu()
             luna.imgui.end_menu_bar()
 
+    def on_gizmos(self):
+        key_pressed = False
+        if imgui.is_key_pressed(imgui.ImGuiKey_W, False):
+            key_pressed = True
+            self.operation = imgui.gizmos.Operation_TRANSLATE
+        if imgui.is_key_pressed(imgui.ImGuiKey_R, False):
+            key_pressed = True
+            self.operation = imgui.gizmos.Operation_ROTATE
+
+        from ui.hierarchy_panel import HierarchyPanel
+        selected: 'luna.Entity' = self.parent_window.get_panel(HierarchyPanel).selected_entity
+
+        imgui.gizmos.set_rect(self.window_pos.x + self.scene_pos.x, self.window_pos.y + self.scene_pos.y,
+                              self.scene_content.x,
+                              self.scene_content.y)
+
+        view_mat = self.camera.view_matrix
+        proj_mat = self.camera.proj_matrix
+        if selected:
+            transform = selected.get_component(luna.Transform)
+            mat = transform.world_matrix
+            changed, new_matrix = imgui.gizmos.manipulate(view_mat, proj_mat, self.operation,
+                                                          imgui.gizmos.Mode_WORLD, mat)
+            if changed:
+                new_matrix: 'luna.LMatrix4f'
+                new_pos = new_matrix.translation()
+                new_rotation = new_matrix.rotation()
+                transform.local_position = new_pos
+                transform.local_rotation = new_rotation
+        return key_pressed or imgui.gizmos.is_using()
+
     def on_imgui(self, delta_time) -> None:
         super().on_imgui(delta_time)
+        imgui.gizmos.set_orthographic(False)
+        imgui.gizmos.begin_frame()
+        imgui.gizmos.set_draw_list()
+
         content = luna.imgui.get_content_region_avail()
+
         vmin = imgui.get_window_content_min()
         vmax = imgui.get_window_content_max()
 
+        self.scene_pos = luna.imgui.get_cursor_pos()
+        self.scene_content = content
         if self.scene_texture:
             luna.imgui.image(self.scene_texture, content, luna.LVector2f(0, 0), luna.LVector2f(1, 1))
 
@@ -122,8 +170,14 @@ class ScenePanel(PanelBase):
                 self.resize_scene_texture(vmax.x - vmin.x, vmax.y - vmin.y)
                 self.dragging = False
 
-        if self.camera:
-            self.handle_move()
-            self.handle_rotate()
-
         self.on_menu()
+
+        if not self.camera:
+            return
+
+        if self.on_gizmos():
+            pass
+        elif self.handle_move():
+            pass
+        elif self.handle_rotate():
+            pass

@@ -82,6 +82,12 @@ T zero()
 	return T::Zero();
 }
 
+template<typename T>
+T identity()
+{
+	return T::Identity();
+}
+
 RegisterType_Imp(LVector2f, LVector2f)
 {
 	cls->Binding<LVector2f>();
@@ -148,6 +154,7 @@ RegisterType_Imp(LVector4f, LVector4f)
 
 	cls->BindingMethod<&get_size<LVector4f>>("size");
 	cls->BindingMethod<&normarlize<LVector4f>>("normalize");
+	cls->BindingMethod<&zero<LVector4f>, MethodType::StaticFunction>("zero");
 
 	cls->GetExtraDocs().push_back("def __init__(self, x: float, y: float, z: float, w: float):\n\t\tsuper(LVector4f, self).__init__()");
 	BindingModule::Luna()->AddType(cls);
@@ -184,6 +191,27 @@ RegisterType_Imp(LQuaternion, LQuaternion)
 
 	BindingModule::Luna()->AddType(cls);
 
+}
+
+LVector3f translation(PyObject* obj)
+{
+	BindingStruct<LMatrix4f>* t = (BindingStruct<LMatrix4f>*)(obj);	
+	return LMath::GetMatrixTranslaton(t->val);
+}
+
+LQuaternion rotation(PyObject* obj)
+{
+	BindingStruct<LMatrix4f>* t = (BindingStruct<LMatrix4f>*)(obj);
+	return LMath::GetMatrixRotation(t->val);
+}
+
+RegisterType_Imp(LMatrix4f, LMatrix4f)
+{
+	cls->Binding<LMatrix4f>();
+	cls->BindingMethod<&translation>("translation");
+	cls->BindingMethod<&rotation>("rotation");
+	cls->BindingMethod<&identity<LMatrix4f>, MethodType::StaticFunction>("identity");
+	BindingModule::Luna()->AddType(cls);
 }
 
 }

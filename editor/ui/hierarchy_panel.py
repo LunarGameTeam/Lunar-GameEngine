@@ -9,6 +9,7 @@ class HierarchyPanel(PanelBase):
         super().__init__()
         self.scene = None
         self.title = "场景树"
+        self.selected_entity = None
 
     def set_scene(self, scene):
         self.scene = scene
@@ -25,7 +26,7 @@ class HierarchyPanel(PanelBase):
             flag = 1 << 8 | 1 << 5
 
             clicked, expand = imgui.tree_node_callback(id(entity), flag)
-            imgui.text(entity.name)
+            imgui.text("{} {}".format(imgui.ICON_FA_CUBE, entity.name))
             if expand:
                 imgui.tree_pop()
             if clicked:
@@ -43,6 +44,7 @@ class HierarchyPanel(PanelBase):
 
     def on_entity_clicked(self, entity):
         if entity:
+            self.selected_entity = entity
             from core.editor import create_editor
             editor = create_editor(entity)
             from ui.inspector_panel import InspectorPanel

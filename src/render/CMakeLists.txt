@@ -21,13 +21,13 @@ add_library(render SHARED ${DST_FILES})
 add_compile_definitions(IMGUI_EXPORT)
 add_compile_definitions(RENDER_EXPORT)
 
-add_dependencies(render core window)
+add_dependencies(render core)
 
 
 target_link_libraries(render debug shaderc_combinedd glslangd)
 target_link_libraries(render optimized shaderc_combined glslang)
 
-target_link_libraries(render core window ${Vulkan_LIBRARY} unofficial::spirv-reflect::spirv-reflect  d3d12 dxgi dxguid dxcompiler d3dcompiler Microsoft::DirectXTK12 Microsoft::DirectXTex WinPixEventRuntime)
+target_link_libraries(render core ${Vulkan_LIBRARY} unofficial::spirv-reflect::spirv-reflect  d3d12 dxgi dxguid dxcompiler d3dcompiler Microsoft::DirectXTK12 Microsoft::DirectXTex WinPixEventRuntime)
 
 add_custom_command(TARGET render POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different 

@@ -165,5 +165,9 @@ struct binding_proxy<LQuaternion> : struct_binding_proxy<LQuaternion>
 	constexpr static richcmpfunc get_richcmpfunc = __richcmp__<LQuaternion>;
 };
 
+template<>
+struct binding_proxy<LMatrix4f> : struct_binding_proxy<LMatrix4f>
+{
+};
 
 }

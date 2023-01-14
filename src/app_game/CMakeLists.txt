@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.24)
 
 add_executable(app_game main.cpp)
 
-add_dependencies(app_game imgui render window core game) 
+add_dependencies(app_game imgui render core game) 
 target_link_libraries(app_game core)
 
 

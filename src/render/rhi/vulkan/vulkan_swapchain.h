@@ -5,7 +5,6 @@
 #include "render/rhi/rhi_swapchain.h"
 #include "render/rhi/vulkan/vulkan_device.h"
 
-#include "window/window_module.h"
 #include "render/render_module.h"
 
 #include <vulkan/vulkan.h>

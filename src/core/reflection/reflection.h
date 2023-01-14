@@ -57,6 +57,7 @@ RegisterType(CORE_API, LVector2f, LVector2f)
 RegisterType(CORE_API, LVector3f, LVector3f)
 RegisterType(CORE_API, LVector4f, LVector4f)
 RegisterType(CORE_API, LQuaternion, LQuaternion)
+RegisterType(CORE_API, LMatrix4f, LMatrix4f)
 
 
 }
