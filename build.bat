@@ -12,6 +12,8 @@ call sdk\vcpkg\bootstrap-vcpkg.bat
 .\sdk\vcpkg\vcpkg.exe install gtest:x64-windows
 .\sdk\vcpkg\vcpkg.exe install directxtk12:x64-windows
 .\sdk\vcpkg\vcpkg.exe install directxtex:x64-windows
+.\sdk\vcpkg\vcpkg.exe install tinyobjloader:x64-windows
+.\sdk\vcpkg\vcpkg.exe install ms-gltf:x64-windows
 pause
 mkdir build
 echo begin cmake
