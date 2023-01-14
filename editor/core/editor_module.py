@@ -1,78 +1,81 @@
-from luna import *
+# encoding:utf-8
+import time
+
+from core.hot_patch import reload_module
 import luna
+from luna import *
+from ui.panel import WindowBase
 
 asset_module: 'luna.AssetModule' = luna.get_module(luna.AssetModule)
 render_module: 'luna.RenderModule' = luna.get_module(luna.RenderModule)
-scene_module: 'luna.GameModule' = luna.get_module(luna.GameModule)
+game_module: 'luna.GameModule' = luna.get_module(luna.GameModule)
 platform_module: 'luna.PlatformModule' = luna.get_module(luna.PlatformModule)
 
 
 def update_asset(path, asset_type):
-	asset = asset_module.load_asset(path, asset_type)
-	asset_module.save_asset(asset, path)
+    asset = asset_module.load_asset(path, asset_type)
+    asset_module.save_asset(asset, path)
 
 
 class EditorModule(luna.LModule):
-	_instance = None
+    main_panel: 'WindowBase'
+    _instance = None
 
-	def __init__(self):
-		super(EditorModule, self).__init__()
-		self.editor_list = []
-		self.project_dir = ""
-		if False:
-			update_asset("/assets/test.scn", luna.Scene)
-			update_asset("/assets/built-in/skybox/skybox.mat", luna.MaterialTemplateAsset)
-			update_asset("/assets/built-in/skybox/sky_box.cubemap", luna.TextureCube)
-			update_asset("/assets/built-in/pbr.mat", luna.MaterialTemplateAsset)
+    def __init__(self):
+        super().__init__()
 
-	def on_load(self):
-		pass
+        self.project_dir = luna.get_config("DefaultProject")
+        self.default_scene = luna.get_config("DefaultScene")
+        self.main_panel = None
+        self.now = time.time()
+        self.reload_module = set()
 
-	def on_init(self):
+        if False:
+            update_asset("/assets/test.scn", luna.Scene)
+            update_asset("/assets/built-in/skybox/skybox.mat", luna.MaterialTemplateAsset)
+            update_asset("/assets/built-in/skybox/sky_box.cubemap", luna.TextureCube)
+            update_asset("/assets/built-in/pbr.mat", luna.MaterialTemplateAsset)
 
-		from ui.hierarchy_panel import HierarchyPanel
-		from ui.main_panel import MainPanel
-		from ui.inspector_panel import InspectorPanel
-		from ui.scene_panel import ScenePanel
-		from ui.library_panel import LibraryPanel
-		from ui.imgui_demo import DemoPanel
-		from ui.main_panel import generate_doc_for_module
+    def on_load(self):
+        pass
 
-		global asset_module, scene_module, render_module, platform_module
+    def on_init(self):
 
-		self.hierarchy_panel = HierarchyPanel()
-		self.demo_panel = DemoPanel()
-		self.main_panel = MainPanel()
-		self.scene_panel = ScenePanel()
-		self.library_panel = LibraryPanel()
-		self.inspector_panel = InspectorPanel()
+        from ui.main_window import MainPanel
+        from ui.main_window import generate_doc_for_module
 
-		self.editor_list.append(self.main_panel)
-		self.editor_list.append(self.hierarchy_panel)
-		self.editor_list.append(self.scene_panel)
-		self.editor_list.append(self.library_panel)
-		self.editor_list.append(self.inspector_panel)
-		self.editor_list.append(self.demo_panel)
+        global asset_module, game_module, render_module, platform_module
 
-		generate_doc_for_module(luna)
+        self.main_panel: 'MainPanel' = MainPanel()
 
-		self.project_dir = luna.get_config("DefaultProject")
-		self.default_scene = luna.get_config("DefaultScene")
-		if self.default_scene and self.project_dir:
+        generate_doc_for_module(luna)
 
-			scn = asset_module.load_asset(self.default_scene, luna.Scene)
-			self.main_panel.set_main_scene(scn)
+        if not self.project_dir:
+            self.main_panel.show_message_box("提示", "请点击文件打开项目")
+        elif not self.default_scene:
+            self.main_panel.show_message_box("提示", "请点击文件打开默认场景")
 
-	def on_tick(self, delta_time):
-		pass
+        if self.default_scene and self.project_dir:
+            scn = asset_module.load_asset(self.default_scene, luna.Scene)
+            self.main_panel.set_main_scene(scn)
 
-	def on_imgui(self):
-		for e in self.editor_list:
-			e.do_imgui()
+    def on_tick(self, delta_time):
+        pass
 
-	@staticmethod
-	def instance() -> 'EditorModule':
-		if EditorModule._instance is None:
-			EditorModule._instance = EditorModule()
+    def on_imgui(self):
+        if self.reload_module:
+            for m in self.reload_module:
+                reload_module(m)
+            self.reload_module.clear()
+            self.main_panel.show_status("重载Python代码")
+        now = time.time()
+        delta = now - self.now
+        self.main_panel.do_imgui(delta)
+        self.now = now
 
-		return EditorModule._instance
+    @staticmethod
+    def instance() -> 'EditorModule':
+        if EditorModule._instance is None:
+            EditorModule._instance = EditorModule()
+
+        return EditorModule._instance

@@ -10,7 +10,7 @@ class ScenePanel(PanelBase):
     scene: luna.Scene
 
     def __init__(self) -> None:
-        super(ScenePanel, self).__init__()
+        super().__init__()
         self.title = "Scene"
         self.scene = None
         self.has_menubar = True
@@ -97,8 +97,8 @@ class ScenePanel(PanelBase):
                 luna.imgui.end_menu()
             luna.imgui.end_menu_bar()
 
-    def on_imgui(self) -> None:
-        super(ScenePanel, self).on_imgui()
+    def on_imgui(self, delta_time) -> None:
+        super().on_imgui(delta_time)
         content = luna.imgui.get_content_region_avail()
         vmin = imgui.get_window_content_min()
         vmax = imgui.get_window_content_max()

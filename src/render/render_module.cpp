@@ -107,7 +107,7 @@ void RenderModule::SetupIMGUI()
 	io.Fonts->AddFontFromMemoryTTF((void*)data3->GetData().data(), (int)data3->GetData().size(), 16.0f, &config,
 		icon_ranges);
 	//ImGui::PushFont(font);
-	io.ConfigFlags = io.ConfigFlags | ImGuiConfigFlags_DockingEnable;
+	io.ConfigFlags = io.ConfigFlags | ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
 	(void)io;
 
 	io.IniFilename = nullptr;
@@ -129,10 +129,10 @@ void RenderModule::SetupIMGUI()
 	style.Colors[ImGuiCol_Border] = ImVec4(0.23f, 0.23f, 0.23f, 0.50f);
 	style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
 	style.Colors[ImGuiCol_FrameBg] = ImVec4(0.25f, 0.25f, 0.25f, 1.00f);
-	style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.38f, 0.38f, 0.38f, 1.00f);
+	style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.26f, 0.59f, 0.98f, 0.35f);
 	style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.67f, 0.67f, 0.67f, 0.39f);
-	style.Colors[ImGuiCol_TitleBg] = ImVec4(0.13f, 0.14f, 0.15f, 1.00f);
-	style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.08f, 0.08f, 0.09f, 1.00f);
+	style.Colors[ImGuiCol_TitleBg] = ImGui::ColorConvertU32ToFloat4(0xff1a1a1a);
+	style.Colors[ImGuiCol_TitleBgActive] = ImGui::ColorConvertU32ToFloat4(0xff101010);
 	style.Colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.00f, 0.00f, 0.00f, 0.51f);
 	style.Colors[ImGuiCol_MenuBarBg] = ImVec4(0.14f, 0.14f, 0.14f, 1.00f);
 	style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.02f, 0.02f, 0.02f, 0.53f);
@@ -343,6 +343,13 @@ void RenderModule::Tick(float delta_time)
 	gEngine->OnIMGUI();
 	//Engine IMGUI End
 	ImGui::Render();
+
+	auto& io = ImGui::GetIO();
+	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+	}
 
 	RenderIMGUI();
 

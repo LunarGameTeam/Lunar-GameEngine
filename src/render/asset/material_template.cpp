@@ -13,10 +13,10 @@ RegisterTypeEmbedd_Imp(MaterialTemplateAsset)
 {
 	cls->Ctor<MaterialTemplateAsset>();
 
-	cls->Property<&Self::mTemplateParams>("params")
+	cls->BindingProperty<&Self::mTemplateParams>("params")
 		.Serialize();
 
-	cls->Property<&Self::mShader>("shader")
+	cls->BindingProperty<&Self::mShader>("shader")
 		.Serialize();
 
 	cls->Binding<MaterialTemplateAsset>();

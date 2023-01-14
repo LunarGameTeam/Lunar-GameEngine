@@ -234,44 +234,51 @@ LVector2f PyCalcTextSize(const char* val)
 	return res;
 }
 
-bool TreeNodeCallbackEx(void* ptr_id, ImGuiTreeNodeFlags flag, std::function<void(bool, bool)> func)
+PyObject* TreeNodeCallbackEx(void* treeID, ImGuiTreeNodeFlags flag)
 {
-	ImGuiIO& io = ImGui::GetIO();
 
-	
-
-	ImGuiID id = ImGui::GetID(ptr_id);
+	ImGuiID id = ImGui::GetID(treeID);
 	ImGuiWindow* window = ImGui::GetCurrentContext()->CurrentWindow;
 	ImVec2 pos = window->DC.CursorPos;
 	ImRect bb(pos, ImVec2(pos.x + ImGui::GetContentRegionAvail().x, pos.y + ImGui::GetFontSize()));
-	bool opened = ImGui::TreeNodeBehaviorIsOpen(id, flag);
-	bool hovered, held;
+	
+	bool expand = ImGui::TreeNodeBehaviorIsOpen(id, flag);
+	bool hoverd, held = false;
 	bool clicked = false;
-
-	if (ImGui::ButtonBehavior(bb, id, &hovered, &held, true))
+	
+	ImGui::ItemAdd(bb, id);
+	if (ImGui::ButtonBehavior(bb, id, &hoverd, &held))
 	{
 		clicked = true;
-		window->DC.StateStorage->SetInt(id, opened ? 0 : 1);
+		expand = !expand;
+		window->DC.StateStorage->SetInt(id, expand);
 	}
-	if (hovered || held || (flag & ImGuiTreeNodeFlags_Selected))
-		window->DrawList->AddRectFilled(bb.Min, bb.Max,
-										ImGui::GetColorU32(held ? ImGuiCol_HeaderActive : ImGuiCol_HeaderHovered));
 
-	float x = ImGui::GetCursorPosX();
-	if (!(flag & ImGuiTreeNodeFlags_Leaf))
-	{
-		ImGui::Text(opened ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
-	}
-	else
+	if (hoverd)
+		window->DrawList->AddRectFilled(bb.Min, bb.Max, ImGui::GetColorU32(ImGuiCol_DockingPreview));
+
+	if ((flag & ImGuiTreeNodeFlags_Leaf))
 	{
 		ImGui::Text(" ");
 	}
+	else
+	{
+		ImGui::Text(expand ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
+	}
+
+	float x = ImGui::GetCursorPosX();	
+
 	ImGui::SameLine(x + 16);
-	ImGui::ItemAdd(bb, id);
-	func(hovered, clicked);
-	if (opened)
-		ImGui::TreePush(ptr_id);
-	return opened;
+
+	if (expand)
+		ImGui::TreePush(treeID);
+
+
+	PyObject* ret = PyTuple_New(2);
+	PyTuple_SetItem(ret, 0, to_binding(clicked));
+	PyTuple_SetItem(ret, 1, to_binding(expand));
+
+	return ret;
 }
 
 void PyImage(render::RHIResource* texture, const LVector2f& size, const LVector2f& uv0, const LVector2f& uv1)
@@ -321,12 +328,40 @@ void PyDockSpace(ImGuiID id, const ImVec2& size /* = ImVec2(0, 0) */, ImGuiDockN
 	ImGui::DockSpace(id, size, flags);	
 }
 
+unsigned int GetMainViewportID()
+{
+	return ImGui::GetMainViewport()->ID;
+}
+
+ImVec2 GetViewportPos(ImGuiID id)
+{
+	auto viewport = ImGui::FindViewportByID(id);
+	if(viewport)
+		return viewport->Pos;
+	return ImVec2(0, 0);
+}
+
+unsigned int PyGetWindowViewport()
+{
+	return ImGui::GetWindowViewport()->ID;
+}
+
+void SetStyleColor(int col, const ImVec4& val)
+{
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.Colors[col] = val;
+}
+
+void SetStyleColorUint(int col, uint32_t val)
+{
+	ImGuiStyle& style = ImGui::GetStyle();
+	style.Colors[col] = ImGui::ColorConvertU32ToFloat4(val);
+}
 #define AddIMGUIConstant(name) imguiModule->AddConstant(#name, name);
 
 STATIC_INIT(imgui)
 {
 		BindingModule* imguiModule = BindingModule::Get("luna.imgui");
-
 		//Cond
 		AddIMGUIConstant(ImGuiCond_Always);
 		AddIMGUIConstant(ImGuiCond_FirstUseEver);
@@ -417,6 +452,63 @@ STATIC_INIT(imgui)
 		AddIMGUIConstant(ImGuiKey_9);
 
 		AddIMGUIConstant(ImGuiStyleVar_FramePadding);
+
+		AddIMGUIConstant(ImGuiCol_Text);
+		AddIMGUIConstant(ImGuiCol_TextDisabled);
+		AddIMGUIConstant(ImGuiCol_WindowBg);              // Background of normal windows
+		AddIMGUIConstant(ImGuiCol_ChildBg);               // Background of child windows
+		AddIMGUIConstant(ImGuiCol_PopupBg);               // Background of popups, menus, tooltips windows
+		AddIMGUIConstant(ImGuiCol_Border);
+		AddIMGUIConstant(ImGuiCol_BorderShadow);
+		AddIMGUIConstant(ImGuiCol_FrameBg);               // Background of checkbox, radio button, plot, slider, text input
+		AddIMGUIConstant(ImGuiCol_FrameBgHovered);
+		AddIMGUIConstant(ImGuiCol_FrameBgActive);
+		AddIMGUIConstant(ImGuiCol_TitleBg);
+		AddIMGUIConstant(ImGuiCol_TitleBgActive);
+		AddIMGUIConstant(ImGuiCol_TitleBgCollapsed);
+		AddIMGUIConstant(ImGuiCol_MenuBarBg);
+		AddIMGUIConstant(ImGuiCol_ScrollbarBg);
+		AddIMGUIConstant(ImGuiCol_ScrollbarGrab);
+		AddIMGUIConstant(ImGuiCol_ScrollbarGrabHovered);
+		AddIMGUIConstant(ImGuiCol_ScrollbarGrabActive);
+		AddIMGUIConstant(ImGuiCol_CheckMark);
+		AddIMGUIConstant(ImGuiCol_SliderGrab);
+		AddIMGUIConstant(ImGuiCol_SliderGrabActive);
+		AddIMGUIConstant(ImGuiCol_Button);
+		AddIMGUIConstant(ImGuiCol_ButtonHovered);
+		AddIMGUIConstant(ImGuiCol_ButtonActive);
+		AddIMGUIConstant(ImGuiCol_Header);                // Header* colors are used for CollapsingHeader, TreeNode, Selectable, MenuItem
+		AddIMGUIConstant(ImGuiCol_HeaderHovered);
+		AddIMGUIConstant(ImGuiCol_HeaderActive);
+		AddIMGUIConstant(ImGuiCol_Separator);
+		AddIMGUIConstant(ImGuiCol_SeparatorHovered);
+		AddIMGUIConstant(ImGuiCol_SeparatorActive);
+		AddIMGUIConstant(ImGuiCol_ResizeGrip);            // Resize grip in lower-right and lower-left corners of windows.
+		AddIMGUIConstant(ImGuiCol_ResizeGripHovered);
+		AddIMGUIConstant(ImGuiCol_ResizeGripActive);
+		AddIMGUIConstant(ImGuiCol_Tab);                   // TabItem in a TabBar
+		AddIMGUIConstant(ImGuiCol_TabHovered);
+		AddIMGUIConstant(ImGuiCol_TabActive);
+		AddIMGUIConstant(ImGuiCol_TabUnfocused);
+		AddIMGUIConstant(ImGuiCol_TabUnfocusedActive);
+		AddIMGUIConstant(ImGuiCol_DockingPreview);        // Preview overlay color when about to docking something
+		AddIMGUIConstant(ImGuiCol_DockingEmptyBg);        // Background color for empty node (e.g. CentralNode with no window docked into it)
+		AddIMGUIConstant(ImGuiCol_PlotLines);
+		AddIMGUIConstant(ImGuiCol_PlotLinesHovered);
+		AddIMGUIConstant(ImGuiCol_PlotHistogram);
+		AddIMGUIConstant(ImGuiCol_PlotHistogramHovered);
+		AddIMGUIConstant(ImGuiCol_TableHeaderBg);         // Table header background
+		AddIMGUIConstant(ImGuiCol_TableBorderStrong);     // Table outer and header borders (prefer using Alpha=1.0 here)
+		AddIMGUIConstant(ImGuiCol_TableBorderLight);      // Table inner borders (prefer using Alpha=1.0 here)
+		AddIMGUIConstant(ImGuiCol_TableRowBg);            // Table row background (even rows)
+		AddIMGUIConstant(ImGuiCol_TableRowBgAlt);         // Table row background (odd rows)
+		AddIMGUIConstant(ImGuiCol_TextSelectedBg);
+		AddIMGUIConstant(ImGuiCol_DragDropTarget);        // Rectangle highlighting a drop target
+		AddIMGUIConstant(ImGuiCol_NavHighlight);          // Gamepad/keyboard: current highlighted item
+		AddIMGUIConstant(ImGuiCol_NavWindowingHighlight); // Highlight window when using CTRL+TAB
+		AddIMGUIConstant(ImGuiCol_NavWindowingDimBg);     // Darken/colorize entire screen behind the CTRL+TAB window list, when active
+		AddIMGUIConstant(ImGuiCol_ModalWindowDimBg);      // Darken/colorize entire screen behind a modal window, when one is active
+		AddIMGUIConstant(ImGuiCol_COUNT);
 		//ICON
 		AddIMGUIConstant(ICON_FA_COMPRESS);
 		AddIMGUIConstant(ICON_FA_CUBE);
@@ -431,8 +523,12 @@ STATIC_INIT(imgui)
 			ImGui::ShowDemoWindow(nullptr);
 		}>("show_demo_window");
 
-		imguiModule->AddMethod<&PyBegin> ("begin");
+		imguiModule->AddMethod<&PyBegin>("begin");
 		imguiModule->AddMethod<&ImGui::End>("end");
+
+		imguiModule->AddMethod<(bool(*)(const char* , const ImVec2& , bool , ImGuiWindowFlags))&ImGui::BeginChild>("begin_child");
+		imguiModule->AddMethod<&ImGui::EndChild>("end_child");
+		
 
 		imguiModule->AddMethod<&ImGui::GetWindowContentRegionMin> ("get_window_content_min");
 		imguiModule->AddMethod<&ImGui::GetWindowContentRegionMax>("get_window_content_max");
@@ -489,6 +585,7 @@ STATIC_INIT(imgui)
 		imguiModule->AddMethod<&ImGui::BeginDragDropTarget>("begin_drag_drop_target");
 		imguiModule->AddMethod<&ImGui::EndDragDropTarget>("end_drag_drop_target");
 		imguiModule->AddMethod<&ImGui::AcceptDragDropPayload>("accept_drag_drop_payload");
+		
 				
 		imguiModule->AddMethod<&PySetDragDropPayload>("set_drag_drop_payload");
 
@@ -498,14 +595,25 @@ STATIC_INIT(imgui)
 
 		imguiModule->AddMethod<&ImGui::SetNextWindowSize>("set_next_window_size");
 		imguiModule->AddMethod<&ImGui::SetNextWindowPos>("set_next_window_pos");
+		imguiModule->AddMethod<&GetMainViewportID>("get_main_viewport_id");
+		imguiModule->AddMethod<&GetViewportPos>("get_viewport_pos");
+		imguiModule->AddMethod<&PyGetWindowViewport>("get_window_viewport");
 		imguiModule->AddMethod<&ImGui::SetNextWindowDockID>("set_next_window_dock_id");
+		imguiModule->AddMethod<&ImGui::SetNextWindowViewport>("set_next_window_viewport");
+		imguiModule->AddMethod<&ImGui::GetWindowSize>("get_window_size");
+
 		imguiModule->AddMethod<&PyDockSpace>("dock_space");
 
 		imguiModule->AddMethod<&ImGui::GetCursorPos>("get_cursor_pos");		
 
-		imguiModule->AddMethod<(void(*)(int, float))&ImGui::PushStyleVar>("push_style_float");
+		imguiModule->AddMethod<(void(*)(int, float))& ImGui::PushStyleVar>("push_style_float");
+		imguiModule->AddMethod<(void(*)(int, const ImVec4&))& ImGui::PushStyleColor>("push_style_color");
 		imguiModule->AddMethod<(void(*)(int, const ImVec2&))& ImGui::PushStyleVar>("push_style_vec2");
 		imguiModule->AddMethod<&ImGui::PopStyleVar>("pop_style_var");
+		imguiModule->AddMethod<&ImGui::PopStyleColor>("pop_style_color");
+
+		imguiModule->AddMethod<&SetStyleColor>("set_color");
+		imguiModule->AddMethod<&SetStyleColorUint>("set_color_uint");
 
 		imguiModule->Init();
 

@@ -148,7 +148,7 @@ LString method_doc(const char* name)
 	LString format;
 	LString return_name = "None";
 	if constexpr (!std::is_same_v<return_type, void>)
-		return_name = binding_converter<return_type>::binding_fullname();
+		return_name = binding_converter< std::remove_cvref_t<return_type>>::binding_fullname();
 	if constexpr (function_traits<FN>::args_count != 0)
 	{
 		LString res = detail::args_traits_impl<args_type, function_traits<FN>::args_count>::args_name();
@@ -169,7 +169,7 @@ LString static_method_doc(const char* name)
 	using args_type = function_traits<FN>::args_type;
 	LString return_name = "None";
 	if constexpr (!std::is_same_v<return_type, void>)
-		return_name = binding_converter<return_type>::binding_fullname();
+		return_name = binding_converter< std::remove_cvref_t<return_type>>::binding_fullname();
 	LString format;
 	if constexpr (function_traits<FN>::args_count != 0)
 	{

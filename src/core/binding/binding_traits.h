@@ -188,9 +188,9 @@ struct binding_converter<int>
 
 	inline static int from_binding(PyObject* obj)
 	{
-		LUNA_ASSERT(PyLong_Check(obj));
-		long res = PyLong_AsLong(obj);
-		return res;			
+		if(PyObject_TypeCheck(obj, &PyLong_Type))
+			return PyLong_AsLong(obj);
+		return 0;			
 	}
 
 	static const char* binding_fullname()
@@ -406,8 +406,9 @@ struct binding_converter<float>
 
 	inline static float from_binding(PyObject* obj)
 	{
-		float res = (float)PyFloat_AsDouble(obj);
-		return res;
+		if(PyObject_TypeCheck(obj, &PyFloat_Type))
+			return (float)PyFloat_AsDouble(obj);
+		return 0.0;
 	}
 	static const char* binding_fullname()
 	{
@@ -424,9 +425,9 @@ struct binding_converter<unsigned int>
 	}
 	inline static unsigned int from_binding(PyObject* obj)
 	{
-		LUNA_ASSERT(PyLong_Check(obj));
-		unsigned int res = PyLong_AsLong(obj);
-		return res;
+		if(PyObject_TypeCheck(obj, &PyLong_Type))
+			return PyLong_AsLong(obj);		
+		return 0;
 	}
 	static const char* binding_fullname()
 	{
@@ -456,7 +457,9 @@ struct binding_converter<uint64_t>
 	}
 	inline static uint64_t from_binding(PyObject* val)
 	{
-		return PyLong_AsSize_t(val);
+		if (PyObject_TypeCheck(val, &PyLong_Type))
+			return PyLong_AsSize_t(val);
+		return 0;
 	}
 	static const char* binding_fullname()
 	{

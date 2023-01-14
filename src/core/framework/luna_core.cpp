@@ -24,9 +24,9 @@ LModule* PyGetModule(LType* type)
 	return gEngine->GetModule(type); 
 };
 
-LModule* PyLoadModule(LModule* m)
+LModule* PyAddModule(LModule* m)
 {
-	return gEngine->LoadModule(m);
+	return gEngine->AddModule(m);
 };
 
 
@@ -53,7 +53,7 @@ LunaCore* LunaCore::CreateLunaCore()
 	gEngine = new LunaCore();
 	gEngine->LoadModule<PlatformModule>();
 	BindingModule::Luna()->AddMethod<&PyGetModule>("get_module").ml_doc = LString::MakeStatic("def get_module(t: Type[T]) -> T:\n\tpass\n");
-	BindingModule::Luna()->AddMethod<&PyLoadModule>("load_module").ml_doc = LString::MakeStatic("def load_module(t: Type[T]) -> T:\n\tpass\n");
+	BindingModule::Luna()->AddMethod<&PyAddModule>("add_module").ml_doc = LString::MakeStatic("def load_module(t: Type[T]) -> T:\n\tpass\n");
 
 	BindingModule::Luna()->AddMethod<&Exit>("exit");
 
@@ -72,7 +72,7 @@ void LunaCore::Run()
 
 }
 
-LModule* LunaCore::LoadModule(LModule* m)
+LModule* LunaCore::AddModule(LModule* m)
 {
 	LType* type = m->GetClass();
 	luna::LString name = type->GetName();

@@ -75,6 +75,13 @@ void normarlize(PyObject* obj)
 	return t->val.normalize();
 }
 
+
+template<typename T>
+T zero()
+{
+	return T::Zero();
+}
+
 RegisterType_Imp(LVector2f, LVector2f)
 {
 	cls->Binding<LVector2f>();
@@ -89,6 +96,7 @@ RegisterType_Imp(LVector2f, LVector2f)
 
 	cls->BindingMethod<&get_size<LVector2f>>("size");
 	cls->BindingMethod<&normarlize<LVector2f>>("normalize");
+	cls->BindingMethod<&zero<LVector2f>, MethodType::StaticFunction>("zero");
 	
 	cls->GetExtraDocs().push_back("def __init__(self, x: float, y: float):\n\t\tsuper(LVector2f, self).__init__()");
 	BindingModule::Luna()->AddType(cls);
@@ -112,6 +120,7 @@ RegisterType_Imp(LVector3f, LVector3f)
 
 	cls->BindingMethod<&get_size<LVector3f>>("size");
 	cls->BindingMethod<&normarlize<LVector3f>>("normalize");
+	cls->BindingMethod<&zero<LVector3f>, MethodType::StaticFunction>("zero");
 	
 	cls->GetExtraDocs().push_back("def __init__(self, x: float, y: float, z: float):\n\t\tsuper(LVector3f, self).__init__()");
 	BindingModule::Luna()->AddType(cls);

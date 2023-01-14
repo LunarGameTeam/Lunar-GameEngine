@@ -10,7 +10,7 @@ class InspectorPanel(PanelBase):
     world_sys: luna.GameModule
 
     def __init__(self) -> None:
-        super(InspectorPanel, self).__init__()
+        super().__init__()
         self.title = "Inspector"
         self.selected_entity = None
         self.editor = None
@@ -22,8 +22,8 @@ class InspectorPanel(PanelBase):
     def imgui_menu(self):
         pass
 
-    def on_imgui(self) -> None:
-        super(InspectorPanel, self).on_imgui()
+    def on_imgui(self, delta_time) -> None:
+        super().on_imgui(delta_time)
         if self.editor and self.editor.target:
             self.editor.on_imgui()
         return

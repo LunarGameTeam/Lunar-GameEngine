@@ -22,10 +22,10 @@ public:
 	{
 		LType* type = LType::Get<T>();
 		LModule* m = type->NewInstance<LModule>();
-		return LoadModule(m);
+		return AddModule(m);
 	}
 
-	LModule* LoadModule(LModule* m);
+	LModule* AddModule(LModule* m);
 
 	void OnRender();
 

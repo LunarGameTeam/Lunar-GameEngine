@@ -1,3 +1,4 @@
+import importlib
 import os
 import sys
 
@@ -5,6 +6,7 @@ import sys
 work_dir = os.getcwd()
 bin_dir = os.path.dirname(sys.executable)
 editor_dir = work_dir + "\\editor"
+packages_dir = work_dir + "\\third-party\\site-packages"
 
 
 def init_editor():
@@ -23,6 +25,10 @@ def init_editor():
     import luna
 
     sys.path.append(editor_dir)
+    sys.path.append(packages_dir)
+
+    from core.hot_patch import watch_scripts
+    watch_scripts(editor_dir)
 
     luna.load_library("imgui_binding.dll")
     luna.load_library("game.dll")
@@ -34,7 +40,8 @@ def init_editor():
     binding_test()
 
     from core.editor_module import EditorModule
-    luna.load_module(EditorModule.instance())
+    luna.add_module(EditorModule.instance())
+
     app.main_loop()
 
 
@@ -43,7 +50,4 @@ if __name__ == '__main__':
     import luna
 
     luna.add_library_dir(bin_dir)
-    is_looping = True
     init_editor()
-
-

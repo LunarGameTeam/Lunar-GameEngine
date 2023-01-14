@@ -10,7 +10,7 @@ editor_dir = work_dir + "\\editor"
 if __name__ == '__main__':
     sys.path.append(bin_dir)
     import luna
+
     luna.add_library_dir(bin_dir)
     is_looping = True
     init_editor()
-
