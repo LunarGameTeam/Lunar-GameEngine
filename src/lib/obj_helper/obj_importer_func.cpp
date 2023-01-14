@@ -1,5 +1,5 @@
 #pragma once
-#define FBX_EXPORT
+#define OBJ_EXPORT
 #include "obj_loader/obj_scene_loader.h"
 #include "obj_importer/obj_scene_importer.h"
 #include "obj_importer_func.h"
