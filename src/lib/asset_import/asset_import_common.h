@@ -29,6 +29,8 @@ namespace luna::assetimport
 
 		void SerializeAllAsset(const LPath& path);
 
+		void SerializeAllAsset(const LPath& path,const LString & assetName);
+
 		LBasicAsset* GetAsset(size_t assetId);
 	};
 

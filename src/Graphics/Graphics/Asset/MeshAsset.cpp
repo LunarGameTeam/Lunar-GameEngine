@@ -92,6 +92,7 @@ void MeshAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> f
 		sub_mesh->mVertexData.resize(submeshVertexSize);
 		sub_mesh->mIndexCount = submeshVertexSize;
 		sub_mesh->mIndexData.resize(submeshIndexSize);
+		mSubMesh.PushBack(sub_mesh);
 	}
 
 	for (size_t idx = 0; idx < mSubMesh.Size(); ++idx)
@@ -119,12 +120,15 @@ void MeshAsset::OnAssetFileWrite(LSharedPtr<Dictionary> meta, LVector<byte>& dat
 	byte* dst = data.data();
 	size_t submeshSize = mSubMesh.Size();
 	memcpy(dst, &submeshSize, sizeof(size_t));
+	dst += sizeof(size_t);
 	for(size_t submeshIndex = 0; submeshIndex < mSubMesh.Size(); ++submeshIndex)
 	{
 		size_t submeshVertexSize = mSubMesh[submeshIndex]->mVertexData.size();
 		size_t submeshIndexSize = mSubMesh[submeshIndex]->mIndexData.size();
 		memcpy(dst, &submeshVertexSize, sizeof(size_t));
+		dst += sizeof(size_t);
 		memcpy(dst, &submeshIndexSize, sizeof(size_t));
+		dst += sizeof(size_t);
 	}
 
 	for (size_t idx = 0; idx < mSubMesh.Size(); ++idx)

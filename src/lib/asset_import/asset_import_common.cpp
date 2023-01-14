@@ -17,6 +17,20 @@ namespace luna::assetimport
 		}
 	}
 
+	void LAssetPack::SerializeAllAsset(const LPath& path, const LString& assetName)
+	{
+		LString rootPath = path.AsString();
+		for (LBasicAsset* assetValue : mAssetDatas)
+		{
+			LString newPath = rootPath + "/" + assetName;
+			if (assetValue->GetClass()->GetName() == LType::Get<render::MeshAsset>()->GetName())
+			{
+				newPath = newPath + ".lmesh";
+			}
+			sAssetModule->SaveAsset(assetValue, newPath);
+		}
+	}
+
 	LBasicAsset* LAssetPack::GetAsset(size_t assetId)
 	{
 		assert(mAssetDatas.size() > assetId);
