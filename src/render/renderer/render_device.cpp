@@ -10,6 +10,7 @@
 #include "render/rhi/DirectX12/dx12_descriptor_pool.h"
 
 #include "render/asset/mesh_asset.h"
+#include "material.h"
 
 
 namespace luna::render 
@@ -311,13 +312,13 @@ PipelinePair RenderDevice::CreatePipelineState(const RHIPipelineStateDesc& desc)
 	return std::make_pair(pipeline, bindingSet);
 }
 
-PipelinePair RenderDevice::CreatePipelineState(ShaderAsset* shaderAsset, const RenderPassDesc& passDesc, RHIVertexLayout* layout)
+PipelinePair RenderDevice::CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& passDesc, RHIVertexLayout* layout)
 {
 	size_t hashResult = 0;
 	boost::hash_combine(hashResult, layout->Hash());
 	boost::hash_combine(hashResult, passDesc.Hash());
 
-	auto key = std::make_pair(shaderAsset, hashResult);
+	auto key = std::make_pair(mat, hashResult);
 	auto it = mPipelineCache.find(key);
 	if (it != mPipelineCache.end())
 		return it->second;
@@ -325,8 +326,8 @@ PipelinePair RenderDevice::CreatePipelineState(ShaderAsset* shaderAsset, const R
 	RHIPipelineStateDesc desc = {};
 	desc.mType = RHICmdListType::Graphic3D;
 	desc.mGraphicDesc.mInputLayout = *layout;
-	desc.mGraphicDesc.mPipelineStateDesc.mVertexShader = shaderAsset->GetVertexShader();
-	desc.mGraphicDesc.mPipelineStateDesc.mPixelShader = shaderAsset->GetPixelShader();
+	desc.mGraphicDesc.mPipelineStateDesc.mVertexShader = mat->GetShaderVS();
+	desc.mGraphicDesc.mPipelineStateDesc.mPixelShader = mat->GetShaderPS();
 	desc.mGraphicDesc.mRenderPassDesc = mCurRenderPass;
 
 	RHIBlendStateTargetDesc blend = {};
@@ -362,20 +363,21 @@ void RenderDevice::EndRenderPass()
 	mGraphicCmd->EndRender();	
 }
 
-void RenderDevice::DrawRenderOBject(render::RenderObject* ro, render::ShaderAsset* shader, PackedParams* params, render::RHIResource* instanceMessage, int32_t instancingSize)
+RenderDevice::PipelineCacheKey RenderDevice::PreparePipeline(render::MaterialInstance* mat, render::SubMesh* mesh, PackedParams* params)
 {
+
 	RHIPipelineStatePtr pipeline;
 	RHIBindingSetPtr bindingset;
 	size_t hashResult = 0;
 	boost::hash_combine(hashResult, mCurRenderPass.Hash());
-	boost::hash_combine(hashResult, ro->mMesh->mVeretexLayout.Hash());
-	auto key = std::make_pair(shader, hashResult);
+	boost::hash_combine(hashResult, mesh->mVeretexLayout.Hash());
+	auto key = std::make_pair(mat, hashResult);
 	auto it = mPipelineCache.find(key);
-	
+
 	//Find cache
-	if (it == mPipelineCache.end())
+	if (it == mPipelineCache.end() || it->second.first == nullptr || it->second.second == nullptr)
 	{
-		auto piplinePair = CreatePipelineState(shader, mCurRenderPass, &ro->mMesh->mVeretexLayout);
+		auto piplinePair = CreatePipelineState(mat, mCurRenderPass, &mesh->mVeretexLayout);
 		bindingset = piplinePair.second;
 		pipeline = piplinePair.first;
 	}
@@ -384,7 +386,7 @@ void RenderDevice::DrawRenderOBject(render::RenderObject* ro, render::ShaderAsse
 		pipeline = it->second.first;
 		bindingset = it->second.second;
 	}
-
+	ShaderAsset* shader = mat->GetShaderAsset();
 	mGraphicCmd->SetPipelineState(pipeline);
 	//Pipeline Changed
 	if (mLastPipline != pipeline.get())
@@ -405,11 +407,21 @@ void RenderDevice::DrawRenderOBject(render::RenderObject* ro, render::ShaderAsse
 		mLastPipline = pipeline;
 	}
 	mGraphicCmd->BindDesriptorSetExt(bindingset);
+	return key;
+}
 
-	if (pipeline == nullptr || bindingset == nullptr || shader==nullptr)
-		return;
+void RenderDevice::DrawRenderOBject(render::RenderObject* ro, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage, int32_t instancingSize)
+{
+	auto key = PreparePipeline(mat, ro->mMesh, params);
+	DrawMesh(ro->mMesh, mat, params, instanceMessage, instancingSize);
+}
 
-	auto* mesh = ro->mMesh;
+void RenderDevice::DrawMesh(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage, int32_t instancingSize)
+{
+	auto key = PreparePipeline(mat, mesh, params);
+	RHIPipelineStatePtr pipeline = mPipelineCache[key].first;
+	RHIBindingSetPtr bindingset = mPipelineCache[key].second;
+
 	size_t vertexCount = mesh->mVertexData.size();
 
 	RHIResource* vb = mesh->mVB;
@@ -432,7 +444,7 @@ void RenderDevice::DrawRenderOBject(render::RenderObject* ro, render::ShaderAsse
 		vbInstancingDesc.mVertexRes = instanceMessage;
 	}
 	mGraphicCmd->SetVertexBuffer(descs, 0);
-	
+
 
 
 	mGraphicCmd->SetIndexBuffer(ib);

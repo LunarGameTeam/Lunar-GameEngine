@@ -279,7 +279,12 @@ static void convert_to_value(Json::Value &val, const List &t) { val = t.GetJsonV
 
 
 template<>
-static void convert_from_value(const Json::Value &val, LString &t) { t.Assign(val.asCString()); };
+static void convert_from_value(const Json::Value &val, LString &t) 
+{
+	if(!val.isNull())
+		t.Assign(val.asCString()); 
+};
+
 template<>
 static void convert_from_value(const Json::Value &val, LQuaternion &t)
 {

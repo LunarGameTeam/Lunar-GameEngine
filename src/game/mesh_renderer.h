@@ -9,6 +9,7 @@
 #include "render/asset/texture_asset.h"
 
 #include "render/asset/obj_asset.h"
+#include "render/asset/material_template.h"
 
 
 namespace luna::render
@@ -21,7 +22,8 @@ public:
 	MeshRenderer() :
 		m_mesh(this),
 		mMaterialInstance(this),
-		mObjAsset(this)
+		mObjAsset(this),
+		mMaterialAsset(this)
 	{
 
 	}
@@ -55,7 +57,8 @@ private:
 	render::RenderObject* mRO;
 	TPPtr<ObjAsset> mObjAsset;
 	TPPtr<MeshAsset> m_mesh;
-	TPPtr<MaterialInstance> mMaterialInstance;
+	TPPtr<render::MaterialTemplateAsset> mMaterialAsset;
+	TPPtr<render::MaterialInstance> mMaterialInstance;
 };
 
 

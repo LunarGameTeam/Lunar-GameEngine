@@ -25,18 +25,16 @@ RegisterTypeEmbedd_Imp(MaterialTemplateAsset)
 
 MaterialTemplateAsset::MaterialTemplateAsset() :
 	mTemplateParams(this),
-	mShader(this)
+	mShader(this),
+	mDefaultInstance(this)
 {
 }
 
 MaterialInstance* MaterialTemplateAsset::CreateInstance()
 {
 	MaterialInstance* mat = NewObject<MaterialInstance>();
-	for (auto& p : mTemplateParams)
-	{
-		auto& params = mat->GetAllParams();
-		params.PushBack(p.Get());
-	}
+	mat->mMaterialTemplate = this;
+	mat->Ready();
 	return mat;
 }
 

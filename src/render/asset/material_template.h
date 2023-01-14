@@ -22,11 +22,15 @@ public:
 	ShaderAsset* GetShaderAsset() { return mShader.Get(); }
 	TPPtrArray<MaterialParam>& GetAllParams() { return mTemplateParams; }
 	MaterialInstance* CreateInstance();
-
+	MaterialInstance* GetDefaultInstance() { 
+		if (!mDefaultInstance)
+			mDefaultInstance = CreateInstance();
+		return mDefaultInstance.Get(); }
 public:
 	void OnLoad() override;
 
 private:
+	TPPtr< MaterialInstance> mDefaultInstance;
 	TPPtrArray<MaterialParam> mTemplateParams;
 	TPPtr<ShaderAsset> mShader;
 };

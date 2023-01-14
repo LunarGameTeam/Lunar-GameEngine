@@ -9,7 +9,7 @@
 43-71fe0fb101c5",
       "d154f606-3381-436c-9343-71fe0fb101c6",
       "d154f606-3381-436c-9343-71fe0fb101c7"],
-      "shader" : "/assets/built-in/pbr.hlsl",
+      "shader" : "/assets/built-in/Pbr.hlsl",
       "type_name" : "MaterialInstance"
    },
    "d154f606-3381-436c-9343-71fe0fb101c4" : {

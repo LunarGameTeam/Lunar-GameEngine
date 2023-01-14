@@ -57,17 +57,9 @@
          "__fid__" : 7,
          "__index__" : 0,
          "__parent__" : 5,
-         "material" : 8,
+         "material" : "/assets/built-in/skybox/Skybox.mat",
          "mesh" : "/assets/built-in/inside_sphere.obj"
-      },
-      {
-         "__class__" : "MaterialInstance",
-         "__fid__" : 8,
-         "__index__" : 0,
-         "__parent__" : 7,
-         "material_asset" : "/assets/built-in/skybox/skybox.mat",
-         "params" : []
-      },
+      },     
       {
          "__class__" : "Entity",
          "__fid__" : 9,
@@ -90,17 +82,9 @@
          "__fid__" : 11,
          "__index__" : 0,
          "__parent__" : 9,
-         "material" : 12,
+         "material" : "/assets/built-in/Pbr.mat",
          "mesh" : "/assets/built-in/box.obj"
-      },
-      {
-         "__class__" : "MaterialInstance",
-         "__fid__" : 12,
-         "__index__" : 0,
-         "__parent__" : 11,
-         "material_asset" : "/assets/built-in/pbr.mat",
-         "params" : []
-      },
+      },     
       {
          "__class__" : "Entity",
          "__fid__" : 13,
@@ -128,17 +112,9 @@
          "__fid__" : 15,
          "__index__" : 0,
          "__parent__" : 13,
-         "material" : 16,
+         "material" : "/assets/built-in/Pbr.mat",
          "mesh" : "/assets/built-in/box.obj"
-      },
-      {
-         "__class__" : "MaterialInstance",
-         "__fid__" : 16,
-         "__index__" : 0,
-         "__parent__" : 15,
-         "material_asset" : "/assets/built-in/pbr.mat",
-         "params" : []
-      },
+      },    
       {
          "__class__" : "Entity",
          "__fid__" : 17,
@@ -161,17 +137,9 @@
          "__fid__" : 19,
          "__index__" : 0,
          "__parent__" : 17,
-         "material" : 20,
+         "material" : "/assets/built-in/Pbr.mat",
          "mesh" : "/assets/built-in/sphere.obj"
-      },
-      {
-         "__class__" : "MaterialInstance",
-         "__fid__" : 20,
-         "__index__" : 0,
-         "__parent__" : 19,
-         "material_asset" : "/assets/built-in/pbr.mat",
-         "params" : []
-      },
+      },    
       {
          "__class__" : "Entity",
          "__fid__" : 21,
@@ -194,17 +162,9 @@
          "__fid__" : 23,
          "__index__" : 0,
          "__parent__" : 21,
-         "material" : 24,
+         "material" : "/assets/built-in/Pbr.mat",
          "mesh" : "/assets/built-in/plane.obj"
-      },
-      {
-         "__class__" : "MaterialInstance",
-         "__fid__" : 24,
-         "__index__" : 0,
-         "__parent__" : 23,
-         "material_asset" : "/assets/built-in/pbr.mat",
-         "params" : []
-      },
+      },     
       {
          "__class__" : "Entity",
          "__fid__" : 25,

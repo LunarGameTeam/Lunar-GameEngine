@@ -15,6 +15,7 @@ class ShaderAsset;
 RENDER_API CONFIG_DECLARE(LString, Render, RenderDeviceType, 2);
 
 using PipelinePair = std::pair< RHIPipelineStatePtr, RHIBindingSetPtr>;
+class MaterialInstance;
 
 enum class RenderDeviceType : uint8_t
 {
@@ -80,7 +81,7 @@ public:
 	//Frame Graph API
 public:
 
-	PipelinePair CreatePipelineState(ShaderAsset* shaderPass, const RenderPassDesc& desc, RHIVertexLayout* layout);
+	PipelinePair CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& desc, RHIVertexLayout* layout);
 	PipelinePair CreatePipelineState(const RHIPipelineStateDesc& desc);
 	RHIResourcePtr CreateFGTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData = nullptr, size_t dataSize = 0);
 	RHIResourcePtr CreateFGBuffer(const RHIBufferDesc& resDesc, void* initData);
@@ -98,11 +99,16 @@ public:
 	void BeginRenderPass(const RenderPassDesc&);
 	void EndRenderPass();
 
-	void DrawRenderOBject(render::RenderObject* mesh, render::ShaderAsset* shader, PackedParams* params, render::RHIResource* instanceMessage = nullptr,int32_t instancingSize = 1);
+	void DrawRenderOBject(render::RenderObject* mesh, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage = nullptr,int32_t instancingSize = 1);
+	void DrawMesh(render::SubMesh*, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage = nullptr, int32_t instancingSize = 1);
 
 	void OnFrameBegin();
 	void OnFrameEnd();
 private:
+	using PipelineCacheKey = std::pair<MaterialInstance*, size_t>;
+
+	PipelineCacheKey PreparePipeline(MaterialInstance* mat, render::SubMesh* mesh, PackedParams* params);
+
 	RHIMemoryPtr				mFGMemory;
 	size_t						mFGOffset = 0;
 
@@ -113,7 +119,6 @@ private:
 		void* initData , size_t dataSize, RHIMemoryPtr targetMemory, size_t& memoryOffset);
 
 public:
-	using PipelineCacheKey = std::pair<ShaderAsset*, size_t>;
 	RenderPassDesc mCurRenderPass;
 	std::map<PipelineCacheKey, PipelinePair> mPipelineCache;
 

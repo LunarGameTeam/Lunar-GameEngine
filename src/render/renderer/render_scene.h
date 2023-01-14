@@ -10,6 +10,7 @@
 
 #include "render/frame_graph/frame_graph.h"
 #include <functional>
+#include "render/asset/mesh_asset.h"
 
 namespace luna::render
 {
@@ -74,6 +75,9 @@ public:
 
 	RHIResourcePtr mSceneBuffer;
 	RHIViewPtr     mSceneBufferView;
+
+	SubMesh        mDebugMeshLine;
+	SubMesh        mDebugMesh;
 
 protected:
 	void CommitSceneBuffer();

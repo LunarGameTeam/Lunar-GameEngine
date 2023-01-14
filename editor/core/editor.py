@@ -172,10 +172,5 @@ class MeshRendererEditor(ComponentEditor):
         mesh: 'luna.ObjAsset' = self.target.mesh
         if self.on_category():
             self.imgui_obj_property(self.target, "mesh", luna.ObjAsset)
-            imgui.align_text_to_frame_padding()
-            imgui.text("Material Instance")
-            imgui.same_line(16 + self.indent, 16)
-            imgui.text("目前不支持设置材质实例")
-            mat_instance = self.target.material
-            self.imgui_obj_property(mat_instance, "material_asset", luna.MaterialTemplateAsset)
+            self.imgui_obj_property(self.target, "material", luna.MaterialTemplateAsset)
             imgui.tree_pop()
