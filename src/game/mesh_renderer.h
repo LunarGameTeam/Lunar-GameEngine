@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/core_library.h"
+#include "core/core_min.h"
 
 #include "game/render_component.h"
 

@@ -1,6 +1,6 @@
 #include "render/rhi/DirectX12/dx12_memory.h"
 
-#include "core/core_library.h"
+#include "core/core_min.h"
 
 #include "render/rhi/DirectX12/dx12_device.h"
 #include "render/render_module.h"

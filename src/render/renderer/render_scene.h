@@ -1,5 +1,5 @@
 #pragma once
-#include "core/core_library.h"
+#include "core/core_min.h"
 
 #include "render/render_config.h"
 #include "render/forward_types.h"

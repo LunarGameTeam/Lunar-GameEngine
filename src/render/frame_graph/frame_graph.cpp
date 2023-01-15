@@ -1,10 +1,15 @@
 #include "render/frame_graph/frame_graph.h"
 
+#include "render/renderer/render_device.h"
+
 #include "render/render_module.h"
 #include "render/rhi/rhi_frame_buffer.h"
 #include "render/rhi/rhi_fence.h"
 #include "render/rhi/rhi_cmd_list.h"
 #include "render/rhi/rhi_device.h"
+
+#include "render/frame_graph/frame_graph_node.h"
+#include "render/frame_graph/frame_graph_resource.h"
 
 #include "render/asset/texture_asset.h"
 #include "render/asset/shader_asset.h"
@@ -12,6 +17,7 @@
 
 namespace luna::render
 {
+
 FrameGraphBuilder::FrameGraphBuilder(const LString& graph_name)
 	:mFenceValue3D(sRenderModule->GetRenderDevice()->mFenceValue)
 {
@@ -22,6 +28,14 @@ FrameGraphBuilder::FrameGraphBuilder(const LString& graph_name)
 FrameGraphBuilder::~FrameGraphBuilder()
 {
 }
+
+FGNode& FrameGraphBuilder::AddPass(const LString& name)
+{
+	FGNode* node = new FGNode();
+	mNodes.push_back(node);
+	return *node;
+}
+
 
 void FrameGraphBuilder::Clear()
 {
@@ -39,7 +53,6 @@ void FrameGraphBuilder::Clear()
 		delete it;
 	}
 	mNodes.clear();
-	
 
 
 }
@@ -62,10 +75,7 @@ FGTexture* FrameGraphBuilder::CreateTexture(
 	return virtualRes;
 }
 
-FGTexture* FrameGraphBuilder::BindExternalTexture(
-	const LString& name,
-	RHIResourcePtr& rhiTexture
-)
+FGTexture* FrameGraphBuilder::BindExternalTexture(const LString& name, RHIResourcePtr& rhiTexture)
 {
 	FGTexture* texture = nullptr;
 	auto it = mVirtualRes.find(name);

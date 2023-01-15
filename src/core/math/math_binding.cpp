@@ -1,5 +1,5 @@
 #include "core/math/math_binding.h"
-#include "core/core_library.h"
+#include "core/core_min.h"
 #include "core/object/base_object.h"
 #include "core/foundation/container.h"
 #include "core/foundation/string.h"

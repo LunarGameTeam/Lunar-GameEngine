@@ -1,6 +1,6 @@
 #pragma once
 #include "render/render_config.h"
-#include "core/core_library.h"
+#include "core/core_min.h"
 
 #include "render/rhi/rhi_types.h"
 #include "render/rhi/rhi_shader.h"

@@ -17,6 +17,8 @@ struct FrameBufferDesc;
 struct RHIBufferDesc;
 struct RHITextureDesc;
 struct RHIMemoryDesc;
+struct PassColorDesc;
+struct PassDepthStencilDesc;
 
 class RHIDevice;
 

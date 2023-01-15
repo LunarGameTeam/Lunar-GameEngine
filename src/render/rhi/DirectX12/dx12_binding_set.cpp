@@ -1,4 +1,4 @@
-#include "core/core_library.h"
+#include "core/core_min.h"
 
 #include "render/rhi/DirectX12/dx12_binding_set.h"
 #include "render/rhi/DirectX12/dx12_binding_set_layout.h"

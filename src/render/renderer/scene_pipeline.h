@@ -7,4 +7,6 @@
 namespace luna::render
 {
 
+void BuildRenderPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene);
+
 }

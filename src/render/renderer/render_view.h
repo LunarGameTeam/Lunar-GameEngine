@@ -10,7 +10,6 @@
 
 #include <functional>
 
-#include "render/renderer/render_pass.h"
 
 
 namespace luna::render
@@ -46,10 +45,10 @@ public:
 	void PrepareViewBuffer();
 
 public:
-	FORCEINLINE uint64_t GetViewID()const { return mViewID; }
-	FORCEINLINE RenderTarget* GetRenderTarget() const { return mRT.Get(); }
-	FORCEINLINE const LMatrix4f& GetViewMatrix() const { return mViewMatrix; }
-	FORCEINLINE const LMatrix4f& GetProjectionMatrix() const { return mProjMatrix; }
+	uint64_t GetViewID()const { return mViewID; }
+	RenderTarget* GetRenderTarget() const { return mRT.Get(); }
+	const LMatrix4f& GetViewMatrix() const { return mViewMatrix; }
+	const LMatrix4f& GetProjectionMatrix() const { return mProjMatrix; }
 
 	void SetRenderTarget(RenderTarget* val) { mRT = val; }
 	void SetViewMatrix(const LMatrix4f& val) { mViewMatrix = val; }
@@ -67,9 +66,6 @@ public:
 private:
 	float               mNear = 0.1f;
 	float               mFar  = 1000.0f;
-
-	RenderPass*         mDebugPass;
-	RenderPass*         mLightingPass;
 
 	RHIResourcePtr      mPerViewBuffer;
 	RHIViewPtr          mPerViewBufferView;

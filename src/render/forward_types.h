@@ -12,9 +12,13 @@ class RenderScene;
 class RenderView;
 class MaterialTemplateAsset;
 
+
 class FrameGraphBuilder;
 class FGNode;
+class FGResource;
 class FGTexture;
+class FGResourceView;
+
 class RenderPass;
 class Texture2D;
 class TextureCube;

@@ -1,4 +1,4 @@
-#include "core_library.h"
+#include "core_min.h"
 
 #include "core/asset/asset_module.h"
 #include "core/platform/platform_module.h"

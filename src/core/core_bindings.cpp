@@ -13,7 +13,7 @@
 #pragma once
 
 #include "core/framework/module.h"
-#include "core/core_library.h"
+#include "core/core_min.h"
 #include "core/framework/luna_core.h"
 
 #include "core/object/base_object.h"
@@ -28,7 +28,7 @@
 #include "core/memory/ptr_binding.h"
 #include "core/foundation/config.h"
 
-#include "core/core_library.h"
+#include "core/core_min.h"
 #include "windows.h"
 
 namespace luna

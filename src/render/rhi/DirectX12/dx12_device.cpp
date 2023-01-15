@@ -11,7 +11,7 @@
 #include "dx12_render_pass.h"
 #include "render/rhi/rhi_frame_buffer.h"
 
-#include "core/core_library.h"
+#include "core/core_min.h"
 
 #include "render/rhi/DirectX12/dx12_binding_set.h"
 #include "dx12_view.h"

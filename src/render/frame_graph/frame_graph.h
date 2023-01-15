@@ -1,13 +1,11 @@
 #pragma once
-#include "render/renderer/render_device.h"
-#include "render/frame_graph/frame_graph_node.h"
-#include "render/frame_graph/frame_graph_resource.h"
-
+#include "render/forward_types.h"
+#include "render/rhi/rhi_types.h"
 
 namespace luna::render
 {
 
-class FrameGraphBuilder
+class RENDER_API FrameGraphBuilder
 {
 public:
 	FrameGraphBuilder(const LString& name);
@@ -18,12 +16,7 @@ public:
 
 	void Clear();
 
-	FGNode& AddPass(const LString& name)
-	{
-		FGNode* node = new FGNode();
-		mNodes.push_back(node);
-		return *node;
-	};
+	FGNode& AddPass(const LString& name);
 
 	FGTexture* CreateTexture(const LString& name, const RHIResDesc& desc);
 	

@@ -1,8 +1,9 @@
 #pragma once
-#include "core/core_library.h"
+#include "core/core_min.h"
 
-#include "render/frame_graph/frame_graph_resource.h"
-#include "render/rhi/rhi_pipeline.h"
+#include "render/forward_types.h"
+#include "render/rhi/rhi_types.h"
+#include "render/rhi/rhi_render_pass.h"
 
 namespace luna::render
 {
@@ -10,7 +11,7 @@ namespace luna::render
 class FrameGraphBuilder;
 struct FGResourceView;
 
-class FGNode 
+class RENDER_API FGNode
 {
 public:
 	using PreExecFuncType = std::function<void(FrameGraphBuilder*, FGNode&)>;

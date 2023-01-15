@@ -1,10 +1,9 @@
 #include "render/renderer/render_view.h"
 #include "render/renderer/render_scene.h"
-#include "render/renderer/pass_debug.h"
 #include "render/asset/shader_asset.h"
 #include "render/render_module.h"
 #include "core/asset/asset_module.h"
-#include "pass_lighting.h"
+#include "scene_pipeline.h"
 
 namespace luna::render
 {
@@ -13,8 +12,6 @@ RenderView::RenderView(uint64_t view_id) :
 	mRT(nullptr),
 	mViewID(view_id)
 {
-	mDebugPass = new DebugRenderPass();
-	mLightingPass = new LightingPass();
 
 	RHIBufferDesc desc;
 	desc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
@@ -68,7 +65,7 @@ void RenderView::ScenePipeline(RenderScene* scene, FrameGraphBuilder* FG)
 	{
 	case RenderViewType::SceneView:
 	{
-		mLightingPass->BuildRenderPass(FG, this, scene);
+		BuildRenderPass(FG, this, scene);
 		break;
 	}	
 	case RenderViewType::ShadowMapView:
