@@ -1,7 +1,9 @@
 #include "render/rhi/DirectX12/dx12_memory.h"
+
+#include "core/core_library.h"
+
 #include "render/rhi/DirectX12/dx12_device.h"
 #include "render/render_module.h"
-
 
 namespace luna::render
 {

@@ -1,5 +1,9 @@
 #pragma once
 
+#include "core/foundation/string.h"
+#include "core/foundation/container.h"
+#include "core/reflection/reflection.h"
+
 #include "render/rhi/rhi_pch.h"
 #include "render/rhi/rhi_resource.h"
 #include "render/rhi/rhi_resource.h"

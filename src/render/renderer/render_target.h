@@ -1,6 +1,7 @@
 #pragma once
 
-#include "core/core_library.h"
+#include "core/object/base_object.h"
+#include "core/reflection/reflection.h"
 
 #include "render/render_config.h"
 #include "render/asset/texture_asset.h"

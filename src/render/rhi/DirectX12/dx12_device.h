@@ -74,7 +74,7 @@ public:
 
 	RHIFencePtr CreateFence() override;
 
-	RHIDescriptorPoolPtr CreateDescriptorPool(DescriptorPoolDesc desc) override;
+	RHIDescriptorPoolPtr CreateDescriptorPool(const DescriptorPoolDesc& desc) override;
 
 	RHIGraphicCmdListPtr CreateCommondList(RHICmdListType pipeline_type) override;
 

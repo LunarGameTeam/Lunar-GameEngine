@@ -1,5 +1,6 @@
 #pragma once
 #include "render/render_config.h"
+#include "render/rhi/rhi_fence.h"
 #include "dx12_rhi.h"
 
 

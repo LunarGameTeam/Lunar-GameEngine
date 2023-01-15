@@ -169,7 +169,7 @@ luna::render::TRHIPtr<luna::render::RHIMemory> DX12Device::AllocMemory(const RHI
 	return CreateRHIObject<DX12Memory>(desc);;
 }
 
-luna::render::RHIDescriptorPoolPtr DX12Device::CreateDescriptorPool(DescriptorPoolDesc desc)
+luna::render::RHIDescriptorPoolPtr DX12Device::CreateDescriptorPool(const DescriptorPoolDesc& desc)
 {
 	return CreateRHIObject<DX12DescriptorPool>(desc);
 }

@@ -1,8 +1,5 @@
 #pragma once
 
-#include "core/core_config.h"
-#include "core/core_library.h"
-
 #include <algorithm>
 #include <memory>
 #include <stdexcept>

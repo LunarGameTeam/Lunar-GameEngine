@@ -795,7 +795,7 @@ struct RHISubResFootprint
 
 struct RHIPlacedSubResFootprint
 {
-	UINT64 Offset;
+	uint64_t Offset;
 	RHISubResFootprint Footprint;
 };
 

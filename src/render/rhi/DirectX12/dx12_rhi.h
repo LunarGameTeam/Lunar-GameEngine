@@ -9,8 +9,9 @@
 #include <DXGI1_6.h>
 #include <wrl/client.h>
 #include <comdef.h>
-#include "render/rhi/rhi_device.h"
 
+#include "render/rhi/rhi_device.h"
+#include "render/rhi/rhi_descriptor.h"
 
 namespace luna::render
 {

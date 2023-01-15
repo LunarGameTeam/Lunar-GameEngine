@@ -4,7 +4,7 @@
 #include "core/foundation/string.h"
 
 #include "render/render_config.h"
-#include "render/renderer/types.h"
+#include "render/forward_types.h"
 #include "render/renderer/render_target.h"
 #include "render/frame_graph/frame_graph.h"
 

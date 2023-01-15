@@ -1,4 +1,6 @@
 #pragma once
+#include "core/core_library.h"
+
 #include "render/frame_graph/frame_graph_resource.h"
 #include "render/rhi/rhi_pipeline.h"
 

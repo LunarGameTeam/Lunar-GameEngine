@@ -81,7 +81,6 @@ public:
 		if (lval)
 		{
 			T* _p = dynamic_cast<T*>(lval.get());
-			assert(_p != nullptr);
 			ptr.reset(_p);
 		}
 	}
@@ -92,7 +91,6 @@ public:
 		if (rval)
 		{
 			T* _p = dynamic_cast<T*>(rval.get());
-			assert(_p != nullptr);
 			ptr.swap(rval.ptr);
 		}
 	}
@@ -102,7 +100,6 @@ public:
 		if (rval)
 		{
 			T* _p = dynamic_cast<T*>(rval.get());
-			assert(_p != nullptr);
 			ptr.swap(rval.ptr);
 		}
 	}

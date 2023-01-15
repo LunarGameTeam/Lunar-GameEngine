@@ -2,6 +2,7 @@
 #include "render/render_config.h"
 #include "dx12_pipeline.h"
 
+#include "render/rhi/rhi_cmd_list.h"
 #include "render/rhi/rhi_frame_buffer.h"
 
 namespace luna::render

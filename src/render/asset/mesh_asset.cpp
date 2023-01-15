@@ -1,7 +1,8 @@
 #include "mesh_asset.h"
 #include "render/render_module.h"
+
 #include "core/core_library.h"
-#include "core/framework/module.h"
+#include "core/memory/ptr_binding.h"
 
 
 #include <algorithm>

@@ -115,12 +115,7 @@ void ShadowRenderPass::BuildRenderPass(
 	pass.ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RenderDevice* renderContext) 
 		{
 
-			auto renderDevice = sRenderModule->GetRenderDevice();
-
-	sRenderModule->GetRenderDevice()->mGraphicCmd->SetPipelineState(mShadowPipeline.first);
-	std::vector<BindingDesc> bindings;
-
-	renderDevice->mGraphicCmd->BindDesriptorSetExt(mShadowPipeline.second);
+		auto renderDevice = sRenderModule->GetRenderDevice();
 
 	for (auto it : mRenderScene->GetRenderObjects())
 	{

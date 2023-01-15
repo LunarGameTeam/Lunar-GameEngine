@@ -1,12 +1,11 @@
 #pragma once
 
 #include "core/object/shared_object.h"
-#include "core/memory/ptr.h"
 #include "core/foundation/string.h"
 #include "core/foundation/container.h"
-#include "core/platform/async_handle.h"
 #include "core/platform/file.h"
 #include "core/platform/path.h"
+#include "core/memory/ptr.h"
 #include "core/serialization/dict_data.h"
 
 namespace luna

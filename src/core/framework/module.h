@@ -15,6 +15,8 @@ class CORE_API LModule : public LObject
 	RegisterTypeEmbedd(LModule, LObject)
 public:
 	LModule() {};
+	LModule(const LModule&) = delete;
+	LModule(LModule&&) = delete;
 
 	bool IsInitialized();
 	bool Shutdown();

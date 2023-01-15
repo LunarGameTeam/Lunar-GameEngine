@@ -10,6 +10,8 @@
 
 #include "render/rhi/rhi_resource.h"
 
+#include "core/memory/ptr_binding.h"
+
 
 namespace luna::render
 {

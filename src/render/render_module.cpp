@@ -5,6 +5,10 @@
 #include "core/object/entity.h"
 #include "core/framework/luna_core.h"
 #include "core/foundation/profile.h"
+#include "core/event/event_module.h"
+
+
+#include "render/rhi/DirectX12/dx12_descriptor_pool.h"
 
 
 ////临时先写DX11的Device
@@ -15,8 +19,13 @@
 //RenderPass
 #include "render/renderer/pass_lighting.h"
 #include "render/renderer/pass_shadowmap.h"
+#include "render/renderer/render_device.h"
+#include "render/renderer/render_scene.h"
+#include "renderer/imgui_texture.h"
 
-#include "game/camera.h"
+#include "render/rhi/rhi_device.h"
+#include "render/rhi/rhi_memory.h"
+
 #include "render/rhi/DirectX12/dx12_device.h"
 #include "render/rhi/DirectX12/dx12_render_queue.h"
 #include "render/rhi/DirectX12/dx12_memory.h"
@@ -461,6 +470,16 @@ void RenderModule::OnMainWindowResize(LWindow& window, WindowEvent&evt)
 	mSwapchainDesc.mFrameNumber = 2;
 	mSwapchainDesc.mHeight = evt.height;
 	mSwapchainDesc.mWidth = evt.width;
+}
+
+bool RenderModule::IsImuiTexture(RHIResource* key)
+{
+	return mImguiTextures.find(key) != mImguiTextures.end();
+}
+
+ImguiTexture* RenderModule::GetImguiTexture(RHIResource* key)
+{
+	return &mImguiTextures[key];
 }
 
 }

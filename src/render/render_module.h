@@ -14,26 +14,19 @@
 #pragma once
 
 
-#include "core/core_library.h"
+#include "core/framework/module.h"
+#include "core/foundation/string.h"
+#include "core/foundation/container.h"
+#include "core/event/event_module.h"
+
 #include "render/render_config.h"
-#include "render/renderer/types.h"
-
-#include "render/renderer/render_scene.h"
-#include "render/renderer/render_pass.h"
-
-#include "render/asset/mesh_asset.h"
-
-#include "render/rhi/rhi_device.h"
-#include "render/rhi/rhi_memory.h"
 #include "render/renderer/render_device.h"
-#include "render/renderer/render_scene.h"
+#include "render/forward_types.h"
+#include "render/renderer/imgui_texture.h"
+
 #include "render/rhi/rhi_types.h"
 
 #include <vulkan//vulkan.h>
-#include "render/rhi/DirectX12/dx12_descriptor_pool.h"
-#include "renderer/imgui_texture.h"
-#include "core/event/event_module.h"
-
 namespace luna::render
 {
 
@@ -115,9 +108,9 @@ public:
 	RenderDevice* mRenderDevice;
 	TPPtr<RenderTarget>     mMainRT;
 
-	ImguiTexture* GetImguiTexture(RHIResource* key) { return &mImguiTextures[key]; }
+	ImguiTexture* GetImguiTexture(RHIResource* key);
 	ImguiTexture* AddImguiTexture(RHIResource* res);
-	bool IsImuiTexture(RHIResource* key) { return mImguiTextures.find(key) != mImguiTextures.end(); }
+	bool IsImuiTexture(RHIResource* key);
 private:
 	LSharedPtr<Texture2D>       mDefaultWhiteTexture;
 

@@ -2,7 +2,6 @@
 
 #include "game/game_config.h"
 
-#include "core/core_library.h"
 #include "core/object/component.h"
 
 #include "render/renderer/render_scene.h"

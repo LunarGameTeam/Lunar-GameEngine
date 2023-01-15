@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/foundation/container.h"
+
 namespace luna::render
 {
 
@@ -21,8 +23,11 @@ class ShaderAsset;
 
 class RenderTarget;
 
+struct ImguiTexture;
+
 class MaterialInstance;
 class SubMesh;
+class RenderDevice;
 
 struct RenderLight;
 struct RenderObject;

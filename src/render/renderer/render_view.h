@@ -1,6 +1,6 @@
 #pragma once
 #include "render/render_config.h"
-#include "render/renderer/types.h"
+#include "render/forward_types.h"
 
 #include "core/foundation/container.h"
 #include "core/foundation/string.h"

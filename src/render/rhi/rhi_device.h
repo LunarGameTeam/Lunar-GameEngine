@@ -3,17 +3,8 @@
 #include "render/rhi/rhi_pch.h"
 #include "render/rhi/rhi_types.h"
 
-#include "render/rhi/rhi_cmd_list.h"
-#include "render/rhi/rhi_fence.h"
-#include "render/rhi/rhi_descriptor.h"
-#include "render/rhi/rhi_swapchain.h"
-#include "render/rhi/rhi_descriptor_heap.h"
-#include "render/rhi/rhi_resource.h"
-#include "render/rhi/rhi_memory.h"
-#include "render/rhi/rhi_pipeline.h"
-#include "render/rhi/rhi_binding_set_layout.h"
-#include "render/rhi/rhi_shader.h"
-#include "render/rhi/rhi_frame_buffer.h"
+#include "rhi_binding_set_layout.h"
+#include "core/platform/window.h"
 
 
 namespace luna::render
@@ -31,7 +22,7 @@ public:
 	virtual RHIPipelineStatePtr CreatePipeline(const RHIPipelineStateDesc& desc) = 0;
 	virtual RHIRenderPassPtr CreateRenderPass(const RenderPassDesc& desc) = 0;
 	virtual RHIResourcePtr CreateSamplerExt(const SamplerDesc& desc)             = 0;
-	virtual RHIDescriptorPoolPtr CreateDescriptorPool(DescriptorPoolDesc desc)   = 0;
+	virtual RHIDescriptorPoolPtr CreateDescriptorPool(const DescriptorPoolDesc& desc) = 0;
 	virtual RHIGraphicCmdListPtr CreateCommondList(RHICmdListType type)          = 0;
 	virtual RHIViewPtr CreateView(const ViewDesc&)                               = 0;
 	virtual RHIFencePtr CreateFence()                                            = 0;

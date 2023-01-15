@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/math/math.h"
+
 #include "render/rhi/rhi_pch.h"
 #include "render/rhi/rhi_types.h"
 #include "render/rhi/rhi_descriptor.h"
@@ -7,7 +9,6 @@
 #include "render/rhi/rhi_frame_buffer.h"
 #include "render/rhi/rhi_ptr.h"
 
-#include <boost/container_hash/hash.hpp>
 
 namespace luna::render
 {
@@ -65,19 +66,7 @@ struct RenderPassDesc
 	LArray<PassDepthStencilDesc> mDepths;
 	RHIViewPtr                    mDepthStencilView;
 
-	size_t Hash() const
-	{
-		size_t result = 0;
-		boost::hash_combine(result, mColors.size());
-		for (auto& view : mColorView)
-		{
-			boost::hash_combine(result, view->mBindResource->mResDesc.Format);
-		}
-		boost::hash_combine(result, mDepths.size());
-		if (mDepthStencilView)
-			boost::hash_combine(result, mDepthStencilView->mBindResource->mResDesc.Format);
-		return result;
-	}
+	size_t Hash() const;
 };
 
 

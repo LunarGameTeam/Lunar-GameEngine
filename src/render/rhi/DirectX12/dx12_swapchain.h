@@ -2,6 +2,7 @@
 #include "render/render_config.h"
 #include "dx12_rhi.h"
 #include "dx12_resource.h"
+#include "render/rhi/rhi_swapchain.h"
 
 
 namespace luna::render

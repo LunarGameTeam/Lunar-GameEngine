@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/core_library.h"
+
 #include "game/render_component.h"
 
 #include "render/render_config.h"

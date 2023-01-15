@@ -2,7 +2,7 @@
 #include "render/render_config.h"
 #include "render/rhi/rhi_device.h"
 #include "render/rhi/rhi_frame_buffer.h"
-
+#include "render/rhi/rhi_cmd_list.h"
 #include <vulkan/vulkan.hpp>
 
 namespace luna::render

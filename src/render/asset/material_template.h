@@ -1,7 +1,5 @@
 #pragma once
-#include "core/foundation/container.h"
-#include "core/asset/asset.h"
-#include "core/asset/json_asset.h"
+#include "core/core_library.h"
 
 #include "render/render_config.h"
 #include "render/asset/shader_asset.h"

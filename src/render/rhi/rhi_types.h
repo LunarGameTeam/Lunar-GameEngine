@@ -6,6 +6,20 @@
 namespace luna::render
 {
 
+struct RHIShaderDesc;
+struct RHIPipelineStateDesc;
+struct RHIResDesc;
+struct RenderPassDesc;
+struct SamplerDesc;
+struct DescriptorPoolDesc;
+struct ViewDesc;
+struct FrameBufferDesc;
+struct RHIBufferDesc;
+struct RHITextureDesc;
+struct RHIMemoryDesc;
+
+class RHIDevice;
+
 class RHIView;
 using RHIViewPtr           = TRHIPtr<RHIView> ;
 

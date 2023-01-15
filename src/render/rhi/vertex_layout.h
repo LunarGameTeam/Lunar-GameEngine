@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/foundation/container.h"
+
 #include "render/render_config.h"
 #include "render/rhi/rhi_pch.h"
 

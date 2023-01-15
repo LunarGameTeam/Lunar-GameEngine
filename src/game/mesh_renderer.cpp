@@ -2,6 +2,7 @@
 #include "core/object/transform.h"
 #include "game/scene.h"
 
+#include "core/memory/ptr_binding.h"
 
 namespace luna
 {

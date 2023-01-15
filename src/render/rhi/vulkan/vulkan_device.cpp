@@ -324,7 +324,7 @@ RHIMemoryPtr VulkanDevice::AllocMemory(const RHIMemoryDesc& desc, uint32_t memor
 	return CreateRHIObject<VulkanMemory>(desc, memoryBits);
 }
 
-RHIDescriptorPoolPtr VulkanDevice::CreateDescriptorPool(DescriptorPoolDesc desc)
+RHIDescriptorPoolPtr VulkanDevice::CreateDescriptorPool(const DescriptorPoolDesc& desc)
 {
 	return CreateRHIObject<VulkanDescriptorPool>(desc);
 }

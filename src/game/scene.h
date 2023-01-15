@@ -1,7 +1,6 @@
 #pragma once
 
 #include "game_config.h"
-#include "core/core_library.h"
 #include "core/object/entity.h"
 #include "core/framework/module.h"
 #include "core/asset/json_asset.h"

@@ -1,16 +1,20 @@
 #include "render/renderer/render_device.h"
 
+#include "render/render_module.h"
+
 #include "render/rhi/vulkan/vulkan_device.h"
 #include "render/rhi/vulkan/vulkan_render_queue.h"
 
 #include "render/rhi/DirectX12/dx12_device.h"
 #include "render/rhi/DirectX12/dx12_render_queue.h"
-#include "render/rhi/DirectX12/dx12_descriptor_impl.h"
-#include "render/rhi/DirectX12/dx12_view.h"
-#include "render/rhi/DirectX12/dx12_descriptor_pool.h"
+
+#include "render/rhi/rhi_fence.h"
+#include "render/rhi/rhi_cmd_list.h"
+
 
 #include "render/asset/mesh_asset.h"
 #include "render/renderer/material.h"
+#include "render/renderer/render_scene.h"
 #include "render/asset/material_template.h"
 
 

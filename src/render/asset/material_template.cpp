@@ -2,6 +2,8 @@
 #include "core/asset/asset.h"
 #include "core/asset/asset_module.h"
 
+#include "core/memory/ptr_binding.h"
+
 #include "render/asset/material_template.h"
 #include "render/asset/texture_asset.h"
 

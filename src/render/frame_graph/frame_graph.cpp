@@ -2,6 +2,9 @@
 
 #include "render/render_module.h"
 #include "render/rhi/rhi_frame_buffer.h"
+#include "render/rhi/rhi_fence.h"
+#include "render/rhi/rhi_cmd_list.h"
+#include "render/rhi/rhi_device.h"
 
 #include "render/asset/texture_asset.h"
 #include "render/asset/shader_asset.h"

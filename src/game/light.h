@@ -1,6 +1,5 @@
 #pragma once
 
-#include "core/core_library.h"
 #include "core/object/transform.h"
 #include "core/object/component.h"
 

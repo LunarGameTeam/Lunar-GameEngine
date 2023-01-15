@@ -1,13 +1,11 @@
 #pragma once
 #include "render/render_config.h"
-
-#include "core/memory/ptr_binding.h"
-#include "core/foundation/container.h"
+#include "core/core_library.h"
 
 #include "render/rhi/rhi_types.h"
 #include "render/rhi/rhi_shader.h"
 
-#include "render/renderer/types.h"
+#include "render/forward_types.h"
 
 
 namespace luna::render

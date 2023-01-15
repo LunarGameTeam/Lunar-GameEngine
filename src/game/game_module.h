@@ -1,6 +1,5 @@
 #pragma once
 
-#include "core/core_library.h"
 #include "core/framework/module.h"
 #include "scene.h"
 #include "game_config.h"

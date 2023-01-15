@@ -1,9 +1,12 @@
 #pragma once
 
+#include "core/core_library.h"
+
 #include "render/render_config.h"
-#include "render/renderer/types.h"
+#include "render/forward_types.h"
 #include "render/rhi/rhi_types.h"
 #include "render/rhi/rhi_device.h"
+#include "render/rhi/rhi_render_pass.h"
 
 
 namespace luna::render
