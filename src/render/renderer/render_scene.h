@@ -3,22 +3,13 @@
 #include "core/foundation/string.h"
 
 #include "render/render_config.h"
+#include "render/renderer/types.h"
+#include "render/rhi/rhi_resource.h"
 
-#include "render/renderer/render_target.h"
-#include "render/renderer/render_scene.h"
-#include "render/renderer/render_view.h"
-
-#include "render/frame_graph/frame_graph.h"
 #include <functional>
-#include "render/asset/mesh_asset.h"
 
 namespace luna::render
 {
-
-class MaterialInstance;
-class SubMesh;
-
-
 
 struct RENDER_API RenderObject
 {
@@ -42,9 +33,6 @@ struct RENDER_API RenderLight
 	LMatrix4f mViewMatrix;
 	LMatrix4f mProjMatrix;
 };
-
-using ROArray = LArray<RenderObject*>;
-using ViewArray = LArray<RenderView*>;
 
 class RENDER_API RenderScene
 {
@@ -76,8 +64,8 @@ public:
 	RHIResourcePtr mSceneBuffer;
 	RHIViewPtr     mSceneBufferView;
 
-	SubMesh        mDebugMeshLine;
-	SubMesh        mDebugMesh;
+	SubMesh*       mDebugMeshLine;
+	SubMesh*       mDebugMesh;
 
 protected:
 	void CommitSceneBuffer();

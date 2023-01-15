@@ -1,24 +1,21 @@
 #pragma once
 #include "render/render_config.h"
+#include "render/renderer/types.h"
 
 #include "core/foundation/container.h"
 #include "core/foundation/string.h"
 
-
 #include "render/renderer/render_target.h"
-
 #include "render/frame_graph/frame_graph.h"
 
 #include <functional>
+
 #include "render/renderer/render_pass.h"
 
 
 namespace luna::render
 {
 
-struct RenderObject;
-class RenderScene;
-class RenderModule;
 
 struct PerViewBuffer
 {
@@ -43,7 +40,7 @@ public:
 public:
 	void ScenePipeline(RenderScene* scene, FrameGraphBuilder* FG);
 
-	void GenerateSceneViewPass(RenderScene* scene,FrameGraphBuilder* FG);
+	void GenerateSceneViewPass(RenderScene* scene, FrameGraphBuilder* FG);
 	void GenerateShadowViewPass(RenderScene* scene, FrameGraphBuilder* FG);
 
 	void PrepareViewBuffer();
@@ -60,28 +57,28 @@ public:
 	void SetProjectionMatrix(const LMatrix4f& val) { mProjMatrix = val; }
 
 	RenderViewType mViewType = RenderViewType::SceneView;
-	
 
-	RHIView* GetPerViewBufferView() 
+
+	RHIView* GetPerViewBufferView()
 	{
-		return mPerViewBufferView; 
+		return mPerViewBufferView;
 	}
 
 private:
-	float mNear = 0.1f;
-	float mFar = 1000.0f;
+	float               mNear = 0.1f;
+	float               mFar  = 1000.0f;
 
-	RenderPass* mDebugPass;
-	RenderPass* mLightingPass;
+	RenderPass*         mDebugPass;
+	RenderPass*         mLightingPass;
 
-	RHIResourcePtr mPerViewBuffer;
-	RHIViewPtr mPerViewBufferView;
+	RHIResourcePtr      mPerViewBuffer;
+	RHIViewPtr          mPerViewBufferView;
 
-	LMatrix4f mViewMatrix;
-	LMatrix4f mProjMatrix;
-	LVector3f mViewPos;
+	LMatrix4f           mViewMatrix;
+	LMatrix4f           mProjMatrix;
+	LVector3f           mViewPos;
 
-	uint64_t mViewID;
+	uint64_t            mViewID;
 	TPPtr<RenderTarget> mRT;
 };
 

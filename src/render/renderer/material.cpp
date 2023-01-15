@@ -1,11 +1,13 @@
-#include "material.h"
-#include "core/asset/asset.h"
-#include "core/asset/asset_module.h"
 #include "render/renderer/material.h"
 
-#include "render/asset/texture_asset.h"
+
 #include "render/render_module.h"
+
 #include "render/asset/material_template.h"
+#include "render/asset/shader_asset.h"
+#include "render/asset/texture_asset.h"
+
+
 #include "render/rhi/rhi_resource.h"
 
 
@@ -202,6 +204,11 @@ void MaterialInstance::UpdateParamsToBuffer()
 		sRenderModule->GetRenderDevice()->UpdateConstantBuffer(mParamsBuffer, data.data(), data.size());
 
 
+}
+
+PackedParams* MaterialInstance::GetPackedParams()
+{
+	return &mMaterialParams;
 }
 
 }

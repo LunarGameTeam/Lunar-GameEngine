@@ -1,24 +1,34 @@
 #pragma once
-#include "material.h"
-
-#include "core/foundation/container.h"
-#include "core/asset/asset.h"
-#include "core/asset/json_asset.h"
-#include "core/memory/ptr_binding.h"
-
 #include "render/render_config.h"
-#include "render/renderer/render_device.h"
-#include "render/asset/shader_asset.h"
-#include "render/asset/texture_asset.h"
 
-#include <d3d11.h>
+#include "core/memory/ptr_binding.h"
+#include "core/foundation/container.h"
+
+#include "render/rhi/rhi_types.h"
+#include "render/rhi/rhi_shader.h"
+
+#include "render/renderer/types.h"
 
 
-namespace luna
+namespace luna::render
 {
-namespace render
+
+struct PackedParams
 {
-class MaterialTemplateAsset;
+	void Clear()
+	{
+		mParams.clear();
+	}
+
+	void PushShaderParam(ShaderParamID id, RHIView* view)
+	{
+		auto& it = mParams.emplace_back();
+		it.first = id;
+		it.second = view;
+	}
+
+	std::vector<std::pair<ShaderParamID, RHIViewPtr>> mParams;
+};
 
 
 enum class MaterialParamType : uint8_t
@@ -137,7 +147,7 @@ public:
 	LUnorderedMap<LString, size_t> mParamIndexMap;
 	TPPtrArray<MaterialParam>& GetAllParams();
 
-	PackedParams* GetPackedParams() { return &mMaterialParams; }
+	PackedParams* GetPackedParams();
 
 public:
 	PackedParams mMaterialParams;
@@ -154,6 +164,7 @@ public:
 };
 }
 
-
+namespace luna
+{
 REGISTER_ENUM_TYPE(render::MaterialParamType, int)
 }

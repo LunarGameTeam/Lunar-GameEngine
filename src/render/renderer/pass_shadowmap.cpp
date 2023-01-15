@@ -3,6 +3,7 @@
 #include "core/reflection/method.h"
 #include "core/asset/asset_module.h"
 #include "render/render_module.h"
+#include "render/asset/shader_asset.h"
 
 namespace luna::render
 {

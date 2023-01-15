@@ -1,6 +1,14 @@
 #include "render_scene.h"
 #include "render/render_module.h"
 
+#include "render/asset/mesh_asset.h"
+
+#include "render/renderer/render_target.h"
+#include "render/renderer/render_scene.h"
+#include "render/renderer/render_view.h"
+
+#include "render/frame_graph/frame_graph.h"
+
 namespace luna::render
 {
 

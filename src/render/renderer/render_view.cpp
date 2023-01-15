@@ -1,6 +1,7 @@
 #include "render/renderer/render_view.h"
 #include "render/renderer/render_scene.h"
 #include "render/renderer/pass_debug.h"
+#include "render/asset/shader_asset.h"
 #include "render/render_module.h"
 #include "core/asset/asset_module.h"
 #include "pass_lighting.h"

@@ -1,16 +1,13 @@
 #pragma once
 
 #include "render/render_config.h"
+#include "render/renderer/types.h"
 #include "render/rhi/rhi_types.h"
 #include "render/rhi/rhi_device.h"
 
 
 namespace luna::render
 {
-
-struct RenderObject;
-class SubMesh;
-class ShaderAsset;
 
 RENDER_API CONFIG_DECLARE(LString, Render, RenderDeviceType, 2);
 
@@ -27,23 +24,6 @@ enum class RenderDeviceType : uint8_t
 size_t GetOffset(size_t offset, uint16_t aliment);
 
 #define PARAM_ID(name) static luna::render::ShaderParamID ParamID_##name = luna::LString(#name).Hash();
-
-struct PackedParams
-{
-	void Clear()
-	{
-		mParams.clear();
-	}
-
-	void PushShaderParam(ShaderParamID id, RHIView* view)
-	{
-		auto& it = mParams.emplace_back();
-		it.first = id;
-		it.second = view;
-	}
-
-	std::vector<std::pair<ShaderParamID, RHIViewPtr>> mParams;	
-};
 
 class DynamicMemoryBuffer
 {

@@ -1,9 +1,7 @@
 #pragma once
-#include "render/frame_graph/frame_graph_node.h"
 #include "render/renderer/render_device.h"
-#include "frame_graph_resource.h"
-#include "render/asset/texture_asset.h"
-#include "render/asset/shader_asset.h"
+#include "render/frame_graph/frame_graph_node.h"
+#include "render/frame_graph/frame_graph_resource.h"
 
 
 namespace luna::render

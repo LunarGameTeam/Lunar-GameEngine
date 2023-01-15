@@ -16,6 +16,7 @@
 
 #include "core/core_library.h"
 #include "render/render_config.h"
+#include "render/renderer/types.h"
 
 #include "render/renderer/render_scene.h"
 #include "render/renderer/render_pass.h"

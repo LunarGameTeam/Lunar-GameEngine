@@ -7,9 +7,10 @@
 
 namespace luna
 {
+RegisterType(RENDER_API, render::RHIResource, RHIResource);
+}
 
-
-namespace render
+namespace luna::render
 {
 //IMGUI
 struct RENDER_API ImguiTexture
@@ -21,15 +22,8 @@ public:
 };
 }
 
-RegisterType(RENDER_API, render::RHIResource, RHIResource);
-
-namespace binding
+namespace luna::binding
 {
-
 template<> struct binding_converter<render::RHIResource*> : native_converter<render::RHIResource> { };
 template<> struct binding_proxy<render::RHIResource> : native_binding_proxy<render::RHIResource> { };
-}
-
-
-
 }

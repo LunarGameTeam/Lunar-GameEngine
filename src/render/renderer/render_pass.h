@@ -4,6 +4,7 @@
 #include "core/foundation/string.h"
 
 #include "render/render_config.h"
+#include "render/renderer/types.h"
 #include "render/renderer/render_target.h"
 #include "render/frame_graph/frame_graph.h"
 
@@ -12,11 +13,6 @@
 
 namespace luna::render
 {
-
-struct RenderObject;
-class RenderModule;
-class RenderView;
-class RenderScene;
 
 
 class RENDER_API RenderPass
