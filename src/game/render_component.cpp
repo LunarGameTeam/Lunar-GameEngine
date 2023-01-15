@@ -1,4 +1,4 @@
-#include "render_component.h"
+#include "game/render_component.h"
 #include "render/render_module.h"
 #include "game/scene.h"
 

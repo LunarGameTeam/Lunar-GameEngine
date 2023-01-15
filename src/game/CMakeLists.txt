@@ -5,7 +5,7 @@ file(GLOB_RECURSE PROJECT_HEADERS *.h)
 file(GLOB_RECURSE PROJECT_CPPS *.cpp)
 
 set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS})
-auto_source_group("${ALL_FILES}" DST_FILES)
+auto_source_group(game "${ALL_FILES}" DST_FILES)
 
 add_library(game SHARED ${DST_FILES})
 

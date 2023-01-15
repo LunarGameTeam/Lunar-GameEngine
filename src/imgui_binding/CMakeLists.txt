@@ -7,7 +7,7 @@ file(GLOB_RECURSE PROJECT_CPPS *.cpp)
 
 set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS})
 
-auto_source_group("${ALL_FILES}" DST_FILES)
+auto_source_group(imgui_binding "${ALL_FILES}" DST_FILES)
 
 add_library(imgui_binding SHARED ${DST_FILES})
 

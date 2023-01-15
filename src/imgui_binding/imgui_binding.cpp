@@ -10,7 +10,7 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 
-#include "icon_font.h"
+#include "imgui_binding/icon_font.h"
 
 #include "render/rhi/rhi_resource.h"
 #include "render/render_module.h"

@@ -1,7 +1,8 @@
-#include "mesh_renderer.h"
+#include "game/mesh_renderer.h"
 #include "core/object/transform.h"
 #include "game/scene.h"
 
+#include "core/memory/ptr_binding.h"
 
 namespace luna
 {

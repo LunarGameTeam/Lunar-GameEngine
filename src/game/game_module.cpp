@@ -1,4 +1,4 @@
-#include "game_module.h"
+#include "game/game_module.h"
 #include "game/scene.h"
 #include "core/object/entity.h"
 #include "render/render_module.h"

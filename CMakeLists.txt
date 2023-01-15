@@ -18,6 +18,8 @@ SET(NATVIS_PATH
 	${CMAKE_CURRENT_SOURCE_DIR}/src/NatvisFile.natvis
 	${CMAKE_CURRENT_SOURCE_DIR}/src/Python.natvis)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
 SET(SOLUTION_CMAKE_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/bin)
@@ -94,7 +96,7 @@ message(STATUS "vulkan: ${Vulkan_shaderc_combined_LIBRARY}")
 message(STATUS "vulkan: ${Vulkan_SPIRV-Tools_LIBRARY}")
 
 include_directories(
-	src
+	include
 	${SDK_PATH}imgui
 	${SDK_PATH}vcpkg/installed/x64-windows/include
 	${SDK_PATH}imgui/backends
@@ -106,35 +108,34 @@ link_directories(
 	${Python3_LIBRARY_DIRS}
 	$ENV{VULKAN_SDK}/Lib
 )
-
-function(auto_source_group src_files dst_files)
+function(auto_header_group project src_files dst_files)
     foreach(_source IN ITEMS ${src_files})
 	 	if (IS_ABSOLUTE "${_source}")
-            file(RELATIVE_PATH _source_rel "${SOLUTION_CMAKE_SOURCE_PATH}/src" "${_source}")
+            file(RELATIVE_PATH _source_rel "${SOLUTION_CMAKE_SOURCE_PATH}/include" "${_source}")
         else()
             set(_source_rel "${_source}")
         endif()
         get_filename_component(_file_name "${_source_rel}" NAME)		
         get_filename_component(_source_path "${_source_rel}" PATH)
         string(REPLACE "/" "\\" _source_path_msvc "${_source_path}")
-		if ("${_file_name}" MATCHES "win32_*")
-			if(WIN32)
-				message("Windows Source: ${_file_name}")
-				list(APPEND dst_files ${_source})
-				source_group("${_source_path_msvc}" FILES "${_source}")
-			endif()
-		else()
-			if("${_file_name}" MATCHES "linux_*")				
-				if(UNIX)
-					list(APPEND dst_files ${_source})
-					message("Linux Source: ${_file_name}")
-					source_group("${_source_path_msvc}" FILES "${_source}")
-				endif()
-			else()
-				list(APPEND dst_files ${_source})
-				source_group("${_source_path_msvc}" FILES "${_source}")
-			endif()
-		endif()	
+		list(APPEND dst_files ${_source})
+		source_group("Public\\${_source_path_msvc}" FILES "${_source}")
+    endforeach()
+	set(${dst_files} PARENT_SCOPE)
+endfunction(auto_header_group)
+
+function(auto_source_group project src_files dst_files)
+    foreach(_source IN ITEMS ${src_files})
+	 	if (IS_ABSOLUTE "${_source}")
+            file(RELATIVE_PATH _source_rel "${SOLUTION_CMAKE_SOURCE_PATH}/src/${project}" "${_source}")
+        else()
+            set(_source_rel "${_source}")
+        endif()
+        get_filename_component(_file_name "${_source_rel}" NAME)		
+        get_filename_component(_source_path "${_source_rel}" PATH)
+        string(REPLACE "/" "\\" _source_path_msvc "${_source_path}")
+		list(APPEND dst_files ${_source})
+		source_group("Private\\${_source_path_msvc}" FILES "${_source}")
     endforeach()
 	set(${dst_files} PARENT_SCOPE)
 endfunction(auto_source_group)

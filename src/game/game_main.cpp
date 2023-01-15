@@ -5,7 +5,7 @@
 
 #include "windows.h"
 #include "render/render_module.h"
-#include "game_module.h"
+#include "game/game_module.h"
 
 using namespace luna;
 

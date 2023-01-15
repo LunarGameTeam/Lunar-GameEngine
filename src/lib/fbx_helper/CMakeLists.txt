@@ -8,7 +8,7 @@ file(GLOB_RECURSE PROJECT_CPPS *.cpp)
 
 set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS})
 
-auto_source_group("${ALL_FILES}" DST_FILES)
+auto_source_group(fbx_helper "${ALL_FILES}" DST_FILES)
 
 add_library(fbx_helper SHARED ${DST_FILES})
 add_compile_definitions(FBXSDK_SHARED)

@@ -1,10 +1,12 @@
-#include "scene.h"
+#include "game/scene.h"
 #include "render/render_module.h"
 #include "game/light.h"
 
 #include "core/memory/ptr_binding.h"
 #include "core/serialization/serialization.h"
 #include "core/asset/asset_module.h"
+
+#include "render/renderer/render_scene.h"
 
 namespace luna
 {

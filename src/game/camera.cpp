@@ -2,6 +2,8 @@
 #include "game/scene.h"
 #include "render/render_module.h"
 #include "core/object/entity.h"
+#include "render/renderer/render_scene.h"
+#include "render/renderer/render_view.h"
 
 namespace luna
 {

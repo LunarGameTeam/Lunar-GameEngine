@@ -1,4 +1,4 @@
-#include "light.h"
+#include "game/light.h"
 #include "core/object/transform.h"
 #include "render/render_module.h"
 #include "game/game_module.h"

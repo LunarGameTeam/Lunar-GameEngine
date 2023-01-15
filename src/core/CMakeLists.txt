@@ -2,14 +2,15 @@
 cmake_minimum_required (VERSION 3.24)
 
 # 项目信息
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-file(GLOB_RECURSE PROJECT_HEADERS *.h)
+file(GLOB_RECURSE PROJECT_HEADERS "${SOLUTION_CMAKE_SOURCE_PATH}/include/core/*.h")
 file(GLOB_RECURSE PROJECT_CPPS *.cpp *.cc *.c)
 
-set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS} ${PROJECT_IXXS})
-auto_source_group("${ALL_FILES}" DST_FILES)
+auto_header_group(core "${PROJECT_HEADERS}" DST_FILES)
+auto_source_group(core "${PROJECT_CPPS}" DST_HEADERS)
 
-add_library(core SHARED ${DST_FILES} ${NATVIS_PATH})
+add_library(core SHARED ${DST_FILES} ${DST_HEADERS} ${NATVIS_PATH})
 
 # add_compile_definitions(TRACY_EXPORTS)
 # add_compile_definitions(IMGUI_EXPORT)

@@ -1,28 +1,23 @@
 # CMake 最低版本号要求
 cmake_minimum_required (VERSION 3.24)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
 configure_file(${SOLUTION_CMAKE_SOURCE_PATH}/src/packages.config ${CMAKE_CURRENT_BINARY_DIR}/packages.config COPYONLY)
 add_library(WinPixEventRuntime INTERFACE IMPORTED GLOBAL)
 set_target_properties(WinPixEventRuntime PROPERTIES INTERFACE_LINK_LIBRARIES "${CMAKE_BINARY_DIR}/packages/WinPixEventRuntime.1.0.220124001/build/WinPixEventRuntime.targets")
 
-file(GLOB_RECURSE PROJECT_HEADERS *.h)
-file(GLOB_RECURSE PROJECT_CPPS *.cpp)
+file(GLOB_RECURSE PROJECT_HEADERS "${SOLUTION_CMAKE_SOURCE_PATH}/include/render/*.h")
+file(GLOB_RECURSE PROJECT_CPPS *.cpp *.cc *.c)
 
-add_compile_definitions(RENDER_DEVICE_DX11_ENABLE)
-add_compile_definitions(RENDER_DEVICE_OPENGL_ENABLE)
-add_compile_definitions(RENDER_DEVICE_DX12_ENABLE)
+auto_header_group(render "${PROJECT_HEADERS}" DST_FILES)
+auto_source_group(render "${PROJECT_CPPS}" DST_HEADERS)
 
-set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS})
+add_library(render SHARED ${PROJECT_HEADERS} ${PROJECT_CPPS})
 
-auto_source_group("${ALL_FILES}" DST_FILES)
-
-add_library(render SHARED ${DST_FILES})
-
-add_compile_definitions(IMGUI_EXPORT)
 add_compile_definitions(RENDER_EXPORT)
 
 add_dependencies(render core)
-
 
 target_link_libraries(render debug shaderc_combinedd glslangd)
 target_link_libraries(render optimized shaderc_combined glslang)
