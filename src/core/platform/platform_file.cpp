@@ -1,7 +1,7 @@
 #include "platform_file.h"
 #include "core/framework/luna_core.h"
 #include "core/object/base_object.h"
-#include "core/file/platform_module.h"
+#include "core/platform/platform_module.h"
 
 #include <filesystem>
 #include "file.h"

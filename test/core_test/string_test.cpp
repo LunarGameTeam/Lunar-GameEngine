@@ -1,6 +1,6 @@
 #include "core/core_library.h"
-#include "core/file/path.h"
-#include "core/file/platform_module.h"
+#include "core/platform/path.h"
+#include "core/platform/platform_module.h"
 
 using namespace luna;
 

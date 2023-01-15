@@ -1,8 +1,8 @@
 #pragma once
 
 #include "core/framework/module.h"
-#include "core/file/platform_module.h"
-#include "core/file/path.h"
+#include "core/platform/platform_module.h"
+#include "core/platform/path.h"
 #include "core/memory/ptr.h"
 #include "core/memory/garbage_collector.h"
 #include "core/reflection/reflection.h"

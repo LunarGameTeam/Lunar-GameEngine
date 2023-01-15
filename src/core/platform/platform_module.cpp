@@ -3,7 +3,7 @@
 #include "imgui_impl_sdl.h"
 
 #include "core/core_library.h"
-#include "core/file/window.h"
+#include "core/platform/window.h"
 #include "core/framework/luna_core.h"
 #include "core/event/event_module.h"
 #include "core/asset/asset_module.h"

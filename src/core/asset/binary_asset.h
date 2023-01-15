@@ -5,9 +5,9 @@
 #include "core/memory/ptr.h"
 #include "core/foundation/string.h"
 #include "core/foundation/container.h"
-#include "core/file/async_handle.h"
-#include "core/file/file.h"
-#include "core/file/path.h"
+#include "core/platform/async_handle.h"
+#include "core/platform/file.h"
+#include "core/platform/path.h"
 #include "core/serialization/dict_data.h"
 
 #include <json/json.h>

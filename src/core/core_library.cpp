@@ -1,7 +1,7 @@
 #include "core_library.h"
 
 #include "core/asset/asset_module.h"
-#include "core/file/platform_module.h"
+#include "core/platform/platform_module.h"
 #include "core/event/event_module.h"
 #include "core/framework/application.h"
 

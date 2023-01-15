@@ -1,6 +1,6 @@
-#include "core/file/path.h"
-#include "core/file/platform_module.h"
-#include "core/file/platform_file.h"
+#include "core/platform/path.h"
+#include "core/platform/platform_module.h"
+#include "core/platform/platform_file.h"
 #include "core/framework/luna_core.h"
 
 #include <filesystem>

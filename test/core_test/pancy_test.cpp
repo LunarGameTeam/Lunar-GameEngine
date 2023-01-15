@@ -1,8 +1,8 @@
 /*
 * 
 #include "core/core_module.h"
-#include "core/file/path.h"
-#include "core/file/file_subsystem.h"
+#include "core/platform/path.h"
+#include "core/platform/file_subsystem.h"
 
 #include <boost/function.hpp>
 #include <boost/bind.hpp>

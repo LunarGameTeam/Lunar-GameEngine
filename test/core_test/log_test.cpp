@@ -1,5 +1,5 @@
 #include "core/core_library.h"
-#include "core/file/path.h"
+#include "core/platform/path.h"
 
 using namespace luna;
 

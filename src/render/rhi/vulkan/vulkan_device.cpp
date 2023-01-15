@@ -26,7 +26,7 @@
 #include "render/rhi/vulkan/vulkan_pipeline.h"
 #include "render/rhi/vulkan/vulkan_binding_set_layout.h"
 #include "render/rhi/vulkan/vulkan_binding_set.h"
-#include "core/file/platform_module.h"
+#include "core/platform/platform_module.h"
 
 namespace luna::render
 {
