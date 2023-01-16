@@ -1,6 +1,6 @@
-#include "core/core_min.h"
-#include "core/platform/path.h"
-#include "core/platform/platform_module.h"
+#include "Core/CoreMin.h"
+#include "Core/Platform/Path.h"
+#include "Core/Platform/PlatformModule.h"
 
 using namespace luna;
 
@@ -9,9 +9,9 @@ using namespace luna;
 TEST(Core, String)
 {
 	LString dir = gEngine->GetModule < PlatformModule > ()->GetPlatformFileManager()->EngineDir();
-	LString str = "/foundation/log.txt";
+	LString str = "/Foundation/log.txt";
 	LString split = "log";
-	LPath path("/foundation/log.txt");
+	LPath path("/Foundation/log.txt");
 }
 
 TEST(Core, StringCast)

@@ -1,6 +1,6 @@
 #pragma once
-#include "core/core_library.h"
-#include "render/asset/mesh_asset.h"
+#include "Core/core_library.h"
+#include "Graphics/Asset/mesh_asset.h"
 #ifndef FBX_API
 #ifdef FBX_EXPORT
 #define FBX_API __declspec( dllexport )//宏定义

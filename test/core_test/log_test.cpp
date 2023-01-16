@@ -1,5 +1,5 @@
-#include "core/core_min.h"
-#include "core/platform/path.h"
+#include "Core/CoreMin.h"
+#include "Core/Platform/Path.h"
 
 using namespace luna;
 

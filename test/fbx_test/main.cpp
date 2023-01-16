@@ -1,8 +1,8 @@
 #include "lib/fbx_helper/fbx_importer_func.h"
 #include "core/file/file_subsystem.h"
-#include "core/asset/asset_subsystem.h"
-#include "core/serialization/serialization.h"
-#include "render/asset/material_template.h"
+#include "core/Asset/asset_subsystem.h"
+#include "core/Serialization/serialization.h"
+#include "Graphics/Asset/material_template.h"
 int main()
 {
 	gEngine = luna::TCreateObject<luna::LunaCore>();

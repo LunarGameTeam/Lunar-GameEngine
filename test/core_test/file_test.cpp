@@ -1,8 +1,8 @@
-#include "core/core_min.h"
-#include "core/platform/path.h"
-#include "core/platform/platform_module.h"
-#include "core/asset/asset_module.h"
-#include "core/asset/asset.h"
+#include "Core/CoreMin.h"
+#include "Core/Platform/Path.h"
+#include "Core/Platform/PlatformModule.h"
+#include "Core/Asset/AssetModule.h"
+#include "Core/Asset/Asset.h"
 
 using namespace luna;
 

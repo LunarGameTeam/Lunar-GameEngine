@@ -2,8 +2,8 @@
 #include<fbxsdk.h>
 #include "mikktspace.h"
 #include "forsythtriangleorderoptimizer.h"
-#include "core/core_library.h"
-#include "render/asset/mesh_asset.h"
+#include "Core/core_library.h"
+#include "Graphics/Asset/mesh_asset.h"
 namespace luna
 {
 	struct FBXMeshFace

@@ -110,6 +110,7 @@ link_directories(
 )
 function(auto_header_group project src_files dst_files)
     foreach(_source IN ITEMS ${src_files})
+		message(STATUS "Header: ${_source}")
 	 	if (IS_ABSOLUTE "${_source}")
             file(RELATIVE_PATH _source_rel "${SOLUTION_CMAKE_SOURCE_PATH}/include" "${_source}")
         else()
@@ -126,6 +127,7 @@ endfunction(auto_header_group)
 
 function(auto_source_group project src_files dst_files)
     foreach(_source IN ITEMS ${src_files})
+		message(STATUS "Source: ${_source}")
 	 	if (IS_ABSOLUTE "${_source}")
             file(RELATIVE_PATH _source_rel "${SOLUTION_CMAKE_SOURCE_PATH}/src/${project}" "${_source}")
         else()
@@ -142,29 +144,29 @@ endfunction(auto_source_group)
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 
-add_subdirectory(src/core)
-add_subdirectory(src/render)
+add_subdirectory(src/Core)
+add_subdirectory(src/Graphics)
 add_subdirectory(sdk/imgui)
-add_subdirectory(src/game)
-add_subdirectory(src/luna)
+add_subdirectory(src/Game)
+add_subdirectory(src/Luna)
 
-add_subdirectory(src/imgui_binding)
-SET_PROPERTY(TARGET core PROPERTY FOLDER "Runtime")
-SET_PROPERTY(TARGET render PROPERTY FOLDER "Runtime")
+add_subdirectory(src/ImGuiScript)
+SET_PROPERTY(TARGET Core PROPERTY FOLDER "Runtime")
+SET_PROPERTY(TARGET Graphics PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET imgui PROPERTY FOLDER "Runtime")
-SET_PROPERTY(TARGET game PROPERTY FOLDER "Runtime")
-SET_PROPERTY(TARGET luna PROPERTY FOLDER "Runtime")
-SET_PROPERTY(TARGET imgui_binding PROPERTY FOLDER "Runtime")
+SET_PROPERTY(TARGET Game PROPERTY FOLDER "Runtime")
+SET_PROPERTY(TARGET Luna PROPERTY FOLDER "Runtime")
+SET_PROPERTY(TARGET ImGuiScript PROPERTY FOLDER "Runtime")
 
-add_subdirectory(src/app_game)
-add_subdirectory(src/app_editor)
+add_subdirectory(src/AppGame)
+add_subdirectory(src/AppEditor)
 
-SET_PROPERTY(TARGET app_editor PROPERTY FOLDER "App")
-SET_PROPERTY(TARGET app_game PROPERTY FOLDER "App")
+SET_PROPERTY(TARGET AppEditor PROPERTY FOLDER "App")
+SET_PROPERTY(TARGET AppGame PROPERTY FOLDER "App")
 
 
 add_subdirectory(test/core_test)
-SET_PROPERTY(TARGET core_test PROPERTY FOLDER "Test")
+SET_PROPERTY(TARGET CoreTest PROPERTY FOLDER "Test")
 
 if(LUNA_USING_FBX_TOOLS)
 	add_subdirectory(src/lib/fbx_helper)
@@ -173,15 +175,15 @@ if(LUNA_USING_FBX_TOOLS)
 	SET_PROPERTY(TARGET fbx_test PROPERTY FOLDER "Test")
 endif()
 
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT app_editor)
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT AppEditor)
 
 SET(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/release)
 
-install(TARGETS core render game imgui_binding app_editor app_game
+install(TARGETS Core Graphics Game ImGuiScript AppEditor AppGame
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION bin)
 
-install(FILES file(GET_RUNTIME_DEPENDENCIES EXECUTABLES $<TARGET_FILE:app_editor>)
+install(FILES file(GET_RUNTIME_DEPENDENCIES EXECUTABLES $<TARGET_FILE:AppEditor>)
 	DESTINATION bin)
 
 install(DIRECTORY assets/ DESTINATION assets)

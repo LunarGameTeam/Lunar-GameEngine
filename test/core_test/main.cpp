@@ -1,8 +1,8 @@
-#include "core/core_min.h"
-#include "core/platform/platform_module.h"
-#include "core/framework/application.h"
-#include "core/asset/asset_module.h"
-#include "core/event/event_module.h"
+#include "Core/CoreMin.h"
+#include "Core/Platform/PlatformModule.h"
+#include "Core/Framework/Application.h"
+#include "Core/Asset/AssetModule.h"
+#include "Core/Event/EventModule.h"
 
 #include <gtest/gtest.h>
 

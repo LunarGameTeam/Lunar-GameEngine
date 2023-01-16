@@ -1,13 +1,13 @@
 /*
 * 
-#include "core/core_module.h"
-#include "core/platform/path.h"
-#include "core/platform/file_subsystem.h"
+#include "Core/core_module.h"
+#include "Core/Platform/path.h"
+#include "Core/Platform/file_subsystem.h"
 
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
-#include "core/foundation/config.h"
-#include "core/asset/lasset.h"
+#include "Core/Foundation/config.h"
+#include "Core/Asset/lasset.h"
 using namespace luna;
 
 #include <gtest/gtest.h>
@@ -42,9 +42,9 @@ TEST(GameEngine, Test0)
 	gEngine->RegisterSubsystem<FileSubsystem>();
 	gEngine->Run();
 	LString dir = gEngine->GetSubsystem<FileSubsystem>()->GetPlatformFileManager()->EngineDir();
-	LString str = "/foundation/log.txt";
+	LString str = "/Foundation/log.txt";
 	LString split = "log";
-	LPath path("/foundation/log.txt");	
+	LPath path("/Foundation/log.txt");	
 }
 
 

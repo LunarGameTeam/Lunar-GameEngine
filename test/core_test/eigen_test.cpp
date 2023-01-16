@@ -1,4 +1,4 @@
-#include "core/math/math.h"
+#include "Core/Math/Math.h"
 #include <gtest/gtest.h>
 
 using namespace luna;
