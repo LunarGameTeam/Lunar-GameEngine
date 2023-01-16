@@ -30,8 +30,8 @@ def init_editor():
     from core.hot_patch import watch_scripts
     watch_scripts(editor_dir)
 
-    luna.load_library("imgui_binding.dll")
-    luna.load_library("game.dll")
+    luna.load_library("ImGuiScript.dll")
+    luna.load_library("Game.dll")
 
     app = luna.LApplication.instance()
 

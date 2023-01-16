@@ -113,7 +113,7 @@ struct RHIVertexLayout
 			mSize[i] = 0;
 		}
 	}
-	void AddVertexElement(VertexElementType type, VertexElementUsage usage, uint8_t elementCount,uint8_t bufferSlot,VertexElementInstanceType instanceUsage)
+	void AddVertexElement(VertexElementType type, VertexElementUsage usage, uint8_t elementCount,uint8_t bufferSlot, VertexElementInstanceType instanceUsage)
 	{
 		mElements.emplace_back(type, usage, elementCount);
 		mElements.back().mOffset = (uint32_t) mSize[bufferSlot];

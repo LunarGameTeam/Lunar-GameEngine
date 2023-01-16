@@ -7,6 +7,8 @@
 namespace luna::render
 {
 
-void BuildRenderPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene);
+void LightingPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene);
+void ShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene);
+void OverlayPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene);
 
 }

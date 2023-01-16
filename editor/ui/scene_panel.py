@@ -76,8 +76,8 @@ class ScenePanel(PanelBase):
         vmin.y += imgui.get_window_pos().y
         vmax.x += imgui.get_window_pos().x
         vmax.y += imgui.get_window_pos().y
-        if imgui.is_mouse_hovering_rect(vmin, vmax, True) and self.camera and imgui.is_mouse_dragging(0, -1):
-            delta = imgui.get_mouse_drag_delta(0, -1.0)
+        if imgui.is_mouse_hovering_rect(vmin, vmax, True) and self.camera and imgui.is_mouse_dragging(1, -1):
+            delta = imgui.get_mouse_drag_delta(1, -1.0)
             transform = self.camera.transform
             delta_y = delta.y / 500.0
             delta_x = delta.x / 500.0
@@ -86,7 +86,7 @@ class ScenePanel(PanelBase):
             rotation = transform.local_rotation
             rotation = h * rotation * v
             transform.local_rotation = rotation
-            imgui.reset_mouse_drag_delta(0)
+            imgui.reset_mouse_drag_delta(1)
 
     def create_cube(self):
         if self.scene:

@@ -290,7 +290,7 @@ RHIResourcePtr RenderDevice::CreateTexture(const RHITextureDesc& textureDesc, co
 	return _CreateTexture(textureDesc, resDesc, initData, dataSize, nullptr, offset);
 }
 
-RHIResource* RenderDevice::CreateInstancingBufferByRenderObjects(LArray<RenderObject*> RenderObjects)
+RHIResource* RenderDevice::CreateInstancingBufferByRenderObjects(LArray<RenderObject*>& RenderObjects)
 {
 	std::vector<int32_t> all_object_id;
 	for (auto it : RenderObjects)

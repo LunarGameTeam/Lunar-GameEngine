@@ -65,7 +65,9 @@ void RenderView::ScenePipeline(RenderScene* scene, FrameGraphBuilder* FG)
 	{
 	case RenderViewType::SceneView:
 	{
-		BuildRenderPass(FG, this, scene);
+		ShadowPass(FG, this, scene);
+		LightingPass(FG, this, scene);
+
 		break;
 	}	
 	case RenderViewType::ShadowMapView:
