@@ -16,14 +16,6 @@ namespace luna::render
 {
 
 
-struct PerViewBuffer
-{
-	LMatrix4f viewMatrix;
-	LMatrix4f projectionMatrix;
-	LVector2f newFar;
-	LVector3f camPos;
-};
-
 enum class RenderViewType
 {
 	SceneView,
@@ -37,16 +29,16 @@ public:
 
 	~RenderView() = default;
 public:
-	void ScenePipeline(RenderScene* scene, FrameGraphBuilder* FG);
+	void Culling(RenderScene* scene);
+	void Render(RenderScene* scene, FrameGraphBuilder* FG);
 
-	void GenerateSceneViewPass(RenderScene* scene, FrameGraphBuilder* FG);
-	void GenerateShadowViewPass(RenderScene* scene, FrameGraphBuilder* FG);
-
-	void PrepareViewBuffer();
+	void PrepareView();
+	
 
 public:
 	uint64_t GetViewID()const { return mViewID; }
 	RenderTarget* GetRenderTarget() const { return mRT.Get(); }
+	ROArray& GetViewVisibleROs() { return mViewVisibleROs; }
 	const LMatrix4f& GetViewMatrix() const { return mViewMatrix; }
 	const LMatrix4f& GetProjectionMatrix() const { return mProjMatrix; }
 
@@ -58,17 +50,11 @@ public:
 	RenderViewType mViewType = RenderViewType::SceneView;
 
 
-	RHIView* GetPerViewBufferView()
-	{
-		return mPerViewBufferView;
-	}
-
+	ShaderParamsBuffer* mViewBuffer;
 private:
+	ROArray             mViewVisibleROs;
 	float               mNear = 0.1f;
 	float               mFar  = 1000.0f;
-
-	RHIResourcePtr      mPerViewBuffer;
-	RHIViewPtr          mPerViewBufferView;
 
 	LMatrix4f           mViewMatrix;
 	LMatrix4f           mProjMatrix;

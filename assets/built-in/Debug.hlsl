@@ -19,8 +19,8 @@ BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
     output.position = mul(float4(input.position, 1.0f), objectBuffers[inst].worldMatrix);
-    output.position = mul(output.position, viewMatrix);
-    output.position = mul(output.position, projectionMatrix);
+    output.position = mul(output.position, cViewMatrix);
+    output.position = mul(output.position, cProjectionMatrix);
     output.normal = mul(float4(input.normal, inst), objectBuffers[inst].worldMatrix);
     output.color = input.color;
 	return output;
@@ -35,6 +35,6 @@ BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
 ////////////////////////////////////////////////////////////////////////////////
 float4 PSMain(BaseFragment input) : SV_TARGET
 {
-    float f = saturate(dot(input.normal, lightDirection));
+    float f = saturate(dot(input.normal, cLightDirection));
 	return input.color * f;
 }

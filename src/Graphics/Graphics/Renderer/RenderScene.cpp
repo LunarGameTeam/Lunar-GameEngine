@@ -4,30 +4,19 @@
 #include "Graphics/Asset/MeshAsset.h"
 
 #include "Graphics/Renderer/RenderTarget.h"
+#include "Graphics/Renderer/MaterialInstance.h"
 #include "Graphics/Renderer/RenderScene.h"
 #include "Graphics/Renderer/RenderView.h"
 
 #include "Graphics/RHI/RHIResource.h"
 #include "Graphics/FrameGraph/FrameGraph.h"
+#include "Core/Asset/AssetModule.h"
+#include "Graphics/RHI/RHIShader.h"
+#include "Graphics/Asset/ShaderAsset.h"
 
 namespace luna::render
 {
 
-struct PerObjectBuffer
-{
-	LMatrix4f mWorldMatrix;
-};
-
-struct ObjectBuffer
-{
-	PerObjectBuffer mObjectBuffer[128];
-};
-
-struct SceneBuffer
-{
-	LVector3f mLightDirection;
-	LVector4f mLightDiffuseColor;
-};
 
 RenderScene::RenderScene()
 {
@@ -43,43 +32,54 @@ RenderObject* RenderScene::CreateRenderObject()
 	return ro;
 }
 
-void RenderScene::CommitSceneBuffer()
+
+void DirectionLight::Init()
+{
+
+	mInit = true;
+	RHIBufferDesc desc;
+	desc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
+	desc.mSize = 512;
+	mViewBuffer = sRenderModule->GetRenderDevice()->CreateBuffer(desc);
+
+	ViewDesc viewDesc;
+	viewDesc.mViewType = RHIViewType::kConstantBuffer;
+	viewDesc.mViewDimension = RHIViewDimension::BufferView;
+	mViewBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
+}
+
+
+void RenderScene::PrepareScene()
 {
 	if (!mBufferDirty)
 		return;
+	if (mSceneParamsBuffer == nullptr)
+		mSceneParamsBuffer = new ShaderParamsBuffer(sRenderModule->mDefaultShader->GetConstantBufferDesc(LString("SceneBuffer").Hash()));
+	if (mROIDInstancingBuffer == nullptr)
+		mROIDInstancingBuffer = new ShaderParamsBuffer(RHIBufferUsage::VertexBufferBit, sizeof(uint32_t) * 4 * 128);
 
-	mBufferDirty = true;
-
-	ObjectBuffer objectBuffer;
-	SceneBuffer sceneBuffer;
+	if (mMainDirLight && !mMainDirLight->mInit)
+		mMainDirLight->Init();
 	
-	if (mDirLight)
-	{
-		sceneBuffer.mLightDirection = mDirLight->mDirection;
-		sceneBuffer.mLightDiffuseColor = mDirLight->mColor;
-	}
-	else 
-	{
-		sceneBuffer.mLightDirection = LVector3f(0, 0, 1);
-		sceneBuffer.mLightDiffuseColor = LVector4f(1, 1, 1, 1);
-	}
-		
-
-	sceneBuffer.mLightDirection.normalize();
+	mSceneParamsBuffer->Set("cDirectionLightColor", mMainDirLight->mColor);
+	mSceneParamsBuffer->Set("cLightDirection", mMainDirLight->mDirection);	
 	for (auto& ro : mRenderObjects)
-	{
-		uint32_t idx = ro->mID % 128;
-		PerObjectBuffer& perObject = objectBuffer.mObjectBuffer[idx];
-		perObject.mWorldMatrix =*(ro->mWorldMat);
+	{		
+		uint32_t idx = ro->mID;
+		mSceneParamsBuffer->Set(idx * sizeof(PerObjectBuffer), *ro->mWorldMat);
+		mROIDInstancingBuffer->Set(idx * sizeof(uint32_t) * 4, idx);
 	}
-	sRenderModule->mRenderDevice->UpdateConstantBuffer(mROBuffer, &objectBuffer, sizeof(ObjectBuffer));
-	sRenderModule->mRenderDevice->UpdateConstantBuffer(mSceneBuffer, &sceneBuffer, sizeof(SceneBuffer));
+	
+
+	mSceneParamsBuffer->Commit();
+	mROIDInstancingBuffer->Commit();
+	
 }
 
-RenderLight* RenderScene::CreateMainDirLight()
+DirectionLight* RenderScene::CreateMainDirLight()
 {
-	mDirLight = new RenderLight();
-	return mDirLight;
+	mMainDirLight = new DirectionLight();
+	return mMainDirLight;
 }
 
 RenderView* RenderScene::CreateRenderView()
@@ -91,45 +91,16 @@ RenderView* RenderScene::CreateRenderView()
 
 void RenderScene::Render(FrameGraphBuilder* FG)
 {
-	if (!mInit)
+	PrepareScene();
+	for (RenderView* renderView : mViews)
 	{
-
-		RHIBufferDesc desc;
-		desc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
-		desc.mSize = sizeof(ObjectBuffer);
-		mROBuffer = sRenderModule->GetRenderDevice()->CreateBuffer(desc);
-
-
-		desc.mSize = sizeof(SceneBuffer);
-		mSceneBuffer = sRenderModule->GetRenderDevice()->CreateBuffer(desc);
-
-		ViewDesc viewDesc;
-		viewDesc.mViewType = RHIViewType::kConstantBuffer;
-		viewDesc.mViewDimension = RHIViewDimension::BufferView;
-		mROBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
-		mSceneBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
-
-		mROBufferView->BindResource(mROBuffer);
-		mSceneBufferView->BindResource(mSceneBuffer);
-		mInit = true;
-	}
-
-	CommitSceneBuffer();
-
-	for (auto& renderView : mViews)
-	{
-		renderView->PrepareViewBuffer();
-	}
-
-	for (auto& renderView : mViews)
-	{
-		renderView->ScenePipeline(this, FG);		
+		renderView->PrepareView();
+		renderView->Render(this, FG);		
 	}
 }
 
 void RenderScene::DestroyRenderView(RenderView* renderView)
 {
-
 	for (auto it = mViews.begin(); it != mViews.end(); ++it)
 	{
 		if (renderView == *it)

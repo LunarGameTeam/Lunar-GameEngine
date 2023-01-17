@@ -20,39 +20,44 @@ struct RHIShaderDesc
 	LString       mEntryPoint;
 };
 
-struct ConstantBufferVar
+struct CBufferVar
 {
-	size_t mOffset = 0;
-	size_t mSize = 0;
+	LString mName   = "";
+	size_t  mOffset = 0;
+	size_t  mSize   = 0;
 };
 
-struct RHIConstantBufferDesc
+struct RHICBufferDesc
 {
-	size_t mBufferSize = 0;
-	LUnorderedMap<LString, ConstantBufferVar> mVars;
+	LString                  mName = "";
+	size_t                   mSize = 0;
+	LMap<size_t, CBufferVar> mVars;
 };
+
+template<typename T>
+void MemSet(void* p, const T& val)
+{
+	*((T*)p) = val;
+}
 
 using ShaderParamID = size_t;
+
+using BindPointIt = std::unordered_map<ShaderParamID, RHIBindPoint>::iterator;
 
 
 class RENDER_API RHIShaderBlob : public RHIObject
 {
 public:
 	RHIShaderDesc mDesc;
+	
+	std::unordered_map<ShaderParamID, RHICBufferDesc> mUniformBuffers;
+	std::unordered_map<ShaderParamID, RHIBindPoint>    mBindPoints;
 
-	std::unordered_map<LString, RHIConstantBufferDesc>   mUniformBuffers;
-	std::unordered_map<ShaderParamID, RHIBindPoint>            mBindPoints;
+	
 
-	RHIBindPoint GetBindPoint(ShaderParamID id)
+	auto GetBindPoint(ShaderParamID id)
 	{
-		RHIBindPoint bind_point;
-		auto it = mBindPoints.find(id);
-		if (it == mBindPoints.end())
-		{
-			bind_point.mSlot = -1;
-			return bind_point;
-		}
-		return it->second;
+		return mBindPoints.find(id);
 	};
 
 	bool HasBindPoint(ShaderParamID id)
@@ -60,12 +65,12 @@ public:
 		return mBindPoints.find(id) != mBindPoints.end();
 	}
 
-	RHIConstantBufferDesc& GetUniformBuffer(const LString& name)
+	RHICBufferDesc& GetUniformBuffer(ShaderParamID name)
 	{
 		return mUniformBuffers[name];
 	}
 
-	bool HasUniformBuffer(const LString& name)
+	bool HasUniformBuffer(ShaderParamID name)
 	{
 		if (mUniformBuffers.find(name) == mUniformBuffers.end())
 		{

@@ -6,26 +6,66 @@
 #include "Graphics/RHI/RHIShader.h"
 
 #include "Graphics/RenderTypes.h"
+#include "Core/Foundation/Misc.h"
 
 
 namespace luna::render
 {
 
-struct PackedParams
+// Shader Buffer的封装，根据CBuffer的Desc创建，内部封装了RHIResource和RHIView
+// 提供快捷设置数据和Commit接口
+struct RENDER_API ShaderParamsBuffer : NoCopy
+{
+	ShaderParamsBuffer(const RHICBufferDesc& cbDesc);
+	ShaderParamsBuffer(RHIBufferUsage usage, uint32_t size);
+
+	template<typename T>
+	void Set(const LString& name, const T& val)
+	{
+		auto offset = mVars[name.Hash()].mOffset;
+		*((T*)(mData.data() + offset)) = val;
+	}
+
+	template<typename T>
+	void Set(uint32_t offset, const T& val)
+	{
+		*((T*)(mData.data() + offset)) = val;
+	}
+
+	void SetData(const LString& name, void* data, uint32_t dataSize)
+	{
+		auto offset = mVars[name.Hash()].mOffset;
+		memcpy(mData.data() + offset, data, dataSize);
+	}
+
+	void SetData(uint32_t offset, void* data, uint32_t dataSize)
+	{
+		memcpy(mData.data() + offset, data, dataSize);
+	}
+
+	void Commit();
+
+	LMap<size_t, CBufferVar> mVars;
+	LArray<byte>             mData;
+	RHIResourcePtr           mRes;
+	RHIViewPtr               mView;
+};
+
+//把ShaderParam打包，Param名字 + Texture View，或者是放ShaderParamBuffer
+struct RENDER_API PackedParams : NoCopy
 {
 	void Clear()
 	{
 		mParams.clear();
+		mParamsHash = 0;
 	}
 
-	void PushShaderParam(ShaderParamID id, RHIView* view)
-	{
-		auto& it = mParams.emplace_back();
-		it.first = id;
-		it.second = view;
-	}
+	void PushShaderParam(ShaderParamID id, RHIView* view);
+	void PushShaderParam(ShaderParamID id, ShaderParamsBuffer* view);
 
-	std::vector<std::pair<ShaderParamID, RHIViewPtr>> mParams;
+	size_t mParamsHash = 0;
+
+	LArray<std::pair<ShaderParamID, RHIViewPtr>> mParams;
 };
 
 

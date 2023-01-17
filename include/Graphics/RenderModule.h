@@ -73,7 +73,7 @@ public:
 	}
 
 	RenderDeviceType GetDeviceType() { return mRenderDevice->mDeviceType; }
-	LSharedPtr<ShaderAsset> mDefaultShader;
+	ShaderAsset* mDefaultShader;
 
 
 	RenderScene* GetRenderSceneAt(int32_t idx)
@@ -86,6 +86,7 @@ public:
 	size_t GetRenderSeneSize() { return mRenderScenes.size(); }
 
 public:
+	
 	bool OnLoad() override;	
 	bool OnInit() override;
 	void SetupIMGUI();
@@ -102,7 +103,6 @@ protected:
 
 	void OnMainWindowResize(LWindow& window, WindowEvent& event);
 public:
-
 	RenderDevice* mRenderDevice;
 	TPPtr<RenderTarget>     mMainRT;
 

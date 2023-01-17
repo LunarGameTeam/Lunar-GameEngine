@@ -112,11 +112,19 @@ void LunaCore::OnTick(float delta_time)
 			}			
 		}
 	}
+	for (LModule* it : mOrderedModules)
+	{
+		const char* name = it->GetName();
+		if (it->mNeedRenderTick)
+		{
+			it->RenderTick(logicDelta);			
+		}
+	}
 }
 
 void LunaCore::OnIMGUI()
 {
-	for (auto& it : mOrderedModules)
+	for (LModule* it : mOrderedModules)
 	{
 		if (it->GetClass()->IsNativeType())
 		{

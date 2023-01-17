@@ -11,27 +11,64 @@
 namespace luna::render
 {
 
+
+struct PerObjectBuffer
+{
+	LMatrix4f mWorldMatrix;
+};
+
+struct SceneBuffer
+{
+	LVector4f       mLightDiffuseColor;
+	LVector3f       mLightDirection;
+};
+
+struct InstanceBuffer
+{
+	uint32_t mInstance[128][4];
+};
+
 struct RENDER_API RenderObject
 {
-	SubMesh* mMesh;
+	SubMesh*          mMesh;
 	MaterialInstance* mMaterial;
-	LMatrix4f* mWorldMat;
+	LMatrix4f*        mWorldMat;
 
-	bool              mCastShadow = true;
-	bool              mReceiveLight = true;
+	bool              mCastShadow    = true;
+	bool              mReceiveLight  = true;
 	bool              mReceiveShadow = true;
 
+	RHIResourcePtr    mInstanceRes;
 	uint64_t          mID;
 };
 
-struct RENDER_API RenderLight
+struct RENDER_API Light
 {
-	LVector4f mColor = LVector4f(1, 1, 1, 1);
-	bool      mCastShadow;
-	float     mIndensity;
-	LVector3f mDirection;
-	LMatrix4f mViewMatrix;
-	LMatrix4f mProjMatrix;
+
+	LVector4f      mColor = LVector4f(1, 1, 1, 1);
+	bool           mCastShadow = false;
+
+	float          mIndensity = 1.0;
+	bool           mInit = false;
+};
+
+struct RENDER_API PointLight : Light
+{
+	LVector3f mPosition;
+};
+
+struct RENDER_API DirectionLight : Light
+{
+
+	LVector3f      mDirection;
+	LMatrix4f      mViewMatrix;
+	LMatrix4f      mProjMatrix;
+
+
+	void Init();
+
+	RHIResourcePtr mViewBuffer;
+	RHIViewPtr     mViewBufferView;
 };
 
 class RENDER_API RenderScene final : NoCopy
@@ -43,7 +80,8 @@ public:
 	void Render(FrameGraphBuilder* FG);
 
 public:
-	RenderLight* CreateMainDirLight();
+	void Init();
+	DirectionLight* CreateMainDirLight();
 	RenderObject* CreateRenderObject();
 	RenderView* CreateRenderView();
 	void DestroyRenderObject(RenderObject* ro);
@@ -58,24 +96,22 @@ public:
 	auto&       GetAllView() const                { return mViews; };
 
 
-	RHIResourcePtr mROBuffer;
-	RHIViewPtr     mROBufferView;
+	ShaderParamsBuffer* mSceneParamsBuffer = nullptr;
+	ShaderParamsBuffer* mROIDInstancingBuffer = nullptr;
 
-	RHIResourcePtr mSceneBuffer;
-	RHIViewPtr     mSceneBufferView;
+	SubMesh*            mDebugMeshLine;
+	SubMesh*            mDebugMesh;
 
-	SubMesh*       mDebugMeshLine;
-	SubMesh*       mDebugMesh;
-
+	//先不做Culling，这里应该交给View进行Culling并进行ID更新
+	RHIResourcePtr      mIDInstanceBuffer;
+	DirectionLight*     mMainDirLight;
 protected:
-	void CommitSceneBuffer();
+	void PrepareScene();
 
 private:
-	bool                 mBufferDirty = true;
-	bool                 mInit        = false;
-	RenderLight*         mDirLight;
-	LArray<RenderLight*> mLights;
-	ROArray              mRenderObjects;
-	ViewArray            mViews;
+	bool            mBufferDirty = true;
+	bool            mInit        = false;
+	ROArray         mRenderObjects;
+	ViewArray       mViews;
 };
 }

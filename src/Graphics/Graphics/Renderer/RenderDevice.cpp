@@ -286,18 +286,18 @@ RHIResourcePtr RenderDevice::CreateTexture(const RHITextureDesc& textureDesc, co
 	return _CreateTexture(textureDesc, resDesc, initData, dataSize, nullptr, offset);
 }
 
-RHIResource* RenderDevice::CreateInstancingBufferByRenderObjects(LArray<RenderObject*>& RenderObjects)
+RHIResource* RenderDevice::CreateInstancingBufferByRenderObjects(const LArray<RenderObject*>& RenderObjects)
 {
-	std::vector<int32_t> all_object_id;
+	std::vector<int32_t> ids;
 	for (auto it : RenderObjects)
 	{
 		RenderObject* ro = it;
-		all_object_id.push_back(ro->mID);
-		all_object_id.push_back(0);
-		all_object_id.push_back(0);
-		all_object_id.push_back(0);
+		ids.push_back(ro->mID);
+		ids.push_back(0);
+		ids.push_back(0);
+		ids.push_back(0);
 	}
-	return mInstancingIdMemory.AllocateNewBuffer(all_object_id.data(), all_object_id.size() * sizeof(int32_t), all_object_id.size() * sizeof(int32_t));
+	return mInstancingIdMemory.AllocateNewBuffer(ids.data(), ids.size() * sizeof(int32_t), ids.size() * sizeof(int32_t));
 }
 
 RHIPipelineStatePtr RenderDevice::CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& passDesc, RHIVertexLayout* layout)
@@ -310,7 +310,8 @@ RHIPipelineStatePtr RenderDevice::CreatePipelineState(MaterialInstance* mat, con
 	auto it = mPipelineCache.find(key);
 	if (it != mPipelineCache.end())
 		return it->second;
-
+	
+	Log("Graphics", "Create pipeline for:{}", mat->GetShaderAsset()->GetAssetPath());
 	RHIPipelineStateDesc desc = {};
 	RenderPipelineStateDescGraphic& graphicDesc = desc.mGraphicDesc;
 	desc.mType = RHICmdListType::Graphic3D;
@@ -326,6 +327,7 @@ RHIPipelineStatePtr RenderDevice::CreatePipelineState(MaterialInstance* mat, con
 	RHIBlendStateTargetDesc blend = {};
 	desc.mGraphicDesc.mPipelineStateDesc.BlendState.RenderTarget.push_back(blend);
 	auto pipeline = mDevice->CreatePipeline(desc);
+	mPipelineCache[key] = pipeline;
 	return pipeline;
 }
 
@@ -356,94 +358,84 @@ void RenderDevice::EndRenderPass()
 	mGraphicCmd->EndRender();	
 }
 
-RenderDevice::PipelineCacheKey RenderDevice::PreparePipeline(render::MaterialInstance* mat, render::SubMesh* mesh, PackedParams* params)
+RHIPipelineStatePtr RenderDevice::GetPipeline(render::MaterialInstance* mat, render::SubMesh* mesh)
 {
-// 
-// 	RHIPipelineStatePtr pipeline;
-// 	RHIBindingSetPtr bindingset;
-// 	size_t hashResult = 0;
-// 	boost::hash_combine(hashResult, mCurRenderPass.Hash());
-// 	boost::hash_combine(hashResult, mesh->mVeretexLayout.Hash());
-// 	auto key = std::make_pair(mat, hashResult);
-// 	auto it = mPipelineCache.find(key);
-// 
-// 	//Find cache
-// 	if (it == mPipelineCache.end() || it->second.first == nullptr || it->second.second == nullptr)
-// 	{
-// 		auto piplinePair = CreatePipelineState(mat, mCurRenderPass, &mesh->mVeretexLayout);
-// 		bindingset = piplinePair.second;
-// 		pipeline = piplinePair.first;
-// 	}
-// 	else
-// 	{
-// 		pipeline = it->second.first;
-// 		bindingset = it->second.second;
-// 	}
+	return CreatePipelineState(mat, mCurRenderPass, &mesh->mVeretexLayout);
 // 	ShaderAsset* shader = mat->GetShaderAsset();
-// 	mGraphicCmd->SetPipelineState(pipeline);
-// 	//Pipeline Changed
-// 	if (mLastPipline != pipeline.get())
-// 	{
-// 		std::vector<BindingDesc> desc;
-// 		PARAM_ID(SampleTypeClamp);
-// 		if (shader->HasBindPoint(ParamID_SampleTypeClamp))
-// 			params->PushShaderParam(ParamID_SampleTypeClamp, sRenderModule->GetRenderDevice()->mClampSamplerView);
-// 
-// 		for (auto& param : params->mParams)
-// 		{
-// 			if (shader->HasBindPoint(param.first))
-// 			{
-// 				desc.emplace_back(shader->GetBindPoint(param.first), param.second);
-// 			}
-// 		}
-// 		bindingset->WriteBindings(desc);
-// 		mLastPipline = pipeline;
-// 	}
-// 	mGraphicCmd->BindDesriptorSetExt(bindingset);
-	return PipelineCacheKey();
+
 }
 
-void RenderDevice::DrawRenderOBject(render::RenderObject* ro, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage, int32_t instancingSize)
+void RenderDevice::DrawRenderOBject(render::RenderObject* ro, render::MaterialInstance* mat, PackedParams* params)
 {
-	auto key = PreparePipeline(mat, ro->mMesh, params);
-	DrawMesh(ro->mMesh, mat, params, instanceMessage, instancingSize);
+	if(ro->mInstanceRes)
+		DrawMeshInstanced(ro->mMesh, mat, params, ro->mInstanceRes, ro->mID, 1);
 }
 
-void RenderDevice::DrawMesh(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage, int32_t instancingSize)
+void RenderDevice::DrawMesh(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params)
 {
-// 	auto key = PreparePipeline(mat, mesh, params);
-// 	RHIPipelineStatePtr pipeline = mPipelineCache[key].first;
-// 
-// 	size_t vertexCount = mesh->mVertexData.size();
-// 
-// 	RHIResource* vb = mesh->mVB;
-// 	size_t indexCount = mesh->mIndexData.size();
-// 	size_t indexStride = mesh->mIndexCount;
-// 	RHIResource* ib = mesh->mIB;
-// 
-// 	LArray<RHIVertexBufferDesc> descs;
-// 	RHIVertexBufferDesc& vbDesc = descs.emplace_back();
-// 	vbDesc.mOffset = 0;
-// 	vbDesc.mBufferSize = vertexCount * mesh->GetStridePerVertex();
-// 	vbDesc.mVertexStride = mesh->GetStridePerVertex();
-// 	vbDesc.mVertexRes = mesh->mVB;
-// 	if (instanceMessage != nullptr)
-// 	{
-// 		RHIVertexBufferDesc& vbInstancingDesc = descs.emplace_back();
-// 		vbInstancingDesc.mOffset = 0;
-// 		vbInstancingDesc.mBufferSize = instancingSize * mesh->GetStridePerInstance();
-// 		vbInstancingDesc.mVertexStride = mesh->GetStridePerInstance();
-// 		vbInstancingDesc.mVertexRes = instanceMessage;
-// 	}
-// 	mGraphicCmd->SetVertexBuffer(descs, 0);
-// 
-// 
-// 
-// 	mGraphicCmd->SetIndexBuffer(ib);
-// 	mGraphicCmd->SetDrawPrimitiveTopology(
-// 		RHIPrimitiveTopology::TriangleList);
-// 	mGraphicCmd->DrawIndexedInstanced((uint32_t)indexCount, 1, 0, 0, 0);
+	DrawMeshInstanced(mesh, mat, params, nullptr, 0, 1);
+}
+void RenderDevice::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage /*= nullptr*/, int32_t startInstanceIdx /*= 1*/, int32_t instancingSize /*= 1*/)
+{
+	auto pipeline = GetPipeline(mat, mesh);
+	auto bindingset = GetBindingSet(pipeline, params);
 
+	mGraphicCmd->SetPipelineState(pipeline);
+	mGraphicCmd->BindDesriptorSetExt(bindingset);
+
+	size_t vertexCount = mesh->mVertexData.size();
+
+	RHIResource* vb = mesh->mVB;
+	size_t indexCount = mesh->mIndexData.size();
+	size_t indexStride = mesh->mIndexCount;
+	RHIResource* ib = mesh->mIB;
+
+	LArray<RHIVertexBufferDesc> descs;
+	RHIVertexBufferDesc& vbDesc = descs.emplace_back();
+	vbDesc.mOffset = 0;
+	vbDesc.mBufferSize = vertexCount * mesh->GetStridePerVertex();
+	vbDesc.mVertexStride = mesh->GetStridePerVertex();
+	vbDesc.mVertexRes = mesh->mVB;
+
+	if (instanceMessage != nullptr)
+	{
+		RHIVertexBufferDesc& vbInstancingDesc = descs.emplace_back();
+		vbInstancingDesc.mOffset = 0;
+		vbInstancingDesc.mBufferSize = instanceMessage->GetMemoryRequirements().size;
+		vbInstancingDesc.mVertexStride = mesh->GetStridePerInstance();
+		vbInstancingDesc.mVertexRes = instanceMessage;
+	}
+
+	mGraphicCmd->SetVertexBuffer(descs, 0);
+	mGraphicCmd->SetIndexBuffer(ib);
+	mGraphicCmd->SetDrawPrimitiveTopology(
+		RHIPrimitiveTopology::TriangleList);
+	mGraphicCmd->DrawIndexedInstanced((uint32_t)indexCount, instancingSize, 0, 0, startInstanceIdx);
+}
+
+RHIBindingSetPtr RenderDevice::GetBindingSet(RHIPipelineState* pipeline, PackedParams* packparams)
+{
+	
+	size_t paramsHash = packparams->mParamsHash;
+	auto it = mBindingSetCache.find(paramsHash);
+	if (it != mBindingSetCache.end())
+		return it->second;
+	RHIBindingSetPtr bindingset = mDevice->CreateBindingSet(mDefaultPool, pipeline->GetBindingSetLayout());	
+	static std::vector<BindingDesc> desc;
+	desc.clear();
+	PARAM_ID(SampleTypeClamp);
+	packparams->PushShaderParam(ParamID_SampleTypeClamp, mClampSamplerView);	
+	auto shader = pipeline->mPSODesc.mGraphicDesc.mPipelineStateDesc.mVertexShader;
+	for (auto& param : packparams->mParams)
+	{
+		auto it = shader->GetBindPoint(param.first);
+		if(it != shader->mBindPoints.end())
+			desc.emplace_back(it->second, param.second);
+	}
+	mBindingSetCache[paramsHash] = bindingset;
+	bindingset->WriteBindings(desc);
+	Log("Graphics", "Create bindingset");
+	return bindingset;
 }
 
 }

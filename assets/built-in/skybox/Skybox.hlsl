@@ -16,8 +16,8 @@ BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
 	matrix worldMatrix = objectBuffers[input.instancemessage.x].worldMatrix;
 	// Calculate the position of the vertex against the world, view, and projection matrices.
     output.position = mul(position, worldMatrix);
-    output.position = mul(output.position, viewMatrix);
-    output.position = mul(output.position, projectionMatrix);
+    output.position = mul(output.position, cViewMatrix);
+    output.position = mul(output.position, cProjectionMatrix);
     
     output.normal = input.normal;
     return output;

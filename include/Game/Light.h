@@ -14,55 +14,78 @@ namespace luna
 class GAME_API LightComponent : public Component
 {
 	RegisterTypeEmbedd(LightComponent, Component)
-public:
+public:	 
 	void OnCreate() override;
-	GET_SET_VALUE(float, mIdentisity, Indensity);
-	GET_SET_VALUE(bool, mCastShadow, CastShadow);
+
+	const LVector3f& GetColor()
+	{
+		return mColor;
+	}
+	const float GetIntensity()const
+	{
+		return mIdentisity;
+	}
 
 	void OnTransformDirty(Transform* transform);
 protected:
-	ActionHandle         mTransformDirtyAction;
-	render::RenderLight* mLight = nullptr;
-	LVector3f            mColor = LVector3f(0.8f, 0.8f, 0.8f);
-	bool                 mCastShadow = false;
-	float                mIdentisity;
-	
+	ActionHandle            mTransformDirtyAction;
+	LVector3f               mColor      = LVector3f(0.8f, 0.8f, 0.8f);
+	bool                    mCastShadow = false;
+	float                   mIdentisity = 1.0f;
+	render::DirectionLight* mLight = nullptr;
 };
 
 class GAME_API PointLightComponent : public LightComponent
 {
 	RegisterTypeEmbedd(PointLightComponent, LightComponent)
 public:
-	const LVector3f& GetColor()
-	{
-		return mColor;
-	}
 	void OnCreate() override;
-	float GetIntensity() ;
-	LVector3f GetPosition();
+
+	LVector3f GetPosition() const
+	{
+		return mTransform->GetPosition();
+	}
 };
 
 class GAME_API DirectionLightComponent : public LightComponent
 {
 	RegisterTypeEmbedd(DirectionLightComponent, LightComponent)
-public:
+public:	
 	void OnCreate() override;
-	const float GetIntensity()const;
-	const LMatrix4f &GetProjectionMatrix(int csm_index)const ;
-	const LVector3f GetDirection()const;
-	const LMatrix4f GetWorldMatrix()const;
-	const LMatrix4f GetViewMatrix()const;
-	const LMatrix4f GetViewMatrix(int csm_index)const;
-	const LVector3f GetColor()const;
-	const LQuaternion GetRotation()const;
+
+	const LMatrix4f& GetProjectionMatrix(int idx)const
+	{
+		return mProj[idx];
+	}
+	const LVector3f GetDirection() const
+	{
+		return mTransform->ForwardDirection();
+	}
+
+	const LMatrix4f GetWorldMatrix()const
+	{
+		return mTransform->GetLocalToWorldMatrix();
+	}
+	const LMatrix4f GetViewMatrix()const
+	{
+		return mViewMatrix[0];
+	}
+	const LMatrix4f GetViewMatrix(int idx)const
+	{
+		return mViewMatrix[idx];
+	}
+	const LQuaternion GetRotation()const
+	{
+		return mTransform->GetRotation();
+	}
+
+	void OnTick(float delta_time) override;
 
 	void SetProjectionMatrix(const LMatrix4f& val, int csm_index);
 	void SetViewMatrix(const LMatrix4f& val, int csm_index);
 
 
-	const LVector3f GetCSMSplit()const;
-
-
+	const LVector3f GetCSMSplit() const;
 	void SetCSMSplits(const LVector3f& val);
 
 private:

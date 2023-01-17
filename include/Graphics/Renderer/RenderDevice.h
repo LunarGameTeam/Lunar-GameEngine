@@ -72,7 +72,7 @@ public:
 	//----Resource Graph API Begin----
 	RHIResourcePtr CreateBuffer(const RHIBufferDesc& resDesc, void* initData = nullptr);
 	RHIResourcePtr CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData = nullptr, size_t dataSize = 0);
-	RHIResource* CreateInstancingBufferByRenderObjects(LArray<RenderObject*>& RenderObjects);
+	RHIResource* CreateInstancingBufferByRenderObjects(const LArray<RenderObject*>& RenderObjects);
 	void UpdateConstantBuffer(RHIResourcePtr target, void* data, size_t dataSize);
 	//----Resource Graph API End----
 
@@ -81,11 +81,13 @@ public:
 	void BeginRenderPass(const RenderPassDesc&);
 	void EndRenderPass();
 
-	void DrawRenderOBject(render::RenderObject* mesh, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage = nullptr,int32_t instancingSize = 1);
-	void DrawMesh(render::SubMesh*, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage = nullptr, int32_t instancingSize = 1);
+	void DrawRenderOBject(render::RenderObject* mesh, render::MaterialInstance* mat, PackedParams* params);
+	void DrawMesh(render::SubMesh*, render::MaterialInstance* mat, PackedParams* params);
+	void DrawMeshInstanced(render::SubMesh*, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage = nullptr, int32_t startInstanceIdx = 1, int32_t instancingSize = 1);
 private:
 	using PipelineCacheKey = std::pair < MaterialInstance*, size_t>;
 	RenderPassDesc                              mCurRenderPass;
+	LMap<size_t, RHIBindingSetPtr>              mBindingSetCache;
 	LMap<PipelineCacheKey, RHIPipelineStatePtr> mPipelineCache;
 	RHIPipelineStatePtr                         mLastPipline;
 
@@ -103,10 +105,12 @@ private:
 
 	using PipelineCacheKey = std::pair<MaterialInstance*, size_t>;
 
-	PipelineCacheKey PreparePipeline(MaterialInstance* mat, render::SubMesh* mesh, PackedParams* params);
+	RHIPipelineStatePtr GetPipeline(MaterialInstance* mat, render::SubMesh* mesh);
+	RHIBindingSetPtr GetBindingSet(RHIPipelineState* pipeline, PackedParams* packparams);
 
 
 private:
+	
 	void FlushFrameInstancingBuffer() { mInstancingIdMemory.Reset(); };
 
 	RHIResourcePtr _CreateBuffer(const RHIBufferDesc& resDesc, 

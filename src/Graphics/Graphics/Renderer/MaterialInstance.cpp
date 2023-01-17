@@ -15,6 +15,57 @@
 
 namespace luna::render
 {
+
+
+ShaderParamsBuffer::ShaderParamsBuffer(const RHICBufferDesc& cbDesc) :
+	mVars(cbDesc.mVars)
+{
+	RHIBufferDesc desc;
+	mData.resize(cbDesc.mSize);
+	desc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
+	desc.mSize = cbDesc.mSize;
+	ViewDesc viewDesc;
+	viewDesc.mViewType = RHIViewType::kConstantBuffer;
+	viewDesc.mViewDimension = RHIViewDimension::BufferView;
+	mRes = sRenderModule->GetRenderDevice()->CreateBuffer(desc);
+	mView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
+	mView->BindResource(mRes);
+}
+
+ShaderParamsBuffer::ShaderParamsBuffer(RHIBufferUsage usage, uint32_t size)
+{
+	RHIBufferDesc desc;
+	mData.resize(size);
+	desc.mBufferUsage = usage;
+	desc.mSize = size;
+	mRes = sRenderModule->GetRenderDevice()->CreateBuffer(desc);	
+}
+
+void ShaderParamsBuffer::Commit()
+{
+	sRenderModule->mRenderDevice->UpdateConstantBuffer(mRes, mData.data(), mData.size() * sizeof(byte));
+}
+
+void PackedParams::PushShaderParam(ShaderParamID id, ShaderParamsBuffer* buffer)
+{
+	assert(buffer != nullptr);
+	auto& it = mParams.emplace_back();
+	it.first = id;
+	it.second = buffer->mView;
+	boost::hash_combine(mParamsHash, id);
+	boost::hash_combine(mParamsHash, buffer->mView.get());
+}
+void PackedParams::PushShaderParam(ShaderParamID id, RHIView* view)
+{
+	assert(view != nullptr);
+	auto& it = mParams.emplace_back();
+	it.first = id;
+	it.second = view;
+	boost::hash_combine(mParamsHash, id);
+	boost::hash_combine(mParamsHash, view);
+}
+
+
 RegisterTypeEmbedd_Imp(MaterialParam)
 {
 	cls->Ctor<MaterialParam>();
@@ -111,10 +162,10 @@ void MaterialInstance::Init()
 		PARAM_ID(MaterialBuffer);
 		if (shader->GetVertexShader()->HasBindPoint(ParamID_MaterialBuffer) || shader->GetPixelShader()->HasBindPoint(ParamID_MaterialBuffer))
 		{
-			RHIConstantBufferDesc materialBufferDesc = mMaterialTemplate->GetShaderAsset()->GetConstantBufferDesc("MaterialBuffer");
+			RHICBufferDesc materialBufferDesc = mMaterialTemplate->GetShaderAsset()->GetConstantBufferDesc(ParamID_MaterialBuffer);
 			RHIBufferDesc desc;
 			desc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
-			desc.mSize = materialBufferDesc.mBufferSize;
+			desc.mSize = materialBufferDesc.mSize;
 			mParamsBuffer = sRenderModule->GetRenderDevice()->CreateBuffer(desc);
 
 			ViewDesc viewDesc;
@@ -139,9 +190,9 @@ void MaterialInstance::UpdateParamsToBuffer()
 {
 	PARAM_ID(MaterialBuffer)
 	auto& params = mAllParams;
-	RHIConstantBufferDesc matBufferDesc = mMaterialTemplate->GetShaderAsset()->GetConstantBufferDesc("MaterialBuffer");
+	RHICBufferDesc matBufferDesc = mMaterialTemplate->GetShaderAsset()->GetConstantBufferDesc(ParamID_MaterialBuffer);
 	std::vector<byte> data;
-	data.resize(matBufferDesc.mBufferSize);
+	data.resize(matBufferDesc.mSize);
 	mMaterialParams.Clear();
 	for (auto& param : params)
 	{
@@ -166,9 +217,9 @@ void MaterialInstance::UpdateParamsToBuffer()
 		}
 		if (mMaterialTemplate->GetShaderAsset()->HasBindPoint(ParamID_MaterialBuffer))
 		{
-			if (matBufferDesc.mVars.find(param->mParamName) == matBufferDesc.mVars.end())
+			if (matBufferDesc.mVars.find(param->mParamName.Hash()) == matBufferDesc.mVars.end())
 				continue;
-			ConstantBufferVar& var = matBufferDesc.mVars[param->mParamName];
+			CBufferVar& var = matBufferDesc.mVars[param->mParamName.Hash()];
 			switch (param->mParamType)
 			{
 			case MaterialParamType::Int:

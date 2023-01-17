@@ -34,11 +34,11 @@ BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
     output.position = mul(position, worldMatrix);
-	output.viewDir = normalize(camPos - output.position.xyz);
-    output.position = mul(output.position, viewMatrix);
-	//output.depthLinear = (output.position.z - nearFar.x)/ (nearFar.y - nearFar.x);
+	output.viewDir = normalize(cCamPos - output.position.xyz);
+    output.position = mul(output.position, cViewMatrix);
+	//output.depthLinear = (output.position.z - cNearFar.x)/ (cNearFar.y - cNearFar.x);
 	output.depthLinear = 0;
-   	output.position = mul(output.position, projectionMatrix);
+   	output.position = mul(output.position, cProjectionMatrix);
 	
 	// Calculate the position of the vertice as viewed by the light source.
     output.worldPosition = mul(position, worldMatrix);
@@ -132,8 +132,8 @@ void CalcRadiance(BaseFragment input, float3 Lo, float3 N, out float3 rad)
 
 	// Direct lighting calculation for analytical lights.
 	float3 directLighting = 0.0;
-	float3 Li = -lightDirection;
-	float3 Lradiance = diffuseColor.xyz;
+	float3 Li = -cLightDirection;
+	float3 Lradiance = cDirectionLightColor.xyz;
 
 		// Half-vector between Li and Lo.
 	float3 Lh = normalize(Li + Lo);
@@ -176,7 +176,7 @@ float4 PSMain(BaseFragment input) : SV_TARGET
 	float roughness = 0;//_Smooth;
 
 	// Outgoing light direction (vector from world-space fragment position to the "eye").
-	float3 Lo = normalize(camPos - input.worldPosition.xyz);
+	float3 Lo = normalize(cCamPos - input.worldPosition.xyz);
 
 	float4 lightViewPosition = input.worldPosition;
 
@@ -200,7 +200,7 @@ float4 PSMain(BaseFragment input) : SV_TARGET
 	// Angle between surface normal and outgoing light direction.
 	float3 rad;
 	CalcRadiance(input, Lo, input.normal, rad);
-	// if(dot(input.normal, - lightDirection) > 0)
+	// if(dot(input.normal, - cLightDirection) > 0)
 	//	return float4((float(csm_index + 1) / 4.0f * shadowFactor) * rad, 1);
 	// Final fragment color
 	

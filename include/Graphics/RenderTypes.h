@@ -6,7 +6,7 @@ namespace luna::render
 {
 
 struct PackedParams;
-struct PerViewBuffer;
+struct ShaderParamsBuffer;
 
 class RenderScene;
 class RenderView;

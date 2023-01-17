@@ -1,5 +1,6 @@
 #include "Graphics/Renderer/MaterialInstance.h"
 #include "Graphics/Asset/MeshAsset.h"
+#include "Graphics/Asset/MaterialTemplate.h"
 
 #include "Core/Asset/AssetModule.h"
 
@@ -17,12 +18,82 @@ namespace luna::render
 
 void ShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene)
 {
+	auto& node = builder->AddPass("Shadowmap");
+
+	node.SetupFunc(builder, [=](FrameGraphBuilder* builder, FGNode& node)
+	{
+		RHIResDesc shadowmapDesc;
+		shadowmapDesc.mType = ResourceType::kTexture;
+		shadowmapDesc.Width = 1024;
+		shadowmapDesc.Height = 1024;
+		shadowmapDesc.Format = RHITextureFormat::FORMAT_R8G8BB8A8_UNORM;
+		shadowmapDesc.mImageUsage = RHIImageUsage::ColorAttachmentBit;
+
+		FGTexture* color = builder->CreateTexture("Shadowmap", shadowmapDesc);
+
+		shadowmapDesc.mImageUsage = RHIImageUsage::DepthStencilBit;
+		shadowmapDesc.Format = RHITextureFormat::FORMAT_D24_UNORM_S8_UINT;
+		FGTexture* depth = builder->CreateTexture("ShadowmapDepth", shadowmapDesc);		
+		
+
+		assert(color);
+		assert(depth);
+
+		ViewDesc srvDesc;
+		srvDesc.mViewType = RHIViewType::kTexture;
+		srvDesc.mViewDimension = RHIViewDimension::TextureView2D;
+
+		ViewDesc rtvDesc;
+		rtvDesc.mViewType = RHIViewType::kRenderTarget;
+		rtvDesc.mViewDimension = RHIViewDimension::TextureView2D;
+
+		ViewDesc dsvDesc;
+		dsvDesc.mViewType = RHIViewType::kDepthStencil;
+		dsvDesc.mViewDimension = RHIViewDimension::TextureView2D;
+
+		auto colorView = node.AddRTV(color, rtvDesc);
+		auto depthView = node.AddDSV(depth, dsvDesc);
+
+		node.SetColorAttachment(colorView);
+		node.SetDepthStencilAttachment(depthView);
+	});
+	node.PreExecFunc([view, renderScene](FrameGraphBuilder* builder, FGNode& node)
+	{
+
+	});
+	static MaterialTemplateAsset* shadowMat = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/Depth.mat");
+	
+	node.ExcuteFunc([view, renderScene](FrameGraphBuilder* builder, FGNode& node, RenderDevice* device) {
+
+		ROArray& ROs = view->GetViewVisibleROs();
+		static PackedParams params;
+		PARAM_ID(SceneBuffer);		
+		PARAM_ID(ViewBuffer);
+		RHIResource* instancingBuffer = renderScene->mROIDInstancingBuffer->mRes;
+		MaterialInstance* mat = shadowMat->GetDefaultInstance();
+		if (mat)		
+			mat->Ready();
+
+		params.PushShaderParam(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer);
+		params.PushShaderParam(ParamID_ViewBuffer, renderScene->mMainDirLight->mViewBufferView);
+
+		for (auto it : ROs)
+		{
+			params.Clear();			
+			RenderObject* ro = it;			
+			if(!it->mCastShadow)
+				continue;
+			it->mInstanceRes = instancingBuffer;
+			ShaderAsset* shader = mat->GetShaderAsset();				
+			device->DrawMeshInstanced(ro->mMesh, mat, &params, ro->mInstanceRes, ro->mID);
+		}
+	});
 }
 
-void LightingPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene)
+void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene)
 {
 
-	auto& node = builder->AddPass("LightingPass");
+	auto& node = builder->AddPass("Opaque");
 
 	node.SetupFunc(builder, [=](FrameGraphBuilder* builder, FGNode& node)
 	{
@@ -56,19 +127,19 @@ void LightingPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* ren
 		node.SetColorAttachment(colorView);
 		node.SetDepthStencilAttachment(depthView);
 	});
+	node.PreExecFunc([view, renderScene](FrameGraphBuilder* builder, FGNode& node) 
+	{
 
+	});
 	node.ExcuteFunc([view, renderScene](FrameGraphBuilder* builder, FGNode& node, RenderDevice* device) {
 
+		ROArray& ROs = view->GetViewVisibleROs();
 		static PackedParams params;
 		PARAM_ID(SceneBuffer);
-		PARAM_ID(ObjectBuffer);
 		PARAM_ID(ViewBuffer);
 		PARAM_ID(MaterialBuffer);
-		if (renderScene->GetRenderObjects().size() == 0)
-		{
-			return;
-		}
-		for (auto it : renderScene->GetRenderObjects())
+		RHIResource* instancingBuffer = renderScene->mROIDInstancingBuffer->mRes;
+		for (auto it : ROs)
 		{
 			params.Clear();
 			MaterialInstance* mat = it->mMaterial;
@@ -77,19 +148,22 @@ void LightingPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* ren
 			{
 				mat->Ready();
 			}
+			it->mInstanceRes = instancingBuffer;
 			ShaderAsset* shader = mat->GetShaderAsset();
-			params.PushShaderParam(ParamID_SceneBuffer, renderScene->mSceneBufferView);
-			params.PushShaderParam(ParamID_ObjectBuffer, renderScene->mROBufferView);
-			params.PushShaderParam(ParamID_ViewBuffer, view->GetPerViewBufferView());
-			params.PushShaderParam(ParamID_MaterialBuffer, mat->mParamsView);
+			params.PushShaderParam(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer);
+			params.PushShaderParam(ParamID_ViewBuffer, view->mViewBuffer);
+			if (mat->mParamsView)
+			{
+				params.PushShaderParam(ParamID_MaterialBuffer, mat->mParamsView);//Push Material BindPoint
+				
+			}
 			for (auto matParam : mat->mMaterialParams.mParams)
 			{
-				params.PushShaderParam(matParam.first, matParam.second);
+				if(matParam.second)
+					params.PushShaderParam(matParam.first, matParam.second);
 			}
-			LArray<RenderObject*> cacheRenderObjects;
-			cacheRenderObjects.push_back(it);
-			RHIResource* instancingBuffer = device->CreateInstancingBufferByRenderObjects(cacheRenderObjects);
-			device->DrawRenderOBject(ro, mat, &params, instancingBuffer, 1);
+			
+			device->DrawRenderOBject(ro, mat, &params);
 	}
 	});
 }
@@ -100,3 +174,4 @@ void OverlayPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rend
 }
 
 }
+

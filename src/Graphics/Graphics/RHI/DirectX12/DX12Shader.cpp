@@ -68,27 +68,29 @@ bool DX12ShaderBlob::InitShader(const RHIShaderDesc& resource_desc)
 	shadeReflection->GetDesc(&shaderDesc);
 	for (UINT i = 0; i < shaderDesc.ConstantBuffers; ++i)
 	{
-		RHIConstantBufferDesc uniformDesc;
-		auto now_constant_buffer = shadeReflection->GetConstantBufferByIndex(i);
-		D3D12_SHADER_BUFFER_DESC shaderBufferDesc;
-		now_constant_buffer->GetDesc(&shaderBufferDesc);
-		
-		if (HasBindPoint(LString(shaderBufferDesc.Name).Hash()))
+		RHICBufferDesc cb;
+		const auto& it = shadeReflection->GetConstantBufferByIndex(i);
+		D3D12_SHADER_BUFFER_DESC dxShaderDesc;
+		it->GetDesc(&dxShaderDesc);
+		cb.mName = dxShaderDesc.Name;
+		size_t hash = cb.mName.Hash();
+		if (HasBindPoint(LString(dxShaderDesc.Name).Hash()))
 			continue;
+		cb.mSize = SizeAligned2Pow(dxShaderDesc.Size, 256);
 
-		uniformDesc.mBufferSize = SizeAligned2Pow(shaderBufferDesc.Size, 256);
-		for (uint32_t uniform_id = 0; uniform_id < shaderBufferDesc.Variables; ++uniform_id)
+		for (uint32_t idx = 0; idx < dxShaderDesc.Variables; ++idx)
 		{
-			ConstantBufferVar uniformVar;
-			auto uniforms = now_constant_buffer->GetVariableByIndex(uniform_id);
-			D3D12_SHADER_VARIABLE_DESC uniform_desc;
-			uniforms->GetDesc(&uniform_desc);
-			uniformVar.mOffset = uniform_desc.StartOffset;
-			uniformVar.mSize = uniform_desc.Size;
-			uniformDesc.mVars.insert(std::pair<LString, ConstantBufferVar>(uniform_desc.Name, uniformVar));
+			CBufferVar cbVar;
+			auto uniforms = it->GetVariableByIndex(idx);
+			D3D12_SHADER_VARIABLE_DESC varDesc;
+			uniforms->GetDesc(&varDesc);
+			size_t varHash = LString(varDesc.Name).Hash();
+			cbVar.mOffset = varDesc.StartOffset;
+			cbVar.mSize = varDesc.Size;
+			cbVar.mName = varDesc.Name;
+			cb.mVars[varHash]  =  cbVar;
 		}
-		mUniformBuffers.insert(
-			std::pair<LString, RHIConstantBufferDesc>(shaderBufferDesc.Name, uniformDesc));
+		mUniformBuffers[hash] =  cb;
 	}
 
 

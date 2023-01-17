@@ -48,58 +48,15 @@ void LightComponent::OnTransformDirty(Transform* transform)
 void DirectionLightComponent::OnCreate()
 {
 	LightComponent::OnCreate();
+	mNeedTick = true;
 	mLight = GetScene()->GetRenderScene()->CreateMainDirLight();
 	OnTransformDirty(mOwnerEntity->GetComponent<Transform>());
 }
 
-const float DirectionLightComponent::GetIntensity()const
+void DirectionLightComponent::OnTick(float delta_time)
 {
-	return mIdentisity;
-}
-
-const LMatrix4f &DirectionLightComponent::GetProjectionMatrix(int csm_index)const
-{
-	return mProj[csm_index];
-}
-
-const LVector3f DirectionLightComponent::GetDirection() const
-{
-	return mTransform->ForwardDirection();
-}
-
-const luna::LMatrix4f DirectionLightComponent::GetWorldMatrix()const
-{
-	return mTransform->GetLocalToWorldMatrix();
-}
-
-const LMatrix4f DirectionLightComponent::GetViewMatrix(int idx)const
-{
-	return mViewMatrix[idx];
-}
-
-const LMatrix4f DirectionLightComponent::GetViewMatrix()const
-{
-	return mTransform->GetWorldToLocalMatrix();
-}
-
-const LVector3f DirectionLightComponent::GetColor()const
-{
-	return mColor;
-}
-
-const LQuaternion DirectionLightComponent::GetRotation()const
-{
-	return mTransform->GetRotation();
-}
-
-void DirectionLightComponent::SetProjectionMatrix(const LMatrix4f& val, int csm_index)
-{
-	mProj[csm_index] = val;
-}
-
-void DirectionLightComponent::SetViewMatrix(const LMatrix4f& val, int csm_index)
-{
-	mViewMatrix[csm_index] = val;
+	mLight->mViewMatrix = mTransform->GetWorldToLocalMatrix();
+	mLight->mProjMatrix = mProj[0];	
 }
 
 const LVector3f DirectionLightComponent::GetCSMSplit()const
@@ -115,15 +72,7 @@ void DirectionLightComponent::SetCSMSplits(const LVector3f& val)
 void PointLightComponent::OnCreate()
 {
 	LightComponent::OnCreate();
+	mCastShadow = false;
 }
 
-float PointLightComponent::GetIntensity()
-{
-	return mIdentisity;
-}
-
-LVector3f PointLightComponent::GetPosition()
-{
-	return mTransform->GetPosition();
-}
 }

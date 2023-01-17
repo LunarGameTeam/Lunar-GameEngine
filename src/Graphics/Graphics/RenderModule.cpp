@@ -38,6 +38,7 @@
 
 #include "Graphics/RHI/Vulkan/VulkanView.h"
 
+#include "Graphics/Asset/ShaderAsset.h"
 #include "Graphics/Asset/TextureAsset.h"
 #include "Graphics/Renderer/RenderDevice.h"
 #include "Graphics/Renderer/RenderTarget.h"
@@ -74,20 +75,12 @@ RenderModule::RenderModule() :
 	mMainRT(this)
 {
 	mNeedTick = true;
+	mNeedRenderTick = true;
 	sRenderModule = this;	
 }
 
 void RenderModule::OnIMGUI()
 {
-	/*
-	if (ImGui::TreeNode("Render"))
-	{
-		if (mRenderDevice->mDeviceType == RenderDeviceType::DirectX12)
-			ImGui::Text("Render Device: Directx12");
-		else if (mRenderDevice->mDeviceType == RenderDeviceType::Vulkan)
-			ImGui::Text("Render Device: Vulkan");
-		ImGui::TreePop();
-	}*/
 }
 
 bool RenderModule::OnShutdown()
@@ -311,7 +304,7 @@ bool RenderModule::OnInit()
 		break;
 
 	}
-
+	mDefaultShader = sAssetModule->LoadAsset<ShaderAsset>("/assets/built-in/Debug.hlsl");
 	return true;
 }
 
@@ -323,10 +316,9 @@ void RenderModule::OnFrameBegin(float delta_time)
 
 void RenderModule::Tick(float delta_time)
 {
-	LModule::Tick(delta_time);
 	//RenderScene发起渲染
 	mRenderDevice->mTransferCmd->BeginEvent("Frame Graph Prepare");
-	for (auto& it : mRenderScenes)
+	for (RenderScene* it : mRenderScenes)
 	{
 		it->Render(mFrameGraph);
 	}
@@ -334,8 +326,6 @@ void RenderModule::Tick(float delta_time)
 
 	Render();
 
-	mRenderDevice->FlushStaging();
-	mFrameGraph->Flush();
 
 	if (sRenderModule->GetDeviceType() == render::RenderDeviceType::DirectX12)
 	{
@@ -426,7 +416,8 @@ ImguiTexture* RenderModule::AddImguiTexture(RHIResource* res)
 
 void RenderModule::Render()
 {
-
+	mRenderDevice->FlushStaging();
+	mFrameGraph->Flush();
 }
 
 void RenderModule::RenderIMGUI()

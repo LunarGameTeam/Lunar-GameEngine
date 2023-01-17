@@ -34,6 +34,11 @@ void LModule::Tick(float delta_time)
 
 }
 
+void LModule::RenderTick(float delta_time)
+{
+
+}
+
 void LModule::OnIMGUI()
 {
 

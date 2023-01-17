@@ -30,11 +30,11 @@ public:
 	RHIBindPoint GetBindPoint(ShaderParamID id) const
 	{
 		if(mVS->HasBindPoint(id))
-			return mVS->GetBindPoint(id);
-		return mPS->GetBindPoint(id);
+			return mVS->GetBindPoint(id)->second;
+		return mPS->GetBindPoint(id)->second;
 	};
 
-	RHIConstantBufferDesc GetConstantBufferDesc(const LString& name)
+	RHICBufferDesc GetConstantBufferDesc(ShaderParamID name)
 	{
 		if (mVS->HasUniformBuffer(name))
 		{
@@ -44,7 +44,7 @@ public:
 		{
 			return mPS->GetUniformBuffer(name);
 		}
-		RHIConstantBufferDesc empty;
+		RHICBufferDesc empty;
 		return empty;
 	}
 

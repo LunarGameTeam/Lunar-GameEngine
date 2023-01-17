@@ -2,20 +2,7 @@
 /////////////
 // GLOBALS //
 /////////////
-struct PerObjectBuffer
-{
-	matrix worldMatrix;
-};
 
-cbuffer ObjectBuffer : register(b0, space0)
-{
-	PerObjectBuffer objectBuffers[128];
-};
-
-struct DirectionalLight
-{
-
-};
 
 struct BaseVertex
 {
@@ -41,23 +28,30 @@ struct BaseFragment
 	float3 viewDir : TEXCOORD2;
 };
 
+struct PerObjectBuffer
+{
+	matrix worldMatrix;
+};
+
 cbuffer ViewBuffer : register(b1, space0)
 {
-	matrix viewMatrix;
-	matrix projectionMatrix;
-	float2 nearFar;
-	float3 camPos;
+	matrix cViewMatrix;
+	matrix cProjectionMatrix;
+	float2 cNearFar;
+	float3 cCamPos;
+};
+
+struct PointLight
+{
+    float3 cLightPos;	
+	float4 cLightColor;
+	float cIndensity;
 };
 
 cbuffer SceneBuffer : register(b2, space0)
 {
-    float3 lightDirection;
-	float4 diffuseColor;
-	float4 ambientColor;
-	DirectionalLight mainLight;
-	
-	float4 specColor;
-	float3 csmSplits;
-    matrix lightViewMatrix[4];
-    matrix lightProjectionMatrix[4];
-}
+	PerObjectBuffer objectBuffers[128];
+	float4 cDirectionLightColor;
+    float3 cLightDirection;
+	PointLight cPointLights[4];
+};

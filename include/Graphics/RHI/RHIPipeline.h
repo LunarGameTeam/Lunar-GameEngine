@@ -132,12 +132,12 @@ public:
 	RHIShaderBlob* GetVertexShader() const { return mPSODesc.mGraphicDesc.mPipelineStateDesc.mVertexShader; }
 	RHIShaderBlob* GetPixelShader() const { return mPSODesc.mGraphicDesc.mPipelineStateDesc.mPixelShader; }
 
-	RHIBindPoint GetBindPoint(ShaderParamID id) const
+	BindPointIt GetBindPoint(ShaderParamID id) const
 	{
 		return GetVertexShader()->GetBindPoint(id);
 	};
 
-	RHIConstantBufferDesc& GetConstantBufferDesc(const LString& name)
+	RHICBufferDesc& GetConstantBufferDesc(ShaderParamID name)
 	{
 		return GetVertexShader()->GetUniformBuffer(name);
 	}

@@ -145,14 +145,18 @@ bool VulkanShaderBlob::InitShader(const RHIShaderDesc& desc)
 		for (uint32_t idx = 0; idx < descriptorSet.binding_count; ++idx) {
 
 			const SpvReflectDescriptorBinding& descriptorBinding = *(descriptorSet.bindings[idx]);
-
+			ShaderParamID id = LString(descriptorBinding.name).Hash();
+			auto& uniform = mUniformBuffers[id];
+			uniform.mName = descriptorBinding.name;
 			if (descriptorBinding.descriptor_type == SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER)
 			{
-				mUniformBuffers[descriptorBinding.name].mBufferSize = descriptorBinding.block.size;
+				uniform.mSize = descriptorBinding.block.size;
 				for (uint32_t member_idx = 0; member_idx < descriptorBinding.block.member_count; member_idx++)
 				{
 					SpvReflectBlockVariable& var = descriptorBinding.block.members[member_idx];
-					ConstantBufferVar& cbVar = mUniformBuffers[descriptorBinding.name].mVars[var.name];
+					ShaderParamID varHash = LString(var.name).Hash();
+					CBufferVar& cbVar = mUniformBuffers[id].mVars[varHash];
+					cbVar.mName = var.name;
 					cbVar.mOffset = var.offset;
 					cbVar.mSize = var.size;
 				}
