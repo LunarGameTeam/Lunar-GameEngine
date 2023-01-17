@@ -21,11 +21,8 @@
 namespace luna::render 
 {
 
-//�ϴ���������������ͬʱ�ϴ�һ��4096 * 4096��ͼ
 size_t sStagingBufferMaxSize = 4096 * 4096 * 64;
-//FG���������
 size_t sFrameGraphBufferMaxSize = 1024 * 1024 * 4 * 64;
-//instance id buffer�������
 static const size_t sInstancingBufferMaxSize = 1024 * 1024 * 16;
 
 size_t GetOffset(size_t offset, size_t aligment)
@@ -50,7 +47,6 @@ RHIResource* DynamicMemoryBuffer::AllocateNewBuffer(void* initData, size_t dataS
 	RHIResourcePtr newBuffer = mDevice->CreateBufferExt(newBufferDesc);
 	const MemoryRequirements& reqDst = newBuffer->GetMemoryRequirements();
 	mBufferOffset = GetOffset(mBufferOffset, reqDst.alignment);
-	//����StagingMemory��С��Flushһ��
 	if (mBufferOffset > sStagingBufferMaxSize)
 	{
 		return nullptr;
@@ -139,7 +135,6 @@ void RenderDevice::Init()
 		mFGMemory = mDevice->AllocMemory(FGMemoryDesc, 3);
 	}
 
-	//��¼һЩ��ʼ��ʱ������
 	mGraphicCmd->Reset();
 	mTransferCmd->Reset();
 	mBarrierCmd->Reset();
@@ -151,6 +146,7 @@ void RenderDevice::OnFrameBegin()
 	mFGOffset = 0;
 
 	FlushStaging();
+	FlushFrameInstancingBuffer();
 }
 
 void RenderDevice::OnFrameEnd()
@@ -165,12 +161,12 @@ void RenderDevice::UpdateConstantBuffer(RHIResourcePtr target, void* data, size_
 	target->Unmap();
 }
 
-RHIResourcePtr RenderDevice::CreateFGTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData /*= nullptr*/, size_t dataSize /*= 0*/)
+RHIResourcePtr RenderDevice::FGCreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData /*= nullptr*/, size_t dataSize /*= 0*/)
 {
 	return _CreateTexture(textureDesc, resDesc, initData, dataSize, mFGMemory, mFGOffset);
 }
 
-RHIResourcePtr RenderDevice::CreateFGBuffer(const RHIBufferDesc& resDesc, void* initData)
+RHIResourcePtr RenderDevice::FGCreateBuffer(const RHIBufferDesc& resDesc, void* initData)
 {
 	return _CreateBuffer(resDesc, initData, mFGMemory, mFGOffset);
 }
@@ -304,20 +300,7 @@ RHIResource* RenderDevice::CreateInstancingBufferByRenderObjects(LArray<RenderOb
 	return mInstancingIdMemory.AllocateNewBuffer(all_object_id.data(), all_object_id.size() * sizeof(int32_t), all_object_id.size() * sizeof(int32_t));
 }
 
-RHIViewPtr RenderDevice::CreateView(const ViewDesc& desc)
-{	
-	RHIViewPtr view = mDevice->CreateView(desc);
-	return view;
-}
-
-PipelinePair RenderDevice::CreatePipelineState(const RHIPipelineStateDesc& desc)
-{
-	RHIPipelineStatePtr pipeline = mDevice->CreatePipeline(desc);
-	RHIBindingSetPtr bindingSet = mDevice->CreateBindingSet(mDefaultPool, pipeline->GetBindingSetLayout());
-	return std::make_pair(pipeline, bindingSet);
-}
-
-PipelinePair RenderDevice::CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& passDesc, RHIVertexLayout* layout)
+RHIPipelineStatePtr RenderDevice::CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& passDesc, RHIVertexLayout* layout)
 {
 	size_t hashResult = 0;
 	boost::hash_combine(hashResult, layout->Hash());
@@ -342,8 +325,8 @@ PipelinePair RenderDevice::CreatePipelineState(MaterialInstance* mat, const Rend
 
 	RHIBlendStateTargetDesc blend = {};
 	desc.mGraphicDesc.mPipelineStateDesc.BlendState.RenderTarget.push_back(blend);
-	mPipelineCache[key] = CreatePipelineState(desc);
-	return mPipelineCache[key];
+	auto pipeline = mDevice->CreatePipeline(desc);
+	return pipeline;
 }
 
 void RenderDevice::FlushStaging()
@@ -375,49 +358,49 @@ void RenderDevice::EndRenderPass()
 
 RenderDevice::PipelineCacheKey RenderDevice::PreparePipeline(render::MaterialInstance* mat, render::SubMesh* mesh, PackedParams* params)
 {
-
-	RHIPipelineStatePtr pipeline;
-	RHIBindingSetPtr bindingset;
-	size_t hashResult = 0;
-	boost::hash_combine(hashResult, mCurRenderPass.Hash());
-	boost::hash_combine(hashResult, mesh->mVeretexLayout.Hash());
-	auto key = std::make_pair(mat, hashResult);
-	auto it = mPipelineCache.find(key);
-
-	//Find cache
-	if (it == mPipelineCache.end() || it->second.first == nullptr || it->second.second == nullptr)
-	{
-		auto piplinePair = CreatePipelineState(mat, mCurRenderPass, &mesh->mVeretexLayout);
-		bindingset = piplinePair.second;
-		pipeline = piplinePair.first;
-	}
-	else
-	{
-		pipeline = it->second.first;
-		bindingset = it->second.second;
-	}
-	ShaderAsset* shader = mat->GetShaderAsset();
-	mGraphicCmd->SetPipelineState(pipeline);
-	//Pipeline Changed
-	if (mLastPipline != pipeline.get())
-	{
-		std::vector<BindingDesc> desc;
-		PARAM_ID(SampleTypeClamp);
-		if (shader->HasBindPoint(ParamID_SampleTypeClamp))
-			params->PushShaderParam(ParamID_SampleTypeClamp, sRenderModule->GetRenderDevice()->mClampSamplerView);
-
-		for (auto& param : params->mParams)
-		{
-			if (shader->HasBindPoint(param.first))
-			{
-				desc.emplace_back(shader->GetBindPoint(param.first), param.second);
-			}
-		}
-		bindingset->WriteBindings(desc);
-		mLastPipline = pipeline;
-	}
-	mGraphicCmd->BindDesriptorSetExt(bindingset);
-	return key;
+// 
+// 	RHIPipelineStatePtr pipeline;
+// 	RHIBindingSetPtr bindingset;
+// 	size_t hashResult = 0;
+// 	boost::hash_combine(hashResult, mCurRenderPass.Hash());
+// 	boost::hash_combine(hashResult, mesh->mVeretexLayout.Hash());
+// 	auto key = std::make_pair(mat, hashResult);
+// 	auto it = mPipelineCache.find(key);
+// 
+// 	//Find cache
+// 	if (it == mPipelineCache.end() || it->second.first == nullptr || it->second.second == nullptr)
+// 	{
+// 		auto piplinePair = CreatePipelineState(mat, mCurRenderPass, &mesh->mVeretexLayout);
+// 		bindingset = piplinePair.second;
+// 		pipeline = piplinePair.first;
+// 	}
+// 	else
+// 	{
+// 		pipeline = it->second.first;
+// 		bindingset = it->second.second;
+// 	}
+// 	ShaderAsset* shader = mat->GetShaderAsset();
+// 	mGraphicCmd->SetPipelineState(pipeline);
+// 	//Pipeline Changed
+// 	if (mLastPipline != pipeline.get())
+// 	{
+// 		std::vector<BindingDesc> desc;
+// 		PARAM_ID(SampleTypeClamp);
+// 		if (shader->HasBindPoint(ParamID_SampleTypeClamp))
+// 			params->PushShaderParam(ParamID_SampleTypeClamp, sRenderModule->GetRenderDevice()->mClampSamplerView);
+// 
+// 		for (auto& param : params->mParams)
+// 		{
+// 			if (shader->HasBindPoint(param.first))
+// 			{
+// 				desc.emplace_back(shader->GetBindPoint(param.first), param.second);
+// 			}
+// 		}
+// 		bindingset->WriteBindings(desc);
+// 		mLastPipline = pipeline;
+// 	}
+// 	mGraphicCmd->BindDesriptorSetExt(bindingset);
+	return PipelineCacheKey();
 }
 
 void RenderDevice::DrawRenderOBject(render::RenderObject* ro, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage, int32_t instancingSize)
@@ -428,39 +411,38 @@ void RenderDevice::DrawRenderOBject(render::RenderObject* ro, render::MaterialIn
 
 void RenderDevice::DrawMesh(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage, int32_t instancingSize)
 {
-	auto key = PreparePipeline(mat, mesh, params);
-	RHIPipelineStatePtr pipeline = mPipelineCache[key].first;
-	RHIBindingSetPtr bindingset = mPipelineCache[key].second;
-
-	size_t vertexCount = mesh->mVertexData.size();
-
-	RHIResource* vb = mesh->mVB;
-	size_t indexCount = mesh->mIndexData.size();
-	size_t indexStride = mesh->mIndexCount;
-	RHIResource* ib = mesh->mIB;
-
-	LArray<RHIVertexBufferDesc> descs;
-	RHIVertexBufferDesc& vbDesc = descs.emplace_back();
-	vbDesc.mOffset = 0;
-	vbDesc.mBufferSize = vertexCount * mesh->GetStridePerVertex();
-	vbDesc.mVertexStride = mesh->GetStridePerVertex();
-	vbDesc.mVertexRes = mesh->mVB;
-	if (instanceMessage != nullptr)
-	{
-		RHIVertexBufferDesc& vbInstancingDesc = descs.emplace_back();
-		vbInstancingDesc.mOffset = 0;
-		vbInstancingDesc.mBufferSize = instancingSize * mesh->GetStridePerInstance();
-		vbInstancingDesc.mVertexStride = mesh->GetStridePerInstance();
-		vbInstancingDesc.mVertexRes = instanceMessage;
-	}
-	mGraphicCmd->SetVertexBuffer(descs, 0);
-
-
-
-	mGraphicCmd->SetIndexBuffer(ib);
-	mGraphicCmd->SetDrawPrimitiveTopology(
-		RHIPrimitiveTopology::TriangleList);
-	mGraphicCmd->DrawIndexedInstanced((uint32_t)indexCount, 1, 0, 0, 0);
+// 	auto key = PreparePipeline(mat, mesh, params);
+// 	RHIPipelineStatePtr pipeline = mPipelineCache[key].first;
+// 
+// 	size_t vertexCount = mesh->mVertexData.size();
+// 
+// 	RHIResource* vb = mesh->mVB;
+// 	size_t indexCount = mesh->mIndexData.size();
+// 	size_t indexStride = mesh->mIndexCount;
+// 	RHIResource* ib = mesh->mIB;
+// 
+// 	LArray<RHIVertexBufferDesc> descs;
+// 	RHIVertexBufferDesc& vbDesc = descs.emplace_back();
+// 	vbDesc.mOffset = 0;
+// 	vbDesc.mBufferSize = vertexCount * mesh->GetStridePerVertex();
+// 	vbDesc.mVertexStride = mesh->GetStridePerVertex();
+// 	vbDesc.mVertexRes = mesh->mVB;
+// 	if (instanceMessage != nullptr)
+// 	{
+// 		RHIVertexBufferDesc& vbInstancingDesc = descs.emplace_back();
+// 		vbInstancingDesc.mOffset = 0;
+// 		vbInstancingDesc.mBufferSize = instancingSize * mesh->GetStridePerInstance();
+// 		vbInstancingDesc.mVertexStride = mesh->GetStridePerInstance();
+// 		vbInstancingDesc.mVertexRes = instanceMessage;
+// 	}
+// 	mGraphicCmd->SetVertexBuffer(descs, 0);
+// 
+// 
+// 
+// 	mGraphicCmd->SetIndexBuffer(ib);
+// 	mGraphicCmd->SetDrawPrimitiveTopology(
+// 		RHIPrimitiveTopology::TriangleList);
+// 	mGraphicCmd->DrawIndexedInstanced((uint32_t)indexCount, 1, 0, 0, 0);
 
 }
 

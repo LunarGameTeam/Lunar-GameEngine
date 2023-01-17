@@ -2,7 +2,7 @@
 
 #include "Core/Foundation/String.h"
 #include "Core/Foundation/Container.h"
-#include "Core/reflection/Reflection.h"
+#include "Core/Reflection/Reflection.h"
 
 #include "Graphics/RHI/RHIPch.h"
 #include "Graphics/RHI/RHIResource.h"

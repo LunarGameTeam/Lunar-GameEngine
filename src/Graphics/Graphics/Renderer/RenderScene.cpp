@@ -106,8 +106,8 @@ void RenderScene::Render(FrameGraphBuilder* FG)
 		ViewDesc viewDesc;
 		viewDesc.mViewType = RHIViewType::kConstantBuffer;
 		viewDesc.mViewDimension = RHIViewDimension::BufferView;
-		mROBufferView = sRenderModule->GetRenderDevice()->CreateView(viewDesc);
-		mSceneBufferView = sRenderModule->GetRenderDevice()->CreateView(viewDesc);
+		mROBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
+		mSceneBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
 
 		mROBufferView->BindResource(mROBuffer);
 		mSceneBufferView->BindResource(mSceneBuffer);

@@ -2,7 +2,7 @@
 
 #include "Core/CoreMin.h"
 
-#include "game/RenderComponent.h"
+#include "Game/RenderComponent.h"
 
 #include "Graphics/RenderConfig.h"
 #include "Graphics/Renderer/MaterialInstance.h"

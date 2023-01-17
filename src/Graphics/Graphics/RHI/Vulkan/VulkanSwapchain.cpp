@@ -110,7 +110,7 @@ bool VulkanSwapChain::Init()
 		backbufferViewDesc.mBaseMipLevel = 0;
 		backbufferViewDesc.mViewType = render::RHIViewType::kRenderTarget;
 		backbufferViewDesc.mViewDimension = render::RHIViewDimension::TextureView2D;
-		mViews[i] = sRenderModule->GetRenderDevice()->CreateView(backbufferViewDesc);
+		mViews[i] = sRenderModule->GetRHIDevice()->CreateView(backbufferViewDesc);
 		mViews[i]->BindResource(mBackBuffers[i]);
 	}
 	mFrameIndex = 0;

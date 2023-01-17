@@ -108,7 +108,7 @@ void Texture2D::Init()
 	ViewDesc viewDesc;
 	viewDesc.mViewType = RHIViewType::kTexture;
 	viewDesc.mViewDimension = RHIViewDimension::TextureView2D;
-	mView = sRenderModule->mRenderDevice->CreateView(viewDesc);
+	mView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
 	mView->BindResource(mRes);
 	
 	Release();
@@ -168,7 +168,7 @@ void TextureCube::Init()
 	desc.mViewDimension = RHIViewDimension::TextureViewCube;
 	desc.mBaseMipLevel = 0;
 	desc.mLayerCount = 6;	
-	mResView = sRenderModule->mRenderDevice->CreateView(desc);
+	mResView = sRenderModule->GetRHIDevice()->CreateView(desc);
 	mResView->BindResource(mRes.get());
 
 }

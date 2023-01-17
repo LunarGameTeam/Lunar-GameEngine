@@ -8,6 +8,7 @@
 #include "Core/Foundation/String.h"
 #include "Core/Foundation/Container.h"
 #include "Core/Foundation/Config.h"
+#include "Core/Foundation/Misc.h"
 #include "Core/Foundation/Log.h"
 
 #include "Core/Math/Math.h"

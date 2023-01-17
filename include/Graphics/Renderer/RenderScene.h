@@ -6,6 +6,7 @@
 #include "Graphics/RHI/RHITypes.h"
 
 #include <functional>
+#include "Core/Foundation/Misc.h"
 
 namespace luna::render
 {
@@ -33,11 +34,11 @@ struct RENDER_API RenderLight
 	LMatrix4f mProjMatrix;
 };
 
-class RENDER_API RenderScene
+class RENDER_API RenderScene final : NoCopy
 {
 public:
 	RenderScene();
-	~RenderScene() {};
+	~RenderScene() {};	
 
 	void Render(FrameGraphBuilder* FG);
 

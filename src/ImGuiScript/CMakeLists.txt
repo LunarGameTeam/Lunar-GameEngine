@@ -11,6 +11,4 @@ auto_source_group(ImGuiScript "${ALL_FILES}" DST_FILES)
 
 add_library(ImGuiScript SHARED ${DST_FILES})
 
-add_dependencies(ImGuiScript Core imgui Graphics)
-
 target_link_libraries(ImGuiScript Core imgui Graphics)

@@ -38,15 +38,15 @@ protected:
 template<typename T>
 std::shared_ptr<T> Singleton<T>::t;
 
-//暂时不能用。。。
 class CORE_API NoCopy
 {
 public:
 	NoCopy() {};
-	virtual ~NoCopy() {};
+	~NoCopy() {};
 private:
-	NoCopy(const NoCopy &) = delete;
-	NoCopy &operator=(const NoCopy &) = delete;
+	NoCopy(const NoCopy&) = delete;
+	NoCopy(NoCopy&&) = delete;
+	NoCopy& operator=(const NoCopy &) = delete;
 };
 
 size_t CORE_API SizeAligned(const size_t &size_in, const size_t &size_aligned_in);

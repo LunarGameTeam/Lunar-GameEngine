@@ -67,7 +67,7 @@ bool DX12SwapChain::Reset(const RHISwapchainDesc& window_width_in)
 		backbufferViewDesc.mBaseMipLevel = 0;
 		backbufferViewDesc.mViewType = render::RHIViewType::kRenderTarget;
 		backbufferViewDesc.mViewDimension = render::RHIViewDimension::TextureView2D;
-		RHIViewPtr back_rt_view = sRenderModule->GetRenderDevice()->CreateView(backbufferViewDesc);
+		RHIViewPtr back_rt_view = sRenderModule->GetRHIDevice()->CreateView(backbufferViewDesc);
 		back_rt_view->BindResource(back_rt_tex);
 		mViews.push_back(back_rt_view);
 	}

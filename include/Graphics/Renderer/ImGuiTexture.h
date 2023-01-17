@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Core/reflection/Reflection.h"
+#include "Core/Reflection/Reflection.h"
 #include "Graphics/RHI/RHIPtr.h"
 #include "Graphics/RHI/RHIResource.h"
 
@@ -11,13 +11,13 @@ RegisterType(RENDER_API, render::RHIResource, RHIResource);
 
 namespace luna::render
 {
-class DX12GpuDescriptorSegment;
+
 //IMGUI
 struct RENDER_API ImguiTexture
 {
 public:
 	render::RHIViewPtr	mView;
-	DX12GpuDescriptorSegment* descriptorPoolSave;
+	TRHIPtr<RHIObject> mDX12Pool;
 	void* mImg;
 };
 }

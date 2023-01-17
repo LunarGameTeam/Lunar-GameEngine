@@ -1,5 +1,5 @@
-#include "game/Camera.h"
-#include "game/Scene.h"
+#include "Game/Camera.h"
+#include "Game/Scene.h"
 #include "Graphics/RenderModule.h"
 #include "Core/Object/Entity.h"
 #include "Graphics/Renderer/RenderScene.h"

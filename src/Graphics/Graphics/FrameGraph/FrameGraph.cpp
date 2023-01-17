@@ -106,7 +106,7 @@ void FrameGraphBuilder::_Prepare()
 	{
 		for (FGResourceView* it : it->mVirtureResView)
 		{
-			RHIViewPtr rhiView = sRenderModule->GetRenderDevice()->CreateView(it->mRHIViewDesc);			
+			RHIViewPtr rhiView = sRenderModule->GetRHIDevice()->CreateView(it->mRHIViewDesc);
 			it->mRHIView = rhiView;
 			rhiView->BindResource(it->mVirtualRes->mRes);
 		}
@@ -127,7 +127,7 @@ void FrameGraphBuilder::Flush()
 			{
 				FGTexture* virtualRes = static_cast<FGTexture*>(it.second);
 				RHITextureDesc textureDesc;
-				RHIResourcePtr rhiRes = renderDevice->CreateFGTexture(textureDesc, virtualRes->GetDesc());
+				RHIResourcePtr rhiRes = renderDevice->FGCreateTexture(textureDesc, virtualRes->GetDesc());
 				virtualRes->SetRHIResource(rhiRes);
 			}
 			else 

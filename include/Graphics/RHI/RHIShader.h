@@ -9,12 +9,15 @@ namespace luna::render
 {
 
 
+
+#define PARAM_ID(name) static luna::render::ShaderParamID ParamID_##name = luna::LString(#name).Hash();
+
 struct RHIShaderDesc
 {
-	LString       mName; //shader����
-	LString       mContent; //shader����
-	RHIShaderType mType; //shader����
-	LString       mEntryPoint; //shader��ں���
+	LString       mName;
+	LString       mContent;
+	RHIShaderType mType;
+	LString       mEntryPoint;
 };
 
 struct ConstantBufferVar
@@ -37,9 +40,7 @@ class RENDER_API RHIShaderBlob : public RHIObject
 public:
 	RHIShaderDesc mDesc;
 
-	// Pipeline �� CBuffer ����������Binding
 	std::unordered_map<LString, RHIConstantBufferDesc>   mUniformBuffers;
-	// Pipeline ����Դ������Ϣ
 	std::unordered_map<ShaderParamID, RHIBindPoint>            mBindPoints;
 
 	RHIBindPoint GetBindPoint(ShaderParamID id)

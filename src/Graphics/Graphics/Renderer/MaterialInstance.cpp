@@ -120,7 +120,7 @@ void MaterialInstance::Init()
 			ViewDesc viewDesc;
 			viewDesc.mViewType = RHIViewType::kConstantBuffer;
 			viewDesc.mViewDimension = RHIViewDimension::BufferView;
-			mParamsView = sRenderModule->GetRenderDevice()->CreateView(viewDesc);
+			mParamsView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
 			mParamsView->BindResource(mParamsBuffer);
 
 		}

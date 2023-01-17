@@ -1,6 +1,6 @@
 #pragma once
 
-#include "game/GameConfig.h"
+#include "Game/GameConfig.h"
 #include "Core/Object/Entity.h"
 #include "Core/Framework/Module.h"
 #include "Core/Asset/JsonAsset.h"

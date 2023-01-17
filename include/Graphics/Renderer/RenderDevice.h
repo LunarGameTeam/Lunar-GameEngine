@@ -14,9 +14,6 @@ namespace luna::render
 
 RENDER_API CONFIG_DECLARE(LString, Render, RenderDeviceType, 2);
 
-using PipelinePair = std::pair< RHIPipelineStatePtr, RHIBindingSetPtr>;
-class MaterialInstance;
-
 enum class RenderDeviceType : uint8_t
 {
 	Unkown = 0,
@@ -25,8 +22,6 @@ enum class RenderDeviceType : uint8_t
 };
 
 size_t GetOffset(size_t offset, uint16_t aliment);
-
-#define PARAM_ID(name) static luna::render::ShaderParamID ParamID_##name = luna::LString(#name).Hash();
 
 class RENDER_API DynamicMemoryBuffer
 {
@@ -45,82 +40,91 @@ public:
 
 
 
-class RENDER_API RenderDevice 
+class RENDER_API RenderDevice final : NoCopy
 {
 public:
 	RenderDevice();
-	virtual ~RenderDevice() {};
-
+	~RenderDevice() = default;
 	void Init();
 
+	RHIGraphicCmdListPtr mGraphicCmd;
 	RHIRenderQueuePtr    mGraphicQueue;
+	RHIGraphicCmdListPtr mTransferCmd;
 	RHIRenderQueuePtr    mTransferQueue;
+	RHIGraphicCmdListPtr mBarrierCmd;
+
 	RHIDevice*           mDevice;
 	RenderDeviceType     mDeviceType = RenderDeviceType::DirectX12;
-	RHIGraphicCmdListPtr mGraphicCmd;
-	RHIGraphicCmdListPtr mTransferCmd;
-	RHIGraphicCmdListPtr mBarrierCmd;
-public:
-	//Frame Graph API
-public:
 
-	PipelinePair CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& desc, RHIVertexLayout* layout);
-	PipelinePair CreatePipelineState(const RHIPipelineStateDesc& desc);
-	RHIResourcePtr CreateFGTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData = nullptr, size_t dataSize = 0);
-	RHIResourcePtr CreateFGBuffer(const RHIBufferDesc& resDesc, void* initData);
+	uint64_t             mFenceValue = 0;
+	RHIFencePtr          mFence;
 
+	//----Frame Graph API Begin----
+public:	
+	RHIResourcePtr FGCreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData = nullptr, size_t dataSize = 0);
+	RHIResourcePtr FGCreateBuffer(const RHIBufferDesc& resDesc, void* initData);
+private:
+	RHIMemoryPtr				mFGMemory;
+	size_t						mFGOffset = 0;
+	//----Frame Graph API End----
+
+public:
+	//----Resource Graph API Begin----
 	RHIResourcePtr CreateBuffer(const RHIBufferDesc& resDesc, void* initData = nullptr);
 	RHIResourcePtr CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData = nullptr, size_t dataSize = 0);
 	RHIResource* CreateInstancingBufferByRenderObjects(LArray<RenderObject*>& RenderObjects);
-
-	RHIViewPtr CreateView(const ViewDesc& view);
-
 	void UpdateConstantBuffer(RHIResourcePtr target, void* data, size_t dataSize);
-	void FlushStaging();
-	void FlushFrameInstancingBuffer() { mInstancingIdMemory.Reset(); };
+	//----Resource Graph API End----
 
+	//----Draw Graph API Begin----
+public:
 	void BeginRenderPass(const RenderPassDesc&);
 	void EndRenderPass();
 
 	void DrawRenderOBject(render::RenderObject* mesh, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage = nullptr,int32_t instancingSize = 1);
 	void DrawMesh(render::SubMesh*, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage = nullptr, int32_t instancingSize = 1);
+private:
+	using PipelineCacheKey = std::pair < MaterialInstance*, size_t>;
+	RenderPassDesc                              mCurRenderPass;
+	LMap<PipelineCacheKey, RHIPipelineStatePtr> mPipelineCache;
+	RHIPipelineStatePtr                         mLastPipline;
 
+	//----Draw Graph API End----
+
+public:
 	void OnFrameBegin();
 	void OnFrameEnd();
+	void FlushStaging();
+
+	RHIDescriptorPoolPtr GetDefaultDescriptorPool() { return mDefaultPool; }
+
 private:
+	RHIPipelineStatePtr CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& desc, RHIVertexLayout* layout);
+
 	using PipelineCacheKey = std::pair<MaterialInstance*, size_t>;
 
 	PipelineCacheKey PreparePipeline(MaterialInstance* mat, render::SubMesh* mesh, PackedParams* params);
 
-	RHIMemoryPtr				mFGMemory;
-	size_t						mFGOffset = 0;
 
 private:
+	void FlushFrameInstancingBuffer() { mInstancingIdMemory.Reset(); };
+
 	RHIResourcePtr _CreateBuffer(const RHIBufferDesc& resDesc, 
 		void* initData, RHIMemoryPtr targetMemory, size_t& memoryOffset);
 	RHIResourcePtr _CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, 
 		void* initData , size_t dataSize, RHIMemoryPtr targetMemory, size_t& memoryOffset);
 
+private:
+
+	DynamicMemoryBuffer                         mStagingMemory;
+	DynamicMemoryBuffer                         mInstancingIdMemory;
+
+	RHIDescriptorPoolPtr                        mDefaultPool;
+
 public:
-	RenderPassDesc mCurRenderPass;
-	std::map<PipelineCacheKey, PipelinePair> mPipelineCache;
-
-	RHIPipelineStatePtr mLastPipline;
-
-	DynamicMemoryBuffer mStagingMemory;
-	DynamicMemoryBuffer mInstancingIdMemory;
-
-	std::map<RHIBindingSetLayout*, RHIBindingSetPtr> mDescriptorsCache;	
-		
-
-	RHIDescriptorPoolPtr        mDefaultPool;
-
-	std::vector<RHIResourcePtr> mStagingHolds;
-	uint64_t                    mFenceValue = 0;
-	RHIFencePtr                 mFence;
-	RHIResourcePtr              mClampSampler;
-	RHIViewPtr                  mClampSamplerView;
-	//std::vector<TRHIPtr<DX12Descriptor>> mTempHolds;
+	//Samplers
+	RHIResourcePtr                              mClampSampler;
+	RHIViewPtr                                  mClampSamplerView;
 private:
 
 };

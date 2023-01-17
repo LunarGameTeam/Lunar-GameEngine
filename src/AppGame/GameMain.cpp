@@ -26,11 +26,11 @@ int main(int argc, char** argv)
 
 	TCHAR tempPath[1000];
 
-	::GetCurrentDirectory(MAX_PATH, tempPath); //»ñÈ¡³ÌÐòµÄµ±Ç°Ä¿Â¼	
+	::GetCurrentDirectory(MAX_PATH, tempPath); //ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½Äµï¿½Ç°Ä¿Â¼	
 	ConfigLoader::instance();
 
 	LString workDir = luna::LString(tempPath);
-	LString startScript = workDir + "/game/main.py";
+	LString startScript = workDir + "/Game/main.py";
 
 	status = PyConfig_SetString(&config, &config.home, pythonHome.c_str());
 

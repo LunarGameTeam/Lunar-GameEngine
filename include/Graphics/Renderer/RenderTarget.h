@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Core/Object/BaseObject.h"
-#include "Core/reflection/Reflection.h"
+#include "Core/Reflection/Reflection.h"
 
 #include "Graphics/RenderConfig.h"
 #include "Graphics/Asset/TextureAsset.h"

@@ -5,7 +5,7 @@
 
 #include "Graphics/Renderer/RenderScene.h"
 
-#include "game/GameConfig.h"
+#include "Game/GameConfig.h"
 
 
 namespace luna

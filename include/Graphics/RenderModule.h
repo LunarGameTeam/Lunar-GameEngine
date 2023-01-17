@@ -17,21 +17,20 @@
 #include "Core/Framework/Module.h"
 #include "Core/Foundation/String.h"
 #include "Core/Foundation/Container.h"
-#include "Core/event/EventModule.h"
+#include "Core/Event/EventModule.h"
+
 
 #include "Graphics/RenderConfig.h"
-#include "Graphics/Renderer/RenderDevice.h"
 #include "Graphics/RenderTypes.h"
+
 #include "Graphics/Renderer/ImGuiTexture.h"
+#include "Graphics/Renderer/RenderDevice.h"
 
 #include "Graphics/RHI/RHITypes.h"
 
-#include <Vulkan//vulkan.h>
+
 namespace luna::render
 {
-
-class RenderDevice;
-
 
 class RENDER_API RenderModule : public LModule
 {
@@ -44,7 +43,6 @@ public:
 
 	//Renderer
 public:
-
 	RenderScene* AddScene();
 	void RemoveScene(RenderScene*);
 

@@ -11,7 +11,6 @@ add_library(Luna SHARED ${DST_FILES})
 
 add_compile_definitions(LUNA_EXPORT)
 
-add_dependencies(Luna Core) 
 target_link_libraries(Luna Core)
 
 if (USING_DEBUG_PYTHON)

@@ -1,6 +1,6 @@
-#include "game/Scene.h"
+#include "Game/Scene.h"
 #include "Graphics/RenderModule.h"
-#include "game/Light.h"
+#include "Game/Light.h"
 
 #include "Core/Memory/PtrBinding.h"
 #include "Core/Serialization/JsonSerializer.h"

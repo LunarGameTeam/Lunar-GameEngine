@@ -219,7 +219,7 @@ bool RenderModule::OnLoad()
 
 bool RenderModule::OnInit()
 {
-	mRenderDevice = new RenderDevice();
+	mRenderDevice = new RenderDevice();	
 	mRenderDevice->Init();
 
 	render::RHIDevice* rhiDevice = GetRHIDevice();	
@@ -230,7 +230,7 @@ bool RenderModule::OnInit()
 	mSwapchainDesc.mWidth = mainWindow->GetWindowWidth();
 	mSwapchainDesc.mHeight = mainWindow->GetWindowHeight();
 	mSwapchainDesc.mFrameNumber = 2;
-	mMainSwapchain = sRenderModule->GetCmdQueueCore()->CreateSwapChain(
+	mMainSwapchain = mRenderDevice->mGraphicQueue->CreateSwapChain(
 		mainWindow, mSwapchainDesc);
 
 
@@ -263,7 +263,7 @@ bool RenderModule::OnInit()
 
 
 		render::DX12Device* dx12_device = sRenderModule->GetDevice<render::DX12Device>();
-		render::DX12DescriptorPool* dx12Pool = renderDevice->mDefaultPool->As<render::DX12DescriptorPool>();
+		render::DX12DescriptorPool* dx12Pool = renderDevice->GetDefaultDescriptorPool()->As<render::DX12DescriptorPool>();
 
 
 		dx12Pool->SelectSegment(render::DescriptorHeapType::CBV_SRV_UAV)->AllocDescriptorSet(1, sDx12FontDescriptor);
@@ -284,7 +284,7 @@ bool RenderModule::OnInit()
 		vulkanInit.PhysicalDevice = mRenderDevice->mDevice->As<render::VulkanDevice>()->GetPhysicalDevice();
 		vulkanInit.Device = mRenderDevice->mDevice->As<render::VulkanDevice>()->GetVkDevice();
 		vulkanInit.Queue = mRenderDevice->mGraphicQueue->As<render::VulkanRenderQueue>()->mQueue;
-		vulkanInit.DescriptorPool = mRenderDevice->mDefaultPool->As<render::VulkanDescriptorPool>()->mPool;
+		vulkanInit.DescriptorPool = mRenderDevice->GetDefaultDescriptorPool()->As<render::VulkanDescriptorPool>()->mPool;
 		vulkanInit.MinImageCount = 3;
 		vulkanInit.ImageCount = 3;
 		vulkanInit.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
@@ -301,7 +301,7 @@ bool RenderModule::OnInit()
 
 
 		sRenderModule->mRenderDevice->mGraphicCmd->EndEvent();
-		sRenderModule->GetCmdQueueCore()->ExecuteCommandLists(sRenderModule->mRenderDevice->mGraphicCmd);
+		sRenderModule->mRenderDevice->mGraphicQueue->ExecuteCommandLists(sRenderModule->mRenderDevice->mGraphicCmd);
 		sRenderModule->mRenderDevice->mGraphicQueue->Signal(sRenderModule->mRenderDevice->mFence, ++sRenderModule->mRenderDevice->mFenceValue);
 		vkDeviceWaitIdle(rhiDevice->As<render::VulkanDevice>()->GetVkDevice());
 	
@@ -325,7 +325,6 @@ void RenderModule::Tick(float delta_time)
 {
 	LModule::Tick(delta_time);
 	//RenderScene发起渲染
-	mRenderDevice->FlushFrameInstancingBuffer();
 	mRenderDevice->mTransferCmd->BeginEvent("Frame Graph Prepare");
 	for (auto& it : mRenderScenes)
 	{
@@ -411,16 +410,16 @@ ImguiTexture* RenderModule::AddImguiTexture(RHIResource* res)
 	}
 	else
 	{
-		Dx12GpuDescriptorHeap* globel_heap = mRenderDevice->mDevice->As<DX12Device>()->GetGpuDescriptorHeapByType(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		imguiTexture->descriptorPoolSave = globel_heap->AllocPool(2);
-		Dx12DescriptorSet empty_set;
-		imguiTexture->descriptorPoolSave->AllocDescriptorSet(1, empty_set);
+		Dx12GpuDescriptorHeap* global = mRenderDevice->mDevice->As<DX12Device>()->GetGpuDescriptorHeapByType(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+		imguiTexture->mDX12Pool = global->AllocPool(2);
+		Dx12DescriptorSet empty;
+		imguiTexture->mDX12Pool->As<DX12GpuDescriptorSegment>()->AllocDescriptorSet(1, empty);
 		mRenderDevice->mDevice->As<DX12Device>()->GetDx12Device()->CopyDescriptorsSimple(
 			1,
-			empty_set.mDescriptorLists[D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV].mCPUHandle,
+			empty.mDescriptorLists[D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV].mCPUHandle,
 			imguiTexture->mView->As<DX12View>()->GetCpuHandle(),
 			D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-		imguiTexture->mImg = (void*)(empty_set.mDescriptorLists[D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV].mGPUHandle.ptr);
+		imguiTexture->mImg = (void*)(empty.mDescriptorLists[D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV].mGPUHandle.ptr);
 	}
 	return imguiTexture;
 }

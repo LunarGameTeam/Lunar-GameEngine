@@ -1,6 +1,6 @@
 #pragma once
 
-#include "game/GameConfig.h"
+#include "Game/GameConfig.h"
 
 #include "Core/Object/Transform.h"
 #include "Core/Object/Component.h"

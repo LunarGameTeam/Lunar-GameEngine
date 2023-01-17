@@ -1,6 +1,6 @@
-#include "game/RenderComponent.h"
+#include "Game/RenderComponent.h"
 #include "Graphics/RenderModule.h"
-#include "game/Scene.h"
+#include "Game/Scene.h"
 
 namespace luna::render
 {

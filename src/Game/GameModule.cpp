@@ -1,13 +1,13 @@
-#include "game/GameModule.h"
-#include "game/Scene.h"
+#include "Game/GameModule.h"
+#include "Game/Scene.h"
 #include "Core/Object/Entity.h"
 #include "Graphics/RenderModule.h"
 
-#include "game/Camera.h"
+#include "Game/Camera.h"
 #include "Core/Object/Transform.h"
 #include "imgui.h"
 #include "Graphics/Renderer/RenderScene.h"
-#include "game/Light.h"
+#include "Game/Light.h"
 
 
 namespace luna

@@ -21,7 +21,7 @@ RenderView::RenderView(uint64_t view_id) :
 	ViewDesc viewDesc;
 	viewDesc.mViewType = RHIViewType::kConstantBuffer;
 	viewDesc.mViewDimension = RHIViewDimension::BufferView;
-	mPerViewBufferView = sRenderModule->GetRenderDevice()->CreateView(viewDesc);
+	mPerViewBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
 	mPerViewBufferView->BindResource(mPerViewBuffer);
 
 }

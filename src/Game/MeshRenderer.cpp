@@ -1,6 +1,6 @@
-#include "game/MeshRenderer.h"
+#include "Game/MeshRenderer.h"
 #include "Core/Object/Transform.h"
-#include "game/Scene.h"
+#include "Game/Scene.h"
 
 #include "Core/Memory/PtrBinding.h"
 
