@@ -36,13 +36,13 @@ void Transform::OnCreate()
 	GetLocalToWorldMatrix();
 }
 
-luna::LMatrix4f& Transform::GetLocalToWorldMatrix()
+LMatrix4f& Transform::GetLocalToWorldMatrix()
 {
 	UpdateMatrix();
 	return mLocal2World;
 }
 
-luna::LMatrix4f& Transform::GetWorldToLocalMatrix()
+LMatrix4f& Transform::GetWorldToLocalMatrix()
 {
 	UpdateMatrix();
 	return mWorld2Local;

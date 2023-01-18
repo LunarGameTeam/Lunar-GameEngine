@@ -234,7 +234,7 @@ bool RenderModule::OnInit()
 
 	mFrameGraph = new FrameGraphBuilder("MainFG");	
 
-	mDefaultWhiteTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/white.png"));
+	mDefaultWhiteTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/White.png"));
 
 	SetupIMGUI();
 
@@ -304,7 +304,7 @@ bool RenderModule::OnInit()
 		break;
 
 	}
-	mDefaultShader = sAssetModule->LoadAsset<ShaderAsset>("/assets/built-in/Debug.hlsl");
+	mDefaultShader = sAssetModule->LoadAsset<ShaderAsset>("/assets/built-in/Shader/Debug.hlsl");
 	return true;
 }
 

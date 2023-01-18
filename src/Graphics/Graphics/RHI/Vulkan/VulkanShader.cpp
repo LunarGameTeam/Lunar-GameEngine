@@ -116,6 +116,33 @@ void InitResources(TBuiltInResource& Resources)
 	Resources.limits.generalConstantMatrixVectorIndexing = 1;
 }
 
+void ReflectionVar(CBufferVar& cbVar ,const SpvReflectBlockVariable& var)
+{
+	if (var.array.dims_count > 0)
+	{
+		cbVar.mIsArray = true;
+		cbVar.mElementSize = var.size;
+		for (int i = 0; i < var.array.dims_count; i++)
+		{
+			cbVar.mElementSize = cbVar.mElementSize / var.array.dims[i];
+		}
+	}
+	if (var.members)
+	{
+		cbVar.mIsStruct = true;
+		for (int i = 0; i < var.member_count; ++i)
+		{
+			SpvReflectBlockVariable& var2 = var.members[i];
+			size_t hash2 = LString(var.name).Hash();
+			CBufferVar& cbVar2 = cbVar.mStructVars[hash2];
+			ReflectionVar(cbVar2, var2);
+		}
+	}
+	cbVar.mName = var.name;
+	cbVar.mOffset = var.offset;
+	cbVar.mSize = var.size;
+}
+
 bool VulkanShaderBlob::InitShader(const RHIShaderDesc& desc)
 {
 	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
@@ -156,9 +183,7 @@ bool VulkanShaderBlob::InitShader(const RHIShaderDesc& desc)
 					SpvReflectBlockVariable& var = descriptorBinding.block.members[member_idx];
 					ShaderParamID varHash = LString(var.name).Hash();
 					CBufferVar& cbVar = mUniformBuffers[id].mVars[varHash];
-					cbVar.mName = var.name;
-					cbVar.mOffset = var.offset;
-					cbVar.mSize = var.size;
+					ReflectionVar(cbVar, var);					
 				}
 
 			}

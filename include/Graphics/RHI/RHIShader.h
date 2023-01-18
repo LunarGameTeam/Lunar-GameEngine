@@ -22,9 +22,13 @@ struct RHIShaderDesc
 
 struct CBufferVar
 {
-	LString mName   = "";
-	size_t  mOffset = 0;
-	size_t  mSize   = 0;
+	LString                  mName = "";
+	size_t                   mOffset = 0;
+	size_t                   mSize = 0;
+	bool                     mIsArray = false;
+	bool                     mIsStruct = false;
+	LMap<size_t, CBufferVar> mStructVars;
+	size_t                   mElementSize = 0;
 };
 
 struct RHICBufferDesc
@@ -50,7 +54,7 @@ class RENDER_API RHIShaderBlob : public RHIObject
 public:
 	RHIShaderDesc mDesc;
 	
-	std::unordered_map<ShaderParamID, RHICBufferDesc> mUniformBuffers;
+	LMap<ShaderParamID, RHICBufferDesc> mUniformBuffers;
 	std::unordered_map<ShaderParamID, RHIBindPoint>    mBindPoints;
 
 	

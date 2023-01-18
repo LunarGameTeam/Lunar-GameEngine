@@ -8,10 +8,17 @@ namespace luna::render
 struct PackedParams;
 struct ShaderParamsBuffer;
 
+class MaterialTemplateAsset;
+class MaterialInstance;
+class SubMesh;
+class ShaderAsset;
+
 class RenderScene;
 class RenderView;
-class MaterialTemplateAsset;
 
+struct Light;
+struct PointLight;
+struct DirectionLight;
 
 class FrameGraphBuilder;
 class FGNode;
@@ -23,14 +30,10 @@ class RenderPass;
 class Texture2D;
 class TextureCube;
 
-class ShaderAsset;
 
 class RenderTarget;
 
 struct ImguiTexture;
-
-class MaterialInstance;
-class SubMesh;
 class RenderDevice;
 
 struct RenderLight;

@@ -119,7 +119,7 @@ void LObject::DeSerialize(Serializer& serializer)
 
 LObject* LObject::InstanceIDToObject(size_t id)
 {
-	return sObjects[id];
+	return sObjects[id];;
 }
 
 void LObject::SetBindingObject(PyObject* val)

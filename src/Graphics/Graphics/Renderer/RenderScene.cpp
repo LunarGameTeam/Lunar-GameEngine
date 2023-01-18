@@ -13,6 +13,7 @@
 #include "Core/Asset/AssetModule.h"
 #include "Graphics/RHI/RHIShader.h"
 #include "Graphics/Asset/ShaderAsset.h"
+#include "Graphics/Renderer/RenderLight.h"
 
 namespace luna::render
 {
@@ -33,22 +34,6 @@ RenderObject* RenderScene::CreateRenderObject()
 }
 
 
-void DirectionLight::Init()
-{
-
-	mInit = true;
-	RHIBufferDesc desc;
-	desc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
-	desc.mSize = 512;
-	mViewBuffer = sRenderModule->GetRenderDevice()->CreateBuffer(desc);
-
-	ViewDesc viewDesc;
-	viewDesc.mViewType = RHIViewType::kConstantBuffer;
-	viewDesc.mViewDimension = RHIViewDimension::BufferView;
-	mViewBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
-}
-
-
 void RenderScene::PrepareScene()
 {
 	if (!mBufferDirty)
@@ -63,10 +48,18 @@ void RenderScene::PrepareScene()
 	
 	mSceneParamsBuffer->Set("cDirectionLightColor", mMainDirLight->mColor);
 	mSceneParamsBuffer->Set("cLightDirection", mMainDirLight->mDirection);	
+	mSceneParamsBuffer->Set("cPointLightsCount", mPointLights.size());
+	for (int i = 0; i < mPointLights.size(); i++)
+	{
+		PointLight* light = mPointLights[i];
+		mSceneParamsBuffer->Set("cPointLights", light->mPosition, i, 0);
+		mSceneParamsBuffer->Set("cPointLights", light->mColor, i, 16);
+		mSceneParamsBuffer->Set("cPointLights", light->mIntensity, i, 32);
+	}
 	for (auto& ro : mRenderObjects)
 	{		
 		uint32_t idx = ro->mID;
-		mSceneParamsBuffer->Set(idx * sizeof(PerObjectBuffer), *ro->mWorldMat);
+		mSceneParamsBuffer->Set("cRoWorldMatrix", * ro->mWorldMat, idx);
 		mROIDInstancingBuffer->Set(idx * sizeof(uint32_t) * 4, idx);
 	}
 	
@@ -80,6 +73,13 @@ DirectionLight* RenderScene::CreateMainDirLight()
 {
 	mMainDirLight = new DirectionLight();
 	return mMainDirLight;
+}
+
+PointLight* RenderScene::CreatePointLight()
+{
+	auto light = new PointLight();
+	mPointLights.push_back(light);
+	return light;
 }
 
 RenderView* RenderScene::CreateRenderView()
@@ -125,5 +125,6 @@ void RenderScene::DestroyRenderObject(RenderObject* ro)
 	}
 	mBufferDirty = true;
 }
+
 
 }

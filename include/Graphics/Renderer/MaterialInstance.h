@@ -19,27 +19,36 @@ struct RENDER_API ShaderParamsBuffer : NoCopy
 	ShaderParamsBuffer(const RHICBufferDesc& cbDesc);
 	ShaderParamsBuffer(RHIBufferUsage usage, uint32_t size);
 
+
 	template<typename T>
-	void Set(const LString& name, const T& val)
+	void Set(const LString& name, const T& val, uint32_t arrayIdx = 0, size_t extra_offset = 0)
 	{
-		auto offset = mVars[name.Hash()].mOffset;
-		*((T*)(mData.data() + offset)) = val;
+		CBufferVar& var = mVars[name.Hash()];
+		size_t elementSize = 0;
+		if (var.mIsArray)
+			elementSize = var.mElementSize;
+		auto offset = var.mOffset + elementSize * arrayIdx;
+		LUNA_ASSERT(offset + extra_offset + sizeof(T) < mData.size());
+		*((T*)(mData.data() + offset + extra_offset)) = val;
 	}
 
 	template<typename T>
-	void Set(uint32_t offset, const T& val)
+	void Set(size_t extra_offset, const T& val)
 	{
-		*((T*)(mData.data() + offset)) = val;
+		LUNA_ASSERT(extra_offset + sizeof(T) < mData.size());
+		*((T*)(mData.data() + extra_offset)) = val;
 	}
 
 	void SetData(const LString& name, void* data, uint32_t dataSize)
 	{
 		auto offset = mVars[name.Hash()].mOffset;
+		LUNA_ASSERT(offset + dataSize < mData.size());
 		memcpy(mData.data() + offset, data, dataSize);
 	}
 
 	void SetData(uint32_t offset, void* data, uint32_t dataSize)
 	{
+		LUNA_ASSERT(offset + dataSize < mData.size());
 		memcpy(mData.data() + offset, data, dataSize);
 	}
 

@@ -1,40 +1,32 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Filename: depth.vs
+// Filename: light.vs
 ////////////////////////////////////////////////////////////////////////////////
-#include "assets/built-in/SharedCBuffer.hlsl"
+#include "assets/built-in/Shader/SharedCBuffer.hlsl"
+#include "assets/built-in/Shader/SharedSampler.hlsl"
 
-//////////////
-// TYPEDEFS //
-//////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 // Vertex Shader
 ////////////////////////////////////////////////////////////////////////////////
-BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID) 
+BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
 {
-    BaseFragment output;    
-    
+    BaseFragment output;
 	// Change the position vector to be 4 units for proper matrix calculations.
-    
-
+    float4 position = float4(input.position, 1.0);
+	matrix worldMatrix = cRoWorldMatrix[input.instancemessage.x];
 	// Calculate the position of the vertex against the world, view, and projection matrices.
-    output.position = mul(float4(input.position, 1.0f), objectBuffers[inst].worldMatrix);
+    output.position = mul(position, worldMatrix);
     output.position = mul(output.position, cViewMatrix);
     output.position = mul(output.position, cProjectionMatrix);
-    output.normal = mul(float4(input.normal, inst), objectBuffers[inst].worldMatrix);
-    output.color = input.color;
-	return output;
+    
+    output.normal = input.normal;
+    return output;
 }
-
-////////////////////////////////////////////////////////////////////////////////
-// Filename: depth.ps
-////////////////////////////////////////////////////////////////////////////////
-
 ////////////////////////////////////////////////////////////////////////////////
 // Pixel Shader
 ////////////////////////////////////////////////////////////////////////////////
 float4 PSMain(BaseFragment input) : SV_TARGET
 {
-    float f = saturate(dot(input.normal, cLightDirection));
-	return input.color * f;
+    float3 texColor = _SkyTex.Sample(SampleTypeClamp, normalize(input.normal)).rgb;
+    return float4(texColor, 1.0f);
 }

@@ -21,18 +21,21 @@ public:
 	{
 		return mColor;
 	}
+	void SetColor(const LVector3f& val);
+
+	void SetIndensity(float val);
+
 	const float GetIntensity()const
 	{
-		return mIdentisity;
+		return mIntensity;
 	}
 
-	void OnTransformDirty(Transform* transform);
 protected:
-	ActionHandle            mTransformDirtyAction;
-	LVector3f               mColor      = LVector3f(0.8f, 0.8f, 0.8f);
-	bool                    mCastShadow = false;
-	float                   mIdentisity = 1.0f;
-	render::DirectionLight* mLight = nullptr;
+	ActionHandle   mTransformDirtyAction;
+	LVector3f      mColor      = LVector3f(0.8f, 0.8f, 0.8f);
+	bool           mCastShadow = false;
+	float          mIntensity = 1.0f;
+	render::Light* mLight      = nullptr;
 };
 
 class GAME_API PointLightComponent : public LightComponent
@@ -40,6 +43,7 @@ class GAME_API PointLightComponent : public LightComponent
 	RegisterTypeEmbedd(PointLightComponent, LightComponent)
 public:
 	void OnCreate() override;
+	void OnTransformDirty(Transform* transform);
 
 	LVector3f GetPosition() const
 	{
@@ -52,6 +56,7 @@ class GAME_API DirectionLightComponent : public LightComponent
 	RegisterTypeEmbedd(DirectionLightComponent, LightComponent)
 public:	
 	void OnCreate() override;
+	void OnTransformDirty(Transform* transform);
 
 	const LMatrix4f& GetProjectionMatrix(int idx)const
 	{
@@ -78,8 +83,6 @@ public:
 	{
 		return mTransform->GetRotation();
 	}
-
-	void OnTick(float delta_time) override;
 
 	void SetProjectionMatrix(const LMatrix4f& val, int csm_index);
 	void SetViewMatrix(const LMatrix4f& val, int csm_index);

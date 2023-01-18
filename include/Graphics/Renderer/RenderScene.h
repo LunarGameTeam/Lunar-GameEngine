@@ -4,29 +4,13 @@
 #include "Graphics/RenderConfig.h"
 #include "Graphics/RenderTypes.h"
 #include "Graphics/RHI/RHITypes.h"
+#include "Core/Foundation/Misc.h"
 
 #include <functional>
-#include "Core/Foundation/Misc.h"
 
 namespace luna::render
 {
 
-
-struct PerObjectBuffer
-{
-	LMatrix4f mWorldMatrix;
-};
-
-struct SceneBuffer
-{
-	LVector4f       mLightDiffuseColor;
-	LVector3f       mLightDirection;
-};
-
-struct InstanceBuffer
-{
-	uint32_t mInstance[128][4];
-};
 
 struct RENDER_API RenderObject
 {
@@ -42,34 +26,6 @@ struct RENDER_API RenderObject
 	uint64_t          mID;
 };
 
-struct RENDER_API Light
-{
-
-	LVector4f      mColor = LVector4f(1, 1, 1, 1);
-	bool           mCastShadow = false;
-
-	float          mIndensity = 1.0;
-	bool           mInit = false;
-};
-
-struct RENDER_API PointLight : Light
-{
-	LVector3f mPosition;
-};
-
-struct RENDER_API DirectionLight : Light
-{
-
-	LVector3f      mDirection;
-	LMatrix4f      mViewMatrix;
-	LMatrix4f      mProjMatrix;
-
-
-	void Init();
-
-	RHIResourcePtr mViewBuffer;
-	RHIViewPtr     mViewBufferView;
-};
 
 class RENDER_API RenderScene final : NoCopy
 {
@@ -82,6 +38,8 @@ public:
 public:
 	void Init();
 	DirectionLight* CreateMainDirLight();
+	PointLight* CreatePointLight();
+
 	RenderObject* CreateRenderObject();
 	RenderView* CreateRenderView();
 	void DestroyRenderObject(RenderObject* ro);
@@ -105,6 +63,7 @@ public:
 	//先不做Culling，这里应该交给View进行Culling并进行ID更新
 	RHIResourcePtr      mIDInstanceBuffer;
 	DirectionLight*     mMainDirLight;
+	LArray<PointLight*> mPointLights;
 protected:
 	void PrepareScene();
 

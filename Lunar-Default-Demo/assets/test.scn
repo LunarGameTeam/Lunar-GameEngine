@@ -57,8 +57,8 @@
          "__fid__" : 7,
          "__index__" : 0,
          "__parent__" : 5,
-         "material" : "/assets/built-in/skybox/Skybox.mat",
-         "mesh" : "/assets/built-in/inside_sphere.obj"
+         "material" : "/assets/built-in/Skybox/Skybox.mat",
+         "mesh" : "/assets/built-in/Geometry/InsideSphere.obj"
       },     
       {
          "__class__" : "Entity",
@@ -83,7 +83,7 @@
          "__index__" : 0,
          "__parent__" : 9,
          "material" : "/assets/built-in/Pbr.mat",
-         "mesh" : "/assets/built-in/box.obj"
+         "mesh" : "/assets/built-in/Geometry/Box.obj"
       },     
       {
          "__class__" : "Entity",
@@ -113,7 +113,7 @@
          "__index__" : 0,
          "__parent__" : 13,
          "material" : "/assets/built-in/Pbr.mat",
-         "mesh" : "/assets/built-in/box.obj"
+         "mesh" : "/assets/built-in/Geometry/Box.obj"
       },    
       {
          "__class__" : "Entity",
@@ -138,7 +138,7 @@
          "__index__" : 0,
          "__parent__" : 17,
          "material" : "/assets/built-in/Pbr.mat",
-         "mesh" : "/assets/built-in/sphere.obj"
+         "mesh" : "/assets/built-in/Geometry/Sphere.obj"
       },    
       {
          "__class__" : "Entity",
@@ -163,7 +163,7 @@
          "__index__" : 0,
          "__parent__" : 21,
          "material" : "/assets/built-in/Pbr.mat",
-         "mesh" : "/assets/built-in/plane.obj"
+         "mesh" : "/assets/built-in/Geometry/Plane.obj"
       },     
       {
          "__class__" : "Entity",

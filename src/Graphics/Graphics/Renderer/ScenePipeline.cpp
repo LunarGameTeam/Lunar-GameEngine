@@ -10,6 +10,7 @@
 
 #include "Graphics/Renderer/RenderScene.h"
 #include "Graphics/Renderer/RenderView.h"
+#include "Graphics/Renderer/RenderLight.h"
 #include "Graphics/RenderModule.h"
 
 
@@ -75,7 +76,7 @@ void ShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 			mat->Ready();
 
 		params.PushShaderParam(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer);
-		params.PushShaderParam(ParamID_ViewBuffer, renderScene->mMainDirLight->mViewBufferView);
+		params.PushShaderParam(ParamID_ViewBuffer, renderScene->mMainDirLight->mParamBuffer.get());
 
 		for (auto it : ROs)
 		{

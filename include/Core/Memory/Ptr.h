@@ -96,6 +96,11 @@ protected:
 	size_t mInstanceID = 0;
 	LObject *mParent = nullptr;
 
+#ifdef _DEBUG
+	LObject* mObject = nullptr;
+#endif // _DEBUG
+	
+
 };
 
 

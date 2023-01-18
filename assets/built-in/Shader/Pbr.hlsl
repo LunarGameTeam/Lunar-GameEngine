@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Filename: light.vs
 ////////////////////////////////////////////////////////////////////////////////
-#include "assets/built-in/SharedCBuffer.hlsl"
-#include "assets/built-in/SharedSampler.hlsl"
+#include "assets/built-in/Shader/SharedCBuffer.hlsl"
+#include "assets/built-in/Shader/SharedSampler.hlsl"
 /////////////
 // GLOBALS //
 /////////////
@@ -27,10 +27,10 @@ cbuffer MaterialBuffer : register(b3)
 BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
 {
     BaseFragment output;
-    
+    uint instanceID = input.instancemessage.x;
 	// Change the position vector to be 4 units for proper matrix calculations.
     float4 position = float4(input.position, 1.0);
-	matrix worldMatrix = objectBuffers[input.instancemessage.x].worldMatrix;
+	matrix worldMatrix = cRoWorldMatrix[instanceID];
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
     output.position = mul(position, worldMatrix);
@@ -115,7 +115,7 @@ float3 fresnelSchlick(float3 F0, float cosTheta)
 	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-void CalcRadiance(BaseFragment input, float3 Lo, float3 N, out float3 rad)
+void CalcRadiance(BaseFragment input, float3 Lo, float3 N, float3 Li, float3 Lradiance, out float3 rad)
 {
 	float3 albedo = _AlebdoColor;
 	float metalness = _Metallic;
@@ -132,8 +132,6 @@ void CalcRadiance(BaseFragment input, float3 Lo, float3 N, out float3 rad)
 
 	// Direct lighting calculation for analytical lights.
 	float3 directLighting = 0.0;
-	float3 Li = -cLightDirection;
-	float3 Lradiance = cDirectionLightColor.xyz;
 
 		// Half-vector between Li and Lo.
 	float3 Lh = normalize(Li + Lo);
@@ -165,7 +163,7 @@ void CalcRadiance(BaseFragment input, float3 Lo, float3 N, out float3 rad)
 		// Total contribution for this light.
 	directLighting += (diffuseBRDF + specularBRDF) * Lradiance * cosLi;
 
-	rad = directLighting;
+	rad += directLighting;
 }
 
 float4 PSMain(BaseFragment input) : SV_TARGET
@@ -197,9 +195,28 @@ float4 PSMain(BaseFragment input) : SV_TARGET
     float2 uv2 = float2(lightViewPosition.x * 0.5 / lightViewPosition.w + 0.5, -lightViewPosition.y * 0.5 / lightViewPosition.w + 0.5);
 	// Get current fragment's normal and transform to world space.
 	//float shadowFactor = CalcShadowFactor(lightViewPosition.z / lightViewPosition.w, uv2, csm_index);
-	// Angle between surface normal and outgoing light direction.
-	float3 rad;
-	CalcRadiance(input, Lo, input.normal, rad);
+	
+	float3 rad = float3(0, 0, 0);
+	// Direction Light
+	{
+		float3 Li = -cLightDirection;
+		float3 Lradiance = cDirectionLightColor.xyz;
+		// CalcRadiance
+		CalcRadiance(input, Lo,  input.normal, Li, Lradiance, rad);
+	}
+
+	// Point Lights
+	for(int i = 0 ; i < cPointLightsCount; ++i)
+	{
+		float3 Li = normalize(input.worldPosition.xyz - cPointLights[i].cLightPos);
+		float distance = length(input.worldPosition.xyz - cPointLights[i].cLightPos);
+		float attenuation =  cPointLights[i].cIndensity / (1.0f + 0.09f * distance + 
+    		    0.032f * (distance * distance));    
+		float3 Lradiance = cPointLights[i].cLightColor.xyz * attenuation;
+		// CalcRadiance
+		CalcRadiance(input, Lo,  input.normal, Li, Lradiance, rad);
+	}
+
 	// if(dot(input.normal, - cLightDirection) > 0)
 	//	return float4((float(csm_index + 1) / 4.0f * shadowFactor) * rad, 1);
 	// Final fragment color

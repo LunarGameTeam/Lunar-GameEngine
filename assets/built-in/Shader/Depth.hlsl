@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Filename: depth.vs
 ////////////////////////////////////////////////////////////////////////////////
-#include "assets/built-in/SharedCBuffer.hlsl"
+#include "assets/built-in/Shader/SharedCBuffer.hlsl"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Vertex Shader
@@ -10,11 +10,10 @@ BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
 {
     BaseFragment output;    
     
-	// Change the position vector to be 4 units for proper matrix calculations.
-    
+    uint instanceID = input.instancemessage.x;
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
-    output.position = mul(float4(input.position, 1.0f), objectBuffers[inst].worldMatrix);
+    output.position = mul(float4(input.position, 1.0f), cRoWorldMatrix[instanceID]);
     output.position = mul(output.position, cViewMatrix);
     output.position = mul(output.position, cProjectionMatrix);
 

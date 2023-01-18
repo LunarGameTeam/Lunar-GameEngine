@@ -2,13 +2,13 @@
    "00000000-0000-0000-0000-000000000000" : {
       "name" : "",
       "params" : ["d154f606-3381-436c-9343-71fe0fb101c4"],
-      "shader" : "/assets/built-in/diffuse.hlsl",
+      "shader" : "/assets/built-in/Shader/Diffuse.hlsl",
       "type_name" : "MaterialInstance"
    },
    "d154f606-3381-436c-9343-71fe0fb101c4" : {
       "name" : "",
       "param_name" : "_MainTex",
-      "texture" : "/assets/built-in/white.png",
+      "texture" : "/assets/built-in/Textures/White.png",
       "type" : 5,
       "type_name" : "MaterialParamTexture2D"
    }

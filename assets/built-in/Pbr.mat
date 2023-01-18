@@ -7,7 +7,7 @@
          "__parent__" : 0,
          "name" : "",
          "params" : [ 2, 3, 4, 5 ],
-         "shader" : "/assets/built-in/Pbr.hlsl"
+         "shader" : "/assets/built-in/Shader/Pbr.hlsl"
       },
       {
          "__class__" : "MaterialParamTexture2D",
@@ -16,7 +16,7 @@
          "__parent__" : 1,
          "name" : "",
          "param_name" : "_MainTex",
-         "texture" : "/assets/built-in/white.png",
+         "texture" : "/assets/built-in/Textures/White.png",
          "type" : 5
       },
       {

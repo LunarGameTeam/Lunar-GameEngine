@@ -91,6 +91,14 @@ class EditorBase(object):
             if changed:
                 setattr(comp, prop_name, new_val)
             return changed, new_val
+        elif prop_type == float:
+            imgui.align_text_to_frame_padding()
+            imgui.text(prop_name)
+            imgui.same_line(16 + self.indent, 16)
+            changed, new_val = imgui.drag_float("##" + prop_name, val, 0.2, 1, -1)
+            if changed:
+                setattr(comp, prop_name, new_val)
+            return changed, new_val
 
     def on_imgui(self):
         target_type: typing.Type[luna.LObject] = self.target.__class__

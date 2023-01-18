@@ -33,8 +33,8 @@ class EditorModule(luna.LModule):
 
         if False:
             update_asset("/assets/test.scn", luna.Scene)
-            update_asset("/assets/built-in/skybox/Skybox.mat", luna.MaterialTemplateAsset)
-            update_asset("/assets/built-in/skybox/Skybox.cubemap", luna.TextureCube)
+            update_asset("/assets/built-in/Skybox/Skybox.mat", luna.MaterialTemplateAsset)
+            update_asset("/assets/built-in/Skybox/Skybox.cubemap", luna.TextureCube)
             update_asset("/assets/built-in/Pbr.mat", luna.MaterialTemplateAsset)
 
     def open_asset(self, f: 'FileInfo'):

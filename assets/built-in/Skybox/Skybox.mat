@@ -7,7 +7,7 @@
          "__parent__" : 0,
          "name" : "",
          "params" : [ 2 ],
-         "shader" : "/assets/built-in/skybox/Skybox.hlsl"
+         "shader" : "/assets/built-in/Skybox/Skybox.hlsl"
       },
       {
          "__class__" : "MaterialParamTextureCube",
@@ -16,7 +16,7 @@
          "__parent__" : 1,
          "name" : "_SkyTex",
          "param_name" : "_SkyTex",
-         "texture" : "/assets/built-in/skybox/Skybox.cubemap",
+         "texture" : "/assets/built-in/Skybox/Skybox.cubemap",
          "type" : 6
       }
    ]

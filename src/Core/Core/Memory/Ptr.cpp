@@ -19,7 +19,14 @@ PPtr::~PPtr()
 
 LObject* PPtr::Get()
 {
+#ifdef _DEBUG
+	if (mObject)
+		return mObject;
+	mObject = LObject::InstanceIDToObject(mInstanceID);
+	return mObject;
+#else
 	return LObject::InstanceIDToObject(mInstanceID);
+#endif // _DEBUG
 }
 
 void PPtr::SetPtr(LObject *val)

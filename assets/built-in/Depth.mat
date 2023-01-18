@@ -7,7 +7,7 @@
          "__parent__" : 0,
          "name" : "",
          "params" : [ ],
-         "shader" : "/assets/built-in/Depth.hlsl"
+         "shader" : "/assets/built-in/Shader/Depth.hlsl"
       }      
    ]
 }
