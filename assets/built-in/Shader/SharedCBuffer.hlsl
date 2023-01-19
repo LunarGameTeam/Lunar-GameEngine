@@ -51,8 +51,9 @@ struct PointLight
 cbuffer SceneBuffer : register(b2, space0)
 {
 	matrix cRoWorldMatrix[128];
-	float4 cDirectionLightColor;
+	float4 cDirectionLightColor;	
     float3 cLightDirection;
+	float4 cAmbientColor;
 	PointLight cPointLights[4];
 	int cPointLightsCount;
 };

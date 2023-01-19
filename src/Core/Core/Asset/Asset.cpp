@@ -1,6 +1,7 @@
 #include "Core/Asset/Asset.h"
 #include "Core/Serialization/JsonSerializer.h"
 #include "Core/Reflection/Reflection.h"
+#include "Core/Asset/AssetModule.h"
 
 namespace luna
 {
@@ -18,10 +19,12 @@ RegisterTypeEmbedd_Imp(Asset)
 
 Asset::Asset()
 {
+
 }
 
 Asset::~Asset()
 {
+	sAssetModule->RemoveAsset(this);
 }
 
 void Asset::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> file)

@@ -222,6 +222,7 @@ void JsonSerializer::DeserializeProperty(LProperty &prop, LObject *obj, JsonDict
 	static std::map<LType *, void(*)(LProperty &prop, LObject *obj, JsonDict &dict)> helper = {
 		{LType::Get<float>(),  &PropertyDeserializeHelper<float>},
 		{LType::Get<int>(),  &PropertyDeserializeHelper<int>},
+		{LType::Get<LVector4f>(),  &PropertyDeserializeHelper<LVector4f>},
 		{LType::Get<LVector3f>(),  &PropertyDeserializeHelper<LVector3f>},
 		{LType::Get<LVector2f>(),  &PropertyDeserializeHelper<LVector2f>},
 		{LType::Get<LString>(),  &PropertyDeserializeHelper<LString>},
@@ -255,6 +256,7 @@ void JsonSerializer::DeserializeProperty(LProperty &prop, LObject *obj, JsonDict
 			
 			
 		}
+		return;
 	}
 	else if (type->IsSubPtrArray())
 	{
@@ -281,11 +283,13 @@ void JsonSerializer::DeserializeProperty(LProperty &prop, LObject *obj, JsonDict
 				}
 			}
 		}
-
+		return;
 	}
 	auto fn = helper[type];
 	if (fn)
 		fn(prop, obj, propDict);
+	else
+		LUNA_ASSERT(false);
 
 
 }

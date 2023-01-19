@@ -140,6 +140,18 @@ public:
 };
 
 
+class RENDER_API MaterialParamFloat4 : public MaterialParam
+{
+	RegisterTypeEmbedd(MaterialParamFloat4, MaterialParam)
+public:
+	MaterialParamFloat4()
+	{
+	};
+	MaterialParamType mParamType = MaterialParamType::Float4;
+
+	LVector4f mValue;
+};
+
 class RENDER_API MaterialParamTexture2D : public MaterialParam
 {
 	RegisterTypeEmbedd(MaterialParamTexture2D, MaterialParam)

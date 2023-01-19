@@ -45,6 +45,9 @@ template<>
 struct CORE_API default_value<JsonList> { static const JsonList value; };
 
 template<>
+struct CORE_API default_value<LVector4f> { static LVector4f value; };
+
+template<>
 struct CORE_API default_value<LVector3f> { static LVector3f value; };
 
 template<>
@@ -265,7 +268,9 @@ namespace detail
 {
 
 template<>
-static void convert_to_value(Json::Value &val, const LString &t) { val = t.c_str(); };
+static void convert_to_value(Json::Value& val, const LString& t) { val = t.c_str(); };
+template<>
+static void convert_to_value(Json::Value& val, const LVector4f& t) { val[0] = t.x();	val[1] = t.y();	val[2] = t.z(); val[3] = t.w(); };
 template<>
 static void convert_to_value(Json::Value &val, const LVector3f &t) { val[0] = t.x();	val[1] = t.y();	val[2] = t.z(); };
 template<>
@@ -287,6 +292,14 @@ static void convert_from_value(const Json::Value &val, LString &t)
 
 template<>
 static void convert_from_value(const Json::Value &val, LQuaternion &t)
+{
+	t.x() = val[0].as<float>();
+	t.y() = val[1].as<float>();
+	t.z() = val[2].as<float>();
+	t.w() = val[3].as<float>();
+};
+template<>
+static void convert_from_value(const Json::Value& val, LVector4f& t)
 {
 	t.x() = val[0].as<float>();
 	t.y() = val[1].as<float>();

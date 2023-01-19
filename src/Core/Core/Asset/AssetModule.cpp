@@ -100,6 +100,11 @@ Asset *AssetModule::LoadAsset(const LPath &path, LType *asset_type)
 	return asset.get();
 }
 
+void AssetModule::RemoveAsset(Asset* asset)
+{
+	mCachedAssets.erase(asset->mAssetPath);
+}
+
 Asset* AssetModule::BindingLoadAsset(const char* path, LType* asset_type)
 {
 	return LoadAsset(path, asset_type);

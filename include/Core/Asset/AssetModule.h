@@ -35,9 +35,10 @@ public:
 
 public:
 	Asset* NewAsset(const LString& path, LType* type);
-
-	bool SaveAsset(Asset *asset, const LString &path);
+	void RemoveAsset(Asset* asset);
+	bool SaveAsset(Asset *asset, const LString &path);	
 	Asset *LoadAsset(const LPath &path, LType* asset_type);
+	
 	Asset* BindingLoadAsset(const char* path, LType* asset_type);
 	template<typename T>
 	T* LoadAsset(const LPath &path)

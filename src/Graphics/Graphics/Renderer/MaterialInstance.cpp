@@ -96,6 +96,12 @@ RegisterTypeEmbedd_Imp(MaterialParamFloat3)
 		.Serialize();
 }
 
+RegisterTypeEmbedd_Imp(MaterialParamFloat4)
+{
+	cls->Ctor<MaterialParamFloat4>();
+	cls->BindingProperty<&MaterialParamFloat4::mValue>("value")
+		.Serialize();
+}
 RegisterTypeEmbedd_Imp(MaterialParamTexture2D)
 {
 	cls->Ctor<MaterialParamTexture2D>();
@@ -247,6 +253,10 @@ void MaterialInstance::UpdateParamsToBuffer()
 			}
 			break;
 			case MaterialParamType::Float4:
+			{
+				MaterialParamFloat4* p = static_cast<MaterialParamFloat4*>(param.Get());
+				memcpy(data.data() + var.mOffset, &p->mValue, var.mSize);
+			}
 				break;
 
 			}

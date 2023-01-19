@@ -8,6 +8,7 @@ namespace detail
 Json::Value nullValue;
 
 
+LVector4f default_value<LVector4f>::value = LVector4f();
 LVector3f default_value<LVector3f>::value = LVector3f();
 LVector2f default_value<LVector2f>::value = LVector2f();
 LQuaternion default_value<LQuaternion>::value = LQuaternion();

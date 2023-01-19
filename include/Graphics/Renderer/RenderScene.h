@@ -36,6 +36,7 @@ public:
 	void Render(FrameGraphBuilder* FG);
 
 public:
+	
 	void Init();
 	DirectionLight* CreateMainDirLight();
 	void DestroyMainDirLight(DirectionLight* val);
@@ -46,6 +47,7 @@ public:
 	void DestroyRenderObject(RenderObject* ro);
 	void DestroyRenderView(RenderView* renderView);
 
+	bool mRenderable = true;
 public:
 	void        SetSceneBufferDirty()             { mBufferDirty = true; }
 	RenderView* GetRenderView(uint32_t idx) const { return mViews[idx]; };

@@ -21,9 +21,9 @@
 namespace luna::render 
 {
 
-size_t sStagingBufferMaxSize = 4096 * 4096 * 64;
-size_t sFrameGraphBufferMaxSize = 1024 * 1024 * 4 * 64;
-static const size_t sInstancingBufferMaxSize = 1024 * 1024 * 16;
+size_t sStagingBufferMaxSize = 1024 * 1024 * 64;
+size_t sFrameGraphBufferMaxSize = 1024 * 1024 * 4 * 16;
+static const size_t sInstancingBufferMaxSize = 1024 * 16;
 
 size_t GetOffset(size_t offset, size_t aligment)
 {
@@ -80,13 +80,13 @@ void RenderDevice::Init()
 
 	switch (mDeviceType)
 	{
-	case luna::render::RenderDeviceType::DirectX12:
+	case RenderDeviceType::DirectX12:
 		mDevice = new DX12Device();		
 		mDevice->InitDeviceData();
 		mGraphicQueue = CreateRHIObject<DX12RenderQueue>();	
 		mTransferQueue = CreateRHIObject<DX12RenderQueue>(RHIQueueType::eTransfer);
 		break;
-	case luna::render::RenderDeviceType::Vulkan:
+	case RenderDeviceType::Vulkan:
 		mDevice = new VulkanDevice();
 		mDevice->InitDeviceData();
 		mGraphicQueue = CreateRHIObject<VulkanRenderQueue>();

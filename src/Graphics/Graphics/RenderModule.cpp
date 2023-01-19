@@ -320,7 +320,8 @@ void RenderModule::Tick(float delta_time)
 	mRenderDevice->mTransferCmd->BeginEvent("Frame Graph Prepare");
 	for (RenderScene* it : mRenderScenes)
 	{
-		it->Render(mFrameGraph);
+		if(it->mRenderable)
+			it->Render(mFrameGraph);
 	}
 	mRenderDevice->mTransferCmd->EndEvent();
 
