@@ -10,5 +10,5 @@
 #endif
 namespace luna::lobj
 {
-	void OBJ_API ImportFbxToLunaMesh(const LString& fbx_file_path, resimport::LImportScene& importScene);
+	void OBJ_API ImportObjToLunaResource(const LString& obj_file_path, resimport::LImportScene& importScene);
 }

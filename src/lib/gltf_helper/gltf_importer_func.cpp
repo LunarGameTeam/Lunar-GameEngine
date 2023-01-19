@@ -5,7 +5,7 @@
 #include "gltf_importer_func.h"
 namespace luna::lgltf
 {
-	void ImportGltfToLunaMesh(const LString& fbx_file_path, resimport::LImportScene &importScene)
+	void ImportGltfToLunaResource(const LString& fbx_file_path, resimport::LImportScene &importScene)
 	{
 		LGltfLoaderHelper importer;
 		LGltfSceneData fbxScene;

@@ -14,7 +14,7 @@ namespace luna::lobj
 		LObjLoaderMesh mMeshLoader;
 	public:
 		LObjLoaderFactory();
-		std::shared_ptr<LObjDataBase> LoadFbxDataMesh(LObjDataType type,const tinyobj::shape_t &shapeData);
+		std::shared_ptr<LObjDataBase> LoadObjDataMesh(const tinyobj::attrib_t& attriData, const std::vector<tinyobj::shape_t>& shapeData);
 	};
 	static std::shared_ptr<LObjLoaderFactory> singleLoaderInterface = std::make_shared<LObjLoaderFactory>();
 

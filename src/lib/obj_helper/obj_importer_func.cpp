@@ -5,11 +5,11 @@
 #include "obj_importer_func.h"
 namespace luna::lobj
 {
-	void ImportObjToLunaMesh(const LString& obj_file_path, resimport::LImportScene &importScene)
+	void ImportObjToLunaResource(const LString& obj_file_path, resimport::LImportScene &importScene)
 	{
 		LObjLoaderHelper importer;
 		LObjSceneData objScene;
 		importer.LoadObjFile(obj_file_path, objScene);
-		//instanceObjSceneImport->ParseScene(&objScene, importScene);
+		instanceObjSceneImport->ParseScene(&objScene, importScene);
 	}
 }

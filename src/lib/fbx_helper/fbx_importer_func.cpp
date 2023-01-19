@@ -5,7 +5,7 @@
 #include "fbx_importer_func.h"
 namespace luna::lfbx
 {
-	void ImportFbxToLunaMesh(const LString& fbx_file_path, resimport::LImportScene &importScene)
+	void ImportFbxToLunaResource(const LString& fbx_file_path, resimport::LImportScene &importScene)
 	{
 		LFbxLoaderHelper importer;
 		LFbxSceneData fbxScene;

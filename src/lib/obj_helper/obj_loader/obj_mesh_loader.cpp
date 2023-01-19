@@ -2,8 +2,10 @@
 #include "obj_mesh_loader.h"
 namespace luna::lobj
 {
-	std::shared_ptr<LObjDataBase> LObjLoaderMesh::ParsingData(const tinyobj::shape_t& shape_in)
+	std::shared_ptr<LObjDataBase> LObjLoaderMesh::ParsingData(const tinyobj::attrib_t& attriData, const std::vector<tinyobj::shape_t>& shapeData)
 	{
-		return nullptr;
+		std::shared_ptr<LObjDataMesh> newData = std::make_shared<LObjDataMesh>();
+		newData->SetData(attriData, shapeData);
+		return newData;
 	}
 }

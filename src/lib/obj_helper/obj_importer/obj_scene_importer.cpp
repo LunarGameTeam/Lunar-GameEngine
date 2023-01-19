@@ -18,6 +18,7 @@ namespace luna::lobj
 
 	void LObjSceneImportHelper::ParseScene(const LObjSceneData* objDataInput, resimport::LImportScene& outputScene)
 	{
+		outputScene.SetAxisAndUnit(resimport::ImportAxisYupLeftHand,resimport::ImportUnitMeter);
 		for (auto &eachData : objDataInput->mDatas)
 		{
 			LObjDataType dataType = eachData->GetType();

@@ -10,5 +10,5 @@
 #endif
 namespace luna::lgltf
 {
-	void GLTF_API ImportGltfToLunaMesh(const LString& gltf_file_path, resimport::LImportScene& importScene);
+	void GLTF_API ImportGltfToLunaResource(const LString& gltf_file_path, resimport::LImportScene& importScene);
 }
