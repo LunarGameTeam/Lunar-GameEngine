@@ -12,7 +12,10 @@ int main()
 	//luna::IPlatformFileManager* manager = luna::g_file_sys->GetPlatformFileManager();
 	//luna::render::MeshAsset* m_render_mesh = luna::TCreateObject<luna::render::MeshAsset>();
 	//m_render_mesh->ResetUUID();
-	// 
+	
+	//gltf test
+	luna::resimport::LImportScene importSceneGltf;
+	luna::lgltf::ImportGltfToLunaResource("C:/LunaEngine1.1/Lunar-GameEngine/assets/built-in/gltf/scene.gltf", importSceneGltf);
 	//obj test
 	luna::resimport::LImportScene importSceneObj;
 	luna::lobj::ImportObjToLunaResource("C:/LunaEngine1.1/Lunar-GameEngine/assets/built-in/inside_sphere.obj", importSceneObj);

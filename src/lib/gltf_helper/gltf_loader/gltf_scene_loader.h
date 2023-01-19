@@ -14,7 +14,7 @@ namespace luna::lgltf
 		LUnorderedMap<LGltfDataType, std::shared_ptr<LGltfLoaderBase>> mLoaders;
 	public:
 		LGltfLoaderFactory();
-		std::shared_ptr<LGltfDataBase> LoadGltfData(LGltfDataType type, const LVector<LGltfNodeBase>& sceneNodes, Microsoft::glTF::Node* pNode);
+		std::shared_ptr<LGltfDataBase> LoadGltfData(const Microsoft::glTF::Document &doc, LGltfDataType type, const Microsoft::glTF::Node* pNode);
 	};
 	static std::shared_ptr<LGltfLoaderFactory> singleLoaderInterface = std::make_shared<LGltfLoaderFactory>();
 

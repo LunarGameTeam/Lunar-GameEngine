@@ -1,6 +1,8 @@
 #pragma once
 #include "core/core_library.h"
 #include<GLTFSDK/GLTF.h>
+#include <GLTFSDK/Deserialize.h>
+#include <GLTFSDK/GLBResourceReader.h>
 namespace luna::lgltf
 {
 	enum LGltfDataType
@@ -16,9 +18,10 @@ namespace luna::lgltf
 	{
 		size_t mParent;
 		LVector<size_t> mChild;
-		LVector3f mLocalTranslation;
-		LQuaternion mLocalRotation;
-		LVector3f mLocalScaling;
+		Microsoft::glTF::Matrix4 matrix;
+		Microsoft::glTF::Quaternion rotation = Microsoft::glTF::Quaternion::IDENTITY;
+		Microsoft::glTF::Vector3 scale = Microsoft::glTF::Vector3::ONE;
+		Microsoft::glTF::Vector3 translation = Microsoft::glTF::Vector3::ZERO;
 		std::unordered_map<LGltfDataType, size_t> mNodeData;
 		size_t mIndex;
 		LString mName;
@@ -39,8 +42,8 @@ namespace luna::lgltf
 	{
 	public:
 		LGltfLoaderBase() {};
-		std::shared_ptr<LGltfDataBase> ParsingData(const LVector<LGltfNodeBase>& sceneNodes, Microsoft::glTF::Node* pNode);
+		std::shared_ptr<LGltfDataBase> ParsingData(const Microsoft::glTF::Document& doc, const Microsoft::glTF::Node* pNode);
 	private:
-		virtual std::shared_ptr<LGltfDataBase> ParsingDataImpl(const LVector<LGltfNodeBase>& sceneNodes, Microsoft::glTF::Node* pNode) = 0;
+		virtual std::shared_ptr<LGltfDataBase> ParsingDataImpl(const Microsoft::glTF::Document& doc, const Microsoft::glTF::Node* pNode) = 0;
 	};
 }

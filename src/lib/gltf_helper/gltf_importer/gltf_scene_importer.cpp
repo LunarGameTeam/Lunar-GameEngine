@@ -27,9 +27,9 @@ namespace luna::lgltf
 			node_value.mIndex = eachData.mIndex;
 			node_value.mName = eachData.mName;
 			node_value.mParent = eachData.mParent;
-			node_value.mTranslation = eachData.mLocalTranslation;
-			node_value.mScal = eachData.mLocalScaling;
-			node_value.mRotation = eachData.mLocalRotation;
+			//node_value.mTranslation = eachData.translation;
+			//node_value.mScal = eachData.rotation;
+			//node_value.mRotation = eachData.scale;
 			node_value.mChild = eachData.mChild;
 			for (auto &eachNodeDataRef : eachData.mNodeData)
 			{

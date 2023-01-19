@@ -13,6 +13,6 @@ namespace luna::lgltf
 	public:
 		LGltfLoaderMesh(){};
 	private:
-		std::shared_ptr<LGltfDataBase> ParsingDataImpl(const LVector<LGltfNodeBase>& sceneNodes, Microsoft::glTF::Node* pNode) override;
+		std::shared_ptr<LGltfDataBase> ParsingDataImpl(const Microsoft::glTF::Document& doc, const Microsoft::glTF::Node* pNode) override;
 	};
 }
