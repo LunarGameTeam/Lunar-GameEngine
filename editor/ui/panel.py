@@ -64,11 +64,11 @@ class WindowBase(object):
     def on_simple_mb(self):
         imgui.set_next_window_size(self._dialog_min, 0)
         view_pos = self.view_pos
-        view_pos.x += self.width / 2.0
-        view_pos.y += self.height / 2.0
+        x = self.view_pos.x + self.width / 2.0
+        y = self.view_pos.y + self.height / 2.0
 
-        imgui.set_next_window_pos(view_pos, imgui.ImGuiCond_Always, luna.LVector2f(0.5, 0.5))
-        show, is_open = imgui.begin_popup_modal(self._dialog_title, self._dialog_open, 0)
+        imgui.set_next_window_pos(luna.LVector2f(x, y), imgui.ImGuiCond_Always, luna.LVector2f(0.5, 0.5))
+        show, is_open = imgui.begin_popup_modal(self._dialog_title, self._dialog_open, imgui.ImGuiWindowFlags_NoSavedSettings)
         if show:
             imgui.text(self._dialog_msg)
             imgui.end_popup()
@@ -169,7 +169,7 @@ class WindowBase(object):
         if self._status_open:
             imgui.push_style_color(imgui.ImGuiCol_WindowBg, luna.LVector4f(0.08, 0.08, 0.09, 1.00))
             imgui.begin("Status",
-                        imgui.ImGuiWindowFlags_NoCollapse)
+                        imgui.ImGuiWindowFlags_NoCollapse | imgui.ImGuiWindowFlags_NoSavedSettings)
             imgui.text(self._status_msg)
             imgui.end()
             imgui.pop_style_color(1)
@@ -198,7 +198,8 @@ class PanelBase(object):
 
     def do_imgui(self, delta_time):
         imgui.begin(self.title + "###" + self.title + self.parent_window.window_name,
-                    luna.imgui.ImGuiWindowFlags_NoCollapse | luna.imgui.ImGuiWindowFlags_MenuBar,
+                    luna.imgui.ImGuiWindowFlags_NoCollapse | luna.imgui.ImGuiWindowFlags_MenuBar
+                    | imgui.ImGuiWindowFlags_NoBringToFrontOnFocus,
                     False)
         self.window_pos = imgui.get_window_pos()
         self.window_size = imgui.get_window_size()

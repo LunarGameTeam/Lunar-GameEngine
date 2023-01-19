@@ -26,7 +26,6 @@ public:
 
 
 	void Destroy();
-	Entity *Parent();
 
 	Scene* GetScene();
 	LObject* PyGetScene();
@@ -86,16 +85,7 @@ public:
 		return static_cast<T*>(AddComponent(LType::Get<T>()));
 	}
 
-	Component* AddComponent(LType* type)
-	{
-		Component* comp = type->NewInstance<Component>();
-		comp->SetParent(this);
-		comp->mOwnerEntity = this;
-		mComponents.PushBack(comp);
-		comp->mOnCreateCalled = true;
-		comp->OnCreate();
-		return comp;
-	}
+	Component* AddComponent(LType* type);
 
 	TPPtrArray<Component> &GetAllComponents()
 	{
@@ -119,36 +109,22 @@ public:
 
 	bool GetActive();
 	bool GetActiveSelf();
-	void SetActiveSelf(bool value);
+	void SetActive(bool value);
 
-	void UpdateActiveStatus();
+	void UpdateActiveStatus(bool val);
 
-public:
-	bool AddChild(Entity* child, size_t index);
-	bool AddChild(Entity* child);
-	Entity* GetParentEntity() { return mParent; }
-	Entity* GetChild(size_t index)
-	{
-		if (index > m_children.Size())
-			return nullptr;
-		return m_children[index];
-	}
-	size_t GetChildCount() const { return m_children.Size(); };
 
 protected:
-	Transform *mChildren = nullptr;
+	Transform *mTransform = nullptr;
 
 private:
-	TPPtrArray<Entity> m_children;
 	TPPtrArray<Component> mComponents;
-
-	Entity *mParent = nullptr;
 
 	bool mInited = false;
 	bool mNeedTick = false;
+	bool mOnCreateCalled = false;
 
 	bool mActive = false;
-	bool mActiveSelf = true;
 
 	Scene *mScene;
 

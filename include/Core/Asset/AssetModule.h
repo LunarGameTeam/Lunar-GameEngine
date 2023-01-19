@@ -34,6 +34,8 @@ public:
 	void Tick(float delta_time) override;
 
 public:
+	Asset* NewAsset(const LString& path, LType* type);
+
 	bool SaveAsset(Asset *asset, const LString &path);
 	Asset *LoadAsset(const LPath &path, LType* asset_type);
 	Asset* BindingLoadAsset(const char* path, LType* asset_type);

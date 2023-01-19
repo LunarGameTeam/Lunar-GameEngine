@@ -34,6 +34,12 @@ class EditorBase(object):
     target: luna.LObject
     target_type = luna.LObject
 
+    def on_category(self):
+        comp_name = self.target.__class__.__name__
+        category_name = "{}  {}".format(imgui.ICON_FA_LAYER_GROUP, comp_name)
+        is_open = imgui.tree_node(id(self.target), imgui.ImGuiTreeNodeFlags_DefaultOpen, category_name)
+        return is_open
+
     def __init__(self, target):
         super().__init__()
         self.target = target
@@ -91,6 +97,14 @@ class EditorBase(object):
             if changed:
                 setattr(comp, prop_name, new_val)
             return changed, new_val
+        elif prop_type == str:
+            imgui.align_text_to_frame_padding()
+            imgui.text(prop_name)
+            imgui.same_line(16 + self.indent, 16)
+            changed, new_val = imgui.input("##" + prop_name, val, 0)
+            if changed:
+                setattr(comp, prop_name, new_val)
+            return changed, new_val
         elif prop_type == float:
             imgui.align_text_to_frame_padding()
             imgui.text(prop_name)
@@ -121,6 +135,16 @@ class EntityEditor(EditorBase):
         super().__init__(target)
 
     def on_imgui(self):
+        if self.on_category():
+            val = getattr(self.target, "name")
+            imgui.align_text_to_frame_padding()
+            imgui.text("Name")
+            imgui.same_line(16 + self.indent, 16)
+            changed, new_val = imgui.input("##" + "Name", val, 0)
+            if changed:
+                setattr(self.target, "name", new_val)
+            imgui.tree_pop()
+
         for it in self.child_editor_list:
             it.on_imgui()
 
@@ -134,6 +158,7 @@ class EntityEditor(EditorBase):
             child_editor.append(editor)
         for editor in child_editor:
             indent = max(indent, editor.get_indent())
+        self.indent = indent
         for editor in child_editor:
             editor.indent = indent
         return child_editor
@@ -145,12 +170,6 @@ class ComponentEditor(EditorBase):
 
     def __init__(self, target):
         super().__init__(target)
-
-    def on_category(self):
-        comp_name = self.target.__class__.__name__
-        category_name = "{}  {}".format(imgui.ICON_FA_LAYER_GROUP, comp_name)
-        is_open = imgui.tree_node(id(self.target), imgui.ImGuiTreeNodeFlags_DefaultOpen, category_name)
-        return is_open
 
     def on_imgui(self):
         target_type = self.target.__class__

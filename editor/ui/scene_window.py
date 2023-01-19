@@ -75,18 +75,23 @@ class MainPanel(WindowBase):
 
     def on_title(self):
         proj_dir = EditorModule.instance().project_dir
-        scene_path = EditorModule.instance().default_scene
+        scene_path = EditorModule.instance().default_scene_path
         app_title = imgui.ICON_FA_MOON + "  Luna Editor"
         self.title = "{}\t\t{}\t\t{}".format(app_title, proj_dir, scene_path)
 
     def set_main_scene(self, scn):
-        if not scn:
-            return
-        self.show_status("打开场景: {}".format(scn.path))
+        old_scn = None
+        if self.main_scene != scn:
+            old_scn = self.main_scene
+
         self.main_scene = scn
-        game_module.add_scene(self.main_scene)
-        self.hierarchy_panel.set_scene(self.main_scene)
-        self.scene_panel.set_scene(self.main_scene)
+        self.hierarchy_panel.set_scene(scn)
+        self.scene_panel.set_scene(scn)
+        if scn:
+            self.show_status("打开场景: {}".format(scn.path))
+            game_module.add_scene(self.main_scene)
+        if old_scn:
+            old_scn.destroy()
 
     def on_file_menu(self):
         if imgui.begin_menu("文件", True):
@@ -94,13 +99,21 @@ class MainPanel(WindowBase):
                 name = tkinter.filedialog.askdirectory(initialdir=platform_module.engine_dir)
                 if name:
                     platform_module.set_project_dir(name)
-                pass
+            if imgui.menu_item("新建场景"):
+                name = tkinter.filedialog.asksaveasfilename(filetypes=(("scene files", "*.scn"),),
+                                                            initialfile="Scene.scn",
+                                                          initialdir=platform_module.project_dir + "/assets")
+                if name and name.startswith(platform_module.project_dir):
+                    engine_path = os.path.relpath(name, platform_module.project_dir)
+                    new_scn = asset_module.new_asset(engine_path, luna.Scene)
+                    self.set_main_scene(None)
+                    self.set_main_scene(new_scn)
+
             if imgui.menu_item("打开场景"):
                 name = tkinter.filedialog.askopenfilename(filetypes=(("scene files", "*.scn"),),
-                                                          initialdir=platform_module.project_dir)
+                                                          initialdir=platform_module.project_dir + "/assets")
                 if name:
                     engine_path = os.path.relpath(name, platform_module.project_dir)
-                    luna.set_config("DefaultScene", engine_path)
                     scn = asset_module.load_asset(engine_path, luna.Scene)
                     self.set_main_scene(scn)
             if imgui.menu_item("生成 Python API"):

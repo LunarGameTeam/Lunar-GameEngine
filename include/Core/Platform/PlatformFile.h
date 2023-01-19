@@ -42,6 +42,7 @@ enum class CORE_API OpenMode : int
 class CORE_API IPlatformFileManager
 {
 public:
+	virtual ~IPlatformFileManager() {}
 	virtual bool InitFileManager() = 0;
 	virtual bool DisposeFileManager() = 0;
 

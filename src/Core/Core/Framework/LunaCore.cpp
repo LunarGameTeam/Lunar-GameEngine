@@ -178,8 +178,11 @@ void LunaCore::OnFrameEnd(float delta_time)
 void LunaCore::ShutdownModule()
 {
 	for (LModule* it : mOrderedModules)
-	{
-		it->Shutdown();
+	{		
+		if(it->GetClass()->IsNativeType())
+			it->Shutdown();
+		else
+			it->InvokeBinding("on_shutdown");			
 	}
 }
 

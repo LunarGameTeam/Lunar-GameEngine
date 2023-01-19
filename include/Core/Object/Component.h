@@ -27,7 +27,7 @@ public:
 	virtual void OnDestroy();
 	virtual void OnTick(float delta_time);
 
-	void UpdateActiveState();
+	void UpdateActiveState(bool val);
 protected:
 	Component();
 	bool mNeedTick = false;
@@ -35,9 +35,8 @@ protected:
 	Entity *mOwnerEntity;
 
 private:
-	bool mOnCreateCalled = false;
-	bool mActiveSelf = true;
-	bool mActive = false;
+	bool mOnCreateCalled = false;	
+	bool mActive = true;
 
 
 	friend class Entity;

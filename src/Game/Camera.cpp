@@ -73,17 +73,17 @@ const LFrustum CameraComponent::GetFrustum() const
 
 }
 
-const LVector3f& CameraComponent::GetPosition()const
+LVector3f CameraComponent::GetPosition() const
 {
 	return mTransform->GetPosition();
 }
 
-const float CameraComponent::GetFar()const
+float CameraComponent::GetFar() const
 {
 	return mFar;
 }
 
-const float CameraComponent::GetNear()const
+float CameraComponent::GetNear()const
 {
 	return mNear;
 }
@@ -121,14 +121,30 @@ void CameraComponent::SetAspectRatio(float val)
 
 CameraComponent::~CameraComponent()
 {
-	GetScene()->GetRenderScene()->DestroyRenderView(mRenderView);
 }
 
 void CameraComponent::OnCreate()
 {
 	mNeedTick = true;
 	mTransform = GetEntity()->RequireComponent<Transform>();
-	mRenderView = GetScene()->GetRenderScene()->CreateRenderView();
+}
+
+void CameraComponent::OnActivate()
+{
+	if (mRenderView == nullptr)
+	{
+		mRenderView = GetScene()->GetRenderScene()->CreateRenderView();
+	}	
+}
+
+void CameraComponent::OnDeactivate()
+{
+	if (GetScene() && GetScene()->GetRenderScene())
+	{
+		GetScene()->GetRenderScene()->DestroyRenderView(mRenderView);
+		mRenderView = nullptr;
+	}
+
 }
 
 void CameraComponent::OnTick(float delta_time)

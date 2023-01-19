@@ -31,8 +31,6 @@ RegisterTypeEmbedd_Imp(Transform)
 void Transform::OnCreate()
 {
 	Component::OnCreate();
-	Entity* parent = GetEntity()->GetParentEntity();
-	mParent = parent ? parent->GetTransform() : nullptr;
 	GetLocalToWorldMatrix();
 }
 
@@ -53,24 +51,15 @@ void Transform::UpdateMatrix()
 	if (mMatrixDirty)
 	{
 		LTransform trans = LTransform::Identity();
+
 		trans.translate(mPos);
+
 		trans.rotate(mRotation);
+
 		trans.scale(mScale);
 
-		if (mParent)
-			mLocal2World = mParent->GetLocalToWorldMatrix() * trans.matrix();
-		else
-			mLocal2World = trans.matrix();
-
-
-		LTransform invers = trans.inverse();
-
-		if (mParent)		
-			mWorld2Local = mParent->GetWorldToLocalMatrix()* invers.matrix();
-		else
-			mWorld2Local = invers.matrix();
-
-		OnTransformDirty.BroadCast(this);
+		mLocal2World = trans.matrix();		
+		mWorld2Local = mLocal2World.inverse();		
 		mMatrixDirty = false;
 	}
 }
@@ -85,6 +74,7 @@ void Transform::SetPosition(const LVector3f &pos)
 	mPos = pos;
 	mMatrixDirty = true;
 	UpdateMatrix();
+	OnTransformDirty.BroadCast(this);
 }
 
 void Transform::SetRotation(const LQuaternion &rota)
@@ -92,6 +82,7 @@ void Transform::SetRotation(const LQuaternion &rota)
 	mRotation = rota;
 	mMatrixDirty = true;
 	UpdateMatrix();
+	OnTransformDirty.BroadCast(this);
 }
 
 void Transform::SetScale(const LVector3f &scale)
@@ -99,40 +90,18 @@ void Transform::SetScale(const LVector3f &scale)
 	mScale = scale;
 	mMatrixDirty = true;
 	UpdateMatrix();
+	OnTransformDirty.BroadCast(this);
 }
 
-luna::LVector3f Transform::GetWorldPosition()
-{
-	if(mMatrixDirty)
-		mWorldPos = LMath::xyz(GetLocalToWorldMatrix() * LMath::xyzw(mPos));
-	return mWorldPos;
-}
 
-luna::LVector3f Transform::GetWorldScale()
-{
-	if (mMatrixDirty)
-		mWorldScale = LMath::xyz(GetLocalToWorldMatrix() * LMath::xyzw(mScale));
-	return mWorldScale;
-}
-
-luna::LQuaternion Transform::GetWorldRoatation()
-{
-	if (mMatrixDirty)
-	{
-		mWorldRotation = mRotation * GetWorldRoatation();
-		UpdateMatrix();
-	}		
-	return mWorldRotation;
-}
-
-luna::LVector3f Transform::RightDirection()
+LVector3f Transform::RightDirection()
 {
 	LVector3f result = mRotation * LVector3f::UnitX();
 	result.normalize();
 	return result;
 }
 
-luna::LVector3f Transform::UpDirection()
+LVector3f Transform::UpDirection()
 {
 	LVector3f result = mRotation * LVector3f::UnitY();
 	result.normalize();

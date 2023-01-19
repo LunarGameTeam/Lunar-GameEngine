@@ -20,7 +20,8 @@ public:
 
 	void BindingAddScene(Scene* new_scene);
 
-	void AddScene(LType* new_scene);
+	void AddScene(Scene* new_scene);
+	void RemoveScene(Scene* new_scene);
 
 	Scene* GetScene(int32_t index_scene) 
 	{ 

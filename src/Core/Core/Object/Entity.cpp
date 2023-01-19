@@ -9,10 +9,13 @@ RegisterTypeEmbedd_Imp(Entity)
 {
 	cls->Ctor<Entity>();	
 
-	cls->BindingProperty<&Self::mName>("name")
+	cls->BindingProperty<&Entity::mName>("name")
+		.Serialize();
+	cls->BindingProperty<&Entity::mActive>("active")
+		.Setter<&Entity::SetActive>()
 		.Serialize();
 
-	cls->Property<&Self::mComponents>("component_list")
+	cls->Property<&Entity::mComponents>("component_list")
 		.Serialize();
 
 	cls->VirtualProperty("component_count")
@@ -22,8 +25,6 @@ RegisterTypeEmbedd_Imp(Entity)
 	cls->VirtualProperty("owner_scene")
 		.Getter<&Entity::PyGetScene>()
 		.Binding<Entity, LObject*>();
-
-	cls->Property<&Self::m_children>("children");
 
 	cls->BindingMethod<&Entity::GetComponentByType>("get_component")
 		.SetDoc("def get_component(self, t: typing.Type[T] ) -> T:");
@@ -42,7 +43,8 @@ RegisterTypeEmbedd_Imp(Entity)
 
 void Entity::OnCreate()
 {
-	mChildren = RequireComponent<Transform>();
+	mOnCreateCalled = true;
+	mTransform = RequireComponent<Transform>();
 }
 
 void Entity::OnDestroy()
@@ -68,12 +70,6 @@ void Entity::Destroy()
 	delete this;
 }
 
-Entity *Entity::Parent()
-{
-	if (!mParent) return nullptr;
-	return mParent;
-}
-
 Scene *Entity::GetScene()
 {
 	return mScene;
@@ -86,9 +82,21 @@ LObject* Entity::PyGetScene()
 
 Transform *Entity::GetTransform()
 {
-	if (!mChildren)
-		mChildren = GetComponent<Transform>();
-	return mChildren;
+	if (!mTransform)
+		mTransform = GetComponent<Transform>();
+	return mTransform;
+}
+
+Component* Entity::AddComponent(LType* type)
+{
+	Component* comp = type->NewInstance<Component>();
+	comp->SetParent(this);
+	comp->mOwnerEntity = this;
+	mComponents.PushBack(comp);
+	comp->mOnCreateCalled = true;
+	comp->OnCreate();
+	comp->OnActivate();
+	return comp;
 }
 
 bool Entity::GetActive()
@@ -96,70 +104,37 @@ bool Entity::GetActive()
 	return mActive;
 }
 
-bool Entity::GetActiveSelf()
+void Entity::SetActive(bool value)
 {
-	return mActiveSelf;
+	mActive = value;
+	if (!mOnCreateCalled)
+		return;
+	UpdateActiveStatus(value);
 }
 
-void Entity::SetActiveSelf(bool value)
+void Entity::UpdateActiveStatus(bool val)
 {
-	mActiveSelf = value;
-	UpdateActiveStatus();
-}
-
-void Entity::UpdateActiveStatus()
-{
-	bool new_active = mActiveSelf;
-	bool old_active = mActive;
-	if (mParent)
-	{
-		auto parent = mParent;
-		new_active = mActiveSelf && parent->GetActive();	
-	}
-	mActive = new_active;
-	if (old_active)
+	bool newState = val;
+	bool oldState = mActive;
+	if (oldState)
 	{
 		if (!mActive)
 			OnDeactivate();
 	}
 	else
+	{
 		if (mActive)
 			OnActivate();
+	}
 
 	for (auto& comp : mComponents)
 	{
-		comp->UpdateActiveState();
+		comp->UpdateActiveState(val);
 	}
-	for (auto entity : m_children)
-	{
-		entity->UpdateActiveStatus();
-	}
-}
-
-bool Entity::AddChild(Entity* child)
-{
-	auto parent = child->mParent;
-	if (parent == this)
-		return true;
-	if (parent)
-	{
-		for (auto& it : m_children)
-		{
-			if (it.Get() == child)
-			{
-				parent->m_children.Erase(it.Get());
-				break;
-			}
-		}
-	}
-	m_children.PushBack(child);
-	child->mParent = this;
-	return true;
 }
 
 Entity::Entity():
-	mComponents(this),
-	m_children(this)
+	mComponents(this)
 {
 	mNeedTick = false;
 }

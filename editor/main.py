@@ -2,7 +2,6 @@ import importlib
 import os
 import sys
 
-
 work_dir = os.getcwd()
 bin_dir = os.path.dirname(sys.executable)
 editor_dir = work_dir + "\\editor"
@@ -35,6 +34,7 @@ def init_editor():
 
     app = luna.LApplication.instance()
 
+
     from core.test import binding_test
     # 先做 binding test 再执行
     binding_test()
@@ -42,6 +42,13 @@ def init_editor():
     from core.editor_module import EditorModule
     luna.add_module(EditorModule.instance())
 
+    platform_module = luna.get_module(luna.PlatformModule)
+    import tkinter.filedialog
+    while not platform_module.project_dir:
+        name = tkinter.filedialog.askdirectory(initialdir=platform_module.engine_dir)
+        if name:
+            EditorModule.instance().project_dir = name
+            platform_module.set_project_dir(name)
     app.main_loop()
 
 

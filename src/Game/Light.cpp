@@ -108,7 +108,7 @@ void PointLightComponent::OnTransformDirty(Transform* transform)
 	GetScene()->GetRenderScene()->SetSceneBufferDirty();
 	mLight->mDirty = true;
 	render::PointLight* light = (render::PointLight*)mLight;
-	light->mPosition = mTransform->GetWorldPosition();
+	light->mPosition = mTransform->GetPosition();
 
 }
 

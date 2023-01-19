@@ -183,6 +183,8 @@ protected:
 		Cls* self = (Cls*)(binding_wrap->GetPtr());
 		LProperty* mType = (LProperty*)(closure);
 		assert(mType->GetGetter());
+		if (!self)
+			Py_RETURN_NONE;
 		Ret ret = mType->GetGetter().InvokeMember<Ret, Cls>(self);
 		return to_binding<Ret>(ret);
 	}

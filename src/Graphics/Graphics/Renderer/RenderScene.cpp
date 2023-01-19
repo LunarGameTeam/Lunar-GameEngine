@@ -45,9 +45,18 @@ void RenderScene::PrepareScene()
 
 	if (mMainDirLight && !mMainDirLight->mInit)
 		mMainDirLight->Init();
+
+	if (mMainDirLight)
+	{
+		mSceneParamsBuffer->Set("cDirectionLightColor", mMainDirLight->mColor);
+		mSceneParamsBuffer->Set("cLightDirection", mMainDirLight->mDirection);
+	}
+	else
+	{
+		mSceneParamsBuffer->Set("cDirectionLightColor", LVector4f(0,0,0,0));
+	}
 	
-	mSceneParamsBuffer->Set("cDirectionLightColor", mMainDirLight->mColor);
-	mSceneParamsBuffer->Set("cLightDirection", mMainDirLight->mDirection);	
+	
 	mSceneParamsBuffer->Set("cPointLightsCount", mPointLights.size());
 	for (int i = 0; i < mPointLights.size(); i++)
 	{
@@ -126,5 +135,41 @@ void RenderScene::DestroyRenderObject(RenderObject* ro)
 	mBufferDirty = true;
 }
 
+RenderScene::~RenderScene()
+{
+	for (RenderView* it : mViews)
+	{
+		delete it;
+	}
+	if (mROIDInstancingBuffer)
+	{
+		delete mROIDInstancingBuffer;
+		mROIDInstancingBuffer = nullptr;
+	}
+	for (PointLight* it : mPointLights)
+	{
+		delete it;
+	}
+	if (mSceneParamsBuffer)
+	{
+		delete mSceneParamsBuffer;
+		mSceneParamsBuffer = nullptr;
+	}
+	mViews.clear();
+	for (RenderObject* it : mRenderObjects)
+	{
+		delete it;
+	}
+	mRenderObjects.clear();
+}
+
+void RenderScene::DestroyMainDirLight(DirectionLight* val)
+{
+	if (mMainDirLight == val)
+	{
+		delete mMainDirLight;
+		mMainDirLight = nullptr;
+	}
+}
 
 }

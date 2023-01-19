@@ -31,13 +31,14 @@ class RENDER_API RenderScene final : NoCopy
 {
 public:
 	RenderScene();
-	~RenderScene() {};	
+	~RenderScene();;	
 
 	void Render(FrameGraphBuilder* FG);
 
 public:
 	void Init();
 	DirectionLight* CreateMainDirLight();
+	void DestroyMainDirLight(DirectionLight* val);
 	PointLight* CreatePointLight();
 
 	RenderObject* CreateRenderObject();
@@ -62,7 +63,7 @@ public:
 
 	//先不做Culling，这里应该交给View进行Culling并进行ID更新
 	RHIResourcePtr      mIDInstanceBuffer;
-	DirectionLight*     mMainDirLight;
+	DirectionLight*     mMainDirLight = nullptr;
 	LArray<PointLight*> mPointLights;
 protected:
 	void PrepareScene();

@@ -23,9 +23,6 @@ public:
 	Entity *CreateEntity(const LString &name, Entity *parent = nullptr);
 	void DestroyEntity(Entity* entity);
 
-	void SetMainDirectionLight(DirectionLightComponent *light);
-	DirectionLightComponent* GetMainDirectionLight();
-
 	const TPPtrArray<Entity>& GetAllEntities();
 
 	uint32_t GetEntityCount()
@@ -44,7 +41,7 @@ public:
 
 	render::RenderScene* GetRenderScene() { return mRenderScene; };
 public:
-	
+	void Destroy();
 	void OnLoad() override;
 
 private:

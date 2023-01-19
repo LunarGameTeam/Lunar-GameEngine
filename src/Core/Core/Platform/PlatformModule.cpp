@@ -54,6 +54,7 @@ bool PlatformModule::OnLoad()
 	mPlatformFile = new WindowsFileManager();
 	mPlatformFile->InitFileManager();
 #endif
+	mPlatformFile->SetProjectDir(Config_DefaultProject.GetValue());
 	return true;
 }
 
@@ -75,7 +76,6 @@ LWindow* PlatformModule::GetMainWindow()
 
 bool PlatformModule::OnInit()
 {
-	mPlatformFile->SetProjectDir(Config_DefaultProject.GetValue());
 
 	s_key_map = {
 		{ SDL_KeyCode::SDLK_0, KeyCode::Num0},

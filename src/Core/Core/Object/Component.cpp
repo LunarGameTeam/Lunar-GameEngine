@@ -8,7 +8,7 @@ RegisterTypeEmbedd_Imp(Component)
 {
 	cls->Ctor<Component>();
 	cls->Binding<Component>();
-	cls->BindingMethod<&Component::Destroy>("destroy");
+	cls->BindingMethod<&Component::Destroy>("destroy");	
 	BindingModule::Get("luna")->AddType(cls);
 }
 
@@ -39,13 +39,13 @@ void Component::OnTick(float delta_time)
 {
 }
 
-void Component::UpdateActiveState()
+void Component::UpdateActiveState(bool val)
 {
-	bool new_active = mActiveSelf;
+	bool new_active = val;
 	bool old_active = mActive;
 	if (mOwnerEntity)
 	{
-		new_active = mActiveSelf && mOwnerEntity->GetActive();
+		new_active = mActive && mOwnerEntity->GetActive();
 	}
 	mActive = new_active;
 	if (old_active)

@@ -42,7 +42,7 @@ void MeshRenderer::OnActivate()
 
 MeshRenderer::~MeshRenderer()
 {
-	if (mRO)
+	if (mRO && GetScene() && GetScene()->GetRenderScene())
 		GetScene()->GetRenderScene()->DestroyRenderObject(mRO);
 }
 

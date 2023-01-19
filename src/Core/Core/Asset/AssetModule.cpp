@@ -13,6 +13,7 @@ RegisterTypeEmbedd_Imp(AssetModule)
 	cls->Ctor<AssetModule>();
 	cls->Binding<Self>();
 	cls->BindingMethod<&Self::SaveAsset>("save_asset");
+	cls->BindingMethod<&Self::NewAsset>("new_asset");
 	cls->BindingMethod<&AssetModule::BindingLoadAsset>("load_asset")
 		.Doc("def load_asset(self, asset_name: str, t: Type[T]) -> T:\n\tpass\n");
 	BindingModule::Get("luna")->AddType(cls);
@@ -47,6 +48,13 @@ bool AssetModule::OnShutdown()
 
 void AssetModule::Tick(float delta_time)
 {
+}
+
+Asset* AssetModule::NewAsset(const LString& path, LType* type)
+{
+	Asset* asset= type->NewInstance<Asset>();
+	asset->mAssetPath = path;
+	return asset;
 }
 
 bool AssetModule::SaveAsset(Asset *asset, const LString &path)

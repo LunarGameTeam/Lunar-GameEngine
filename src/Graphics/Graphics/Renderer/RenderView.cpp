@@ -18,7 +18,6 @@ RenderView::RenderView(uint64_t view_id) :
 
 void RenderView::PrepareView()
 {
-	static std::vector<byte> bufferPtr;
 	mViewBuffer->Set("cViewMatrix", mViewMatrix);
 	mViewBuffer->Set("cProjectionMatrix", mProjMatrix);
 	LVector2f cNearFar(mNear, mFar);

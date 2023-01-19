@@ -7,6 +7,7 @@
 #include "Core/Asset/AssetModule.h"
 
 #include "Graphics/Renderer/RenderScene.h"
+#include "Game/GameModule.h"
 
 namespace luna
 {
@@ -22,6 +23,7 @@ RegisterTypeEmbedd_Imp(Scene)
 	cls->BindingMethod<&Scene::CreateEntity>("create_entity");
 	cls->BindingMethod<&Scene::FindEntity>("find_entity");
 	cls->BindingMethod<&Scene::DestroyEntity>("destroy_entity");
+	cls->BindingMethod<&Scene::Destroy>("destroy");
 	cls->BindingMethod<&Scene::GetEntityAt>("get_entity_at");
 	cls->BindingMethod<&Scene::GetEntityCount>("get_entity_count");
 	cls->Binding<Scene>();
@@ -37,8 +39,12 @@ Scene::Scene() :
 
 Scene::~Scene()
 {
-	if(mRenderScene)
+	if (mRenderScene)
+	{
+		sGameModule->RemoveScene(this);
 		sRenderModule->RemoveScene(mRenderScene);
+		mRenderScene = nullptr;
+	}
 }
 
 Entity *Scene::FindEntity(const LString &name)
@@ -57,7 +63,8 @@ Entity *Scene::CreateEntity(const LString &name, Entity *parent /*= nullptr*/)
 	entity->SetParent(this);
 	entity->mName = name;
 	entity->mScene = this;
-		
+	entity->OnCreate();
+	entity->OnActivate();
 	mEntites.PushBack(entity);
 	return entity;
 }
@@ -66,11 +73,6 @@ void Scene::DestroyEntity(Entity* entity)
 {
 	mEntites.Erase(entity);
 	entity->Destroy();
-}
-
-void Scene::SetMainDirectionLight(DirectionLightComponent *light)
-{
-	m_main_light = light;
 }
 
 const TPPtrArray<Entity>& Scene::GetAllEntities()
@@ -92,9 +94,9 @@ void Scene::Tick(float deltaTime)
 	}
 }
 
-DirectionLightComponent* Scene::GetMainDirectionLight()
+void Scene::Destroy()
 {
-	return m_main_light;
+	delete this;
 }
 
 void Scene::OnLoad()
@@ -104,9 +106,10 @@ void Scene::OnLoad()
 		entity->mScene = this;
 		entity->OnCreate();		
 	}
+
 	for (auto& entity : mEntites)
 	{
-		entity->SetParent(this);
+		entity->SetParent(this);		
 		for (auto& comp : entity->mComponents)
 		{
 			comp->mOwnerEntity = entity.Get();
@@ -116,6 +119,22 @@ void Scene::OnLoad()
 				comp->mOnCreateCalled = true;
 				comp->OnCreate();
 			}			
+		}
+	}
+
+	for (auto& entity : mEntites)
+	{
+		if(entity->mActive)
+			entity->OnActivate();
+		else
+			entity->OnDeactivate();
+
+		for (auto& comp : entity->mComponents)
+		{
+			if (comp->mActive)
+				comp->OnActivate();
+			else
+				comp->OnDeactivate();
 		}
 	}
 }

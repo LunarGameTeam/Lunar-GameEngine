@@ -1,5 +1,6 @@
 # encoding:utf-8
 import time
+import tkinter
 
 import luna
 from core.asset import FileInfo
@@ -25,7 +26,7 @@ class EditorModule(luna.LModule):
         super().__init__()
 
         self.project_dir = luna.get_config("DefaultProject")
-        self.default_scene = luna.get_config("DefaultScene")
+        self.default_scene_path = luna.get_config("DefaultScene")
         self.main_scene_window = None
         self.material_window = None
         self.now = time.time()
@@ -45,6 +46,11 @@ class EditorModule(luna.LModule):
     def on_load(self):
         pass
 
+    def on_shutdown(self):
+        luna.set_config("DefaultProject", self.project_dir)
+        if self.main_scene_window.main_scene:
+            luna.set_config("DefaultScene", self.main_scene_window.main_scene.path)
+
     def on_init(self):
 
         from ui.scene_window import MainPanel
@@ -58,15 +64,16 @@ class EditorModule(luna.LModule):
 
         if not self.project_dir:
             self.main_scene_window.show_message_box("提示", "请点击文件打开项目")
-        elif not self.default_scene:
+        elif not self.default_scene_path:
             self.main_scene_window.show_message_box("提示", "请点击文件打开默认场景")
 
-        if self.default_scene and self.project_dir:
-            scn = asset_module.load_asset(self.default_scene, luna.Scene)
+        if self.default_scene_path and self.project_dir:
+            scn = asset_module.load_asset(self.default_scene_path, luna.Scene)
             self.main_scene_window.set_main_scene(scn)
 
     def on_tick(self, delta_time):
         pass
+
 
     def on_imgui(self):
         if self.reload_module:
@@ -74,6 +81,7 @@ class EditorModule(luna.LModule):
                 reload_module(m)
             self.reload_module.clear()
             self.main_scene_window.show_status("重载Python代码")
+
         now = time.time()
         delta = now - self.now
         self.main_scene_window.do_imgui(delta)

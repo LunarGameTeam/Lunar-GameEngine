@@ -232,7 +232,6 @@ PyObject* TreeNodeCallbackEx(void* treeID, ImGuiTreeNodeFlags flag)
 	bool hoverd, held = false;
 	bool clicked = false;
 	
-	ImGui::ItemAdd(bb, id);
 	if (ImGui::ButtonBehavior(bb, id, &hoverd, &held))
 	{
 		clicked = true;
@@ -256,8 +255,11 @@ PyObject* TreeNodeCallbackEx(void* treeID, ImGuiTreeNodeFlags flag)
 
 	ImGui::SameLine(x + 16);
 
+	ImGui::ItemAdd(bb, id);
+
 	if (expand)
 		ImGui::TreePush(treeID);
+
 
 
 	return binding_return(clicked, expand);
@@ -438,7 +440,9 @@ STATIC_INIT(imgui)
 
 		//DragDrop
 		AddIMGUIConstant(ImGuiDragDropFlags_None);
-		AddIMGUIConstant(ImGuiDragDropFlags_AcceptBeforeDelivery);		
+		AddIMGUIConstant(ImGuiDragDropFlags_AcceptBeforeDelivery);
+		AddIMGUIConstant(ImGuiDragDropFlags_SourceAllowNullID);
+		
 
 		//Popup Flags
 		AddIMGUIConstant(ImGuiPopupFlags_None);

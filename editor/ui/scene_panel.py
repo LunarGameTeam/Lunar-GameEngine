@@ -30,8 +30,14 @@ class ScenePanel(PanelBase):
 
     def set_scene(self, scene):
         self.scene = scene
+        if not self.scene:
+            self.camera = None
+            self.main_light = None
+            self.scene_texture = None
+            return
+
         count = self.scene.get_entity_count()
-        self.create_point_light()
+
         for i in range(0, count):
             entity = self.scene.get_entity_at(i)
             camera = entity.get_component(luna.CameraComponent)
@@ -41,6 +47,15 @@ class ScenePanel(PanelBase):
             main_light = entity.get_component(luna.DirectionLightComponent)
             if main_light:
                 self.main_light = main_light
+
+        # if not self.main_light:
+        #     entity = self.scene.create_entity("MainLight")
+        #     self.main_light = entity.add_component(luna.DirectionLightComponent)
+
+        if not self.camera:
+            entity = self.scene.create_entity("EditorCamera")
+            self.camera = entity.add_component(luna.CameraComponent)
+
         self.scene_texture = self.camera.render_target.color_texture
         self.need_update_texture = True
 
@@ -98,7 +113,6 @@ class ScenePanel(PanelBase):
     def create_geometry(self, mesh_asset):
         if self.scene:
             entity = self.scene.create_entity("Cube")
-            transform = entity.add_component(luna.Transform)
             renderer = entity.add_component(luna.MeshRenderer)
             from core.editor_module import asset_module
             renderer.mesh = asset_module.load_asset(mesh_asset, luna.ObjAsset)
@@ -127,6 +141,8 @@ class ScenePanel(PanelBase):
                     self.create_geometry("/assets/built-in/Geometry/Box.obj")
                 if imgui.menu_item("Sphere"):
                     self.create_geometry("/assets/built-in/Geometry/Sphere.obj")
+                if imgui.menu_item("Plane"):
+                    self.create_geometry("/assets/built-in/Geometry/Plane.obj")
                 if imgui.menu_item("PointLight"):
                     self.create_point_light()
                     pass

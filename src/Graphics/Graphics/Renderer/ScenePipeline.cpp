@@ -76,6 +76,8 @@ void ShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 			mat->Ready();
 
 		params.PushShaderParam(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer);
+		if (!renderScene->mMainDirLight)
+			return;
 		params.PushShaderParam(ParamID_ViewBuffer, renderScene->mMainDirLight->mParamBuffer.get());
 
 		for (auto it : ROs)

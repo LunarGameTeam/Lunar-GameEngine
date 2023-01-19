@@ -1,0 +1,233 @@
+{
+   "objects" : [
+      {
+         "__class__" : "Scene",
+         "__fid__" : 1,
+         "__index__" : 0,
+         "__parent__" : 0,
+         "entities" : [ 24, 21, 18, 15, 12, 9, 6, 2 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 2,
+         "__index__" : 7,
+         "__parent__" : 1,
+         "component_list" : [ 5, 4, 3 ],
+         "name" : "PointLight"
+      },
+      {
+         "__class__" : "PointLightComponent",
+         "__fid__" : 3,
+         "__index__" : 2,
+         "__parent__" : 2,
+         "color" : [ 1.0, 1.0, 1.0 ],
+         "intensity" : 1.0
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 4,
+         "__index__" : 1,
+         "__parent__" : 2,
+         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 5,
+         "__index__" : 0,
+         "__parent__" : 2,
+         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 6,
+         "__index__" : 6,
+         "__parent__" : 1,
+         "component_list" : [ 8, 7 ],
+         "name" : "DirectionalLight"
+      },
+      {
+         "__class__" : "DirectionLightComponent",
+         "__fid__" : 7,
+         "__index__" : 1,
+         "__parent__" : 6,
+         "color" : [ 1.0, 0.94999998807907104, 0.83899998664855957 ],
+         "intensity" : 1.0
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 8,
+         "__index__" : 0,
+         "__parent__" : 6,
+         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "local_rotation" : [
+            0.26929685473442078,
+            0.39462968707084656,
+            0.12215859442949295,
+            0.86995631456375122
+         ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 9,
+         "__index__" : 5,
+         "__parent__" : 1,
+         "component_list" : [ 11, 10 ],
+         "name" : "Plane"
+      },
+      {
+         "__class__" : "MeshRenderer",
+         "__fid__" : 10,
+         "__index__" : 1,
+         "__parent__" : 9,
+         "material" : "/assets/built-in/Pbr.mat",
+         "mesh" : "/assets/built-in/Geometry/Plane.obj"
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 11,
+         "__index__" : 0,
+         "__parent__" : 9,
+         "local_position" : [ 0.0, -6.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, -4.4107437133789062e-06, 1.0 ],
+         "local_scale" : [ 30.0, 1.0, 30.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 12,
+         "__index__" : 4,
+         "__parent__" : 1,
+         "component_list" : [ 14, 13 ],
+         "name" : "Box_3"
+      },
+      {
+         "__class__" : "MeshRenderer",
+         "__fid__" : 13,
+         "__index__" : 1,
+         "__parent__" : 12,
+         "material" : "/assets/built-in/Pbr.mat",
+         "mesh" : "/assets/built-in/Geometry/Sphere.obj"
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 14,
+         "__index__" : 0,
+         "__parent__" : 12,
+         "local_position" : [ 4.0, 2.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.25881904363632202, 0.96592581272125244 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 15,
+         "__index__" : 3,
+         "__parent__" : 1,
+         "component_list" : [ 17, 16 ],
+         "name" : "Box_1"
+      },
+      {
+         "__class__" : "MeshRenderer",
+         "__fid__" : 16,
+         "__index__" : 1,
+         "__parent__" : 15,
+         "material" : "/assets/built-in/Pbr.mat",
+         "mesh" : "/assets/built-in/Geometry/Box.obj"
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 17,
+         "__index__" : 0,
+         "__parent__" : 15,
+         "local_position" : [ -4.0, 2.0, 0.0 ],
+         "local_rotation" : [
+            0.25000002980232239,
+            0.24999979138374329,
+            0.066987387835979462,
+            0.93301272392272949
+         ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 18,
+         "__index__" : 2,
+         "__parent__" : 1,
+         "component_list" : [ 20, 19 ],
+         "name" : "Box_2"
+      },
+      {
+         "__class__" : "MeshRenderer",
+         "__fid__" : 19,
+         "__index__" : 1,
+         "__parent__" : 18,
+         "material" : "/assets/built-in/Pbr.mat",
+         "mesh" : "/assets/built-in/Geometry/Box.obj"
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 20,
+         "__index__" : 0,
+         "__parent__" : 18,
+         "local_position" : [ 0.0, 2.0, 0.0 ],
+         "local_rotation" : [ 0.25881904363632202, 0.0, 0.0, 0.96592581272125244 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 21,
+         "__index__" : 1,
+         "__parent__" : 1,
+         "component_list" : [ 23, 22 ],
+         "name" : "Skybox"
+      },
+      {
+         "__class__" : "MeshRenderer",
+         "__fid__" : 22,
+         "__index__" : 1,
+         "__parent__" : 21,
+         "material" : "/assets/built-in/Skybox/Skybox.mat",
+         "mesh" : "/assets/built-in/Geometry/InsideSphere.obj"
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 23,
+         "__index__" : 0,
+         "__parent__" : 21,
+         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "local_rotation" : [
+            5.2108039664568433e-15,
+            1.1920928955078125e-07,
+            4.3711391839451608e-08,
+            1.0
+         ],
+         "local_scale" : [ 100.0, 100.0, 100.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 24,
+         "__index__" : 0,
+         "__parent__" : 1,
+         "component_list" : [ 26, 25 ],
+         "name" : "MainCamera"
+      },
+      {
+         "__class__" : "CameraComponent",
+         "__fid__" : 25,
+         "__index__" : 1,
+         "__parent__" : 24
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 26,
+         "__index__" : 0,
+         "__parent__" : 24,
+         "local_position" : [ 0.0, 0.0, -30.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      }
+   ]
+}

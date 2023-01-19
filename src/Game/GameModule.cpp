@@ -34,6 +34,11 @@ void GameModule::BindingAddScene(Scene* newScene)
 	mScenes.PushBack(newScene);	
 }
 
+void GameModule::RemoveScene(Scene* new_scene)
+{
+	mScenes.Erase(new_scene);
+}
+
 GameModule::GameModule():mScenes(this)
 {
 	sGameModule = this;

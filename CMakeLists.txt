@@ -70,8 +70,7 @@ else()
 endif()
 
 if(LUNA_USING_ASAN)
-	set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
-	set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fsanitize=address")
+	add_compile_options(/fsanitize=Address)
 endif()
 
 #禁用VC的MinMax

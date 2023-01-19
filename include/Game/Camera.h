@@ -17,6 +17,9 @@ class GAME_API CameraComponent : public Component
 public:
 	virtual ~CameraComponent();
 	void OnCreate() override;
+
+	void OnActivate() override;
+	void OnDeactivate() override;
 	
 	void OnTick(float delta_time) override;
 
@@ -27,9 +30,9 @@ public:
 	const LMatrix4f& GetViewMatrix()const;
 	const LMatrix4f& GetProjectionMatrix()const;
 	const LFrustum GetFrustum()const;
-	const LVector3f& GetPosition()const;
-	const float GetFar()const;
-	const float GetNear()const;
+	LVector3f GetPosition() const;
+	float GetFar()const;
+	float GetNear()const;
 	void SetFar(float val);
 	void SetNear(float val);
 
