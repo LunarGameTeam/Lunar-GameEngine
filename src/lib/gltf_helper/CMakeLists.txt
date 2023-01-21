@@ -50,6 +50,6 @@ source_group(source/gltf_loader  FILES ${FbxLoader})
 
 add_library(gltf_helper SHARED ${Sources} ${FbxImporter} ${FbxLoader})
 
-add_dependencies(gltf_helper import_scene core GLTFSDK)
+add_dependencies(gltf_helper import_scene GLTFSDK)
 
-target_link_libraries(gltf_helper import_scene core GLTFSDK)
+target_link_libraries(gltf_helper import_scene GLTFSDK)

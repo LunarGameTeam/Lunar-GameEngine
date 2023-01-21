@@ -5,11 +5,11 @@
 #include "gltf_importer_func.h"
 namespace luna::lgltf
 {
-	void ImportGltfToLunaResource(const LString& fbx_file_path, resimport::LImportScene &importScene)
+	void ImportGltfToLunaResource(const LString& gltf_file_path, resimport::LImportScene &importScene)
 	{
 		LGltfLoaderHelper importer;
-		LGltfSceneData fbxScene;
-		importer.LoadGltfFile(fbx_file_path, fbxScene);
-		//instanceFbxSceneImport->ParseScene(&fbxScene, importScene);
+		LGltfSceneData gltfScene;
+		importer.LoadGltfFile(gltf_file_path, gltfScene);
+		instanceGltfSceneImport->ParseScene(&gltfScene, importScene);
 	}
 }

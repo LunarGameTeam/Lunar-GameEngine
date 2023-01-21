@@ -42,8 +42,8 @@ namespace luna::lgltf
 	{
 	public:
 		LGltfLoaderBase() {};
-		std::shared_ptr<LGltfDataBase> ParsingData(const Microsoft::glTF::Document& doc, const Microsoft::glTF::Node* pNode);
+		std::shared_ptr<LGltfDataBase> ParsingData(const Microsoft::glTF::Document& doc, const Microsoft::glTF::GLTFResourceReader& reader, size_t gltfDataId);
 	private:
-		virtual std::shared_ptr<LGltfDataBase> ParsingDataImpl(const Microsoft::glTF::Document& doc, const Microsoft::glTF::Node* pNode) = 0;
+		virtual std::shared_ptr<LGltfDataBase> ParsingDataImpl(const Microsoft::glTF::Document& doc, const Microsoft::glTF::GLTFResourceReader& reader, size_t gltfDataId) = 0;
 	};
 }

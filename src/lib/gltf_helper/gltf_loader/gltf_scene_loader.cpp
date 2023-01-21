@@ -7,34 +7,31 @@
 #include "gltf_camera_loader.h"
 namespace luna::lgltf
 {
-    class StreamReaderWriter : public Microsoft::glTF::IStreamWriter, public Microsoft::glTF::IStreamReader
+    class StreamReaderWriter : public Microsoft::glTF::IStreamReader
     {
+        LString mResPath;
     public:
-        StreamReaderWriter()
+        StreamReaderWriter(LString resPath)
             : m_streams()
         {
-        }
-
-        std::shared_ptr<std::ostream> GetOutputStream(const std::string& uri) const override
-        {
-            return GetStream(uri);
+            mResPath = resPath;
         }
 
         std::shared_ptr<std::istream> GetInputStream(const std::string& uri) const override
         {
-            return GetStream(uri);
+            return GetStream(mResPath.c_str() + std::string("/") + uri);
         }
     private:
-        std::shared_ptr<std::iostream> GetStream(const std::string& uri) const
+        std::shared_ptr<std::ifstream> GetStream(const std::string& uri) const
         {
             if (m_streams.find(uri) == m_streams.end())
             {
-                m_streams[uri] = std::make_shared<std::stringstream>();
+                m_streams[uri] = std::make_shared<std::ifstream>(uri,std::ios::binary);
             }
             return m_streams[uri];
         }
 
-        mutable std::unordered_map<std::string, std::shared_ptr<std::stringstream>> m_streams;
+        mutable std::unordered_map<std::string, std::shared_ptr<std::ifstream>> m_streams;
     };
 
     inline std::shared_ptr<std::stringstream> ReadLocalAsset(const std::string& relativePath)
@@ -97,20 +94,40 @@ namespace luna::lgltf
 		mLoaders.insert(std::pair<LGltfDataType, std::shared_ptr<LGltfLoaderBase>>(LGltfDataType::GltfMeshData, std::make_shared<LGltfLoaderMesh>()));
 	}
 
-	std::shared_ptr<LGltfDataBase> LGltfLoaderFactory::LoadGltfData(const Microsoft::glTF::Document& doc, LGltfDataType type,  const Microsoft::glTF::Node* pNode)
+	std::shared_ptr<LGltfDataBase> LGltfLoaderFactory::LoadGltfData(const Microsoft::glTF::Document& doc, const Microsoft::glTF::GLTFResourceReader& reader, LGltfDataType type, size_t gltfDataId)
 	{
 		auto needLoader = mLoaders.find(type);
 		if (needLoader == mLoaders.end())
 		{
 			return nullptr;
 		}
-		return needLoader->second->ParsingData(doc,pNode);
+		return needLoader->second->ParsingData(doc, reader, gltfDataId);
 	}
 
 	void LGltfLoaderHelper::LoadGltfFile(const char* pFilename, LGltfSceneData& sceneOut)
 	{
+        LString pathName = pFilename;
+        size_t rootPathIndex = std::string::npos;
+        for (int32_t i = 0; i < pathName.Length(); ++i)
+        {
+            if (pathName[i] == '\\')
+            {
+                pathName[i] = '/';
+            }
+            if(pathName[i] == '/')
+            {
+                rootPathIndex = i;
+            }
+        }
+        LString resPath = "";
+        if(rootPathIndex != std::string::npos)
+        {
+            resPath = pathName.Substr(0, rootPathIndex);
+        }
+        
         auto input = ReadLocalAsset(pFilename);
-        std::shared_ptr<StreamReaderWriter> readwriter = std::make_shared<StreamReaderWriter>();
+      
+        std::shared_ptr<StreamReaderWriter> readwriter = std::make_shared<StreamReaderWriter>(resPath);
         Microsoft::glTF::GLTFResourceReader resourceReader(readwriter);
         std::string json = std::string(std::istreambuf_iterator<char>(*input), std::istreambuf_iterator<char>());
 		Microsoft::glTF::Document doc = Microsoft::glTF::Deserialize(json);
@@ -157,7 +174,8 @@ namespace luna::lgltf
                 if (gltfMeshExist == gltfMeshDataToCommonData.end())
                 {
                     gltfMeshDataToCommonData[gltfMeshIndex] = dataResIndex;
-                    std::shared_ptr<LGltfDataBase> meshData = singleLoaderInterface->LoadGltfData(doc, LGltfDataType::GltfMeshData, &doc.nodes[nodeIndex]);
+                    std::shared_ptr<LGltfDataBase> meshData = singleLoaderInterface->LoadGltfData(doc, resourceReader,LGltfDataType::GltfMeshData, gltfMeshIndex);
+                    meshData->SetNodeIndex(nodeIndex);
                     sceneOut.mDatas.push_back(meshData);
                 }
                 else

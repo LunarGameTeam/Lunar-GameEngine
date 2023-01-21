@@ -21,15 +21,17 @@ namespace luna::lgltf
 
 	void LGltfSceneImportHelper::ParseScene(const LGltfSceneData* gltfDataInput, resimport::LImportScene& outputScene)
 	{
+		outputScene.SetAxisAndUnit(resimport::LImportAxisType::ImportAxisYupLeftHand, resimport::LImportUnitType::ImportUnitMeter);
 		for (auto& eachData : gltfDataInput->mNodes)
 		{
 			resimport::LImportSceneNode node_value;
 			node_value.mIndex = eachData.mIndex;
 			node_value.mName = eachData.mName;
 			node_value.mParent = eachData.mParent;
-			//node_value.mTranslation = eachData.translation;
-			//node_value.mScal = eachData.rotation;
-			//node_value.mRotation = eachData.scale;
+			node_value.mTranslation = GetVector3FromGltfVector3(eachData.translation);
+			node_value.mScal = GetVector3FromGltfVector3(eachData.scale);
+			node_value.mRotation = GetQuaternionFromGltfQuaternion(eachData.rotation);
+			node_value.mExtrMatrix = GetMatrix4FromGltfMatrix4(eachData.matrix);
 			node_value.mChild = eachData.mChild;
 			for (auto &eachNodeDataRef : eachData.mNodeData)
 			{

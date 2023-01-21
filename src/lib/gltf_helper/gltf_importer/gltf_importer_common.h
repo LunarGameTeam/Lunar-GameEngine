@@ -3,6 +3,16 @@
 #include "../../import_scene/import_scene.h"
 namespace luna::lgltf
 {
+	LVector2f GetVector2FromGltfVector2(Microsoft::glTF::Vector2 dataInput);
+
+	LVector3f GetVector3FromGltfVector3(Microsoft::glTF::Vector3 dataInput);
+
+	LVector4f GetVector4FromGltfVector3(Microsoft::glTF::Vector3 dataInput, float wValue);
+
+	LQuaternion GetQuaternionFromGltfQuaternion(Microsoft::glTF::Quaternion dataInput);
+
+	LMatrix4f GetMatrix4FromGltfMatrix4(Microsoft::glTF::Matrix4 dataInput);
+
 	class LGltfImporterBase
 	{
 	public:

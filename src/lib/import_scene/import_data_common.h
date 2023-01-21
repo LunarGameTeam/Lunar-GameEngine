@@ -31,7 +31,7 @@ namespace luna::resimport
 		ImportUnitCenterMeter,
 		ImportUnitInch
 	};
-	struct LImportSceneNode
+	struct RESOURCE_IMPORT_API LImportSceneNode
 	{
 		size_t mIndex;
 		size_t mParent;
@@ -39,8 +39,10 @@ namespace luna::resimport
 		LVector3f mTranslation;
 		LQuaternion mRotation;
 		LVector3f mScal;
+		LMatrix4f mExtrMatrix;
 		std::unordered_map<LImportNodeDataType, size_t> mNodeData;
 		std::vector<size_t> mChild;
+		LImportSceneNode();
 	};
 	class RESOURCE_IMPORT_API LImportNodeDataBase
 	{

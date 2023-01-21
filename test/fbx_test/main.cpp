@@ -16,6 +16,11 @@ int main()
 	//gltf test
 	luna::resimport::LImportScene importSceneGltf;
 	luna::lgltf::ImportGltfToLunaResource("C:/LunaEngine1.1/Lunar-GameEngine/assets/built-in/gltf/scene.gltf", importSceneGltf);
+	importSceneGltf.PostProcessData();
+	luna::assetimport::LMeshAssetImport meshAssetImporterGltf;
+	luna::assetimport::LAssetPack assetPackDataGltf;
+	meshAssetImporterGltf.ParsingImportScene(importSceneGltf, assetPackDataGltf);
+	assetPackDataGltf.SerializeAllAsset("C:/LunaEngine1.1/Lunar-GameEngine/assets/built-in", "Material_sphere");
 	//obj test
 	luna::resimport::LImportScene importSceneObj;
 	luna::lobj::ImportObjToLunaResource("C:/LunaEngine1.1/Lunar-GameEngine/assets/built-in/inside_sphere.obj", importSceneObj);
@@ -33,8 +38,7 @@ int main()
 	luna::assetimport::LAssetPack assetPackData;
 	meshAssetImporter.ParsingImportScene(importScene, assetPackData);
 	assetPackData.SerializeAllAsset("C:/LunaEngine1.1/Lunar-GameEngine/assets/built-in","inside_sphere");
-	//luna::g_asset_sys->SaveAsset(m_render_mesh, "E:/LunarEngine/lunar-engine-branch/Lunar-GameEngine/assets/built-in/sphere.lmesh");
+	//asset load test
 	luna::render::MeshAsset* asset_check = luna::sAssetModule->LoadAsset<luna::render::MeshAsset>("C:/LunaEngine1.1/Lunar-GameEngine/assets/built-in/inside_sphere.lmesh");
-	//auto mesh = assetmod->LoadAsset<luna::render::MeshAsset>("E:/LunarEngine/lunar-engine-branch/Lunar-GameEngine/assets/built-in/sphere.lmesh");
 	return 0;
 }
