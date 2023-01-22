@@ -8,10 +8,10 @@ file(GLOB_RECURSE PROJECT_CPPS *.cpp)
 
 set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS})
 
-auto_source_group(fbx_test "${ALL_FILES}" DST_FILES)
+auto_source_group(fbx_test "${ALL_FILES}" DST_FILES "")
 
 add_executable(fbx_test ${DST_FILES})
 
-add_dependencies(fbx_test  fbx_helper obj_helper gltf_helper asset_import)
-target_link_libraries(fbx_test fbx_helper obj_helper gltf_helper asset_import)
+add_dependencies(fbx_test  FbxParser ObjParser GltfParser AssetImport)
+target_link_libraries(fbx_test FbxParser ObjParser GltfParser AssetImport)
 

@@ -10,8 +10,8 @@ set_target_properties(WinPixEventRuntime PROPERTIES INTERFACE_LINK_LIBRARIES "${
 file(GLOB_RECURSE PROJECT_HEADERS "${SOLUTION_CMAKE_SOURCE_PATH}/include/Graphics/*.h")
 file(GLOB_RECURSE PROJECT_CPPS *.cpp *.cc *.c *h) 
 
-auto_header_group(Graphics "${PROJECT_HEADERS}" DST_FILES)
-auto_source_group(Graphics "${PROJECT_CPPS}" DST_HEADERS)
+auto_header_group(Graphics "${PROJECT_HEADERS}" DST_FILES "")
+auto_source_group(Graphics "${PROJECT_CPPS}" DST_HEADERS "")
 
 add_library(Graphics SHARED ${PROJECT_HEADERS} ${PROJECT_CPPS})
 

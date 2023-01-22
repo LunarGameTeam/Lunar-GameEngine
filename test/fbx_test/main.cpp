@@ -1,8 +1,8 @@
-#include "lib/fbx_helper/fbx_importer_func.h"
-#include "lib/obj_helper/obj_importer_func.h"
-#include "lib/gltf_helper/gltf_importer_func.h"
-#include "lib/asset_import/mesh_asset_import.h"
-#include"render/asset/mesh_asset.h"
+#include "Lib/FbxParser/FbxImporterFunc.h"
+#include "Lib/ObjParser/ObjImporterFunc.h"
+#include "Lib/GltfParser/GltfImporterFunc.h"
+#include "Lib/AssetImport/MeshAssetImport.h"
+#include "Graphics/Asset/MeshAsset.h"
 int main()
 {
 	//gEngine = luna::TCreateObject<luna::LunaCore>();

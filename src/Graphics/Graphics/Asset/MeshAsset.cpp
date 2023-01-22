@@ -72,7 +72,7 @@ void SubMesh::Init()
 	Update();
 }
 
-void MeshAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file)
+void MeshAsset::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> file)
 {
 	const byte* data_header = file->GetData().data();
 	size_t offset = 0;
@@ -103,9 +103,9 @@ void MeshAsset::OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> f
 		ptr += mSubMesh[idx]->mIndexData.size() * sizeof(uint32_t);
 	}
 	OnLoad();
-}
+};
 
-void MeshAsset::OnAssetFileWrite(LSharedPtr<Dictionary> meta, LVector<byte>& data)
+void MeshAsset::OnAssetFileWrite(LSharedPtr<JsonDict> meta, LArray<byte>& data)
 {
 	size_t globel_size = 0;
 	size_t offset = 0;
@@ -121,7 +121,7 @@ void MeshAsset::OnAssetFileWrite(LSharedPtr<Dictionary> meta, LVector<byte>& dat
 	size_t submeshSize = mSubMesh.Size();
 	memcpy(dst, &submeshSize, sizeof(size_t));
 	dst += sizeof(size_t);
-	for(size_t submeshIndex = 0; submeshIndex < mSubMesh.Size(); ++submeshIndex)
+	for (size_t submeshIndex = 0; submeshIndex < mSubMesh.Size(); ++submeshIndex)
 	{
 		size_t submeshVertexSize = mSubMesh[submeshIndex]->mVertexData.size();
 		size_t submeshIndexSize = mSubMesh[submeshIndex]->mIndexData.size();

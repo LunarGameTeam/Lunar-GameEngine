@@ -5,7 +5,7 @@ file(GLOB_RECURSE PROJECT_HEADERS *.h)
 file(GLOB_RECURSE PROJECT_CPPS *.cpp)
 
 set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS})
-auto_source_group(Luna "${ALL_FILES}" DST_FILES)
+auto_source_group(Luna "${ALL_FILES}" DST_FILES "")
 
 add_library(Luna SHARED ${DST_FILES})
 

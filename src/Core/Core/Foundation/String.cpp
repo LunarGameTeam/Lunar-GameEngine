@@ -54,7 +54,7 @@ void LString::Append(const char *str)
 
 void LString::PushBack(const char str)
 {
-	m_data.push_back(str);
+	mStdStr.push_back(str);
 }
 
 void LString::Assign(const char *str)

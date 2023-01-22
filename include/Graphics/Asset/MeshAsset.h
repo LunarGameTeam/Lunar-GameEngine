@@ -48,7 +48,7 @@ private:
 
 
 
-class RENDER_API MeshAsset : public LBasicAsset
+class RENDER_API MeshAsset : public Asset
 {
 	RegisterTypeEmbedd(MeshAsset, Asset)
 public:
@@ -67,9 +67,10 @@ public:
 	};
 	TPPtrArray<SubMesh> mSubMesh;
 
-	void OnAssetFileRead(LSharedPtr<Dictionary> meta, LSharedPtr<LFile> file) override;
-
-	void OnAssetFileWrite(LSharedPtr<Dictionary> meta, LVector<byte>& data) override;
+	//Asset资源读入到内存时回调
+	virtual void OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> file) override;
+	//Asset资源写入到磁盘时回调	
+	virtual void OnAssetFileWrite(LSharedPtr<JsonDict> meta, LArray<byte>& data) override;
 private:
 	bool m_ready = false;
 };

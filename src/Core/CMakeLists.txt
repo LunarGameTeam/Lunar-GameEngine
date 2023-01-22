@@ -7,8 +7,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 file(GLOB_RECURSE PROJECT_HEADERS "${SOLUTION_CMAKE_SOURCE_PATH}/include/Core/*.h")
 file(GLOB_RECURSE PROJECT_CPPS *.cpp *.cc *.c)
 
-auto_header_group(Core "${PROJECT_HEADERS}" DST_FILES)
-auto_source_group(Core "${PROJECT_CPPS}" DST_HEADERS)
+auto_header_group(Core "${PROJECT_HEADERS}" DST_FILES "")
+auto_source_group(Core "${PROJECT_CPPS}" DST_HEADERS "")
 
 add_library(Core SHARED ${DST_FILES} ${DST_HEADERS} ${NATVIS_PATH})
 

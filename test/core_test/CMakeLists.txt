@@ -7,7 +7,7 @@ file(GLOB_RECURSE PROJECT_CPPS *.cpp)
 
 set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS})
 
-auto_source_group(CoreTest "${ALL_FILES}" DST_FILES)
+auto_source_group(CoreTest "${ALL_FILES}" DST_FILES "")
 
 add_executable(CoreTest ${DST_FILES})
 

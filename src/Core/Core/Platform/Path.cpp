@@ -33,12 +33,20 @@ void LPath::Init()
 	assert(fileSub != nullptr);
 	static IPlatformFileManager* file = fileSub->GetPlatformFileManager();
 	assert(file != nullptr);
-	mRelativePath.ReplaceAll("\\", "/");
-	if (!mRelativePath.StartWith('/'))
-		mRelativePath = "/" + mRelativePath;
-	//Relative Path
-	mEngineAbsPath = file->EngineDir() + mRelativePath;	
-	mProjectAbsPath = file->ProjectDir() + mRelativePath;
+	if (mRelativePath.Find(":/") == std::string::npos)
+	{
+		mRelativePath.ReplaceAll("\\", "/");
+		if (!mRelativePath.StartWith('/'))
+			mRelativePath = "/" + mRelativePath;
+		//Relative Path
+		mEngineAbsPath = file->EngineDir() + mRelativePath;
+		mProjectAbsPath = file->ProjectDir() + mRelativePath;
+	}
+	else
+	{
+		mEngineAbsPath = mRelativePath;
+		mProjectAbsPath = mRelativePath;
+	}
 }
 
 
