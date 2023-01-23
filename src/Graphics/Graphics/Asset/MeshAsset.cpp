@@ -88,6 +88,7 @@ void MeshAsset::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> fil
 		memcpy(&submeshVertexSize, ptr, sizeof(size_t));
 		ptr += sizeof(size_t);
 		memcpy(&submeshIndexSize, ptr, sizeof(size_t));
+		ptr += sizeof(size_t);
 		sub_mesh->mVertexCount = submeshVertexSize;
 		sub_mesh->mVertexData.resize(submeshVertexSize);
 		sub_mesh->mIndexCount = submeshVertexSize;
@@ -97,10 +98,12 @@ void MeshAsset::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> fil
 
 	for (size_t idx = 0; idx < mSubMesh.Size(); ++idx)
 	{
-		memcpy(mSubMesh[idx]->mVertexData.data(), ptr, mSubMesh[idx]->mVertexData.size() * sizeof(BaseVertex));
-		ptr += mSubMesh[idx]->mVertexData.size() * sizeof(BaseVertex);
-		memcpy(mSubMesh[idx]->mIndexData.data(), ptr, mSubMesh[idx]->mIndexData.size() * sizeof(uint32_t));
-		ptr += mSubMesh[idx]->mIndexData.size() * sizeof(uint32_t);
+		luna::render::SubMesh* subMeshData = mSubMesh[idx];
+		memcpy(subMeshData->mVertexData.data(), ptr, subMeshData->mVertexData.size() * sizeof(BaseVertex));
+		ptr += subMeshData->mVertexData.size() * sizeof(BaseVertex);
+		memcpy(subMeshData->mIndexData.data(), ptr, subMeshData->mIndexData.size() * sizeof(uint32_t));
+		ptr += subMeshData->mIndexData.size() * sizeof(uint32_t);
+		subMeshData->Init();
 	}
 	OnLoad();
 };
@@ -112,9 +115,10 @@ void MeshAsset::OnAssetFileWrite(LSharedPtr<JsonDict> meta, LArray<byte>& data)
 	globel_size += sizeof(size_t);
 	for (size_t id = 0; id < mSubMesh.Size(); ++id)
 	{
+		luna::render::SubMesh* subMeshData = mSubMesh[id];
 		globel_size += 2 * sizeof(size_t);
-		globel_size += mSubMesh[id]->mVertexData.size() * sizeof(BaseVertex);
-		globel_size += mSubMesh[id]->mIndexData.size() * sizeof(uint32_t);
+		globel_size += subMeshData->mVertexData.size() * sizeof(BaseVertex);
+		globel_size += subMeshData->mIndexData.size() * sizeof(uint32_t);
 	}
 	data.resize(globel_size);
 	byte* dst = data.data();
@@ -123,8 +127,9 @@ void MeshAsset::OnAssetFileWrite(LSharedPtr<JsonDict> meta, LArray<byte>& data)
 	dst += sizeof(size_t);
 	for (size_t submeshIndex = 0; submeshIndex < mSubMesh.Size(); ++submeshIndex)
 	{
-		size_t submeshVertexSize = mSubMesh[submeshIndex]->mVertexData.size();
-		size_t submeshIndexSize = mSubMesh[submeshIndex]->mIndexData.size();
+		luna::render::SubMesh* subMeshData = mSubMesh[submeshIndex];
+		size_t submeshVertexSize = subMeshData->mVertexData.size();
+		size_t submeshIndexSize = subMeshData->mIndexData.size();
 		memcpy(dst, &submeshVertexSize, sizeof(size_t));
 		dst += sizeof(size_t);
 		memcpy(dst, &submeshIndexSize, sizeof(size_t));
@@ -133,10 +138,11 @@ void MeshAsset::OnAssetFileWrite(LSharedPtr<JsonDict> meta, LArray<byte>& data)
 
 	for (size_t idx = 0; idx < mSubMesh.Size(); ++idx)
 	{
-		memcpy(dst, mSubMesh[idx]->mVertexData.data(), mSubMesh[idx]->mVertexData.size() * sizeof(BaseVertex));
-		dst += mSubMesh[idx]->mVertexData.size() * sizeof(BaseVertex);
-		memcpy(dst, mSubMesh[idx]->mIndexData.data(), mSubMesh[idx]->mIndexData.size() * sizeof(uint32_t));
-		dst += mSubMesh[idx]->mIndexData.size() * sizeof(uint32_t);
+		luna::render::SubMesh* subMeshData = mSubMesh[idx];
+		memcpy(dst, subMeshData->mVertexData.data(), subMeshData->mVertexData.size() * sizeof(BaseVertex));
+		dst += subMeshData->mVertexData.size() * sizeof(BaseVertex);
+		memcpy(dst, subMeshData->mIndexData.data(), subMeshData->mIndexData.size() * sizeof(uint32_t));
+		dst += subMeshData->mIndexData.size() * sizeof(uint32_t);
 	}
 }
 

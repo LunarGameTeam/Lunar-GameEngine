@@ -10,7 +10,6 @@
 #include "Graphics/Asset/MeshAsset.h"
 #include "Graphics/Asset/TextureAsset.h"
 
-#include "Graphics/Asset/ObjAsset.h"
 #include "Graphics/Asset/MaterialTemplate.h"
 
 
@@ -22,9 +21,8 @@ class GAME_API MeshRenderer : public RendererComponent
 	RegisterTypeEmbedd(MeshRenderer, RendererComponent)
 public:
 	MeshRenderer() :
-		m_mesh(this),
+		mMeshAsset(this),
 		mMaterialInstance(this),
-		mObjAsset(this),
 		mMaterialAsset(this)
 	{
 
@@ -32,12 +30,8 @@ public:
 
 	virtual ~MeshRenderer();
 
-	void SetMesh(MeshAsset* mesh)
-	{
-		m_mesh = mesh;
-		m_dirty = true;
-	}
-	void SetObjAsset(ObjAsset* obj);
+	void SetMeshAsset(MeshAsset* mesh);
+
 	void SetMaterial(MaterialTemplateAsset* mat);
 
 	void OnCreate() override;
@@ -48,8 +42,7 @@ protected:
 	void CreateRenderObject();
 private:
 	render::RenderObject* mRO = nullptr;
-	TPPtr<ObjAsset> mObjAsset;
-	TPPtr<MeshAsset> m_mesh;
+	TPPtr<MeshAsset> mMeshAsset;
 	TPPtr<render::MaterialTemplateAsset> mMaterialAsset;
 	TPPtr<render::MaterialInstance> mMaterialInstance;
 };

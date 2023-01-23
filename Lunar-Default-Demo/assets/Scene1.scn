@@ -21,7 +21,7 @@
          "__index__" : 1,
          "__parent__" : 2,
          "material" : "/assets/built-in/BlinnPhong.mat",
-         "mesh" : "/assets/built-in/Geometry/Box.obj"
+         "mesh" : "/assets/built-in/Geometry/Box.lmesh"
       },
       {
          "__class__" : "Transform",
@@ -114,7 +114,7 @@
          "__index__" : 1,
          "__parent__" : 13,
          "material" : "/assets/built-in/BlinnPhong.mat",
-         "mesh" : "/assets/built-in/Geometry/Sphere.obj"
+         "mesh" : "/assets/built-in/Geometry/Sphere.lmesh"
       },
       {
          "__class__" : "Transform",
@@ -176,7 +176,7 @@
          "__index__" : 0,
          "__parent__" : 19,
          "material" : "/assets/built-in/Pbr.mat",
-         "mesh" : "/assets/built-in/Geometry/InsideCube.obj"
+         "mesh" : "/assets/built-in/Geometry/InsideCube.lmesh"
       },
       {
          "__class__" : "Entity",

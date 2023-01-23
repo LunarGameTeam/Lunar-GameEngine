@@ -85,7 +85,7 @@
          "__index__" : 1,
          "__parent__" : 9,
          "material" : "/assets/built-in/Pbr.mat",
-         "mesh" : "/assets/built-in/Geometry/Plane.obj"
+         "mesh" : "/assets/built-in/Geometry/Plane.lmesh"
       },
       {
          "__class__" : "Transform",
@@ -110,7 +110,7 @@
          "__index__" : 1,
          "__parent__" : 12,
          "material" : "/assets/built-in/Pbr.mat",
-         "mesh" : "/assets/built-in/Geometry/Sphere.obj"
+         "mesh" : "/assets/built-in/Geometry/Sphere.lmesh"
       },
       {
          "__class__" : "Transform",
@@ -135,7 +135,7 @@
          "__index__" : 1,
          "__parent__" : 15,
          "material" : "/assets/built-in/Pbr.mat",
-         "mesh" : "/assets/built-in/Geometry/Box.obj"
+         "mesh" : "/assets/built-in/Geometry/Box.lmesh"
       },
       {
          "__class__" : "Transform",
@@ -165,7 +165,7 @@
          "__index__" : 1,
          "__parent__" : 18,
          "material" : "/assets/built-in/Pbr.mat",
-         "mesh" : "/assets/built-in/Geometry/Box.obj"
+         "mesh" : "/assets/built-in/Geometry/Box.lmesh"
       },
       {
          "__class__" : "Transform",
@@ -190,7 +190,7 @@
          "__index__" : 1,
          "__parent__" : 21,
          "material" : "/assets/built-in/Skybox/Skybox.mat",
-         "mesh" : "/assets/built-in/Geometry/InsideSphere.obj"
+         "mesh" : "/assets/built-in/Geometry/InsideSphere.lmesh"
       },
       {
          "__class__" : "Transform",

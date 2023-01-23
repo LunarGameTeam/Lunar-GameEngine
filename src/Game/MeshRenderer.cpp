@@ -14,8 +14,8 @@ RegisterTypeEmbedd_Imp(MeshRenderer)
 	cls->Ctor<MeshRenderer>();
 	cls->Binding<Self>();
 
-	cls->BindingProperty<&Self::mObjAsset>("mesh")
-		.Setter<&MeshRenderer::SetObjAsset>()
+	cls->BindingProperty<&Self::mMeshAsset>("mesh")
+		.Setter<&MeshRenderer::SetMeshAsset>()
 		.Serialize();
 
 	cls->BindingProperty<&Self::mMaterialAsset>("material")
@@ -51,11 +51,11 @@ void MeshRenderer::CreateRenderObject()
 	if (mRO)
 		return;
 
-	if (mMaterialInstance && mObjAsset)
+	if (mMaterialInstance && mMeshAsset)
 	{
 		mRO = GetScene()->GetRenderScene()->CreateRenderObject();
 		mRO->mMaterial = mMaterialInstance.Get();
-		mRO->mMesh = mObjAsset->GetSubMeshAt(0);
+		mRO->mMesh = mMeshAsset->GetSubMeshAt(0);
 		if (mRO->mMesh->mVB.get() == nullptr)
 		{
 			mRO->mMesh->Init();
@@ -81,9 +81,9 @@ void MeshRenderer::SetMaterial(MaterialTemplateAsset* mat)
 	}
 }
 
-void MeshRenderer::SetObjAsset(ObjAsset* obj)
+void MeshRenderer::SetMeshAsset(MeshAsset* obj)
 {
-	mObjAsset = obj;
+	mMeshAsset = obj;
 	if (!mRO)
 	{
 		CreateRenderObject();
