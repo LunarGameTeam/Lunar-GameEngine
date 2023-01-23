@@ -196,8 +196,8 @@ class MeshRendererEditor(ComponentEditor):
 
     def on_imgui(self):
         mat_list: 'list[luna.MaterialInstance]' = self.target.material
-        mesh: 'luna.ObjAsset' = self.target.mesh
+        mesh: 'luna.MeshAsset' = self.target.mesh
         if self.on_category():
-            self.imgui_obj_property(self.target, "mesh", luna.ObjAsset)
+            self.imgui_obj_property(self.target, "mesh", luna.MeshAsset)
             self.imgui_obj_property(self.target, "material", luna.MaterialTemplateAsset)
             imgui.tree_pop()

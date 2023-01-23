@@ -115,7 +115,7 @@ class ScenePanel(PanelBase):
             entity = self.scene.create_entity("Cube")
             renderer = entity.add_component(luna.MeshRenderer)
             from core.editor_module import asset_module
-            renderer.mesh = asset_module.load_asset(mesh_asset, luna.ObjAsset)
+            renderer.mesh = asset_module.load_asset(mesh_asset, luna.MeshAsset)
             renderer.material = asset_module.load_asset("/assets/built-in/Pbr.mat", luna.MaterialTemplateAsset)
 
     def create_point_light(self):
