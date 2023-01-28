@@ -190,6 +190,8 @@ add_subdirectory(src/Lib/ImportScene)
 SET_PROPERTY(TARGET ImportScene PROPERTY FOLDER "Lib")
 add_subdirectory(src/Lib/AssetImport)
 SET_PROPERTY(TARGET AssetImport PROPERTY FOLDER "Lib")
+add_subdirectory(src/Lib/ResourceImportBinding)
+SET_PROPERTY(TARGET ResourceImportBinding PROPERTY FOLDER "Lib")
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT AppEditor)
 

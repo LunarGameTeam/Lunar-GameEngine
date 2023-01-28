@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 3.24)
 
 add_executable(AppEditor EditorMain.cpp)
 
-add_dependencies(AppEditor ImGuiScript Graphics Game Core) 
+add_dependencies(AppEditor ImGuiScript Graphics Game Core ResourceImportBinding) 
 target_link_libraries(AppEditor Core)
 
 

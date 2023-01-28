@@ -31,7 +31,7 @@ def init_editor():
 
     luna.load_library("ImGuiScript.dll")
     luna.load_library("Game.dll")
-
+    luna.load_library("ResourceImportBinding.dll")
     app = luna.LApplication.instance()
 
 

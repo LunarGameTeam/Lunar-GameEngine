@@ -116,6 +116,13 @@ class MainPanel(WindowBase):
                     engine_path = os.path.relpath(name, platform_module.project_dir)
                     scn = asset_module.load_asset(engine_path, luna.Scene)
                     self.set_main_scene(scn)
+            if imgui.menu_item("导入资源"):
+                name = tkinter.filedialog.askopenfilename(filetypes=(("obj files", "*.obj"),("fbx files", "*.fbx"),("gltf files", "*.gltf"),),
+                                                          initialdir=platform_module.project_dir + "/assets")
+                file_with_extension = os.path.basename(name)
+                (file_without_extension,file_extension) = os.path.splitext(file_with_extension)
+                luna.resource_parse.import_resource_file(name,platform_module.project_dir + "/assets",file_without_extension,file_extension)
+                
             if imgui.menu_item("生成 Python API"):
                 self.show_status("生成PythonAPI中")
                 generate_doc_for_module(luna)

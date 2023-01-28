@@ -1,6 +1,15 @@
+#ifdef FBX_LIB_INITED
 #include "Lib/FbxParser/FbxImporterFunc.h"
+#endif
+
+#ifdef OBJ_LIB_INITED
 #include "Lib/ObjParser/ObjImporterFunc.h"
+#endif
+
+#ifdef GLTF_LIB_INITED
 #include "Lib/GltfParser/GltfImporterFunc.h"
+#endif
+
 #include "Lib/AssetImport/MeshAssetImport.h"
 #include "Graphics/Asset/MeshAsset.h"
 int main()
@@ -12,7 +21,7 @@ int main()
 	//luna::IPlatformFileManager* manager = luna::g_file_sys->GetPlatformFileManager();
 	//luna::render::MeshAsset* m_render_mesh = luna::TCreateObject<luna::render::MeshAsset>();
 	//m_render_mesh->ResetUUID();
-	
+#ifdef GLTF_LIB_INITED
 	//gltf test
 	//luna::resimport::LImportScene importSceneGltf;
 	//luna::lgltf::ImportGltfToLunaResource("C:/LunaEngine1.1/Lunar-GameEngine/assets/built-in/gltf/scene.gltf", importSceneGltf);
@@ -21,6 +30,8 @@ int main()
 	//luna::assetimport::LAssetPack assetPackDataGltf;
 	//meshAssetImporterGltf.ParsingImportScene(importSceneGltf, assetPackDataGltf);
 	//assetPackDataGltf.SerializeAllAsset("C:/LunaEngine1.1/Lunar-GameEngine/assets/built-in", "Material_sphere");
+#endif
+#ifdef OBJ_LIB_INITED
 	//obj test
 	LArray<luna::LString> allFiles;
 	allFiles.push_back("Box");
@@ -38,7 +49,8 @@ int main()
 		meshAssetImporterObj.ParsingImportScene(importSceneObj, assetPackDataObj);
 		assetPackDataObj.SerializeAllAsset("C:/LunaEngine1.1/Lunar-GameEngine/assets/built-in/Geometry/", allFiles[i]);
 	}
-	
+#endif
+#ifdef FBX_LIB_INITED
 	//fbx test
 	//luna::resimport::LImportScene importScene;
 	//luna::lfbx::ImportFbxToLunaResource("C:/LunaEngine1.1/Lunar-GameEngine/assets/built-in/fbx/inside_sphere.FBX", importScene);
@@ -50,5 +62,6 @@ int main()
 	//assetPackData.SerializeAllAsset("C:/LunaEngine1.1/Lunar-GameEngine/assets/built-in","inside_sphere");
 	//asset load test
 	//luna::render::MeshAsset* asset_check = luna::sAssetModule->LoadAsset<luna::render::MeshAsset>("C:/LunaEngine1.1/Lunar-GameEngine/assets/built-in/inside_sphere.lmesh");
+#endif
 	return 0;
 }
