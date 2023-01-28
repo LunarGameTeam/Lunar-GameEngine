@@ -56,4 +56,7 @@ cbuffer SceneBuffer : register(b2, space0)
 	float4 cAmbientColor;
 	PointLight cPointLights[4];
 	int cPointLightsCount;
+	matrix cLightViewMatrix[10];
+	matrix cLightProjMatrix[10];
+	int cLightMapCount;
 };

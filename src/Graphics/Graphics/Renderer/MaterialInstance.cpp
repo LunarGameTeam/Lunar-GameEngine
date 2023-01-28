@@ -55,14 +55,14 @@ void PackedParams::PushShaderParam(ShaderParamID id, ShaderParamsBuffer* buffer)
 	boost::hash_combine(mParamsHash, id);
 	boost::hash_combine(mParamsHash, buffer->mView.get());
 }
-void PackedParams::PushShaderParam(ShaderParamID id, RHIView* view)
+void PackedParams::PushShaderParam(ShaderParamID id, RHIViewPtr view)
 {
 	assert(view != nullptr);
 	auto& it = mParams.emplace_back();
 	it.first = id;
 	it.second = view;
 	boost::hash_combine(mParamsHash, id);
-	boost::hash_combine(mParamsHash, view);
+	boost::hash_combine(mParamsHash, view.get());
 }
 
 

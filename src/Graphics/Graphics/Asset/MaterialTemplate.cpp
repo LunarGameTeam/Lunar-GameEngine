@@ -8,6 +8,21 @@
 #include "Graphics/Asset/TextureAsset.h"
 
 
+namespace luna
+{
+
+REGISTER_ENUM_TYPE(render::RHIPrimitiveTopologyType, int)
+
+namespace binding
+{
+
+template<>
+struct binding_converter<render::RHIPrimitiveTopologyType> : enum_converter< render::RHIPrimitiveTopologyType> {};
+
+}
+
+
+}
 namespace luna::render
 {
 
@@ -22,6 +37,11 @@ RegisterTypeEmbedd_Imp(MaterialTemplateAsset)
 		.Serialize();
 
 	cls->BindingProperty<&Self::mDepthTestEnable>("depth_test_enable")
+		.Serialize(); 
+
+	cls->BindingProperty<&MaterialTemplateAsset::mPrimitiveType>("primitive_type")
+		.Getter<&MaterialTemplateAsset::GetPrimitiveType>()
+		.Setter< &MaterialTemplateAsset::SetPrimitiveType>()
 		.Serialize();
 
 	cls->BindingProperty<&Self::mDepthWriteEnable>("depth_write_enable")

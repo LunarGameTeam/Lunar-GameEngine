@@ -16,14 +16,16 @@
 #include "Graphics/Renderer/MaterialInstance.h"
 #include "Graphics/Renderer/RenderScene.h"
 #include "Graphics/Asset/MaterialTemplate.h"
+#include "Core/Asset/AssetModule.h"
+#include "Graphics/Renderer/RenderView.h"
 
 
 namespace luna::render 
 {
 
-size_t sStagingBufferMaxSize = 1024 * 1024 * 64;
-size_t sFrameGraphBufferMaxSize = 1024 * 1024 * 4 * 16;
-static const size_t sInstancingBufferMaxSize = 1024 * 16;
+size_t sStagingBufferMaxSize = 1024 * 1024 * 16;
+size_t sFrameGraphBufferMaxSize = 1024 * 1024 * 16;
+static const size_t sInstancingBufferMaxSize = 128 * 128;
 
 size_t GetOffset(size_t offset, size_t aligment)
 {
@@ -37,6 +39,7 @@ void DynamicMemoryBuffer::Init(RHIDevice* device, const RHIHeapType memoryHeapTy
 	memoryDesc.Type = memoryHeapType;
 	memoryDesc.SizeInBytes = mMaxSize;
 	mFullMemory = mDevice->AllocMemory(memoryDesc, memoryType);
+	
 }
 
 RHIResource* DynamicMemoryBuffer::AllocateNewBuffer(void* initData, size_t dataSize, size_t bufferResSize)
@@ -139,6 +142,13 @@ void RenderDevice::Init()
 	mTransferCmd->Reset();
 	mBarrierCmd->Reset();
 
+	mDefaultShader = sAssetModule->LoadAsset<ShaderAsset>("/assets/built-in/Shader/Debug.hlsl");
+	PARAM_ID(ViewBuffer);
+	PARAM_ID(SceneBuffer);
+	RHIBindPoint bindpoint = mDefaultShader->GetBindPoint(ParamID_ViewBuffer);
+	LArray<RHIBindPoint> bindingpoints;
+	bindingpoints.push_back(bindpoint);
+	mViewBindingSet = mDevice->CreateBindingSetLayout(bindingpoints);
 }
 
 void RenderDevice::OnFrameBegin()
@@ -151,7 +161,7 @@ void RenderDevice::OnFrameBegin()
 
 void RenderDevice::OnFrameEnd()
 {
-	
+	mBindingSetCache.clear();
 }
 
 void RenderDevice::UpdateConstantBuffer(RHIResourcePtr target, void* data, size_t dataSize)
@@ -318,6 +328,7 @@ RHIPipelineStatePtr RenderDevice::CreatePipelineState(MaterialInstance* mat, con
 
 	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthEnable = mat->mMaterialTemplate->IsDepthTestEnable();
 	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthWrite = mat->mMaterialTemplate->IsDepthTestEnable();
+	graphicDesc.mPipelineStateDesc.PrimitiveTopologyType =(RHIPrimitiveTopologyType) mat->mMaterialTemplate->GetPrimitiveType();
 	graphicDesc.mInputLayout = *layout;
 	graphicDesc.mPipelineStateDesc.mVertexShader = mat->GetShaderVS();
 	graphicDesc.mPipelineStateDesc.mPixelShader = mat->GetShaderPS();
@@ -375,6 +386,8 @@ void RenderDevice::DrawMesh(render::SubMesh* mesh, render::MaterialInstance* mat
 {
 	DrawMeshInstanced(mesh, mat, params, nullptr, 0, 1);
 }
+
+
 void RenderDevice::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage /*= nullptr*/, int32_t startInstanceIdx /*= 1*/, int32_t instancingSize /*= 1*/)
 {
 	auto pipeline = GetPipeline(mat, mesh);
@@ -408,8 +421,17 @@ void RenderDevice::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialInst
 
 	mGraphicCmd->SetVertexBuffer(descs, 0);
 	mGraphicCmd->SetIndexBuffer(ib);
-	mGraphicCmd->SetDrawPrimitiveTopology(
-		RHIPrimitiveTopology::TriangleList);
+	switch (mat->mMaterialTemplate->GetPrimitiveType())
+	{
+	case RHIPrimitiveTopologyType::Triangle:
+		mGraphicCmd->SetDrawPrimitiveTopology(RHIPrimitiveTopology::TriangleList);
+		break;
+	case RHIPrimitiveTopologyType::Line:
+		mGraphicCmd->SetDrawPrimitiveTopology(RHIPrimitiveTopology::LineList);
+		break;
+	default:
+		break;
+	}
 	mGraphicCmd->DrawIndexedInstanced((uint32_t)indexCount, instancingSize, 0, 0, startInstanceIdx);
 }
 
@@ -421,8 +443,7 @@ RHIBindingSetPtr RenderDevice::GetBindingSet(RHIPipelineState* pipeline, PackedP
 	if (it != mBindingSetCache.end())
 		return it->second;
 	RHIBindingSetPtr bindingset = mDevice->CreateBindingSet(mDefaultPool, pipeline->GetBindingSetLayout());	
-	static std::vector<BindingDesc> desc;
-	desc.clear();
+	std::vector<BindingDesc> desc;
 	PARAM_ID(SampleTypeClamp);
 	packparams->PushShaderParam(ParamID_SampleTypeClamp, mClampSamplerView);	
 	auto shader = pipeline->mPSODesc.mGraphicDesc.mPipelineStateDesc.mVertexShader;
@@ -434,8 +455,14 @@ RHIBindingSetPtr RenderDevice::GetBindingSet(RHIPipelineState* pipeline, PackedP
 	}
 	mBindingSetCache[paramsHash] = bindingset;
 	bindingset->WriteBindings(desc);
-	Log("Graphics", "Create bindingset");
+	//Log("Graphics", "Create bindingset {}", pipeline->mShaders[RHIShaderType::Vertex]->mDesc.mName);
 	return bindingset;
+}
+
+void RenderDevice::BindViewBuffer(RenderView* view)
+{
+	mGraphicCmd->BindDesriptorSetExt(view->mViewBindingSet);
+
 }
 
 }

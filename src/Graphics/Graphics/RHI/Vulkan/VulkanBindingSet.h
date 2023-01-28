@@ -16,13 +16,13 @@ class VulkanBindingSet : public RHIBindingSet
 {
 public:
 	VulkanBindingSet(RHIDescriptorPool* pool, RHIBindingSetLayoutPtr layout);
-
+	~VulkanBindingSet();
 	void WriteBindings(const std::vector<BindingDesc>& bindings);
 
-	const std::vector<vk::DescriptorSet>& GetDescriptorSets() const;
+	const LArray<vk::DescriptorSet>& GetDescriptorSets() const;
 
-	std::vector<DescriptorSetPool> m_descriptors;
-	std::vector<vk::DescriptorSet> mDescriptorSets;
+	LArray<VKDescriptorSetSegment*> mDescriptors;
+	LArray<vk::DescriptorSet> mDescriptorSets;
 	RHIBindingSetLayoutPtr mLayout;
 private:
 };

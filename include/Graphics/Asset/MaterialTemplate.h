@@ -32,12 +32,16 @@ public:
 	bool IsDepthTestEnable();
 	void SetDepthTestEnable(bool val);
 
+	RHIPrimitiveTopologyType GetPrimitiveType() { return mPrimitiveType; }
+	void SetPrimitiveType(RHIPrimitiveTopologyType val) { mPrimitiveType = val; }
+
 public:
 	void OnLoad() override;
 
 private:
 	bool mDepthTestEnable = true;
 	bool mDepthWriteEnable = true;
+	RHIPrimitiveTopologyType mPrimitiveType = RHIPrimitiveTopologyType::Triangle;
 	
 	TPPtr< MaterialInstance> mDefaultInstance;
 	TPPtrArray<MaterialParam> mTemplateParams;

@@ -10,10 +10,11 @@
 namespace luna::render
 {
 
-struct DescriptorSetPool
+struct VKDescriptorSetSegment
 {
 	vk::DescriptorPool pool;
 	vk::DescriptorSet set;
+	~VKDescriptorSetSegment();
 };
 
 
@@ -68,5 +69,5 @@ public:
 	vk::DescriptorPool mPool = nullptr;
 };
 
-RENDER_API DescriptorSetPool AllocateDescriptorSet(RHIDescriptorPool* pool, vk::DescriptorSetLayout& set_layout, const std::map<vk::DescriptorType, size_t>& count);
+RENDER_API VKDescriptorSetSegment* AllocateDescriptorSet(RHIDescriptorPool* pool, vk::DescriptorSetLayout& set_layout, const std::map<vk::DescriptorType, size_t>& count);
 }

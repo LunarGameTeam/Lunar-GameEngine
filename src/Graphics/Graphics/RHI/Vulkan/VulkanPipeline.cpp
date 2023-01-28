@@ -49,17 +49,31 @@ void VulkanPipelineState::Init()
 
 	vertShaderStageInfo.stage = vk::ShaderStageFlagBits::eVertex;
 	vertShaderStageInfo.module = mPSODesc.mGraphicDesc.mPipelineStateDesc.mVertexShader->As<VulkanShaderBlob>()->mShaderModule;
+
+	mShaders[RHIShaderType::Vertex] = mPSODesc.mGraphicDesc.mPipelineStateDesc.mVertexShader;
 	vertShaderStageInfo.pName = "VSMain";
 
 	vk::PipelineShaderStageCreateInfo fragShaderStageInfo{};
 	fragShaderStageInfo.stage = vk::ShaderStageFlagBits::eFragment;;
 	fragShaderStageInfo.module = mPSODesc.mGraphicDesc.mPipelineStateDesc.mPixelShader->As<VulkanShaderBlob>()->mShaderModule;;
 	fragShaderStageInfo.pName = "PSMain";
+	mShaders[RHIShaderType::Pixel] = mPSODesc.mGraphicDesc.mPipelineStateDesc.mPixelShader;
 
 	vk::PipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
 	vk::PipelineInputAssemblyStateCreateInfo inputAssembly{};
-	inputAssembly.topology = vk::PrimitiveTopology::eTriangleList;
+	switch (mPSODesc.mGraphicDesc.mPipelineStateDesc.PrimitiveTopologyType)
+	{
+	case RHIPrimitiveTopologyType::Triangle:
+		inputAssembly.topology = vk::PrimitiveTopology::eTriangleList;
+		break;
+	case RHIPrimitiveTopologyType::Line:
+		inputAssembly.topology = vk::PrimitiveTopology::eLineList;
+		break;
+	default:
+		assert(false);
+		break;
+	}
 	inputAssembly.primitiveRestartEnable = false;
 
 	vk::PipelineViewportStateCreateInfo viewportState{};
@@ -99,17 +113,17 @@ void VulkanPipelineState::Init()
 		| vk::ColorComponentFlagBits::eB
 		| vk::ColorComponentFlagBits::eA;
 
-	colorBlendAttachment.blendEnable = VK_FALSE;
+	colorBlendAttachment.blendEnable = false;
 
 	vk::PipelineColorBlendStateCreateInfo colorBlending{};
 	colorBlending.logicOpEnable = VK_FALSE;
 	colorBlending.logicOp = vk::LogicOp::eCopy;
 	colorBlending.attachmentCount = 1;
 	colorBlending.pAttachments = &colorBlendAttachment;
-	colorBlending.blendConstants[0] = 0.0f;
-	colorBlending.blendConstants[1] = 0.0f;
-	colorBlending.blendConstants[2] = 0.0f;
-	colorBlending.blendConstants[3] = 0.0f;
+	colorBlending.blendConstants[0] = 1.0f;
+	colorBlending.blendConstants[1] = 1.0f;
+	colorBlending.blendConstants[2] = 1.0f;
+	colorBlending.blendConstants[3] = 1.0f;
 
 
 	vk::PipelineDepthStencilStateCreateInfo depthCreateInfo{};

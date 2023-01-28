@@ -16,7 +16,7 @@ namespace luna::render
 struct RENDER_API ImguiTexture
 {
 public:
-	render::RHIViewPtr	mView;
+	RHIViewPtr	mView;
 	TRHIPtr<RHIObject> mDX12Pool;
 	void* mImg;
 };

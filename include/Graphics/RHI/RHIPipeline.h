@@ -19,7 +19,7 @@ struct RenderBindingSlotTypeDesc
 
 struct RHIBlendStateTargetDesc
 {
-	bool                BlendEnable           = false;
+	bool                BlendEnable           = true;
 	bool                LogicOpEnable         = false;
 	RHIRenderBlend      SrcBlend              = RHIRenderBlend::BLEND_ONE;
 	RHIRenderBlend      DestBlend             = RHIRenderBlend::BLEND_ZERO;

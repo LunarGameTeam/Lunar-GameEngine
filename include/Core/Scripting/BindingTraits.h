@@ -124,6 +124,7 @@ template<typename> struct pymethod_wrap;
 template<typename> struct binding_converter
 {
 	static PyObject* binding_type() { return nullptr; }
+
 };
 
 template<typename T>
@@ -145,6 +146,27 @@ struct struct_converter
 		return static_type<T>::StaticType()->GetBindingFullName();
 	}
 	
+};
+
+template<typename T>
+struct enum_converter
+{
+	inline static PyObject* to_binding(T val)
+	{
+		return PyLong_FromLong((int)val);
+	}
+
+	inline static T from_binding(PyObject* obj)
+	{
+		if (PyObject_TypeCheck(obj, &PyLong_Type))
+			return (T)PyLong_AsLong(obj);		
+		return (T)0;
+	}
+
+	static const char* binding_fullname()
+	{
+		return "int";
+	}
 };
 
 
@@ -275,6 +297,25 @@ struct binding_converter<char>
 	static const char* binding_fullname()
 	{
 		return "char";
+	}
+};
+
+template<>
+struct binding_converter<uint8_t>
+{
+	inline static PyObject* to_binding(uint8_t val)
+	{
+		return PyLong_FromLong(val);
+	}
+
+	inline static uint8_t from_binding(PyObject* val)
+	{
+		long l = PyLong_AsLong(val);
+		return (uint8_t)l;
+	}
+	static const char* binding_fullname()
+	{
+		return "int";
 	}
 };
 

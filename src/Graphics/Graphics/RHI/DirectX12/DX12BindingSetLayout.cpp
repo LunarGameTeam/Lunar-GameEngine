@@ -80,13 +80,13 @@ DX12BindingSetLayout::DX12BindingSetLayout(const std::vector<RHIBindPoint>& desc
 			now_range = &now_descriptor_set.each_range_input.emplace_back();
 			now_range->OffsetInDescriptorsFromTableStart = now_descriptor_set.mShaderInputNum;
 			now_descriptor_set.mShaderInputNum += bind_key.mCount;
-			now_descriptor_set.range_name_list_input.emplace(bind_key.mName, now_descriptor_set.each_range_input.size() - 1);
+			now_descriptor_set.range_name_list_input[bind_key.mName] = now_descriptor_set.each_range_input.size() - 1;
 			break;
 		case D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER:
 			now_range = &now_descriptor_set.each_range_sampler.emplace_back();
 			now_range->OffsetInDescriptorsFromTableStart = now_descriptor_set.mSamplerNum;
 			now_descriptor_set.mSamplerNum += bind_key.mCount;
-			now_descriptor_set.range_name_list_sampler.emplace(bind_key.mName, now_descriptor_set.each_range_sampler.size() - 1);
+			now_descriptor_set.range_name_list_sampler[bind_key.mName] = now_descriptor_set.each_range_sampler.size() - 1;
 			break;
 		default:
 			assert(false);
@@ -142,7 +142,7 @@ DX12BindingSetLayout::DX12BindingSetLayout(const std::vector<RHIBindPoint>& desc
 
 	ComPtr<ID3DBlob> signature;
 	ComPtr<ID3DBlob> errorBlob;
-	LUNA_ASSERT(SUCCEEDED(D3D12SerializeRootSignature(&rootsignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &errorBlob),
+	assert(SUCCEEDED(D3D12SerializeRootSignature(&rootsignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &errorBlob),
 		"%s", static_cast<char*>(errorBlob->GetBufferPointer())
 	));
 	HRESULT hr = sRenderModule->GetDevice<DX12Device>()->GetDx12Device()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&mRootsignature));	

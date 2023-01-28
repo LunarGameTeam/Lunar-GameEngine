@@ -119,4 +119,19 @@ void VulkanView::CreateImgeView()
 	}
 }
 
+VulkanView::~VulkanView()
+{
+	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	if (mImageView)
+	{
+		device.destroyImageView(mImageView);
+		mImageView = nullptr;
+	}
+	if (mBufferView)
+	{
+		device.destroyBufferView(mBufferView);
+		mBufferView = nullptr;
+	}
+}
+
 }

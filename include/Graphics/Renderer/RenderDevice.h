@@ -98,8 +98,12 @@ public:
 	void OnFrameEnd();
 	void FlushStaging();
 
+	void BindViewBuffer(RenderView* view);
+
 	RHIDescriptorPoolPtr GetDefaultDescriptorPool() { return mDefaultPool; }
 
+	RHIBindingSetLayoutPtr mViewBindingSet;
+	ShaderAsset* mDefaultShader;
 private:
 	RHIPipelineStatePtr CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& desc, RHIVertexLayout* layout);
 

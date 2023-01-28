@@ -14,6 +14,13 @@ void CalcRadiance(BaseFragment input, float3 Lo, float3 N, float3 Li, float3 Lra
 	rad = saturate(rad);
 }
 
+float GetShadowFactor(BaseFragment input)
+{
+	float2 uv;
+	float depthValue = _ShadowMap.Sample(SampleTypeClamp, uv).a;
+	return depthValue;
+}
+
 float4 PSMain(BaseFragment input) : SV_TARGET
 {
     float4 color = float4(0,0,0,1);
@@ -26,7 +33,6 @@ float4 PSMain(BaseFragment input) : SV_TARGET
 		float3 Li = -cLightDirection;
 		CalcRadiance(input, Lo,  input.normal, Li, cDirectionLightColor, 1.0, rad);    
 	}
-
 	for(int i = 0 ; i < cPointLightsCount; ++i)
 	{
 		float3 Li = normalize(cPointLights[i].cLightPos - input.worldPosition.xyz);

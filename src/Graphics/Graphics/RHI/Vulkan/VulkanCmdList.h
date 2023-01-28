@@ -24,7 +24,7 @@ public:
 		int32_t BaseVertexLocation,
 		int32_t StartInstanceLocation) override;
 
-	void SetDrawPrimitiveTopology(const RHIPrimitiveTopology& primitive_topology) override;
+	void SetDrawPrimitiveTopology(RHIPrimitiveTopology primitive_topology) override;
 
 	void ResourceBarrierExt(const ResourceBarrierDesc& desc) override;
 

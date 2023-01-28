@@ -21,7 +21,7 @@ public:
 	vk::DescriptorSetLayout mDescriptorSetLayout;
 	std::vector<vk::DescriptorSetLayout> mDescriptorSetLayouts;
 	vk::PipelineLayout mPipelineLayout;
-	std::vector<std::map<vk::DescriptorType, size_t>> m_descriptor_count_by_set;
+	std::vector<std::map<vk::DescriptorType, size_t>> mDescriptorCountBySet;
 private:
 };
 

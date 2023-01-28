@@ -32,6 +32,7 @@ FrameGraphBuilder::~FrameGraphBuilder()
 FGNode& FrameGraphBuilder::AddPass(const LString& name)
 {
 	FGNode* node = new FGNode();
+	node->mName = name;
 	mNodes.push_back(node);
 	return *node;
 }
@@ -141,16 +142,22 @@ void FrameGraphBuilder::Flush()
 	_Prepare();
 
 
-	mFence3D->Wait(mFenceValue3D);
-	cmdlist->Reset();
+
+
 	for (FGNode* node : mNodes)
 	{
+		mFence3D->Wait(mFenceValue3D);
+		cmdlist->Reset();
+		cmdlist->BeginEvent(node->GetName());
+		if (node->mRT.empty() && !node->mDS)
+			return;
+
 		for (FGResourceView* view : node->mVirtureResView)
-		{			 
+		{
 			switch (view->mRHIViewDesc.mViewType)
 			{
 			case RHIViewType::kTexture:
-				cmdlist->ResourceBarrierExt({ view->mVirtualRes->GetRHIResource(), ResourceState::kUndefined, ResourceState::kGenericRead });
+				cmdlist->ResourceBarrierExt({ view->mVirtualRes->GetRHIResource(), ResourceState::kUndefined, ResourceState::kShaderReadOnly });
 				break;
 			case RHIViewType::kRenderTarget:
 				cmdlist->ResourceBarrierExt({ view->mVirtualRes->GetRHIResource(), ResourceState::kUndefined, ResourceState::kRenderTarget });
@@ -161,23 +168,9 @@ void FrameGraphBuilder::Flush()
 				break;
 			}
 		}
-	}
-
-	cmdlist->CloseCommondList();
-	renderDevice->mGraphicQueue->ExecuteCommandLists(cmdlist);
-	renderDevice->mGraphicQueue->Signal(mFence3D, ++mFenceValue3D);
-
-
-	for (FGNode* node : mNodes)
-	{
-		if (node->mRT.empty() && !node->mDS)
-			return;
-
 
 		FGResourceView& dsView = *node->mDS;
 
-		mFence3D->Wait(mFenceValue3D);
-		cmdlist->Reset();
 		cmdlist->BindDescriptorHeap();
 		uint32_t width;
 		uint32_t height;
@@ -196,7 +189,6 @@ void FrameGraphBuilder::Flush()
 		node->mPassDesc.mDepthStencilView = dsView.mRHIView;
 		node->mPassDesc.mDepths[0].mDepthStencilFormat = dsView.mRHIView->mBindResource->mResDesc.Format;
 
-		cmdlist->BeginEvent(node->GetName());
 		node->PreExecute(this);
 
 		renderDevice->BeginRenderPass(node->mPassDesc);
@@ -206,9 +198,8 @@ void FrameGraphBuilder::Flush()
 		node->Execute(this);
 		renderDevice->EndRenderPass();
 
-		cmdlist->EndEvent();
-
 		cmdlist->CloseCommondList();
+		cmdlist->EndEvent();
 		renderDevice->mGraphicQueue->ExecuteCommandLists(cmdlist);
 		renderDevice->mGraphicQueue->Signal(mFence3D, ++mFenceValue3D);
 	}

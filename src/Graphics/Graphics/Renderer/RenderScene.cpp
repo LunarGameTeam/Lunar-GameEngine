@@ -38,8 +38,24 @@ void RenderScene::PrepareScene()
 {
 	if (!mBufferDirty)
 		return;
+
+	if (mDebugMesh == nullptr)
+	{
+		mDebugMesh = NewObject<SubMesh>();
+		RHIVertexLayout& vertexlayout = mDebugMesh->GetVertexLayout();
+		mDebugMesh->Update();
+	}
+
+	if (mDebugMeshLine == nullptr)
+	{
+		mDebugMeshLine = NewObject<SubMesh>();
+		RHIVertexLayout& vertexlayout = mDebugMeshLine->GetVertexLayout();
+		mDebugMeshLine->Update();
+	}
+
+
 	if (mSceneParamsBuffer == nullptr)
-		mSceneParamsBuffer = new ShaderParamsBuffer(sRenderModule->mDefaultShader->GetConstantBufferDesc(LString("SceneBuffer").Hash()));
+		mSceneParamsBuffer = new ShaderParamsBuffer(sRenderModule->GetRenderDevice()->mDefaultShader->GetConstantBufferDesc(LString("SceneBuffer").Hash()));
 	if (mROIDInstancingBuffer == nullptr)
 		mROIDInstancingBuffer = new ShaderParamsBuffer(RHIBufferUsage::VertexBufferBit, sizeof(uint32_t) * 4 * 128);
 
@@ -62,6 +78,7 @@ void RenderScene::PrepareScene()
 	{
 		PointLight* light = mPointLights[i];
 		mSceneParamsBuffer->Set("cPointLights", light->mPosition, i, 0);
+		mDebugMeshLine->AddCubeWired(light->mPosition, LVector3f(1, 1, 1), light->mColor);
 		mSceneParamsBuffer->Set("cPointLights", light->mColor, i, 16);
 		mSceneParamsBuffer->Set("cPointLights", light->mIntensity, i, 32);
 	}
@@ -94,13 +111,21 @@ PointLight* RenderScene::CreatePointLight()
 RenderView* RenderScene::CreateRenderView()
 {
 	RenderView* newView = new RenderView(mViews.size());
+	newView->mOwnerScene = this;
 	mViews.push_back(newView);
 	return newView;
 }
 
 void RenderScene::Render(FrameGraphBuilder* FG)
 {
+	if(mDebugMesh)
+		mDebugMesh->ClearVertexData();
+	if(mDebugMeshLine)
+		mDebugMeshLine->ClearVertexData();
 	PrepareScene();
+	
+	mDebugMesh->Update();
+	mDebugMeshLine->Update();
 	for (RenderView* renderView : mViews)
 	{
 		renderView->PrepareView();

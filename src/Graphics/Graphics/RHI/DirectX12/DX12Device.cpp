@@ -61,13 +61,13 @@ void DX12Device::InitDescriptorHeap()
 		2048
 		);
 	dsv_cpu_descriptor->Init();
-	gpu_descriptor_heap.emplace(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, srv_gpu_descriptor);
-	gpu_descriptor_heap.emplace(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, sampler_gpu_descriptor);
+	gpu_descriptor_heap[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV] = srv_gpu_descriptor;
+	gpu_descriptor_heap[D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER] = sampler_gpu_descriptor;
 
-	cpu_descriptor_heap.emplace(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, srv_cpu_descriptor);
-	cpu_descriptor_heap.emplace(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, sampler_cpu_descriptor);
-	cpu_descriptor_heap.emplace(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, rtv_cpu_descriptor);
-	cpu_descriptor_heap.emplace(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, dsv_cpu_descriptor);
+	cpu_descriptor_heap[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV] = srv_cpu_descriptor;
+	cpu_descriptor_heap[D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER] = sampler_cpu_descriptor;
+	cpu_descriptor_heap[D3D12_DESCRIPTOR_HEAP_TYPE_RTV] = rtv_cpu_descriptor;
+	cpu_descriptor_heap[D3D12_DESCRIPTOR_HEAP_TYPE_DSV] = dsv_cpu_descriptor;
 }
 
 DX12Device::~DX12Device()

@@ -12,12 +12,13 @@ VulkanBindingSet::VulkanBindingSet(RHIDescriptorPool* pool, RHIBindingSetLayoutP
 	mLayout(layout)
 {
 	VulkanBindingSetLayout* vkLayout = mLayout->As<VulkanBindingSetLayout>();
-	decltype(auto) descriptor_set_layouts = vkLayout->mDescriptorSetLayouts;
-	decltype(auto) descriptor_count_by_set = vkLayout->m_descriptor_count_by_set;
-	for (size_t i = 0; i < descriptor_set_layouts.size(); ++i)
+	decltype(auto) descriptorSetLyaouts = vkLayout->mDescriptorSetLayouts;
+	decltype(auto) descriptorCountBySet = vkLayout->mDescriptorCountBySet;
+	for (size_t i = 0; i < descriptorSetLyaouts.size(); ++i)
 	{
-		m_descriptors.push_back(AllocateDescriptorSet(pool, descriptor_set_layouts[i], descriptor_count_by_set[i]));
-		mDescriptorSets.push_back(m_descriptors.back().set);
+		auto segment = AllocateDescriptorSet(pool, descriptorSetLyaouts[i], descriptorCountBySet[i]);
+		mDescriptors.push_back(segment);
+		mDescriptorSets.push_back(mDescriptors.back()->set);
 	}
 }
 
@@ -48,9 +49,18 @@ void VulkanBindingSet::WriteBindings(const std::vector<BindingDesc>& bindings)
 
 }
 
-const std::vector<vk::DescriptorSet>& VulkanBindingSet::GetDescriptorSets() const
+const LArray<vk::DescriptorSet>& VulkanBindingSet::GetDescriptorSets() const
 {
 	return mDescriptorSets;
+}
+
+VulkanBindingSet::~VulkanBindingSet()
+{
+	for (VKDescriptorSetSegment* it : mDescriptors)
+	{
+		delete it;
+	}
+	mDescriptors.clear();
 }
 
 }

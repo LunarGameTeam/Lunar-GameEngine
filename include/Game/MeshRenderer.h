@@ -33,7 +33,7 @@ public:
 	void SetMeshAsset(MeshAsset* mesh);
 
 	void SetMaterial(MaterialTemplateAsset* mat);
-
+	void SetCastShadow(bool val);
 	void OnCreate() override;
 
 
@@ -41,6 +41,7 @@ public:
 protected:
 	void CreateRenderObject();
 private:
+	bool mCastShadow = false;
 	render::RenderObject* mRO = nullptr;
 	TPPtr<MeshAsset> mMeshAsset;
 	TPPtr<render::MaterialTemplateAsset> mMaterialAsset;

@@ -304,7 +304,6 @@ bool RenderModule::OnInit()
 		break;
 
 	}
-	mDefaultShader = sAssetModule->LoadAsset<ShaderAsset>("/assets/built-in/Shader/Debug.hlsl");
 	return true;
 }
 
@@ -440,7 +439,7 @@ void RenderModule::RenderIMGUI()
 
 	for (auto& it : mImguiTextures)
 	{
-		mRenderDevice->mGraphicCmd->ResourceBarrierExt({ it.second.mView->mBindResource, render::ResourceState::kUndefined, render::ResourceState::kShaderReadOnly });
+		mRenderDevice->mGraphicCmd->ResourceBarrierExt({ it.second.mView->mBindResource, render::ResourceState::kUndefined, render::ResourceState::kShaderReadOnly});
 	}
 
 	mRenderDevice->mGraphicCmd->ResourceBarrierExt({ sRenderModule->GetSwapChain()->GetBackBuffer(index), render::ResourceState::kUndefined, render::ResourceState::kRenderTarget });

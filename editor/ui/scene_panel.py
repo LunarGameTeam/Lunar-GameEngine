@@ -145,6 +145,13 @@ class ScenePanel(PanelBase):
                     self.create_geometry("/assets/built-in/Geometry/Plane.obj")
                 if imgui.menu_item("PointLight"):
                     self.create_point_light()
+                if imgui.menu_item("Directional Light"):
+                    if self.scene:
+                        entity = self.scene.create_entity("PointLight")
+                        transform = entity.add_component(luna.Transform)
+                        light = entity.add_component(luna.DirectionLightComponent)
+                        light.color = luna.LVector4f(1, 1, 1, 1)
+                        light.intensity = 1.0
                     pass
                 luna.imgui.end_menu()
             luna.imgui.end_menu_bar()

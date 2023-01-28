@@ -19,13 +19,11 @@ namespace luna::assetimport
 					render::MeshAsset* meshValuePtr= outAssetPack.CreateAsset<render::MeshAsset>(nodeValue.mName);
 					for (size_t submeshIndex = 0; submeshIndex < dataValue->GetSubMeshSize(); ++submeshIndex)
 					{
-						render::SubMesh* sub_mesh = TCreateObject<render::SubMesh>();
-						const resimport::LImportSubmesh &submeshData = dataValue->GettSubMesh(submeshIndex);
-						sub_mesh->mVertexCount = submeshData.mVertexPosition.size();
-						sub_mesh->mIndexCount = submeshData.mIndices.size();
+						render::SubMesh* it = TCreateObject<render::SubMesh>();
+						const resimport::LImportSubmesh& submeshData = dataValue->GettSubMesh(submeshIndex);
 						LString subMeshName = submeshData.mName;
-						sub_mesh->SetObjectName(subMeshName);
-						for(size_t vertexIndex = 0; vertexIndex < sub_mesh->mVertexCount; ++vertexIndex)
+						it->SetObjectName(subMeshName);
+						for(size_t vertexIndex = 0; vertexIndex < submeshData.mVertexPosition.size(); ++vertexIndex)
 						{
 							render::BaseVertex newVertexData;
 							newVertexData.pos = submeshData.mVertexPosition[vertexIndex];
@@ -36,13 +34,13 @@ namespace luna::assetimport
 							{
 								newVertexData.uv[uvChannel] = submeshData.mVertexUv[vertexIndex][uvChannel];
 							}
-							sub_mesh->mVertexData.push_back(newVertexData);
+							it->mVertexData.push_back(newVertexData);
 						}
-						for (size_t faceIndex = 0; faceIndex < sub_mesh->mIndexCount; ++faceIndex)
+						for (size_t faceIndex = 0; faceIndex < submeshData.mIndices.size(); ++faceIndex)
 						{
-							sub_mesh->mIndexData.push_back(submeshData.mIndices[faceIndex]);
+							it->mIndexData.push_back(submeshData.mIndices[faceIndex]);
 						}
-						meshValuePtr->mSubMesh.PushBack(sub_mesh);
+						meshValuePtr->mSubMesh.PushBack(it);
 					}
 					break;
 				}

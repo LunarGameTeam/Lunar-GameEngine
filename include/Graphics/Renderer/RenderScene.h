@@ -38,6 +38,7 @@ public:
 public:
 	
 	void Init();
+
 	DirectionLight* CreateMainDirLight();
 	void DestroyMainDirLight(DirectionLight* val);
 	PointLight* CreatePointLight();
@@ -57,15 +58,15 @@ public:
 	auto&       GetAllView() const                { return mViews; };
 
 
-	ShaderParamsBuffer* mSceneParamsBuffer = nullptr;
+	ShaderParamsBuffer* mSceneParamsBuffer    = nullptr;
 	ShaderParamsBuffer* mROIDInstancingBuffer = nullptr;
 
-	SubMesh*            mDebugMeshLine;
-	SubMesh*            mDebugMesh;
+	SubMesh*            mDebugMeshLine        = nullptr;
+	SubMesh*            mDebugMesh            = nullptr;
 
 	//先不做Culling，这里应该交给View进行Culling并进行ID更新
 	RHIResourcePtr      mIDInstanceBuffer;
-	DirectionLight*     mMainDirLight = nullptr;
+	DirectionLight*     mMainDirLight         = nullptr;
 	LArray<PointLight*> mPointLights;
 protected:
 	void PrepareScene();

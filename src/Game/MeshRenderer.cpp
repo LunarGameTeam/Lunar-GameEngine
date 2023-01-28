@@ -22,6 +22,10 @@ RegisterTypeEmbedd_Imp(MeshRenderer)
 		.Setter<&MeshRenderer::SetMaterial>()
 		.Serialize();
 
+	cls->BindingProperty<&MeshRenderer::mCastShadow>("cast_shadow")
+		.Setter<&MeshRenderer::SetCastShadow>()
+		.Serialize();
+
 	BindingModule::Luna()->AddType(cls);
 }
 
@@ -56,10 +60,7 @@ void MeshRenderer::CreateRenderObject()
 		mRO = GetScene()->GetRenderScene()->CreateRenderObject();
 		mRO->mMaterial = mMaterialInstance.Get();
 		mRO->mMesh = mMeshAsset->GetSubMeshAt(0);
-		if (mRO->mMesh->mVB.get() == nullptr)
-		{
-			mRO->mMesh->Init();
-		}
+		mRO->mMesh->Update();
 		mRO->mWorldMat = &(mTransform->GetLocalToWorldMatrix());
 	}
 	
@@ -92,6 +93,13 @@ void MeshRenderer::SetMeshAsset(MeshAsset* obj)
 	{
 		mRO->mMesh = obj->GetSubMeshAt(0);
 	}
+}
+
+void MeshRenderer::SetCastShadow(bool val)
+{
+	mCastShadow = val;
+	if (mRO)
+		mRO->mCastShadow = mCastShadow;
 }
 
 }

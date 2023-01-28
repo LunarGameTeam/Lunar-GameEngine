@@ -125,7 +125,7 @@ void DX12GraphicCmdList::SetPipelineState(
 	}
 }
 
-void DX12GraphicCmdList::SetDrawPrimitiveTopology(const RHIPrimitiveTopology& primitive_topology)
+void DX12GraphicCmdList::SetDrawPrimitiveTopology(RHIPrimitiveTopology primitive_topology)
 {
 	mDxCmdList->IASetPrimitiveTopology(GetDirectXPrimitiveTopology(primitive_topology));
 };

@@ -14,43 +14,43 @@ VulkanBindingSetLayout::VulkanBindingSetLayout(const std::vector<RHIBindPoint>& 
 	std::map<uint32_t, std::vector<vk::DescriptorSetLayoutBinding>> bindingsBySpace;
 	std::map<uint32_t, std::vector<vk::DescriptorBindingFlags>> bindings_flags_by_set;
 
-	for (const RHIBindPoint& bind_key : bindKeys)
+	for (const RHIBindPoint& it : bindKeys)
 	{
-		decltype(auto) binding = bindingsBySpace[bind_key.mSpace].emplace_back();
-		binding.binding = bind_key.mSlot;
-		binding.descriptorType = Convert(bind_key.mViewType);
-		binding.descriptorCount = bind_key.mCount;
-		binding.stageFlags = ConvertShader(bind_key.mShaderVisibility);
+		decltype(auto) binding = bindingsBySpace[it.mSpace].emplace_back();
+		binding.binding = it.mSlot;
+		binding.descriptorType = Convert(it.mViewType);
+		binding.descriptorCount = it.mCount;
+		binding.stageFlags = ConvertShader(it.mShaderVisibility);
 
-		decltype(auto) binding_flag = bindings_flags_by_set[bind_key.mSpace].emplace_back();
+		decltype(auto) binding_flag = bindings_flags_by_set[it.mSpace].emplace_back();
 	}
-	m_descriptor_count_by_set.resize(bindingsBySpace.size());
-	for (auto& descriptorSet : bindingsBySpace)
+	mDescriptorCountBySet.resize(bindingsBySpace.size());
+	for (auto& it : bindingsBySpace)
 	{
 		vk::DescriptorSetLayoutCreateInfo setLaytouCreateInfo = {};		
-		std::vector<vk::DescriptorSetLayoutBinding>& setLayoutBindings = descriptorSet.second;
+		std::vector<vk::DescriptorSetLayoutBinding>& setLayoutBindings = it.second;
 		setLaytouCreateInfo.bindingCount = (uint32_t)setLayoutBindings.size();
 		setLaytouCreateInfo.pBindings = setLayoutBindings.data();
 
 		vk::DescriptorSetLayoutBindingFlagsCreateInfo layoutFlagsInfo = {};
-		layoutFlagsInfo.bindingCount = (uint32_t)bindings_flags_by_set[descriptorSet.first].size();
-		layoutFlagsInfo.pBindingFlags = bindings_flags_by_set[descriptorSet.first].data();
+		layoutFlagsInfo.bindingCount = (uint32_t)bindings_flags_by_set[it.first].size();
+		layoutFlagsInfo.pBindingFlags = bindings_flags_by_set[it.first].data();
 		
 		
 		setLaytouCreateInfo.pNext = &layoutFlagsInfo;
 
-		size_t setIdx = descriptorSet.first;
+		size_t setIdx = it.first;
 		if (mDescriptorSetLayouts.size() <= setIdx)
 		{
 			mDescriptorSetLayouts.resize(setIdx + 1);
-			m_descriptor_count_by_set.resize(setIdx + 1);
+			mDescriptorCountBySet.resize(setIdx + 1);
 		}
 
 		auto& descriptorSetLayout = mDescriptorSetLayouts[setIdx];
 		VULKAN_ASSERT(device.createDescriptorSetLayout(&setLaytouCreateInfo, nullptr, &descriptorSetLayout));
 		
-		decltype(auto) descriptor_count = m_descriptor_count_by_set[setIdx];
-		for (const auto& binding : descriptorSet.second)
+		decltype(auto) descriptor_count = mDescriptorCountBySet[setIdx];
+		for (const auto& binding : it.second)
 		{
 			descriptor_count[binding.descriptorType] += binding.descriptorCount;
 		}

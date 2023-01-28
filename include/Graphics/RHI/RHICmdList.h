@@ -63,7 +63,7 @@ public:
 		int32_t StartInstanceLocation) = 0;
 
 
-	virtual void SetDrawPrimitiveTopology(const RHIPrimitiveTopology& primitive_topology) = 0;
+	virtual void SetDrawPrimitiveTopology(RHIPrimitiveTopology primitive_topology) = 0;
 
 	virtual void CopyBufferToBuffer(
 		RHIResource* dstRes,

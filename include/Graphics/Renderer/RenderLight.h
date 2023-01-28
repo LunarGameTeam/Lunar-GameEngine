@@ -35,10 +35,9 @@ struct RENDER_API DirectionLight : Light
 
 
 	void Init();
+	void Update(RenderView* view);
 
 	std::shared_ptr<ShaderParamsBuffer> mParamBuffer;
-	RHIResourcePtr mViewBuffer;
-	RHIViewPtr     mViewBufferView;
 };
 
 }

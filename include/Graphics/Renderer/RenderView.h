@@ -49,7 +49,8 @@ public:
 
 	RenderViewType mViewType = RenderViewType::SceneView;
 
-
+	RHIBindingSetPtr mViewBindingSet;
+	RenderScene* mOwnerScene;
 	ShaderParamsBuffer* mViewBuffer;
 private:
 	ROArray             mViewVisibleROs;

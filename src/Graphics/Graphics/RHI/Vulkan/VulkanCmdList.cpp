@@ -125,7 +125,7 @@ void VulkanGraphicCmdList::DrawIndexedInstanced(uint32_t IndexCountPerInstance, 
 	mCommandBuffer.drawIndexed(IndexCountPerInstance, 1, 0, 0, StartInstanceLocation);
 }
 
-void VulkanGraphicCmdList::SetDrawPrimitiveTopology(const RHIPrimitiveTopology& primitive_topology)
+void VulkanGraphicCmdList::SetDrawPrimitiveTopology(RHIPrimitiveTopology primitive_topology)
 {
 	mCommandBuffer.setPrimitiveTopology(Convert(primitive_topology));
 }
@@ -455,7 +455,7 @@ void VulkanGraphicCmdList::BindDesriptorSetExt(RHIBindingSetPtr bindingSet)
 			vk::PipelineBindPoint::eGraphics,
 			vkBindingSetLayout->mPipelineLayout,
 			0,
-			(uint32_t)vkBindingSet->m_descriptors.size(),
+			(uint32_t)vkBindingSet->mDescriptors.size(),
 			vkBindingSet->mDescriptorSets.data(),
 			0,
 			nullptr);

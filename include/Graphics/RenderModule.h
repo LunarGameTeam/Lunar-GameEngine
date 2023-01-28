@@ -73,7 +73,6 @@ public:
 	}
 
 	RenderDeviceType GetDeviceType() { return mRenderDevice->mDeviceType; }
-	ShaderAsset* mDefaultShader;
 
 
 	RenderScene* GetRenderSceneAt(int32_t idx)

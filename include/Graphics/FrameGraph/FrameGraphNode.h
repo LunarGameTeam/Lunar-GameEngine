@@ -24,12 +24,12 @@ public:
 	FGNode(FGNode&&) = delete;
 	~FGNode();
 
-	void Execute(FrameGraphBuilder* m_builder);;
+	void Execute(FrameGraphBuilder* builder);
 
-	void PreExecute(FrameGraphBuilder* m_builder)
+	void PreExecute(FrameGraphBuilder* builder)
 	{
 		if(mPreExecFunc)
-			mPreExecFunc(m_builder, *this);
+			mPreExecFunc(builder, *this);
 	};
 
 	FGNode& PreExecFunc(PreExecFuncType func) 

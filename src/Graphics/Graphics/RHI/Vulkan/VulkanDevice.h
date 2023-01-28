@@ -68,7 +68,7 @@ public:
 	vk::Device         GetVKDevice() { return mDevice; }
 	vk::DispatchLoaderDynamic& GetLoader(){ return mDldi; }
 
-	const                    bool enableValidationLayers = false;
+	const                    bool enableValidationLayers = true;
 private:
 
 	bool InitDeviceData() override;

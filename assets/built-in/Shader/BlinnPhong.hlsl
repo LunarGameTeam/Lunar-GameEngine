@@ -12,10 +12,9 @@ cbuffer MaterialBuffer : register(b3)
 void CalcRadiance(BaseFragment input, float3 Lo, float3 N, float3 Li, float3 Lradiance, float attenuation, out float3 rad)
 {
 	float cosAngIncidence = dot(N, Li);
-	cosAngIncidence = clamp(cosAngIncidence, 0, 1);	
-	
+	cosAngIncidence = clamp(cosAngIncidence, 0, 1);		
 	float3 halfAngle = normalize(Li + Lo);
-	float blinnTerm = dot(N, halfAngle);
+	float blinnTerm = dot(N, halfAngle);	
 	blinnTerm = clamp(blinnTerm, 0, 1);
 	blinnTerm = cosAngIncidence != 0.0 ? blinnTerm : 0.0;
 	blinnTerm = pow(blinnTerm, 2);

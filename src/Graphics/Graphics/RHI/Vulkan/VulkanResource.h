@@ -25,8 +25,8 @@ public:
 	{
 
 		vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
-// 		if (mImage)
-// 			device.destroyImage(mImage);
+ 		if (mImage)
+ 			device.destroyImage(mImage);
 		if(mBuffer)
 			device.destroy(mBuffer);
 		if (mSampler)

@@ -69,7 +69,7 @@ struct RENDER_API PackedParams : NoCopy
 		mParamsHash = 0;
 	}
 
-	void PushShaderParam(ShaderParamID id, RHIView* view);
+	void PushShaderParam(ShaderParamID id, RHIViewPtr view);
 	void PushShaderParam(ShaderParamID id, ShaderParamsBuffer* view);
 
 	size_t mParamsHash = 0;

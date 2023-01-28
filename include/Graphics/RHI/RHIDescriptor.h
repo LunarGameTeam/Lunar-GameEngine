@@ -141,7 +141,9 @@ public:
 
 	};
 
-	virtual ~RHIView() = default;
+	virtual ~RHIView()
+	{
+	};
 	
 	virtual void BindResource(RHIResource* buffer_data) {};
 

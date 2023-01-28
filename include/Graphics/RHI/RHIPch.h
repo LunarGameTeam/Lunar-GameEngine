@@ -89,7 +89,7 @@ enum class RHIPrimitiveTopology
 };
 
 
-enum class RHIPrimitiveTopologyType
+enum class RHIPrimitiveTopologyType : uint8_t
 {
 	Undefined = 0,
 	Point = 1,

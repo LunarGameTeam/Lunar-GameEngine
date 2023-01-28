@@ -199,5 +199,6 @@ class MeshRendererEditor(ComponentEditor):
         mesh: 'luna.MeshAsset' = self.target.mesh
         if self.on_category():
             self.imgui_obj_property(self.target, "mesh", luna.MeshAsset)
+            self.imgui_obj_property(self.target, "cast_shadow", bool)
             self.imgui_obj_property(self.target, "material", luna.MaterialTemplateAsset)
             imgui.tree_pop()

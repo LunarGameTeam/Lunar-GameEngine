@@ -19,7 +19,7 @@ public:
 
 	void ResourceBarrierExt(const ResourceBarrierDesc& desc) override;
 
-	void SetDrawPrimitiveTopology(const RHIPrimitiveTopology& primitive_topology) override;
+	void SetDrawPrimitiveTopology(RHIPrimitiveTopology primitive_topology) override;
 
 	void SetBiningSetLayoutExt(
 		RHIBindingSetLayout* root_signature

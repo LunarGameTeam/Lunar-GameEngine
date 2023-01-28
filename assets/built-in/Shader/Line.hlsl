@@ -30,5 +30,5 @@ BaseFragment VSMain(BaseVertex input)
 ////////////////////////////////////////////////////////////////////////////////
 float4 PSMain(BaseFragment input) : SV_TARGET
 {
-    return float4(1,1,1,1);
+    return input.color;
 }
