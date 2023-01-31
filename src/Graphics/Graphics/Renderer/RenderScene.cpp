@@ -41,14 +41,14 @@ void RenderScene::PrepareScene()
 
 	if (mDebugMesh == nullptr)
 	{
-		mDebugMesh = NewObject<SubMesh>();
+		mDebugMesh = new SubMesh();
 		RHIVertexLayout& vertexlayout = mDebugMesh->GetVertexLayout();
 		mDebugMesh->Update();
 	}
 
 	if (mDebugMeshLine == nullptr)
 	{
-		mDebugMeshLine = NewObject<SubMesh>();
+		mDebugMeshLine = new SubMesh();
 		RHIVertexLayout& vertexlayout = mDebugMeshLine->GetVertexLayout();
 		mDebugMeshLine->Update();
 	}

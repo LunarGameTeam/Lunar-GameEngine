@@ -371,7 +371,7 @@ void RenderDevice::EndRenderPass()
 
 RHIPipelineStatePtr RenderDevice::GetPipeline(render::MaterialInstance* mat, render::SubMesh* mesh)
 {
-	return CreatePipelineState(mat, mCurRenderPass, &mesh->mVeretexLayout);
+	return CreatePipelineState(mat, mCurRenderPass, &(mesh->mVeretexLayout));
 // 	ShaderAsset* shader = mat->GetShaderAsset();
 
 }
@@ -400,7 +400,6 @@ void RenderDevice::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialInst
 
 	RHIResource* vb = mesh->mVB;
 	size_t indexCount = mesh->mIndexData.size();
-	size_t indexStride = mesh->mIndexCount;
 	RHIResource* ib = mesh->mIB;
 
 	LArray<RHIVertexBufferDesc> descs;

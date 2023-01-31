@@ -8,19 +8,12 @@
 
 #include <algorithm>
 
-
-
 namespace luna::render
 {
+
 RegisterTypeEmbedd_Imp(SubMesh)
 {
 	cls->Ctor<SubMesh>();
-	cls->VirtualProperty("vertex_size")
-		.Getter<&SubMesh::GetVertexCount>();
-
-	cls->VirtualProperty("index_size")
-		.Getter<&SubMesh::GetIndexCount>();	
-
 	cls->Binding<Self>();
 	BindingModule::Get("luna")->AddType(cls);
 };
@@ -30,7 +23,6 @@ RegisterTypeEmbedd_Imp(MeshAsset)
 	cls->Binding<Self>();
 	BindingModule::Get("luna")->AddType(cls);
 	cls->Ctor<MeshAsset>();
-	cls->Property<&Self::mSubMesh>("submesh");
 };
 
 void SubMesh::Release()
@@ -155,10 +147,10 @@ void MeshAsset::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> fil
 		ptr += sizeof(size_t);
 		sub_mesh->mVertexData.resize(submeshVertexSize);
 		sub_mesh->mIndexData.resize(submeshIndexSize);
-		mSubMesh.PushBack(sub_mesh);
+		mSubMesh.push_back(sub_mesh);
 	}
 
-	for (size_t idx = 0; idx < mSubMesh.Size(); ++idx)
+	for (size_t idx = 0; idx < mSubMesh.size(); ++idx)
 	{
 		luna::render::SubMesh* subMeshData = mSubMesh[idx];
 		memcpy(subMeshData->mVertexData.data(), ptr, subMeshData->mVertexData.size() * sizeof(BaseVertex));
@@ -177,7 +169,7 @@ void MeshAsset::OnAssetFileWrite(LSharedPtr<JsonDict> meta, LArray<byte>& data)
 	size_t globel_size = 0;
 	size_t offset = 0;
 	globel_size += sizeof(size_t);
-	for (size_t id = 0; id < mSubMesh.Size(); ++id)
+	for (size_t id = 0; id < mSubMesh.size(); ++id)
 	{
 		luna::render::SubMesh* subMeshData = mSubMesh[id];
 		globel_size += 2 * sizeof(size_t);
@@ -186,10 +178,10 @@ void MeshAsset::OnAssetFileWrite(LSharedPtr<JsonDict> meta, LArray<byte>& data)
 	}
 	data.resize(globel_size);
 	byte* dst = data.data();
-	size_t submeshSize = mSubMesh.Size();
+	size_t submeshSize = mSubMesh.size();
 	memcpy(dst, &submeshSize, sizeof(size_t));
 	dst += sizeof(size_t);
-	for (size_t submeshIndex = 0; submeshIndex < mSubMesh.Size(); ++submeshIndex)
+	for (size_t submeshIndex = 0; submeshIndex < mSubMesh.size(); ++submeshIndex)
 	{
 		luna::render::SubMesh* subMeshData = mSubMesh[submeshIndex];
 		size_t submeshVertexSize = subMeshData->mVertexData.size();
@@ -200,7 +192,7 @@ void MeshAsset::OnAssetFileWrite(LSharedPtr<JsonDict> meta, LArray<byte>& data)
 		dst += sizeof(size_t);
 	}
 
-	for (size_t idx = 0; idx < mSubMesh.Size(); ++idx)
+	for (size_t idx = 0; idx < mSubMesh.size(); ++idx)
 	{
 		luna::render::SubMesh* subMeshData = mSubMesh[idx];
 		memcpy(dst, subMeshData->mVertexData.data(), subMeshData->mVertexData.size() * sizeof(BaseVertex));

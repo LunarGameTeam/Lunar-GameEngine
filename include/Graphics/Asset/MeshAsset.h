@@ -1,10 +1,12 @@
 #pragma once
 #include "Core/Math/Math.h"
 #include "Core/Foundation/Container.h"
+#include "Core/Scripting/Binding.h"
+#include "Core/Object/BaseObject.h"
 #include "Core/Asset/BinaryAsset.h"
 #include "Graphics/RenderConfig.h"
 #include "Graphics/RHI/RHIResource.h"
-
+#include "Core/Scripting/BindingProxy.h"
 
 namespace luna::render
 {
@@ -18,7 +20,7 @@ struct BaseVertex
 	LVector3f normal;
 	LVector4f tangent;
 	LVector2f uv[4];
-	static RHIVertexLayout& GetVertexLayout()
+	static RHIVertexLayout GetVertexLayout()
 	{
 		RHIVertexLayout layout;
 		layout.AddVertexElement(VertexElementType::Float, VertexElementUsage::UsagePosition, 3, 0, VertexElementInstanceType::PerVertex);
@@ -35,12 +37,12 @@ struct BaseVertex
 };
 
 
-class RENDER_API SubMesh : public LObject
+class RENDER_API SubMesh
 {
-	RegisterTypeEmbedd(SubMesh, LObject)
+	RegisterTypeEmbedd(SubMesh, InvalidType)
 public:
 	SubMesh();
-	~SubMesh() override { Release(); }
+	~SubMesh() { Release(); }
 
 	void ClearVertexData();
 	
@@ -54,10 +56,9 @@ public:
 	void SetVertexFormat(const RHIVertexLayout& format);
 	RHIVertexLayout& GetVertexLayout() { return mVeretexLayout;	};
 
-	uint32_t GetVertexCount() const { return (uint32_t)mVertexData.size(); }
-	uint32_t GetIndexCount() const { return(uint32_t)mIndexData.size(); }
-	int32_t mVertexCount;
-	int32_t mIndexCount;
+	int GetVertexCount() const { return (int)mVertexData.size(); }
+	int GetIndexCount() const { return(int)mIndexData.size(); }
+
 	LArray<BaseVertex> mVertexData;
 	LArray<uint32_t> mIndexData;
 
@@ -77,20 +78,20 @@ class RENDER_API MeshAsset : public Asset
 {
 	RegisterTypeEmbedd(MeshAsset, Asset)
 public:
-	MeshAsset():
-		mSubMesh(this)
+	MeshAsset()
 	{
 	}
 	size_t SubMeshSize()
 	{
-		return mSubMesh.Size();
+		return mSubMesh.size();
 	}
 
 	SubMesh* GetSubMeshAt(size_t index)
 	{
 		return mSubMesh[index];
 	};
-	TPPtrArray<SubMesh> mSubMesh;
+
+	LArray<SubMesh*> mSubMesh;
 
 	//Asset资源读入到内存时回调
 	virtual void OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> file) override;
@@ -99,4 +100,9 @@ public:
 private:
 	bool mReady = false;
 };
+}
+
+namespace luna::binding
+{
+template<> struct binding_proxy<render::SubMesh> : native_binding_proxy<render::SubMesh> {};
 }

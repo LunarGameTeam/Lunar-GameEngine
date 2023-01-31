@@ -12,8 +12,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 BaseFragment VSMain(BaseVertex input) 
 {
-    BaseFragment output;    
-    
+    BaseFragment output;
     output.position = mul(float4(input.position, 1), cViewMatrix);
     output.position = mul(output.position, cProjectionMatrix);
     output.normal = float4(input.normal, 0);

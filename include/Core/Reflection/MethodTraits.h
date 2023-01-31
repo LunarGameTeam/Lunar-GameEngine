@@ -50,7 +50,7 @@ template<typename Ret, typename Cls, typename... Args>
 struct function_traits<Ret(Cls::*)(Args...)>
 {
 	using return_type = Ret;
-	using class_type = Cls;
+	using class_type = std::remove_const_t<Cls>;
 	using args_type = std::tuple<Args...>;
 	using func_type = std::function<Ret(Args...)>;
 

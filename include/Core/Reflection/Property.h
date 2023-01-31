@@ -178,7 +178,7 @@ protected:
 	template<typename Ret, typename Cls>
 	static PyObject* BindingGetter(PyObject* obj, void* closure)
 	{
-		using binding_object_t =	binding::binding_proxy<Cls>::binding_object_t;
+		using binding_object_t = binding::binding_proxy<Cls>::binding_object_t;
 		binding_object_t* binding_wrap = (binding_object_t*)(obj);
 		Cls* self = (Cls*)(binding_wrap->GetPtr());
 		LProperty* mType = (LProperty*)(closure);
