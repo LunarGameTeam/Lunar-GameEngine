@@ -32,12 +32,11 @@ namespace luna::render
 {
 
 
-uint32_t findMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties)
+uint32_t findMemoryType(uint32_t typeBits, vk::MemoryPropertyFlags properties)
 {
-	VkPhysicalDeviceMemoryProperties memProperties;
-	VkPhysicalDevice physicalDevice = sRenderModule->GetDevice<VulkanDevice>()->GetPhysicalDevice();
-	vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
-
+	vk::PhysicalDeviceMemoryProperties memProperties;
+	vk::PhysicalDevice physicalDevice = sRenderModule->GetDevice<VulkanDevice>()->GetPhysicalDevice();
+	physicalDevice.getMemoryProperties(&memProperties);
 	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
 	{
 		if ((typeBits & 1) == 1)
@@ -54,21 +53,21 @@ uint32_t findMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties)
 
 QueueFamilyIndices findQueueFamilies()
 {
-	VkPhysicalDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetPhysicalDevice();
+	vk::PhysicalDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetPhysicalDevice();
 	QueueFamilyIndices indices;
 	uint32_t queueFamilyCount = 0;
-	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+	device.getQueueFamilyProperties(&queueFamilyCount, nullptr);
 
-	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+	std::vector<vk::QueueFamilyProperties> queueFamilies(queueFamilyCount);
+	device.getQueueFamilyProperties(&queueFamilyCount, queueFamilies.data());	
 	int i = 0;
 	for (const auto& queueFamily : queueFamilies) {
-		if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) 
+		if (queueFamily.queueFlags & vk::QueueFlagBits::eGraphics) 
 		{
 			indices.graphicsFamily = i;
 			indices.presentFamily = i;
 		}
-		if (queueFamily.queueFlags & VK_QUEUE_TRANSFER_BIT)
+		if (queueFamily.queueFlags & vk::QueueFlagBits::eTransfer)
 		{
 			indices.transferFamily = i;			
 		}
@@ -121,7 +120,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
 
 void VulkanDevice::setupDebugMessenger()
 {
-	if (!enableValidationLayers) return;
+	if (!mEnableValidation) return;
 
 	vk::DebugUtilsMessengerCreateInfoEXT createInfo;
 
@@ -219,7 +218,7 @@ bool VulkanDevice::InitDeviceData()
 	vk::InstanceCreateInfo createInfo;	
 	vk::DebugUtilsMessengerCreateInfoEXT debugCreateInfo;
 	
-	if (enableValidationLayers) {
+	if (mEnableValidation) {
 		ext_names.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
 		createInfo.ppEnabledLayerNames = validationLayers.data();
@@ -290,7 +289,7 @@ void VulkanDevice::createLogicalDevice()
 	createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
 	createInfo.pQueueCreateInfos = queueCreateInfos.data();
 
-	if (enableValidationLayers) {
+	if (mEnableValidation) {
 		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
 		createInfo.ppEnabledLayerNames = validationLayers.data();
 	}

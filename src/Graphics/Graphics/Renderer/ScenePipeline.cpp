@@ -27,7 +27,7 @@ void ShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 		shadowmapDesc.mType = ResourceType::kTexture;
 		shadowmapDesc.Width = 1024;
 		shadowmapDesc.Height = 1024;
-		shadowmapDesc.Format = RHITextureFormat::FORMAT_R8G8BB8A8_UNORM;
+		shadowmapDesc.Format = RHITextureFormat::R8G8BB8A8_UNORN;
 		shadowmapDesc.mImageUsage = RHIImageUsage::ColorAttachmentBit | RHIImageUsage::SampledBit;
 
 		FGTexture* color = builder->CreateTexture("Shadowmap", shadowmapDesc);
@@ -72,7 +72,7 @@ void ShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 	if (shadowMat)
 		shadowMat->Ready();
 
-	node.ExcuteFunc([view, renderScene](FrameGraphBuilder* builder, FGNode& node, RenderDevice* device)
+	node.ExcuteFunc([view, renderScene](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
 	{
 		if (!renderScene->mMainDirLight)
 			return;
@@ -132,7 +132,7 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 		auto depthView = node.AddDSV(depth, dsvDesc);
 		FGTexture* shadowmap = builder->GetTexture("Shadowmap");
 
-		shadowmapView = node.AddSRV(shadowmap);
+		shadowmapView = node.AddSRV(shadowmap, srvDesc);
 
 		node.SetColorAttachment(colorView);
 		node.SetDepthStencilAttachment(depthView);
@@ -141,7 +141,7 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 	{
 
 	});
-	node.ExcuteFunc([view, renderScene, shadowmapView](FrameGraphBuilder* builder, FGNode& node, RenderDevice* device) {
+	node.ExcuteFunc([view, renderScene, shadowmapView](FrameGraphBuilder* builder, FGNode& node, RenderContext* device) {
 
 		ROArray& ROs = view->GetViewVisibleROs();
 		static PackedParams params;
@@ -228,7 +228,7 @@ void OverlayPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rend
 	static MaterialInstance* debugMat = debugMatAsset->GetDefaultInstance();
 	if (debugMat)
 		debugMat->Ready();
-	node.ExcuteFunc([view, renderScene, shadowmapView](FrameGraphBuilder* builder, FGNode& node, RenderDevice* device) {
+	node.ExcuteFunc([view, renderScene, shadowmapView](FrameGraphBuilder* builder, FGNode& node, RenderContext* device) {
 
 		ROArray& ROs = view->GetViewVisibleROs();
 		PackedParams params;		

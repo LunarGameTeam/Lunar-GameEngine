@@ -55,7 +55,7 @@ void RenderScene::PrepareScene()
 
 
 	if (mSceneParamsBuffer == nullptr)
-		mSceneParamsBuffer = new ShaderParamsBuffer(sRenderModule->GetRenderDevice()->mDefaultShader->GetConstantBufferDesc(LString("SceneBuffer").Hash()));
+		mSceneParamsBuffer = new ShaderParamsBuffer(sRenderModule->GetRenderContext()->mDefaultShader->GetConstantBufferDesc(LString("SceneBuffer").Hash()));
 	if (mROIDInstancingBuffer == nullptr)
 		mROIDInstancingBuffer = new ShaderParamsBuffer(RHIBufferUsage::VertexBufferBit, sizeof(uint32_t) * 4 * 128);
 
@@ -98,19 +98,21 @@ void RenderScene::PrepareScene()
 DirectionLight* RenderScene::CreateMainDirLight()
 {
 	mMainDirLight = new DirectionLight();
+	mMainDirLight->mOwnerScene = this;
 	return mMainDirLight;
 }
 
 PointLight* RenderScene::CreatePointLight()
 {
 	auto light = new PointLight();
+	light->mOwnerScene = this;
 	mPointLights.push_back(light);
 	return light;
 }
 
 RenderView* RenderScene::CreateRenderView()
 {
-	RenderView* newView = new RenderView(mViews.size());
+	RenderView* newView = new RenderView();
 	newView->mOwnerScene = this;
 	mViews.push_back(newView);
 	return newView;
@@ -130,6 +132,15 @@ void RenderScene::Render(FrameGraphBuilder* FG)
 	{
 		renderView->PrepareView();
 		renderView->Render(this, FG);		
+	}
+}
+
+void RenderScene::DestroyMainDirLight(DirectionLight* val)
+{
+	if (mMainDirLight == val)
+	{
+		delete mMainDirLight;
+		mMainDirLight = nullptr;
 	}
 }
 
@@ -188,13 +199,5 @@ RenderScene::~RenderScene()
 	mRenderObjects.clear();
 }
 
-void RenderScene::DestroyMainDirLight(DirectionLight* val)
-{
-	if (mMainDirLight == val)
-	{
-		delete mMainDirLight;
-		mMainDirLight = nullptr;
-	}
-}
 
 }

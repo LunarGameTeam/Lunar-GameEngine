@@ -13,12 +13,13 @@ namespace luna::render
 
 struct RENDER_API Light
 {
-	LVector4f mColor      = LVector4f(1, 1, 1, 1);
-	bool      mCastShadow = false;
+	LVector4f    mColor      = LVector4f(1, 1, 1, 1);
+	bool         mCastShadow = false;
 
-	float     mIntensity  = 1.0;
-	bool      mInit       = false;
-	bool      mDirty      = true;
+	float        mIntensity  = 1.0;
+	bool         mInit       = false;
+	bool         mDirty      = true;
+	RenderScene* mOwnerScene = nullptr;
 };
 
 struct RENDER_API PointLight : Light

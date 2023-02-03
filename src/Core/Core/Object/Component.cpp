@@ -1,5 +1,6 @@
 #include "Core/Object/Component.h"
 #include "Core/Object/Entity.h"
+#include "Core/Object/System.h"
 
 namespace luna
 {
@@ -10,6 +11,11 @@ RegisterTypeEmbedd_Imp(Component)
 	cls->Binding<Component>();
 	cls->BindingMethod<&Component::Destroy>("destroy");	
 	BindingModule::Get("luna")->AddType(cls);
+}
+
+LType* Component::GetSystemType()
+{
+	return LType::Get<System>();
 }
 
 Component::Component()

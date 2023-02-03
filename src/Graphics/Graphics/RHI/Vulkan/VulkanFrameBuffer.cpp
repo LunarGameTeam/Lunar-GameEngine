@@ -16,7 +16,7 @@ VulkanFrameBuffer::VulkanFrameBuffer(const FrameBufferDesc& desc) :
 {
 	RHIView* colorRTV = desc.mColor[0];
 	RHIView* dsv = desc.mDepthStencil;
-	std::vector< VkImageView> attachments;
+	std::vector<vk::ImageView> attachments;
 	if (colorRTV)
 		attachments.push_back(colorRTV->As<VulkanView>()->mImageView);
 	colorRTV->As<VulkanView>()->mColorAttachment = 0;
@@ -24,9 +24,8 @@ VulkanFrameBuffer::VulkanFrameBuffer(const FrameBufferDesc& desc) :
 		attachments.push_back(dsv->As<VulkanView>()->mImageView);
 	
 
-	VkFramebufferCreateInfo framebufferInfo{};
-	RHIRenderPass* vulkanPass = desc.mPass;
-	framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+	vk::FramebufferCreateInfo framebufferInfo{};
+	RHIRenderPass* vulkanPass = desc.mPass;	
 	framebufferInfo.renderPass = vulkanPass->As<VulkanRenderPass>()->mRenderPass;
 	framebufferInfo.attachmentCount = (uint32_t)attachments.size();
 	framebufferInfo.pAttachments = attachments.data();
@@ -34,15 +33,12 @@ VulkanFrameBuffer::VulkanFrameBuffer(const FrameBufferDesc& desc) :
 	framebufferInfo.height = mHeight;
 	framebufferInfo.layers = 1;
 
-	if (vkCreateFramebuffer(sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice(), &framebufferInfo, nullptr, &mBuffer) != VK_SUCCESS)
-	{
-		throw std::runtime_error("failed to create framebuffer!");
-	}
+	sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().createFramebuffer(&framebufferInfo, nullptr, &mBuffer);
 }
 
 VulkanFrameBuffer::~VulkanFrameBuffer()
 {
-	VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
+	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
 	if (mBuffer)
 		vkDestroyFramebuffer(device, mBuffer, nullptr);
 }

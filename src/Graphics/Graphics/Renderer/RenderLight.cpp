@@ -12,7 +12,7 @@ namespace luna::render
 
 void DirectionLight::Init()
 {
-	mParamBuffer = std::make_shared<ShaderParamsBuffer>(sRenderModule->GetRenderDevice()->mDefaultShader->GetConstantBufferDesc(LString("ViewBuffer").Hash()));
+	mParamBuffer = std::make_shared<ShaderParamsBuffer>(sRenderModule->GetRenderContext()->mDefaultShader->GetConstantBufferDesc(LString("ViewBuffer").Hash()));
 }
 
 void DirectionLight::Update(RenderView* view)

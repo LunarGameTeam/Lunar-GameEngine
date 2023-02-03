@@ -15,7 +15,7 @@ class RENDER_API FGNode
 {
 public:
 	using PreExecFuncType = std::function<void(FrameGraphBuilder*, FGNode&)>;
-	using ExcuteFuncType = std::function<void(FrameGraphBuilder*, FGNode&, RenderDevice*)>;
+	using ExcuteFuncType = std::function<void(FrameGraphBuilder*, FGNode&, RenderContext*)>;
 	using SetupFuncType = std::function<void(FrameGraphBuilder*, FGNode&)>;
 
 	FGNode() = default;
@@ -39,18 +39,17 @@ public:
 	}
 
 	FGNode& SetupFunc(FrameGraphBuilder* builder, SetupFuncType func) { func(builder, *this); return*this; }
-	
-	FGResourceView* AddSRV(FGTexture* texture);
 
 	FGResourceView* AddSRV(FGTexture*, const ViewDesc& desc);
 	
 	FGResourceView* AddRTV(FGTexture*, const ViewDesc& desc);
 
+	FGResourceView* AddDSV(FGTexture*, const ViewDesc& desc);
+
 	void SetColorClear(const PassColorDesc &desc, uint32_t rtIndex = 0);
 
 	void SetDepthClear(const PassDepthStencilDesc &desc);
 
-	FGResourceView* AddDSV(FGTexture*, const ViewDesc& desc);
 
 	FGNode& SetColorAttachment(FGResourceView* rt, uint32_t rtIndex = 0);
 	FGNode& SetDepthStencilAttachment(FGResourceView* ds);

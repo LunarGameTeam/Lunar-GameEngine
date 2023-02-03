@@ -63,8 +63,6 @@ set(SPIRV_REFLECT_STATIC_LIB ON CACHE BOOL "" FORCE)
 # FBX工具加入可选项
 option(LUNA_USING_FBX_TOOLS "enable fbx tools" OFF)
 option(LUNA_USING_ASAN "Enable Snitize Address" OFF)
-option(LUNA_USING_OBJ_TOOLS "enable obj tools" OFF)
-option(LUNA_USING_GLTF_TOOLS "enable gltf tools" OFF)
 
 if(LUNA_USING_DEBUG_PYTHON)
     message(STATUS "Using Debug Python")

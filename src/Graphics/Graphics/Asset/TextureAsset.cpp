@@ -37,41 +37,31 @@ RegisterTypeEmbedd_Imp(TextureCube)
 	BindingModule::Luna()->AddType(cls);
 };
 
-void ITexture::Release()
-{
-}
-
 void Texture2D::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> file)
 {
 	static RenderModule* render = gEngine->GetModule<RenderModule>();
-	tex_res_desc.Dimension = RHIResDimension::Texture2D;
-	tex_res_desc.mType = ResourceType::kTexture;
+	mDesc.Dimension = RHIResDimension::Texture2D;
+	mDesc.mType = ResourceType::kTexture;
 	auto dds_type_test = file->GetPath().Find(".dds");
 	if (dds_type_test != std::string::npos)
 	{
-		m_data = new byte[file->GetData().size()];
-		memcpy(const_cast<byte*>(m_data), file->GetData().data(),
+		mData = new byte[file->GetData().size()];
+		memcpy(const_cast<byte*>(mData), file->GetData().data(),
 		       file->GetData().size() * sizeof(file->GetData()[0]));
-		m_type = TextureMemoryType::DDS;
-		m_width = 0;
-		m_height = 0;
-		m_fomat = RHITextureFormat::FORMAT_UNKNOWN;
-		m_init_data_size = file->GetData().size() * sizeof(file->GetData()[0]);
+		mDataType = TextureMemoryType::DDS;
+		mDesc.Format = RHITextureFormat::FORMAT_UNKNOWN;
+		mDataSize = file->GetData().size() * sizeof(file->GetData()[0]);
 	}
 	else
 	{
 		int w, h, n;
-		m_data = (const byte*)stbi_load_from_memory(file->GetData().data(), (int)file->GetData().size(), &w, &h, &n, 4);
-		m_fomat = RHITextureFormat::FORMAT_R8G8BB8A8_UNORM;
-		m_width = w;
-		m_height = h;
-		m_type = TextureMemoryType::WIC;
-		m_init_data_size = w * h * 4;
-
-		tex_res_desc.ResHeapType = RHIHeapType::Default;
-		tex_res_desc.Width = w;
-		tex_res_desc.Height = h;
-		tex_res_desc.Format = m_fomat;
+		mData = (const byte*)stbi_load_from_memory(file->GetData().data(), (int)file->GetData().size(), &w, &h, &n, 4);
+		mDesc.Format = RHITextureFormat::R8G8BB8A8_UNORN;		
+		mDataType = TextureMemoryType::WIC;
+		mDataSize = w * h * 4;
+		mDesc.ResHeapType = RHIHeapType::Default;
+		mDesc.Width = w;
+		mDesc.Height = h;
 	}
 
 	//Init();
@@ -79,89 +69,84 @@ void Texture2D::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> fil
 
 const byte* Texture2D::GetData()
 {
-	return m_data;
-}
-
-size_t Texture2D::GetDataSize()
-{
-	return m_height * m_width * 4;
+	return mData;
 }
 
 void Texture2D::Release()
 {
-	if (m_data)
+	if (mData)
 	{
-		stbi_image_free((void*)m_data);
-		m_data = nullptr;
+		stbi_image_free((void*)mData);
+		mData = nullptr;
 	}
 	
 }
 
 void Texture2D::Init()
 {
-	if (m_init)
-		return;
-	m_init = true;	
-	tex_res_desc.mImageUsage = RHIImageUsage::SampledBit;
-	mRes = sRenderModule->mRenderDevice->CreateTexture(tex_load_desc, tex_res_desc, (byte*)m_data, m_init_data_size);
+	RHITextureDesc desc;
+	if (mRHIRes)
+		return;	
+	mDesc.mImageUsage = RHIImageUsage::SampledBit;
+	mRHIRes = sRenderModule->mRenderContext->CreateTexture(desc, mDesc, (byte*)mData, mDataSize);
 
 	ViewDesc viewDesc;
 	viewDesc.mViewType = RHIViewType::kTexture;
 	viewDesc.mViewDimension = RHIViewDimension::TextureView2D;
 	mView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
-	mView->BindResource(mRes);
+	mView->BindResource(mRHIRes);
 	
 	Release();
 }
 
-void Texture2D::CreateDescriptor()
+Texture2D::Texture2D()
 {
+	mDesc.Format = RHITextureFormat::R8G8BB8A8_UNORN;
 }
 
 TextureCube::TextureCube():
 	mTextures(this)
 {
-	m_fomat = RHITextureFormat::FORMAT_R8G8BB8A8_UNORM;
 }
 
 void TextureCube::Init()
 {
-	if (m_init)
+	if (mRHIRes)
 		return;
-	m_init = true;
 
-	size_t data_size = 0;
+	size_t dataSize = 0;
 
-	LArray<byte> init_datas;
+	RHITextureDesc mTexDesc;
+	LArray<byte> datas;
 
 	for (auto& texture : mTextures)
 	{
-		auto file = texture->GetData();
+		auto file = texture->GetFileData();
 		int w, h, n;
 		auto data = (const byte*)stbi_load_from_memory(file->GetData().data(), (int)file->GetData().size(), &w, &h, &n, 4);
-		m_width = w;
-		m_height = h;
 		auto stride = w * h * 4;
-		init_datas.resize(data_size + stride);
-		memcpy(init_datas.data() + data_size, data, stride);
-		data_size += stride;
+		datas.resize(dataSize + stride);
+		mDesc.Width = w;
+		mDesc.Height = h;		
+		memcpy(datas.data() + dataSize, data, stride);
+		dataSize += stride;
 		stbi_image_free((void*)data);
 	}
 
-	m_fomat = RHITextureFormat::FORMAT_R8G8BB8A8_UNORM;
-	m_type = TextureMemoryType::WIC;
+	mDesc.Format = RHITextureFormat::R8G8BB8A8_UNORN;
+	mDataType = TextureMemoryType::WIC;
 
-	mBufferDesc.ResHeapType = RHIHeapType::Default;
-	mBufferDesc.mType = ResourceType::kTexture;
-	mBufferDesc.Layout = RHITextureLayout::LayoutUnknown;
-	mBufferDesc.Width = m_width;
-	mBufferDesc.Height = m_height;
-	mBufferDesc.Format = m_fomat;
-	mBufferDesc.Dimension = RHIResDimension::Texture2D;
-	mBufferDesc.DepthOrArraySize = 6;
-	mBufferDesc.mImageUsage = RHIImageUsage::SampledBit;
+	mDesc.ResHeapType = RHIHeapType::Default;
+	mDesc.mType = ResourceType::kTexture;
+	mDesc.Layout = RHITextureLayout::LayoutUnknown;
+	mDesc.Width = mDesc.Width;
+	mDesc.Height = mDesc.Height;
+	mDesc.Format = mDesc.Format;
+	mDesc.Dimension = RHIResDimension::Texture2D;
+	mDesc.DepthOrArraySize = 6;
+	mDesc.mImageUsage = RHIImageUsage::SampledBit;
 	
-	mRes = sRenderModule->GetRenderDevice()->CreateTexture(mTexDesc, mBufferDesc, init_datas.data(), init_datas.size());
+	mRHIRes = sRenderModule->GetRenderContext()->CreateTexture(mTexDesc, mDesc, datas.data(), datas.size());
 
 	ViewDesc desc;
 	desc.mViewType = RHIViewType::kTexture;
@@ -169,7 +154,7 @@ void TextureCube::Init()
 	desc.mBaseMipLevel = 0;
 	desc.mLayerCount = 6;	
 	mResView = sRenderModule->GetRHIDevice()->CreateView(desc);
-	mResView->BindResource(mRes.get());
+	mResView->BindResource(mRHIRes.get());
 
 }
 
@@ -184,14 +169,9 @@ const byte* TextureCube::GetData()
 	return nullptr;
 }
 
-size_t TextureCube::GetDataSize()
-{
-	return m_height * m_width * 4;
-}
-
 void TextureCube::Release()
 {
-	free((void*)m_data);
+
 }
 
 void TextureCube::OnLoad()

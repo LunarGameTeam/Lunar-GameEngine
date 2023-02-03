@@ -4,6 +4,7 @@
 #include "Core/Platform/PlatformModule.h"
 #include "Core/Event/EventModule.h"
 #include "Core/Framework/Application.h"
+#include "Core/Object/System.h"
 
 #include "windows.h"
 
@@ -39,6 +40,7 @@ void LoadCoreLib()
 
 	gEngine->LoadModule<AssetModule>();
 	gEngine->LoadModule<EventModule>();
+	gEngine->LoadModule<ECSModule>();
 }
 
 void UnLoadCoreLib()

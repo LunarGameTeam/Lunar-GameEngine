@@ -8,6 +8,29 @@
 namespace luna
 {
 
+
+RegisterTypeEmbedd_Imp(CameraSystem)
+{
+	cls->Ctor<CameraSystem>();
+	BindingModule::Get("luna")->AddType(cls);	
+	RegisterSystem(cls);
+}
+
+CameraSystem::CameraSystem()
+{
+	FocusComponentType<CameraComponent>();
+	RequireComponentType<Transform>();
+}
+
+void CameraSystem::OnTick(float deltaTime)
+{
+	auto& transforms = GetRequireComponents<Transform>();
+	Foreach<CameraComponent>([&transforms](uint32_t idx, CameraComponent* camera)
+	{
+		Transform* transform = (Transform *)(transforms[idx]);
+	});
+}
+
 RegisterTypeEmbedd_Imp(CameraComponent)
 {
 	cls->Binding<Self>();

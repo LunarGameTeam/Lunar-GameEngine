@@ -24,7 +24,7 @@
 #include "Graphics/RenderTypes.h"
 
 #include "Graphics/Renderer/ImGuiTexture.h"
-#include "Graphics/Renderer/RenderDevice.h"
+#include "Graphics/Renderer/RenderContext.h"
 
 #include "Graphics/RHI/RHITypes.h"
 
@@ -37,11 +37,7 @@ class RENDER_API RenderModule : public LModule
 	RegisterTypeEmbedd(RenderModule, LModule)
 public:
 	RenderModule();
-
-
 	void OnIMGUI() override;
-
-	//Renderer
 public:
 	RenderScene* AddScene();
 	void RemoveScene(RenderScene*);
@@ -54,35 +50,25 @@ public:
 	template <typename T>
 	T* GetDevice()
 	{
-		return static_cast<T*>(mRenderDevice->mDevice);
+		return static_cast<T*>(mRenderContext->mDevice);
 	};
 
 	RHIDevice* GetRHIDevice()
 	{
-		return mRenderDevice->mDevice;
+		return mRenderContext->mDevice;
 	}
 
-	RenderDevice* GetRenderDevice()
+	RenderContext* GetRenderContext()
 	{
-		return mRenderDevice;
+		return mRenderContext;
 	}
 
 	inline RHIRenderQueue* GetCmdQueueCore()
 	{
-		return mRenderDevice->mGraphicQueue;
+		return mRenderContext->mGraphicQueue;
 	}
 
-	RenderDeviceType GetDeviceType() { return mRenderDevice->mDeviceType; }
-
-
-	RenderScene* GetRenderSceneAt(int32_t idx)
-	{
-		if (idx < mRenderScenes.size())
-			return mRenderScenes[idx];
-		return nullptr;
-	}
-
-	size_t GetRenderSeneSize() { return mRenderScenes.size(); }
+	RenderDeviceType GetDeviceType() { return mRenderContext->mDeviceType; }
 
 public:
 	
@@ -102,23 +88,20 @@ protected:
 
 	void OnMainWindowResize(LWindow& window, WindowEvent& event);
 public:
-	RenderDevice* mRenderDevice;
-	TPPtr<RenderTarget>     mMainRT;
+	RenderContext*      mRenderContext;
+	TPPtr<RenderTarget> mMainRT;
 
 	ImguiTexture* GetImguiTexture(RHIResource* key);
 	ImguiTexture* AddImguiTexture(RHIResource* res);
-	bool IsImuiTexture(RHIResource* key);
+	bool          IsImuiTexture(RHIResource* key);
 private:
-	LSharedPtr<Texture2D>       mDefaultWhiteTexture;
-
-	LArray<RenderScene*>        mRenderScenes;
-	//LMap<LWindow*, RHISwapChainPtr> mSwapchains;
-
+	LSharedPtr<Texture2D>              mDefaultWhiteTexture;
+	LArray<RenderScene*>               mRenderScenes;
 	LMap<RHIResourcePtr, ImguiTexture> mImguiTextures;
 
-	render::RHIRenderPassPtr  mRenderPass;
-	render::RHIFrameBufferPtr mFrameBuffer[2];
-	render::RHISwapchainDesc  mSwapchainDesc;
+	render::RHIRenderPassPtr           mIMGUIRenderPass;
+	render::RHIFrameBufferPtr          mFrameBuffer[2];
+	render::RHISwapchainDesc           mSwapchainDesc;
 
 	RHISwapChainPtr                    mMainSwapchain;
 	//framegraph

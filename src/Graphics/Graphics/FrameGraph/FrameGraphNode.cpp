@@ -42,22 +42,10 @@ FGResourceView* FGNode::AddDSV(FGTexture* res, const ViewDesc& desc)
 	return view;
 }
 
-FGResourceView* FGNode::AddSRV(FGTexture* res)
-{
-	mVirtureResView.emplace_back(new FGResourceView);
-	ViewDesc desc;
-	desc.mViewType = RHIViewType::kTexture;
-	desc.mViewDimension = RHIViewDimension::TextureView2D;
-	FGResourceView* view = mVirtureResView.back();
-	view->mRHIViewDesc = desc;
-	view->mVirtualRes = res;
-	return view;
-}
-
 void FGNode::Execute(FrameGraphBuilder* m_builder)
 {
 	if(mExecFunc)
-		mExecFunc(m_builder, *this, sRenderModule->GetRenderDevice());
+		mExecFunc(m_builder, *this, sRenderModule->GetRenderContext());
 }
 
 void FGNode::SetColorClear(const PassColorDesc& desc, uint32_t rtIndex)

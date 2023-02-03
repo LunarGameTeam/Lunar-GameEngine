@@ -1,21 +1,23 @@
 #include "Graphics/Renderer/RenderView.h"
-#include "Graphics/Renderer/RenderScene.h"
-#include "Graphics/Asset/ShaderAsset.h"
-#include "Graphics/RenderModule.h"
+
 #include "Core/Asset/AssetModule.h"
-#include "Graphics/Renderer/ScenePipeline.h"
+
+#include "Graphics/RenderModule.h"
+#include "Graphics/Asset/ShaderAsset.h"
 #include "Graphics/Renderer/MaterialInstance.h"
 #include "Graphics/Renderer/RenderLight.h"
-#include "Graphics/Renderer/RenderDevice.h"
+#include "Graphics/Renderer/RenderScene.h"
+#include "Graphics/Renderer/RenderContext.h"
+
+#include "Graphics/Renderer/ScenePipeline.h"
 
 namespace luna::render
 {
 
-RenderView::RenderView(uint64_t view_id) :
-	mRT(nullptr),
-	mViewID(view_id)
+RenderView::RenderView() :
+	mRT(nullptr)
 {	
-	auto device = sRenderModule->GetRenderDevice();
+	auto device = sRenderModule->GetRenderContext();
 	mViewBuffer = new ShaderParamsBuffer(device->mDefaultShader->GetConstantBufferDesc(LString("ViewBuffer").Hash()));
 }
 

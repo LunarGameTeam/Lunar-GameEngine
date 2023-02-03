@@ -17,12 +17,13 @@ VulkanResource::VulkanResource(uint32_t backBufferId, VulkanSwapChain* swapchain
 	mResDesc.Width = swapchain->GetWidth();
 	mResDesc.Height = swapchain->GetHeight();
 
-	VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
+	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
 	uint32_t imageCount;
 
-	vkGetSwapchainImagesKHR(device, swapchain->mSwapChain, &imageCount, nullptr);
-	std::vector<VkImage> images(imageCount);
-	vkGetSwapchainImagesKHR(device, swapchain->mSwapChain, &imageCount, images.data());
+	vkGetSwapchainImagesKHR(device, swapchain->mSwapChain, &imageCount, nullptr);	
+	std::vector<vk::Image> images(imageCount);
+	VULKAN_ASSERT(device.getSwapchainImagesKHR(swapchain->mSwapChain, &imageCount, images.data()));
+
 	mImage = images[backBufferId];
 	mVkFormat = swapchain->mSwapChainImageFormat;
 	mResDesc.Format = Convert(mVkFormat);
@@ -82,7 +83,7 @@ VulkanResource::VulkanResource(const RHITextureDesc& textureDesc, const RHIResDe
 	imageInfo.samples = vk::SampleCountFlagBits::e1;
 	imageInfo.sharingMode = vk::SharingMode::eExclusive;
 
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
+	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
 	
 	if (device.createImage(&imageInfo, nullptr, &mImage)!= vk::Result::eSuccess) {
 		throw std::runtime_error("failed to create image!");
@@ -97,7 +98,7 @@ VulkanResource::VulkanResource(const RHIBufferDesc& desc)
 	mResDesc.mType = ResourceType::kBuffer;
 	mResDesc.Dimension = RHIResDimension::Buffer;
 
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
+	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
 	
 
 	vk::BufferCreateInfo bufferInfo{};
@@ -132,16 +133,16 @@ VulkanResource::VulkanResource(const SamplerDesc& desc)
 	mResDesc.mType = ResourceType::kSampler;
 	mResDesc.Dimension = RHIResDimension::Unknown;
 
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
-	VkSamplerCreateInfo samplerInfo = {};
-	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	samplerInfo.magFilter = VkFilter::VK_FILTER_LINEAR;
-	samplerInfo.minFilter = VkFilter::VK_FILTER_LINEAR;
+	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::SamplerCreateInfo samplerInfo = {};
+	samplerInfo.magFilter = vk::Filter::eLinear;
+	samplerInfo.minFilter = vk::Filter::eLinear;
 	samplerInfo.anisotropyEnable = false;
 	samplerInfo.maxAnisotropy = 16;
-	samplerInfo.borderColor = VkBorderColor::VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+
+	samplerInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
 	samplerInfo.unnormalizedCoordinates = VK_FALSE;
-	samplerInfo.mipmapMode = VkSamplerMipmapMode::VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	samplerInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;
 	samplerInfo.mipLodBias = 0.0f;
 	samplerInfo.minLod = 0.0f;
 	samplerInfo.maxLod = std::numeric_limits<float>::max();
@@ -162,14 +163,14 @@ VulkanResource::VulkanResource(const SamplerDesc& desc)
 	switch (desc.mode)
 	{
 	case SamplerTextureAddressMode::kWrap:
-		samplerInfo.addressModeU = VkSamplerAddressMode::VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		samplerInfo.addressModeV = VkSamplerAddressMode::VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		samplerInfo.addressModeW = VkSamplerAddressMode::VK_SAMPLER_ADDRESS_MODE_REPEAT;
+		samplerInfo.addressModeU = vk::SamplerAddressMode::eRepeat;
+		samplerInfo.addressModeV = vk::SamplerAddressMode::eRepeat;
+		samplerInfo.addressModeW = vk::SamplerAddressMode::eRepeat;
 		break;
 	case SamplerTextureAddressMode::kClamp:
-		samplerInfo.addressModeU = VkSamplerAddressMode::VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-		samplerInfo.addressModeV = VkSamplerAddressMode::VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-		samplerInfo.addressModeW = VkSamplerAddressMode::VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+		samplerInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
+		samplerInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
+		samplerInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
 		break;
 	}
 
@@ -177,51 +178,50 @@ VulkanResource::VulkanResource(const SamplerDesc& desc)
 	{
 	case SamplerComparisonFunc::kNever:
 		samplerInfo.compareEnable = false;
-		samplerInfo.compareOp = VkCompareOp::VK_COMPARE_OP_NEVER;
+		samplerInfo.compareOp = vk::CompareOp::eNever;
 		break;
 	case SamplerComparisonFunc::kAlways:
 		samplerInfo.compareEnable = true;
-		samplerInfo.compareOp = VkCompareOp::VK_COMPARE_OP_ALWAYS;
+		samplerInfo.compareOp = vk::CompareOp::eAlways;
 		break;
 	case SamplerComparisonFunc::kLess:
 		samplerInfo.compareEnable = true;
-		samplerInfo.compareOp = VkCompareOp::VK_COMPARE_OP_LESS;
+		samplerInfo.compareOp = vk::CompareOp::eLess;
 		break;
 	}
-	if (vkCreateSampler(device, &samplerInfo, nullptr, &mSampler) != VK_SUCCESS)
-		assert(false);
+	VULKAN_ASSERT(device.createSampler(&samplerInfo, nullptr, &mSampler));
 }
 
 void VulkanResource::BindMemory(RHIMemory* memory, uint64_t offset)
 {
 	mOffset = offset;
 	mBindMemory = memory;
-	VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
+	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
 	if (mResDesc.mType == ResourceType::kBuffer)
 	{
-		vkBindBufferMemory(device, mBuffer, memory->As<VulkanMemory>()->mMemory, offset);
+		device.bindBufferMemory(mBuffer, memory->As<VulkanMemory>()->mMemory, offset);
 	}
 	else if (mResDesc.mType == ResourceType::kTexture)
 	{
-		vkBindImageMemory(device, mImage, memory->As<VulkanMemory>()->mMemory, offset);
+		device.bindImageMemory(mImage, memory->As<VulkanMemory>()->mMemory, offset);
 	}
 }
 
 void VulkanResource::RefreshMemoryRequirements()
 {
-	VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
+	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
 	if (mResDesc.mType == ResourceType::kBuffer)
 	{
-		VkMemoryRequirements memRequirements = {};
-		vkGetBufferMemoryRequirements(device, mBuffer, &memRequirements);
+		vk::MemoryRequirements memRequirements = {};
+		device.getBufferMemoryRequirements(mBuffer, &memRequirements);
 		mMemoryLayout.memory_type_bits = memRequirements.memoryTypeBits;
 		mMemoryLayout.size = memRequirements.size;
 		mMemoryLayout.alignment = memRequirements.alignment;
 	}
 	else if (mResDesc.mType == ResourceType::kTexture)
 	{
-		VkMemoryRequirements memRequirements = {};
-		vkGetImageMemoryRequirements(device, mImage, &memRequirements);
+		vk::MemoryRequirements memRequirements = {};
+		device.getImageMemoryRequirements(mImage, &memRequirements);
 		mMemoryLayout.memory_type_bits = memRequirements.memoryTypeBits;
 		mMemoryLayout.size = memRequirements.size;
 		mMemoryLayout.alignment = memRequirements.alignment;
@@ -230,16 +230,16 @@ void VulkanResource::RefreshMemoryRequirements()
 
 void* VulkanResource::Map()
 {
-	VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
+	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
 	void* dst_data;
-	vkMapMemory(device, mBindMemory->As<VulkanMemory>()->mMemory, mOffset, mMemoryLayout.size, {}, &dst_data);
+	VULKAN_ASSERT(device.mapMemory(mBindMemory->As<VulkanMemory>()->mMemory, mOffset, mMemoryLayout.size, {}, &dst_data));
 	return dst_data;
 }
 
 void VulkanResource::Unmap()
 {
-	VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
-	vkUnmapMemory(device, mBindMemory->As<VulkanMemory>()->mMemory);
+	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	device.unmapMemory(mBindMemory->As<VulkanMemory>()->mMemory);
 }
 
 }

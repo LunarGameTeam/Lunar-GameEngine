@@ -27,7 +27,7 @@ ShaderParamsBuffer::ShaderParamsBuffer(const RHICBufferDesc& cbDesc) :
 	ViewDesc viewDesc;
 	viewDesc.mViewType = RHIViewType::kConstantBuffer;
 	viewDesc.mViewDimension = RHIViewDimension::BufferView;
-	mRes = sRenderModule->GetRenderDevice()->CreateBuffer(desc);
+	mRes = sRenderModule->GetRenderContext()->CreateBuffer(desc);
 	mView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
 	mView->BindResource(mRes);
 }
@@ -38,12 +38,12 @@ ShaderParamsBuffer::ShaderParamsBuffer(RHIBufferUsage usage, uint32_t size)
 	mData.resize(size);
 	desc.mBufferUsage = usage;
 	desc.mSize = size;
-	mRes = sRenderModule->GetRenderDevice()->CreateBuffer(desc);	
+	mRes = sRenderModule->GetRenderContext()->CreateBuffer(desc);	
 }
 
 void ShaderParamsBuffer::Commit()
 {
-	sRenderModule->mRenderDevice->UpdateConstantBuffer(mRes, mData.data(), mData.size() * sizeof(byte));
+	sRenderModule->mRenderContext->UpdateConstantBuffer(mRes, mData.data(), mData.size() * sizeof(byte));
 }
 
 void PackedParams::PushShaderParam(ShaderParamID id, ShaderParamsBuffer* buffer)
@@ -172,7 +172,7 @@ void MaterialInstance::Init()
 			RHIBufferDesc desc;
 			desc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
 			desc.mSize = materialBufferDesc.mSize;
-			mParamsBuffer = sRenderModule->GetRenderDevice()->CreateBuffer(desc);
+			mParamsBuffer = sRenderModule->GetRenderContext()->CreateBuffer(desc);
 
 			ViewDesc viewDesc;
 			viewDesc.mViewType = RHIViewType::kConstantBuffer;
@@ -264,7 +264,7 @@ void MaterialInstance::UpdateParamsToBuffer()
 	}
 
 	if (mMaterialTemplate->GetShaderAsset()->HasBindPoint(ParamID_MaterialBuffer))
-		sRenderModule->GetRenderDevice()->UpdateConstantBuffer(mParamsBuffer, data.data(), data.size());
+		sRenderModule->GetRenderContext()->UpdateConstantBuffer(mParamsBuffer, data.data(), data.size());
 
 
 }

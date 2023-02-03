@@ -46,7 +46,7 @@ public:
 public:		
 	size_t mOffset = 0;
 	vk::Image mImage = nullptr;
-	VkSampler mSampler = nullptr;
+	vk::Sampler mSampler = nullptr;
 	vk::Buffer mBuffer = nullptr;
 	vk::Format mVkFormat;
 

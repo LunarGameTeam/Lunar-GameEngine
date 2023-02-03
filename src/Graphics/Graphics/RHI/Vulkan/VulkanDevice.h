@@ -27,7 +27,7 @@ void CmdBeginDebugUtilsLabelEXT(VkCommandBuffer commandBuffer, const VkDebugUtil
 void CmdEndDebugUtilsLabelEXT(VkCommandBuffer commandBuffer);
 
 
-uint32_t           findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+uint32_t           findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
 QueueFamilyIndices findQueueFamilies();
 
 class RENDER_API VulkanDevice : public RHIDevice
@@ -37,38 +37,49 @@ public:
 	~VulkanDevice() override;
 
 
-	RHIFencePtr            CreateFence() override;
-	RHIDescriptorPoolPtr   CreateDescriptorPool(const DescriptorPoolDesc& desc) override;
-	RHIGraphicCmdListPtr   CreateCommondList(RHICmdListType pipelineType) override;
-	RHIViewPtr             CreateView(const ViewDesc&) override;
-	RHIResourcePtr         CreateBufferExt(const RHIBufferDesc& buffer_desc) override;
+	RHIFencePtr          CreateFence() override;
+	RHIDescriptorPoolPtr CreateDescriptorPool(const DescriptorPoolDesc& desc) override;
+	RHIGraphicCmdListPtr CreateCommondList(RHICmdListType pipelineType) override;
+	RHIViewPtr           CreateView(const ViewDesc&) override;
+	RHIResourcePtr       CreateBufferExt(const RHIBufferDesc& buffer_desc) override;
 
-	RHIShaderBlobPtr       CreateShader(const RHIShaderDesc& desc) override;
+	RHIShaderBlobPtr     CreateShader(const RHIShaderDesc& desc) override;
 
-	RHIPipelineStatePtr    CreatePipeline(const RHIPipelineStateDesc& desc) override;
+	RHIPipelineStatePtr  CreatePipeline(const RHIPipelineStateDesc& desc) override;
 
-	RHIMemoryPtr           AllocMemory(const RHIMemoryDesc& desc, uint32_t memoryBits = 0) override;
+	RHIMemoryPtr         AllocMemory(const RHIMemoryDesc& desc, uint32_t memoryBits = 0) override;
 
-	RHIResourcePtr         CreateTextureExt(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc) override;
-	RHIBindingSetPtr       CreateBindingSet(RHIDescriptorPool* pool, RHIBindingSetLayoutPtr layout) override;
+	RHIResourcePtr       CreateTextureExt(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc) override;
+	RHIBindingSetPtr     CreateBindingSet(RHIDescriptorPool* pool, RHIBindingSetLayoutPtr layout) override;
 
-	RHIRenderPassPtr		CreateRenderPass(const RenderPassDesc& desc) override;
+	RHIRenderPassPtr     CreateRenderPass(const RenderPassDesc& desc) override;
 
-	RHIFrameBufferPtr      CreateFrameBuffer(const FrameBufferDesc& desc) override;
+	RHIFrameBufferPtr    CreateFrameBuffer(const FrameBufferDesc& desc) override;
+
+	RHIResourcePtr       CreateSamplerExt(const SamplerDesc& desc) override;
 
 	RHIBindingSetLayoutPtr CreateBindingSetLayout(const std::vector<RHIBindPoint> & bindKeys) override;
 
-	RHIResourcePtr         CreateSamplerExt(const SamplerDesc& desc) override;
 
+	inline vk::PhysicalDevice GetPhysicalDevice() const
+	{
+		return mPhysicalDevice; 
+	}
 
+	inline vk::Instance GetVkInstance() const
+	{
+		return mInstance; 
+	}
+	inline vk::Device GetVKDevice() const 
+	{
+		return mDevice; 
+	}
+	inline vk::DispatchLoaderDynamic GetLoader() const
+	{ 
+		return mDldi; 
+	}
 
-	VkPhysicalDevice GetPhysicalDevice() { return mPhysicalDevice; }
-	VkDevice         GetVkDevice()       { return mDevice; }
-	vk::Instance       GetVkInstance() { return mInstance; }
-	vk::Device         GetVKDevice() { return mDevice; }
-	vk::DispatchLoaderDynamic& GetLoader(){ return mDldi; }
-
-	const                    bool enableValidationLayers = true;
+	bool mEnableValidation = true;
 private:
 
 	bool InitDeviceData() override;

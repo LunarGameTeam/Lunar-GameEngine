@@ -1,4 +1,4 @@
-#include "Graphics/Renderer/RenderDevice.h"
+#include "Graphics/Renderer/RenderContext.h"
 
 #include "Graphics/RenderModule.h"
 
@@ -23,9 +23,11 @@
 namespace luna::render 
 {
 
-size_t sStagingBufferMaxSize = 1024 * 1024 * 16;
-size_t sFrameGraphBufferMaxSize = 1024 * 1024 * 16;
-static const size_t sInstancingBufferMaxSize = 128 * 128;
+RENDER_API CONFIG_IMPLEMENT(LString, Render, RenderDeviceType, "DirectX12");
+
+const size_t sStagingBufferMaxSize = 1024 * 1024 * 16;
+const size_t sFrameGraphBufferMaxSize = 1024 * 1024 * 16;
+const size_t sInstancingBufferMaxSize = 128 * 128;
 
 size_t GetOffset(size_t offset, size_t aligment)
 {
@@ -69,12 +71,11 @@ void DynamicMemoryBuffer::Reset()
 	mhistoryBuffer.clear();
 };
 
-RENDER_API CONFIG_IMPLEMENT(LString, Render, RenderDeviceType, "DirectX12");
-RenderDevice::RenderDevice() : mStagingMemory(sStagingBufferMaxSize, RHIBufferUsage::TransferSrcBit), mInstancingIdMemory(sInstancingBufferMaxSize, RHIBufferUsage::VertexBufferBit)
+RenderContext::RenderContext() : mStagingMemory(sStagingBufferMaxSize, RHIBufferUsage::TransferSrcBit), mInstancingIdMemory(sInstancingBufferMaxSize, RHIBufferUsage::VertexBufferBit)
 {
 };
 
-void RenderDevice::Init()
+void RenderContext::Init()
 {
 	if (Config_RenderDeviceType.GetValue() == "DirectX12")
 		mDeviceType = RenderDeviceType::DirectX12;
@@ -151,7 +152,7 @@ void RenderDevice::Init()
 	mViewBindingSet = mDevice->CreateBindingSetLayout(bindingpoints);
 }
 
-void RenderDevice::OnFrameBegin()
+void RenderContext::OnFrameBegin()
 {
 	mFGOffset = 0;
 
@@ -159,29 +160,29 @@ void RenderDevice::OnFrameBegin()
 	FlushFrameInstancingBuffer();
 }
 
-void RenderDevice::OnFrameEnd()
+void RenderContext::OnFrameEnd()
 {
 	mBindingSetCache.clear();
 }
 
-void RenderDevice::UpdateConstantBuffer(RHIResourcePtr target, void* data, size_t dataSize)
+void RenderContext::UpdateConstantBuffer(RHIResourcePtr target, void* data, size_t dataSize)
 {
 	void* dst = target->Map();
 	memcpy(dst, data, dataSize);
 	target->Unmap();
 }
 
-RHIResourcePtr RenderDevice::FGCreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData /*= nullptr*/, size_t dataSize /*= 0*/)
+RHIResourcePtr RenderContext::FGCreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData /*= nullptr*/, size_t dataSize /*= 0*/)
 {
 	return _CreateTexture(textureDesc, resDesc, initData, dataSize, mFGMemory, mFGOffset);
 }
 
-RHIResourcePtr RenderDevice::FGCreateBuffer(const RHIBufferDesc& resDesc, void* initData)
+RHIResourcePtr RenderContext::FGCreateBuffer(const RHIBufferDesc& resDesc, void* initData)
 {
 	return _CreateBuffer(resDesc, initData, mFGMemory, mFGOffset);
 }
 
-RHIResourcePtr RenderDevice::_CreateBuffer(const RHIBufferDesc& desc, void* initData, RHIMemoryPtr targetMemory, size_t& memoryOffset)
+RHIResourcePtr RenderContext::_CreateBuffer(const RHIBufferDesc& desc, void* initData, RHIMemoryPtr targetMemory, size_t& memoryOffset)
 {
 	assert(desc.mSize != 0);
 	RHIBufferDesc resDesc = desc;
@@ -214,13 +215,13 @@ RHIResourcePtr RenderDevice::_CreateBuffer(const RHIBufferDesc& desc, void* init
 	return dstBuffer;
 }
 
-RHIResourcePtr RenderDevice::CreateBuffer(const RHIBufferDesc& resDesc, void* initData)
+RHIResourcePtr RenderContext::CreateBuffer(const RHIBufferDesc& resDesc, void* initData)
 {
 	size_t offset = 0;
 	return _CreateBuffer(resDesc, initData, nullptr, offset);
 }
 
-RHIResourcePtr RenderDevice::_CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData, size_t dataSize, RHIMemoryPtr targetMemory, size_t& memoryOffset)
+RHIResourcePtr RenderContext::_CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData, size_t dataSize, RHIMemoryPtr targetMemory, size_t& memoryOffset)
 {
 
 	bool usingStaging = false;
@@ -290,13 +291,13 @@ RHIResourcePtr RenderDevice::_CreateTexture(const RHITextureDesc& textureDesc, c
 	return textureRes;
 }
 
-RHIResourcePtr RenderDevice::CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData, size_t dataSize)
+RHIResourcePtr RenderContext::CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData, size_t dataSize)
 {
 	size_t offset = 0;
 	return _CreateTexture(textureDesc, resDesc, initData, dataSize, nullptr, offset);
 }
 
-RHIResource* RenderDevice::CreateInstancingBufferByRenderObjects(const LArray<RenderObject*>& RenderObjects)
+RHIResource* RenderContext::CreateInstancingBufferByRenderObjects(const LArray<RenderObject*>& RenderObjects)
 {
 	std::vector<int32_t> ids;
 	for (auto it : RenderObjects)
@@ -310,7 +311,7 @@ RHIResource* RenderDevice::CreateInstancingBufferByRenderObjects(const LArray<Re
 	return mInstancingIdMemory.AllocateNewBuffer(ids.data(), ids.size() * sizeof(int32_t), ids.size() * sizeof(int32_t));
 }
 
-RHIPipelineStatePtr RenderDevice::CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& passDesc, RHIVertexLayout* layout)
+RHIPipelineStatePtr RenderContext::CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& passDesc, RHIVertexLayout* layout)
 {
 	size_t hashResult = 0;
 	boost::hash_combine(hashResult, layout->Hash());
@@ -342,7 +343,7 @@ RHIPipelineStatePtr RenderDevice::CreatePipelineState(MaterialInstance* mat, con
 	return pipeline;
 }
 
-void RenderDevice::FlushStaging()
+void RenderContext::FlushStaging()
 {
 	mFence->Wait(mFenceValue);
 	mTransferCmd->CloseCommondList();
@@ -358,37 +359,37 @@ void RenderDevice::FlushStaging()
 	mStagingMemory.Reset();
 }
 
-void RenderDevice::BeginRenderPass(const RenderPassDesc& desc)
+void RenderContext::BeginRenderPass(const RenderPassDesc& desc)
 {
 	mGraphicCmd->BeginRender(desc);
 	mCurRenderPass = desc;
 }
 
-void RenderDevice::EndRenderPass()
+void RenderContext::EndRenderPass()
 {
 	mGraphicCmd->EndRender();	
 }
 
-RHIPipelineStatePtr RenderDevice::GetPipeline(render::MaterialInstance* mat, render::SubMesh* mesh)
+RHIPipelineStatePtr RenderContext::GetPipeline(render::MaterialInstance* mat, render::SubMesh* mesh)
 {
 	return CreatePipelineState(mat, mCurRenderPass, &(mesh->mVeretexLayout));
 // 	ShaderAsset* shader = mat->GetShaderAsset();
 
 }
 
-void RenderDevice::DrawRenderOBject(render::RenderObject* ro, render::MaterialInstance* mat, PackedParams* params)
+void RenderContext::DrawRenderOBject(render::RenderObject* ro, render::MaterialInstance* mat, PackedParams* params)
 {
 	if(ro->mInstanceRes)
 		DrawMeshInstanced(ro->mMesh, mat, params, ro->mInstanceRes, ro->mID, 1);
 }
 
-void RenderDevice::DrawMesh(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params)
+void RenderContext::DrawMesh(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params)
 {
 	DrawMeshInstanced(mesh, mat, params, nullptr, 0, 1);
 }
 
 
-void RenderDevice::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage /*= nullptr*/, int32_t startInstanceIdx /*= 1*/, int32_t instancingSize /*= 1*/)
+void RenderContext::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage /*= nullptr*/, int32_t startInstanceIdx /*= 1*/, int32_t instancingSize /*= 1*/)
 {
 	auto pipeline = GetPipeline(mat, mesh);
 	auto bindingset = GetBindingSet(pipeline, params);
@@ -434,7 +435,7 @@ void RenderDevice::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialInst
 	mGraphicCmd->DrawIndexedInstanced((uint32_t)indexCount, instancingSize, 0, 0, startInstanceIdx);
 }
 
-RHIBindingSetPtr RenderDevice::GetBindingSet(RHIPipelineState* pipeline, PackedParams* packparams)
+RHIBindingSetPtr RenderContext::GetBindingSet(RHIPipelineState* pipeline, PackedParams* packparams)
 {
 	
 	size_t paramsHash = packparams->mParamsHash;
@@ -456,12 +457,6 @@ RHIBindingSetPtr RenderDevice::GetBindingSet(RHIPipelineState* pipeline, PackedP
 	bindingset->WriteBindings(desc);
 	//Log("Graphics", "Create bindingset {}", pipeline->mShaders[RHIShaderType::Vertex]->mDesc.mName);
 	return bindingset;
-}
-
-void RenderDevice::BindViewBuffer(RenderView* view)
-{
-	mGraphicCmd->BindDesriptorSetExt(view->mViewBindingSet);
-
 }
 
 }

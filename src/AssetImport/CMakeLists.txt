@@ -5,8 +5,8 @@ cmake_minimum_required (VERSION 3.24)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 file(GLOB_RECURSE PROJECT_HEADERS "${SOLUTION_CMAKE_SOURCE_PATH}/include/AssetImport/*.h")
-file(GLOB_RECURSE PROJECT_CPPS "AssetImport/*" 
-    EXCLUDE "AssetImport/FbxParser/*")
+file(GLOB_RECURSE PROJECT_CPPS "AssetImport/*")
+list(FILTER PROJECT_CPPS EXCLUDE REGEX "AssetImport/FbxParser/*")
 
 
 auto_header_group(AssetImport "${PROJECT_HEADERS}" PROJECT_HEADERS "")

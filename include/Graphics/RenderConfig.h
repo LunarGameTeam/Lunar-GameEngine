@@ -26,7 +26,7 @@ namespace luna
 namespace render
 {
 class RenderModule;
-class RenderDevice;
+class RenderContext;
 }
 
 

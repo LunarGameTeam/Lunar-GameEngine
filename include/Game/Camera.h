@@ -7,10 +7,18 @@
 
 #include <numbers>
 #include "Graphics/Renderer/RenderView.h"
+#include "Core/Object/System.h"
 
 namespace luna
 {
+class GAME_API CameraSystem : public System
+{
+	RegisterTypeEmbedd(CameraSystem, System)
+public:
+	CameraSystem();
+	void OnTick(float deltaTime) override;
 
+};
 class GAME_API CameraComponent : public Component
 {
 	RegisterTypeEmbedd(CameraComponent, Component)

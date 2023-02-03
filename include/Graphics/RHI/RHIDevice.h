@@ -59,7 +59,7 @@ protected:
 	LUnorderedMap<LString, RHIStaticSamplerDesc> common_static_sampler;
 
 	friend class RenderModule;
-	friend class RenderDevice;
+	friend class RenderContext;
 };
 
 enum class RHIQueueType
@@ -85,6 +85,6 @@ public:
 
 private:
 	friend class RenderModule;
-	friend class RenderDevice;
+	friend class RenderContext;
 };
 }

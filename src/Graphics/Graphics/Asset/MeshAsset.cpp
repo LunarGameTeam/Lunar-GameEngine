@@ -40,11 +40,11 @@ void SubMesh::Update()
 	desc.mSize = sizeof(BaseVertex) * mVertexData.size();
 	desc.mBufferUsage = RHIBufferUsage::VertexBufferBit;
 
-	mVB = sRenderModule->mRenderDevice->CreateBuffer(desc, mVertexData.data());
+	mVB = sRenderModule->mRenderContext->CreateBuffer(desc, mVertexData.data());
 
 	desc.mSize = sizeof(uint32_t) * mIndexData.size();
 	desc.mBufferUsage = RHIBufferUsage::IndexBufferBit;
-	mIB = sRenderModule->mRenderDevice->CreateBuffer( desc, mIndexData.data());
+	mIB = sRenderModule->mRenderContext->CreateBuffer( desc, mIndexData.data());
 	mReady = true;
 }
 

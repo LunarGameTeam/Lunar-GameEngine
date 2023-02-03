@@ -49,18 +49,17 @@ VulkanGraphicCmdList::VulkanGraphicCmdList(RHICmdListType type) :
 
 void VulkanGraphicCmdList::BeginEvent(const LString& event_str)
 {
-	if (sRenderModule->GetDevice<VulkanDevice>()->enableValidationLayers)
+	if (sRenderModule->GetDevice<VulkanDevice>()->mEnableValidation)
 	{
 		vk::DebugUtilsLabelEXT label = {};
 		label.pLabelName = event_str.c_str();
 		mCommandBuffer.beginDebugUtilsLabelEXT(&label, sRenderModule->GetDevice<VulkanDevice>()->GetLoader());
 	}
-	
 }
 
 void VulkanGraphicCmdList::EndEvent()
 {
-	if (sRenderModule->GetDevice<VulkanDevice>()->enableValidationLayers)
+	if (sRenderModule->GetDevice<VulkanDevice>()->mEnableValidation)
 	{
 		mCommandBuffer.endDebugUtilsLabelEXT(sRenderModule->GetDevice<VulkanDevice>()->GetLoader());
 	}

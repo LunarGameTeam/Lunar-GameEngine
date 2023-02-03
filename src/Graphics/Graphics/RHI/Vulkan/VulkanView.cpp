@@ -14,7 +14,7 @@ void VulkanView::BindResource(RHIResource* res)
 {
 	mBindResource = res;
 	mRes = res->As<VulkanResource>();
-	VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
+	VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
 	auto dimension = mRes->GetDesc().Dimension;
 
 	switch (mViewDesc.mViewType)

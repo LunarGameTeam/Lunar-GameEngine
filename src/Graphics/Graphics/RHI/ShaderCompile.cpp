@@ -1,7 +1,7 @@
 #include "Graphics/RHI/ShaderCompile.h"
 
 
-#include "Graphics/Renderer/RenderDevice.h"
+#include "Graphics/Renderer/RenderContext.h"
 #include "Graphics/RenderModule.h"
 
 using namespace Microsoft::WRL;
@@ -38,7 +38,7 @@ bool DxcCompile(RHIShaderType stage, const LString& pShader, std::vector<uint32_
 	LPCWSTR shaderStageName;
 	LPCWSTR shaderEntry;
 	LPCWSTR shaderTarget;
-	if (sRenderModule->mRenderDevice->mDeviceType == RenderDeviceType::Vulkan)
+	if (sRenderModule->mRenderContext->mDeviceType == RenderDeviceType::Vulkan)
 		shaderTarget = L"-spirv";
 	else
 		shaderTarget = L"";

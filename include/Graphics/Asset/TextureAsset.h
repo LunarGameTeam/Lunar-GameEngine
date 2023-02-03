@@ -14,71 +14,61 @@
 
 namespace luna::render
 {
-class RENDER_API ITexture
-{
-public:
-	ITexture()
-	{
-	};
 
-	ITexture(unsigned int w, unsigned int h, RHITextureFormat format) : m_width(w), m_height(h), m_fomat(format)
-	{
-	};
-	virtual const byte* GetData() = 0;
-	virtual size_t GetDataSize() = 0;
-	virtual void Release();
-	GET_SET_VALUE(RHITextureFormat, m_fomat, TextureDataFormat);
-
-	GET_SET_VALUE(unsigned int, m_width, Width);
-	GET_SET_VALUE(unsigned int, m_height, Height);
-
-	virtual RHIView* GetView() { return nullptr; }
-
-	RHIResource* GetRHITexture()
-	{
-		return mRes.get();
-	};
-
-	RHIResourcePtr& GetRHITextureShared()
-	{
-		return mRes;
-	};
-protected:
-	unsigned          int m_width;
-	unsigned          int m_height;
-	RHIResourcePtr    mRes;
-	RHITextureFormat  m_fomat;
-	TextureMemoryType m_type;
-};
-
-
-class RENDER_API Texture2D : public Asset, public ITexture
+class RENDER_API Texture2D : public LBinaryAsset
 {
 	RegisterTypeEmbedd(Texture2D, Asset)
 
 public:
-	Texture2D()
-	{
-	}
+	Texture2D();
 	
 	void OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> file) override;
-	const byte* GetData() override;
-	size_t GetDataSize() override;
-	void Release() override;
-	RHIView* GetView() override { return mView.get(); }
+
+	const byte* GetData();
+
+	size_t GetDataSize()
+	{
+		return mDataSize;
+	}
+
+	
+
+	RHIView* GetView() const 
+	{
+		return mView; 
+	}
 	void Init();
+
 	RHIViewPtr mView;
-private:
-	void CreateDescriptor();
-	RHITextureDesc tex_load_desc;
-	RHIResDesc tex_res_desc;
-	const byte* m_data;
-	size_t m_init_data_size;
-	bool m_init = false;
+
+	RHIResource* GetRHITexture()
+	{
+		return mRHIRes.get();
+	};
+	uint32_t GetWidth() const
+	{
+		return mDesc.Width;
+	}
+	uint32_t GetHeight() const
+	{
+		return mDesc.Height;
+	}
+	RHITextureFormat GetFormat() const
+	{
+		return mDesc.Format;
+	}
+	void Release();
+
+private:	
+	const             byte* mData = nullptr;
+	size_t            mDataSize   = 0;
+	RHIResDesc        mDesc;
+	RHIResourcePtr    mRHIRes;
+	TextureMemoryType mDataType;
 };
 
 
-class RENDER_API TextureCube : public JsonAsset, public ITexture
+class RENDER_API TextureCube : public JsonAsset
 {
 	RegisterTypeEmbedd(TextureCube, JsonAsset)
 public:
@@ -90,18 +80,17 @@ public:
 public:
 	void Init();
 	void OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> file) override;
-	const byte* GetData() override;
-	size_t GetDataSize() override;
-	void Release() override;
-	RHIView* GetView() override {	return mResView; 	}
+	const byte* GetData();
+	size_t GetDataSize();
+	void Release();
+	RHIView* GetView() {	return mResView; 	}
 
 private:
-	RHITextureDesc mTexDesc;
-	RHIResDesc mBufferDesc;
-	RHIViewPtr mResView;
-	TPPtrArray<LBinaryAsset> mTextures;
-	const byte* m_data;
-	size_t m_init_data_size;
-	bool m_init = false;
+	RHIResDesc            mDesc;
+	RHIResourcePtr        mRHIRes;
+	RHIViewPtr            mResView;
+	TextureMemoryType     mDataType;
+	TPPtrArray<Texture2D> mTextures;
+	size_t                mDataSize;
 };
 }

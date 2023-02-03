@@ -40,11 +40,11 @@ public:
 
 
 
-class RENDER_API RenderDevice final : NoCopy
+class RENDER_API RenderContext final : NoCopy
 {
 public:
-	RenderDevice();
-	~RenderDevice() = default;
+	RenderContext();
+	~RenderContext() = default;
 	void Init();
 
 	RHIGraphicCmdListPtr mGraphicCmd;
@@ -71,6 +71,7 @@ private:
 public:
 	//----Resource Graph API Begin----
 	RHIResourcePtr CreateBuffer(const RHIBufferDesc& resDesc, void* initData = nullptr);
+	RHIResourcePtr CreateTexture2D(uint32_t width, uint32_t height, RHITextureFormat format = RHITextureFormat::R8G8BB8A8_UNORN,void* initData = nullptr, size_t dataSize = 0);
 	RHIResourcePtr CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData = nullptr, size_t dataSize = 0);
 	RHIResource* CreateInstancingBufferByRenderObjects(const LArray<RenderObject*>& RenderObjects);
 	void UpdateConstantBuffer(RHIResourcePtr target, void* data, size_t dataSize);
@@ -97,8 +98,6 @@ public:
 	void OnFrameBegin();
 	void OnFrameEnd();
 	void FlushStaging();
-
-	void BindViewBuffer(RenderView* view);
 
 	RHIDescriptorPoolPtr GetDefaultDescriptorPool() { return mDefaultPool; }
 

@@ -8,11 +8,14 @@ namespace luna
 class Entity;
 class Transform;
 class Scene;
+class System;
 
 class CORE_API Component : public LObject
 {
 	RegisterTypeEmbedd(Component, LObject)
 public:
+	static LType* GetSystemType();
+
 	Component(const Component &comp) = delete;
 
 	inline Entity *GetEntity()
@@ -43,5 +46,6 @@ private:
 	friend class Scene;
 	friend class GameModule;
 
+	friend class System;
 };
 }

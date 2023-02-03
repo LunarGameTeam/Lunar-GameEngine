@@ -41,7 +41,7 @@ public:
 protected:
 	void CreateRenderObject();
 private:
-	bool mCastShadow = false;
+	bool mCastShadow = true;
 	render::RenderObject* mRO = nullptr;
 	TPPtr<MeshAsset> mMeshAsset;
 	TPPtr<render::MaterialTemplateAsset> mMaterialAsset;

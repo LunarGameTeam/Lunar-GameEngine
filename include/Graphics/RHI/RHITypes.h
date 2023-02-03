@@ -6,6 +6,7 @@
 namespace luna::render
 {
 
+class VulkanDevice; 
 struct RHIShaderDesc;
 struct RHIPipelineStateDesc;
 struct RHIResDesc;

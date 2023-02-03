@@ -25,7 +25,7 @@ enum class RenderViewType
 class RENDER_API RenderView
 {
 public:
-	RenderView(uint64_t view_id);
+	RenderView();
 
 	~RenderView() = default;
 public:
@@ -36,7 +36,6 @@ public:
 	
 
 public:
-	uint64_t GetViewID()const { return mViewID; }
 	RenderTarget* GetRenderTarget() const { return mRT.Get(); }
 	ROArray& GetViewVisibleROs() { return mViewVisibleROs; }
 	const LMatrix4f& GetViewMatrix() const { return mViewMatrix; }
@@ -49,9 +48,8 @@ public:
 
 	RenderViewType mViewType = RenderViewType::SceneView;
 
-	RHIBindingSetPtr mViewBindingSet;
-	RenderScene* mOwnerScene;
-	ShaderParamsBuffer* mViewBuffer;
+	RenderScene*        mOwnerScene = nullptr;
+	ShaderParamsBuffer* mViewBuffer = nullptr;
 private:
 	ROArray             mViewVisibleROs;
 	float               mNear = 0.1f;
@@ -61,7 +59,6 @@ private:
 	LMatrix4f           mProjMatrix;
 	LVector3f           mViewPos;
 
-	uint64_t            mViewID;
 	TPPtr<RenderTarget> mRT;
 };
 

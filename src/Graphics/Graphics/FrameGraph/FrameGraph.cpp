@@ -1,6 +1,6 @@
 #include "Graphics/FrameGraph/FrameGraph.h"
 
-#include "Graphics/Renderer/RenderDevice.h"
+#include "Graphics/Renderer/RenderContext.h"
 
 #include "Graphics/RenderModule.h"
 #include "Graphics/RHI/RHIFrameBuffer.h"
@@ -19,10 +19,10 @@ namespace luna::render
 {
 
 FrameGraphBuilder::FrameGraphBuilder(const LString& graph_name)
-	:mFenceValue3D(sRenderModule->GetRenderDevice()->mFenceValue)
+	:mFenceValue3D(sRenderModule->GetRenderContext()->mFenceValue)
 {
 	mGraphName = graph_name;
-	mFence3D = sRenderModule->GetRenderDevice()->mFence;
+	mFence3D = sRenderModule->GetRenderContext()->mFence;
 }
 
 FrameGraphBuilder::~FrameGraphBuilder()
@@ -116,7 +116,7 @@ void FrameGraphBuilder::_Prepare()
 
 void FrameGraphBuilder::Flush()
 {
-	RenderDevice* renderDevice = sRenderModule->GetRenderDevice();
+	RenderContext* renderDevice = sRenderModule->GetRenderContext();
 	RHIGraphicCmdList* cmdlist = renderDevice->mGraphicCmd;
 
 	mFence3D->Wait(mFenceValue3D);

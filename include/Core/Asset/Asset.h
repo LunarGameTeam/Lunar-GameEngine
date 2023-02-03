@@ -46,7 +46,7 @@ public:
 	{
 
 	}
-	LSharedPtr<LFile> GetData() 
+	LSharedPtr<LFile> GetFileData() 
 	{
 		return mData;
 	};

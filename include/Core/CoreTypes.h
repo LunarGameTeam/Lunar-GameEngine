@@ -14,9 +14,13 @@ class LBinaryAsset;
 class Serializer;
 class AssetModule;
 
+class Entity;
+class Component;
+class System;
 
 class PlatformModule;
 class EventModule;
+class ECSModule;
 
 
 /* Memory */

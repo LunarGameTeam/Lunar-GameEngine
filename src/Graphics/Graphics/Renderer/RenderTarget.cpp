@@ -41,7 +41,7 @@ void RenderTarget::Update()
 	resDesc.Width = GetWidth();
 	resDesc.Height = GetHeight();
 	resDesc.DepthOrArraySize = 1;
-	resDesc.Format = RHITextureFormat::FORMAT_R8G8BB8A8_UNORM;
+	resDesc.Format = RHITextureFormat::R8G8BB8A8_UNORN;
 	resDesc.Alignment = 0;
 	resDesc.mUsage = RHIResourceUsage::RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 	resDesc.Layout = RHITextureLayout::LayoutUnknown;
@@ -49,14 +49,14 @@ void RenderTarget::Update()
 	resDesc.SampleDesc.Count = 1;
 	resDesc.SampleDesc.Quality = 0;
 	resDesc.mImageUsage = RHIImageUsage::ColorAttachmentBit | RHIImageUsage::SampledBit;
-	mColorTexture = sRenderModule->mRenderDevice->CreateTexture(textureDesc, resDesc);
+	mColorTexture = sRenderModule->mRenderContext->CreateTexture(textureDesc, resDesc);
 
 	RHIResDesc depthResDesc = resDesc;
 	depthResDesc.Format = RHITextureFormat::FORMAT_D24_UNORM_S8_UINT;
 	depthResDesc.SampleDesc.Count = 1;
 	depthResDesc.SampleDesc.Quality = 0;
 	depthResDesc.mImageUsage = RHIImageUsage::DepthStencilBit;
-	mDepthTexture = sRenderModule->mRenderDevice->CreateTexture(textureDesc, depthResDesc);
+	mDepthTexture = sRenderModule->mRenderContext->CreateTexture(textureDesc, depthResDesc);
 
 }
 

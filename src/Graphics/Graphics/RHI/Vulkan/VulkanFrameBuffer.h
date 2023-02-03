@@ -3,7 +3,7 @@
 #include "Graphics/RHI/RHIFrameBuffer.h"
 
 #include "Graphics/RenderModule.h"
-#include <Vulkan/vulkan.h>
+#include <vulkan/vulkan.hpp>
 
 namespace luna::render
 {
@@ -19,7 +19,7 @@ public:
 	RHIViewPtr mDsv;
 	uint32_t         mWidth;
 	uint32_t         mHeight;
-	VkFramebuffer    mBuffer;
+	vk::Framebuffer    mBuffer;
 
 };
 }

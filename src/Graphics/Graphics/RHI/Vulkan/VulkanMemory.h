@@ -15,38 +15,36 @@ public:
 	VulkanMemory(const RHIMemoryDesc& desc, uint32_t memoryBits):
 		RHIMemory(desc)
 	{
-		VkMemoryPropertyFlags properties = {};
+		vk::MemoryPropertyFlags properties = {};
 		switch (desc.Type)
 		{
 		case RHIHeapType::Default:
-			properties = VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+			properties = vk::MemoryPropertyFlagBits::eDeviceLocal;
 			break;
 		case RHIHeapType::Upload:
-			properties = VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT  |VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+			properties = vk::MemoryPropertyFlagBits::eHostVisible  | vk::MemoryPropertyFlagBits::eHostCoherent;
 			break;
 		case RHIHeapType::Readback:
-			properties = VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+			properties = vk::MemoryPropertyFlagBits::eHostVisible;
 			break;
 		case RHIHeapType::Custom:
 			break;
 		default:
 			break;
 		}
-		VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
-		VkMemoryAllocateInfo alloc_info = {};
-		alloc_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+		vk::MemoryAllocateInfo alloc_info = {};		
 		alloc_info.pNext = NULL;
 		alloc_info.allocationSize = desc.SizeInBytes;
 		alloc_info.memoryTypeIndex = findMemoryType(memoryBits, properties);
-		vkAllocateMemory(device, &alloc_info, nullptr, &mMemory);
+		VULKAN_ASSERT(device.allocateMemory(&alloc_info, nullptr, &mMemory))
 	}
 
-	virtual ~VulkanMemory()
+	~VulkanMemory() override
 	{
-		VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVkDevice();
-		vkFreeMemory(device, mMemory, nullptr);
+		sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().freeMemory(mMemory, nullptr);
 	};
 
-	VkDeviceMemory mMemory;
+	vk::DeviceMemory mMemory;
 };
 }
