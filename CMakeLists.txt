@@ -60,8 +60,6 @@ set(CMAKE_BINARY_DIR  ${dir})
 set(SPIRV_REFLECT_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(SPIRV_REFLECT_STATIC_LIB ON CACHE BOOL "" FORCE)
 
-# FBX工具加入可选项
-option(LUNA_USING_FBX_TOOLS "enable fbx tools" OFF)
 option(LUNA_USING_ASAN "Enable Snitize Address" OFF)
 
 if(LUNA_USING_DEBUG_PYTHON)
@@ -168,9 +166,6 @@ SET_PROPERTY(TARGET AppGame PROPERTY FOLDER "App")
 
 add_subdirectory(test/core_test)
 SET_PROPERTY(TARGET CoreTest PROPERTY FOLDER "Test")
-
-if(LUNA_USING_FBX_TOOLS)
-endif()
 
 add_subdirectory(src/AssetImport)
 SET_PROPERTY(TARGET AssetImport PROPERTY FOLDER "Lib")

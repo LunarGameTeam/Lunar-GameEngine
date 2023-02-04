@@ -46,12 +46,6 @@ Pycharm 启动脚本：editor/pycharm_main.py
 
 ## 可选
 
-编译需要先下载fbxsdk2020-2-1
-
-https://www.autodesk.com/developer-network/platform-technologies/fbx-sdk-2020-2-1
-
-cmake配置项中FBX_ROOT_DIR XXX/Autodesk/FBX/FBX SDK/2020.2.1
-
 
 
 # 引擎文件结构
