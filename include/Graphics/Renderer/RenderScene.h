@@ -70,7 +70,7 @@ public:
 	LArray<PointLight*> mPointLights;
 protected:
 	void PrepareScene();
-
+	void Debug();
 private:
 	bool            mBufferDirty = true;
 	bool            mInit        = false;

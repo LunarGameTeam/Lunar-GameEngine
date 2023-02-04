@@ -122,7 +122,7 @@ public:
 			return;
 		result.resize(2);
 		result[0] = mStdStr.substr(0, it);
-		result[1] = mStdStr.substr(0, it);
+		result[1] = mStdStr.substr(it);
 	}
 
 	void RSplitOnce(std::vector<LString>& result, const char* s) const
@@ -133,7 +133,7 @@ public:
 			return;
 		result.resize(2);
 		result[0] = mStdStr.substr(0, it);
-		result[1] = mStdStr.substr(0, it);
+		result[1] = mStdStr.substr(it);
 		return;
 	}
 

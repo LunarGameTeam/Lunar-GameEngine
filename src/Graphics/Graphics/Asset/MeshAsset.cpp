@@ -63,6 +63,20 @@ void SubMesh::AddLine(const BaseVertex& v1, const BaseVertex& v2)
 	mReady = false;
 }
 
+void SubMesh::AddLine(const LVector3f& p1, const LVector3f& p2)
+{
+	BaseVertex v;
+	v.pos = p1;
+	v.color = LVector4f(1, 1, 1, 1);
+	mIndexData.push_back(mVertexData.size());
+	mVertexData.push_back(v);
+	v.pos = p2;
+	mIndexData.push_back(mVertexData.size());
+	mVertexData.push_back(v);
+	mReady = false;
+
+}
+
 void SubMesh::AddTriangle(const BaseVertex& v1, const BaseVertex& v2, const BaseVertex& v3)
 {
 	mIndexData.push_back(mVertexData.size());

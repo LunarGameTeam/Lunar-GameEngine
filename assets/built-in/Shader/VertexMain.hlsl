@@ -1,3 +1,8 @@
+#ifndef __VERTEX_MAIN__
+#define __VERTEX_MAIN__
+
+#include "SharedCBuffer.hlsl"
+
 
 BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
 {
@@ -25,3 +30,5 @@ BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
 
     return output;
 }
+
+#endif

@@ -1,7 +1,5 @@
-
-/////////////
-// GLOBALS //
-/////////////
+#ifndef __SHARED_CBUFFER__
+#define __SHARED_CBUFFER__
 
 
 struct BaseVertex
@@ -60,3 +58,5 @@ cbuffer SceneBuffer : register(b2, space0)
 	matrix cLightProjMatrix[10];
 	int cLightMapCount;
 };
+
+#endif

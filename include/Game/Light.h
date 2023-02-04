@@ -25,11 +25,12 @@ public:
 
 	void SetIndensity(float val);
 
-	const float GetIntensity()const
+	float GetIntensity() const
 	{
 		return mIntensity;
 	}
 
+	void SetCastShadow(bool val);
 protected:
 	ActionHandle   mTransformDirtyAction;
 	LVector3f      mColor      = LVector3f(0.8f, 0.8f, 0.8f);

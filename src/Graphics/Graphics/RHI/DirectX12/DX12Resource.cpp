@@ -140,7 +140,7 @@ namespace luna::render
 		mResDesc.Width = mDxDesc.Width;
 		mResDesc.Height = mDxDesc.Height;
 		mResDesc.mImageUsage = RHIImageUsage::ColorAttachmentBit;
-		m_initial_state = ResourceState::kPresent;
+		mState = ResourceState::kPresent;
 		SetInitialState(ResourceState::kUndefined);
 		mLastState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 		RefreshMemoryRequirements();

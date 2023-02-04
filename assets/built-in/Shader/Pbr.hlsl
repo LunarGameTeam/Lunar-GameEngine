@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Filename: light.vs
 ////////////////////////////////////////////////////////////////////////////////
-#include "assets/built-in/Shader/SharedCBuffer.hlsl"
-#include "assets/built-in/Shader/SharedSampler.hlsl"
+#include <SharedCBuffer.hlsl>
+#include <SharedSampler.hlsl>
 /////////////
 // GLOBALS //
 /////////////
@@ -62,29 +62,6 @@ BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
 //////////////
 // TEXTURES //
 //////////////
-
-///////////////////
-// SAMPLE STATES //
-///////////////////
- #define EPSILON 0.00001
-float CalcShadowFactor(float lightDepthValue, float2 projectTexCoord, uint shadowMapIndex)
-{
-	float bias = 0.002;
-	float shadowFactor = 0;
-	float xOffset = 1 / 1024.0;
-	float yOffset = 1 / 1024.0;
-	for(int i = -1; i <= 1; i++)
-	{
-		for(int j = -1 ; j <=1; j++)
-		{
-			float2 offset = float2(xOffset * i, yOffset * j);
-			float depthValue = _ShadowMap.Sample(SampleTypeClamp, float3(projectTexCoord + offset, shadowMapIndex)).r;			
-			if(lightDepthValue < depthValue + bias)
-				shadowFactor += 1;
-		}
-	}
-	return shadowFactor / 9.0;
-} 
 
 float ndfGGX(float cosLh, float roughness)
 {

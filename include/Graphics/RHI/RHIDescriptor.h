@@ -100,16 +100,16 @@ struct LDepthStencilViewDesc
 
 struct ViewDesc
 {
-	RHIViewType mViewType;
+	RHIViewType      mViewType;
 	RHIViewDimension mViewDimension;
-	uint32_t mBaseMipLevel = 0;
-	uint32_t mLevelCount = static_cast<uint32_t>(1);
-	uint32_t mBaseArrayLayer = 0;
-	uint32_t mLayerCount = static_cast<uint32_t>(1);
-	uint32_t mPlaneSlice = 0;
-	uint64_t mOffset = 0;
-	uint32_t mStructureStride = 0;
-	uint64_t mBufferSize = static_cast<uint64_t>(-1);
+	uint32_t         mBaseMipLevel    = 0;
+	uint32_t         mLevelCount      = 1;
+	uint32_t         mBaseArrayLayer  = 0;
+	uint32_t         mLayerCount      = 1;
+	uint32_t         mPlaneSlice      = 0;
+	uint64_t         mOffset          = 0;
+	uint32_t         mStructureStride = 0;
+	uint64_t         mBufferSize      = static_cast<uint64_t>(-1);
 
 };
 //描述符的创建绑定格式

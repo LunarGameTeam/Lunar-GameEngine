@@ -19,17 +19,19 @@ namespace luna::render
 
 void ShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene)
 {
-	auto& node = builder->AddPass("Shadowmap");
+	auto& node = builder->AddPass("PointLightShadowmap");
 
 	node.SetupFunc(builder, [=](FrameGraphBuilder* builder, FGNode& node)
 	{
 		RHIResDesc shadowmapDesc;
 		shadowmapDesc.mType = ResourceType::kTexture;
-		shadowmapDesc.Width = 1024;
-		shadowmapDesc.Height = 1024;
+		shadowmapDesc.Width = 512;
+		shadowmapDesc.Height = 512;
 		shadowmapDesc.Format = RHITextureFormat::R8G8BB8A8_UNORN;
 		shadowmapDesc.mImageUsage = RHIImageUsage::ColorAttachmentBit | RHIImageUsage::SampledBit;
-
+		shadowmapDesc.DepthOrArraySize = 4;
+		
+		
 		FGTexture* color = builder->CreateTexture("Shadowmap", shadowmapDesc);
 
 		shadowmapDesc.mImageUsage = RHIImageUsage::DepthStencilBit;
@@ -39,7 +41,7 @@ void ShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 		assert(color);
 		assert(depth);
 
-		ViewDesc srvDesc;
+		ViewDesc srvDesc;		
 		srvDesc.mViewType = RHIViewType::kTexture;
 		srvDesc.mViewDimension = RHIViewDimension::TextureView2D;
 
@@ -56,6 +58,7 @@ void ShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 		
 		PassColorDesc colorDesc;
 		colorDesc.mLoadOp = RenderPassLoadOp::kClear;
+		colorDesc.mStoreOp = RenderPassStoreOp::kStore;
 		colorDesc.mClearColor = LVector4f(1, 1, 1, 1);
 		node.SetColorClear(colorDesc);
 		node.SetColorAttachment(colorView);
@@ -74,25 +77,31 @@ void ShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 
 	node.ExcuteFunc([view, renderScene](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
 	{
-		if (!renderScene->mMainDirLight)
+		if (renderScene->mPointLights.size() == 0)
 			return;
-
-		ROArray& ROs = view->GetViewVisibleROs();
-		PackedParams params;
-		PARAM_ID(SceneBuffer);		
-		PARAM_ID(ViewBuffer);
-		RHIResource* instancingBuffer = renderScene->mROIDInstancingBuffer->mRes;
-		params.PushShaderParam(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer);
-		params.PushShaderParam(ParamID_ViewBuffer, renderScene->mMainDirLight->mParamBuffer.get());
-		for (auto it : ROs)
+		for(PointLight* it : renderScene->mPointLights)
 		{
-			RenderObject* ro = it;			
-			if(!it->mCastShadow)
-				continue;
-			it->mInstanceRes = instancingBuffer;
-			ShaderAsset* shader = shadowMat->GetShaderAsset();				
-			device->DrawMeshInstanced(ro->mMesh, shadowMat, &params, ro->mInstanceRes, ro->mID);
+			if (it->mCastShadow)
+			{
+				ROArray& ROs = view->GetViewVisibleROs();
+				PackedParams params;
+				PARAM_ID(SceneBuffer);
+				PARAM_ID(ViewBuffer);
+				RHIResource* instancingBuffer = renderScene->mROIDInstancingBuffer->mRes;
+				params.PushShaderParam(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer);
+				params.PushShaderParam(ParamID_ViewBuffer, it->mParamBuffer[0]);
+				for (auto it : ROs)
+				{
+					RenderObject* ro = it;
+					if (!it->mCastShadow)
+						continue;
+					it->mInstanceRes = instancingBuffer;
+					ShaderAsset* shader = shadowMat->GetShaderAsset();
+					device->DrawMeshInstanced(ro->mMesh, shadowMat, &params, ro->mInstanceRes, ro->mID);
+				}
+			}
 		}
+		
 	});
 }
 
@@ -117,6 +126,8 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 		assert(depth);
 
 		ViewDesc srvDesc;
+		srvDesc.mBaseArrayLayer = 0;
+		srvDesc.mLayerCount = 1;
 		srvDesc.mViewType = RHIViewType::kTexture;
 		srvDesc.mViewDimension = RHIViewDimension::TextureView2D;
 

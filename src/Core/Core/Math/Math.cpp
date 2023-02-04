@@ -3,8 +3,8 @@
 namespace luna
 {
 
-void LMath::GenPerspectiveFovLHMatrix(LMatrix4f &m, float fovy, float aspect, float zn, float zf)
-{	
+void LMath::GenPerspectiveFovLHMatrix(LMatrix4f& m, float fovy, float aspect, float zn, float zf)
+{
 
 	float    SinFov;
 	float    CosFov;
@@ -38,7 +38,7 @@ void LMath::GenPerspectiveFovLHMatrix(LMatrix4f &m, float fovy, float aspect, fl
 
 }
 
-void LMath::GenOrthoLHMatrix(LMatrix4f &m, float w, float h, float zn, float zf)
+void LMath::GenOrthoLHMatrix(LMatrix4f& m, float w, float h, float zn, float zf)
 {
 	float fRange = 1.f / (zf - zn);
 
@@ -64,7 +64,7 @@ void LMath::GenOrthoLHMatrix(LMatrix4f &m, float w, float h, float zn, float zf)
 }
 
 
-LQuaternion LMath::FromEuler(const LVector3f &euler)
+LQuaternion LMath::FromEuler(const LVector3f& euler)
 {
 
 	float xEuler = ToRad(euler[0]);
@@ -81,7 +81,7 @@ LQuaternion LMath::FromEuler(const LVector3f &euler)
 LVector3f LMath::ToEuler(const LQuaternion& quat)
 {
 	LVector3f res = quat.toRotationMatrix().eulerAngles(1, 0, 2);
-	res = res / std::numbers::pi_v<float> *180.f;	
+	res = res / std::numbers::pi_v<float> *180.f;
 	std::swap(res.x(), res.y());
 	return res;
 }
@@ -152,7 +152,7 @@ LMatrix4f LMath::MatrixCompose(LVector3f& translation, LQuaternion& rotation, LV
 	return transformvalue.matrix();
 }
 
-void LMath::MatrixDecompose(const LMatrix4f& m, LVector3f &translation, LQuaternion &rotation, LVector3f &scale)
+void LMath::MatrixDecompose(const LMatrix4f& m, LVector3f& translation, LQuaternion& rotation, LVector3f& scale)
 {
 	translation = m.block<3, 1>(0, 3);
 	LTransform newTransformValue;
@@ -165,4 +165,28 @@ void LMath::MatrixDecompose(const LMatrix4f& m, LVector3f &translation, LQuatern
 	scale.x() = mat_scaling(0, 0);
 	scale.y() = mat_scaling(1, 1);
 	scale.z() = mat_scaling(2, 2);
-}}
+
+}
+
+LFrustum LFrustum::MakeFrustrum(float fovY, float zNear, float zFar, float aspect)
+{
+	float half_fov = fovY * 0.5f;
+	float half_y = std::tan(half_fov) * zNear;
+	float half_x = half_y * aspect;
+	LFrustum f;
+	f.mNearPlane[0] = LVector3f(-half_x, half_y, zNear);
+	f.mNearPlane[1] = LVector3f(half_x, half_y, zNear);
+	f.mNearPlane[2] = LVector3f(half_x, -half_y, zNear);
+	f.mNearPlane[3] = LVector3f(-half_x, -half_y, zNear);
+
+	float half_far_y = std::tan(half_fov) * zFar;
+	float half_far_x = half_far_y * aspect;
+
+	f.mFarPlane[0] = LVector3f(-half_far_x, half_far_y, zFar);
+	f.mFarPlane[1] = LVector3f(half_far_x, half_far_y, zFar);
+	f.mFarPlane[2] = LVector3f(half_far_x, -half_far_y, zFar);
+	f.mFarPlane[3] = LVector3f(-half_far_x, -half_far_y, zFar);
+	return f;
+}
+
+}

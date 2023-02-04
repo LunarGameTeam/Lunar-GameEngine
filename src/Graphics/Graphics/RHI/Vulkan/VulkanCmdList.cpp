@@ -136,14 +136,14 @@ void VulkanGraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier
 		assert(false);
 		return;
 	}
-	
-	VulkanResource* vk_resource = barrier.mBarrierRes->As<VulkanResource>();
-	if (vk_resource->GetDesc().mType == ResourceType::kBuffer)
+	barrier.mBarrierRes->mState = barrier.mStateAfter;
+	VulkanResource* vkRes = barrier.mBarrierRes->As<VulkanResource>();
+	if (vkRes->GetDesc().mType == ResourceType::kBuffer)
 	{
 		VkBufferMemoryBarrier memoryBarrier = {};
 		memoryBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER;
-		VkBuffer buffer = vk_resource->mBuffer;
-		memoryBarrier.size = vk_resource->GetMemoryRequirements().size;
+		VkBuffer buffer = vkRes->mBuffer;
+		memoryBarrier.size = vkRes->GetMemoryRequirements().size;
 		memoryBarrier.buffer = buffer;
 		memoryBarrier.srcAccessMask = VkAccessFlagBits::VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR
 			| VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR
@@ -156,25 +156,24 @@ void VulkanGraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier
 			0, nullptr);
 		return;
 	}
-	else if (vk_resource->GetDesc().mType == ResourceType::kTexture)
+	else if (vkRes->GetDesc().mType == ResourceType::kTexture)
 	{
 
-		vk::ImageMemoryBarrier image_memory_barriers = {};
-		VkImage image = vk_resource->mImage;
+		vk::ImageMemoryBarrier imageBarrier = {};
+		VkImage image = vkRes->mImage;
 
 		vk::ImageLayout vk_state_before = ConvertState(barrier.mStateBefore);
 		vk::ImageLayout vk_state_after = ConvertState(barrier.mStateAfter);
 		if (vk_state_before == vk_state_after)
 			return;
 
-		vk::ImageMemoryBarrier& image_memory_barrier = image_memory_barriers;
-		image_memory_barrier.oldLayout = vk_state_before;
-		image_memory_barrier.newLayout = vk_state_after;
-		image_memory_barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		image_memory_barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-		image_memory_barrier.image = image;
-
-		vk::ImageSubresourceRange& range = image_memory_barrier.subresourceRange;		
+		imageBarrier.oldLayout = vk_state_before;
+		imageBarrier.newLayout = vk_state_after;
+		imageBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		imageBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		imageBarrier.image = image;
+		
+		vk::ImageSubresourceRange& range = imageBarrier.subresourceRange;
 
 		if (Has(barrier.mBarrierRes->GetDesc().mImageUsage, RHIImageUsage::DepthStencilBit))
 		{
@@ -194,48 +193,48 @@ void VulkanGraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier
 		// Source layouts (old)
 		// Source access mask controls actions that have to be finished on the old layout
 		// before it will be transitioned to the new layout
-		switch (image_memory_barrier.oldLayout)
+		switch (imageBarrier.oldLayout)
 		{
 		case vk::ImageLayout::eUndefined:
 			// Image layout is undefined (or does not matter)
 			// Only valid as initial layout
 			// No flags required, listed only for completeness
-			image_memory_barrier.srcAccessMask = {};
+			imageBarrier.srcAccessMask = vk::AccessFlagBits::eNone;
 			break;
 		case vk::ImageLayout::ePreinitialized:
 			// Image is preinitialized
 			// Only valid as initial layout for linear images, preserves memory contents
 			// Make sure host writes have been finished
-			image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eHostWrite;
+			imageBarrier.srcAccessMask = vk::AccessFlagBits::eHostWrite;
 			break;
 		case vk::ImageLayout::eColorAttachmentOptimal:
 			// Image is a color attachment
 			// Make sure any writes to the color buffer have been finished
-			image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+			imageBarrier.srcAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
 			break;
 		case vk::ImageLayout::eDepthAttachmentOptimal:
 			// Image is a depth/stencil attachment
 			// Make sure any writes to the depth/stencil buffer have been finished
-			image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+			imageBarrier.srcAccessMask = vk::AccessFlagBits::eDepthStencilAttachmentWrite;
 			break;
 		case vk::ImageLayout::eTransferSrcOptimal:
 			// Image is a transfer source 
 			// Make sure any reads from the image have been finished
-			image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eTransferRead;
+			imageBarrier.srcAccessMask = vk::AccessFlagBits::eTransferRead;
 			break;
 		case vk::ImageLayout::eTransferDstOptimal:
 			// Image is a transfer destination
 			// Make sure any writes to the image have been finished
-			image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
+			imageBarrier.srcAccessMask = vk::AccessFlagBits::eTransferWrite;
 			break;
 
 		case vk::ImageLayout::eShaderReadOnlyOptimal:
 			// Image is read by a shader
 			// Make sure any shader reads from the image have been finished
-			image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eShaderRead;
+			imageBarrier.srcAccessMask = vk::AccessFlagBits::eShaderRead;
 			break;
 		case vk::ImageLayout::eFragmentShadingRateAttachmentOptimalKHR:
-			image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eFragmentShadingRateAttachmentReadKHR;
+			imageBarrier.srcAccessMask = vk::AccessFlagBits::eFragmentShadingRateAttachmentReadKHR;
 		default:
 			// Other source layouts aren't handled (yet)
 			break;
@@ -243,43 +242,43 @@ void VulkanGraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier
 
 		// Target layouts (new)
 		// Destination access mask controls the dependency for the new image layout
-		switch (image_memory_barrier.newLayout)
+		switch (imageBarrier.newLayout)
 		{
 		case vk::ImageLayout::eTransferDstOptimal:
 			// Image will be used as a transfer destination
 			// Make sure any writes to the image have been finished
-			image_memory_barrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
+			imageBarrier.dstAccessMask = vk::AccessFlagBits::eTransferWrite;
 			break;
 
 		case vk::ImageLayout::eTransferSrcOptimal:
 			// Image will be used as a transfer source
 			// Make sure any reads from the image have been finished
-			image_memory_barrier.dstAccessMask = vk::AccessFlagBits::eTransferRead;
+			imageBarrier.dstAccessMask = vk::AccessFlagBits::eTransferRead;
 			break;
 
 		case vk::ImageLayout::eColorAttachmentOptimal:
 			// Image will be used as a color attachment
 			// Make sure any writes to the color buffer have been finished
-			image_memory_barrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
+			imageBarrier.dstAccessMask = vk::AccessFlagBits::eColorAttachmentWrite;
 			break;
 
 		case vk::ImageLayout::eDepthAttachmentOptimal:
 			// Image layout will be used as a depth/stencil attachment
 			// Make sure any writes to depth/stencil buffer have been finished
-			image_memory_barrier.dstAccessMask = image_memory_barrier.dstAccessMask | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
+			imageBarrier.dstAccessMask = imageBarrier.dstAccessMask | vk::AccessFlagBits::eDepthStencilAttachmentWrite;
 			break;
 
 		case vk::ImageLayout::eShaderReadOnlyOptimal:
 			// Image will be read in a shader (sampler, input attachment)
 			// Make sure any writes to the image have been finished
-			if (!image_memory_barrier.srcAccessMask)
+			if (!imageBarrier.srcAccessMask)
 			{
-				image_memory_barrier.srcAccessMask = vk::AccessFlagBits::eHostWrite | vk::AccessFlagBits::eTransferWrite;
+				imageBarrier.srcAccessMask = vk::AccessFlagBits::eHostWrite | vk::AccessFlagBits::eTransferWrite;
 			}
-			image_memory_barrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
+			imageBarrier.dstAccessMask = vk::AccessFlagBits::eShaderRead;
 			break;
 		case vk::ImageLayout::eFragmentShadingRateAttachmentOptimalKHR:
-			image_memory_barrier.dstAccessMask = vk::AccessFlagBits::eFragmentShadingRateAttachmentReadKHR;
+			imageBarrier.dstAccessMask = vk::AccessFlagBits::eFragmentShadingRateAttachmentReadKHR;
 			break;
 		default:
 			// Other source layouts aren't handled (yet)
@@ -290,7 +289,7 @@ void VulkanGraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier
 			vk::PipelineStageFlagBits::eAllCommands,
 			vk::DependencyFlagBits::eByRegion, 0, nullptr,
 			0, nullptr,
-			1, &image_memory_barriers
+			1, &imageBarrier
 		);
 		return;
 	}

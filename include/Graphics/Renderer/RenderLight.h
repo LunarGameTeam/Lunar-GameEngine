@@ -25,20 +25,25 @@ struct RENDER_API Light
 struct RENDER_API PointLight : Light
 {
 	LVector3f mPosition;
+	float     mFov    = (float)std::numbers::pi / 2.0f;
+	float     mAspect = 1;
+	float     mNear   = 0.1;
+	float     mFar    = 50;
+	LArray<LMatrix4f> mViewMatrix;
+	LMatrix4f mProjMatrix;
+	LArray<ShaderParamsBuffer*>			mParamBuffer;
+	void Update(RenderView* view);
 };
 
 struct RENDER_API DirectionLight : Light
 {
 
 	LVector3f      mDirection;
-	LMatrix4f      mViewMatrix;
-	LMatrix4f      mProjMatrix;
 
 
-	void Init();
 	void Update(RenderView* view);
 
-	std::shared_ptr<ShaderParamsBuffer> mParamBuffer;
+	ShaderParamsBuffer* mParamBuffer;
 };
 
 }

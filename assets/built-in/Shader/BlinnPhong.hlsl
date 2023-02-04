@@ -1,5 +1,5 @@
-#include "assets/built-in/Shader/SharedCBuffer.hlsl"
-#include "assets/built-in/Shader/SharedSampler.hlsl"
+#include "SharedCBuffer.hlsl"
+#include "SharedSampler.hlsl"
 
 cbuffer MaterialBuffer : register(b3)
 {
@@ -7,7 +7,7 @@ cbuffer MaterialBuffer : register(b3)
 	float4 cDiffuseColor;
 }
 
-#include "assets/built-in/Shader/VertexMain.hlsl"
+#include "VertexMain.hlsl"
 
 void CalcRadiance(BaseFragment input, float3 Lo, float3 N, float3 Li, float3 Lradiance, float attenuation, out float3 rad)
 {

@@ -144,6 +144,7 @@ void JsonSerializer::SerializeProperty(LProperty& prop, LObject* target, JsonDic
 		return;
 	static std::map<LType *, void(*)(LProperty &prop, LObject *target, JsonDict &dict)> helper = {
 		{LType::Get<float>(),  &PropertySerializeHelper<float>},
+		{LType::Get<bool>(),  &PropertySerializeHelper<bool>},
 		{LType::Get<int>(),  &PropertySerializeHelper<int>},
 		{LType::Get<LVector3f>(),  &PropertySerializeHelper<LVector3f>},
 		{LType::Get<LVector2f>(),  &PropertySerializeHelper<LVector2f>},
@@ -222,6 +223,7 @@ void JsonSerializer::DeserializeProperty(LProperty &prop, LObject *obj, JsonDict
 	static std::map<LType *, void(*)(LProperty &prop, LObject *obj, JsonDict &dict)> helper = {
 		{LType::Get<float>(),  &PropertyDeserializeHelper<float>},
 		{LType::Get<int>(),  &PropertyDeserializeHelper<int>},
+		{LType::Get<bool>(),  &PropertyDeserializeHelper<bool>},
 		{LType::Get<LVector4f>(),  &PropertyDeserializeHelper<LVector4f>},
 		{LType::Get<LVector3f>(),  &PropertyDeserializeHelper<LVector3f>},
 		{LType::Get<LVector2f>(),  &PropertyDeserializeHelper<LVector2f>},

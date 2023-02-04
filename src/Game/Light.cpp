@@ -19,6 +19,9 @@ RegisterTypeEmbedd_Imp(LightComponent)
 	cls->BindingProperty<&Self::mIntensity>("intensity")
 		.Setter<&LightComponent::SetIndensity>()
 		.Serialize();
+	cls->BindingProperty<&Self::mCastShadow>("cast_shadow")
+		.Setter<&LightComponent::SetCastShadow>()
+		.Serialize();
 	BindingModule::Get("luna")->AddType(cls);
 };
 
@@ -64,6 +67,16 @@ void LightComponent::SetIndensity(float val)
 	mIntensity = val;
 }
 
+void LightComponent::SetCastShadow(bool val)
+{
+	if (mLight)
+	{
+		mLight->mDirty = true;
+		mLight->mCastShadow = val;
+	}
+	mCastShadow = val;
+}
+
 void DirectionLightComponent::OnTransformDirty(Transform* transform)
 {
 	mLight->mDirty = true;
@@ -75,6 +88,7 @@ void DirectionLightComponent::OnCreate()
 {
 	LightComponent::OnCreate();
 	mLight = GetScene()->GetRenderScene()->CreateMainDirLight();
+	mLight->mCastShadow = mCastShadow;
 	mLight->mIntensity = mIntensity;
 	mLight->mColor = LVector4f(mColor.x(), mColor.y(), mColor.z(), 1);
 	mTransformDirtyAction = mOwnerEntity->GetComponent<Transform>()->OnTransformDirty.Bind(AutoBind(&DirectionLightComponent::OnTransformDirty, this));
@@ -95,8 +109,8 @@ void DirectionLightComponent::SetCSMSplits(const LVector3f& val)
 void PointLightComponent::OnCreate()
 {
 	LightComponent::OnCreate();
-	mCastShadow = false;
 	mLight = GetScene()->GetRenderScene()->CreatePointLight();
+	mLight->mCastShadow = mCastShadow;
 	mLight->mIntensity = mIntensity;
 	mLight->mColor = LVector4f(mColor.x(), mColor.y(), mColor.z(), 1);
 	mTransformDirtyAction = mOwnerEntity->GetComponent<Transform>()->OnTransformDirty.Bind(AutoBind(&PointLightComponent::OnTransformDirty, this));

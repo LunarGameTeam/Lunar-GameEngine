@@ -5,124 +5,135 @@
          "__fid__" : 1,
          "__index__" : 0,
          "__parent__" : 0,
-         "entities" : [ 16, 19, 22, 13, 9, 5, 26, 2 ]
+         "entities" : [ 13, 10, 6, 16, 19, 23, 2, 27 ]
       },
       {
          "__class__" : "Entity",
          "__fid__" : 2,
          "__index__" : 7,
          "__parent__" : 1,
-         "component_list" : [ 4, 3 ],
-         "name" : "Cube"
+         "active" : false,
+         "component_list" : [ 5, 4, 3 ],
+         "name" : "Green"
       },
       {
-         "__class__" : "MeshRenderer",
+         "__class__" : "PointLightComponent",
          "__fid__" : 3,
-         "__index__" : 1,
+         "__index__" : 2,
          "__parent__" : 2,
-         "material" : "/assets/built-in/BlinnPhong.mat",
-         "mesh" : "/assets/built-in/Geometry/Box.lmesh"
+         "cast_shadow" : false,
+         "color" : [ 0.0, 1.0, 0.0 ],
+         "intensity" : 1.0
       },
       {
          "__class__" : "Transform",
          "__fid__" : 4,
+         "__index__" : 1,
+         "__parent__" : 2,
+         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 5,
          "__index__" : 0,
          "__parent__" : 2,
-         "local_position" : [ 0.0, 1.3140888214111328, 0.0 ],
+         "local_position" : [ -5.0, 2.0, 0.0 ],
          "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
          "local_scale" : [ 1.0, 1.0, 1.0 ]
       },
       {
          "__class__" : "Entity",
-         "__fid__" : 5,
+         "__fid__" : 6,
          "__index__" : 6,
          "__parent__" : 1,
-         "component_list" : [ 8, 7, 6 ],
-         "name" : "Blue"
+         "active" : false,
+         "component_list" : [ 9, 8, 7 ],
+         "name" : "White"
       },
       {
          "__class__" : "PointLightComponent",
-         "__fid__" : 6,
-         "__index__" : 2,
-         "__parent__" : 5,
-         "color" : [ 0.0, 0.0, 1.0 ],
-         "intensity" : 1.0
-      },
-      {
-         "__class__" : "Transform",
          "__fid__" : 7,
-         "__index__" : 1,
-         "__parent__" : 5,
-         "local_position" : [ 0.0, 0.0, 0.0 ],
-         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
-         "local_scale" : [ 1.0, 1.0, 1.0 ]
+         "__index__" : 2,
+         "__parent__" : 6,
+         "cast_shadow" : false,
+         "color" : [ 1.0, 1.0, 1.0 ],
+         "intensity" : 1.0
       },
       {
          "__class__" : "Transform",
          "__fid__" : 8,
+         "__index__" : 1,
+         "__parent__" : 6,
+         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 9,
          "__index__" : 0,
-         "__parent__" : 5,
-         "local_position" : [ 0.0, 2.0, -5.0 ],
+         "__parent__" : 6,
+         "local_position" : [ 0.0, 2.0, 5.0 ],
          "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
          "local_scale" : [ 1.0, 1.0, 1.0 ]
       },
       {
          "__class__" : "Entity",
-         "__fid__" : 9,
+         "__fid__" : 10,
          "__index__" : 5,
          "__parent__" : 1,
-         "component_list" : [ 12, 11, 10 ],
-         "name" : "Red"
+         "active" : false,
+         "component_list" : [ 12, 11 ],
+         "name" : "Room"
       },
       {
-         "__class__" : "PointLightComponent",
-         "__fid__" : 10,
-         "__index__" : 2,
-         "__parent__" : 9,
-         "color" : [ 1.0, 0.0, 0.0 ],
-         "intensity" : 1.0
-      },
-      {
-         "__class__" : "Transform",
+         "__class__" : "MeshRenderer",
          "__fid__" : 11,
          "__index__" : 1,
-         "__parent__" : 9,
-         "local_position" : [ 0.0, 0.0, 0.0 ],
-         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
-         "local_scale" : [ 1.0, 1.0, 1.0 ]
+         "__parent__" : 10,
+         "cast_shadow" : true,
+         "material" : "/assets/built-in/Lambert.mat",
+         "mesh" : "/assets/built-in/Geometry/InsideCube.lmesh",
+         "receive_shadow" : true
       },
       {
          "__class__" : "Transform",
          "__fid__" : 12,
          "__index__" : 0,
-         "__parent__" : 9,
-         "local_position" : [ 5.0, 2.0, 0.0 ],
+         "__parent__" : 10,
+         "local_position" : [ 0.0, 25.0, 0.0 ],
          "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
-         "local_scale" : [ 1.0, 1.0, 1.0 ]
+         "local_scale" : [ 5.0, 5.0, 5.0 ]
       },
       {
          "__class__" : "Entity",
          "__fid__" : 13,
          "__index__" : 4,
          "__parent__" : 1,
+         "active" : false,
          "component_list" : [ 15, 14 ],
-         "name" : "Cube"
+         "name" : "EditorCamera"
       },
       {
-         "__class__" : "MeshRenderer",
+         "__class__" : "CameraComponent",
          "__fid__" : 14,
          "__index__" : 1,
-         "__parent__" : 13,
-         "material" : "/assets/built-in/BlinnPhong.mat",
-         "mesh" : "/assets/built-in/Geometry/Sphere.lmesh"
+         "__parent__" : 13
       },
       {
          "__class__" : "Transform",
          "__fid__" : 15,
          "__index__" : 0,
          "__parent__" : 13,
-         "local_position" : [ 0.0, 3.3575360774993896, 0.0 ],
-         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_position" : [ 6.5865473747253418, 7.0435285568237305, -3.5283889770507812 ],
+         "local_rotation" : [
+            0.21217335760593414,
+            -0.56956321001052856,
+            0.15517383813858032,
+            0.77877974510192871
+         ],
          "local_scale" : [ 1.0, 1.0, 1.0 ]
       },
       {
@@ -130,121 +141,128 @@
          "__fid__" : 16,
          "__index__" : 3,
          "__parent__" : 1,
+         "active" : false,
          "component_list" : [ 17, 18 ],
-         "name" : "EditorCamera"
+         "name" : "Cube"
       },
       {
          "__class__" : "Transform",
          "__fid__" : 17,
          "__index__" : 1,
          "__parent__" : 16,
-         "local_position" : [ -0.85729211568832397, 7.4939336776733398, -12.850214004516602 ],
-         "local_rotation" : [
-            0.20782817900180817,
-            0.027652900665998459,
-            -0.0058777835220098495,
-            0.97775548696517944
-         ],
+         "local_position" : [ 0.0, 3.3575360774993896, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
          "local_scale" : [ 1.0, 1.0, 1.0 ]
       },
       {
-         "__class__" : "CameraComponent",
+         "__class__" : "MeshRenderer",
          "__fid__" : 18,
          "__index__" : 0,
-         "__parent__" : 16
+         "__parent__" : 16,
+         "cast_shadow" : true,
+         "material" : "/assets/built-in/BlinnPhong.mat",
+         "mesh" : "/assets/built-in/Geometry/Sphere.lmesh",
+         "receive_shadow" : true
       },
       {
          "__class__" : "Entity",
          "__fid__" : 19,
          "__index__" : 2,
          "__parent__" : 1,
-         "component_list" : [ 20, 21 ],
-         "name" : "Room"
+         "active" : false,
+         "component_list" : [ 20, 21, 22 ],
+         "name" : "Red"
       },
       {
          "__class__" : "Transform",
          "__fid__" : 20,
-         "__index__" : 1,
-         "__parent__" : 19,
-         "local_position" : [ 0.0, 25.0, 0.0 ],
-         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
-         "local_scale" : [ 5.0, 5.0, 5.0 ]
-      },
-      {
-         "__class__" : "MeshRenderer",
-         "__fid__" : 21,
-         "__index__" : 0,
-         "__parent__" : 19,
-         "material" : "/assets/built-in/Pbr.mat",
-         "mesh" : "/assets/built-in/Geometry/InsideCube.lmesh"
-      },
-      {
-         "__class__" : "Entity",
-         "__fid__" : 22,
-         "__index__" : 1,
-         "__parent__" : 1,
-         "component_list" : [ 23, 24, 25 ],
-         "name" : "White"
-      },
-      {
-         "__class__" : "Transform",
-         "__fid__" : 23,
          "__index__" : 2,
-         "__parent__" : 22,
-         "local_position" : [ 0.0, 2.0, 5.0 ],
+         "__parent__" : 19,
+         "local_position" : [ 5.0, 2.0, 0.0 ],
          "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
          "local_scale" : [ 1.0, 1.0, 1.0 ]
       },
       {
          "__class__" : "Transform",
-         "__fid__" : 24,
+         "__fid__" : 21,
          "__index__" : 1,
-         "__parent__" : 22,
+         "__parent__" : 19,
          "local_position" : [ 0.0, 0.0, 0.0 ],
          "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
          "local_scale" : [ 1.0, 1.0, 1.0 ]
       },
       {
          "__class__" : "PointLightComponent",
-         "__fid__" : 25,
+         "__fid__" : 22,
          "__index__" : 0,
-         "__parent__" : 22,
-         "color" : [ 1.0, 1.0, 1.0 ],
+         "__parent__" : 19,
+         "cast_shadow" : false,
+         "color" : [ 1.0, 0.0, 0.0 ],
          "intensity" : 1.0
       },
       {
          "__class__" : "Entity",
-         "__fid__" : 26,
-         "__index__" : 0,
+         "__fid__" : 23,
+         "__index__" : 1,
          "__parent__" : 1,
-         "component_list" : [ 27, 28, 29 ],
-         "name" : "Green"
+         "active" : false,
+         "component_list" : [ 24, 25, 26 ],
+         "name" : "Blue"
       },
       {
          "__class__" : "Transform",
-         "__fid__" : 27,
+         "__fid__" : 24,
          "__index__" : 2,
-         "__parent__" : 26,
-         "local_position" : [ -5.0, 2.0, 0.0 ],
+         "__parent__" : 23,
+         "local_position" : [ 0.0, 3.8446063995361328, -2.337623119354248 ],
          "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
          "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 25,
+         "__index__" : 1,
+         "__parent__" : 23,
+         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "PointLightComponent",
+         "__fid__" : 26,
+         "__index__" : 0,
+         "__parent__" : 23,
+         "cast_shadow" : true,
+         "color" : [ 0.0, 0.0, 1.0 ],
+         "intensity" : 1.0
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 27,
+         "__index__" : 0,
+         "__parent__" : 1,
+         "active" : false,
+         "component_list" : [ 28, 29 ],
+         "name" : "Cube"
       },
       {
          "__class__" : "Transform",
          "__fid__" : 28,
          "__index__" : 1,
-         "__parent__" : 26,
-         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "__parent__" : 27,
+         "local_position" : [ 0.0, 1.3140888214111328, 0.0 ],
          "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
          "local_scale" : [ 1.0, 1.0, 1.0 ]
       },
       {
-         "__class__" : "PointLightComponent",
+         "__class__" : "MeshRenderer",
          "__fid__" : 29,
          "__index__" : 0,
-         "__parent__" : 26,
-         "color" : [ 0.0, 1.0, 0.0 ],
-         "intensity" : 1.0
+         "__parent__" : 27,
+         "cast_shadow" : true,
+         "material" : "/assets/built-in/BlinnPhong.mat",
+         "mesh" : "/assets/built-in/Geometry/Box.lmesh",
+         "receive_shadow" : true
       }
    ]
 }

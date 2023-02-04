@@ -39,28 +39,11 @@ void RenderScene::PrepareScene()
 	if (!mBufferDirty)
 		return;
 
-	if (mDebugMesh == nullptr)
-	{
-		mDebugMesh = new SubMesh();
-		RHIVertexLayout& vertexlayout = mDebugMesh->GetVertexLayout();
-		mDebugMesh->Update();
-	}
-
-	if (mDebugMeshLine == nullptr)
-	{
-		mDebugMeshLine = new SubMesh();
-		RHIVertexLayout& vertexlayout = mDebugMeshLine->GetVertexLayout();
-		mDebugMeshLine->Update();
-	}
-
-
+	uint32_t shadowmapIdx = 0;
 	if (mSceneParamsBuffer == nullptr)
 		mSceneParamsBuffer = new ShaderParamsBuffer(sRenderModule->GetRenderContext()->mDefaultShader->GetConstantBufferDesc(LString("SceneBuffer").Hash()));
 	if (mROIDInstancingBuffer == nullptr)
 		mROIDInstancingBuffer = new ShaderParamsBuffer(RHIBufferUsage::VertexBufferBit, sizeof(uint32_t) * 4 * 128);
-
-	if (mMainDirLight && !mMainDirLight->mInit)
-		mMainDirLight->Init();
 
 	if (mMainDirLight)
 	{
@@ -70,15 +53,13 @@ void RenderScene::PrepareScene()
 	else
 	{
 		mSceneParamsBuffer->Set("cDirectionLightColor", LVector4f(0,0,0,0));
-	}
-	
+	}	
 	
 	mSceneParamsBuffer->Set("cPointLightsCount", mPointLights.size());
 	for (int i = 0; i < mPointLights.size(); i++)
 	{
 		PointLight* light = mPointLights[i];
 		mSceneParamsBuffer->Set("cPointLights", light->mPosition, i, 0);
-		mDebugMeshLine->AddCubeWired(light->mPosition, LVector3f(1, 1, 1), light->mColor);
 		mSceneParamsBuffer->Set("cPointLights", light->mColor, i, 16);
 		mSceneParamsBuffer->Set("cPointLights", light->mIntensity, i, 32);
 	}
@@ -125,13 +106,17 @@ void RenderScene::Render(FrameGraphBuilder* FG)
 	if(mDebugMeshLine)
 		mDebugMeshLine->ClearVertexData();
 	PrepareScene();
-	
-	mDebugMesh->Update();
-	mDebugMeshLine->Update();
+
 	for (RenderView* renderView : mViews)
 	{
-		renderView->PrepareView();
-		renderView->Render(this, FG);		
+		renderView->PrepareView();	
+	}
+
+	Debug();
+
+	for (RenderView* renderView : mViews)
+	{
+		renderView->Render(this, FG);
 	}
 }
 
@@ -199,5 +184,48 @@ RenderScene::~RenderScene()
 	mRenderObjects.clear();
 }
 
+void RenderScene::Debug()
+{
+
+	if (mDebugMesh == nullptr)
+	{
+		mDebugMesh = new SubMesh();
+		RHIVertexLayout& vertexlayout = mDebugMesh->GetVertexLayout();
+		mDebugMesh->Update();
+	}
+
+	if (mDebugMeshLine == nullptr)
+	{
+		mDebugMeshLine = new SubMesh();
+		RHIVertexLayout& vertexlayout = mDebugMeshLine->GetVertexLayout();
+		mDebugMeshLine->Update();
+	}
+
+	for (int i = 0; i < mPointLights.size(); i++)
+	{
+		PointLight* light = mPointLights[i];
+		if (light->mCastShadow)
+		{
+			LFrustum f = LFrustum::MakeFrustrum(light->mFov, light->mNear, light->mFar, light->mAspect);
+			f.Multiple(light->mViewMatrix[0].inverse());
+			mDebugMeshLine->AddLine(f.mNearPlane[0], f.mNearPlane[1]);
+			mDebugMeshLine->AddLine(f.mNearPlane[1], f.mNearPlane[2]);
+			mDebugMeshLine->AddLine(f.mNearPlane[2], f.mNearPlane[3]);
+			mDebugMeshLine->AddLine(f.mNearPlane[3], f.mNearPlane[0]);
+			mDebugMeshLine->AddLine(f.mNearPlane[0], f.mFarPlane[0]);
+			mDebugMeshLine->AddLine(f.mNearPlane[1], f.mFarPlane[1]);
+			mDebugMeshLine->AddLine(f.mNearPlane[2], f.mFarPlane[2]);
+			mDebugMeshLine->AddLine(f.mNearPlane[3], f.mFarPlane[3]);
+			mDebugMeshLine->AddLine(f.mFarPlane[0], f.mFarPlane[1]);
+			mDebugMeshLine->AddLine(f.mFarPlane[1], f.mFarPlane[2]);
+			mDebugMeshLine->AddLine(f.mFarPlane[2], f.mFarPlane[3]);
+			mDebugMeshLine->AddLine(f.mFarPlane[3], f.mFarPlane[0]);
+		}
+		mDebugMeshLine->AddCubeWired(light->mPosition, LVector3f(1, 1, 1), light->mColor);
+	}
+
+	mDebugMesh->Update();
+	mDebugMeshLine->Update();
+}
 
 }

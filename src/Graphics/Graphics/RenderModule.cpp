@@ -433,14 +433,18 @@ void RenderModule::RenderIMGUI()
 	RHIRenderQueue* graphQueue = mRenderContext->mGraphicQueue;
 
 	mRenderContext->mFence->Wait(fenceValue);
-
 	mRenderContext->mGraphicCmd->BindDescriptorHeap();
 	mRenderContext->mGraphicCmd->BeginEvent("IMGUI");
 
 	for (auto& it : mImguiTextures)
 	{
-		mRenderContext->mGraphicCmd->ResourceBarrierExt({ it.second.mView->mBindResource, render::ResourceState::kUndefined, render::ResourceState::kShaderReadOnly});
+		mRenderContext->mGraphicCmd->ResourceBarrierExt({ it.second.mView->mBindResource, render::ResourceState::kRenderTarget, render::ResourceState::kShaderReadOnly});
 	}
+	mRenderContext->mGraphicCmd->CloseCommondList();
+	graphQueue->ExecuteCommandLists(mRenderContext->mGraphicCmd);
+	graphQueue->Signal(mRenderContext->mFence, ++fenceValue);
+	mRenderContext->mFence->Wait(fenceValue);
+	mRenderContext->mGraphicCmd->Reset();
 
 	mRenderContext->mGraphicCmd->ResourceBarrierExt({ sRenderModule->GetSwapChain()->GetBackBuffer(index), render::ResourceState::kUndefined, render::ResourceState::kRenderTarget });
 	mRenderContext->mGraphicCmd->BeginRenderPass(mIMGUIRenderPass, mFrameBuffer[index]);
@@ -451,6 +455,13 @@ void RenderModule::RenderIMGUI()
 	mRenderContext->mGraphicCmd->EndRenderPass();
 
 	mRenderContext->mGraphicCmd->ResourceBarrierExt({ sRenderModule->GetSwapChain()->GetBackBuffer(index), render::ResourceState::kRenderTarget , render::ResourceState::kPresent });
+
+
+	for (auto& it : mImguiTextures)
+	{
+		mRenderContext->mGraphicCmd->ResourceBarrierExt({ it.second.mView->mBindResource, render::ResourceState::kShaderReadOnly, render::ResourceState::kRenderTarget });
+	}
+
 	mRenderContext->mGraphicCmd->EndEvent();
 	mRenderContext->mGraphicCmd->CloseCommondList();
 

@@ -74,26 +74,9 @@ const LMatrix4f &CameraComponent::GetProjectionMatrix()const
 
 const LFrustum CameraComponent::GetFrustum() const
 {
-	float half_fov = mFovY * 0.5f;
-	float half_y = std::tan(half_fov) * mNear;
-	float half_x = half_y * mAspect;
-	LFrustum f;
-	f.near_pos[0] = LVector4f(-half_x, half_y, mNear, 1);	
-	f.near_pos[1] = LVector4f(half_x, half_y, mNear, 1);
-	f.near_pos[2] = LVector4f(half_x, -half_y, mNear, 1);
-	f.near_pos[3] = LVector4f(-half_x, -half_y, mNear, 1);
-
-	float half_far_y = std::tan(half_fov) * mFar;
-	float half_far_x = half_far_y * mAspect;
-
-	f.far_pos[0] = LVector4f(-half_far_x, half_far_y, mFar, 1);
-	f.far_pos[1] = LVector4f(half_far_x, half_far_y, mFar, 1);
-	f.far_pos[2] = LVector4f(half_far_x, -half_far_y, mFar, 1);
-	f.far_pos[3] = LVector4f(-half_far_x, -half_far_y, mFar, 1);
-
-
-	return f.Multiple(mTransform->GetLocalToWorldMatrix());
-
+	LFrustum f = LFrustum::MakeFrustrum(mFovY, mNear, mFar, mAspect);
+	f.Multiple(mTransform->GetLocalToWorldMatrix());
+	return f;
 }
 
 LVector3f CameraComponent::GetPosition() const

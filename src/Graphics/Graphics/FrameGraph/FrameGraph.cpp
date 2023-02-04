@@ -154,23 +154,34 @@ void FrameGraphBuilder::Flush()
 
 		for (FGResourceView* view : node->mVirtureResView)
 		{
+			ResourceBarrierDesc barrier;
+			barrier.mBaseMipLevel = 0;
+			barrier.mMipLevels = 1;
+			barrier.mBaseDepth = view->mRHIViewDesc.mBaseArrayLayer;
+			barrier.mDepth = view->mRHIViewDesc.mLayerCount;
+			barrier.mBarrierRes = view->mVirtualRes->GetRHIResource();
 			switch (view->mRHIViewDesc.mViewType)
 			{
 			case RHIViewType::kTexture:
-				cmdlist->ResourceBarrierExt({ view->mVirtualRes->GetRHIResource(), ResourceState::kUndefined, ResourceState::kShaderReadOnly });
+				barrier.mStateBefore = barrier.mBarrierRes->mState;
+				barrier.mStateAfter = ResourceState::kShaderReadOnly;
 				break;
 			case RHIViewType::kRenderTarget:
-				cmdlist->ResourceBarrierExt({ view->mVirtualRes->GetRHIResource(), ResourceState::kUndefined, ResourceState::kRenderTarget });
-
+				barrier.mStateBefore = barrier.mBarrierRes->mState;
+				barrier.mStateAfter = ResourceState::kRenderTarget;				
 				break;
 			case RHIViewType::kDepthStencil:
-				cmdlist->ResourceBarrierExt({ view->mVirtualRes->GetRHIResource(), ResourceState::kUndefined, ResourceState::kDepthStencilWrite });
+				barrier.mStateBefore = barrier.mBarrierRes->mState;
+				barrier.mStateAfter = ResourceState::kDepthStencilWrite;				
+				break;
+			default:
+				assert(false);
 				break;
 			}
+			cmdlist->ResourceBarrierExt(barrier);
 		}
 
 		FGResourceView& dsView = *node->mDS;
-
 		cmdlist->BindDescriptorHeap();
 		uint32_t width;
 		uint32_t height;
@@ -198,8 +209,8 @@ void FrameGraphBuilder::Flush()
 		node->Execute(this);
 		renderDevice->EndRenderPass();
 
-		cmdlist->CloseCommondList();
 		cmdlist->EndEvent();
+		cmdlist->CloseCommondList();
 		renderDevice->mGraphicQueue->ExecuteCommandLists(cmdlist);
 		renderDevice->mGraphicQueue->Signal(mFence3D, ++mFenceValue3D);
 	}

@@ -47,6 +47,7 @@ public:
 	void ClearVertexData();
 	
 	void AddLine(const BaseVertex& v1, const BaseVertex& v2);
+	void AddLine(const LVector3f& v1, const LVector3f& v2);
 	void AddCubeWired(const LVector3f& position, const LVector3f& size = LVector3f(1, 1, 1), const LVector4f& color = LVector4f(1, 1, 1));
 	void AddTriangle(const BaseVertex& v1, const BaseVertex& v2, const BaseVertex& v3);
 

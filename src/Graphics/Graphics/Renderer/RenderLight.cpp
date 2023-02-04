@@ -10,13 +10,10 @@ namespace luna::render
 {
 
 
-void DirectionLight::Init()
-{
-	mParamBuffer = std::make_shared<ShaderParamsBuffer>(sRenderModule->GetRenderContext()->mDefaultShader->GetConstantBufferDesc(LString("ViewBuffer").Hash()));
-}
-
 void DirectionLight::Update(RenderView* view)
 {
+	if(!mParamBuffer)
+		mParamBuffer = new ShaderParamsBuffer(sRenderModule->GetRenderContext()->mDefaultShader->GetConstantBufferDesc(LString("ViewBuffer").Hash()));
 	LTransform transform = LTransform::Identity();
 	auto translate = LMath::GetMatrixTranslaton(view->GetViewMatrix());
 	transform.translate(translate);
@@ -29,14 +26,27 @@ void DirectionLight::Update(RenderView* view)
 	mParamBuffer->Set("cProjectionMatrix", proj);
 	view->mOwnerScene->mSceneParamsBuffer->Set("cLightViewMatrix", viewMat, 0);
 	view->mOwnerScene->mSceneParamsBuffer->Set("cLightProjMatrix", proj, 0);
-	BaseVertex b1;
-	b1.pos = translate;
-	BaseVertex b2;
-	b2.pos = translate;
-	b2.pos.x() = b2.pos.x() + 3;
-
-	view->mOwnerScene->mDebugMeshLine->AddLine(b1, b2);
 	mParamBuffer->Commit();
+}
+
+void PointLight::Update(RenderView* view)
+{
+	if (mParamBuffer.size() == 0)
+	{
+		const auto& desc = sRenderModule->GetRenderContext()->mDefaultShader->GetConstantBufferDesc(LString("ViewBuffer").Hash());			
+		mParamBuffer.push_back(new ShaderParamsBuffer(desc));
+		mParamBuffer.push_back(new ShaderParamsBuffer(desc));
+		mParamBuffer.push_back(new ShaderParamsBuffer(desc));
+		mParamBuffer.push_back(new ShaderParamsBuffer(desc));
+		mViewMatrix.resize(8);
+	}
+	LTransform transform = LTransform::Identity();
+	transform.translate(mPosition);
+	mViewMatrix[0] = transform.matrix().inverse();
+	LMath::GenPerspectiveFovLHMatrix(mProjMatrix, mFov, mAspect, mNear, mFar);
+	mParamBuffer[0]->Set("cViewMatrix", mViewMatrix[0]);
+	mParamBuffer[0]->Set("cProjectionMatrix", mProjMatrix);
+	mParamBuffer[0]->Commit();
 }
 
 }

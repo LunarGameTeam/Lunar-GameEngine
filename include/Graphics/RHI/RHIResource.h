@@ -75,7 +75,7 @@ class RENDER_API RHIResource : public RHIObject
 public:
 	RHIResDesc mResDesc;
 	RHIMemoryPtr     mBindMemory;
-	ResourceState    m_initial_state = ResourceState::kUnknown;
+	ResourceState    mState = ResourceState::kUndefined;
 
 
 	RHIResource() = default;
@@ -94,12 +94,12 @@ public:
 
 	void SetInitialState(ResourceState state) 
 	{
-		m_initial_state = state;
+		mState = state;
 	};
 
 	ResourceState GetInitialState() const 
 	{
-		return m_initial_state;
+		return mState;
 	};
 
 	virtual void UpdateUploadBuffer(size_t offset, const void* src, size_t size) = 0;		

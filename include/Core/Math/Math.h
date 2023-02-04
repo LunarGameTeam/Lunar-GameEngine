@@ -45,8 +45,8 @@ public:
 	static LMatrix4f MatrixCompose(LVector3f& translation, LQuaternion& rotation, LVector3f& scale);
 
 	static LQuaternion AngleAxisf(float val, const LVector3f& axis);
-	inline static LVector3f xyz(const LVector4f& val) { return LVector3f(val.x(), val.y(), val.z()); }
-	inline static LVector4f xyzw(const LVector3f& val, float w = 1.0f) { return LVector4f(val.x(), val.y(), val.z(), w); }
+	inline static LVector3f ToVector3f(const LVector4f& val) { return LVector3f(val.x(), val.y(), val.z()); }
+	inline static LVector4f ToVector4f(const LVector3f& val, float w = 1.0f) { return LVector4f(val.x(), val.y(), val.z(), w); }
 
 	static LVector3f GetMatrixTranslaton(const LMatrix4f& mat)
 	{
@@ -103,17 +103,18 @@ struct CORE_API LFrustum
 	*  4 —————— 3
 	*/
 
-	LVector4f near_pos[4];
-	LVector4f far_pos[4];
+	LVector3f mNearPlane[4];
+	LVector3f mFarPlane[4];
 
-	LFrustum Multiple(const LMatrix4f& mat)
+	static LFrustum MakeFrustrum(float fovY, float zNear, float zFar, float aspect);
+
+	void Multiple(const LMatrix4f& mat)
 	{
-		LFrustum f;
 		for(int i = 0; i < 4 ; i++)			
-			f.near_pos[i] = mat * near_pos[i];
+			mNearPlane[i] = LMath::ToVector3f(mat * LMath::ToVector4f(mNearPlane[i]));
 		for (int i = 0; i < 4; i++)
-			f.far_pos[i] = mat * far_pos[i];
-		return f;		
+			mFarPlane[i] = LMath::ToVector3f(mat * LMath::ToVector4f(mFarPlane[i]));
+				
 	}
 };
 
