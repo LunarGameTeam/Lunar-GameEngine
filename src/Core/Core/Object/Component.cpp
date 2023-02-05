@@ -9,6 +9,7 @@ RegisterTypeEmbedd_Imp(Component)
 {
 	cls->Ctor<Component>();
 	cls->Binding<Component>();
+	cls->BindingProperty<&Component::mOwnerEntity>("entity");
 	cls->BindingMethod<&Component::Destroy>("destroy");	
 	BindingModule::Get("luna")->AddType(cls);
 }

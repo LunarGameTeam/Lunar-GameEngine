@@ -221,9 +221,9 @@ DXGI_FORMAT RENDER_API GetGraphicFormat(const RHITextureFormat& graphic_format)
 		return DXGI_FORMAT_R16G16_SINT;
 	case RHITextureFormat::FORMAT_R32_TYPELESS:
 		return DXGI_FORMAT_R32_TYPELESS;
-	case RHITextureFormat::FORMAT_D32_FLOAT:
+	case RHITextureFormat::D32Float:
 		return DXGI_FORMAT_D32_FLOAT;
-	case RHITextureFormat::FORMAT_R32_FLOAT:
+	case RHITextureFormat::R32_FLOAT:
 		return DXGI_FORMAT_R32_FLOAT;
 	case RHITextureFormat::FORMAT_R32_UINT:
 		return DXGI_FORMAT_R32_UINT;
@@ -471,9 +471,9 @@ RHITextureFormat RENDER_API GetGraphicFormatFromDx(const DXGI_FORMAT& graphic_fo
 	case DXGI_FORMAT_R32_TYPELESS:
 		return RHITextureFormat::FORMAT_R32_TYPELESS;
 	case DXGI_FORMAT_D32_FLOAT:
-		return RHITextureFormat::FORMAT_D32_FLOAT;
+		return RHITextureFormat::D32Float;
 	case DXGI_FORMAT_R32_FLOAT:
-		return RHITextureFormat::FORMAT_R32_FLOAT;
+		return RHITextureFormat::R32_FLOAT;
 	case DXGI_FORMAT_R32_UINT:
 		return RHITextureFormat::FORMAT_R32_UINT;
 	case DXGI_FORMAT_R32_SINT:

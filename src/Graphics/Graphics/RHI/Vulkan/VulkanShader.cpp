@@ -221,7 +221,7 @@ void VulkanShaderBlob::InitDescriptor(std::vector<uint32_t>& shaderBytes)
 			}
 			else if (descriptorBinding.descriptor_type == SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_IMAGE)
 			{
-				key.mViewType = RHIViewType::kTexture;
+				key.mViewType = RHIViewType::kTexture;				
 			}
 			else if (descriptorBinding.descriptor_type == SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLER)
 				key.mViewType = RHIViewType::kSampler;
@@ -233,7 +233,8 @@ void VulkanShaderBlob::InitDescriptor(std::vector<uint32_t>& shaderBytes)
 				assert(false);
 			
 			key.mCount = 1;
-			for (uint32_t i_dim = 0; i_dim < descriptorBinding.array.dims_count; ++i_dim) {
+			for (uint32_t i_dim = 0; i_dim < descriptorBinding.array.dims_count; ++i_dim)
+			{
 
 				key.mCount *= descriptorBinding.array.dims[i_dim];
 			}

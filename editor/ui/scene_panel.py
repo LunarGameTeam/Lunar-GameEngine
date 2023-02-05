@@ -18,10 +18,12 @@ class ScenePanel(PanelBase):
         self.scene_texture = None
         self.camera = None
         self.main_light = None
+        self.point_light = None
         self.last_min = None
         self.last_max = None
         self.dragging = False
         self.need_update_texture = False
+        self.rad = 0
         self.operation = imgui.gizmos.Operation_TRANSLATE
 
     def create_editor_camera(self, scene: 'luna.Scene'):
@@ -47,6 +49,10 @@ class ScenePanel(PanelBase):
             main_light = entity.get_component(luna.DirectionLightComponent)
             if main_light:
                 self.main_light = main_light
+
+            point_light = entity.get_component(luna.PointLightComponent)
+            if point_light and point_light.cast_shadow:
+                self.point_light = point_light
 
         # if not self.main_light:
         #     entity = self.scene.create_entity("MainLight")
@@ -192,6 +198,13 @@ class ScenePanel(PanelBase):
         imgui.gizmos.set_orthographic(False)
         imgui.gizmos.begin_frame()
         imgui.gizmos.set_draw_list()
+
+        if self.point_light:
+            x = math.cos(self.rad) * 3
+            y = 4 + math.cos(self.rad)
+            z = math.sin(self.rad) * 3
+            self.point_light.entity.get_component(luna.Transform).local_position = luna.LVector3f(x,y,z)
+            self.rad += math.pi * 0.3 * delta_time
 
         content = luna.imgui.get_content_region_avail()
 

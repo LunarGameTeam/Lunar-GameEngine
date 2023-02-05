@@ -27,12 +27,11 @@ BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
 ////////////////////////////////////////////////////////////////////////////////
 // Pixel Shader
 ////////////////////////////////////////////////////////////////////////////////
-float4 PSMain(BaseFragment input) : SV_TARGET
+float PSMain(BaseFragment input) : SV_TARGET
 {
 	float depthValue;
 	float4 color;
-	
-	
+		
 	// Get the depth value of the pixel by dividing the Z pixel depth by the homogeneous W coordinate.
 	depthValue = input.position.z;
 

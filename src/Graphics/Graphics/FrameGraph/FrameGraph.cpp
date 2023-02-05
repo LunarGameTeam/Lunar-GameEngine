@@ -158,7 +158,9 @@ void FrameGraphBuilder::Flush()
 			barrier.mBaseMipLevel = 0;
 			barrier.mMipLevels = 1;
 			barrier.mBaseDepth = view->mRHIViewDesc.mBaseArrayLayer;
-			barrier.mDepth = view->mRHIViewDesc.mLayerCount;
+			//理论上应该View使用了Res的某个Layer，只对这个Layer进行Barrier
+			//但是RHIResource里只记录了一个State，因此这里对整个Res进行Barrier
+			barrier.mDepth = view->mVirtualRes->mDesc.DepthOrArraySize;
 			barrier.mBarrierRes = view->mVirtualRes->GetRHIResource();
 			switch (view->mRHIViewDesc.mViewType)
 			{

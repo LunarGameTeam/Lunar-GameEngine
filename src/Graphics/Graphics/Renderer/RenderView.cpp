@@ -31,20 +31,11 @@ void RenderView::PrepareView()
 	{
 		mOwnerScene->mMainDirLight->Update(this);
 	}
-	uint32_t shadowmapIdx = 0;
 	for (PointLight* it : mOwnerScene->mPointLights)
 	{
 		it->Update(this);
-		if (it->mCastShadow)
-		{
-			mOwnerScene->mSceneParamsBuffer->Set("cLightViewMatrix", it->mViewMatrix[0], shadowmapIdx);
-			mOwnerScene->mSceneParamsBuffer->Set("cLightProjMatrix", it->mProjMatrix);
-			shadowmapIdx++;
-		}
 	}
-	mOwnerScene->mSceneParamsBuffer->Commit();
 	mViewBuffer->Commit();
-
 }
 
 void RenderView::Culling(RenderScene* scene)

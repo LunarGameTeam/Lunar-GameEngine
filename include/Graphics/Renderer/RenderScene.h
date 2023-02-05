@@ -49,6 +49,7 @@ public:
 	void DestroyRenderView(RenderView* renderView);
 
 	bool mRenderable = true;
+	bool mDrawGizmos = true;
 public:
 	void        SetSceneBufferDirty()             { mBufferDirty = true; }
 	RenderView* GetRenderView(uint32_t idx) const { return mViews[idx]; };

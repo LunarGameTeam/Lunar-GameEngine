@@ -6,10 +6,12 @@ namespace luna::render
 DoubleConverter<RHITextureFormat, vk::Format> sVulkanFormtas =
 {
 	{RHITextureFormat::R8G8BB8A8_UNORN, vk::Format::eR8G8B8A8Unorm},
+	{RHITextureFormat::R32_FLOAT, vk::Format::eR32Sfloat},
 	{RHITextureFormat::R8G8B8A8_UNORM_SRGB, vk::Format::eR8G8B8A8Srgb },
 	{RHITextureFormat::FORMAT_B8G8R8A8_UNORM, vk::Format::eB8G8R8A8Unorm },
 	{RHITextureFormat::FORMAT_B8G8R8A8_UNORM_SRGB, vk::Format::eB8G8R8A8Srgb },
 	{RHITextureFormat::FORMAT_D24_UNORM_S8_UINT, vk::Format::eD24UnormS8Uint },
+	{RHITextureFormat::D32Float, vk::Format::eD32Sfloat},
 
 };
 

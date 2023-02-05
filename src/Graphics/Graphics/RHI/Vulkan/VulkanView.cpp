@@ -110,9 +110,9 @@ void VulkanView::CreateImgeView()
 	else
 		createInfo.subresourceRange.aspectMask = vk::ImageAspectFlagBits::eColor;
 
-	createInfo.subresourceRange.baseMipLevel = 0;
+	createInfo.subresourceRange.baseMipLevel = mViewDesc.mBaseMipLevel;
 	createInfo.subresourceRange.levelCount = mViewDesc.mLevelCount;
-	createInfo.subresourceRange.baseArrayLayer = 0;
+	createInfo.subresourceRange.baseArrayLayer = mViewDesc.mBaseArrayLayer;
 	createInfo.subresourceRange.layerCount = mViewDesc.mLayerCount;
 	if (device.createImageView(&createInfo, nullptr, &mImageView) != vk::Result::eSuccess) {
 		throw std::runtime_error("failed to create image views!");

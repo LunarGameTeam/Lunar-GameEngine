@@ -70,9 +70,6 @@ void RenderScene::PrepareScene()
 		mROIDInstancingBuffer->Set(idx * sizeof(uint32_t) * 4, idx);
 	}
 	
-
-	mSceneParamsBuffer->Commit();
-	mROIDInstancingBuffer->Commit();
 	
 }
 
@@ -113,6 +110,9 @@ void RenderScene::Render(FrameGraphBuilder* FG)
 	}
 
 	Debug();
+
+	mSceneParamsBuffer->Commit();
+	mROIDInstancingBuffer->Commit();
 
 	for (RenderView* renderView : mViews)
 	{
@@ -186,6 +186,8 @@ RenderScene::~RenderScene()
 
 void RenderScene::Debug()
 {
+	if (!mDrawGizmos)
+		return;
 
 	if (mDebugMesh == nullptr)
 	{
@@ -206,20 +208,24 @@ void RenderScene::Debug()
 		PointLight* light = mPointLights[i];
 		if (light->mCastShadow)
 		{
-			LFrustum f = LFrustum::MakeFrustrum(light->mFov, light->mNear, light->mFar, light->mAspect);
-			f.Multiple(light->mViewMatrix[0].inverse());
-			mDebugMeshLine->AddLine(f.mNearPlane[0], f.mNearPlane[1]);
-			mDebugMeshLine->AddLine(f.mNearPlane[1], f.mNearPlane[2]);
-			mDebugMeshLine->AddLine(f.mNearPlane[2], f.mNearPlane[3]);
-			mDebugMeshLine->AddLine(f.mNearPlane[3], f.mNearPlane[0]);
-			mDebugMeshLine->AddLine(f.mNearPlane[0], f.mFarPlane[0]);
-			mDebugMeshLine->AddLine(f.mNearPlane[1], f.mFarPlane[1]);
-			mDebugMeshLine->AddLine(f.mNearPlane[2], f.mFarPlane[2]);
-			mDebugMeshLine->AddLine(f.mNearPlane[3], f.mFarPlane[3]);
-			mDebugMeshLine->AddLine(f.mFarPlane[0], f.mFarPlane[1]);
-			mDebugMeshLine->AddLine(f.mFarPlane[1], f.mFarPlane[2]);
-			mDebugMeshLine->AddLine(f.mFarPlane[2], f.mFarPlane[3]);
-			mDebugMeshLine->AddLine(f.mFarPlane[3], f.mFarPlane[0]);
+			for (int faceIdx = 0; faceIdx < 6; faceIdx++)
+			{
+				LFrustum f = LFrustum::MakeFrustrum(light->mFov, light->mNear, light->mFar, light->mAspect);
+				f.Multiple(light->mViewMatrix[faceIdx].inverse());
+				mDebugMeshLine->AddLine(f.mNearPlane[0], f.mNearPlane[1]);
+				mDebugMeshLine->AddLine(f.mNearPlane[1], f.mNearPlane[2]);
+				mDebugMeshLine->AddLine(f.mNearPlane[2], f.mNearPlane[3]);
+				mDebugMeshLine->AddLine(f.mNearPlane[3], f.mNearPlane[0]);
+				mDebugMeshLine->AddLine(f.mNearPlane[0], f.mFarPlane[0]);
+				mDebugMeshLine->AddLine(f.mNearPlane[1], f.mFarPlane[1]);
+				mDebugMeshLine->AddLine(f.mNearPlane[2], f.mFarPlane[2]);
+				mDebugMeshLine->AddLine(f.mNearPlane[3], f.mFarPlane[3]);
+				mDebugMeshLine->AddLine(f.mFarPlane[0], f.mFarPlane[1]);
+				mDebugMeshLine->AddLine(f.mFarPlane[1], f.mFarPlane[2]);
+				mDebugMeshLine->AddLine(f.mFarPlane[2], f.mFarPlane[3]);
+				mDebugMeshLine->AddLine(f.mFarPlane[3], f.mFarPlane[0]);
+			}
+			
 		}
 		mDebugMeshLine->AddCubeWired(light->mPosition, LVector3f(1, 1, 1), light->mColor);
 	}
