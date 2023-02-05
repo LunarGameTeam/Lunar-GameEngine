@@ -31,9 +31,9 @@ void VulkanPipelineState::Init()
 
 	vk::PipelineRenderingCreateInfo renderingInfos;
 	std::vector<vk::Format> colors;
-	for (auto& it : mPSODesc.mGraphicDesc.mRenderPassDesc.mColors)
+	for (auto& it : mPSODesc.mGraphicDesc.mRenderPassDesc.mColorView)
 	{
-		colors.push_back(Convert(it.mFormat));
+		colors.push_back(Convert(it->mBindResource->mResDesc.Format));
 	}
 	renderingInfos.pColorAttachmentFormats = colors.data();
 	renderingInfos.colorAttachmentCount = (uint32_t)colors.size();

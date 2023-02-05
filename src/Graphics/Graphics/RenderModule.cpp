@@ -240,10 +240,11 @@ bool RenderModule::OnInit()
 
 	render::RenderContext* renderDevice = sRenderModule->GetRenderContext();
 	render::RenderPassDesc renderPassDesc;
+
+	renderPassDesc.mColorView.push_back(sRenderModule->GetSwapChain()->mViews[0]);
 	renderPassDesc.mColors.emplace_back(
-		sRenderModule->GetSwapChain()->mBackBuffers[0]->mResDesc.Format,
-		render::RenderPassLoadOp::kClear,
-		render::RenderPassStoreOp::kStore,
+		render::LoadOp::kClear,
+		render::StoreOp::kStore,
 		LVector4f(0, 0, 0, 1));
 	mIMGUIRenderPass = rhiDevice->CreateRenderPass(renderPassDesc);
 	UpdateFrameBuffer();

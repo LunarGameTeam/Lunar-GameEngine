@@ -13,14 +13,14 @@
 namespace luna::render
 {
 
-enum class RenderPassLoadOp
+enum class LoadOp
 {
 	kLoad = 0,
 	kClear,
 	kDontCare,
 };
 
-enum class RenderPassStoreOp
+enum class StoreOp
 {
 	kStore = 0,
 	kDontCare,
@@ -28,27 +28,22 @@ enum class RenderPassStoreOp
 
 struct RENDER_API PassColorDesc
 {
-	RHITextureFormat  mFormat = RHITextureFormat::FORMAT_UNKNOWN;
-	RenderPassLoadOp  mLoadOp = RenderPassLoadOp::kClear;
-	RenderPassStoreOp mStoreOp = RenderPassStoreOp::kStore;
-	LVector4f         mClearColor = LVector4f(0, 0, 0, 1);
+	LoadOp    mLoadOp = LoadOp::kClear;
+	StoreOp   mStoreOp = StoreOp::kStore;
+	LVector4f mClearColor = LVector4f(0, 0, 0, 1);
 
-	auto MakeTie() const
-	{
-		return std::tie(mFormat, mLoadOp, mStoreOp);
-	}
 };
 
 struct RENDER_API PassDepthStencilDesc
 {
 	RHITextureFormat  mDepthStencilFormat = RHITextureFormat::FORMAT_D24_UNORM_S8_UINT;
 
-	RenderPassLoadOp  mDepthLoadOp = RenderPassLoadOp::kClear;
-	RenderPassStoreOp mDepthStoreOp = RenderPassStoreOp::kStore;
+	LoadOp  mDepthLoadOp = LoadOp::kClear;
+	StoreOp mDepthStoreOp = StoreOp::kStore;
 
 
-	RenderPassLoadOp  mStencilLoadOp = RenderPassLoadOp::kDontCare;
-	RenderPassStoreOp mStencilStoreOp = RenderPassStoreOp::kDontCare;
+	LoadOp  mStencilLoadOp = LoadOp::kDontCare;
+	StoreOp mStencilStoreOp = StoreOp::kDontCare;
 
 	float	     mClearDepth = 1;
 	uint32_t	mClearStencil = 0;

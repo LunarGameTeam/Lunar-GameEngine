@@ -40,18 +40,19 @@ public:
 
 	FGNode& SetupFunc(FrameGraphBuilder* builder, SetupFuncType func) { func(builder, *this); return*this; }
 
+	FGResourceView* AddSRV(FGTexture*, RHIViewDimension dimension, uint32_t BaseLayer = 0, uint32_t layerCount = 1);
 	FGResourceView* AddSRV(FGTexture*, const ViewDesc& desc);
-	
+
+	FGResourceView* AddRTV(FGTexture*, RHIViewDimension dimension, uint32_t BaseLayer = 0, uint32_t layerCount = 1);
 	FGResourceView* AddRTV(FGTexture*, const ViewDesc& desc);
 
 	FGResourceView* AddDSV(FGTexture*, const ViewDesc& desc);
-
-	void SetColorClear(const PassColorDesc &desc, uint32_t rtIndex = 0);
+	FGResourceView* AddDSV(FGTexture*);
 
 	void SetDepthClear(const PassDepthStencilDesc &desc);
 
 
-	FGNode& SetColorAttachment(FGResourceView* rt, uint32_t rtIndex = 0);
+	FGNode& SetColorAttachment(FGResourceView* rt, LoadOp load = LoadOp::kLoad, StoreOp store = StoreOp::kStore, const LVector4f& clearColor = LVector4f(0,0,0,1), uint32_t rtIndex = 0);
 	FGNode& SetDepthStencilAttachment(FGResourceView* ds);
 
 	const LString& GetName() { return mName; }

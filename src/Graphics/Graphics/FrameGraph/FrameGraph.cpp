@@ -195,7 +195,6 @@ void FrameGraphBuilder::Flush()
 			width = rtView.mVirtualRes->GetRHIResource()->mResDesc.Width;
 			height = rtView.mVirtualRes->GetRHIResource()->mResDesc.Height;
 			assert(rtView.mRHIView);
-			node->mPassDesc.mColors[index].mFormat = rtView.mRHIView->mBindResource->mResDesc.Format;
 			node->mPassDesc.mColorView.emplace_back(rtView.mRHIView);
 		}
 

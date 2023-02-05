@@ -466,27 +466,27 @@ void VulkanGraphicCmdList::BeginRender(const RenderPassDesc& passDesc)
 	std::vector<vk::RenderingAttachmentInfo> depthAttachments;
 	std::vector<vk::RenderingAttachmentInfo> stencilAttachments;
 	vk::RenderingInfo info;
-	auto convertLoad = [](RenderPassLoadOp loadOp)->auto
+	auto convertLoad = [](LoadOp loadOp)->auto
 	{
 		switch (loadOp)
 		{
-		case RenderPassLoadOp::kLoad:
+		case LoadOp::kLoad:
 			return vk::AttachmentLoadOp::eLoad;
-		case RenderPassLoadOp::kClear:
+		case LoadOp::kClear:
 			return vk::AttachmentLoadOp::eClear;
-		case RenderPassLoadOp::kDontCare:
+		case LoadOp::kDontCare:
 			return vk::AttachmentLoadOp::eDontCare;
 		}
 		return vk::AttachmentLoadOp::eNoneEXT;
 		assert(false);
 	};
-	auto convertStore = [](RenderPassStoreOp loadOp)->auto
+	auto convertStore = [](StoreOp loadOp)->auto
 	{
 		switch (loadOp)
 		{
-		case RenderPassStoreOp::kStore:
+		case StoreOp::kStore:
 			return vk::AttachmentStoreOp::eStore;
-		case RenderPassStoreOp::kDontCare:
+		case StoreOp::kDontCare:
 			return vk::AttachmentStoreOp::eDontCare;
 		}
 		assert(false);

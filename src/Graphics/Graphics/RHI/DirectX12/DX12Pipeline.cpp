@@ -253,7 +253,7 @@ D3D12_GRAPHICS_PIPELINE_STATE_DESC DX12PipelineState::GetPipelineDesc(const RHIP
 	{
 		desc_out.BlendState.RenderTarget[render_target_index] = GetRenderTargetBlendDesc(
 			pipeline_desc.BlendState.RenderTarget[render_target_index]);
-		desc_out.RTVFormats[render_target_index] = GetGraphicFormat(pass_desc.mColors[render_target_index].mFormat);
+		desc_out.RTVFormats[render_target_index] = GetGraphicFormat(pass_desc.mColorView[render_target_index]->mBindResource->mResDesc.Format);
 	}
 	desc_out.DepthStencilState.DepthEnable = pipeline_desc.DepthStencilState.DepthEnable;
 	desc_out.DepthStencilState.DepthWriteMask = GetDepthMask(pipeline_desc.DepthStencilState.DepthWrite);
@@ -279,10 +279,10 @@ D3D12_GRAPHICS_PIPELINE_STATE_DESC DX12PipelineState::GetPipelineDesc(const RHIP
 		pipeline_desc.DepthStencilState.BackFace.StencilFailOp);
 	desc_out.SampleMask = pipeline_desc.SampleMask;
 	desc_out.PrimitiveTopologyType = GetTypologyType(pipeline_desc.PrimitiveTopologyType);
-	desc_out.NumRenderTargets = pass_desc.mColors.size();
-	for (int32_t rtv_index = 0; rtv_index < pass_desc.mColors.size(); ++rtv_index)
+	desc_out.NumRenderTargets = pass_desc.mColorView.size();
+	for (int32_t rtv_index = 0; rtv_index < pass_desc.mColorView.size(); ++rtv_index)
 	{
-		desc_out.RTVFormats[rtv_index] = GetGraphicFormat(pass_desc.mColors[rtv_index].mFormat);
+		desc_out.RTVFormats[rtv_index] = GetGraphicFormat(pass_desc.mColorView[rtv_index]->mBindResource->mResDesc.Format);
 	}
 	desc_out.DSVFormat = GetGraphicFormat(pass_desc.mDepths[0].mDepthStencilFormat);
 	desc_out.SampleDesc.Count = pipeline_desc.SampleDesc.Count;

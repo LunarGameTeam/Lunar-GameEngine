@@ -18,39 +18,41 @@ VulkanRenderPass::VulkanRenderPass(const RenderPassDesc& desc)
 	std::vector<vk::AttachmentDescription> descriptions;
 	
 	vk::Device mDevice = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
-	auto convertLoad = [](RenderPassLoadOp loadOp)->auto
+	auto convertLoad = [](LoadOp loadOp)->auto
 	{
 		switch (loadOp)
 		{
-		case RenderPassLoadOp::kLoad:
+		case LoadOp::kLoad:
 			return vk::AttachmentLoadOp::eLoad;
-		case RenderPassLoadOp::kClear:
+		case LoadOp::kClear:
 			return vk::AttachmentLoadOp::eClear;
-		case RenderPassLoadOp::kDontCare:
+		case LoadOp::kDontCare:
 			return vk::AttachmentLoadOp::eDontCare;
 		}
 		return vk::AttachmentLoadOp::eNoneEXT;
 		assert(false);
 	};
-	auto convertStore = [](RenderPassStoreOp loadOp)->auto
+	auto convertStore = [](StoreOp loadOp)->auto
 	{
 		switch (loadOp)
 		{
-		case RenderPassStoreOp::kStore:
+		case StoreOp::kStore:
 			return vk::AttachmentStoreOp::eStore;
-		case RenderPassStoreOp::kDontCare:
+		case StoreOp::kDontCare:
 			return vk::AttachmentStoreOp::eDontCare;
 		}
 		assert(false);
 		return vk::AttachmentStoreOp::eNone;		
 	};
-	for (const PassColorDesc& desc : desc.mColors)
+	for (int i = 0; i < desc.mColors.size(); ++i)
 	{
+		const PassColorDesc& it = desc.mColors[i];
+		RHIViewPtr view = desc.mColorView[i];
 		vk::AttachmentDescription& colorAttachment = descriptions.emplace_back();
-		colorAttachment.format = Convert(desc.mFormat);
+		colorAttachment.format = Convert(view->mBindResource->mResDesc.Format);
 		colorAttachment.samples = vk::SampleCountFlagBits::e1;
-		colorAttachment.loadOp = convertLoad(desc.mLoadOp);
-		colorAttachment.storeOp = convertStore(desc.mStoreOp);
+		colorAttachment.loadOp = convertLoad(it.mLoadOp);
+		colorAttachment.storeOp = convertStore(it.mStoreOp);
 		colorAttachment.stencilLoadOp = vk::AttachmentLoadOp::eLoad;
 		colorAttachment.stencilStoreOp = vk::AttachmentStoreOp::eDontCare;
 		colorAttachment.initialLayout = vk::ImageLayout::eUndefined;

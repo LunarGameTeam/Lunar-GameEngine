@@ -17,6 +17,10 @@
 namespace luna::render
 {
 
+PARAM_ID(SceneBuffer);
+PARAM_ID(ViewBuffer);
+PARAM_ID(MaterialBuffer);
+
 void DirectionalLightShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene)
 {
 
@@ -43,27 +47,9 @@ void DirectionalLightShadowPass(FrameGraphBuilder* builder, RenderView* view, Re
 		assert(color);
 		assert(depth);
 
-		ViewDesc srvDesc;
-		srvDesc.mViewType = RHIViewType::kTexture;
-		srvDesc.mViewDimension = RHIViewDimension::TextureView2D;
-
-		ViewDesc rtvDesc;
-		rtvDesc.mViewType = RHIViewType::kRenderTarget;
-		rtvDesc.mViewDimension = RHIViewDimension::TextureView2D;
-
-		ViewDesc dsvDesc;
-		dsvDesc.mViewType = RHIViewType::kDepthStencil;
-		dsvDesc.mViewDimension = RHIViewDimension::TextureView2D;
-
-		auto colorView = node.AddRTV(color, rtvDesc);
-		auto depthView = node.AddDSV(depth, dsvDesc);
-
-		PassColorDesc colorDesc;
-		colorDesc.mLoadOp = RenderPassLoadOp::kClear;
-		colorDesc.mStoreOp = RenderPassStoreOp::kStore;
-		colorDesc.mClearColor = LVector4f(1, 1, 1, 1);
-		node.SetColorClear(colorDesc);
-		node.SetColorAttachment(colorView);
+		auto colorView = node.AddRTV(color, RHIViewDimension::TextureView2D);
+		auto depthView = node.AddDSV(depth);
+		node.SetColorAttachment(colorView, LoadOp::kClear);
 		node.SetDepthStencilAttachment(depthView);
 	});
 
@@ -76,8 +62,6 @@ void DirectionalLightShadowPass(FrameGraphBuilder* builder, RenderView* view, Re
 	{
 		ROArray& ROs = view->GetViewVisibleROs();
 		PackedParams params;
-		PARAM_ID(SceneBuffer);
-		PARAM_ID(ViewBuffer);
 		RHIResource* instancingBuffer = renderScene->mROIDInstancingBuffer->mRes;
 		params.PushShaderParam(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer);
 		params.PushShaderParam(ParamID_ViewBuffer, renderScene->mMainDirLight->mParamBuffer);
@@ -118,29 +102,10 @@ void PointShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* 
 			assert(color);
 			assert(depth);
 
-			ViewDesc srvDesc;
-			srvDesc.mViewType = RHIViewType::kTexture;
-			srvDesc.mViewDimension = RHIViewDimension::TextureView2D;
+			auto colorView = node.AddRTV(color, RHIViewDimension::TextureView2D, idx, 1);
+			auto depthView = node.AddDSV(depth);
 
-			ViewDesc rtvDesc;
-			rtvDesc.mBaseArrayLayer = idx;
-			rtvDesc.mViewType = RHIViewType::kRenderTarget;
-			rtvDesc.mViewDimension = RHIViewDimension::TextureView2D;
-
-			ViewDesc dsvDesc;
-			dsvDesc.mBaseArrayLayer = idx;
-			dsvDesc.mViewType = RHIViewType::kDepthStencil;
-			dsvDesc.mViewDimension = RHIViewDimension::TextureView2D;
-
-			auto colorView = node.AddRTV(color, rtvDesc);
-			auto depthView = node.AddDSV(depth, dsvDesc);
-
-			PassColorDesc colorDesc;
-			colorDesc.mLoadOp = RenderPassLoadOp::kClear;
-			colorDesc.mStoreOp = RenderPassStoreOp::kStore;
-			colorDesc.mClearColor = LVector4f(1, 1, 1, 1);
-			node.SetColorClear(colorDesc);
-			node.SetColorAttachment(colorView);
+			node.SetColorAttachment(colorView, LoadOp::kClear, StoreOp::kStore, LVector4f(1, 1, 1, 1));
 			node.SetDepthStencilAttachment(depthView);
 		});
 
@@ -165,8 +130,6 @@ void PointShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* 
 					continue;
 				ROArray& ROs = view->GetViewVisibleROs();
 				PackedParams params;
-				PARAM_ID(SceneBuffer);
-				PARAM_ID(ViewBuffer);
 				RHIResource* instancingBuffer = renderScene->mROIDInstancingBuffer->mRes;
 				params.PushShaderParam(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer);
 				params.PushShaderParam(ParamID_ViewBuffer, it->mParamBuffer[idx]);
@@ -206,32 +169,18 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 		assert(color);
 		assert(depth);
 
-		ViewDesc shadowMapViewDesc;
-		shadowMapViewDesc.mBaseArrayLayer = 0;
-		shadowMapViewDesc.mLayerCount = 6;
-		shadowMapViewDesc.mViewType = RHIViewType::kTexture;
-		shadowMapViewDesc.mViewDimension = RHIViewDimension::TextureView2DArray;
+		auto colorView = node.AddRTV(color, RHIViewDimension::TextureView2D);
+		auto depthView = node.AddDSV(depth);
 
-		ViewDesc rtvDesc;
-		rtvDesc.mViewType = RHIViewType::kRenderTarget;
-		rtvDesc.mViewDimension = RHIViewDimension::TextureView2D;
-
-		ViewDesc dsvDesc;
-		dsvDesc.mViewType = RHIViewType::kDepthStencil;
-		dsvDesc.mViewDimension = RHIViewDimension::TextureView2D;
-
-		auto colorView = node.AddRTV(color, rtvDesc);
-		auto depthView = node.AddDSV(depth, dsvDesc);
 		FGTexture* shadowmap = builder->GetTexture("Shadowmap");
 		FGTexture* directionalShadowmap = builder->GetTexture("DirecitonalShadowmap");
 		if (shadowmap)
 		{
-			shadowmapView = node.AddSRV(shadowmap, shadowMapViewDesc);
+			shadowmapView = node.AddSRV(shadowmap, RHIViewDimension::TextureView2D, 0 , 6);
 		}
 		if (directionalShadowmap)
 		{
-			shadowMapViewDesc.mLayerCount = 1;
-			directionalShadowmapView = node.AddSRV(directionalShadowmap, shadowMapViewDesc);
+			directionalShadowmapView = node.AddSRV(directionalShadowmap, RHIViewDimension::TextureView2D, 0, 1);
 		}
 		
 		node.SetColorAttachment(colorView);
@@ -248,9 +197,7 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 	{
 		ROArray& ROs = view->GetViewVisibleROs();
 		PackedParams params;
-		PARAM_ID(SceneBuffer);
-		PARAM_ID(ViewBuffer);
-		PARAM_ID(MaterialBuffer);
+		
 		PARAM_ID(_MainTex);
 		PARAM_ID(_ShadowMap);
 		PARAM_ID(_DirectionLightShadowMap);
@@ -313,6 +260,7 @@ void OverlayPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rend
 {
 	auto& node = builder->AddPass("Overlay");
 	FGResourceView* shadowmapView = nullptr;
+
 	node.SetupFunc(builder, [&](FrameGraphBuilder* builder, FGNode& node)
 	{
 		LString rtName = "MainColor";
@@ -328,27 +276,13 @@ void OverlayPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rend
 		assert(color);
 		assert(depth);
 
-		ViewDesc srvDesc;
-		srvDesc.mViewType = RHIViewType::kTexture;
-		srvDesc.mViewDimension = RHIViewDimension::TextureView2D;
+		auto colorView = node.AddRTV(color, RHIViewDimension::TextureView2D);
+		auto depthView = node.AddDSV(depth);
 
-		ViewDesc rtvDesc;
-		rtvDesc.mViewType = RHIViewType::kRenderTarget;
-		rtvDesc.mViewDimension = RHIViewDimension::TextureView2D;
-
-		ViewDesc dsvDesc;
-		dsvDesc.mViewType = RHIViewType::kDepthStencil;
-		dsvDesc.mViewDimension = RHIViewDimension::TextureView2D;
-
-		auto colorView = node.AddRTV(color, rtvDesc);
-		auto depthView = node.AddDSV(depth, dsvDesc);
-
-		PassColorDesc colorDesc;
-		colorDesc.mLoadOp = RenderPassLoadOp::kLoad;
-		node.SetColorClear(colorDesc);
-		node.SetColorAttachment(colorView);
+		node.SetColorAttachment(colorView, LoadOp::kLoad);
 		node.SetDepthStencilAttachment(depthView);
 	});
+
 	node.PreExecFunc([view, renderScene](FrameGraphBuilder* builder, FGNode& node)
 	{
 
@@ -362,9 +296,7 @@ void OverlayPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rend
 		if (!renderScene->mDrawGizmos)
 			return;
 		ROArray& ROs = view->GetViewVisibleROs();
-		PackedParams params;		
-		PARAM_ID(SceneBuffer);
-		PARAM_ID(ViewBuffer);
+		PackedParams params;
 		PARAM_ID(MaterialBuffer);
 		PARAM_ID(_MainTex);
 		PARAM_ID(_ShadowMap);
