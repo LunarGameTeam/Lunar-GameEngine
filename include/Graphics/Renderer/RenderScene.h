@@ -62,13 +62,23 @@ public:
 	ShaderParamsBuffer* mSceneParamsBuffer    = nullptr;
 	ShaderParamsBuffer* mROIDInstancingBuffer = nullptr;
 
+	//Gizmos Mesh
 	SubMesh*            mDebugMeshLine        = nullptr;
 	SubMesh*            mDebugMesh            = nullptr;
 
 	//先不做Culling，这里应该交给View进行Culling并进行ID更新
+	
 	RHIResourcePtr      mIDInstanceBuffer;
-	DirectionLight*     mMainDirLight         = nullptr;
+
+	//Main方向光
+	DirectionLight*     mMainDirLight   = nullptr;
+	//Point Lights
 	LArray<PointLight*> mPointLights;
+	//环境光
+	LVector4f           mAmbientColor   = LVector4f(0, 0, 0, 0);
+	//Skybox
+	MaterialInstance*   mSkyboxMaterial = nullptr;
+	
 protected:
 	void PrepareScene();
 	void Debug();

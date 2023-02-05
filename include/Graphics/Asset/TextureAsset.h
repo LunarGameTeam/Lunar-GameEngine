@@ -17,7 +17,7 @@ namespace luna::render
 
 class RENDER_API Texture2D : public LBinaryAsset
 {
-	RegisterTypeEmbedd(Texture2D, Asset)
+	RegisterTypeEmbedd(Texture2D, LBinaryAsset)
 
 public:
 	Texture2D();

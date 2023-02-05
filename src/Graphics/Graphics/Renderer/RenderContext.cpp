@@ -25,7 +25,7 @@ namespace luna::render
 
 RENDER_API CONFIG_IMPLEMENT(LString, Render, RenderDeviceType, "DirectX12");
 
-const size_t sStagingBufferMaxSize = 1024 * 1024 * 16;
+const size_t sStagingBufferMaxSize = 1024 * 1024 * 256;
 const size_t sFrameGraphBufferMaxSize = 1024 * 1024 * 16;
 const size_t sInstancingBufferMaxSize = 128 * 128;
 
@@ -328,7 +328,7 @@ RHIPipelineStatePtr RenderContext::CreatePipelineState(MaterialInstance* mat, co
 	desc.mType = RHICmdListType::Graphic3D;
 
 	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthEnable = mat->mMaterialTemplate->IsDepthTestEnable();
-	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthWrite = mat->mMaterialTemplate->IsDepthTestEnable();
+	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthWrite = mat->mMaterialTemplate->IsDepthWriteEnable();
 	graphicDesc.mPipelineStateDesc.PrimitiveTopologyType =(RHIPrimitiveTopologyType) mat->mMaterialTemplate->GetPrimitiveType();
 	graphicDesc.mInputLayout = *layout;
 	graphicDesc.mPipelineStateDesc.mVertexShader = mat->GetShaderVS();
@@ -370,9 +370,9 @@ void RenderContext::EndRenderPass()
 	mGraphicCmd->EndRender();	
 }
 
-RHIPipelineStatePtr RenderContext::GetPipeline(render::MaterialInstance* mat, render::SubMesh* mesh)
+RHIPipelineStatePtr RenderContext::GetPipeline(render::MaterialInstance* mat, RHIVertexLayout* layout)
 {
-	return CreatePipelineState(mat, mCurRenderPass, &(mesh->mVeretexLayout));
+	return CreatePipelineState(mat, mCurRenderPass, layout);
 // 	ShaderAsset* shader = mat->GetShaderAsset();
 
 }
@@ -391,7 +391,11 @@ void RenderContext::DrawMesh(render::SubMesh* mesh, render::MaterialInstance* ma
 
 void RenderContext::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage /*= nullptr*/, int32_t startInstanceIdx /*= 1*/, int32_t instancingSize /*= 1*/)
 {
-	auto pipeline = GetPipeline(mat, mesh);
+	RHIVertexLayout layout = mesh->GetVertexLayout();
+	if(instanceMessage)
+		layout.AddVertexElement(VertexElementType::Int, VertexElementUsage::UsageInstanceMessage, 4, 1, VertexElementInstanceType::PerInstance);
+
+	auto pipeline = GetPipeline(mat, &layout);
 	auto bindingset = GetBindingSet(pipeline, params);
 
 	mGraphicCmd->SetPipelineState(pipeline);
@@ -415,7 +419,7 @@ void RenderContext::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialIns
 		RHIVertexBufferDesc& vbInstancingDesc = descs.emplace_back();
 		vbInstancingDesc.mOffset = 0;
 		vbInstancingDesc.mBufferSize = instanceMessage->GetMemoryRequirements().size;
-		vbInstancingDesc.mVertexStride = mesh->GetStridePerInstance();
+		vbInstancingDesc.mVertexStride = layout.GetSize()[1];
 		vbInstancingDesc.mVertexRes = instanceMessage;
 	}
 

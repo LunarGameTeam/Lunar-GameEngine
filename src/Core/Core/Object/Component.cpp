@@ -72,7 +72,9 @@ void Component::Destroy()
 
 Scene *Component::GetScene()
 {
-	return mOwnerEntity->GetScene();
+	if(mParent)
+		return (Scene*)(mParent->GetParent());
+	return nullptr;
 }
 
 }

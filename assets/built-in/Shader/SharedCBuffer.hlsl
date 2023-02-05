@@ -1,7 +1,6 @@
 #ifndef __SHARED_CBUFFER__
 #define __SHARED_CBUFFER__
 
-
 struct BaseVertex
 {
     [[vk::location(0)]] float3 position : POSITION;
@@ -49,14 +48,21 @@ struct PointLight
 cbuffer SceneBuffer : register(b2, space0)
 {
 	matrix cRoWorldMatrix[128];
+	float4 cAmbientColor;
+
+	//Direction Light
 	float4 cDirectionLightColor;	
     float3 cLightDirection;
-	float4 cAmbientColor;
+	//Cacsde Direction Light Matrix
+	matrix cDirectionLightViewMatrix[4];
+	matrix cDirectionLightProjMatrix[4];
+	
+	//Point Light Matrix
 	PointLight cPointLights[4];
 	int cPointLightsCount;
 	matrix cLightViewMatrix[6];
 	matrix cLightProjMatrix[6];
-	int cLightMapCount;
+	
 };
 
 #endif

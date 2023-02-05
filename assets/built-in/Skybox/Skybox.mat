@@ -7,7 +7,8 @@
          "__parent__" : 0,
          "name" : "",
          "params" : [ 2 ],
-         "shader" : "/assets/built-in/Skybox/Skybox.hlsl"
+         "shader" : "/assets/built-in/Shader/Skybox.hlsl",
+         "depth_write_enable": false
       },
       {
          "__class__" : "MaterialParamTextureCube",

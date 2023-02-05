@@ -1,9 +1,9 @@
 #ifndef __SHARED_SAMPLER__
 #define __SHARED_SAMPLER__
 
-Texture2D _MainTex : register(t3, space2);
-Texture2DArray _ShadowMap : register(t4, space2);
-TextureCube _SkyTex : register(t5, space2);
+Texture2D _MainTex : register(t0, space2);
+Texture2DArray _ShadowMap : register(t1, space2);
+Texture2DArray _DirectionLightShadowMap : register(t2, space2);
 
 SamplerState SampleTypeClamp : register(s1, space3);
 

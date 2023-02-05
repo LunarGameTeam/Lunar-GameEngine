@@ -39,6 +39,7 @@ RegisterTypeEmbedd_Imp(TextureCube)
 
 void Texture2D::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> file)
 {
+	Super::OnAssetFileRead(meta, file);
 	static RenderModule* render = gEngine->GetModule<RenderModule>();
 	mDesc.Dimension = RHIResDimension::Texture2D;
 	mDesc.mType = ResourceType::kTexture;

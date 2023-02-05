@@ -3,53 +3,44 @@
 #include "Game/GameConfig.h"
 #include "Core/Object/Entity.h"
 #include "Core/Framework/Module.h"
-#include "Core/Asset/JsonAsset.h"
 #include "Graphics/RenderTypes.h"
+#include "Graphics/Asset/MeshAsset.h"
+#include "Graphics/Asset/MaterialTemplate.h"
 
 
 namespace luna
 {
 
-class DirectionLightComponent;
 
-class GAME_API Scene : public JsonAsset
+class GAME_API SceneEnvComponent : public Component
 {
-	RegisterTypeEmbedd(Scene, JsonAsset)
+	RegisterTypeEmbedd(SceneEnvComponent, Component)
 public:
-	Scene();
-	~Scene();
-
-	Entity *FindEntity(const LString &name);
-	Entity *CreateEntity(const LString &name, Entity *parent = nullptr);
-	void DestroyEntity(Entity* entity);
-
-	const TPPtrArray<Entity>& GetAllEntities();
-
-	uint32_t GetEntityCount()
+	SceneEnvComponent() :
+		mSkyboxMesh(this),
+		mSkyboxMaterial(this),
+		mMaterialInstance(this)
 	{
-		return (uint32_t)mEntites.Size();
+
 	}
 
-	Entity* GetEntityAt(uint32_t idx) 
+	virtual ~SceneEnvComponent()
 	{
-		if (idx < mEntites.Size())
-			return mEntites[idx];
-		return nullptr;
+
 	}
+	void SetSkyboxMaterial(render::MaterialTemplateAsset* val);
 
-	void Tick(float deltaTime);
+	void SetAmbientColor(const LVector4f& ambient);
 
-	render::RenderScene* GetRenderScene() { return mRenderScene; };
-public:
-	void Destroy();
-	void OnLoad() override;
 
 private:
-	bool                     mInit = false;
-	render::RenderScene*     mRenderScene;
-	DirectionLightComponent* m_main_light;
-	TPPtrArray<Entity>       mEntites;
+	LVector4f mFogColor = LVector4f(0.1, 0.1, 0.1, 1);
+	LVector4f mAmbientColor = LVector4f(0.1, 0.1, 0.1, 1);
+	TPPtr<render::MeshAsset> mSkyboxMesh;
+	TPPtr<render::MaterialTemplateAsset> mSkyboxMaterial;
 
-	friend class GameModule;
+private:
+	TPPtr<render::MaterialInstance> mMaterialInstance;
 };
+
 }

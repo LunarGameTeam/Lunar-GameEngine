@@ -38,6 +38,14 @@ void MeshRenderer::OnCreate()
 		mMaterialInstance->Ready();
 	}
 	CreateRenderObject();
+
+	if (mMaterialInstance && mMeshAsset && mRO)
+	{
+		mRO->mMaterial = mMaterialInstance.Get();
+		mRO->mMesh = mMeshAsset->GetSubMeshAt(0);
+		mRO->mMesh->Update();
+		mRO->mWorldMat = &(mTransform->GetLocalToWorldMatrix());
+	}
 }
 
 void MeshRenderer::OnActivate()
@@ -52,17 +60,9 @@ MeshRenderer::~MeshRenderer()
 
 void MeshRenderer::CreateRenderObject()
 {	
-	if (mRO)
+	if (mRO || !GetScene())
 		return;
-
-	if (mMaterialInstance && mMeshAsset)
-	{
-		mRO = GetScene()->GetRenderScene()->CreateRenderObject();
-		mRO->mMaterial = mMaterialInstance.Get();
-		mRO->mMesh = mMeshAsset->GetSubMeshAt(0);
-		mRO->mMesh->Update();
-		mRO->mWorldMat = &(mTransform->GetLocalToWorldMatrix());
-	}
+	mRO = GetScene()->GetRenderScene()->CreateRenderObject();
 	
 }
 

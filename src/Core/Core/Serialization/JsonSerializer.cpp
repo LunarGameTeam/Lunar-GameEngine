@@ -242,20 +242,26 @@ void JsonSerializer::DeserializeProperty(LProperty &prop, LObject *obj, JsonDict
 		{
 			PPtr &ptr = prop.GetValue<PPtr>(obj);
 			LString assetPath = propDict.As<LString>();
-			if(assetPath != "")
+			auto setter = prop.GetSetter();
+
+			Asset* asset = nullptr;
+			if (assetPath != "")
+				asset = sAssetModule->LoadAsset(assetPath, type->GetTemplateArg());
+
+			if (setter)
 			{
-				Asset *asset = sAssetModule->LoadAsset(assetPath, type->GetTemplateArg());				
-				ptr.SetPtr(asset);
+				setter.InvokeMember<void, LObject, Asset*>(obj, asset);
 			}
 			else
-				ptr.SetPtr(nullptr);
+			{
+				ptr.SetPtr(asset);
+			}				
 		}
 		else 
 		{
 			PPtr &ptr = prop.GetValue<PPtr>(obj);
 			FileID strUUID = propDict.As<FileID>();
-			ptr.SetPtr(mFileIDMap.Get(strUUID));
-			
+			ptr.SetPtr(mFileIDMap.Get(strUUID));			
 			
 		}
 		return;

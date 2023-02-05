@@ -168,6 +168,25 @@ void LMath::MatrixDecompose(const LMatrix4f& m, LVector3f& translation, LQuatern
 
 }
 
+LFrustum LFrustum::FromOrth(float zNear, float zFar, float width, float height)
+{
+
+	float half_y = height * 0.5f;
+	float half_x = width * 0.5f;
+	LFrustum f;
+	f.mNearPlane[0] = LVector3f(-half_x, half_y, zNear);
+	f.mNearPlane[1] = LVector3f(half_x, half_y, zNear);
+	f.mNearPlane[2] = LVector3f(half_x, -half_y, zNear);
+	f.mNearPlane[3] = LVector3f(-half_x, -half_y, zNear);
+
+	f.mFarPlane[0] = LVector3f(-half_x, half_y, zFar);
+	f.mFarPlane[1] = LVector3f(half_x, half_y, zFar);
+	f.mFarPlane[2] = LVector3f(half_x, -half_y, zFar);
+	f.mFarPlane[3] = LVector3f(-half_x, -half_y, zFar);
+	return f;
+}
+
+
 LFrustum LFrustum::MakeFrustrum(float fovY, float zNear, float zFar, float aspect)
 {
 	float half_fov = fovY * 0.5f;

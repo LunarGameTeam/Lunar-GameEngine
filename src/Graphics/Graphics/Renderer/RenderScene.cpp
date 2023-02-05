@@ -63,6 +63,7 @@ void RenderScene::PrepareScene()
 		mSceneParamsBuffer->Set("cPointLights", light->mColor, i, 16);
 		mSceneParamsBuffer->Set("cPointLights", light->mIntensity, i, 32);
 	}
+	mSceneParamsBuffer->Set("cAmbientColor", mAmbientColor);
 	for (auto& ro : mRenderObjects)
 	{		
 		uint32_t idx = ro->mID;
@@ -201,6 +202,23 @@ void RenderScene::Debug()
 		mDebugMeshLine = new SubMesh();
 		RHIVertexLayout& vertexlayout = mDebugMeshLine->GetVertexLayout();
 		mDebugMeshLine->Update();
+	}
+	if (mMainDirLight && mMainDirLight->mCastShadow)
+	{
+		LFrustum f = LFrustum::FromOrth(0.01, 50, 30, 30);
+		f.Multiple(mMainDirLight->mViewMatrix.inverse());
+		mDebugMeshLine->AddLine(f.mNearPlane[0], f.mNearPlane[1]);
+		mDebugMeshLine->AddLine(f.mNearPlane[1], f.mNearPlane[2]);
+		mDebugMeshLine->AddLine(f.mNearPlane[2], f.mNearPlane[3]);
+		mDebugMeshLine->AddLine(f.mNearPlane[3], f.mNearPlane[0]);
+		mDebugMeshLine->AddLine(f.mNearPlane[0], f.mFarPlane[0]);
+		mDebugMeshLine->AddLine(f.mNearPlane[1], f.mFarPlane[1]);
+		mDebugMeshLine->AddLine(f.mNearPlane[2], f.mFarPlane[2]);
+		mDebugMeshLine->AddLine(f.mNearPlane[3], f.mFarPlane[3]);
+		mDebugMeshLine->AddLine(f.mFarPlane[0], f.mFarPlane[1]);
+		mDebugMeshLine->AddLine(f.mFarPlane[1], f.mFarPlane[2]);
+		mDebugMeshLine->AddLine(f.mFarPlane[2], f.mFarPlane[3]);
+		mDebugMeshLine->AddLine(f.mFarPlane[3], f.mFarPlane[0]);
 	}
 
 	for (int i = 0; i < mPointLights.size(); i++)

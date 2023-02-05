@@ -35,7 +35,7 @@ protected:
 	Component();
 	bool mNeedTick = false;
 	Transform *mTransform = nullptr;
-	Entity *mOwnerEntity;
+	Entity *mOwnerEntity = nullptr;
 
 private:
 	bool mOnCreateCalled = false;	

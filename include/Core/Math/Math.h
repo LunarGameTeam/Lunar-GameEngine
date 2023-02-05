@@ -107,6 +107,7 @@ struct CORE_API LFrustum
 	LVector3f mFarPlane[4];
 
 	static LFrustum MakeFrustrum(float fovY, float zNear, float zFar, float aspect);
+	static LFrustum FromOrth(float zNear, float zFar, float width, float height);
 
 	void Multiple(const LMatrix4f& mat)
 	{

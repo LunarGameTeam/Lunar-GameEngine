@@ -108,7 +108,7 @@ private:
 
 	using PipelineCacheKey = std::pair<MaterialInstance*, size_t>;
 
-	RHIPipelineStatePtr GetPipeline(MaterialInstance* mat, render::SubMesh* mesh);
+	RHIPipelineStatePtr GetPipeline(MaterialInstance* mat, RHIVertexLayout* layout);
 	RHIBindingSetPtr GetBindingSet(RHIPipelineState* pipeline, PackedParams* packparams);
 
 

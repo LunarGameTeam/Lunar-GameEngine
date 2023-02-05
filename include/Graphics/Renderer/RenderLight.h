@@ -39,7 +39,7 @@ struct RENDER_API DirectionLight : Light
 {
 
 	LVector3f      mDirection;
-
+	LMatrix4f mViewMatrix;
 
 	void Update(RenderView* view);
 

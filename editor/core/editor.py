@@ -62,7 +62,8 @@ class EditorBase(object):
             imgui.align_text_to_frame_padding()
             imgui.text(prop_name)
             imgui.same_line(16 + self.indent, 16)
-            changed, new_val = imgui.input("##" + prop_name, val.path, 0)
+            asset_path = val.path if val else ""
+            changed, new_val = imgui.input("##" + prop_name, asset_path, 0)
             if imgui.begin_drag_drop_target():
                 accept_drop = imgui.accept_drag_drop_payload("LibraryItem", 0)
                 if accept_drop:

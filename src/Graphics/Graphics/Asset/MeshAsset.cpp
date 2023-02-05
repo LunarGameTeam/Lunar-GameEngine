@@ -171,8 +171,6 @@ void MeshAsset::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> fil
 		ptr += subMeshData->mVertexData.size() * sizeof(BaseVertex);
 		memcpy(subMeshData->mIndexData.data(), ptr, subMeshData->mIndexData.size() * sizeof(uint32_t));
 		ptr += subMeshData->mIndexData.size() * sizeof(uint32_t);
-		
-		subMeshData->GetVertexLayout().AddVertexElement(VertexElementType::Int, VertexElementUsage::UsageInstanceMessage, 4, 1, VertexElementInstanceType::PerInstance);
 		subMeshData->Update();
 	}
 	OnLoad();

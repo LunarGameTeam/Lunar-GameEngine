@@ -143,6 +143,9 @@ class ScenePanel(PanelBase):
     def on_menu(self):
         if luna.imgui.begin_menu_bar():
             if luna.imgui.begin_menu("创建", True):
+                if imgui.menu_item("Scene Environment"):
+                    entity = self.scene.create_entity("SceneEnv")
+                    scene_env = entity.add_component(luna.SceneEnvComponent)
                 if imgui.menu_item("Cube"):
                     self.create_geometry("/assets/built-in/Geometry/Box.obj")
                 if imgui.menu_item("Sphere"):
@@ -153,7 +156,7 @@ class ScenePanel(PanelBase):
                     self.create_point_light()
                 if imgui.menu_item("Directional Light"):
                     if self.scene:
-                        entity = self.scene.create_entity("PointLight")
+                        entity = self.scene.create_entity("Main Directional Light")
                         transform = entity.add_component(luna.Transform)
                         light = entity.add_component(luna.DirectionLightComponent)
                         light.color = luna.LVector4f(1, 1, 1, 1)

@@ -15,17 +15,15 @@ void DirectionLight::Update(RenderView* view)
 	if(!mParamBuffer)
 		mParamBuffer = new ShaderParamsBuffer(sRenderModule->GetRenderContext()->mDefaultShader->GetConstantBufferDesc(LString("ViewBuffer").Hash()));
 	LTransform transform = LTransform::Identity();
-	auto translate = LMath::GetMatrixTranslaton(view->GetViewMatrix());
-	transform.translate(translate);
-	auto rota = LQuaternion::FromTwoVectors(LVector3f(1, 0, 0), mDirection);
+	auto rota = LQuaternion::FromTwoVectors(LVector3f(0, 0, 1), mDirection);
 	transform.rotate(rota);
-	LMatrix4f viewMat = transform.matrix().inverse();
+	mViewMatrix = transform.matrix().inverse();
 	LMatrix4f proj;
 	LMath::GenOrthoLHMatrix(proj, 30, 30, 0.01, 50);
-	mParamBuffer->Set("cViewMatrix", viewMat);
+	mParamBuffer->Set("cViewMatrix", mViewMatrix);
 	mParamBuffer->Set("cProjectionMatrix", proj);
-// 	view->mOwnerScene->mSceneParamsBuffer->Set("cLightViewMatrix", viewMat, 0);
-// 	view->mOwnerScene->mSceneParamsBuffer->Set("cLightProjMatrix", proj, 0);
+ 	view->mOwnerScene->mSceneParamsBuffer->Set("cDirectionLightViewMatrix", mViewMatrix, 0);
+	view->mOwnerScene->mSceneParamsBuffer->Set("cDirectionLightProjMatrix", proj, 0);
 	mParamBuffer->Commit();
 }
 
