@@ -95,7 +95,7 @@ namespace luna::render
 		case RHITextureFormat::R8G8BB8A8_UNORN:
 			mDxDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 			break;
-		case RHITextureFormat::FORMAT_D24_UNORM_S8_UINT:
+		case RHITextureFormat::D24_UNORM_S8_UINT:
 			mDxDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 			break;
 		default:

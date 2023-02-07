@@ -252,7 +252,7 @@ VOID CALLBACK WindowsFileManager::FileCompleteCallback(
 	LPOVERLAPPED lpOverlapped         // 这个数据结构
 )
 {
-	static WindowsFileManager *instance = (WindowsFileManager *)gEngine->GetModule<PlatformModule>()->GetPlatformFileManager();
+	static WindowsFileManager *instance = (WindowsFileManager *)gEngine->GetTModule<PlatformModule>()->GetPlatformFileManager();
 
 	LSharedPtr<FileAsyncHandle> handle = instance->mRunningHandles[lpOverlapped];
 

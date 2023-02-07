@@ -36,7 +36,7 @@ private:
 	uint32_t         mHeight      = 768;
 	RHITextureFormat mFormat      = RHITextureFormat::R8G8BB8A8_UNORN;
 	bool             mReady       = false;
-	RHITextureFormat mDepthFormat = RHITextureFormat::FORMAT_D24_UNORM_S8_UINT;
+	RHITextureFormat mDepthFormat = RHITextureFormat::D24_UNORM_S8_UINT;
 };
 
 

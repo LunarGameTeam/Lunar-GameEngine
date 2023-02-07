@@ -2,6 +2,7 @@ import typing
 from typing import T
 
 import luna
+from luna import LunaCore
 from luna import imgui
 
 
@@ -146,7 +147,7 @@ class WindowBase(object):
 
         imgui.end()
         if exiting:
-            luna.exit()
+            LunaCore.instance().exit()
 
     def on_imgui(self, delta_time):
         vmax = imgui.get_window_content_max()

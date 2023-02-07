@@ -29,7 +29,7 @@ LPath::LPath(const LString &str) : mRelativePath(str)
 
 void LPath::Init()
 {
-	static PlatformModule* fileSub = gEngine->GetModule<PlatformModule>();
+	static PlatformModule* fileSub = gEngine->GetTModule<PlatformModule>();
 	assert(fileSub != nullptr);
 	static IPlatformFileManager* file = fileSub->GetPlatformFileManager();
 	assert(file != nullptr);

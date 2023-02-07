@@ -218,8 +218,8 @@ bool RenderModule::OnInit()
 	render::RHIDevice* rhiDevice = GetRHIDevice();	
 	//此处做Render系统的Init
 
-	gEngine->GetModule<PlatformModule>()->OnWindowResize.Bind(AutoBind(&RenderModule::OnMainWindowResize, this));
-	LWindow* mainWindow = gEngine->GetModule<PlatformModule>()->GetMainWindow();
+	gEngine->GetTModule<PlatformModule>()->OnWindowResize.Bind(AutoBind(&RenderModule::OnMainWindowResize, this));
+	LWindow* mainWindow = gEngine->GetTModule<PlatformModule>()->GetMainWindow();
 	mSwapchainDesc.mWidth = mainWindow->GetWindowWidth();
 	mSwapchainDesc.mHeight = mainWindow->GetWindowHeight();
 	mSwapchainDesc.mFrameNumber = 2;
@@ -235,6 +235,7 @@ bool RenderModule::OnInit()
 	mFrameGraph = new FrameGraphBuilder("MainFG");	
 
 	mDefaultWhiteTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/White.png"));
+	mDefaultWhiteTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/Normal.png"));
 
 	SetupIMGUI();
 
@@ -309,13 +310,15 @@ bool RenderModule::OnInit()
 }
 
 
-void RenderModule::OnFrameBegin(float delta_time)
+void RenderModule::Tick(float deltaTime)
 {
-	mRenderContext->OnFrameBegin();
+
 }
 
-void RenderModule::Tick(float delta_time)
+void RenderModule::RenderTick(float delta_time)
 {
+	ZoneScopedN("123");
+	mRenderContext->OnFrameBegin();
 	//RenderScene发起渲染
 	mRenderContext->mTransferCmd->BeginEvent("Frame Graph Prepare");
 	for (RenderScene* it : mRenderScenes)
@@ -338,11 +341,11 @@ void RenderModule::Tick(float delta_time)
 	}
 
 	ImGui_ImplSDL2_NewFrame();
-	ImGui::NewFrame();
-
-	//Engine IMGUI Begin
-	gEngine->OnIMGUI();
 	//Engine IMGUI End
+	ImGui::NewFrame();
+	//Engine IMGUI Begin
+	gEngine->OnImGUI();
+	ImGui::EndFrame();
 	ImGui::Render();
 
 	auto& io = ImGui::GetIO();
@@ -354,11 +357,6 @@ void RenderModule::Tick(float delta_time)
 
 	RenderIMGUI();
 
-
-}
-
-void RenderModule::OnFrameEnd(float deltaTime)
-{
 	mFrameGraph->Clear();
 	mRenderContext->OnFrameEnd();
 	mRenderContext->mGraphicQueue->Wait(mRenderContext->mFence, mRenderContext->mFenceValue);
@@ -417,6 +415,7 @@ ImguiTexture* RenderModule::AddImguiTexture(RHIResource* res)
 
 void RenderModule::Render()
 {
+	ZoneScopedN("Render");
 	mRenderContext->FlushStaging();
 	mFrameGraph->Flush();
 }
@@ -424,6 +423,7 @@ void RenderModule::Render()
 void RenderModule::RenderIMGUI()
 {
 
+	ZoneScoped;
 	size_t& fenceValue = mRenderContext->mFenceValue;
 	
 	mRenderContext->mFence->Wait(fenceValue);

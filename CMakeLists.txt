@@ -20,6 +20,8 @@ SET(NATVIS_PATH
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+add_compile_definitions(TRACY_ENABLE)
+add_compile_definitions(TRACY_CALLSTACK)
 SET(SOLUTION_CMAKE_SOURCE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY  ${CMAKE_CURRENT_SOURCE_DIR}/bin)
@@ -29,12 +31,13 @@ option(LUNA_USING_DEBUG_PYTHON "使用Debug版本的Python" OFF)
 
 find_package (Python3 3.11 EXACT COMPONENTS Interpreter Development)
 
+add_subdirectory(sdk/tracy) # target: TracyClient or alias Tracy :: TracyClient
+
 find_package(stb REQUIRED)
 find_package(Threads REQUIRED)
 find_package(eigen3 REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(jsoncpp REQUIRED)
-find_package(tracy REQUIRED)
 find_package(tinyobjloader REQUIRED)
 find_package(ms-gltf REQUIRED)
 find_package(directxtk12 REQUIRED)

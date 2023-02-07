@@ -2,6 +2,8 @@
 #include "Graphics/RenderConfig.h"
 #include "Graphics/RenderTypes.h"
 
+#include "Graphics/Renderer/RenderData.h"
+
 #include "Core/Foundation/Container.h"
 #include "Core/Foundation/String.h"
 
@@ -22,7 +24,7 @@ enum class RenderViewType
 	ShadowMapView
 };
 
-class RENDER_API RenderView
+class RENDER_API RenderView : public RenderDataContainer
 {
 public:
 	RenderView();

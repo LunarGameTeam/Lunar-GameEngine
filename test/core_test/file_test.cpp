@@ -15,8 +15,8 @@ void OnFileOpen(LSharedPtr<FileAsyncHandle> file)
 
 TEST(Core, File)
 {
-	PlatformModule *file_sys = gEngine->GetModule<PlatformModule>();
-	AssetModule*asset_sys = gEngine->GetModule<AssetModule>();
+	PlatformModule *file_sys = gEngine->GetTModule<PlatformModule>();
+	AssetModule*asset_sys = gEngine->GetTModule<AssetModule>();
 	IPlatformFileManager *manager = file_sys->GetPlatformFileManager();
 
 	//获取一个文件/文件夹的信息

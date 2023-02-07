@@ -52,7 +52,7 @@ void RenderTarget::Update()
 	mColorTexture = sRenderModule->mRenderContext->CreateTexture(textureDesc, resDesc);
 
 	RHIResDesc depthResDesc = resDesc;
-	depthResDesc.Format = RHITextureFormat::FORMAT_D24_UNORM_S8_UINT;
+	depthResDesc.Format = RHITextureFormat::D24_UNORM_S8_UINT;
 	depthResDesc.SampleDesc.Count = 1;
 	depthResDesc.SampleDesc.Quality = 0;
 	depthResDesc.mImageUsage = RHIImageUsage::DepthStencilBit;

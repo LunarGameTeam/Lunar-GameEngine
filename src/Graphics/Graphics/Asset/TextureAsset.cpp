@@ -40,7 +40,7 @@ RegisterTypeEmbedd_Imp(TextureCube)
 void Texture2D::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> file)
 {
 	Super::OnAssetFileRead(meta, file);
-	static RenderModule* render = gEngine->GetModule<RenderModule>();
+	static RenderModule* render = gEngine->GetTModule<RenderModule>();
 	mDesc.Dimension = RHIResDimension::Texture2D;
 	mDesc.mType = ResourceType::kTexture;
 	auto dds_type_test = file->GetPath().Find(".dds");

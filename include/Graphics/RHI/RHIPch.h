@@ -628,7 +628,7 @@ enum class RHITextureFormat
 	FORMAT_R32_UINT,
 	FORMAT_R32_SINT,
 	FORMAT_R24G8_TYPELESS,
-	FORMAT_D24_UNORM_S8_UINT,
+	D24_UNORM_S8_UINT,
 	FORMAT_R24_UNORM_X8_TYPELESS,
 	FORMAT_X24_TYPELESS_G8_UINT,
 
@@ -896,7 +896,7 @@ inline void GetFormatInfo(
 	case RHITextureFormat::R8G8BB8A8_UNORN:
 		pixelSize = 4;
 		break;
-	case RHITextureFormat::FORMAT_D24_UNORM_S8_UINT:
+	case RHITextureFormat::D24_UNORM_S8_UINT:
 		pixelSize = 4;
 		break;
 	default:

@@ -59,7 +59,7 @@ Asset* AssetModule::NewAsset(const LString& path, LType* type)
 
 bool AssetModule::SaveAsset(Asset *asset, const LString &path)
 {
-	IPlatformFileManager *manager = gEngine->GetModule<PlatformModule>()->GetPlatformFileManager();
+	IPlatformFileManager *manager = gEngine->GetTModule<PlatformModule>()->GetPlatformFileManager();
 	LArray<byte> data;
 	Json::Value val;
 	LSharedPtr<JsonDict> meta_data = MakeShared<JsonDict>(val);
@@ -72,7 +72,7 @@ Asset *AssetModule::LoadAsset(const LPath &path, LType *asset_type)
 {
 	ScopedProfileGuard g(LString::Format("Load {0}", path.AsString()));
 	assert(asset_type->IsDerivedFrom(LType::Get<Asset>()));
-	static IPlatformFileManager *manager = gEngine->GetModule<PlatformModule>()->GetPlatformFileManager();
+	static IPlatformFileManager *manager = gEngine->GetTModule<PlatformModule>()->GetPlatformFileManager();
 
 	if (mCachedAssets.find(path.AsString()) != mCachedAssets.end())
 	{
@@ -112,7 +112,7 @@ Asset* AssetModule::BindingLoadAsset(const char* path, LType* asset_type)
 
 void AssetModule::CollectAssets()
 {
-	static PlatformModule *file_sys = gEngine->GetModule<PlatformModule>();
+	static PlatformModule *file_sys = gEngine->GetTModule<PlatformModule>();
 	assert(file_sys);
 	static IPlatformFileManager *file_manager = file_sys->GetPlatformFileManager();
 	LPath asset_dir_path = "/assets";

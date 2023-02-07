@@ -219,6 +219,7 @@ class ScenePanel(PanelBase):
         if self.scene_texture:
             luna.imgui.image(self.scene_texture, content, luna.LVector2f(0, 0), luna.LVector2f(1, 1))
 
+
         if imgui.is_mouse_dragging(0, -1.0):
             if vmin != self.last_min or vmax != self.last_max:
                 self.dragging = True

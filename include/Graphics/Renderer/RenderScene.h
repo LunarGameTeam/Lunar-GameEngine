@@ -5,6 +5,7 @@
 #include "Graphics/RenderTypes.h"
 #include "Graphics/RHI/RHITypes.h"
 #include "Core/Foundation/Misc.h"
+#include "Graphics/Renderer/RenderData.h"
 
 #include <functional>
 
@@ -27,7 +28,7 @@ struct RENDER_API RenderObject
 };
 
 
-class RENDER_API RenderScene final : NoCopy
+class RENDER_API RenderScene final : public RenderDataContainer
 {
 public:
 	RenderScene();

@@ -1,5 +1,5 @@
 #include "Core/Scripting/BindingTraits.h"
-#include "Core/Framework/Application.h"
+#include "Core/Framework/LunaCore.h"
 #include "Core/Foundation/Config.h"
 #include "windows.h"
 

@@ -3,19 +3,37 @@
 
 #include "Core/Framework/Module.h"
 #include "Core/Reflection/Reflection.h"
+#include "Core/Foundation/Config.h"
 
 namespace luna
 {
 
+CORE_API CONFIG_DECLARE(int, Core, LogicFPS, 30);
+CORE_API CONFIG_DECLARE(int, Core, RenderFPS, 60);
 
 class CORE_API LunaCore : public LObject
 {
 	RegisterTypeEmbedd(LunaCore, LObject)
 public:
+	virtual ~LunaCore() { };
+
 	void Run();
+	void MainLoop();
+
+	float GetRenderTickTime()
+	{
+		return mRenderTickTime;
+	}
+
+	float GetLogicTickTime()
+	{
+		return mLogicTickTime;
+	}
+
+	float mLogicTickTime = 0.0;
+	float mRenderTickTime = 0.0;
 
 public:
-	~LunaCore() {};
 	//TODO 使用自带反射库，而不是RTTI
 	template<typename T>
 	LModule* LoadModule()
@@ -27,18 +45,14 @@ public:
 
 	LModule* AddModule(LModule* m);
 
-	void OnRender();
-
-	void OnTick(float delta_time);
-	void OnIMGUI();
-	void OnFrameBegin(float delta_time);
-	void OnFrameEnd(float delta_time);
+	void OnRenderTick(float deltaTime);
+	void OnLogicTick(float delta_time);
+	void OnImGUI();
 
 	void ShutdownModule();
-	//TODO 使用自带反射库，而不是RTTI
 
 	template<typename T>
-	T* GetModule()
+	T* GetTModule()
 	{		
 		return (T*)GetModule(LType::Get<T>());
 	}
@@ -50,19 +64,36 @@ public:
 
 	//引擎初始化事件
 public:
-	SIGNAL(mSubSystemPreInitDoneEvent);
-	SIGNAL(mSubSystemInitDoneEvent);
-	SIGNAL(mSubSystemPostInitDoneEvent);
-
-	GETTER(float, mFrameDelta, FrameDelta);
-	GETTER(float, mFrameRate, FrameRate);
-	GET_SET_VALUE(bool, mPendingExit, PendingExit);
-	GET_SET_VALUE(float, mRealFrameDelta, ActualFrameDelta);
-	GET_SET_VALUE(float, mRealFrameRate, ActualFrameRate);
+	void SetRenderFPS(int val)
+	{
+		assert(val > 0);
+		mRenderFrameDelta = 1.0f / val;
+	}
+	void SetLogicFPS(int val)
+	{
+		assert(val > 0);
+		mLogicFrameDelta = 1.0f / val;
+	}
+	float GetLogicFrameDelta()
+	{
+		return mLogicFrameDelta;
+	}
+	float GetRenderFrameDelta()
+	{
+		return mRenderFrameDelta;
+	}	
+	void Exit()
+	{
+		mPendingExit = true;
+	}
 
 	static LunaCore* Ins();
-	static LunaCore* CreateLunaCore();
 
+	LString GetConfig(const LString& key);
+
+	void SetConfig(const LString& key, const LString& val);
+
+	bool GetPendingExit() const { return mPendingExit; }
 private:
 	LunaCore();
 	bool mPendingExit = false;
@@ -70,11 +101,9 @@ private:
 	TPPtrArray<LModule> mModules;
 	LArray<LModule*> mOrderedModules;
 	LUnorderedMap<luna::LString, LModule* > mModulesMap;
+	float mLogicFrameDelta = 0.0;
+	float mRenderFrameDelta = 0.0;
 
-	float mRealFrameRate = 0.0f;
-	float mRealFrameDelta = 0.0f;
-	float mFrameRate = 60.f;
-	float mFrameDelta = 1000.f / 60.f;
 
 };
 

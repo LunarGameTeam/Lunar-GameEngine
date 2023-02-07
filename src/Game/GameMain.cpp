@@ -1,7 +1,7 @@
 #include "Core/Asset/AssetModule.h"
 #include "Core/Platform/PlatformModule.h"
 #include "Core/Event/EventModule.h"
-#include "Core/Framework/Application.h"
+#include "Core/Framework/LunaCore.h"
 
 #include "windows.h"
 #include "Graphics/RenderModule.h"

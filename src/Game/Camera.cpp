@@ -157,8 +157,7 @@ void CameraComponent::OnTick(float delta_time)
 {
 	auto pos = mTransform->GetPosition();
 	if (mSpeed > 0.01)
-	{
-		
+	{		
 		pos = pos + mDirection * mSpeed * delta_time;
 		mTransform->SetPosition(pos);
 	}

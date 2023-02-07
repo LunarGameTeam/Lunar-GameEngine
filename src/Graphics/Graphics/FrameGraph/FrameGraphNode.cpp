@@ -90,13 +90,13 @@ void FGNode::SetDepthClear(const PassDepthStencilDesc& desc)
 
 FGNode& FGNode::SetColorAttachment(FGResourceView* rt, LoadOp load /*= LoadOp::kLoad*/, StoreOp store /*= StoreOp::kStore*/, const LVector4f& clearColor /*= LVector4f(0,0,0,1)*/, uint32_t rtIndex /*= 0*/)
 {
-	if(rtIndex > mPassDesc.mColors.size())
+	if(rtIndex >= mPassDesc.mColors.size())
 		mPassDesc.mColors.resize(rtIndex + 1);
 	mPassDesc.mColors[rtIndex].mLoadOp = load;
 	mPassDesc.mColors[rtIndex].mStoreOp = store;
 	mPassDesc.mColors[rtIndex].mClearColor = clearColor;
 
-	if(rtIndex > mRT.size())
+	if(rtIndex >= mRT.size())
 		mRT.resize(rtIndex + 1);
 
 	mRT[rtIndex] = rt;

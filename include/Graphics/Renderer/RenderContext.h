@@ -102,7 +102,7 @@ public:
 	RHIDescriptorPoolPtr GetDefaultDescriptorPool() { return mDefaultPool; }
 
 	RHIBindingSetLayoutPtr mViewBindingSet;
-	ShaderAsset* mDefaultShader;
+	ShaderAsset*           mDefaultShader;
 private:
 	RHIPipelineStatePtr CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& desc, RHIVertexLayout* layout);
 

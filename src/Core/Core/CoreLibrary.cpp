@@ -3,7 +3,7 @@
 #include "Core/Asset/AssetModule.h"
 #include "Core/Platform/PlatformModule.h"
 #include "Core/Event/EventModule.h"
-#include "Core/Framework/Application.h"
+#include "Core/Framework/LunaCore.h"
 #include "Core/Object/System.h"
 
 #include "windows.h"
@@ -36,11 +36,9 @@ void LoadCoreLib()
 	
 	ConfigLoader::instance().LoadFromJson(configContent);
 
-	luna::LApplication::Instance();
-
-	gEngine->LoadModule<AssetModule>();
-	gEngine->LoadModule<EventModule>();
-	gEngine->LoadModule<ECSModule>();
+	LunaCore::Ins()->LoadModule<AssetModule>();
+	LunaCore::Ins()->LoadModule<EventModule>();
+	LunaCore::Ins()->LoadModule<ECSModule>();
 }
 
 void UnLoadCoreLib()

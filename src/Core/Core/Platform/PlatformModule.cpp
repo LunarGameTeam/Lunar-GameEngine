@@ -156,16 +156,16 @@ LString PlatformModule::GetProjectDir()
 void PlatformModule::Tick(float delta_time)
 {
 	LModule::Tick(delta_time);
-	static EventModule* event_subsystem = gEngine->GetModule<EventModule>();
+	static EventModule* event_subsystem = gEngine->GetTModule<EventModule>();
 	SDL_Event event;
 	bool done = true;
 	while (SDL_PollEvent(&event))
 	{
 		ImGui_ImplSDL2_ProcessEvent(&event);
 		if (event.type == SDL_QUIT)
-			gEngine->SetPendingExit(true);
+			gEngine->Exit();
 		if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE)
-			gEngine->SetPendingExit(true);
+			gEngine->Exit();
 		auto window = mWindows[event.window.windowID];
 		switch (event.type)
 		{

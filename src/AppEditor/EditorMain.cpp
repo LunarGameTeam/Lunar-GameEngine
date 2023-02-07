@@ -1,17 +1,13 @@
 #include "Core/Scripting/BindingTraits.h"
-#include "Core/Framework/Application.h"
+#include "Core/Framework/LunaCore.h"
 #include "Core/Foundation/Config.h"
 #include "windows.h"
 
 #undef main
 
-namespace luna
-{
+using namespace luna;
 
 CONFIG_IMPLEMENT(LString, Start, PythonHome, PYTHON3_PATH);
-
-}
-
 
 int main(int argc, char** argv)
 {
@@ -20,16 +16,16 @@ int main(int argc, char** argv)
 	PyConfig config;
 	PyConfig_InitPythonConfig(&config);
 
-	auto pythonHome = luna::StringToWstring(luna::Config_PythonHome.GetValue().std_str());
+	auto pythonHome = luna::StringToWstring(Config_PythonHome.GetValue().std_str());
 	config.isolated = 1;
 	
 	TCHAR tempPath[1000];
 
 	GetCurrentDirectory(MAX_PATH, tempPath); //获取程序的当前目录	
-	luna::ConfigLoader::instance();
+	ConfigLoader::instance();
 
-	luna::LString workDir = luna::LString(tempPath);
-	luna::LString startScript = workDir + "/editor/main.py";
+	LString workDir = luna::LString(tempPath);
+	LString startScript = workDir + "/editor/main.py";
 
 	status = PyConfig_SetString(&config, &config.home, pythonHome.c_str());
 		
@@ -53,6 +49,7 @@ int main(int argc, char** argv)
 	if (PyStatus_Exception(status))
 	{
 		return -1;
+
 	}
 	PyConfig_Clear(&config);
 	Py_RunMain();

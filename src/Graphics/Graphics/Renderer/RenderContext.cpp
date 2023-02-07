@@ -25,8 +25,8 @@ namespace luna::render
 
 RENDER_API CONFIG_IMPLEMENT(LString, Render, RenderDeviceType, "DirectX12");
 
-const size_t sStagingBufferMaxSize = 1024 * 1024 * 256;
-const size_t sFrameGraphBufferMaxSize = 1024 * 1024 * 16;
+const size_t sStagingBufferMaxSize = 1024 * 1024 * 4 * 16;
+const size_t sFrameGraphBufferMaxSize = 1024 * 1024 * 4 * 16;
 const size_t sInstancingBufferMaxSize = 128 * 128;
 
 size_t GetOffset(size_t offset, size_t aligment)
@@ -154,6 +154,7 @@ void RenderContext::Init()
 
 void RenderContext::OnFrameBegin()
 {
+	ZoneScoped;
 	mFGOffset = 0;
 
 	FlushStaging();

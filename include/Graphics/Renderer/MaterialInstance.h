@@ -28,27 +28,27 @@ struct RENDER_API ShaderParamsBuffer : NoCopy
 		if (var.mIsArray)
 			elementSize = var.mElementSize;
 		auto offset = var.mOffset + elementSize * arrayIdx;
-		LUNA_ASSERT(offset + extra_offset + sizeof(T) < mData.size());
+		LUNA_ASSERT(offset + extra_offset + sizeof(T) <= mData.size());
 		*((T*)(mData.data() + offset + extra_offset)) = val;
 	}
 
 	template<typename T>
 	void Set(size_t extra_offset, const T& val)
 	{
-		LUNA_ASSERT(extra_offset + sizeof(T) < mData.size());
+		LUNA_ASSERT(extra_offset + sizeof(T) <= mData.size());
 		*((T*)(mData.data() + extra_offset)) = val;
 	}
 
 	void SetData(const LString& name, void* data, uint32_t dataSize)
 	{
 		auto offset = mVars[name.Hash()].mOffset;
-		LUNA_ASSERT(offset + dataSize < mData.size());
+		LUNA_ASSERT(offset + dataSize <= mData.size());
 		memcpy(mData.data() + offset, data, dataSize);
 	}
 
 	void SetData(uint32_t offset, void* data, uint32_t dataSize)
 	{
-		LUNA_ASSERT(offset + dataSize < mData.size());
+		LUNA_ASSERT(offset + dataSize <= mData.size());
 		memcpy(mData.data() + offset, data, dataSize);
 	}
 

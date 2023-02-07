@@ -77,10 +77,8 @@ public:
 	void SetupIMGUI();
 	bool OnShutdown() override;
 
-	void OnFrameBegin(float delta_time) override;
-	void Tick(float delta_time) override;
-
-	void OnFrameEnd(float deltaTime) override;
+	void Tick(float deltaTime) override;
+	void RenderTick(float delta_time) override;
 	void UpdateFrameBuffer();
 protected:
 	void Render();
@@ -96,6 +94,7 @@ public:
 	bool          IsImuiTexture(RHIResource* key);
 private:
 	LSharedPtr<Texture2D>              mDefaultWhiteTexture;
+	LSharedPtr<Texture2D>              mDefaultNormalTexture;
 	LArray<RenderScene*>               mRenderScenes;
 	LMap<RHIResourcePtr, ImguiTexture> mImguiTextures;
 

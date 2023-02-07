@@ -40,7 +40,6 @@ FGNode& FrameGraphBuilder::AddPass(const LString& name)
 
 void FrameGraphBuilder::Clear()
 {
-
 	//todo::虚拟资源尚未处理隔帧保存的问题，先暂时强制同步
 // 	mFenceValue3D = mFence3D.get()->IncSignal(sRenderModule->GetCmdQueueCore());
 // 	if (mFenceValue3D != size_t(-1))
@@ -58,22 +57,35 @@ void FrameGraphBuilder::Clear()
 
 }
 
-FGTexture* FrameGraphBuilder::CreateTexture(
-	const LString& res_name,
-	const RHIResDesc& res_desc
-)
+FGTexture* FrameGraphBuilder::CreateTexture(const LString& name, const RHIResDesc& desc)
 {
 	FGTexture* virtualRes = nullptr;
-	auto it = mVirtualRes.find(res_name);
+	auto it = mVirtualRes.find(name);
 	if (it == mVirtualRes.end())
 	{
-		virtualRes = new FGTexture(res_name, res_desc);
-		mVirtualRes[res_name] = virtualRes;
+		virtualRes = new FGTexture(name, desc);
+		mVirtualRes[name] = virtualRes;
 	}
 	else
 		virtualRes = (FGTexture*)it->second;
 
 	return virtualRes;
+}
+
+FGTexture* FrameGraphBuilder::CreateTexture(const LString& name, 
+	uint32_t width, uint32_t height, uint16_t depth, uint16_t miplevels, 
+	RHITextureFormat format, RHIImageUsage usage, RHIResDimension dimension /*= RHIResDimension::Texture2D*/)
+{
+	RHIResDesc desc;	
+	desc.mType = ResourceType::kTexture;
+	desc.Width = width;
+	desc.Height = height;
+	desc.Format = format;
+	desc.mImageUsage = usage;
+	desc.DepthOrArraySize = depth;
+	desc.MipLevels = miplevels;
+	desc.Dimension = dimension;
+	return CreateTexture(name, desc);
 }
 
 FGTexture* FrameGraphBuilder::BindExternalTexture(const LString& name, RHIResourcePtr& rhiTexture)
@@ -103,19 +115,22 @@ void FrameGraphBuilder::Compile()
 
 void FrameGraphBuilder::_Prepare()
 {
+	ZoneScoped;
 	for (FGNode* it : mNodes)
 	{
-		for (FGResourceView* it : it->mVirtureResView)
+		for (FGResourceView* view : it->mVirtureResView)
 		{
-			RHIViewPtr rhiView = sRenderModule->GetRHIDevice()->CreateView(it->mRHIViewDesc);
-			it->mRHIView = rhiView;
-			rhiView->BindResource(it->mVirtualRes->mRes);
+			RHIViewPtr rhiView = sRenderModule->GetRHIDevice()->CreateView(view->mRHIViewDesc);
+			view->mRHIView = rhiView;
+			rhiView->BindResource(view->mVirtualRes->mRes);
 		}
 	}
 }
 
 void FrameGraphBuilder::Flush()
 {
+
+	ZoneScoped;
 	RenderContext* renderDevice = sRenderModule->GetRenderContext();
 	RHIGraphicCmdList* cmdlist = renderDevice->mGraphicCmd;
 

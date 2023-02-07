@@ -8,7 +8,7 @@ using namespace luna;
 
 TEST(Core, String)
 {
-	LString dir = gEngine->GetModule < PlatformModule > ()->GetPlatformFileManager()->EngineDir();
+	LString dir = gEngine->GetTModule < PlatformModule > ()->GetPlatformFileManager()->EngineDir();
 	LString str = "/Foundation/log.txt";
 	LString split = "log";
 	LPath path("/Foundation/log.txt");

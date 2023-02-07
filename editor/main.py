@@ -32,7 +32,7 @@ def init_editor():
     luna.load_library("ImGuiScript.dll")
     luna.load_library("Game.dll")
     luna.load_library("AssetImport.dll")
-    app = luna.LApplication.instance()
+    app = luna.LunaCore.instance()
 
 
     from core.test import binding_test

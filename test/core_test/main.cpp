@@ -1,6 +1,6 @@
 #include "Core/CoreMin.h"
 #include "Core/Platform/PlatformModule.h"
-#include "Core/Framework/Application.h"
+#include "Core/Framework/LunaCore.h"
 #include "Core/Asset/AssetModule.h"
 #include "Core/Event/EventModule.h"
 
@@ -26,26 +26,13 @@ public:
 };
 
 
-class TestApp : public LApplication
-{
-public:
-	TestApp()
-	{
-
-	}
-
-};
-
 #undef main
 
 int main(int argc, char **argv)
 {
 	testing::InitGoogleTest();
-	TestApp game;
-	game.Run();
+	LunaCore::Ins();
 	int result = RUN_ALL_TESTS();
-	game.MainLoop();
-
-	return Py_BytesMain(argc, argv);
+	LunaCore::Ins()->MainLoop();	
 	return 1;
 }

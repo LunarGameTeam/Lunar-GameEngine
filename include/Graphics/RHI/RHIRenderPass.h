@@ -36,17 +36,16 @@ struct RENDER_API PassColorDesc
 
 struct RENDER_API PassDepthStencilDesc
 {
-	RHITextureFormat  mDepthStencilFormat = RHITextureFormat::FORMAT_D24_UNORM_S8_UINT;
+	RHITextureFormat mDepthStencilFormat = RHITextureFormat::D24_UNORM_S8_UINT;
 
-	LoadOp  mDepthLoadOp = LoadOp::kClear;
-	StoreOp mDepthStoreOp = StoreOp::kStore;
+	LoadOp           mDepthLoadOp        = LoadOp::kClear;
+	StoreOp          mDepthStoreOp       = StoreOp::kStore;
 
+	LoadOp           mStencilLoadOp      = LoadOp::kDontCare;
+	StoreOp          mStencilStoreOp     = StoreOp::kDontCare;
 
-	LoadOp  mStencilLoadOp = LoadOp::kDontCare;
-	StoreOp mStencilStoreOp = StoreOp::kDontCare;
-
-	float	     mClearDepth = 1;
-	uint32_t	mClearStencil = 0;
+	float            mClearDepth         = 1;
+	uint32_t         mClearStencil       = 0;
 
 	auto MakeTie() const
 	{
