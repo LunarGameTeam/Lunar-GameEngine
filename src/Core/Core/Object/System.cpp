@@ -20,25 +20,6 @@ RegisterTypeEmbedd_Imp(System)
 	RegisterSystem(cls);
 }
 
-Component* System::AddComponent(Entity* owner, LType* type)
-{
-	Component* comp = type->NewInstance<Component>();
-	comp->SetParent(owner);
-	comp->mOwnerEntity = owner;
-	comp->mOnCreateCalled = true;
-	comp->OnCreate();
-	comp->OnActivate();
-	TPPtrArray<Component>& owners = mOwnerComponents[type];
-	owners.PushBack(comp);
-	for (auto it : mRequireComponent)
-	{
-		TPPtrArray<Component>& requireComp = it.second;
-		requireComp.PushBack(owner->GetComponentByType(type));
-	}
-	return comp;
-}
-
-
 RegisterTypeEmbedd_Imp(ECSModule)
 {
 	cls->Ctor<ECSModule>();
@@ -83,16 +64,13 @@ void ECSModule::Tick(float delta_time)
 Component* ECSModule::AddComponent(Entity* owner, LType* type)
 {
 	System* system = nullptr;
-	auto it = mComponentSystems.find(type);
-	if (it == mComponentSystems.end())
-	{
-		system = mSystems[0];
-	}
-	else
-	{
-		system = it->second;
-	}
-	Component* comp = system->AddComponent(owner, type);
+	Component* comp = type->NewInstance<Component>();
+	comp->SetParent(owner);
+	comp->mOwnerEntity = owner;
+	comp->mOnCreateCalled = true;
+	comp->OnCreate();
+	comp->OnActivate();
+	mComponents[type].PushBack(comp);
 	return comp;
 }
 

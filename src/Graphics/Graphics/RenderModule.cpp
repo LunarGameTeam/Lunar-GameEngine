@@ -312,12 +312,14 @@ bool RenderModule::OnInit()
 
 void RenderModule::Tick(float deltaTime)
 {
-
+	ImGui::NewFrame();
+	gEngine->OnImGUI();
+	ImGui::EndFrame();
 }
 
 void RenderModule::RenderTick(float delta_time)
 {
-	ZoneScopedN("123");
+	ZoneScoped;
 	mRenderContext->OnFrameBegin();
 	//RenderScene发起渲染
 	mRenderContext->mTransferCmd->BeginEvent("Frame Graph Prepare");
@@ -330,37 +332,38 @@ void RenderModule::RenderTick(float delta_time)
 
 	Render();
 
-
-	if (sRenderModule->GetDeviceType() == render::RenderDeviceType::DirectX12)
 	{
-		ImGui_ImplDX12_NewFrame();
+		ZoneScopedN("IMGUI");
+		if (sRenderModule->GetDeviceType() == render::RenderDeviceType::DirectX12)
+		{
+			ImGui_ImplDX12_NewFrame();
+		}
+		else if (sRenderModule->GetDeviceType() == render::RenderDeviceType::Vulkan)
+		{
+			ImGui_ImplVulkan_NewFrame();
+		}
+		ImGui_ImplSDL2_NewFrame();
+		ImGui::Render();
+		RenderIMGUI();
 	}
-	else if (sRenderModule->GetDeviceType() == render::RenderDeviceType::Vulkan)
-	{
-		ImGui_ImplVulkan_NewFrame();
-	}
+	
 
-	ImGui_ImplSDL2_NewFrame();
-	//Engine IMGUI End
-	ImGui::NewFrame();
-	//Engine IMGUI Begin
-	gEngine->OnImGUI();
-	ImGui::EndFrame();
-	ImGui::Render();
+// 	auto& io = ImGui::GetIO();
+// 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+// 	{
+// 		ImGui::UpdatePlatformWindows();
+// 		ImGui::RenderPlatformWindowsDefault();
+// 	}
 
-	auto& io = ImGui::GetIO();
-	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-	{
-		ImGui::UpdatePlatformWindows();
-		ImGui::RenderPlatformWindowsDefault();
-	}
-
-	RenderIMGUI();
 
 	mFrameGraph->Clear();
 	mRenderContext->OnFrameEnd();
-	mRenderContext->mGraphicQueue->Wait(mRenderContext->mFence, mRenderContext->mFenceValue);
-	mRenderContext->mGraphicQueue->Present(mMainSwapchain);
+	{
+		ZoneScopedN("Present");
+		mRenderContext->mGraphicQueue->Wait(mRenderContext->mFence, mRenderContext->mFenceValue);
+		mRenderContext->mGraphicQueue->Present(mMainSwapchain);
+	}
+	
 
 	if (mNeedResizeSwapchain)
 	{
@@ -415,14 +418,13 @@ ImguiTexture* RenderModule::AddImguiTexture(RHIResource* res)
 
 void RenderModule::Render()
 {
-	ZoneScopedN("Render");
+	ZoneScoped;
 	mRenderContext->FlushStaging();
 	mFrameGraph->Flush();
 }
 
 void RenderModule::RenderIMGUI()
 {
-
 	ZoneScoped;
 	size_t& fenceValue = mRenderContext->mFenceValue;
 	

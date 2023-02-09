@@ -8,13 +8,13 @@ file(GLOB_RECURSE PROJECT_HEADERS "${SOLUTION_CMAKE_SOURCE_PATH}/include/AssetIm
 file(GLOB_RECURSE PROJECT_CPPS "AssetImport/*")
 list(FILTER PROJECT_CPPS EXCLUDE REGEX "AssetImport/FbxParser/*")
 
+source_group(TREE "${SOLUTION_CMAKE_SOURCE_PATH}/include" PREFIX Public FILES ${PROJECT_HEADERS} )
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX Private FILES ${PROJECT_CPPS})
 
-auto_header_group(AssetImport "${PROJECT_HEADERS}" PROJECT_HEADERS "")
-auto_source_group(AssetImport "${PROJECT_CPPS}" PROJECT_CPPS "")
 add_library(AssetImport SHARED ${PROJECT_CPPS} ${PROJECT_HEADERS})
 
 file(GLOB_RECURSE FBX_CPPS "AssetImport/FbxParser/*")
-auto_source_group(AssetImport "${FBX_CPPS}" FBX_CPPS "")
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX Private FILES ${FBX_CPPS})
 target_sources(AssetImport PRIVATE
                 ${FBX_CPPS})
 

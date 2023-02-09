@@ -40,6 +40,9 @@ RegisterTypeEmbedd_Imp(LunaCore)
 	cls->BindingMethod<&LunaCore::GetLogicTickTime>("get_logic_tick_time");
 	cls->BindingMethod<&LunaCore::GetRenderTickTime>("get_render_tick_time");
 
+	cls->BindingProperty<&LunaCore::mLogicFPS>("logic_fps");
+	cls->BindingProperty<&LunaCore::mRenderFPS>("render_fps");
+
 	cls->BindingMethod<&LunaCore::GetModule>("get_module")
 		.Doc("def get_module(t: Type[T]) -> T:\n\tpass\n");
 	cls->BindingMethod<&LunaCore::AddModule>("add_module")
@@ -84,11 +87,18 @@ void LunaCore::MainLoop()
 	auto renderPrev = Time::now();
 	OnRenderTick(mRenderFrameDelta);
 
+	float countDelta = 0.0;
+	auto prev = Time::now();
+
+	int logicFps = 0;
+	int renderFps = 0;
 	while (!mPendingExit)
 	{
-		float loopDelta = std::min<float>(mRenderFrameDelta, mLogicFrameDelta);
+		
 		auto loopBegin = Time::now();
 		logicNow = Time::now();
+		fsec loopDelta = loopBegin - prev;
+		countDelta += loopDelta.count();
 		{
 			fsec fs = loopBegin - logicPre;
 			float f = fs.count();
@@ -99,6 +109,7 @@ void LunaCore::MainLoop()
 				fsec cost = Time::now() - logicNow;
 				mLogicTickTime = cost.count();
 				logicPre = logicNow;
+				logicFps++;
 			}
 		}
 		renderNow = Time::now();
@@ -109,8 +120,15 @@ void LunaCore::MainLoop()
 			fsec cost = Time::now() - renderNow;
 			mRenderTickTime = cost.count();
 			renderPrev = renderNow;
+			renderFps++;
+		}
+		prev = loopBegin;
+		if (countDelta > 1.0f)
+		{
+			countDelta = 0;
 		}
 	}
+	
 	ShutdownModule();
 }
 
@@ -204,6 +222,7 @@ void LunaCore::OnLogicTick(float logicDelta)
 
 void LunaCore::OnImGUI()
 {
+	ZoneScoped;
 	for (LModule* it : mOrderedModules)
 	{
 		if (it->GetClass()->IsNativeType())

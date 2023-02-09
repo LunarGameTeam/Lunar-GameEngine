@@ -48,13 +48,12 @@ private:
 	TPPtr<render::MaterialInstance> mMaterialInstance;
 };
 
-
-class RENDER_API StaticMeshRenderer : public MeshRenderer
+class GAME_API StaticMeshRenderer : public MeshRenderer
 {
 };
 
 
-class RENDER_API SkeletonMeshRenderer : public MeshRenderer
+class GAME_API SkeletonMeshRenderer : public MeshRenderer
 {
 };
 

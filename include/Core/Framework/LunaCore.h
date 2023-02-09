@@ -8,7 +8,7 @@
 namespace luna
 {
 
-CORE_API CONFIG_DECLARE(int, Core, LogicFPS, 30);
+CORE_API CONFIG_DECLARE(int, Core, LogicFPS, 60);
 CORE_API CONFIG_DECLARE(int, Core, RenderFPS, 60);
 
 class CORE_API LunaCore : public LObject
@@ -30,6 +30,8 @@ public:
 		return mLogicTickTime;
 	}
 
+	int mLogicFPS = 0;
+	int mRenderFPS = 0;
 	float mLogicTickTime = 0.0;
 	float mRenderTickTime = 0.0;
 

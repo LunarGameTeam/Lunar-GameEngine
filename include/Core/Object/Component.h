@@ -47,5 +47,6 @@ private:
 	friend class GameModule;
 
 	friend class System;
+	friend class ECSModule;
 };
 }

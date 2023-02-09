@@ -4,10 +4,10 @@ cmake_minimum_required (VERSION 3.24)
 file(GLOB_RECURSE PROJECT_HEADERS *.h)
 file(GLOB_RECURSE PROJECT_CPPS *.cpp)
 
-set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS})
-auto_source_group(Luna "${ALL_FILES}" DST_FILES "")
+source_group(TREE "${SOLUTION_CMAKE_SOURCE_PATH}/include" PREFIX Public FILES ${PROJECT_HEADERS} )
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX Private FILES ${PROJECT_CPPS} )
 
-add_library(Luna SHARED ${DST_FILES})
+add_library(Luna SHARED ${PROJECT_HEADERS}  ${PROJECT_CPPS})
 
 add_compile_definitions(LUNA_EXPORT)
 

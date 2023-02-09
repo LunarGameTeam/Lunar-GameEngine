@@ -373,6 +373,7 @@ void RenderContext::EndRenderPass()
 
 RHIPipelineStatePtr RenderContext::GetPipeline(render::MaterialInstance* mat, RHIVertexLayout* layout)
 {
+	ZoneScoped;
 	return CreatePipelineState(mat, mCurRenderPass, layout);
 // 	ShaderAsset* shader = mat->GetShaderAsset();
 
@@ -386,12 +387,14 @@ void RenderContext::DrawRenderOBject(render::RenderObject* ro, render::MaterialI
 
 void RenderContext::DrawMesh(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params)
 {
+	ZoneScoped;
 	DrawMeshInstanced(mesh, mat, params, nullptr, 0, 1);
 }
 
 
 void RenderContext::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage /*= nullptr*/, int32_t startInstanceIdx /*= 1*/, int32_t instancingSize /*= 1*/)
 {
+	ZoneScoped;
 	RHIVertexLayout layout = mesh->GetVertexLayout();
 	if(instanceMessage)
 		layout.AddVertexElement(VertexElementType::Int, VertexElementUsage::UsageInstanceMessage, 4, 1, VertexElementInstanceType::PerInstance);
@@ -442,7 +445,7 @@ void RenderContext::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialIns
 
 RHIBindingSetPtr RenderContext::GetBindingSet(RHIPipelineState* pipeline, PackedParams* packparams)
 {
-	
+	ZoneScoped;
 	size_t paramsHash = packparams->mParamsHash;
 	auto it = mBindingSetCache.find(paramsHash);
 	if (it != mBindingSetCache.end())

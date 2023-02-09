@@ -27,8 +27,9 @@ public:
 
 	Component* AddComponent(Entity* owner, LType* type);
 
-	LMap<LType*, System*> mComponentSystems;
-	LArray<System*> mSystems;
+	LMap<LType*, TPPtrArray<Component>> mComponents;
+	LMap<LType*, LArray<System*>>       mComponentSystems;
+	LArray<System*>                     mSystems;
 
 };
 
@@ -42,50 +43,36 @@ public:
 
 	}
 
+	virtual void OnCreate(Component* comp)
+	{
+
+	}
+
 	virtual void OnTick(float delta_time)
 	{
 
 	}
+
 	template<typename T>
-	void Foreach(std::function<void(uint32_t idx, T* comp)> func)
+	void Foreach(std::function<void(uint32_t idx, T* comp, Entity* entity)> func)
 	{
 		LType* type = LType::Get<T>();
-		auto components = mOwnerComponents[type];
+		auto components = sECSModule->mComponents[type];
 		uint32_t idx = 0;
 		for (auto& it : components)
 		{
-			func(idx, (T*)it.Get());
+			func(idx, (T*)it.Get(), it->GetEntity());
 			idx++;
 		}
-	}
-
-	Component* AddComponent(Entity* owner, LType* type);
-
-	template<typename T>
-	void RequireComponentType()
-	{
-		LType* type = LType::Get<T>();
-		mRequireComponent[type];
 	}
 
 	template<typename T>
 	void FocusComponentType()
 	{
-		LType* type = LType::Get<T>();
-		mOwnerComponents[type];
-		sECSModule->mComponentSystems[type] = this;
+		LType* type = LType::Get<T>();		
+		sECSModule->mComponentSystems[type].push_back(this);
 	}
 
-	template<typename T>
-	const TPPtrArray<Component>&  GetRequireComponents()
-	{
-		LType* type = LType::Get<T>();
-		assert(mRequireComponent.find(type) != mRequireComponent.end());
-		return mRequireComponent[type];
-	}
-
-	LMap<LType*, TPPtrArray<Component>> mOwnerComponents;
-	LMap<LType*, TPPtrArray<Component>> mRequireComponent;
 };
 
 

@@ -78,6 +78,7 @@ FGResourceView* FGNode::AddDSV(FGTexture* res)
 
 void FGNode::Execute(FrameGraphBuilder* m_builder)
 {
+	ZoneScoped;
 	if(mExecFunc)
 		mExecFunc(m_builder, *this, sRenderModule->GetRenderContext());
 }

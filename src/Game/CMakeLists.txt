@@ -4,8 +4,8 @@ cmake_minimum_required (VERSION 3.24)
 file(GLOB_RECURSE PROJECT_HEADERS "${SOLUTION_CMAKE_SOURCE_PATH}/include/Game/*.h")
 file(GLOB_RECURSE PROJECT_CPPS *.cpp)
 
-auto_header_group(Game "${PROJECT_HEADERS}" DST_FILES "")
-auto_source_group(Game "${PROJECT_CPPS}" DST_HEADERS "")
+source_group(TREE "${SOLUTION_CMAKE_SOURCE_PATH}/include" PREFIX Public FILES ${PROJECT_HEADERS} )
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX Private FILES ${PROJECT_CPPS} )
 
 add_library(Game SHARED ${PROJECT_HEADERS} ${PROJECT_CPPS})
 

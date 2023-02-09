@@ -19,15 +19,13 @@ RegisterTypeEmbedd_Imp(CameraSystem)
 CameraSystem::CameraSystem()
 {
 	FocusComponentType<CameraComponent>();
-	RequireComponentType<Transform>();
 }
 
 void CameraSystem::OnTick(float deltaTime)
 {
-	auto& transforms = GetRequireComponents<Transform>();
-	Foreach<CameraComponent>([&transforms](uint32_t idx, CameraComponent* camera)
+	Foreach<CameraComponent>([](uint32_t idx, CameraComponent* camera, Entity* entity)
 	{
-		Transform* transform = (Transform *)(transforms[idx]);
+		Transform* transform = entity->GetComponent<Transform>();
 	});
 }
 

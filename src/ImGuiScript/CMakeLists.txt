@@ -2,13 +2,10 @@
 cmake_minimum_required (VERSION 3.24)
 # 项目信息
 
-file(GLOB_RECURSE PROJECT_HEADERS *.h)
-file(GLOB_RECURSE PROJECT_CPPS *.cpp)
+file(GLOB_RECURSE PROJECT_CPPS *.cpp *.h)
 
-set(ALL_FILES ${PROJECT_HEADERS} ${PROJECT_CPPS})
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX Private FILES ${PROJECT_CPPS})
 
-auto_source_group(ImGuiScript "${ALL_FILES}" DST_FILES "")
-
-add_library(ImGuiScript SHARED ${DST_FILES})
+add_library(ImGuiScript SHARED ${PROJECT_CPPS})
 
 target_link_libraries(ImGuiScript Core imgui Graphics)

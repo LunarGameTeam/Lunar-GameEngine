@@ -57,7 +57,7 @@ bool VulkanSwapChain::Init()
 	createInfo.imageFormat = surfaceFormat.format;
 	createInfo.imageColorSpace = surfaceFormat.colorSpace;
 	createInfo.imageExtent = extent;
-	createInfo.imageArrayLayers = 1;		
+	createInfo.imageArrayLayers = 1;
 	
 	createInfo.compositeAlpha = vk::CompositeAlphaFlagBitsKHR::eOpaque;
 	createInfo.imageUsage = vk::ImageUsageFlagBits::eColorAttachment | vk::ImageUsageFlagBits::eTransferDst;

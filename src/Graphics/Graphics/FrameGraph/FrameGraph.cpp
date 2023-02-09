@@ -156,80 +156,90 @@ void FrameGraphBuilder::Flush()
 
 	_Prepare();
 
-
-
-
-	for (FGNode* node : mNodes)
 	{
-		mFence3D->Wait(mFenceValue3D);
-		cmdlist->Reset();
-		cmdlist->BeginEvent(node->GetName());
-		if (node->mRT.empty() && !node->mDS)
-			return;
-
-		for (FGResourceView* view : node->mVirtureResView)
+		ZoneScopedN("Node Execute");
+		for (FGNode* node : mNodes)
 		{
-			ResourceBarrierDesc barrier;
-			barrier.mBaseMipLevel = 0;
-			barrier.mMipLevels = 1;
-			barrier.mBaseDepth = view->mRHIViewDesc.mBaseArrayLayer;
-			//理论上应该View使用了Res的某个Layer，只对这个Layer进行Barrier
-			//但是RHIResource里只记录了一个State，因此这里对整个Res进行Barrier
-			barrier.mDepth = view->mVirtualRes->mDesc.DepthOrArraySize;
-			barrier.mBarrierRes = view->mVirtualRes->GetRHIResource();
-			switch (view->mRHIViewDesc.mViewType)
+			ZoneScoped;
+			const char* name = node->GetName().c_str();
+			ZoneName(name, node->GetName().Length());
 			{
-			case RHIViewType::kTexture:
-				barrier.mStateBefore = barrier.mBarrierRes->mState;
-				barrier.mStateAfter = ResourceState::kShaderReadOnly;
-				break;
-			case RHIViewType::kRenderTarget:
-				barrier.mStateBefore = barrier.mBarrierRes->mState;
-				barrier.mStateAfter = ResourceState::kRenderTarget;				
-				break;
-			case RHIViewType::kDepthStencil:
-				barrier.mStateBefore = barrier.mBarrierRes->mState;
-				barrier.mStateAfter = ResourceState::kDepthStencilWrite;				
-				break;
-			default:
-				assert(false);
-				break;
+				ZoneScopedN("Device Wait");
+				mFence3D->Wait(mFenceValue3D);
+			}			
+			cmdlist->Reset();
+			cmdlist->BeginEvent(node->GetName());
+			if (node->mRT.empty() && !node->mDS)
+				return;
+			{
+				ZoneScopedN("Resource Barrier");
+				for (FGResourceView* view : node->mVirtureResView)
+				{
+					ResourceBarrierDesc barrier;
+					barrier.mBaseMipLevel = 0;
+					barrier.mMipLevels = 1;
+					barrier.mBaseDepth = view->mRHIViewDesc.mBaseArrayLayer;
+					//理论上应该View使用了Res的某个Layer，只对这个Layer进行Barrier
+					//但是RHIResource里只记录了一个State，因此这里对整个Res进行Barrier
+					barrier.mDepth = view->mVirtualRes->mDesc.DepthOrArraySize;
+					barrier.mBarrierRes = view->mVirtualRes->GetRHIResource();
+					switch (view->mRHIViewDesc.mViewType)
+					{
+					case RHIViewType::kTexture:
+						barrier.mStateBefore = barrier.mBarrierRes->mState;
+						barrier.mStateAfter = ResourceState::kShaderReadOnly;
+						break;
+					case RHIViewType::kRenderTarget:
+						barrier.mStateBefore = barrier.mBarrierRes->mState;
+						barrier.mStateAfter = ResourceState::kRenderTarget;
+						break;
+					case RHIViewType::kDepthStencil:
+						barrier.mStateBefore = barrier.mBarrierRes->mState;
+						barrier.mStateAfter = ResourceState::kDepthStencilWrite;
+						break;
+					default:
+						assert(false);
+						break;
+					}
+					cmdlist->ResourceBarrierExt(barrier);
+				}
 			}
-			cmdlist->ResourceBarrierExt(barrier);
+			
+
+			FGResourceView& dsView = *node->mDS;
+			cmdlist->BindDescriptorHeap();
+			uint32_t width;
+			uint32_t height;
+			node->mPassDesc.mColorView.clear();
+			int index = 0;
+			for (FGResourceView* it : node->mRT)
+			{
+				FGResourceView& rtView = *it;
+				width = rtView.mVirtualRes->GetRHIResource()->mResDesc.Width;
+				height = rtView.mVirtualRes->GetRHIResource()->mResDesc.Height;
+				assert(rtView.mRHIView);
+				node->mPassDesc.mColorView.emplace_back(rtView.mRHIView);
+			}
+
+			node->mPassDesc.mDepthStencilView = dsView.mRHIView;
+			node->mPassDesc.mDepths[0].mDepthStencilFormat = dsView.mRHIView->mBindResource->mResDesc.Format;
+
+			node->PreExecute(this);
+
+			renderDevice->BeginRenderPass(node->mPassDesc);
+			cmdlist->SetViewPort(0, 0, width, height);
+			cmdlist->SetScissorRects(0, 0, width, width);
+
+			node->Execute(this);
+			renderDevice->EndRenderPass();
+
+			cmdlist->EndEvent();
+			cmdlist->CloseCommondList();
+			renderDevice->mGraphicQueue->ExecuteCommandLists(cmdlist);
+			renderDevice->mGraphicQueue->Signal(mFence3D, ++mFenceValue3D);
 		}
-
-		FGResourceView& dsView = *node->mDS;
-		cmdlist->BindDescriptorHeap();
-		uint32_t width;
-		uint32_t height;
-		node->mPassDesc.mColorView.clear();
-		int index = 0;
-		for (FGResourceView* it : node->mRT)
-		{
-			FGResourceView& rtView = *it;
-			width = rtView.mVirtualRes->GetRHIResource()->mResDesc.Width;
-			height = rtView.mVirtualRes->GetRHIResource()->mResDesc.Height;
-			assert(rtView.mRHIView);
-			node->mPassDesc.mColorView.emplace_back(rtView.mRHIView);
-		}
-
-		node->mPassDesc.mDepthStencilView = dsView.mRHIView;
-		node->mPassDesc.mDepths[0].mDepthStencilFormat = dsView.mRHIView->mBindResource->mResDesc.Format;
-
-		node->PreExecute(this);
-
-		renderDevice->BeginRenderPass(node->mPassDesc);
-		cmdlist->SetViewPort(0, 0, width, height);
-		cmdlist->SetScissorRects(0, 0, width, width);
-
-		node->Execute(this);
-		renderDevice->EndRenderPass();
-
-		cmdlist->EndEvent();
-		cmdlist->CloseCommondList();
-		renderDevice->mGraphicQueue->ExecuteCommandLists(cmdlist);
-		renderDevice->mGraphicQueue->Signal(mFence3D, ++mFenceValue3D);
 	}
+	
 }
 
 
