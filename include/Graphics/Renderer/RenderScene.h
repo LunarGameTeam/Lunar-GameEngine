@@ -12,22 +12,6 @@
 namespace luna::render
 {
 
-
-struct RENDER_API RenderObject
-{
-	SubMesh*          mMesh;
-	MaterialInstance* mMaterial;
-	LMatrix4f*        mWorldMat;
-
-	bool              mCastShadow    = true;
-	bool              mReceiveLight  = true;
-	bool              mReceiveShadow = true;
-
-	RHIResourcePtr    mInstanceRes;
-	uint64_t          mID;
-};
-
-
 class RENDER_API RenderScene final : public RenderDataContainer
 {
 public:
@@ -35,7 +19,8 @@ public:
 	~RenderScene();;	
 
 	void Render(FrameGraphBuilder* FG);
-
+	//暂时先固定mesh pass在枚举确定，后面再看怎么拓展
+	MeshRenderCommandsPacket mAllMeshDrawCommands[MeshRenderPass::AllNum];
 public:
 	
 	void Init();
