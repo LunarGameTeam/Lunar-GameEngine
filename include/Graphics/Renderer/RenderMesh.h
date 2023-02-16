@@ -38,37 +38,28 @@ namespace luna::render
 
 	};
 
-	class RenderSceneData
-	{
-		LUnorderedMap<LString, ShaderParamSceneBuffer> materialBuffer;
-		LQueue<size_t> emptyMeshId;
-		LUnorderedMap<size_t, RenderMeshBase> meshPrimitiveBuffer;
-
-	};
-
-	struct RENDER_API RenderObject
-	{
-		size_t            mMeshIndex;
-		LMatrix4f* mWorldMat;
-		bool              mCastShadow = true;
-		bool              mReceiveLight = true;
-		bool              mReceiveShadow = true;
-		uint64_t          mID;
-	};
-
 	class MeshRenderCommand
 	{
 	public:
-		RHIPipelineStatePtr mPipeline;
 		size_t mRenderObjectId;
-		TPPtr<MaterialTemplateAsset> mMaterialTemplate;
+		MaterialTemplateAsset* mMaterialTemplate;
 		size_t mMaterialInstanceIndex;
 	};
 
 	class MeshRenderCommandsPacket
 	{
 	public:
-		LUnorderedMap<uint64_t, MeshRenderCommand> allCommands;
+		size_t AddCommand(
+			RenderObject* renderObject,
+			const LString& materialAsset
+		);
+		size_t AddCommand(
+			RenderObject* renderObject,
+			MaterialTemplateAsset* materialAsset
+		);
+	private:
+		LQueue<size_t> mEmptyId;
+		LUnorderedMap<uint64_t, MeshRenderCommand> mAllCommands;
 	};
 
 	class MeshRenderCommandsPassData
@@ -79,6 +70,7 @@ namespace luna::render
 		void AddCommand(MeshRenderCommand* data);
 		void ClearCommand();
 	};
+
 
 
 }

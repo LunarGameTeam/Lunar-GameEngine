@@ -4,6 +4,8 @@
 #include "Graphics/RenderConfig.h"
 #include "Graphics/RenderTypes.h"
 #include "Graphics/RHI/RHITypes.h"
+#include "Graphics/Renderer/RenderMesh.h"
+#include "Graphics/RHI/RHIPipeline.h"
 #include "Core/Foundation/Misc.h"
 #include "Graphics/Renderer/RenderData.h"
 
@@ -11,6 +13,25 @@
 
 namespace luna::render
 {
+class AssetSceneData
+{
+public:
+	LUnorderedMap<LString, ShaderParamSceneBuffer> materialBuffer;
+	LQueue<size_t> emptyMeshId;
+	LUnorderedMap<size_t, RenderMeshBase> meshPrimitiveBuffer;
+};
+
+struct RENDER_API RenderObject
+{
+	size_t            mMeshIndex;
+	LMatrix4f*        mWorldMat;
+	bool              mCastShadow = true;
+	bool              mReceiveLight = true;
+	bool              mReceiveShadow = true;
+	uint64_t          mID;
+	MaterialInstance* mMaterial;
+	LUnorderedMap<MeshRenderPass,uint64_t>  mAllCommandsIndex;
+};
 
 class RENDER_API RenderScene final : public RenderDataContainer
 {
@@ -29,10 +50,12 @@ public:
 	void DestroyMainDirLight(DirectionLight* val);
 	PointLight* CreatePointLight();
 
-	RenderObject* CreateRenderObject();
+	uint64_t CreateRenderObject(MaterialInstance* mat, SubMesh* meshData,bool castShadow, LMatrix4f* worldMat);
+	void UpdateRenderObject(uint64_t roId, MaterialInstance* mat, SubMesh* meshData, bool castShadow, LMatrix4f* worldMat);
+
 	RenderView* CreateRenderView();
 	void DestroyLight(Light* ro);
-	void DestroyRenderObject(RenderObject* ro);
+	void DestroyRenderObject(uint64_t ro);
 	void DestroyRenderView(RenderView* renderView);
 
 	bool mRenderable = true;
@@ -65,14 +88,53 @@ public:
 	LVector4f           mAmbientColor   = LVector4f(0.05, 0.05, 0.05, 1.0);
 	//Skybox
 	MaterialInstance*   mSkyboxMaterial = nullptr;
-	
+
+	AssetSceneData      mSceneDataGpu;
 protected:
 	void PrepareScene();
 	void Debug();
 private:
 	bool            mBufferDirty = true;
 	bool            mInit        = false;
-	ROArray         mRenderObjects;
+
+	LQueue<uint64_t> mRoIndex;
+	LUnorderedMap<uint64_t, RenderObject* > mRenderObjects;
 	ViewArray       mViews;
 };
+
+//一个简单的pass处理Ro的基类，暂时不考虑排序及自定义数据的功能
+class RoPassProcessorBase
+{
+	RenderScene* mScene;
+	MeshRenderPass mPassType;
+public:
+	RoPassProcessorBase(RenderScene* scene, MeshRenderPass passType);
+
+	virtual void AddRenderObject(RenderObject* renderObject) = 0;
+
+	void BuildMeshRenderCommands(
+		RenderObject* renderObject,
+		const LString& materialAsset
+	);
+
+	void BuildMeshRenderCommands(
+		RenderObject* renderObject,
+		MaterialTemplateAsset* materialAsset
+	);
+};
+
+typedef RoPassProcessorBase* (*MeshPassProcessorCreateFunction)(RenderScene* scene, MeshRenderPass passType);
+
+class RoPassProcessorManager
+{
+	LUnorderedMap<MeshRenderPass, MeshPassProcessorCreateFunction> mAllPassProcessor;
+	static RoPassProcessorManager* mInstance;
+	RoPassProcessorManager();
+public:
+	void RegistorPassProcessor(MeshRenderPass passType, MeshPassProcessorCreateFunction passProcessorGenerator);
+	MeshPassProcessorCreateFunction GetPassProcessor(MeshRenderPass passType);
+	
+	static RoPassProcessorManager* GetInstance();
+};
+
 }

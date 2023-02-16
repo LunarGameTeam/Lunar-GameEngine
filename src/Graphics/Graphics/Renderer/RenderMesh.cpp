@@ -13,6 +13,36 @@
 
 namespace luna::render
 {
+	size_t MeshRenderCommandsPacket::AddCommand(
+		RenderObject* renderObject,
+		MaterialTemplateAsset* materialAsset
+	)
+	{
+		size_t id = 0;
+		if (mEmptyId.empty())
+		{
+			id = mAllCommands.size();
+		}
+		else
+		{
+			id = mEmptyId.front();
+			mEmptyId.pop();
+		}
+		MeshRenderCommand newCommand;
+		newCommand.mMaterialInstanceIndex = id;
+		newCommand.mMaterialTemplate = materialAsset;
+		newCommand.mRenderObjectId = renderObject->mID;
+		mAllCommands.insert({ id ,newCommand });
+	}
+
+	size_t MeshRenderCommandsPacket::AddCommand(
+		RenderObject* renderObject,
+		const LString& materialAsset
+	)
+	{
+		return AddCommand(renderObject, sAssetModule->LoadAsset<MaterialTemplateAsset>(materialAsset));
+	}
+
 	void MeshRenderCommandsPassData::AddCommand(MeshRenderCommand* data)
 	{
 		allVisibleCommandsRef.push_back(data);

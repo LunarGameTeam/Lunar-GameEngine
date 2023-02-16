@@ -40,7 +40,7 @@ protected:
 	void CreateRenderObject();
 private:
 	bool mCastShadow = true;
-	render::RenderObject* mRO = nullptr;
+	uint64_t mRO = uint64_t(-1);
 	SharedPtr<MeshAsset> mMeshAsset;
 	SharedPtr<render::MaterialTemplateAsset> mMaterialAsset;
 	TPPtr<render::MaterialInstance> mMaterialInstance;

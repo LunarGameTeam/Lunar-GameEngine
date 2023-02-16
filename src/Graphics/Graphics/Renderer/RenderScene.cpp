@@ -23,12 +23,43 @@ RenderScene::RenderScene()
 }
 
 
-RenderObject* RenderScene::CreateRenderObject()
+uint64_t RenderScene::CreateRenderObject(MaterialInstance* mat, SubMesh* meshData, bool castShadow, LMatrix4f* worldMat)
 {
 	RenderObject* ro = new RenderObject();
+	if (mRoIndex.empty())
+	{
+		ro->mID = mRenderObjects.size();
+	}
+	else
+	{
+		ro->mID = mRoIndex.front();
+		mRoIndex.pop();
+	}
 	ro->mID = mRenderObjects.size();
-	mRenderObjects.push_back(ro);
-	return ro;
+	meshData;
+	ro->mMeshIndex = ;
+	ro->mMaterial = mat;
+	ro->mWorldMat = worldMat;
+	ro->mCastShadow = castShadow;
+	mRenderObjects.insert({ ro->mID,ro});
+	for (int32_t passType = 0;passType < MeshRenderPass::AllNum; ++passType)
+	{
+		MeshRenderPass meshRenderPass = static_cast<MeshRenderPass>(passType);
+		RoPassProcessorBase* roPassGen = RoPassProcessorManager::GetInstance()->GetPassProcessor(meshRenderPass)(this, meshRenderPass);
+		roPassGen->AddRenderObject(ro);
+	}
+
+
+	return ro->mID;
+}
+
+void RenderScene::UpdateRenderObject(uint64_t roId, MaterialInstance* mat, SubMesh* meshData, bool castShadow, LMatrix4f* worldMat)
+{
+	meshData;
+	mRenderObjects[roId]->mMeshIndex = ;
+	mRenderObjects[roId]->mMaterial = mat;
+	mRenderObjects[roId]->mWorldMat = worldMat;
+	mRenderObjects[roId]->mCastShadow = castShadow;
 }
 
 
@@ -68,8 +99,8 @@ void RenderScene::PrepareScene()
 	mSceneParamsBuffer->Set("cAmbientColor", LMath::sRGB2LinearColor(mAmbientColor));
 	for (auto& ro : mRenderObjects)
 	{		
-		uint32_t idx = ro->mID;
-		mSceneParamsBuffer->Set("cRoWorldMatrix", * ro->mWorldMat, idx);
+		uint32_t idx = ro.second->mID;
+		mSceneParamsBuffer->Set("cRoWorldMatrix", * ro.second->mWorldMat, idx);
 		mROIDInstancingBuffer->Set(idx * sizeof(uint32_t) * 4, idx);
 	}
 	
@@ -159,16 +190,15 @@ void RenderScene::DestroyLight(Light* ro)
 	mBufferDirty = true;
 }
 
-void RenderScene::DestroyRenderObject(RenderObject* ro)
+void RenderScene::DestroyRenderObject(uint64_t ro)
 {
-	for (auto it = mRenderObjects.begin(); it != mRenderObjects.end(); ++it)
+	auto check = mRenderObjects.find(ro);
+	if (check == mRenderObjects.end())
 	{
-		if (ro == *it)
-		{
-			mRenderObjects.erase(it);
-			delete ro;
-			break;
-		}
+		mRoIndex.push(check->first);
+		delete check->second;
+		mRenderObjects.erase(check);
+		
 	}
 	mBufferDirty = true;
 }
@@ -194,9 +224,9 @@ RenderScene::~RenderScene()
 		mSceneParamsBuffer = nullptr;
 	}
 	mViews.clear();
-	for (RenderObject* it : mRenderObjects)
+	for (auto it : mRenderObjects)
 	{
-		delete it;
+		delete it.second;
 	}
 	mRenderObjects.clear();
 }
@@ -266,6 +296,50 @@ void RenderScene::Debug()
 
 	mDebugMesh->Update();
 	mDebugMeshLine->Update();
+}
+
+RoPassProcessorBase::RoPassProcessorBase(RenderScene* scene, MeshRenderPass passType) : mScene(scene), mPassType(passType)
+{
+
+}
+
+void RoPassProcessorBase::BuildMeshRenderCommands(
+	RenderObject* renderObject,
+	const LString& materialAsset
+)
+{
+	size_t newCommandId = mScene->mAllMeshDrawCommands[mPassType].AddCommand(renderObject, materialAsset);
+	renderObject->mAllCommandsIndex.insert({ mPassType,newCommandId});
+}
+
+void RoPassProcessorBase::BuildMeshRenderCommands(
+	RenderObject* renderObject,
+	MaterialTemplateAsset* materialAsset
+)
+{
+	size_t newCommandId = mScene->mAllMeshDrawCommands[mPassType].AddCommand(renderObject, materialAsset);
+	renderObject->mAllCommandsIndex.insert({ mPassType,newCommandId });
+}
+
+RoPassProcessorManager* RoPassProcessorManager::mInstance = nullptr;
+
+RoPassProcessorManager* RoPassProcessorManager::GetInstance()
+{
+	if (mInstance == nullptr)
+	{
+		mInstance = new RoPassProcessorManager();
+	}
+	return mInstance;
+}
+
+void RoPassProcessorManager::RegistorPassProcessor(MeshRenderPass passType, MeshPassProcessorCreateFunction passProcessorGenerator)
+{
+	mAllPassProcessor.insert({ passType ,passProcessorGenerator });
+}
+
+MeshPassProcessorCreateFunction RoPassProcessorManager::GetPassProcessor(MeshRenderPass passType)
+{
+	return mAllPassProcessor[passType];
 }
 
 }
