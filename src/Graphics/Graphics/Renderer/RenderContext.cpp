@@ -25,7 +25,7 @@ namespace luna::render
 
 RENDER_API CONFIG_IMPLEMENT(LString, Render, RenderDeviceType, "DirectX12");
 
-const size_t sStagingBufferMaxSize = 1024 * 1024 * 4 * 16;
+const size_t sStagingBufferMaxSize = 1024 * 1024 * 16 * 16;
 const size_t sFrameGraphBufferMaxSize = 1024 * 1024 * 4 * 16;
 const size_t sInstancingBufferMaxSize = 128 * 128;
 

@@ -26,7 +26,7 @@ public:
 
 	FGTexture* CreateTexture(const LString& name, const RHIResDesc& desc);
 	
-	FGTexture* BindExternalTexture(const LString& name, RHIResourcePtr& texture);	
+	FGTexture* BindExternalTexture(const LString& name,const RHIResourcePtr& texture);	
 
 	FGTexture* GetTexture(const LString& name);
 	

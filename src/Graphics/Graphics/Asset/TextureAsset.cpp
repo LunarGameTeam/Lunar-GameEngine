@@ -65,7 +65,7 @@ void Texture2D::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> fil
 		mDesc.Height = h;
 	}
 
-	//Init();
+	Init();
 }
 
 const byte* Texture2D::GetData()

@@ -64,7 +64,8 @@ void GameModule::Tick(float delta_time)
 {
 	for (auto& it : mScenes)
 	{
-		it->Tick(delta_time);
+		if(it)
+			it->Tick(delta_time);
 	}
 }
 

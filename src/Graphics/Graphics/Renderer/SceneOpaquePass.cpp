@@ -25,6 +25,7 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 {
 
 	auto& node = builder->AddPass("Opaque");
+	FGTexture* white = builder->BindExternalTexture("white", sRenderModule->mDefaultWhiteTexture->GetRHITexture());
 	FGResourceView* shadowmapView = nullptr;	
 	FGResourceView* directionalShadowmapView = nullptr;
 	node.SetupFunc(builder, [&](FrameGraphBuilder* builder, FGNode& node)
@@ -59,7 +60,11 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 			}
 
 		}
-		
+		else
+		{
+			shadowmapView = node.AddSRV(white, RHIViewDimension::TextureView2DArray, 0, 1);
+			directionalShadowmapView = node.AddSRV(white, RHIViewDimension::TextureView2D, 0, 1);
+		}		
 
 		node.SetColorAttachment(colorView);
 		node.SetDepthStencilAttachment(depthView);
@@ -108,8 +113,10 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 			}
 			it->mInstanceRes = instancingBuffer;
 			ShaderAsset* shader = mat->GetShaderAsset();
+			
 			if(shadowmapView)
 				params.PushShaderParam(ParamID__ShadowMap, shadowmapView->mRHIView);
+
 			if(directionalShadowmapView)
 				params.PushShaderParam(ParamID__DirectionLightShadowMap, directionalShadowmapView->mRHIView);
 			params.PushShaderParam(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer);

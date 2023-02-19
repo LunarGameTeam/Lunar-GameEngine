@@ -62,6 +62,7 @@ cbuffer SceneBuffer : register(b2, space0)
 	int cPointLightsCount;
 	matrix cLightViewMatrix[6];
 	matrix cLightProjMatrix[6];
+	int cShadowmapCount;
 	
 };
 

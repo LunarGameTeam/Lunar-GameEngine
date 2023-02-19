@@ -88,7 +88,7 @@ FGTexture* FrameGraphBuilder::CreateTexture(const LString& name,
 	return CreateTexture(name, desc);
 }
 
-FGTexture* FrameGraphBuilder::BindExternalTexture(const LString& name, RHIResourcePtr& rhiTexture)
+FGTexture* FrameGraphBuilder::BindExternalTexture(const LString& name,const RHIResourcePtr& rhiTexture)
 {
 	FGTexture* texture = nullptr;
 	auto it = mVirtualRes.find(name);

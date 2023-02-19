@@ -56,9 +56,13 @@ void RenderScene::PrepareScene()
 	}	
 	
 	mSceneParamsBuffer->Set("cPointLightsCount", mPointLights.size());
+	mSceneParamsBuffer->Set("cShadowmapCount", 0);
 	for (int i = 0; i < mPointLights.size(); i++)
 	{
 		PointLight* light = mPointLights[i];
+		if(light->mCastShadow)
+			mSceneParamsBuffer->Set("cShadowmapCount", 6);  
+
 		mSceneParamsBuffer->Set("cPointLights", light->mPosition, i, 0);
 		mSceneParamsBuffer->Set("cPointLights", light->mColor, i, 16);
 		mSceneParamsBuffer->Set("cPointLights", light->mIntensity, i, 32);

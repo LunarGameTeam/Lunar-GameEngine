@@ -8,7 +8,7 @@
 float GetShadowFactor(BaseFragment input)
 {
 	float shadow = 1.0;
-	for(int i = 0; i < 6; i++)
+	for(int i = 0; i < cShadowmapCount; i++)
 	{
 		float4 shadowCoord = mul(mul(float4(input.worldPosition.xyz, 1.0), cLightViewMatrix[i]), cLightProjMatrix[i]);
 		shadowCoord = shadowCoord / shadowCoord.w;

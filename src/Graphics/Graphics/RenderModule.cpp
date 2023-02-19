@@ -235,7 +235,7 @@ bool RenderModule::OnInit()
 	mFrameGraph = new FrameGraphBuilder("MainFG");	
 
 	mDefaultWhiteTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/White.png"));
-	mDefaultWhiteTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/Normal.png"));
+	mDefaultNormalTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/Normal.png"));
 
 	SetupIMGUI();
 
@@ -312,6 +312,15 @@ bool RenderModule::OnInit()
 
 void RenderModule::Tick(float deltaTime)
 {
+	if (sRenderModule->GetDeviceType() == render::RenderDeviceType::DirectX12)
+	{
+		ImGui_ImplDX12_NewFrame();
+	}
+	else if (sRenderModule->GetDeviceType() == render::RenderDeviceType::Vulkan)
+	{
+		ImGui_ImplVulkan_NewFrame();
+	}
+	ImGui_ImplSDL2_NewFrame();
 	ImGui::NewFrame();
 	gEngine->OnImGUI();
 	ImGui::EndFrame();
@@ -331,22 +340,11 @@ void RenderModule::RenderTick(float delta_time)
 	mRenderContext->mTransferCmd->EndEvent();
 
 	Render();
-
 	{
 		ZoneScopedN("IMGUI");
-		if (sRenderModule->GetDeviceType() == render::RenderDeviceType::DirectX12)
-		{
-			ImGui_ImplDX12_NewFrame();
-		}
-		else if (sRenderModule->GetDeviceType() == render::RenderDeviceType::Vulkan)
-		{
-			ImGui_ImplVulkan_NewFrame();
-		}
-		ImGui_ImplSDL2_NewFrame();
 		ImGui::Render();
 		RenderIMGUI();
-	}
-	
+	}	
 
 // 	auto& io = ImGui::GetIO();
 // 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)

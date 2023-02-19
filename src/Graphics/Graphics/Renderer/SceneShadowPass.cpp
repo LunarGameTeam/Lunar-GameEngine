@@ -24,10 +24,9 @@ PARAM_ID(MaterialBuffer);
 
 void DirectionalLightShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene)
 {
-
 	if (!renderScene->mMainDirLight || !renderScene->mMainDirLight->mCastShadow)
 		return;
-	auto& node = builder->AddPass("Directional LightShadowmap");
+	auto& node = builder->AddPass("Directional LightShadowmap");	
 	node.SetupFunc(builder, [=](FrameGraphBuilder* builder, FGNode& node)
 	{
 		auto shadowData = view->RequireData<ViewShadowData>();
@@ -88,9 +87,9 @@ void PointShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* 
 		node.SetupFunc(builder, [=](FrameGraphBuilder* builder, FGNode& node)
 		{
 			FGTexture* color = builder->CreateTexture("Shadowmap",
-			512, 512, 6, 1,
-			RHITextureFormat::R32_FLOAT,
-			RHIImageUsage::ColorAttachmentBit | RHIImageUsage::SampledBit
+				512, 512, 6, 1,
+				RHITextureFormat::R32_FLOAT,
+				RHIImageUsage::ColorAttachmentBit | RHIImageUsage::SampledBit
 			);
 
 			FGTexture* depth = builder->CreateTexture("ShadowmapDepth",

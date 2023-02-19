@@ -92,9 +92,9 @@ public:
 	ImguiTexture* GetImguiTexture(RHIResource* key);
 	ImguiTexture* AddImguiTexture(RHIResource* res);
 	bool          IsImuiTexture(RHIResource* key);
-private:
 	LSharedPtr<Texture2D>              mDefaultWhiteTexture;
 	LSharedPtr<Texture2D>              mDefaultNormalTexture;
+private:
 	LArray<RenderScene*>               mRenderScenes;
 	LMap<RHIResourcePtr, ImguiTexture> mImguiTextures;
 
