@@ -5,13 +5,20 @@ namespace luna::render
 
 DoubleConverter<RHITextureFormat, vk::Format> sVulkanFormtas =
 {
-	{RHITextureFormat::R8G8BB8A8_UNORN, vk::Format::eR8G8B8A8Unorm},
-	{RHITextureFormat::R32_FLOAT, vk::Format::eR32Sfloat},
-	{RHITextureFormat::R8G8B8A8_UNORM_SRGB, vk::Format::eR8G8B8A8Srgb },
+	{RHITextureFormat::R8G8B8A8_UNORM, vk::Format::eR8G8B8A8Unorm},
+	{RHITextureFormat::R8G8B8A8_UNORM_SRGB, vk::Format::eR8G8B8A8Srgb},
+	{RHITextureFormat::R8G8B8A8_UINT, vk::Format::eR8G8B8A8Uint},
+	{RHITextureFormat::R8G8B8A8_SNORM, vk::Format::eR8G8B8A8Snorm},
+	{RHITextureFormat::R8G8B8A8_SINT, vk::Format::eR8G8B8A8Sint},	
+	{RHITextureFormat::R16G16B16A16_FLOAT, vk::Format::eR16G16B16A16Sfloat},
+	{RHITextureFormat::R16G16B16A16_UNORM, vk::Format::eR16G16B16A16Unorm},
+	{RHITextureFormat::R16G16B16A16_TYPELESS, vk::Format::eR16G16B16A16Uscaled},
+	{RHITextureFormat::R16G16B16A16_UINT, vk::Format::eR16G16B16A16Uint},
 	{RHITextureFormat::FORMAT_B8G8R8A8_UNORM, vk::Format::eB8G8R8A8Unorm },
 	{RHITextureFormat::FORMAT_B8G8R8A8_UNORM_SRGB, vk::Format::eB8G8R8A8Srgb },
+	{RHITextureFormat::R32_FLOAT, vk::Format::eR32Sfloat},
 	{RHITextureFormat::D24_UNORM_S8_UINT, vk::Format::eD24UnormS8Uint },
-	{RHITextureFormat::D32Float, vk::Format::eD32Sfloat},
+	{RHITextureFormat::D32_FLOAT, vk::Format::eD32Sfloat},
 
 };
 

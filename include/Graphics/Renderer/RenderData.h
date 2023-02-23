@@ -50,6 +50,8 @@ struct ViewShadowData : public RenderData
 
 struct SceneRenderData : public RenderData
 {
+	FGTexture* mSceneColor = nullptr;
+	FGTexture* mSceneDepth = nullptr;
 
 };
 

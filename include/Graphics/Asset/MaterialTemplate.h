@@ -6,7 +6,6 @@
 #include "Graphics/Asset/TextureAsset.h"
 #include "Graphics/Renderer/MaterialInstance.h"
 
-#include <d3d11.h>
 
 
 namespace luna::render

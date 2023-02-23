@@ -3,8 +3,6 @@
 #include "Graphics/RenderModule.h"
 #include "Graphics/Renderer/RenderLight.h"
 #include "Game/GameModule.h"
-#include "Game/Camera.h" 
-
 namespace luna
 {
 

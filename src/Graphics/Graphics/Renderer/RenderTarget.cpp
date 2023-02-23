@@ -41,7 +41,7 @@ void RenderTarget::Update()
 	resDesc.Width = GetWidth();
 	resDesc.Height = GetHeight();
 	resDesc.DepthOrArraySize = 1;
-	resDesc.Format = RHITextureFormat::R8G8BB8A8_UNORN;
+	resDesc.Format = RHITextureFormat::R8G8B8A8_UNORM;
 	resDesc.Alignment = 0;
 	resDesc.mUsage = RHIResourceUsage::RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 	resDesc.Layout = RHITextureLayout::LayoutUnknown;

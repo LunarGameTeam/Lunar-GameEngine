@@ -88,6 +88,7 @@ protected:
 public:
 	RenderContext*      mRenderContext;
 	TPPtr<RenderTarget> mMainRT;
+	SubMesh*			mFullscreenMesh = nullptr;
 
 	ImguiTexture* GetImguiTexture(RHIResource* key);
 	ImguiTexture* AddImguiTexture(RHIResource* res);

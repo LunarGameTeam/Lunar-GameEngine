@@ -57,6 +57,7 @@ void RenderView::Render(RenderScene* scene, FrameGraphBuilder* FG)
 		DirectionalLightShadowPass(FG, this, scene);
 		PointShadowPass(FG, this, scene);
 		OpaquePass(FG, this, scene);
+		PostProcessPass(FG, this, scene);
 		OverlayPass(FG, this, scene);
 		break;
 	}	

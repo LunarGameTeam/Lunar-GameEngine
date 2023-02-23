@@ -57,7 +57,7 @@ void Texture2D::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> fil
 	{
 		int w, h, n;
 		mData = (const byte*)stbi_load_from_memory(file->GetData().data(), (int)file->GetData().size(), &w, &h, &n, 4);
-		mDesc.Format = RHITextureFormat::R8G8BB8A8_UNORN;		
+		mDesc.Format = RHITextureFormat::R8G8B8A8_UNORM_SRGB;		
 		mDataType = TextureMemoryType::WIC;
 		mDataSize = w * h * 4;
 		mDesc.ResHeapType = RHIHeapType::Default;
@@ -102,7 +102,7 @@ void Texture2D::Init()
 
 Texture2D::Texture2D()
 {
-	mDesc.Format = RHITextureFormat::R8G8BB8A8_UNORN;
+	mDesc.Format = RHITextureFormat::R8G8B8A8_UNORM;
 }
 
 TextureCube::TextureCube():
@@ -134,7 +134,7 @@ void TextureCube::Init()
 		stbi_image_free((void*)data);
 	}
 
-	mDesc.Format = RHITextureFormat::R8G8BB8A8_UNORN;
+	mDesc.Format = RHITextureFormat::R8G8B8A8_UNORM_SRGB;
 	mDataType = TextureMemoryType::WIC;
 
 	mDesc.ResHeapType = RHIHeapType::Default;

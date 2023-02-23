@@ -32,20 +32,28 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 	{
 		LString rtName = "MainColor";
 		LString rtDepthName = "MainDepth";
+
+		SceneRenderData* data = renderScene->RequireData<SceneRenderData>();
+		
 		RHIResourcePtr colorTexture = view->GetRenderTarget() ? view->GetRenderTarget()->mColorTexture : sRenderModule->mMainRT->mColorTexture;
 		RHIResourcePtr depthTexture = view->GetRenderTarget() ? view->GetRenderTarget()->mDepthTexture : sRenderModule->mMainRT->mDepthTexture;
-		builder->BindExternalTexture(rtName, colorTexture);
-		builder->BindExternalTexture(rtDepthName, depthTexture);
 
-		FGTexture* color = builder->GetTexture(rtName);
-		FGTexture* depth = builder->GetTexture(rtDepthName);
+		data->mSceneColor = builder->CreateTexture("SceneColor",
+			colorTexture->GetDesc().Width, colorTexture->GetDesc().Height, 1, 1,
+			colorTexture->GetDesc().Format, RHIImageUsage::ColorAttachmentBit | RHIImageUsage::SampledBit);
 
-		assert(color);
-		assert(depth);
+		data->mSceneDepth = builder->CreateTexture("SceneDepth",
+			depthTexture->GetDesc().Width, depthTexture->GetDesc().Height, 1, 1,
+			depthTexture->GetDesc().Format, RHIImageUsage::DepthStencilBit);
 
-		auto colorView = node.AddRTV(color, RHIViewDimension::TextureView2D);
-		auto depthView = node.AddDSV(depth);
+		assert(data->mSceneColor);
+		assert(data->mSceneDepth);
+
+		auto colorView = node.AddRTV(data->mSceneColor, RHIViewDimension::TextureView2D);
+		auto depthView = node.AddDSV(data->mSceneDepth);
+
 		ViewShadowData* shadowData = view->GetData<ViewShadowData>();
+
 		if (shadowData)
 		{
 			FGTexture* shadowmap = shadowData->mPointShadowmap;

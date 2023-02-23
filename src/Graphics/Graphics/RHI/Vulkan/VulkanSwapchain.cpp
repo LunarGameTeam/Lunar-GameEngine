@@ -37,7 +37,7 @@ bool VulkanSwapChain::Init()
 	vk::SurfaceFormatKHR surfaceFormat;
 	for (const auto& surface : surface_formats)
 	{
-		if (surface.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
+		if (surface.format == vk::Format::eB8G8R8A8Unorm && surface.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear)
 		{
 			surfaceFormat = surface.format;
 			break;
