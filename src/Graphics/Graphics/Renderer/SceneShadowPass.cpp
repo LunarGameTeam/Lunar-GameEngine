@@ -31,16 +31,18 @@ void DirectionalLightShadowPass(FrameGraphBuilder* builder, RenderView* view, Re
 	{
 		auto shadowData = view->RequireData<ViewShadowData>();
 
-		FGTexture* color = builder->CreateTexture("DirecitonalShadowmap", 
+		FGTexture* color = builder->CreateTexture(
 			1024, 1024, 1, 1,
 			RHITextureFormat::R32_FLOAT, 
-			RHIImageUsage::ColorAttachmentBit | RHIImageUsage::SampledBit
+			RHIImageUsage::ColorAttachmentBit | RHIImageUsage::SampledBit,
+			"DirecitonalShadowmap"
 		);
 
-		FGTexture* depth = builder->CreateTexture("DirecitonalShadowmap",
+		FGTexture* depth = builder->CreateTexture(
 			1024, 1024, 1, 1,
 			RHITextureFormat::D24_UNORM_S8_UINT,
-			RHIImageUsage::DepthStencilBit
+			RHIImageUsage::DepthStencilBit,
+			"DirecitonalShadowmapDepth"
 		);
 
 		shadowData->mDirectionLightShadowmap = color;
@@ -86,16 +88,18 @@ void PointShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* 
 
 		node.SetupFunc(builder, [=](FrameGraphBuilder* builder, FGNode& node)
 		{
-			FGTexture* color = builder->CreateTexture("Shadowmap",
+			FGTexture* color = builder->CreateTexture(
 				512, 512, 6, 1,
 				RHITextureFormat::R32_FLOAT,
-				RHIImageUsage::ColorAttachmentBit | RHIImageUsage::SampledBit
+				RHIImageUsage::ColorAttachmentBit | RHIImageUsage::SampledBit,
+				"PointShadowmap"
 			);
 
-			FGTexture* depth = builder->CreateTexture("ShadowmapDepth",
+			FGTexture* depth = builder->CreateTexture(
 				512, 512, 6, 1,
 				RHITextureFormat::D24_UNORM_S8_UINT,
-				RHIImageUsage::DepthStencilBit
+				RHIImageUsage::DepthStencilBit,
+				"PointShadowmapDepth"
 			);
 
 			assert(color);

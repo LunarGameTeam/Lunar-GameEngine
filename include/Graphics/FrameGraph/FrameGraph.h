@@ -19,14 +19,16 @@ public:
 
 	FGNode& AddPass(const LString& name);
 
-	FGTexture* CreateTexture(const LString& name,
+	FGTexture* CreateTexture(
 		uint32_t width, uint32_t height, uint16_t Depth,
 		uint16_t miplevels, RHITextureFormat format,
-		RHIImageUsage usage, RHIResDimension dimension = RHIResDimension::Texture2D);
+		RHIImageUsage usage,
+		const LString& name = "",
+		RHIResDimension dimension = RHIResDimension::Texture2D);
 
-	FGTexture* CreateTexture(const LString& name, const RHIResDesc& desc);
+	FGTexture* CreateTexture(const RHIResDesc& desc, const LString& name = "");
 	
-	FGTexture* BindExternalTexture(const LString& name,const RHIResourcePtr& texture);	
+	FGTexture* BindExternalTexture(const RHIResourcePtr& texture, const LString& name = "");
 
 	FGTexture* GetTexture(const LString& name);
 	
@@ -45,7 +47,7 @@ private:
 	using RenderPassValue = std::pair<RHIRenderPassPtr, RHIFrameBufferPtr>;
 
 	std::map<RenderPassKey, RenderPassValue> mRHIFrameBuffers;
-
+		
 	std::map<LString, FGResource*> mVirtualRes;	
 	LArray<RHIViewPtr> mConstantBuffer;
 

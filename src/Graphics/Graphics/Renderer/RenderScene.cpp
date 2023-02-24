@@ -47,7 +47,7 @@ void RenderScene::PrepareScene()
 
 	if (mMainDirLight)
 	{
-		mSceneParamsBuffer->Set("cDirectionLightColor", mMainDirLight->mColor);
+		mSceneParamsBuffer->Set("cDirectionLightColor", LMath::sRGB2LinearColor(mMainDirLight->mColor));
 		mSceneParamsBuffer->Set("cLightDirection", mMainDirLight->mDirection);
 	}
 	else
@@ -64,7 +64,7 @@ void RenderScene::PrepareScene()
 			mSceneParamsBuffer->Set("cShadowmapCount", 6);  
 
 		mSceneParamsBuffer->Set("cPointLights", light->mPosition, i, 0);
-		mSceneParamsBuffer->Set("cPointLights", light->mColor, i, 16);
+		mSceneParamsBuffer->Set("cPointLights", LMath::sRGB2LinearColor(light->mColor), i, 16);
 		mSceneParamsBuffer->Set("cPointLights", light->mIntensity, i, 32);
 	}
 	mSceneParamsBuffer->Set("cAmbientColor", mAmbientColor);

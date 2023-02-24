@@ -2,8 +2,9 @@
 #define __SHARED_SAMPLER__
 
 Texture2D _MainTex : register(t0, space2);
-Texture2DArray _ShadowMap : register(t1, space2);
-Texture2DArray _DirectionLightShadowMap : register(t2, space2);
+
+Texture2DArray _ShadowMap : register(t6, space2);
+Texture2DArray _DirectionLightShadowMap : register(t7, space2);
 
 SamplerState SampleTypeClamp : register(s3, space3);
 

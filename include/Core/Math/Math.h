@@ -48,6 +48,17 @@ public:
 	inline static LVector3f ToVector3f(const LVector4f& val) { return LVector3f(val.x(), val.y(), val.z()); }
 	inline static LVector4f ToVector4f(const LVector3f& val, float w = 1.0f) { return LVector4f(val.x(), val.y(), val.z(), w); }
 
+	static LVector4f sRGB2LinearColor(const LVector4f& val)
+	{		
+		LVector4f res = LVector4f(
+			std::pow(val.x(), 2.2),
+			std::pow(val.y(), 2.2),
+			std::pow(val.z(), 2.2),
+			std::pow(val.w(), 2.2)
+			);
+		return res;
+	}
+
 	static LVector3f GetMatrixTranslaton(const LMatrix4f& mat)
 	{
 		LTransform transform(mat);

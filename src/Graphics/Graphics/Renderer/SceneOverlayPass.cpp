@@ -28,15 +28,10 @@ void OverlayPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rend
 
 	node.SetupFunc(builder, [&](FrameGraphBuilder* builder, FGNode& node)
 	{
-		LString rtName = "MainColor";
-		LString rtDepthName = "MainDepth";
 		RHIResourcePtr colorTexture = view->GetRenderTarget() ? view->GetRenderTarget()->mColorTexture : sRenderModule->mMainRT->mColorTexture;
 		RHIResourcePtr depthTexture = view->GetRenderTarget() ? view->GetRenderTarget()->mDepthTexture : sRenderModule->mMainRT->mDepthTexture;
-		builder->BindExternalTexture(rtName, colorTexture);
-		builder->BindExternalTexture(rtDepthName, depthTexture);
-
-		FGTexture* color = builder->GetTexture(rtName);
-		FGTexture* depth = builder->GetTexture(rtDepthName);
+		FGTexture* color = builder->BindExternalTexture(colorTexture, "ViewTargetColor");
+		FGTexture* depth = builder->BindExternalTexture(depthTexture, "ViewTargetDepth");
 
 		assert(color);
 		assert(depth);

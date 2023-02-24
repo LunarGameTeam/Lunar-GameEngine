@@ -6,6 +6,8 @@
 #include "SharedLightingModel.hlsl"
 
 
+Texture2D _NormalTex : register(t1, space2);
+
 cbuffer MaterialBuffer : register(b3)
 {
 	float4 cDiffuseColor;
@@ -15,18 +17,19 @@ cbuffer MaterialBuffer : register(b3)
 float4 PSMain(BaseFragment input) : SV_TARGET
 {
     float4 color = float4(0,0,0,1);
-	// Invert the light direction.
+	
 	float3 Lo = normalize(cCamPos - input.worldPosition.xyz);
-	float3 rad = float3(0, 0, 0);
+
+	float3 outColor = float3(0, 0, 0);
+
 	float4 textureColor = _MainTex.Sample(SampleTypeClamp, input.uv);
-	
-	float shadow = GetShadowFactor(input);
-	if(shadow == 0.0)
-		return float4(0,0,0,1);
-	
+
+	float shadow = GetShadowFactor(input);	
 	{
 		float3 Li = -cLightDirection;
-		LambertLighting(input, Lo,  input.normal, Li, cDirectionLightColor, 1.0, rad);    
+		float3 lightColor = cDirectionLightColor;		
+		float attenuation  = 1.0;
+		LambertLighting(Lo, input.normal, Li, lightColor, textureColor.rgb, attenuation, outColor);    
 	}
 
 	for(int i = 0 ; i < cPointLightsCount; ++i)
@@ -35,12 +38,11 @@ float4 PSMain(BaseFragment input) : SV_TARGET
 		float distance = length(input.worldPosition.xyz - cPointLights[i].cLightPos);
 		float attenuation =  cPointLights[i].cIndensity / (1.0f + 0.09f * distance + 
     		    0.032f * (distance * distance));    
-		float3 Lradiance = cPointLights[i].cLightColor.xyz;
-		Lradiance = saturate(Lradiance);
-		// CalcRadiance
-		LambertLighting(input, Lo,  input.normal, Li, Lradiance, attenuation, rad);
+		float3 lightColor = cPointLights[i].cLightColor.xyz;
+		lightColor = saturate(lightColor);
+		LambertLighting(Lo, input.normal, Li, lightColor, textureColor.rgb, attenuation, outColor);
 	}
-	// Combine the light and texture color.
-	color = float4(rad.xyz, 1) * textureColor + cAmbientColor;
-    return float4(rad.xyz, 1);
+
+	color = float4(shadow * saturate(outColor.xyz + cAmbientColor.xyz), 1.0);
+    return color;
 }

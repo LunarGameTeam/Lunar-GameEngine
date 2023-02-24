@@ -40,13 +40,6 @@ FGNode& FrameGraphBuilder::AddPass(const LString& name)
 
 void FrameGraphBuilder::Clear()
 {
-	//todo::虚拟资源尚未处理隔帧保存的问题，先暂时强制同步
-// 	mFenceValue3D = mFence3D.get()->IncSignal(sRenderModule->GetCmdQueueCore());
-// 	if (mFenceValue3D != size_t(-1))
-// 	{
-// 		mFence3D.get()->Wait(mFenceValue3D);
-// 	}
-	//m_cmd_batch_queue->ResetAllocator();
 
 	for (auto it : mNodes)
 	{
@@ -57,7 +50,7 @@ void FrameGraphBuilder::Clear()
 
 }
 
-FGTexture* FrameGraphBuilder::CreateTexture(const LString& name, const RHIResDesc& desc)
+FGTexture* FrameGraphBuilder::CreateTexture(const RHIResDesc& desc, const LString& name)
 {
 	FGTexture* virtualRes = nullptr;
 	auto it = mVirtualRes.find(name);
@@ -72,9 +65,9 @@ FGTexture* FrameGraphBuilder::CreateTexture(const LString& name, const RHIResDes
 	return virtualRes;
 }
 
-FGTexture* FrameGraphBuilder::CreateTexture(const LString& name, 
+FGTexture* FrameGraphBuilder::CreateTexture(
 	uint32_t width, uint32_t height, uint16_t depth, uint16_t miplevels, 
-	RHITextureFormat format, RHIImageUsage usage, RHIResDimension dimension /*= RHIResDimension::Texture2D*/)
+	RHITextureFormat format, RHIImageUsage usage, const LString& name, RHIResDimension dimension)
 {
 	RHIResDesc desc;	
 	desc.mType = ResourceType::kTexture;
@@ -85,17 +78,17 @@ FGTexture* FrameGraphBuilder::CreateTexture(const LString& name,
 	desc.DepthOrArraySize = depth;
 	desc.MipLevels = miplevels;
 	desc.Dimension = dimension;
-	return CreateTexture(name, desc);
+	return CreateTexture(desc, name);
 }
 
-FGTexture* FrameGraphBuilder::BindExternalTexture(const LString& name,const RHIResourcePtr& rhiTexture)
+FGTexture* FrameGraphBuilder::BindExternalTexture(const RHIResourcePtr& rhiTexture, const LString& name)
 {
 	FGTexture* texture = nullptr;
 	auto it = mVirtualRes.find(name);
 	if (it == mVirtualRes.end())
 	{
 		texture = new FGTexture(name, rhiTexture);			
-		mVirtualRes[name] = texture;		
+		mVirtualRes[name] = texture;
 	}
 	else
 	{
@@ -107,10 +100,6 @@ FGTexture* FrameGraphBuilder::BindExternalTexture(const LString& name,const RHIR
 
 void FrameGraphBuilder::Compile()
 {
-	//for (auto node_list_member : m_graph_nodes)
-	//{
-	//	node_list_member->Setup(this);
-	//}
 }
 
 void FrameGraphBuilder::_Prepare()
