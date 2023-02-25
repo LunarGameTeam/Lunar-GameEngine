@@ -1,5 +1,6 @@
 import core.editor
 import luna
+from luna import imgui
 from ui.panel import PanelBase
 
 
@@ -20,10 +21,17 @@ class InspectorPanel(PanelBase):
         self.editor = editor
 
     def imgui_menu(self):
-        pass
+        if luna.imgui.begin_menu_bar():
+            if luna.imgui.begin_menu("创建", True):
+                if imgui.menu_item("RotateComponent"):
+                    entity: luna.Entity = self.editor.target
+                    entity.add_component(luna.RotateComponent)
+                luna.imgui.end_menu()
+            luna.imgui.end_menu_bar()
 
     def on_imgui(self, delta_time) -> None:
         super().on_imgui(delta_time)
+        self.imgui_menu()
         if self.editor and self.editor.target:
             self.editor.on_imgui()
         return

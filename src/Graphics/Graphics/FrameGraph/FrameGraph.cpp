@@ -158,8 +158,8 @@ void FrameGraphBuilder::Flush()
 			}			
 			cmdlist->Reset();
 			cmdlist->BeginEvent(node->GetName());
-			if (node->mRT.empty() && !node->mDS)
-				return;
+			if (node->mRT.empty())
+				continue;
 			{
 				ZoneScopedN("Resource Barrier");
 				for (FGResourceView* view : node->mVirtureResView)
@@ -210,8 +210,12 @@ void FrameGraphBuilder::Flush()
 				node->mPassDesc.mColorView.emplace_back(rtView.mRHIView);
 			}
 
-			node->mPassDesc.mDepthStencilView = dsView.mRHIView;
-			node->mPassDesc.mDepths[0].mDepthStencilFormat = dsView.mRHIView->mBindResource->mResDesc.Format;
+			if(node->mPassDesc.mDepths.size() > 0)
+			{
+				node->mPassDesc.mDepthStencilView = dsView.mRHIView;
+				node->mPassDesc.mDepths[0].mDepthStencilFormat = dsView.mRHIView->mBindResource->mResDesc.Format;
+			}
+			
 
 			node->PreExecute(this);
 

@@ -135,30 +135,19 @@ VulkanResource::VulkanResource(const SamplerDesc& desc)
 
 	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
 	vk::SamplerCreateInfo samplerInfo = {};
-	samplerInfo.magFilter = vk::Filter::eLinear;
-	samplerInfo.minFilter = vk::Filter::eLinear;
+
+	samplerInfo.magFilter = vk::Filter::eNearest;
+	samplerInfo.minFilter = vk::Filter::eNearest;
 	samplerInfo.anisotropyEnable = false;
 	samplerInfo.maxAnisotropy = 16;
 
 	samplerInfo.borderColor = vk::BorderColor::eIntOpaqueBlack;
 	samplerInfo.unnormalizedCoordinates = VK_FALSE;
-	samplerInfo.mipmapMode = vk::SamplerMipmapMode::eLinear;
+	samplerInfo.mipmapMode = vk::SamplerMipmapMode::eNearest;
 	samplerInfo.mipLodBias = 0.0f;
 	samplerInfo.minLod = 0.0f;
 	samplerInfo.maxLod = std::numeric_limits<float>::max();
-
-	/*switch (desc.filter)
-	{
-	case SamplerFilter::kAnisotropic:
-		sampler_desc.Filter = D3D12_FILTER_ANISOTROPIC;
-		break;
-	case SamplerFilter::kMinMagMipLinear:
-		sampler_desc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
-		break;
-	case SamplerFilter::kComparisonMinMagMipLinear:
-		sampler_desc.Filter = D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
-		break;
-	}*/
+	
 
 	switch (desc.mode)
 	{
@@ -168,9 +157,9 @@ VulkanResource::VulkanResource(const SamplerDesc& desc)
 		samplerInfo.addressModeW = vk::SamplerAddressMode::eRepeat;
 		break;
 	case SamplerTextureAddressMode::kClamp:
-		samplerInfo.addressModeU = vk::SamplerAddressMode::eClampToEdge;
-		samplerInfo.addressModeV = vk::SamplerAddressMode::eClampToEdge;
-		samplerInfo.addressModeW = vk::SamplerAddressMode::eClampToEdge;
+		samplerInfo.addressModeU = vk::SamplerAddressMode::eClampToBorder;
+		samplerInfo.addressModeV = vk::SamplerAddressMode::eClampToBorder;
+		samplerInfo.addressModeW = vk::SamplerAddressMode::eClampToBorder;
 		break;
 	}
 

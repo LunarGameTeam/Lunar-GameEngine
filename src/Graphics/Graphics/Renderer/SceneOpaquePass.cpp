@@ -23,7 +23,7 @@ PARAM_ID(MaterialBuffer);
 
 void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene)
 {
-
+	
 	auto& node = builder->AddPass("Opaque");
 	
 	FGResourceView* shadowmapView = nullptr;	

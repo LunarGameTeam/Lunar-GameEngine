@@ -3,6 +3,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include "SharedCBuffer.hlsl"
 #include "SharedSampler.hlsl"
+#include "SharedShadow.hlsl"
 /////////////
 // GLOBALS //
 /////////////
@@ -14,10 +15,14 @@ static const uint NumLights = 3;
 // Constant normal incidence Fresnel factor for all dielectrics.
 static const float3 Fdielectric = 0.04;
 
+TextureCube _EnvTex : register(t3, space2);
+TextureCube _IrradianceTex : register(t4, space2);
+Texture2D _LUTTex : register(t5, space2);
+
 cbuffer MaterialBuffer : register(b3)
 {
 	float _Metallic;
-	float _Smooth;
+	float _Roughness;
 	float3 _AlebdoColor;
 }
 
@@ -63,142 +68,147 @@ BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
 // TEXTURES //
 //////////////
 
-float ndfGGX(float cosLh, float roughness)
-{
-	float alpha   = roughness * roughness;
-	float alphaSq = alpha * alpha;
+//#define ROUGHNESS_PATTERN 1
 
-	float denom = (cosLh * cosLh) * (alphaSq - 1.0) + 1.0;
-	return alphaSq / (PI * denom * denom);
+float3 materialcolor()
+{
+	return _AlebdoColor;
 }
 
-// Single term for separable Schlick-GGX below.
-float gaSchlickG1(float cosTheta, float k)
+// Normal Distribution function --------------------------------------
+float D_GGX(float dotNH, float roughness)
 {
-	return cosTheta / (cosTheta * (1.0 - k) + k);
+	float alpha = roughness * roughness;
+	float alpha2 = alpha * alpha;
+	float denom = dotNH * dotNH * (alpha2 - 1.0) + 1.0;
+	return (alpha2)/(PI * denom*denom);
 }
 
-// Schlick-GGX approximation of geometric attenuation function using Smith's method.
-float gaSchlickGGX(float cosLi, float cosLo, float roughness)
+// Geometric Shadowing function --------------------------------------
+float G_SchlicksmithGGX(float dotNL, float dotNV, float roughness)
 {
-	float r = roughness + 1.0;
-	float k = (r * r) / 8.0; // Epic suggests using this roughness remapping for analytic lights.
-	return gaSchlickG1(cosLi, k) * gaSchlickG1(cosLo, k);
+	float r = (roughness + 1.0);
+	float k = (r*r) / 8.0;
+	float GL = dotNL / (dotNL * (1.0 - k) + k);
+	float GV = dotNV / (dotNV * (1.0 - k) + k);
+	return GL * GV;
 }
 
-// Shlick's approximation of the Fresnel factor.
-float3 fresnelSchlick(float3 F0, float cosTheta)
+// Fresnel function ----------------------------------------------------
+float3 F_Schlick(float cosTheta, float3 F0)
 {
-	return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+	float3 F = F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+	return F;
+}
+float3 F_SchlickR(float cosTheta, float3 F0, float roughness)
+{
+	return F0 + (max((1.0 - roughness).xxx, F0) - F0) * pow(1.0 - cosTheta, 5.0);
 }
 
-void CalcRadiance(BaseFragment input, float3 Lo, float3 N, float3 Li, float3 Lradiance, out float3 rad)
+float3 prefilteredReflection(float3 R, float roughness)
 {
-	float3 albedo = _AlebdoColor;
-	float metalness = _Metallic;
-	float roughness = 0;//_Smooth;
-
-	float cosLo = max(0.0, dot(N, Lo));
-	
-		
-	// Specular reflection vector.
-	float3 Lr = 2.0 * cosLo * N - Lo;
-
-	// Fresnel reflectance at normal incidence (for metals use albedo color).
-	float3 F0 = lerp(Fdielectric, albedo, metalness);
-
-	// Direct lighting calculation for analytical lights.
-	float3 directLighting = 0.0;
-
-		// Half-vector between Li and Lo.
-	float3 Lh = normalize(Li + Lo);
-
-		// Calculate angles between surface normal and various light vectors.
-	float cosLi = max(0.0, dot(N, Li));
-	float cosLh = max(0.0, dot(N, Lh));
-
-		// Calculate Fresnel term for direct lighting. 
-	float3 F  = fresnelSchlick(F0, max(0.0, dot(Lh, Lo)));
-		// Calculate normal distribution for specular BRDF.
-	float D = ndfGGX(cosLh, roughness);
-		// Calculate geometric attenuation for specular BRDF.
-	float G = gaSchlickGGX(cosLi, cosLo, roughness);
-
-		// Diffuse scattering happens due to light being refracted multiple times by a dielectric medium.
-		// Metals on the other hand either reflect or absorb energy, so diffuse contribution is always zero.
-		// To be energy conserving we must scale diffuse BRDF contribution based on Fresnel factor & metalness.
-	float3 kd = lerp(float3(1, 1, 1) - F, float3(0, 0, 0), metalness);
-
-		// Lambert diffuse BRDF.
-		// We don't scale by 1/PI for lighting & material units to be more convenient.
-		// See: https://seblagarde.wordpress.com/2012/01/08/pi-or-not-to-pi-in-game-lighting-equation/
-	float3 diffuseBRDF = kd * albedo;
-
-		// Cook-Torrance specular microfacet BRDF.
-	float3 specularBRDF = (F * D * G) / max(Epsilon, 4.0 * cosLi * cosLo);
-
-		// Total contribution for this light.
-	directLighting += (diffuseBRDF + specularBRDF) * Lradiance * cosLi;
-
-	rad += directLighting;
+	const float MAX_REFLECTION_LOD = 9.0; // todo: param/const
+	float lod = roughness * MAX_REFLECTION_LOD;
+	float lodf = floor(lod);
+	float lodc = ceil(lod);
+	float3 a = _EnvTex.Sample(_ClampSampler, R).rgb;
+	float3 b = _EnvTex.Sample(_ClampSampler, R).rgb;
+	return lerp(a, b, lod - lodf);
 }
+
+// Specular BRDF composition --------------------------------------------
+
+float3 BRDF(float3 L, float3 V, float3 N,float3 lightColor, float metallic, float roughness)
+{
+	// Precalculate vectors and dot products
+	float3 H = normalize (V + L);
+	float dotNV = clamp(dot(N, V), 0.0, 1.0);
+	float dotNL = clamp(dot(N, L), 0.0, 1.0);
+	float dotLH = clamp(dot(L, H), 0.0, 1.0);
+	float dotNH = clamp(dot(N, H), 0.0, 1.0);
+
+	float3 F0 = float3(0.04, 0.04, 0.04);
+	F0 = lerp(F0, materialcolor(), metallic); // * material.specular
+
+	float3 color = float3(0.0, 0.0, 0.0);
+
+	if (dotNL > 0.0)
+	{
+		float rroughness = max(0.05, roughness);
+		// D = Normal distribution (Distribution of the microfacets)
+		float D = D_GGX(dotNH, roughness);
+		// G = Geometric shadowing term (Microfacets shadowing)
+		float G = G_SchlicksmithGGX(dotNL, dotNV, rroughness);
+		// F = Fresnel factor (Reflectance depending on angle of incidence)
+		float3 F = F_Schlick(dotNV, F0);
+
+		float3 spec = D * F * G / (4.0 * dotNL * dotNV + 0.001);
+		float3 kD = (float3(1.0, 1.0, 1.0) - F) * (1.0 - metallic);
+		color += (kD * _AlebdoColor / PI + spec) * dotNL;
+	}
+
+	return color;
+}
+
+
 
 float4 PSMain(BaseFragment input) : SV_TARGET
 {
 // Sample input textures to get shading model params.
 	float3 albedo = _AlebdoColor;
-	float metalness = _Metallic;
-	float roughness = 0;//_Smooth;
+	float metallic = _Metallic;
+	float roughness = _Roughness;
 
-	// Outgoing light direction (vector from world-space fragment position to the "eye").
-	float3 Lo = normalize(cCamPos - input.worldPosition.xyz);
+	float3 V = normalize(cCamPos - input.worldPosition.xyz);
+	float3 N = normalize(input.normal);
+	float3 R = reflect(-V, N);
 
 	float4 lightViewPosition = input.worldPosition;
 
-	//先屏蔽CSM功能
-	// uint csm_index = 0;
-	// float z = input.depthLinear;
-	// if(z <= csmSplits.x)
-	// 	csm_index = 0;
-	// else if(z <= csmSplits.y)
-	// 	csm_index = 1;
-	// else if(z <= csmSplits.z)
-	// 	csm_index = 2;
-	// else
-	// 	csm_index = 3;
-	// lightViewPosition = mul(lightViewPosition, lightViewMatrix[csm_index]);
-    // lightViewPosition = mul(lightViewPosition, lightProjectionMatrix[csm_index]);	
-	
-    float2 uv2 = float2(lightViewPosition.x * 0.5 / lightViewPosition.w + 0.5, -lightViewPosition.y * 0.5 / lightViewPosition.w + 0.5);
-	// Get current fragment's normal and transform to world space.
-	//float shadowFactor = CalcShadowFactor(lightViewPosition.z / lightViewPosition.w, uv2, csm_index);
-	
-	float3 rad = float3(0, 0, 0);
+	float3 F0 = float3(0.04, 0.04, 0.04);
+	F0 = lerp(F0, _AlebdoColor, _Metallic);
+
+	float shadow = GetShadowPCF(input.worldPosition.xyz);
+
+	float3 Lo = float3(0, 0, 0);
 	// Direction Light
 	{
-		float3 Li = -cLightDirection;
-		float3 Lradiance = cDirectionLightColor.xyz;
+		float3 L = normalize(-cLightDirection);
+		float3 lightColor = cDirectionLightColor.xyz;
 		// CalcRadiance
-		CalcRadiance(input, Lo,  input.normal, Li, Lradiance, rad);
+		Lo+= BRDF(L, V,  N, lightColor, metallic, roughness);
 	}
 
 	// Point Lights
 	for(int i = 0 ; i < cPointLightsCount; ++i)
 	{
-		float3 Li = normalize(cPointLights[i].cLightPos- input.worldPosition.xyz);
+		float3 L = normalize(cPointLights[i].cLightPos- input.worldPosition.xyz);
 		float distance = length(input.worldPosition.xyz - cPointLights[i].cLightPos);
 		float attenuation =  cPointLights[i].cIndensity / (1.0f + 0.09f * distance + 
     		    0.032f * (distance * distance));    
-		float3 Lradiance = cPointLights[i].cLightColor.xyz * attenuation;
+		float3 lightColor = cPointLights[i].cLightColor.xyz * attenuation;
 		// CalcRadiance
-		CalcRadiance(input, Lo,  input.normal, Li, Lradiance, rad);
+		Lo+= BRDF(L, V,  N, lightColor, metallic, roughness);
 	}
+		
+	float2 brdf = _LUTTex.Sample(_ClampSampler, float2(max(dot(N, V), 0.0), roughness)).rg;
+	float3 reflection = prefilteredReflection(R, roughness).rgb;
+	float3 irradiance = _EnvTex.Sample(_ClampSampler, N).rgb;
 
-	// if(dot(input.normal, - cLightDirection) > 0)
-	//	return float4((float(csm_index + 1) / 4.0f * shadowFactor) * rad, 1);
-	// Final fragment color
+	// Diffuse based on irradiance
+	float3 diffuse = irradiance * albedo;
+
+	float3 F = F_SchlickR(max(dot(N, V), 0.0), F0, roughness);
+
+	// Specular reflectance
+	float3 specular = reflection * (F * brdf.x + brdf.y);
 	
-	float4 color = _MainTex.Sample(SampleTypeClamp, input.uv);
-	//return float4(rad, 1);
-	return float4(rad, 1.0);
+	// Ambient part
+	float3 kD = 1.0 - F;
+	kD *= 1.0 - metallic;
+	float3 ambient = specular;
+
+	float3 color =  ambient + Lo;
+	
+	return float4(color * shadow, 1.0);
 }

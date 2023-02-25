@@ -39,13 +39,16 @@ void MeshRenderer::OnCreate()
 	}
 	CreateRenderObject();
 
+	
 	if (mMaterialInstance && mMeshAsset && mRO)
 	{
 		mRO->mMaterial = mMaterialInstance.Get();
 		mRO->mMesh = mMeshAsset->GetSubMeshAt(0);
 		mRO->mMesh->Update();
-		mRO->mWorldMat = &(mTransform->GetLocalToWorldMatrix());
 	}
+
+	if(mRO)
+		mRO->mWorldMat = &(mTransform->GetLocalToWorldMatrix());
 }
 
 void MeshRenderer::OnActivate()

@@ -81,7 +81,14 @@ void PointShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* 
 
 	if (renderScene->mPointLights.size() == 0)
 		return;
-
+	bool hasShadow = false;
+	for (PointLight* it : renderScene->mPointLights)
+	{
+		if (it->mCastShadow)
+			hasShadow = true;
+	}
+	if (!hasShadow)
+		return;
 	for (uint32_t idx = 0; idx < 6; idx++)
 	{
 		auto& node = builder->AddPass(LString::Format("PointLightShadowmap{}", idx));

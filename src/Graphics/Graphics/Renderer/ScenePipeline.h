@@ -6,7 +6,8 @@
 
 namespace luna::render
 {
-	
+
+void PBRPreparePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene);
 void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene);
 void DirectionalLightShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene);
 void PointShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene);

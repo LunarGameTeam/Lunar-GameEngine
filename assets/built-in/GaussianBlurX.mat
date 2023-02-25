@@ -1,0 +1,24 @@
+{
+   "objects" : [
+      {
+         "__class__" : "MaterialTemplateAsset",
+         "__fid__" : 1,
+         "__index__" : 0,
+         "__parent__" : 0,
+         "name" : "",
+         "params" : [2],
+         "primitive_type" : 2,
+         "shader" : "/assets/built-in/Shader/GaussianBlurX.hlsl"
+      },
+      {
+         "__class__" : "MaterialParamFloat2",
+         "__fid__" : 2,
+         "__index__" : 1,
+         "__parent__" : 1,
+         "name" : "",
+         "param_name" : "_viewTargetDimensions",
+         "type" : 2,
+         "value" : [ 256.0, 256.0]
+      },
+   ]
+}

@@ -51,7 +51,7 @@ class ScenePanel(PanelBase):
                 self.main_light = main_light
 
             point_light = entity.get_component(luna.PointLightComponent)
-            if point_light and point_light.cast_shadow:
+            if point_light and self.point_light is None:
                 self.point_light = point_light
 
         # if not self.main_light:
@@ -147,11 +147,11 @@ class ScenePanel(PanelBase):
                     entity = self.scene.create_entity("SceneEnv")
                     scene_env = entity.add_component(luna.SceneEnvComponent)
                 if imgui.menu_item("Cube"):
-                    self.create_geometry("/assets/built-in/Geometry/Box.obj")
+                    self.create_geometry("/assets/built-in/Geometry/Box.lmesh")
                 if imgui.menu_item("Sphere"):
-                    self.create_geometry("/assets/built-in/Geometry/Sphere.obj")
+                    self.create_geometry("/assets/built-in/Geometry/Sphere.lmesh")
                 if imgui.menu_item("Plane"):
-                    self.create_geometry("/assets/built-in/Geometry/Plane.obj")
+                    self.create_geometry("/assets/built-in/Geometry/Plane.lmesh")
                 if imgui.menu_item("PointLight"):
                     self.create_point_light()
                 if imgui.menu_item("Directional Light"):
@@ -203,11 +203,11 @@ class ScenePanel(PanelBase):
         imgui.gizmos.set_draw_list()
 
         if self.point_light:
-            x = math.cos(self.rad) * 3
-            y = 4 + math.cos(self.rad)
-            z = math.sin(self.rad) * 3
-            self.point_light.entity.get_component(luna.Transform).local_position = luna.LVector3f(x,y,z)
-            self.rad += math.pi * 0.3 * delta_time
+            x = 4 + math.cos(self.rad) * 6
+            y = math.sin(self.rad) * 6
+            z = -3
+            # self.point_light.entity.get_component(luna.Transform).local_position = luna.LVector3f(x, y ,z)
+            self.rad += math.pi * 0.2 * delta_time
 
         content = luna.imgui.get_content_region_avail()
 

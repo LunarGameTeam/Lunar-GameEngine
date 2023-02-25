@@ -98,6 +98,14 @@ class EditorBase(object):
             if changed:
                 setattr(comp, prop_name, new_val)
             return changed, new_val
+        elif prop_type == luna.LVector4f:
+            imgui.align_text_to_frame_padding()
+            imgui.text(prop_name)
+            imgui.same_line(16 + self.indent, 16)
+            changed, new_val = imgui.color4_picker("##" + prop_name, val, imgui.ImGuiColorEditFlags_None)
+            if changed:
+                setattr(comp, prop_name, new_val)
+            return changed, new_val
         elif prop_type == str:
             imgui.align_text_to_frame_padding()
             imgui.text(prop_name)

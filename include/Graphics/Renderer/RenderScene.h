@@ -46,6 +46,7 @@ public:
 
 	RenderObject* CreateRenderObject();
 	RenderView* CreateRenderView();
+	void DestroyLight(Light* ro);
 	void DestroyRenderObject(RenderObject* ro);
 	void DestroyRenderView(RenderView* renderView);
 
@@ -76,7 +77,7 @@ public:
 	//Point Lights
 	LArray<PointLight*> mPointLights;
 	//»·¾³¹â
-	LVector4f           mAmbientColor   = LVector4f(0, 0, 0, 0);
+	LVector4f           mAmbientColor   = LVector4f(0.05, 0.05, 0.05, 1.0);
 	//Skybox
 	MaterialInstance*   mSkyboxMaterial = nullptr;
 	

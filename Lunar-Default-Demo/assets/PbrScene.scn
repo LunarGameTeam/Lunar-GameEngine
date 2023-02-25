@@ -1,0 +1,462 @@
+{
+   "objects" : [
+      {
+         "__class__" : "Scene",
+         "__fid__" : 1,
+         "__index__" : 0,
+         "__parent__" : 0,
+         "entities" : [ 45, 48, 41, 38, 35, 32, 29, 26, 23, 20, 17, 14, 10, 6, 2 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 2,
+         "__index__" : 14,
+         "__parent__" : 1,
+         "active" : false,
+         "component_list" : [ 5, 4, 3 ],
+         "name" : "PointLight"
+      },
+      {
+         "__class__" : "PointLightComponent",
+         "__fid__" : 3,
+         "__index__" : 2,
+         "__parent__" : 2,
+         "cast_shadow" : false,
+         "color" : [ 1.0, 1.0, 1.0, 1.0 ],
+         "intensity" : 1.0
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 4,
+         "__index__" : 1,
+         "__parent__" : 2,
+         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 5,
+         "__index__" : 0,
+         "__parent__" : 2,
+         "local_position" : [ 15.0, 5.0, -5.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 6,
+         "__index__" : 13,
+         "__parent__" : 1,
+         "active" : false,
+         "component_list" : [ 9, 8, 7 ],
+         "name" : "PointLight"
+      },
+      {
+         "__class__" : "PointLightComponent",
+         "__fid__" : 7,
+         "__index__" : 2,
+         "__parent__" : 6,
+         "cast_shadow" : false,
+         "color" : [ 1.0, 1.0, 1.0, 1.0 ],
+         "intensity" : 1.0
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 8,
+         "__index__" : 1,
+         "__parent__" : 6,
+         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 9,
+         "__index__" : 0,
+         "__parent__" : 6,
+         "local_position" : [ 15.0, -5.0, -5.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 10,
+         "__index__" : 12,
+         "__parent__" : 1,
+         "active" : false,
+         "component_list" : [ 13, 12, 11 ],
+         "name" : "PointLight"
+      },
+      {
+         "__class__" : "PointLightComponent",
+         "__fid__" : 11,
+         "__index__" : 2,
+         "__parent__" : 10,
+         "cast_shadow" : false,
+         "color" : [ 1.0, 1.0, 1.0, 1.0 ],
+         "intensity" : 1.0
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 12,
+         "__index__" : 1,
+         "__parent__" : 10,
+         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 13,
+         "__index__" : 0,
+         "__parent__" : 10,
+         "local_position" : [ -15.0, 5.0, -5.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 14,
+         "__index__" : 11,
+         "__parent__" : 1,
+         "active" : false,
+         "component_list" : [ 16, 15 ],
+         "name" : "Cube"
+      },
+      {
+         "__class__" : "MeshRenderer",
+         "__fid__" : 15,
+         "__index__" : 1,
+         "__parent__" : 14,
+         "cast_shadow" : true,
+         "material" : "/assets/Pbr/1_1.mat",
+         "mesh" : "/assets/built-in/Geometry/Sphere.lmesh",
+         "receive_shadow" : true
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 16,
+         "__index__" : 0,
+         "__parent__" : 14,
+         "local_position" : [ 4.0, -3.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 17,
+         "__index__" : 10,
+         "__parent__" : 1,
+         "active" : false,
+         "component_list" : [ 19, 18 ],
+         "name" : "Cube"
+      },
+      {
+         "__class__" : "MeshRenderer",
+         "__fid__" : 18,
+         "__index__" : 1,
+         "__parent__" : 17,
+         "cast_shadow" : true,
+         "material" : "/assets/Pbr/0.5_1.mat",
+         "mesh" : "/assets/built-in/Geometry/Sphere.lmesh",
+         "receive_shadow" : true
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 19,
+         "__index__" : 0,
+         "__parent__" : 17,
+         "local_position" : [ 0.0, -3.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 20,
+         "__index__" : 9,
+         "__parent__" : 1,
+         "active" : false,
+         "component_list" : [ 22, 21 ],
+         "name" : "Cube"
+      },
+      {
+         "__class__" : "MeshRenderer",
+         "__fid__" : 21,
+         "__index__" : 1,
+         "__parent__" : 20,
+         "cast_shadow" : true,
+         "material" : "/assets/Pbr/0_1.mat",
+         "mesh" : "/assets/built-in/Geometry/Sphere.lmesh",
+         "receive_shadow" : true
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 22,
+         "__index__" : 0,
+         "__parent__" : 20,
+         "local_position" : [ -4.0, -3.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 23,
+         "__index__" : 8,
+         "__parent__" : 1,
+         "active" : false,
+         "component_list" : [ 25, 24 ],
+         "name" : "Cube"
+      },
+      {
+         "__class__" : "MeshRenderer",
+         "__fid__" : 24,
+         "__index__" : 1,
+         "__parent__" : 23,
+         "cast_shadow" : true,
+         "material" : "/assets/Pbr/1_0.5.mat",
+         "mesh" : "/assets/built-in/Geometry/Sphere.lmesh",
+         "receive_shadow" : true
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 25,
+         "__index__" : 0,
+         "__parent__" : 23,
+         "local_position" : [ 4.0, 0.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 26,
+         "__index__" : 7,
+         "__parent__" : 1,
+         "active" : false,
+         "component_list" : [ 28, 27 ],
+         "name" : "Cube"
+      },
+      {
+         "__class__" : "MeshRenderer",
+         "__fid__" : 27,
+         "__index__" : 1,
+         "__parent__" : 26,
+         "cast_shadow" : true,
+         "material" : "/assets/Pbr/0.5_0.5.mat",
+         "mesh" : "/assets/built-in/Geometry/Sphere.lmesh",
+         "receive_shadow" : true
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 28,
+         "__index__" : 0,
+         "__parent__" : 26,
+         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 29,
+         "__index__" : 6,
+         "__parent__" : 1,
+         "active" : false,
+         "component_list" : [ 31, 30 ],
+         "name" : "Cube"
+      },
+      {
+         "__class__" : "MeshRenderer",
+         "__fid__" : 30,
+         "__index__" : 1,
+         "__parent__" : 29,
+         "cast_shadow" : true,
+         "material" : "/assets/Pbr/0_0.5.mat",
+         "mesh" : "/assets/built-in/Geometry/Sphere.lmesh",
+         "receive_shadow" : true
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 31,
+         "__index__" : 0,
+         "__parent__" : 29,
+         "local_position" : [ -4.0, 0.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 32,
+         "__index__" : 5,
+         "__parent__" : 1,
+         "active" : false,
+         "component_list" : [ 34, 33 ],
+         "name" : "Cube"
+      },
+      {
+         "__class__" : "MeshRenderer",
+         "__fid__" : 33,
+         "__index__" : 1,
+         "__parent__" : 32,
+         "cast_shadow" : true,
+         "material" : "/assets/Pbr/1_0.mat",
+         "mesh" : "/assets/built-in/Geometry/Sphere.lmesh",
+         "receive_shadow" : true
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 34,
+         "__index__" : 0,
+         "__parent__" : 32,
+         "local_position" : [ 4.0, 3.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 35,
+         "__index__" : 4,
+         "__parent__" : 1,
+         "active" : false,
+         "component_list" : [ 37, 36 ],
+         "name" : "Cube"
+      },
+      {
+         "__class__" : "MeshRenderer",
+         "__fid__" : 36,
+         "__index__" : 1,
+         "__parent__" : 35,
+         "cast_shadow" : true,
+         "material" : "/assets/Pbr/0.5_0.mat",
+         "mesh" : "/assets/built-in/Geometry/Sphere.lmesh",
+         "receive_shadow" : true
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 37,
+         "__index__" : 0,
+         "__parent__" : 35,
+         "local_position" : [ 0.0, 3.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 38,
+         "__index__" : 3,
+         "__parent__" : 1,
+         "active" : false,
+         "component_list" : [ 40, 39 ],
+         "name" : "Cube"
+      },
+      {
+         "__class__" : "MeshRenderer",
+         "__fid__" : 39,
+         "__index__" : 1,
+         "__parent__" : 38,
+         "cast_shadow" : true,
+         "material" : "/assets/Pbr/0_0.mat",
+         "mesh" : "/assets/built-in/Geometry/Sphere.lmesh",
+         "receive_shadow" : true
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 40,
+         "__index__" : 0,
+         "__parent__" : 38,
+         "local_position" : [ -4.0, 3.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 41,
+         "__index__" : 2,
+         "__parent__" : 1,
+         "active" : false,
+         "component_list" : [ 44, 43, 42 ],
+         "name" : "PointLight"
+      },
+      {
+         "__class__" : "PointLightComponent",
+         "__fid__" : 42,
+         "__index__" : 2,
+         "__parent__" : 41,
+         "cast_shadow" : false,
+         "color" : [ 1.0, 1.0, 1.0, 1.0 ],
+         "intensity" : 1.0
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 43,
+         "__index__" : 1,
+         "__parent__" : 41,
+         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 44,
+         "__index__" : 0,
+         "__parent__" : 41,
+         "local_position" : [ -15.0, -5.0, -5.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 45,
+         "__index__" : 1,
+         "__parent__" : 1,
+         "active" : false,
+         "component_list" : [ 47, 46 ],
+         "name" : "MainCamera"
+      },
+      {
+         "__class__" : "CameraComponent",
+         "__fid__" : 46,
+         "__index__" : 1,
+         "__parent__" : 45
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 47,
+         "__index__" : 0,
+         "__parent__" : 45,
+         "local_position" : [ -0.10337141156196594, -0.56317681074142456, -8.3761081695556641 ],
+         "local_rotation" : [
+            -0.03768940269947052,
+            -0.0062787849456071854,
+            -0.00023682619212195277,
+            0.99926561117172241
+         ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 48,
+         "__index__" : 0,
+         "__parent__" : 1,
+         "active" : false,
+         "component_list" : [ 49, 50 ],
+         "name" : "SceneEnv"
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 49,
+         "__index__" : 1,
+         "__parent__" : 48,
+         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "SceneEnvComponent",
+         "__fid__" : 50,
+         "__index__" : 0,
+         "__parent__" : 48,
+         "skybox_material" : "/assets/built-in/skybox/Skybox.mat",
+         "skybox_mesh" : ""
+      }
+   ]
+}

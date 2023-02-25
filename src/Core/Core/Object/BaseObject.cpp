@@ -49,15 +49,15 @@ LObject::LObject() :
 
 LObject::~LObject()
 {
-	if (mParent)
-	{
-		mParent->mSubObjects.remove(this);
-		mParent = nullptr;
-	}
 	auto tmp = mSubObjects;
 	for (LObject* it : tmp)
 	{
 		delete it;
+	}
+	if (mParent)
+	{
+		mParent->mSubObjects.remove(this);
+		mParent = nullptr;
 	}
 	mSubObjects.clear();
 	sObjects.erase(mInstanceID);

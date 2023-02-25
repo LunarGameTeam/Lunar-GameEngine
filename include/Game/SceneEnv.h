@@ -31,12 +31,17 @@ public:
 	void SetSkyboxMaterial(render::MaterialTemplateAsset* val);
 
 	void SetAmbientColor(const LVector4f& ambient);
+	void SetGizmosEnable(bool val);
+	void SetFogColor(const LVector4f& ambient);
 
 
 private:
-	LVector4f mFogColor = LVector4f(0.1, 0.1, 0.1, 1);
+	bool      mDrawGizmos   = true;
+	bool      mFogEnable    = true;
+	LVector4f mFogColor     = LVector4f(0.1, 0.1, 0.1, 1);
 	LVector4f mAmbientColor = LVector4f(0.1, 0.1, 0.1, 1);
-	TPPtr<render::MeshAsset> mSkyboxMesh;
+
+	TPPtr<render::MeshAsset>             mSkyboxMesh;
 	TPPtr<render::MaterialTemplateAsset> mSkyboxMaterial;
 
 private:

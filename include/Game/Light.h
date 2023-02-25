@@ -14,14 +14,16 @@ namespace luna
 class GAME_API LightComponent : public Component
 {
 	RegisterTypeEmbedd(LightComponent, Component)
-public:	 
+public:
+	virtual ~LightComponent();
+
 	void OnCreate() override;
 
-	const LVector3f& GetColor()
+	const LVector4f& GetColor()
 	{
 		return mColor;
 	}
-	void SetColor(const LVector3f& val);
+	void SetColor(const LVector4f& val);
 
 	void SetIndensity(float val);
 
@@ -33,7 +35,7 @@ public:
 	void SetCastShadow(bool val);
 protected:
 	ActionHandle   mTransformDirtyAction;
-	LVector3f      mColor      = LVector3f(0.8f, 0.8f, 0.8f);
+	LVector4f      mColor      = LVector4f(0.8f, 0.8f, 0.8f, 1.0f);
 	bool           mCastShadow = false;
 	float          mIntensity = 1.0f;
 	render::Light* mLight      = nullptr;

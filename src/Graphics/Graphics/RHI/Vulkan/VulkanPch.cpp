@@ -12,7 +12,7 @@ DoubleConverter<RHITextureFormat, vk::Format> sVulkanFormtas =
 	{RHITextureFormat::R8G8B8A8_SINT, vk::Format::eR8G8B8A8Sint},	
 	{RHITextureFormat::R16G16B16A16_FLOAT, vk::Format::eR16G16B16A16Sfloat},
 	{RHITextureFormat::R16G16B16A16_UNORM, vk::Format::eR16G16B16A16Unorm},
-	{RHITextureFormat::R16G16B16A16_TYPELESS, vk::Format::eR16G16B16A16Uscaled},
+	{RHITextureFormat::R16G16B16A16_TYPELESS, vk::Format::eR16G16B16A16Sfloat},
 	{RHITextureFormat::R16G16B16A16_UINT, vk::Format::eR16G16B16A16Uint},
 	{RHITextureFormat::FORMAT_B8G8R8A8_UNORM, vk::Format::eB8G8R8A8Unorm },
 	{RHITextureFormat::FORMAT_B8G8R8A8_UNORM_SRGB, vk::Format::eB8G8R8A8Srgb },

@@ -19,7 +19,7 @@ BaseFragment VSMain(BaseVertex input)
     output.color = input.color;
 	return output;
 }
-const static float correction = 1 / 2.2;
+const static float correction = 1.0 / 2.2;
 ////////////////////////////////////////////////////////////////////////////////
 // Filename: depth.ps
 ////////////////////////////////////////////////////////////////////////////////
@@ -27,9 +27,25 @@ const static float correction = 1 / 2.2;
 ////////////////////////////////////////////////////////////////////////////////
 // Pixel Shader
 ////////////////////////////////////////////////////////////////////////////////
+float3 Uncharted2Tonemap(float3 x)
+{
+	float A = 0.15;
+	float B = 0.50;
+	float C = 0.10;
+	float D = 0.20;
+	float E = 0.02;
+	float F = 0.30;
+	return ((x*(A*x+C*B)+D*E)/(x*(A*x+B)+D*F))-E/F;
+}
+
 float4 PSMain(BaseFragment input) : SV_TARGET
 {
-    float4 color = float4(_MainTex.Sample(SampleTypeClamp, input.uv).rgb, 1.0);
-    color = pow(color, correction);    
+    float4 color = float4(0.0, 0.0, 0.0, 1.0);
+    float3 hdrColor = _MainTex.Sample(_ClampSampler, input.uv).rgb;
+    // reinhard tone mapping    
+	hdrColor = Uncharted2Tonemap(hdrColor * 5);
+	hdrColor = hdrColor * (1.0f / Uncharted2Tonemap((11.2f).xxx));
+    
+    color.xyz = pow(hdrColor, correction.xxx); 
     return color;
 }

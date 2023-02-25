@@ -38,13 +38,21 @@ RegisterTypeEmbedd_Imp(PointLightComponent)
 };
 
 
+LightComponent::~LightComponent()
+{
+	if(GetScene() && GetScene()->GetRenderScene())
+	{
+		GetScene()->GetRenderScene()->DestroyLight(mLight);
+	}
+}
+
 void LightComponent::OnCreate()
 {
 	Component::OnCreate();
 	
 }
 
-void LightComponent::SetColor(const LVector3f& val)
+void LightComponent::SetColor(const LVector4f& val)
 {
 	if (mLight)
 	{

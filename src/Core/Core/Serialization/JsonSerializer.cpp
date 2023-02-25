@@ -146,6 +146,7 @@ void JsonSerializer::SerializeProperty(LProperty& prop, LObject* target, JsonDic
 		{LType::Get<float>(),  &PropertySerializeHelper<float>},
 		{LType::Get<bool>(),  &PropertySerializeHelper<bool>},
 		{LType::Get<int>(),  &PropertySerializeHelper<int>},
+		{LType::Get<LVector4f>(),  &PropertySerializeHelper<LVector4f>},
 		{LType::Get<LVector3f>(),  &PropertySerializeHelper<LVector3f>},
 		{LType::Get<LVector2f>(),  &PropertySerializeHelper<LVector2f>},
 		{LType::Get<LString>(),  &PropertySerializeHelper<LString>},

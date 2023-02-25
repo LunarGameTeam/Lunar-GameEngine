@@ -29,6 +29,7 @@ void RenderView::PrepareView()
 	mViewBuffer->Set("cNearFar", cNearFar);
 	mViewBuffer->Set("cCamPos", LMath::GetMatrixTranslaton(mViewMatrix.inverse()));
 	
+	
 	if (mOwnerScene->mMainDirLight)
 	{
 		mOwnerScene->mMainDirLight->Update(this);
@@ -54,6 +55,7 @@ void RenderView::Render(RenderScene* scene, FrameGraphBuilder* FG)
 	{
 	case RenderViewType::SceneView:
 	{
+		PBRPreparePass(FG, this, scene);
 		DirectionalLightShadowPass(FG, this, scene);
 		PointShadowPass(FG, this, scene);
 		OpaquePass(FG, this, scene);

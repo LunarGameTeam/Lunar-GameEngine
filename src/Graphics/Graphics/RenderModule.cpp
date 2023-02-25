@@ -229,7 +229,7 @@ bool RenderModule::OnInit()
 		mainWindow, mSwapchainDesc);
 
 
-	mMainRT.SetPtr(NewObject<render::RenderTarget>());
+	mMainRT.SetPtr(NewObject<render::RenderTarget>());	
 	mMainRT->Ready();
 
 	mRenderContext->mFence->Wait(mRenderContext->mFenceValue);	
@@ -306,16 +306,13 @@ bool RenderModule::OnInit()
 		ImGui_ImplVulkan_Init(&vulkanInit, mIMGUIRenderPass->As<render::VulkanRenderPass>()->mRenderPass);
 
 		sRenderModule->mRenderContext->mFence->Wait(sRenderModule->mRenderContext->mFenceValue);
+
 		sRenderModule->mRenderContext->mGraphicCmd->BeginEvent("ImguiFont");
-
 		sRenderModule->mRenderContext->mGraphicCmd->Reset();
-
 		ImGui_ImplVulkan_CreateFontsTexture(sRenderModule->mRenderContext->mGraphicCmd->As<render::VulkanGraphicCmdList>()->mCommandBuffer);
-
 		sRenderModule->mRenderContext->mGraphicCmd->CloseCommondList();
-
-
 		sRenderModule->mRenderContext->mGraphicCmd->EndEvent();
+
 		sRenderModule->mRenderContext->mGraphicQueue->ExecuteCommandLists(sRenderModule->mRenderContext->mGraphicCmd);
 		sRenderModule->mRenderContext->mGraphicQueue->Signal(sRenderModule->mRenderContext->mFence, ++sRenderModule->mRenderContext->mFenceValue);
 		vkDeviceWaitIdle(rhiDevice->As<render::VulkanDevice>()->GetVKDevice());

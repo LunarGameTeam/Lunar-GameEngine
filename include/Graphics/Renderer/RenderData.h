@@ -52,6 +52,8 @@ struct SceneRenderData : public RenderData
 {
 	FGTexture* mSceneColor = nullptr;
 	FGTexture* mSceneDepth = nullptr;
+	FGTexture* mLUTTex = nullptr;
+	FGTexture* mIrradianceTex = nullptr;
 
 };
 

@@ -25,8 +25,8 @@ namespace luna::render
 
 RENDER_API CONFIG_IMPLEMENT(LString, Render, RenderDeviceType, "DirectX12");
 
-const size_t sStagingBufferMaxSize = 1024 * 1024 * 16 * 16;
-const size_t sFrameGraphBufferMaxSize = 1024 * 1024 * 4 * 16;
+const size_t sStagingBufferMaxSize = 1024 * 1024 * 32 * 8;
+const size_t sFrameGraphBufferMaxSize = 1024 * 1024 * 32 * 8;
 const size_t sInstancingBufferMaxSize = 128 * 128;
 
 size_t GetOffset(size_t offset, size_t aligment)
@@ -108,15 +108,24 @@ void RenderContext::Init()
 	{
 		SamplerDesc desc;
 		desc.filter = SamplerFilter::kMinMagMipLinear;
-		desc.func = SamplerComparisonFunc::kAlways;
+		desc.func = SamplerComparisonFunc::kNever;
 		desc.mode = SamplerTextureAddressMode::kClamp;
 		ViewDesc samplerDesc;
 		samplerDesc.mViewType = RHIViewType::kSampler;
-
 		mClampSampler = mDevice->CreateSamplerExt(desc);
 		mClampSamplerView = mDevice->CreateView(samplerDesc);
 		mClampSamplerView->BindResource(mClampSampler);
-
+	}
+	{
+		SamplerDesc desc;		
+		desc.filter = SamplerFilter::kAnisotropic;
+		desc.func = SamplerComparisonFunc::kNever;
+		desc.mode = SamplerTextureAddressMode::kWrap;
+		ViewDesc samplerDesc;
+		samplerDesc.mViewType = RHIViewType::kSampler;		
+		mRepeatSampler = mDevice->CreateSamplerExt(desc);
+		mRepeatSamplerView = mDevice->CreateView(samplerDesc);
+		mRepeatSamplerView->BindResource(mRepeatSampler);
 	}
 	{
 		DescriptorPoolDesc poolDesc;
@@ -452,8 +461,13 @@ RHIBindingSetPtr RenderContext::GetBindingSet(RHIPipelineState* pipeline, Packed
 		return it->second;
 	RHIBindingSetPtr bindingset = mDevice->CreateBindingSet(mDefaultPool, pipeline->GetBindingSetLayout());	
 	std::vector<BindingDesc> desc;
-	PARAM_ID(SampleTypeClamp);
-	packparams->PushShaderParam(ParamID_SampleTypeClamp, mClampSamplerView);	
+	{
+		PARAM_ID(_ClampSampler);
+		PARAM_ID(_RepeatSampler);
+		packparams->PushShaderParam(ParamID__ClampSampler, mClampSamplerView);
+		packparams->PushShaderParam(ParamID__RepeatSampler, mRepeatSamplerView);
+	}
+	
 	auto shader = pipeline->mPSODesc.mGraphicDesc.mPipelineStateDesc.mVertexShader;
 	for (auto& param : packparams->mParams)
 	{

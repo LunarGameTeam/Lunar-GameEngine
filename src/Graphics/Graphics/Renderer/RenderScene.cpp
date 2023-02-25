@@ -67,7 +67,7 @@ void RenderScene::PrepareScene()
 		mSceneParamsBuffer->Set("cPointLights", LMath::sRGB2LinearColor(light->mColor), i, 16);
 		mSceneParamsBuffer->Set("cPointLights", light->mIntensity, i, 32);
 	}
-	mSceneParamsBuffer->Set("cAmbientColor", mAmbientColor);
+	mSceneParamsBuffer->Set("cAmbientColor", LMath::sRGB2LinearColor(mAmbientColor));
 	for (auto& ro : mRenderObjects)
 	{		
 		uint32_t idx = ro->mID;
@@ -145,6 +145,20 @@ void RenderScene::DestroyRenderView(RenderView* renderView)
 			return;
 		}
 	}
+}
+
+void RenderScene::DestroyLight(Light* ro)
+{
+	for (auto it = mPointLights.begin(); it != mPointLights.end(); ++it)
+	{
+		if (ro == *it)
+		{
+			mPointLights.erase(it);
+			delete ro;
+			break;
+		}
+	}	
+	mBufferDirty = true;
 }
 
 void RenderScene::DestroyRenderObject(RenderObject* ro)

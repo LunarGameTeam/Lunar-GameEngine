@@ -28,23 +28,18 @@ void PostProcessPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* 
 
 	node.SetupFunc(builder, [&](FrameGraphBuilder* builder, FGNode& node)
 	{
-		SceneRenderData* data = renderScene->RequireData<SceneRenderData>();		
+		SceneRenderData* data = renderScene->RequireData<SceneRenderData>();
 		
 		RHIResourcePtr colorTexture = view->GetRenderTarget() ? view->GetRenderTarget()->mColorTexture : sRenderModule->mMainRT->mColorTexture;
-		RHIResourcePtr depthTexture = view->GetRenderTarget() ? view->GetRenderTarget()->mDepthTexture : sRenderModule->mMainRT->mDepthTexture;
 		FGTexture* color = builder->BindExternalTexture( colorTexture, "ViewTargetColor");
-		FGTexture* depth = builder->BindExternalTexture(depthTexture, "ViewTargetDepth");
-
+		
 		assert(color);
-		assert(depth);
 		assert(data->mSceneColor);
 
 		sceneView = node.AddSRV(data->mSceneColor, RHIViewDimension::TextureView2D);
 		auto colorView = node.AddRTV(color, RHIViewDimension::TextureView2D);
-		auto depthView = node.AddDSV(depth);
 		
 		node.SetColorAttachment(colorView, LoadOp::kLoad);
-		node.SetDepthStencilAttachment(depthView);
 	});
 
 	node.PreExecFunc([view, renderScene](FrameGraphBuilder* builder, FGNode& node)

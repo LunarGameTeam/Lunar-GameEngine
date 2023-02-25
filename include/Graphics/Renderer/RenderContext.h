@@ -132,6 +132,8 @@ public:
 	//Samplers
 	RHIResourcePtr                              mClampSampler;
 	RHIViewPtr                                  mClampSamplerView;
+	RHIResourcePtr                              mRepeatSampler;
+	RHIViewPtr                                  mRepeatSamplerView;
 private:
 
 };

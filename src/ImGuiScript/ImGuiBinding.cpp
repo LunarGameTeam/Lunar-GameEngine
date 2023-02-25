@@ -195,6 +195,17 @@ static PyObject* PyDragFloat3(const char* label, const LVector3f& val, float spe
 
 	return binding_return(res, res ? to_binding(LVector3f(float_val[0], float_val[1], float_val[2])) : Py_NewRef(Py_None));
 }
+static PyObject* PyColor4Picker(const char* label, const LVector4f& val, ImGuiColorEditFlags flags)
+{
+	float float_val[4];
+	float_val[0] = val.x();
+	float_val[1] = val.y();
+	float_val[2] = val.z();
+	float_val[3] = val.w();
+	bool res = ImGui::ColorPicker4(label, float_val, flags);
+
+	return binding_return(res, res ? to_binding(LVector4f(float_val[0], float_val[1], float_val[2], float_val[3])) : Py_NewRef(Py_None));
+}
 
 static PyObject* PyDragFloat(const char* label, float val, float speed, float v_min, float v_max)
 {
@@ -454,6 +465,33 @@ STATIC_INIT(imgui)
 		AddIMGUIConstant(ImGuiTreeNodeFlags_OpenOnArrow);
 		AddIMGUIConstant(ImGuiTreeNodeFlags_OpenOnDoubleClick);
 
+		AddIMGUIConstant(ImGuiColorEditFlags_None);
+		AddIMGUIConstant(ImGuiColorEditFlags_NoAlpha);
+		AddIMGUIConstant(ImGuiColorEditFlags_NoPicker);
+		AddIMGUIConstant(ImGuiColorEditFlags_NoOptions);
+		AddIMGUIConstant(ImGuiColorEditFlags_NoSmallPreview);
+		AddIMGUIConstant(ImGuiColorEditFlags_NoInputs);
+		AddIMGUIConstant(ImGuiColorEditFlags_NoTooltip);
+		AddIMGUIConstant(ImGuiColorEditFlags_NoLabel);
+		AddIMGUIConstant(ImGuiColorEditFlags_NoSidePreview);
+		AddIMGUIConstant(ImGuiColorEditFlags_NoDragDrop);
+		AddIMGUIConstant(ImGuiColorEditFlags_NoBorder);
+
+		AddIMGUIConstant(ImGuiColorEditFlags_AlphaBar);
+		AddIMGUIConstant(ImGuiColorEditFlags_AlphaPreview);
+		AddIMGUIConstant(ImGuiColorEditFlags_AlphaPreviewHalf);
+		AddIMGUIConstant(ImGuiColorEditFlags_HDR);
+		AddIMGUIConstant(ImGuiColorEditFlags_DisplayRGB);
+		AddIMGUIConstant(ImGuiColorEditFlags_DisplayHSV);
+		AddIMGUIConstant(ImGuiColorEditFlags_DisplayHex);
+		AddIMGUIConstant(ImGuiColorEditFlags_Uint8);
+		AddIMGUIConstant(ImGuiColorEditFlags_Float);
+		AddIMGUIConstant(ImGuiColorEditFlags_PickerHueWheel);
+		AddIMGUIConstant(ImGuiColorEditFlags_PickerHueBar);
+		AddIMGUIConstant(ImGuiColorEditFlags_InputRGB);
+		AddIMGUIConstant(ImGuiColorEditFlags_InputHSV);
+		
+
 		//Key
 		AddIMGUIConstant(ImGuiKey_A);
 		AddIMGUIConstant(ImGuiKey_B);
@@ -590,6 +628,7 @@ STATIC_INIT(imgui)
 		imguiModule->AddMethod<&PyBeginPopupModal>("begin_popup_modal");
 
 		imguiModule->AddMethod<&ImGui::BeginMenuBar>("begin_menu_bar");
+		
 		imguiModule->AddMethod<&ImGui::EndMenuBar>("end_menu_bar");
 		imguiModule->AddMethod<&ImGui::BeginMenu>("begin_menu");
 		imguiModule->AddMethod<&ImGui::EndMenu>("end_menu");
@@ -625,6 +664,7 @@ STATIC_INIT(imgui)
 		imguiModule->AddMethod<&PyDragFloat3>("drag_float3");
 		imguiModule->AddMethod<&PyDragFloat>("drag_float");
 		imguiModule->AddMethod<&PyCheckBox>("checkbox");
+		imguiModule->AddMethod<&PyColor4Picker>("color4_picker");
 
 		imguiModule->AddMethod<&ImGui::BeginDragDropSource>("begin_drag_drop_souce");
 		imguiModule->AddMethod<&ImGui::EndDragDropSource>("end_drag_drop_souce");
