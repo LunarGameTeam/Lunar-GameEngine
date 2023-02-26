@@ -16,7 +16,7 @@ VulkanBindingSetLayout::VulkanBindingSetLayout(const std::vector<RHIBindPoint>& 
 
 	for (const RHIBindPoint& it : bindKeys)
 	{
-		decltype(auto) binding = bindingsBySpace[it.mSpace].emplace_back();
+		vk::DescriptorSetLayoutBinding& binding = bindingsBySpace[it.mSpace].emplace_back();
 		binding.binding = it.mSlot;
 		binding.descriptorType = Convert(it.mViewType);
 		binding.descriptorCount = it.mCount;
@@ -24,7 +24,6 @@ VulkanBindingSetLayout::VulkanBindingSetLayout(const std::vector<RHIBindPoint>& 
 
 		decltype(auto) binding_flag = bindings_flags_by_set[it.mSpace].emplace_back();
 	}
-	mDescriptorCountBySet.resize(bindingsBySpace.size());
 	for (auto& it : bindingsBySpace)
 	{
 		vk::DescriptorSetLayoutCreateInfo setLaytouCreateInfo = {};		

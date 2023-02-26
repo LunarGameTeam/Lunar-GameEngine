@@ -2,12 +2,12 @@
 // Filename: depth.vs
 ////////////////////////////////////////////////////////////////////////////////
 #include "SharedCBuffer.hlsl"
-#include "SharedSampler.hlsl"
 //////////////
 // TYPEDEFS //
 //////////////
 
-cbuffer MaterialBuffer : register(b3)
+Texture2D _MainTex : register(t0, MATERIAL_SPACE0);
+cbuffer MaterialBuffer : register(b1, MATERIAL_SPACE0)
 {
 	float2 _viewTargetDimensions;
 };

@@ -12,12 +12,16 @@ namespace luna
 {
 
 REGISTER_ENUM_TYPE(render::RHIPrimitiveTopologyType, int)
+REGISTER_ENUM_TYPE(render::RHIRasterizerCullMode, int)
 
 namespace binding
 {
 
 template<>
 struct binding_converter<render::RHIPrimitiveTopologyType> : enum_converter< render::RHIPrimitiveTopologyType> {};
+
+template<>
+struct binding_converter<render::RHIRasterizerCullMode> : enum_converter< render::RHIRasterizerCullMode> {};
 
 }
 
@@ -43,6 +47,12 @@ RegisterTypeEmbedd_Imp(MaterialTemplateAsset)
 		.Getter<&MaterialTemplateAsset::GetPrimitiveType>()
 		.Setter< &MaterialTemplateAsset::SetPrimitiveType>()
 		.Serialize();
+
+	cls->BindingProperty<&MaterialTemplateAsset::mCullMode>("cull_mode")
+		.Getter<&MaterialTemplateAsset::GetCullMode>()
+		.Setter< &MaterialTemplateAsset::SetCullMode>()
+		.Serialize();
+
 
 	cls->BindingProperty<&Self::mDepthWriteEnable>("depth_write_enable")
 		.Serialize();
@@ -72,6 +82,16 @@ void MaterialTemplateAsset::OnLoad()
 	{
 		it->SetParent(this);
 	}
+}
+
+RHIRasterizerCullMode MaterialTemplateAsset::GetCullMode()
+{
+	return mCullMode;
+}
+
+void MaterialTemplateAsset::SetCullMode(RHIRasterizerCullMode val)
+{
+	mCullMode = val;
 }
 
 bool MaterialTemplateAsset::IsDepthWriteEnable()

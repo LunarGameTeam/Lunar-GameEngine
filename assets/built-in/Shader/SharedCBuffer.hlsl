@@ -1,6 +1,18 @@
 #ifndef __SHARED_CBUFFER__
 #define __SHARED_CBUFFER__
 
+#define SCENE_SPACE0 space0
+#define SCENE_SPACE1 space1
+
+#define VIEW_SPACE0 space2
+#define VIEW_SPACE1 space3
+
+#define MATERIAL_SPACE0 space4
+#define MATERIAL_SPACE1 space5
+
+// Static Samplers
+
+
 struct BaseVertex
 {
     [[vk::location(0)]] float3 position : POSITION;
@@ -25,12 +37,11 @@ struct BaseFragment
 	float3 viewDir : TEXCOORD2;
 };
 
-struct PerObjectBuffer
-{
-	matrix worldMatrix;
-};
-
-cbuffer ViewBuffer : register(b1, space0)
+//
+// View Update Frequence
+// 每次Viwe更新的Buffer
+//
+cbuffer ViewBuffer : register(b0, VIEW_SPACE0)
 {
 	matrix cViewMatrix;
 	matrix cProjectionMatrix;
@@ -38,6 +49,13 @@ cbuffer ViewBuffer : register(b1, space0)
 	float3 cCamPos;
 };
 
+Texture2DArray _ShadowMap : register(t1, VIEW_SPACE0);
+Texture2DArray _DirectionLightShadowMap : register(t2, VIEW_SPACE0);
+
+//
+// Scene Update Frequence
+// Scene 更新的 Buffer 和贴图
+//
 struct PointLight
 {
     float3 cLightPos;	
@@ -45,7 +63,13 @@ struct PointLight
 	float cIndensity;
 };
 
-cbuffer SceneBuffer : register(b2, space0)
+
+struct PerObjectBuffer
+{
+	matrix worldMatrix;
+};
+
+cbuffer SceneBuffer : register(b0, SCENE_SPACE0)
 {
 	matrix cRoWorldMatrix[128];
 	float4 cAmbientColor;
@@ -65,5 +89,12 @@ cbuffer SceneBuffer : register(b2, space0)
 	int cShadowmapCount;
 	
 };
+
+//天空盒贴图
+TextureCube _EnvTex : register(t1, SCENE_SPACE0);
+TextureCube _IrradianceTex : register(t2, SCENE_SPACE0);
+SamplerState _ClampSampler : register(s3, SCENE_SPACE0);
+SamplerState _RepeatSampler: register(s4, SCENE_SPACE0);
+
 
 #endif

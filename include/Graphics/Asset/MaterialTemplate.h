@@ -25,6 +25,9 @@ public:
 		return mDefaultInstance.Get();
 	}
 
+	RHIRasterizerCullMode GetCullMode();
+	void SetCullMode(RHIRasterizerCullMode val);
+
 	bool IsDepthWriteEnable();
 	void SetDepthWriteEnable(bool val);
 
@@ -38,6 +41,7 @@ public:
 	void OnLoad() override;
 
 private:
+	RHIRasterizerCullMode mCullMode = RHIRasterizerCullMode::BackFace;
 	bool mDepthTestEnable = true;
 	bool mDepthWriteEnable = true;
 	RHIPrimitiveTopologyType mPrimitiveType = RHIPrimitiveTopologyType::Triangle;

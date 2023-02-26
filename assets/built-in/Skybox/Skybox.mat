@@ -8,6 +8,7 @@
          "name" : "",
          "params" : [ 2 ],
          "shader" : "/assets/built-in/Shader/Skybox.hlsl",
+         "cull_mode" : 1,
          "depth_write_enable": false
       },
       {

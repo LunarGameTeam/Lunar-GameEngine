@@ -54,7 +54,6 @@ void PostProcessPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* 
 	{
 		PackedParams params;
 		PARAM_ID(_MainTex);
-		PARAM_ID(_ShadowMap);
 		params.PushShaderParam(ParamID__MainTex, sceneView->mRHIView);
 		
 		params.PushShaderParam(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer);

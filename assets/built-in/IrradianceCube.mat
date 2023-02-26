@@ -7,10 +7,11 @@
          "__parent__" : 0,
          "name" : "",
          "params" : [],
+         "primitive_type" : 3,
          "depth_test_enable" : false,
          "depth_write_enable" : false,
-         "primitive_type" : 3,
-         "shader" : "/assets/built-in/Shader/GammaCorrection.hlsl"
-      },
+         "cull_mode": 1,
+         "shader" : "/assets/built-in/Shader/IrradianceCube.hlsl"
+      }
    ]
 }

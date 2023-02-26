@@ -7,7 +7,7 @@
          "__parent__" : 0,
          "name" : "",
          "params" : [2],
-         "primitive_type" : 2,
+         "primitive_type" : 3,
          "shader" : "/assets/built-in/Shader/GaussianBlurX.hlsl"
       },
       {

@@ -339,6 +339,7 @@ RHIPipelineStatePtr RenderContext::CreatePipelineState(MaterialInstance* mat, co
 
 	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthEnable = mat->mMaterialTemplate->IsDepthTestEnable();
 	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthWrite = mat->mMaterialTemplate->IsDepthWriteEnable();
+	graphicDesc.mPipelineStateDesc.RasterizerState.CullMode = mat->mMaterialTemplate->GetCullMode();
 	graphicDesc.mPipelineStateDesc.PrimitiveTopologyType =(RHIPrimitiveTopologyType) mat->mMaterialTemplate->GetPrimitiveType();
 	graphicDesc.mInputLayout = *layout;
 	graphicDesc.mPipelineStateDesc.mVertexShader = mat->GetShaderVS();

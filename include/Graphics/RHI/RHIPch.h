@@ -434,11 +434,11 @@ enum class RHIRasterizerFillMode
 };
 
 
-enum RHIRasterizerCullMode
+enum class RHIRasterizerCullMode : uint8_t
 {
-	CULL_MODE_NONE = 1,
-	CULL_MODE_FRONT = 2,
-	CULL_MODE_BACK = 3
+	BackFace = 0,
+	FrontFace = 1,
+	None = 2	
 };
 
 

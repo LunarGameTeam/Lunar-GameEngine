@@ -28,8 +28,6 @@ void RenderView::PrepareView()
 	LVector2f cNearFar(mNear, mFar);
 	mViewBuffer->Set("cNearFar", cNearFar);
 	mViewBuffer->Set("cCamPos", LMath::GetMatrixTranslaton(mViewMatrix.inverse()));
-	
-	
 	if (mOwnerScene->mMainDirLight)
 	{
 		mOwnerScene->mMainDirLight->Update(this);

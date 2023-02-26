@@ -1,7 +1,8 @@
 #include "SharedCBuffer.hlsl"
-#include "SharedSampler.hlsl"
 
-cbuffer MaterialBuffer : register(b3)
+
+Texture2D _MainTex : register(t0, MATERIAL_SPACE0);
+cbuffer MaterialBuffer : register(b1, MATERIAL_SPACE0)
 {
 	float4 cSpecularColor;
 	float4 cDiffuseColor;

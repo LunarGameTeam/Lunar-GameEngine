@@ -2,7 +2,6 @@
 // Filename: light.vs
 ////////////////////////////////////////////////////////////////////////////////
 #include "SharedCBuffer.hlsl"
-#include "SharedSampler.hlsl"
 #include "SharedShadow.hlsl"
 /////////////
 // GLOBALS //
@@ -15,11 +14,10 @@ static const uint NumLights = 3;
 // Constant normal incidence Fresnel factor for all dielectrics.
 static const float3 Fdielectric = 0.04;
 
-TextureCube _EnvTex : register(t3, space2);
-TextureCube _IrradianceTex : register(t4, space2);
-Texture2D _LUTTex : register(t5, space2);
+Texture2D _MainTex : register(t0, MATERIAL_SPACE0);
+Texture2D _LUTTex : register(t2, MATERIAL_SPACE0);
 
-cbuffer MaterialBuffer : register(b3)
+cbuffer MaterialBuffer : register(b3, MATERIAL_SPACE0)
 {
 	float _Metallic;
 	float _Roughness;
@@ -176,7 +174,7 @@ float4 PSMain(BaseFragment input) : SV_TARGET
 		float3 L = normalize(-cLightDirection);
 		float3 lightColor = cDirectionLightColor.xyz;
 		// CalcRadiance
-		Lo+= BRDF(L, V,  N, lightColor, metallic, roughness);
+		// Lo+= BRDF(L, V,  N, lightColor, metallic, roughness);
 	}
 
 	// Point Lights
@@ -193,7 +191,7 @@ float4 PSMain(BaseFragment input) : SV_TARGET
 		
 	float2 brdf = _LUTTex.Sample(_ClampSampler, float2(max(dot(N, V), 0.0), roughness)).rg;
 	float3 reflection = prefilteredReflection(R, roughness).rgb;
-	float3 irradiance = _EnvTex.Sample(_ClampSampler, N).rgb;
+	float3 irradiance = _IrradianceTex.Sample(_ClampSampler, N).rgb;
 
 	// Diffuse based on irradiance
 	float3 diffuse = irradiance * albedo;
@@ -206,9 +204,9 @@ float4 PSMain(BaseFragment input) : SV_TARGET
 	// Ambient part
 	float3 kD = 1.0 - F;
 	kD *= 1.0 - metallic;
-	float3 ambient = specular;
+	float3 ambient = (kD * diffuse + specular);
 
-	float3 color =  ambient + Lo;
+	float3 color =  Lo + ambient;
 	
 	return float4(color * shadow, 1.0);
 }

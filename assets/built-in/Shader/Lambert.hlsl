@@ -1,14 +1,13 @@
 #include "SharedCBuffer.hlsl"
-#include "SharedSampler.hlsl"
 #include "SharedShadow.hlsl"
 #include "VertexMain.hlsl"
 
 #include "SharedLightingModel.hlsl"
 
 
-Texture2D _NormalTex : register(t1, space2);
-
-cbuffer MaterialBuffer : register(b3)
+Texture2D _MainTex : register(t0, MATERIAL_SPACE0);
+Texture2D _NormalTex : register(t1, MATERIAL_SPACE0);
+cbuffer MaterialBuffer : register(b2, MATERIAL_SPACE0)
 {
 	float4 cDiffuseColor;
 }

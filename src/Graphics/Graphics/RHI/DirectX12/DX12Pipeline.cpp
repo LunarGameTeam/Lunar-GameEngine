@@ -307,11 +307,11 @@ D3D12_CULL_MODE DX12PipelineState::GetCullMode(const RHIRasterizerCullMode& pipe
 {
 	switch (pipeline_cull_mode)
 	{
-	case RHIRasterizerCullMode::CULL_MODE_BACK:
+	case RHIRasterizerCullMode::BackFace:
 		return D3D12_CULL_MODE::D3D12_CULL_MODE_BACK;
-	case RHIRasterizerCullMode::CULL_MODE_FRONT:
+	case RHIRasterizerCullMode::FrontFace:
 		return D3D12_CULL_MODE::D3D12_CULL_MODE_FRONT;
-	case RHIRasterizerCullMode::CULL_MODE_NONE:
+	case RHIRasterizerCullMode::None:
 		return D3D12_CULL_MODE::D3D12_CULL_MODE_NONE;
 	default:
 		return D3D12_CULL_MODE::D3D12_CULL_MODE_BACK;

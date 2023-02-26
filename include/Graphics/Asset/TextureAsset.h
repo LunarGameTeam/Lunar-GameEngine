@@ -84,6 +84,7 @@ public:
 	size_t GetDataSize();
 	void Release();
 	RHIView* GetView() {	return mResView; 	}
+	RHIResource* GetRHIResource() { return mRHIRes; }
 
 private:
 	RHIResDesc            mDesc;

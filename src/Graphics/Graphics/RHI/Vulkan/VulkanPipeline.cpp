@@ -80,20 +80,20 @@ void VulkanPipelineState::Init()
 	viewportState.viewportCount = 1;
 	viewportState.scissorCount = 1;
 	vk::PipelineRasterizationStateCreateInfo rasterizer{};
-	rasterizer.depthClampEnable = false;
+	rasterizer.depthClampEnable = false;	
 	rasterizer.rasterizerDiscardEnable = false;
 	rasterizer.polygonMode = vk::PolygonMode::eFill;
 	rasterizer.lineWidth = 1.0f;
 
 	switch (mPSODesc.mGraphicDesc.mPipelineStateDesc.RasterizerState.CullMode)
 	{
-	case RHIRasterizerCullMode::CULL_MODE_BACK:
+	case RHIRasterizerCullMode::BackFace:
 		rasterizer.cullMode = vk::CullModeFlagBits::eBack;
 		break;
-	case RHIRasterizerCullMode::CULL_MODE_FRONT:
+	case RHIRasterizerCullMode::FrontFace:
 		rasterizer.cullMode = vk::CullModeFlagBits::eFront;
 		break;
-	case RHIRasterizerCullMode::CULL_MODE_NONE:
+	case RHIRasterizerCullMode::None:
 		rasterizer.cullMode = vk::CullModeFlagBits::eNone;
 		break;
 	default:
@@ -133,6 +133,7 @@ void VulkanPipelineState::Init()
 	depthCreateInfo.depthCompareOp = Convert(mPSODesc.mGraphicDesc.mPipelineStateDesc.DepthStencilState.DepthFunc);
 	depthCreateInfo.depthBoundsTestEnable = false;
 	depthCreateInfo.stencilTestEnable = false;
+	
 // 	depthCreateInfo.back = VkStencilOpState
 // 	depthCreateInfo.front = Convert(m_desc.depth_stencil_desc.front_face, m_desc.depth_stencil_desc.stencil_read_mask, m_desc.depth_stencil_desc.stencil_write_mask);
 

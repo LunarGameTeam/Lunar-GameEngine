@@ -6,7 +6,7 @@
          "__index__" : 0,
          "__parent__" : 0,
          "name" : "",
-         "params" : [ 2, 3, 4, 5, 6, 7],
+         "params" : [ 2, 3, 4, 5],
          "shader" : "/assets/built-in/Shader/Pbr.hlsl"
       },
       {
@@ -27,7 +27,7 @@
          "name" : "",
          "param_name" : "_Metallic",
          "type" : 1,
-         "value" : 0.1
+         "value" : 0.9
       },
       {
          "__class__" : "MaterialParamFloat3",
@@ -47,27 +47,7 @@
          "name" : "",
          "param_name" : "_Roughness",
          "type" : 1,
-         "value" : 0.05
-      },
-      {
-         "__class__" : "MaterialParamTextureCube",
-         "__fid__" : 6,
-         "__index__" : 0,
-         "__parent__" : 1,
-         "name" : "_EnvTex",
-         "param_name" : "_EnvTex",
-         "texture" : "/assets/built-in/SkyboxIBL/Skybox.cubemap",
-         "type" : 6
-      },
-      {
-         "__class__" : "MaterialParamTexture2D",
-         "__fid__" : 7,
-         "__index__" : 0,
-         "__parent__" : 1,
-         "name" : "",
-         "param_name" : "_LUTTex",
-         "texture" : "/assets/built-in/Textures/LUT.png",
-         "type" : 5
+         "value" : 0.1
       }
    ]
 }

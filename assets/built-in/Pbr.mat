@@ -6,7 +6,7 @@
          "__index__" : 0,
          "__parent__" : 0,
          "name" : "",
-         "params" : [ 2, 3, 4, 5, 6, 7],
+         "params" : [ 2, 3, 4, 5, 6],
          "shader" : "/assets/built-in/Shader/Pbr.hlsl"
       },
       {
@@ -58,16 +58,6 @@
          "param_name" : "_EnvTex",
          "texture" : "/assets/built-in/Skybox/Skybox.cubemap",
          "type" : 6
-      },
-      {
-         "__class__" : "MaterialParamTexture2D",
-         "__fid__" : 7,
-         "__index__" : 0,
-         "__parent__" : 1,
-         "name" : "",
-         "param_name" : "_LUTTex",
-         "texture" : "/assets/built-in/Textures/LUT.png",
-         "type" : 5
-      },
+      }
    ]
 }

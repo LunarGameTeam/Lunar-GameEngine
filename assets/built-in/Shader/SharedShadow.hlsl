@@ -2,7 +2,6 @@
 #define __SHARED_SHADOW__
 
 #include "SharedCBuffer.hlsl"
-#include "SharedSampler.hlsl"
 
 
 float GetShadowFactor(float4 shadowCoord, float2 offset, int i)

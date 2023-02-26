@@ -2,9 +2,8 @@
 // Filename: light.vs
 ////////////////////////////////////////////////////////////////////////////////
 #include "SharedCBuffer.hlsl"
-#include "SharedSampler.hlsl"
 
-TextureCube _SkyTex : register(t3, space2);
+TextureCube _SkyTex : register(t0, MATERIAL_SPACE0);
 
 ////////////////////////////////////////////////////////////////////////////////
 // Vertex Shader
@@ -24,7 +23,6 @@ BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
 ////////////////////////////////////////////////////////////////////////////////
 float4 PSMain(BaseFragment input) : SV_TARGET
 {
-    input.normal.y = -input.normal.y;
     float3 texColor = _SkyTex.Sample(_ClampSampler, normalize(input.normal)).rgb;
     return float4(texColor, 1.0f);
 }
