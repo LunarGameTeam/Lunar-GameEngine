@@ -12,6 +12,7 @@
 #include <type_traits>
 #include <utility>
 
+
 namespace luna
 {
 
@@ -37,11 +38,12 @@ public:
 	inline const LString &GetName() const { return mName; }
 	inline uint32_t GetSize() const { return mSize; }
 	inline size_t GetOffset() const { return mOffset; }
-	inline bool IsSubPointer() const { return mIsSubPtr; }
+
+	inline LType* GetOwnerType() { return mOwner; }
+
 	inline LType* GetType() const { return mType; }
 	
 	inline bool HasBinding() const { return mHasBinding; }
-	inline LType* GetOwnerType() { return mOwner; }
 	inline LMethod& GetSetter() { return mSetter; }
 	inline LMethod& GetGetter() { return mGetter; }
 
@@ -208,7 +210,6 @@ private:
 	LType*       mOwner      = nullptr;
 
 	LString      mName;
-	bool         mIsSubPtr   = false;
 	PropertyFlag mFlags      = PropertyFlag::None;
 
 	LMethod      mSetter;

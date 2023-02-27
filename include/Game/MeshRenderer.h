@@ -21,9 +21,7 @@ class GAME_API MeshRenderer : public RendererComponent
 	RegisterTypeEmbedd(MeshRenderer, RendererComponent)
 public:
 	MeshRenderer() :
-		mMeshAsset(this),
-		mMaterialInstance(this),
-		mMaterialAsset(this)
+		mMaterialInstance(this)
 	{
 
 	}
@@ -43,8 +41,8 @@ protected:
 private:
 	bool mCastShadow = true;
 	render::RenderObject* mRO = nullptr;
-	TPPtr<MeshAsset> mMeshAsset;
-	TPPtr<render::MaterialTemplateAsset> mMaterialAsset;
+	SharedPtr<MeshAsset> mMeshAsset;
+	SharedPtr<render::MaterialTemplateAsset> mMaterialAsset;
 	TPPtr<render::MaterialInstance> mMaterialInstance;
 };
 

@@ -16,7 +16,7 @@ class RENDER_API MaterialTemplateAsset : public JsonAsset
 
 public:
 	MaterialTemplateAsset();
-	ShaderAsset* GetShaderAsset() { return mShader.Get(); }
+	ShaderAsset* GetShaderAsset() { return mShader.get(); }
 	TPPtrArray<MaterialParam>& GetAllParams() { return mTemplateParams; }
 	MaterialInstance* CreateInstance();
 	MaterialInstance* GetDefaultInstance() { 
@@ -48,6 +48,7 @@ private:
 	
 	TPPtr< MaterialInstance> mDefaultInstance;
 	TPPtrArray<MaterialParam> mTemplateParams;
-	TPPtr<ShaderAsset> mShader;
+
+	SharedPtr<ShaderAsset> mShader;
 };
 }

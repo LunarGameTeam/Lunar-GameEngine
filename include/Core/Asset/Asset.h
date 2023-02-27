@@ -12,6 +12,9 @@ namespace luna
 {
 class AssetModule;
 
+template<typename T>
+using TAssetPtrArray = std::vector<SharedPtr<T>>;
+
 class CORE_API Asset : public SharedObject
 {
 	RegisterTypeEmbedd(Asset, SharedObject)
@@ -74,5 +77,42 @@ public:
 protected:
 	LString mContent;
 };
+
+template<typename T>
+struct static_type<SharedPtr<T>>
+{
+	static LType* Init()
+	{
+		LType* type = NewTemplateType<T>("SharedPtr", sizeof(SharedPtr<T>), nullptr);
+		type->mIsAssetPtr = true;
+		return type;
+	}
+	static LType* StaticType()
+	{
+		static LType* type = Init();
+		return type;
+	}
+};
+
+template<typename T>
+struct static_type<TAssetPtrArray<T>>
+{
+	static LType* Init()
+	{
+		LType* type = NewTemplateType<T>("AssetPtrArray", sizeof(TAssetPtrArray<T>), nullptr);
+		type->mIsAssetArray = true;
+		Py_XINCREF(&PyList_Type);
+		type->mPyType = &PyList_Type;
+		return type;
+	}
+
+	static LType* StaticType()
+	{
+		static LType* type = Init();
+		return type;
+	}
+};
+
+
 
 }

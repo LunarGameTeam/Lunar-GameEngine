@@ -46,7 +46,7 @@ void PostProcessPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* 
 	{
 
 	});
-	static MaterialTemplateAsset* postprocessMat = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/GammaCorrection.mat");
+	static auto postprocessMat = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/GammaCorrection.mat");
 	static MaterialInstance* debugMat = postprocessMat->GetDefaultInstance();
 	if (debugMat)
 		debugMat->Ready();

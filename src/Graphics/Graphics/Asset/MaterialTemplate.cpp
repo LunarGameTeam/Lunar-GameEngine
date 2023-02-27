@@ -63,7 +63,6 @@ RegisterTypeEmbedd_Imp(MaterialTemplateAsset)
 
 MaterialTemplateAsset::MaterialTemplateAsset() :
 	mTemplateParams(this),
-	mShader(this),
 	mDefaultInstance(this)
 {
 }
@@ -71,7 +70,7 @@ MaterialTemplateAsset::MaterialTemplateAsset() :
 MaterialInstance* MaterialTemplateAsset::CreateInstance()
 {
 	MaterialInstance* mat = NewObject<MaterialInstance>();
-	mat->mMaterialTemplate = this;
+	mat->mMaterialTemplate = ToSharedPtr(this);
 	mat->Ready();
 	return mat;
 }

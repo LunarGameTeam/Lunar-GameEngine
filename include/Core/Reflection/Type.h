@@ -52,7 +52,10 @@ public:
 	~LType() {};
 
 public:
-	bool IsSubPtrArray();
+	bool IsPPtrArray();
+	bool IsAssetPtr();
+	bool IsAssetPTRArray();
+	bool IsPPtr();
 	bool IsAsset();
 	bool IsObject();
 	bool IsDerivedFrom(LType* base);
@@ -154,8 +157,7 @@ public:
 		using member_raw_type = std::remove_pointer_t<member_type>;
 
 		LProperty& proerpty = mProperties[name];
-
-		proerpty.mIsSubPtr = std::is_base_of<luna::PPtr, member_raw_type>::value;
+		
 		proerpty.mType = LType::Get<member_raw_type>();
 		proerpty.SetPropertyName(name);
 
@@ -194,6 +196,7 @@ public:
 		binding_type.tp_basicsize = sizeof(binding::binding_proxy<T>::binding_object_t);
 		binding_type.tp_itemsize = 0;
 
+		binding_type.tp_alloc = binding::binding_proxy<T>::get_allocfunc;
 		binding_type.tp_dealloc = binding::binding_proxy<T>::get_destructor;
 		binding_type.tp_new = binding::binding_proxy<T>::get_newfunc;
 
@@ -275,6 +278,10 @@ public:
 		mPyType = binding_type;
 		sBindingTypes->operator [](binding_type) = this;
 	}
+
+	bool		 mIsAssetPtr = false;
+	bool		 mIsAssetArray = false;
+
 protected:
 
 	std::vector<PyMethodDef>& GetBindingMethods()
@@ -335,7 +342,7 @@ private:
 
 	template<typename first>
 	friend LType* NewTemplateType(const LString& name, size_t size, LType* base);
-
+	
 	friend class BindingModule;
 	friend class LObject;
 

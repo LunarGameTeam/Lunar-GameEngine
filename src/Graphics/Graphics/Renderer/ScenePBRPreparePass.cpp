@@ -48,7 +48,7 @@ void PBRPreparePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* r
 			sceneView = node.AddRTV(data->mLUTTex, RHIViewDimension::TextureView2D);
 			node.SetColorAttachment(sceneView, LoadOp::kClear);
 		});
-		static auto* sLUTMaterial = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/LUT.mat");
+		static auto sLUTMaterial = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/LUT.mat");
 		static MaterialInstance* lutMatInstance = sLUTMaterial->GetDefaultInstance();
 		if (lutMatInstance)
 			lutMatInstance->Ready();
@@ -62,9 +62,9 @@ void PBRPreparePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* r
 
 	{
 
-		static auto* irrMat = sAssetModule->LoadAsset<MaterialTemplateAsset>(
+		static auto irrMat = sAssetModule->LoadAsset<MaterialTemplateAsset>(
 			"/assets/built-in/IrradianceCube.mat");
-		static MeshAsset* cube = sAssetModule->LoadAsset<MeshAsset>("/assets/built-in/Geometry/Box.lmesh");
+		static auto cube = sAssetModule->LoadAsset<MeshAsset>("/assets/built-in/Geometry/Box.lmesh");
 		static MaterialInstance* iradMatInstance = irrMat->GetDefaultInstance();
 		if (iradMatInstance)
 			iradMatInstance->Ready();

@@ -31,9 +31,24 @@ LType::LType(const LString &name, size_t size, LType *base)
 		sBindingTypes = new LMap<PyTypeObject*, LType*>();
 }
 
-bool LType::IsSubPtrArray()
+bool LType::IsPPtrArray()
 {
 	return mBase == LType::Get<PPtrArray>();
+}
+
+bool LType::IsAssetPtr()
+{
+	return mIsAssetPtr;
+}
+
+bool LType::IsAssetPTRArray()
+{
+	return mIsAssetArray;
+}
+
+bool LType::IsPPtr()
+{
+	return IsDerivedFrom(LType::Get<PPtr>());
 }
 
 bool LType::IsDerivedFrom(LType* base)

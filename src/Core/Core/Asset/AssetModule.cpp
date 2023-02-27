@@ -68,7 +68,7 @@ bool AssetModule::SaveAsset(Asset *asset, const LString &path)
 	return true;
 }
 
-Asset *AssetModule::LoadAsset(const LPath &path, LType *asset_type)
+SharedPtr<Asset> AssetModule::LoadAsset(const LPath &path, LType *asset_type)
 {
 	ScopedProfileGuard g(LString::Format("Load {0}", path.AsString()));
 	assert(asset_type->IsDerivedFrom(LType::Get<Asset>()));
@@ -76,7 +76,8 @@ Asset *AssetModule::LoadAsset(const LPath &path, LType *asset_type)
 
 	if (mCachedAssets.find(path.AsString()) != mCachedAssets.end())
 	{
-		return mCachedAssets[path.AsString()]->asset.get();
+		auto sharedPtr = mCachedAssets[path.AsString()]->asset->shared_from_this();
+		return std::dynamic_pointer_cast<Asset, SharedObject>(sharedPtr);
 	}
 	LSharedPtr<Asset> asset(asset_type->NewInstance<Asset>());
 	asset->mAssetPath = path.AsString();
@@ -96,16 +97,19 @@ Asset *AssetModule::LoadAsset(const LPath &path, LType *asset_type)
 
 	asset->OnAssetFileRead(meta_data, file_data);
 	mCachedAssets[path.AsString()] = new AssetCache();
-	mCachedAssets[path.AsString()]->asset = asset;
-	return asset.get();
+	mCachedAssets[path.AsString()]->asset = asset.get();
+	return asset;
 }
 
 void AssetModule::RemoveAsset(Asset* asset)
 {
-	mCachedAssets.erase(asset->mAssetPath);
+	auto it = mCachedAssets.find(asset->mAssetPath);
+	if (it != mCachedAssets.end())
+		delete it->second;
+	mCachedAssets.erase(it);
 }
 
-Asset* AssetModule::BindingLoadAsset(const char* path, LType* asset_type)
+SharedPtr<Asset> AssetModule::BindingLoadAsset(const char* path, LType* asset_type)
 {
 	return LoadAsset(path, asset_type);
 }

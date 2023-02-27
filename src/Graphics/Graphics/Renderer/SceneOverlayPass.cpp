@@ -47,7 +47,7 @@ void OverlayPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rend
 	{
 
 	});
-	static MaterialTemplateAsset* debugMatAsset = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/Line.mat");
+	static auto debugMatAsset = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/Line.mat");
 	static MaterialInstance* debugMat = debugMatAsset->GetDefaultInstance();
 	if (debugMat)
 		debugMat->Ready();

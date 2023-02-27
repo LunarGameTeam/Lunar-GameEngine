@@ -29,6 +29,7 @@ protected:
 	virtual ~LObject();
 
 public:
+	using binding_t = binding::BindingLObject;
 	/// 
 	/// <summary>
 	/// 序列化反序列化
@@ -95,8 +96,8 @@ public:
 	inline size_t GetInstanceID() const { return mInstanceID; }
 	static LObject* InstanceIDToObject(size_t id);
 
-	binding::BindingLObject* GetBindingObject() { return mBindingObject; }
-	void SetBindingObject(PyObject* val);
+	binding::BindingLObject* GetBindingObject() { return (binding::BindingLObject*)(mBindingObject); }
+	virtual void SetBindingObject(PyObject* val);
 
 	void SetParent(LObject* obj);
 
@@ -124,7 +125,7 @@ protected:
 	LObject*        mParent       = nullptr;
 	uint64_t        mInstanceID   = 0;
 protected:
-	binding::BindingLObject* mBindingObject = nullptr;
+	binding::BindingObject* mBindingObject = nullptr;
 
 private:
 	template<typename RET>
@@ -180,11 +181,9 @@ struct CORE_API BindingLObject  : public BindingObject
 	static void __destrctor__(PyObject* self);
 	static int __bool__(PyObject* self);
 	static PyObject* __new__(PyTypeObject* type, PyObject* args, PyObject* kwrds);
-
-	template<typename T>
+	
 	static int __init__(PyObject* self, PyObject* args, PyObject* kwrds)
-	{
-		T* o = (T*)self;		
+	{	
 		return 0;
 	}
 };
@@ -193,7 +192,7 @@ struct CORE_API BindingLObject  : public BindingObject
 template<typename T>
 struct binding_proxy<T, typename std::enable_if_t<std::is_base_of_v<LObject, T>>> : binding_proxy_base
 {
-	using binding_object_t = BindingLObject;
+	using binding_object_t = typename T::binding_t;
 
 	static int get_type_flags() { return Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE; };
 		
@@ -201,14 +200,14 @@ struct binding_proxy<T, typename std::enable_if_t<std::is_base_of_v<LObject, T>>
 	constexpr static allocfunc get_allocfunc = binding_object_t::__alloc__;
 
 	static constexpr newfunc get_newfunc = binding_object_t::__new__;
-	constexpr static initproc get_initproc = binding_object_t::__init__<T>;
+	constexpr static initproc get_initproc = binding_object_t::__init__;
 	constexpr static inquiry get_bool = binding_object_t::__bool__;
 
 	template<typename M>
 	static PyObject* raw_getter(PyObject* s, void* closure)
-	{
-		BindingLObject* o = ( BindingLObject*)(s);
-		LObject* obj = o->ptr.Get();
+	{		
+		typename T::binding_t* o = static_cast<binding_object_t*>(s);
+		LObject* obj = o->GetPtr();
 		if (!obj)
 			Py_RETURN_NONE;
 		LProperty& prop = *(LProperty*)(closure);
@@ -221,12 +220,12 @@ struct binding_proxy<T, typename std::enable_if_t<std::is_base_of_v<LObject, T>>
 	template<typename M>
 	static int raw_setter(PyObject* s, PyObject* val, void* closure)
 	{
-		BindingLObject* o = ( BindingLObject*)(s);
-		LObject* obj = o->ptr.Get();
+		typename T::binding_t* o = static_cast<binding_object_t*>(s);
+		LObject* obj = o->GetPtr();
 		if (!obj)
 			return -1;
-		LProperty& prop = *(LProperty*)(closure);
-		size_t offset = prop.GetOffset();
+		LProperty& prop = *static_cast<LProperty*>(closure);
+		const size_t offset = prop.GetOffset();
 		M* mem_ptr = (M*)((char*)obj + offset);
 		*mem_ptr = binding_converter<M>::from_binding(val);
 		return 0;
@@ -234,46 +233,44 @@ struct binding_proxy<T, typename std::enable_if_t<std::is_base_of_v<LObject, T>>
 };
 
 template<typename U>
-struct binding_converter<U*> : std::enable_if_t<std::is_base_of_v<LObject, U>>
+struct binding_converter<U*, typename  std::enable_if_t<std::is_base_of_v<LObject, U>>>
 {
-	using T = U;
+	using binding_object_t = typename U::binding_t;
 
-	inline static PyObject* to_binding(LObject* obj)
+	static PyObject* to_binding(LObject* obj)
 	{
-		BindingLObject* bindingObject = nullptr;
-		PyTypeObject* typeobject = LType::Get<T>()->GetBindingType();
+		PyTypeObject* typeobject = LType::Get<U>()->GetBindingType();
 		if (obj)
 		{
+			PyObject* bindingObject = nullptr;
 			typeobject = obj->GetClass()->GetBindingType();
-			if (obj->GetBindingObject())
+			bindingObject = obj->GetBindingObject();
+			if (bindingObject)
 			{
-				Py_XINCREF(obj->GetBindingObject());
-				return obj->GetBindingObject();
+				Py_XINCREF(bindingObject);
+				return bindingObject;
 			}
 			// first time to binding...
-			bindingObject = (BindingLObject*) typeobject->tp_alloc(typeobject, 0);
-			obj->SetBindingObject((PyObject*)bindingObject);
+			bindingObject = typeobject->tp_alloc(typeobject, 0);
+			obj->SetBindingObject(bindingObject);
+			return  bindingObject;
 		}
-		else
-		{
-			Py_RETURN_NONE;		
-		}
-		
-
-		return (PyObject*)bindingObject;
+		Py_RETURN_NONE;		
 	}
-	inline static T* from_binding(PyObject* obj)
+
+	static U* from_binding(PyObject* obj)
 	{
-		BindingLObject* res = ( BindingLObject*)(obj);		
-		return (T*) res->ptr.Get();
+		binding_object_t* res = static_cast<binding_object_t*>(obj);
+		return static_cast<U*>(res->GetPtr());
 	}
 
 	static const char* binding_fullname()
 	{
-		return LType::Get<T>()->GetBindingFullName();
+		return LType::Get<U>()->GetBindingFullName();
 	}
 
 };
+
 
 template<typename U>
 struct binding_converter<TPPtr<U>>
@@ -303,7 +300,7 @@ template<typename U>
 struct binding_converter<TPPtrArray<U>>
 {
 
-	inline static PyObject* to_binding(const TPPtrArray<U>& array)
+	static PyObject* to_binding(const TPPtrArray<U>& array)
 	{
 		PyObject* res = PyList_New(array.Size());
 		for (auto& it: array)
@@ -313,7 +310,7 @@ struct binding_converter<TPPtrArray<U>>
 		return (PyObject*)res;
 	}
 
-	inline static TPPtrArray<U> from_binding(PyObject* obj)
+	static TPPtrArray<U> from_binding(PyObject* obj)
 	{
 		assert(false);
 		TPPtrArray<U> u;

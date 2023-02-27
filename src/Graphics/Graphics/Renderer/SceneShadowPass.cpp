@@ -53,7 +53,7 @@ void DirectionalLightShadowPass(FrameGraphBuilder* builder, RenderView* view, Re
 		node.SetDepthStencilAttachment(depthView);
 	});
 
-	static MaterialTemplateAsset* shadowMatAsset = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/Depth.mat");
+	static auto shadowMatAsset = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/Depth.mat");
 	static MaterialInstance* shadowMat = shadowMatAsset->GetDefaultInstance();
 	if (shadowMat)
 		shadowMat->Ready();
@@ -122,8 +122,8 @@ void PointShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* 
 			node.SetDepthStencilAttachment(depthView);
 		});
 
-		static MaterialTemplateAsset* shadowMatAsset = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/Depth.mat");
-		static MaterialInstance* shadowMat = shadowMatAsset->GetDefaultInstance();
+		static auto shadowMatAsset = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/Depth.mat");
+		static auto shadowMat = shadowMatAsset->GetDefaultInstance();
 		if (shadowMat)
 			shadowMat->Ready();
 

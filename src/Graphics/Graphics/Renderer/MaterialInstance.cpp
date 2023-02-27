@@ -132,7 +132,6 @@ RegisterTypeEmbedd_Imp(MaterialInstance)
 
 MaterialInstance::MaterialInstance() :
 	mOverrideParams(this),
-	mMaterialTemplate(this),
 	mAllParams(this)
 {
 }

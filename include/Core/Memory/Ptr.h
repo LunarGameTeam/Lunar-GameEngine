@@ -19,36 +19,6 @@ class LType;
 template<typename T>
 class TPPtr;
 
-class CORE_API SharedPtr
-{
-public:
-	SharedPtr() noexcept
-	{
-
-	}
-
-	SharedPtr(const SharedPtr& rv) :
-		mPtr(rv.mPtr)
-	{
-
-	};
-
-	SharedPtr(const SharedPtr&& rv) noexcept :
-		mPtr(std::move(rv.mPtr))
-	{
-
-	};
-
-	SharedPtr& operator=(const SharedPtr& value)
-	{
-		mPtr = value.mPtr;
-		return *this;
-	};
-
-	SharedObject* operator->() const { return mPtr.get(); }
-
-	std::shared_ptr<SharedObject> mPtr;
-};
 class CORE_API PPtr
 {
 public:

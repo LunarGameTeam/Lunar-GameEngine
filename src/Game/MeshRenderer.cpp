@@ -71,7 +71,7 @@ void MeshRenderer::CreateRenderObject()
 
 void MeshRenderer::SetMaterial(MaterialTemplateAsset* mat)
 {
-	mMaterialAsset = mat;
+	mMaterialAsset = ToSharedPtr(mat);
 	mMaterialInstance = mat->CreateInstance();
 	if (mMaterialInstance)
 		mMaterialInstance->Ready();
@@ -87,7 +87,7 @@ void MeshRenderer::SetMaterial(MaterialTemplateAsset* mat)
 
 void MeshRenderer::SetMeshAsset(MeshAsset* obj)
 {
-	mMeshAsset = obj;
+	mMeshAsset = ToSharedPtr(obj);
 	if (!mRO)
 	{
 		CreateRenderObject();

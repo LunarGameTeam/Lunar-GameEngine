@@ -87,11 +87,11 @@ public:
 	RHIResource* GetRHIResource() { return mRHIRes; }
 
 private:
-	RHIResDesc            mDesc;
-	RHIResourcePtr        mRHIRes;
-	RHIViewPtr            mResView;
-	TextureMemoryType     mDataType;
-	TPPtrArray<Texture2D> mTextures;
-	size_t                mDataSize;
+	RHIResDesc                mDesc;
+	RHIResourcePtr            mRHIRes;
+	RHIViewPtr                mResView;
+	TextureMemoryType         mDataType;
+	TAssetPtrArray<Texture2D> mTextures;
+	size_t                    mDataSize;
 };
 }

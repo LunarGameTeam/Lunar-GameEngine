@@ -95,9 +95,9 @@ bool RenderModule::OnShutdown()
 void RenderModule::SetupIMGUI()
 {
 	ImGuiIO& io = ImGui::GetIO();
-	LSharedPtr<LFile> data = sAssetModule->LoadAsset<LBinaryAsset>("/assets/fonts/NotoSansSC-Regular.otf")->GetFileData();
-	LSharedPtr<LFile> data2 = sAssetModule->LoadAsset<LBinaryAsset>("/assets/fonts/fa-regular-400.otf")->GetFileData();
-	LSharedPtr<LFile> data3 = sAssetModule->LoadAsset<LBinaryAsset>("/assets/fonts/fa-solid-900.otf")->GetFileData();
+	static SharedPtr<LFile> data = sAssetModule->LoadAsset<LBinaryAsset>("/assets/fonts/NotoSansSC-Regular.otf")->GetFileData();
+	static SharedPtr<LFile> data2 = sAssetModule->LoadAsset<LBinaryAsset>("/assets/fonts/fa-regular-400.otf")->GetFileData();
+	static SharedPtr<LFile> data3 = sAssetModule->LoadAsset<LBinaryAsset>("/assets/fonts/fa-solid-900.otf")->GetFileData();
 
 	auto* font = io.Fonts->AddFontFromMemoryTTF((void*)data->GetData().data(), data->GetData().size(), 18, nullptr,
 		io.Fonts->GetGlyphRangesChineseFull());
@@ -116,10 +116,8 @@ void RenderModule::SetupIMGUI()
 	(void)io;
 
 	io.IniFilename = nullptr;
-	LSharedPtr<TextAsset> defaultLayout;
-	defaultLayout.reset(sAssetModule->LoadAsset<TextAsset>("default_layout.ini"));
-	LSharedPtr<TextAsset> layout;
-	layout.reset(sAssetModule->LoadAsset<TextAsset>("layout.ini"));
+	static SharedPtr<TextAsset> defaultLayout = sAssetModule->LoadAsset<TextAsset>("default_layout.ini");
+	static SharedPtr<TextAsset> layout = sAssetModule->LoadAsset<TextAsset>("layout.ini");
 	if(layout)
 		ImGui::LoadIniSettingsFromMemory(layout->GetContent().c_str(), layout->GetContent().Length());
 	else if(defaultLayout)

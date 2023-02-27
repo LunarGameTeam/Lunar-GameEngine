@@ -121,7 +121,9 @@ private:
 
 template<typename> struct pymethod_wrap;
 
-template<typename> struct binding_converter
+
+template<typename T, class = void>
+struct binding_converter
 {
 	static PyObject* binding_type() { return nullptr; }
 

@@ -87,7 +87,7 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 		node.SetColorAttachment(colorView);
 		node.SetDepthStencilAttachment(depthView);
 	});
-	static MeshAsset* sSkyboxMesh = sAssetModule->LoadAsset<MeshAsset>("/assets/built-in/Geometry/Sphere.lmesh");	
+	static auto sSkyboxMesh = sAssetModule->LoadAsset<MeshAsset>("/assets/built-in/Geometry/Sphere.lmesh");	
 	
 
 	node.ExcuteFunc([=](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)

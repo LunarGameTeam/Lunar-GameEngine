@@ -47,26 +47,7 @@ bool JsonSerializer::Serialize(LObject *root)
 		});
 		LArray<LProperty*> properties;
 		LType* type = top->GetClass();
-		type->GetAllProperties(properties);
-		for (LProperty* prop : properties)
-		{
-			LType* propType = prop->GetType();
-			if (prop->IsSubPointer())
-			{
-				if (!propType->GetTemplateArg()->IsAsset())
-				{
-					PPtr& propRef = prop->GetValue<PPtr>(top);
-				}
-			}
-			else if (propType->IsSubPtrArray())
-			{
-				TPPtrArray<LObject>& propValue = prop->GetValue<TPPtrArray<LObject>>(top);
-				for (auto& ptr : propValue)
-				{
-					LObject* aryElement = ptr.Get();
-				}
-			}
-		}
+		type->GetAllProperties(properties);		
 	}
 
 	std::string rootID = boost::lexical_cast<std::string>(mFileIDMap.Get(root));
@@ -154,33 +135,43 @@ void JsonSerializer::SerializeProperty(LProperty& prop, LObject* target, JsonDic
 	};
 	LType *objectType = target->GetClass();
 	LType *propType = prop.GetType();
-	if (prop.IsSubPointer())
+	if (propType->IsPPtr())
 	{
-		if (propType->GetTemplateArg()->IsAsset())
+		PPtr& propRef = prop.GetValue<PPtr>(target);
+		JsonSerializer propSerializer(mDict);
+		if (propRef.Get())
 		{
-			PPtr &ptr = prop.GetValue<PPtr>(target);
-			if (ptr.Get() == nullptr)
-			{
-				dict.Set(prop.GetName(), "");
-			}
-			else
-			{
-				Asset *asset = dynamic_cast<Asset *>(ptr.Get());
-				
-				dict.Set(prop.GetName(), asset->GetAssetPath());
-			}
+			dict.Set(prop.GetNameStr(), mFileIDMap.Get(propRef.Get()));
+		}
+	}
+	else if (propType->IsAssetPtr())
+	{
+		SharedPtr<Asset>& ptr = prop.GetValue<SharedPtr<Asset>>(target);
+		if (ptr.get() == nullptr)
+		{
+			dict.Set(prop.GetName(), "");
 		}
 		else
 		{
-			PPtr &propRef = prop.GetValue<PPtr>(target);
-			JsonSerializer propSerializer(mDict);
-			if (propRef.Get())
-			{
-				dict.Set(prop.GetNameStr(), mFileIDMap.Get(propRef.Get()));
-			}			
+			Asset* asset = dynamic_cast<Asset*>(ptr.get());
+			dict.Set(prop.GetName(), asset->GetAssetPath());
 		}
 	}
-	else if (propType->IsSubPtrArray())
+	else if (propType->IsAssetPTRArray())
+	{
+		TAssetPtrArray<Asset>& propValue = prop.GetValue<TAssetPtrArray<Asset>>(target);
+
+		JsonList propList = dict.GetList(prop.GetName());
+		int index = 0;
+		propList.Resize(propValue.size());
+		for (auto& ptr : propValue)
+		{
+			propList.Set(index, ptr->GetAssetPath());
+			dict.Set(prop.GetNameStr(), propList);
+		}
+		
+	}
+	else if (propType->IsPPtrArray())
 	{
 		TPPtrArray<LObject> &propValue = prop.GetValue<TPPtrArray<LObject>>(target);
 		JsonList propList = dict.GetList(prop.GetName());
@@ -191,22 +182,14 @@ void JsonSerializer::SerializeProperty(LProperty& prop, LObject* target, JsonDic
 			Json::Value val;
 			JsonDict element_dict(val);
 			JsonSerializer elementSerializer(mDict);
-			if (propType->GetTemplateArg()->IsAsset())
+			LObject* aryElement = ptr.Get();
+			if (aryElement)
 			{
-				Asset* aryElement = (Asset*)ptr.Get();
-				propList.Set(index, aryElement->GetAssetPath());
+				propList.Set(index, mFileIDMap.Get(aryElement));
 			}
 			else
 			{
-				LObject* aryElement = ptr.Get();
-				if (aryElement)
-				{
-					propList.Set(index, mFileIDMap.Get(aryElement));
-				}
-				else
-				{
-					propList.Set(index, 0);
-				}
+				propList.Set(index, 0);
 			}
 			index++;
 		}
@@ -237,63 +220,64 @@ void JsonSerializer::DeserializeProperty(LProperty &prop, LObject *obj, JsonDict
 	if (!dict.Has(prop.GetNameStr()))
 		return;
 	JsonDict propDict = dict.GetDict(prop.GetNameStr());
-	if (prop.IsSubPointer())
+
+	if (type->IsPPtr())
 	{
-		if (type->GetTemplateArg()->IsDerivedFrom(LType::Get<Asset>()))
-		{
-			PPtr &ptr = prop.GetValue<PPtr>(obj);
-			LString assetPath = propDict.As<LString>();
-			auto setter = prop.GetSetter();
-
-			Asset* asset = nullptr;
-			if (assetPath != "")
-				asset = sAssetModule->LoadAsset(assetPath, type->GetTemplateArg());
-
-			if (setter)
-			{
-				setter.InvokeMember<void, LObject, Asset*>(obj, asset);
-			}
-			else
-			{
-				ptr.SetPtr(asset);
-			}				
-		}
-		else 
-		{
-			PPtr &ptr = prop.GetValue<PPtr>(obj);
-			FileID strUUID = propDict.As<FileID>();
-			ptr.SetPtr(mFileIDMap.Get(strUUID));			
-			
-		}
-		return;
+		assert(type->GetTemplateArg()->IsDerivedFrom(LType::Get<LObject>()));
+		PPtr& ptr = prop.GetValue<PPtr>(obj);
+		FileID strUUID = propDict.As<FileID>();
+		ptr.SetPtr(mFileIDMap.Get(strUUID));
+		return;		
 	}
-	else if (type->IsSubPtrArray())
+	else if (type->IsPPtrArray())
 	{
-		TPPtrArray<LObject> &ary = prop.GetValue<TPPtrArray<LObject>>(obj);
+		TPPtrArray<LObject>& ary = prop.GetValue<TPPtrArray<LObject>>(obj);
+
 		if (propDict)
 		{
-
 			JsonList propList = propDict.As<JsonList>();
+			for (uint32_t index = 0; index < propList.Size(); index++)
+			{
+				FileID strUUID = propList.Get<FileID>(index);
+				ary.PushBack(mFileIDMap.Get(strUUID));
+			}
+		}		
+		return;
+	}
+	else if (type->IsAssetPtr())
+	{
+		SharedPtr<Asset>& ptr = prop.GetValue<SharedPtr<Asset>>(obj);
+		LString assetPath = propDict.As<LString>();
+		auto setter = prop.GetSetter();
+		SharedPtr<Asset> asset = nullptr;
+		assert(type->GetTemplateArg()->IsDerivedFrom(LType::Get<Asset>()));
+		if (assetPath != "")
+			asset = sAssetModule->LoadAsset(assetPath, type->GetTemplateArg());
 
-			if (type->GetTemplateArg()->IsDerivedFrom(LType::Get<Asset>()))
+		if (setter)
+		{
+			setter.InvokeMember<void, LObject, Asset*>(obj, asset.get());
+		}
+		else
+		{
+			ptr = asset;
+		}		
+		return;
+	}else if(type->IsAssetPTRArray())
+	{
+		TAssetPtrArray<Asset>& ary = prop.GetValue<TAssetPtrArray<Asset>>(obj);
+		if (propDict)
+		{
+			JsonList propList = propDict.As<JsonList>();			
+			for (uint32_t idx = 0; idx < propList.Size(); idx++)
 			{
-				for (uint32_t idx = 0; idx < propList.Size(); idx++)
-				{
-					LString assetPath = propList.Get<LString>(idx);
-					ary.PushBack(sAssetModule->LoadAsset(assetPath, type->GetTemplateArg()));
-				}
-			}
-			else
-			{
-				for (uint32_t index = 0; index < propList.Size(); index++)
-				{
-					FileID strUUID = propList.Get<FileID>(index);					
-					ary.PushBack(mFileIDMap.Get(strUUID));
-				}
-			}
+				LString assetPath = propList.Get<LString>(idx);
+				ary.push_back(sAssetModule->LoadAsset(assetPath, type->GetTemplateArg()));
+			}			
 		}
 		return;
 	}
+	
 	auto fn = helper[type];
 	if (fn)
 		fn(prop, obj, propDict);

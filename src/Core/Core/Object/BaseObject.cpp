@@ -126,9 +126,10 @@ void LObject::SetBindingObject(PyObject* val)
 {
 	assert(mBindingObject == nullptr);
 	Py_XINCREF(val);
-	mBindingObject = (binding::BindingLObject*)(val);
-	memset(&mBindingObject->ptr, 0, sizeof(mBindingObject->ptr));
-	mBindingObject->ptr = this;
+	mBindingObject = static_cast<binding::BindingObject*>(val);
+	binding::BindingLObject* obj = static_cast<binding::BindingLObject*>(val);
+	memset(&obj->ptr, 0, sizeof(obj->ptr));
+	obj->ptr = this;
 }
 }
 
@@ -138,7 +139,6 @@ namespace luna::binding
 PyObject* BindingLObject::__alloc__(PyTypeObject* type, Py_ssize_t size)
 {
 	BindingLObject* bindingObject = (BindingLObject*)PyType_GenericAlloc(type, size);
-	std::construct_at<PPtr>(&(bindingObject->ptr));
 	return bindingObject;
 }
 

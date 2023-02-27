@@ -13,7 +13,7 @@
 namespace luna::render
 {
 
-bool DxcCompile(RHIShaderType stage, const LString& pShader, std::vector<uint32_t>& spirv,
+bool DxcCompile(RHIShaderType stage, const LString& name, const LString& pShader, std::vector<uint32_t>& spirv,
 	Microsoft::WRL::ComPtr<IDxcBlob>& code);
 
 class LunaIncludeHandler : public IDxcIncludeHandler

@@ -4,9 +4,12 @@
 
 #include "Graphics/RenderConfig.h"
 #include "Graphics/RenderTypes.h"
+
 #include "Graphics/RHI/RHITypes.h"
 #include "Graphics/RHI/RHIDevice.h"
 #include "Graphics/RHI/RHIRenderPass.h"
+
+#include "Graphics/Asset/ShaderAsset.h"
 
 
 namespace luna::render
@@ -102,7 +105,7 @@ public:
 	RHIDescriptorPoolPtr GetDefaultDescriptorPool() { return mDefaultPool; }
 
 	RHIBindingSetLayoutPtr mViewBindingSet;
-	ShaderAsset*           mDefaultShader;
+	SharedPtr<ShaderAsset>        mDefaultShader;
 private:
 	RHIPipelineStatePtr CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& desc, RHIVertexLayout* layout);
 

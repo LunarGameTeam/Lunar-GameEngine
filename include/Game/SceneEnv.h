@@ -17,8 +17,6 @@ class GAME_API SceneEnvComponent : public Component
 	RegisterTypeEmbedd(SceneEnvComponent, Component)
 public:
 	SceneEnvComponent() :
-		mSkyboxMesh(this),
-		mSkyboxMaterial(this),
 		mMaterialInstance(this)
 	{
 
@@ -41,8 +39,8 @@ private:
 	LVector4f mFogColor     = LVector4f(0.1, 0.1, 0.1, 1);
 	LVector4f mAmbientColor = LVector4f(0.1, 0.1, 0.1, 1);
 
-	TPPtr<render::MeshAsset>             mSkyboxMesh;
-	TPPtr<render::MaterialTemplateAsset> mSkyboxMaterial;
+	SharedPtr<render::MeshAsset>             mSkyboxMesh;
+	SharedPtr<render::MaterialTemplateAsset> mSkyboxMaterial;
 
 private:
 	TPPtr<render::MaterialInstance> mMaterialInstance;

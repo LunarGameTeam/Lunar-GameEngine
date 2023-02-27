@@ -14,7 +14,7 @@ static Microsoft::WRL::ComPtr<IDxcCompiler> sDxcCompiler;
 static Microsoft::WRL::ComPtr<IDxcIncludeHandler> sDefaultIncludeHandler;
 
 
-bool DxcCompile(RHIShaderType stage, const LString& pShader, std::vector<uint32_t>& spirv,
+bool DxcCompile(RHIShaderType stage, const LString& name, const LString& pShader, std::vector<uint32_t>& spirv,
 	ComPtr<IDxcBlob>& code)
 {
 	HRESULT hres = S_OK;
@@ -57,10 +57,12 @@ bool DxcCompile(RHIShaderType stage, const LString& pShader, std::vector<uint32_
 	std::vector<LPCWSTR> arguments = {
 		// (Optional) name of the shader file to be displayed e.g. in an error message
 		L"",
-		DXC_ARG_DEBUG,
-		// Compile to SPIRV
 		shaderTarget,
-		L"-Od"
+#ifdef _DEBUG
+		DXC_ARG_DEBUG,
+		L"-Od",
+		L"-fspv-debug=vulkan-with-source",
+#endif
 	};
 
 

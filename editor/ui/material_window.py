@@ -1,52 +1,40 @@
 import tkinter.filedialog
 
+import core
 import luna
 from core.editor_module import platform_module, EditorModule
 from luna import imgui
-from ui.panel import WindowBase
+from ui.panel import WindowBase, PanelBase
 
 
-class MaterialWindow(WindowBase):
-    main_scene: 'luna.Scene' = None
-    window_name = "Material Window"
+class AssetPanel(PanelBase):
+    editor_list: list[core.editor.EditorBase]
+    editor: core.editor.EditorBase
+    selected_entity: luna.Entity
+    world_sys: luna.GameModule
 
     def __init__(self) -> None:
         super().__init__()
+        self.title = "Inspector"
+        self.selected_entity = None
+        self.editor = None
+        self.width = 50
 
-        self.main_scene = None
+    def set_editor(self, editor):
+        self.editor = editor
 
-        from ui.inspector_panel import InspectorPanel
-        from ui.library_panel import LibraryPanel
-
-        self.library_panel = self.add_panel(LibraryPanel)
-
-    def on_title(self):
-        proj_dir = EditorModule.instance().project_dir
-        app_title = imgui.ICON_FA_MOON + "  Luna Material Editor"
-        self.title = app_title
-
-    def set_main_scene(self, scn):
-        if not scn:
-            return
-
-    def on_file_menu(self):
-        if imgui.begin_menu("文件", True):
-            if imgui.menu_item("保存"):
-                name = tkinter.filedialog.askdirectory(initialdir=platform_module.engine_dir)
-                if name:
-                    platform_module.set_project_dir(name)
-                pass
-            imgui.end_menu()
-
-    def on_help_menu(self):
-        if imgui.begin_menu("帮助", True):
-            if imgui.menu_item("关于"):
-                self.show_message_box("Luna Editor 0.1", "made by Isak Wong, Pancy Star")
-            imgui.end_menu()
+    def imgui_menu(self):
+        if luna.imgui.begin_menu_bar():
+            if luna.imgui.begin_menu("创建", True):
+                if imgui.menu_item("RotateComponent"):
+                    entity: luna.Entity = self.editor.target
+                    entity.add_component(luna.RotateComponent)
+                luna.imgui.end_menu()
+            luna.imgui.end_menu_bar()
 
     def on_imgui(self, delta_time) -> None:
         super().on_imgui(delta_time)
-        if imgui.begin_menu_bar():
-            self.on_file_menu()
-            self.on_help_menu()
-            imgui.end_menu_bar()
+        self.imgui_menu()
+        if self.editor and self.editor.target:
+            self.editor.on_imgui()
+        return

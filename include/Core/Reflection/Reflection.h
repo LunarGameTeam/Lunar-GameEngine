@@ -10,16 +10,6 @@
 namespace luna
 {
 
-template<typename T>
-struct static_type<LSharedPtr<T>>
-{
-	static LType* StaticType()
-	{
-		static LType* type = NewTemplateType<T>("SharedPtr", sizeof(LSharedPtr<T>), nullptr);
-		return type;
-	}
-};
-
 
 template<typename T>
 struct static_type<std::function<T>>

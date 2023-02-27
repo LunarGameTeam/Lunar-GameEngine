@@ -105,8 +105,7 @@ Texture2D::Texture2D()
 	mDesc.Format = RHITextureFormat::R8G8B8A8_UNORM;
 }
 
-TextureCube::TextureCube():
-	mTextures(this)
+TextureCube::TextureCube()
 {
 }
 

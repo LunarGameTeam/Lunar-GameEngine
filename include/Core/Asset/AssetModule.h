@@ -18,7 +18,7 @@ class AssetAsyncHandle
 struct AssetCache
 {
 	LSharedPtr<JsonDict> meta;
-	LSharedPtr<Asset> asset;
+	Asset* asset;
 };
 
 class CORE_API AssetModule : public LModule
@@ -37,14 +37,14 @@ public:
 	Asset* NewAsset(const LString& path, LType* type);
 	void RemoveAsset(Asset* asset);
 	bool SaveAsset(Asset *asset, const LString &path);	
-	Asset *LoadAsset(const LPath &path, LType* asset_type);
-	
-	Asset* BindingLoadAsset(const char* path, LType* asset_type);
+	SharedPtr<Asset> LoadAsset(const LPath &path, LType* asset_type);	
+	SharedPtr<Asset> BindingLoadAsset(const char* path, LType* asset_type);
+
 	template<typename T>
-	T* LoadAsset(const LPath &path)
+	SharedPtr<T> LoadAsset(const LPath &path)
 	{
-		T* p = dynamic_cast<T*>(LoadAsset(path, LType::Get<T>()));
-		return p;
+		auto assetPtr = LoadAsset(path, LType::Get<T>());		
+		return std::dynamic_pointer_cast<T, Asset>(assetPtr);
 	}
 
 	/// TODO

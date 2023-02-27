@@ -7,6 +7,7 @@
 
 #include "Graphics/RenderTypes.h"
 #include "Core/Foundation/Misc.h"
+#include "Core/Object/SharedObject.h"
 
 
 namespace luna::render
@@ -156,13 +157,12 @@ class RENDER_API MaterialParamTexture2D : public MaterialParam
 {
 	RegisterTypeEmbedd(MaterialParamTexture2D, MaterialParam)
 public:
-	MaterialParamTexture2D() :
-		mValue(this)
+	MaterialParamTexture2D() 
 	{
 		mParamType = MaterialParamType::Texture2D;
 	}
 
-	TPPtr<Texture2D> mValue;
+	SharedPtr<Texture2D> mValue;
 };
 
 
@@ -170,13 +170,12 @@ class RENDER_API MaterialParamTextureCube : public MaterialParam
 {
 	RegisterTypeEmbedd(MaterialParamTextureCube, MaterialParam)
 public:
-	MaterialParamTextureCube() :
-		mValue(this)
+	MaterialParamTextureCube()
 	{
 		mParamType = MaterialParamType::TextureCube;
 	}
 
-	TPPtr<TextureCube> mValue;
+	SharedPtr<TextureCube> mValue;
 };
 
 
@@ -217,7 +216,7 @@ public:
 	TPPtrArray<MaterialParam> mOverrideParams;
 	TPPtrArray<MaterialParam> mAllParams;
 
-	TPPtr<MaterialTemplateAsset> mMaterialTemplate;
+	SharedPtr<MaterialTemplateAsset> mMaterialTemplate;
 
 	
 };

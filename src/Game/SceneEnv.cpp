@@ -45,7 +45,7 @@ void SceneEnvComponent::SetSkyboxMaterial(render::MaterialTemplateAsset* val)
 		auto renderScene = GetScene()->GetRenderScene();
 		renderScene->mSkyboxMaterial = val->GetDefaultInstance();
 	}	
-	mSkyboxMaterial = val;
+	mSkyboxMaterial = ToSharedPtr(val);
 }
 
 void SceneEnvComponent::SetAmbientColor(const LVector4f& ambient)
