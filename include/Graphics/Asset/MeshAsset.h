@@ -63,14 +63,15 @@ public:
 	LArray<BaseVertex> mVertexData;
 	LArray<uint32_t> mIndexData;
 
-	RHIResourcePtr mVB;
-	RHIResourcePtr mIB;
 	RHIVertexLayout mVeretexLayout;
-
+	LString mAssetPath;
+	size_t mSubmeshIndex;
 	size_t GetStridePerVertex() { return mVeretexLayout.GetSize()[0]; };
 	size_t GetStridePerInstance() { return mVeretexLayout.GetSize()[1]; };
 private:
 	bool mReady = false;
+	
+
 };
 
 

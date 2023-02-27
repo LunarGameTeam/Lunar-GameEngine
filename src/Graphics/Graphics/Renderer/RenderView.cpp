@@ -44,7 +44,7 @@ void RenderView::Culling(RenderScene* scene)
 	for(size_t eachPassIndex =0; eachPassIndex < MeshRenderPass::AllNum; ++eachPassIndex)
 	{
 		mMeshRenderCommandsPass[eachPassIndex].ClearCommand();
-		for(auto& eachCommand : scene->mAllMeshDrawCommands[eachPassIndex].allCommands)
+		for(auto& eachCommand : scene->mAllMeshDrawCommands[eachPassIndex].GetCommands())
 		{
 			mMeshRenderCommandsPass[eachPassIndex].AddCommand(&eachCommand.second);
 		}

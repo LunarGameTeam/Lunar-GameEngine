@@ -7,6 +7,17 @@
 
 namespace luna::render
 {
+class RENDER_API DX12CmdSignature : public RHICmdSignature
+{
+private:
+	Microsoft::WRL::ComPtr<ID3D12CommandSignature> mDxCmdSignature;
+public:
+	DX12CmdSignature(
+		RHIPipelineState* pipeline,
+		const LArray<CommandArgDesc>& allCommondDesc
+	);
+	ID3D12CommandSignature* GetValue() { return mDxCmdSignature.Get(); }
+};
 
 class RENDER_API DX12GraphicCmdList : public RHIGraphicCmdList
 {
@@ -41,6 +52,8 @@ public:
 		uint32_t StartIndexLocation,
 		int32_t BaseVertexLocation,
 		int32_t StartInstanceLocation) override;
+
+	void DrawIndirect() override;
 
 	void SetVertexBuffer(const std::vector<RHIVertexBufferDesc>& vb, int32_t slot = 0) override;
 

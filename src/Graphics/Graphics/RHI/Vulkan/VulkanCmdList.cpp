@@ -124,6 +124,11 @@ void VulkanGraphicCmdList::DrawIndexedInstanced(uint32_t IndexCountPerInstance, 
 	mCommandBuffer.drawIndexed(IndexCountPerInstance, 1, 0, 0, StartInstanceLocation);
 }
 
+void VulkanGraphicCmdList::DrawIndirect()
+{
+	mCommandBuffer.drawIndexedIndirect();
+}
+
 void VulkanGraphicCmdList::SetDrawPrimitiveTopology(RHIPrimitiveTopology primitive_topology)
 {
 	mCommandBuffer.setPrimitiveTopology(Convert(primitive_topology));

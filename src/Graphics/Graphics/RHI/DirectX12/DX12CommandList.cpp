@@ -13,6 +13,93 @@
 namespace luna::render
 {
 
+DX12CmdSignature::DX12CmdSignature(
+	RHIPipelineState* pipeline,
+	const LArray<CommandArgDesc>& allCommondDesc
+) :RHICmdSignature(pipeline, allCommondDesc)
+{
+	D3D12_COMMAND_SIGNATURE_DESC newSignatureDesc;
+	LArray<D3D12_INDIRECT_ARGUMENT_DESC> allIndirectDesc;
+	size_t byteStride = 0;
+	for (int32_t i = 0; i < allCommondDesc.size(); ++i)
+	{
+		D3D12_INDIRECT_ARGUMENT_DESC&newDesc = allIndirectDesc.emplace_back();
+		switch (allCommondDesc[i].mArgType)
+		{
+		case RHIIndirectArgumentType::AsVertexBuffer:
+		{
+			newDesc.Type = D3D12_INDIRECT_ARGUMENT_TYPE::D3D12_INDIRECT_ARGUMENT_TYPE_VERTEX_BUFFER_VIEW;
+			newDesc.VertexBuffer.Slot = allCommondDesc[i].mSlotOrIndex;
+			byteStride += sizeof(D3D12_VERTEX_BUFFER_VIEW);
+			break;
+		}
+		case RHIIndirectArgumentType::AsIndexBuffer:
+		{
+			newDesc.Type = D3D12_INDIRECT_ARGUMENT_TYPE::D3D12_INDIRECT_ARGUMENT_TYPE_INDEX_BUFFER_VIEW;
+			byteStride += sizeof(D3D12_INDEX_BUFFER_VIEW);
+			break;
+		}
+		case RHIIndirectArgumentType::AsUniformValue:
+		{
+			newDesc.Type = D3D12_INDIRECT_ARGUMENT_TYPE::D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT;
+			newDesc.Constant.RootParameterIndex = allCommondDesc[i].mSlotOrIndex;
+			newDesc.Constant.DestOffsetIn32BitValues = allCommondDesc[i].mConstantOffset;
+			newDesc.Constant.Num32BitValuesToSet = allCommondDesc[i].mConstantValueSize;
+			byteStride += newDesc.Constant.Num32BitValuesToSet * sizeof(int32_t);
+			break;
+		}
+		case RHIIndirectArgumentType::AsUniformBuffer:
+		{
+			newDesc.Type = D3D12_INDIRECT_ARGUMENT_TYPE::D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT_BUFFER_VIEW;
+			newDesc.ConstantBufferView.RootParameterIndex = allCommondDesc[i].mSlotOrIndex;
+			byteStride += sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
+			break;
+		}
+		case RHIIndirectArgumentType::AsShaderResource:
+		{
+			newDesc.Type = D3D12_INDIRECT_ARGUMENT_TYPE::D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
+			newDesc.ShaderResourceView.RootParameterIndex = allCommondDesc[i].mSlotOrIndex;
+			byteStride += sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
+			break;
+		}
+		case RHIIndirectArgumentType::AsUnorderedAccess:
+		{
+			newDesc.Type = D3D12_INDIRECT_ARGUMENT_TYPE::D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
+			newDesc.UnorderedAccessView.RootParameterIndex = allCommondDesc[i].mSlotOrIndex;
+			byteStride += sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
+			break;
+		}
+		case RHIIndirectArgumentType::AsDrawCommand:
+		{
+			newDesc.Type = D3D12_INDIRECT_ARGUMENT_TYPE::D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
+			byteStride += sizeof(D3D12_DRAW_INDEXED_ARGUMENTS);
+			break;
+		}
+		case RHIIndirectArgumentType::AsDispatchCommand:
+		{
+			newDesc.Type = D3D12_INDIRECT_ARGUMENT_TYPE::D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH;
+			byteStride += sizeof(D3D12_DISPATCH_ARGUMENTS);
+			break;
+		}
+		default:
+		{
+			assert(false);
+			break;
+		}
+			
+		}
+	}
+	newSignatureDesc.ByteStride = byteStride;
+	newSignatureDesc.NodeMask = 0;
+	newSignatureDesc.NumArgumentDescs = allIndirectDesc.size();
+	newSignatureDesc.pArgumentDescs = allIndirectDesc.data();
+	DX12BindingSetLayout* dx12BindingSetLayout = pipeline->GetBindingSetLayout()->As<DX12BindingSetLayout>();
+	HRESULT hr;
+	ID3D12Device* dxDevice = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
+	hr = dxDevice->CreateCommandSignature(&newSignatureDesc, dx12BindingSetLayout->GetRootSignature(), IID_PPV_ARGS(&mDxCmdSignature));
+	assert(SUCCEEDED(hr));
+}
+
 DX12GraphicCmdList::DX12GraphicCmdList(RHICmdListType cmdListType)
 	:RHIGraphicCmdList(cmdListType)
 {
@@ -38,6 +125,12 @@ void DX12GraphicCmdList::DrawIndexedInstanced(
 	int32_t StartInstanceLocation)
 {
 	mDxCmdList->DrawIndexedInstanced(IndexCountPerInstance, InstanceCount, StartIndexLocation,
+		BaseVertexLocation, StartInstanceLocation);
+};
+
+void DX12GraphicCmdList::DrawIndirect()
+{
+	mDxCmdList->ExecuteIndirect(IndexCountPerInstance, InstanceCount, StartIndexLocation,
 		BaseVertexLocation, StartInstanceLocation);
 };
 

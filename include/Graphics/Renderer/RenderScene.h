@@ -17,13 +17,25 @@ class AssetSceneData
 {
 public:
 	LUnorderedMap<LString, ShaderParamSceneBuffer> materialBuffer;
+	//mesh现在先只添加不删除，有时间再处理ro离开场景怎么删除对应的scene资源的问题
+	int32_t AddMeshData(SubMesh* meshData);
+
+	int32_t GetMeshDataId(SubMesh* meshData);
+
+	RenderMeshBase* GetMeshData(int32_t meshId);
+private:
 	LQueue<size_t> emptyMeshId;
-	LUnorderedMap<size_t, RenderMeshBase> meshPrimitiveBuffer;
+
+	LUnorderedMap<LString, int32_t> meshPrimitiveName;
+
+	LUnorderedMap<int32_t, RenderMeshBase> meshPrimitiveBuffer;
+
+	LString GetSubmeshName(SubMesh* meshData);
 };
 
 struct RENDER_API RenderObject
 {
-	size_t            mMeshIndex;
+	int32_t           mMeshIndex;
 	LMatrix4f*        mWorldMat;
 	bool              mCastShadow = true;
 	bool              mReceiveLight = true;
@@ -51,7 +63,13 @@ public:
 	PointLight* CreatePointLight();
 
 	uint64_t CreateRenderObject(MaterialInstance* mat, SubMesh* meshData,bool castShadow, LMatrix4f* worldMat);
-	void UpdateRenderObject(uint64_t roId, MaterialInstance* mat, SubMesh* meshData, bool castShadow, LMatrix4f* worldMat);
+	void UpdateRenderObject(uint64_t roId);
+	void SetRenderObjectMesh(uint64_t roId,SubMesh* meshData);
+	void SetRenderObjectCastShadow(uint64_t roId, bool castShadow);
+	void SetRenderObjectTransformRef(uint64_t roId, LMatrix4f* worldMat);
+	void SetRenderObjectMaterial(uint64_t roId, MaterialInstance* mat);
+
+
 
 	RenderView* CreateRenderView();
 	void DestroyLight(Light* ro);
@@ -130,6 +148,7 @@ class RoPassProcessorManager
 	LUnorderedMap<MeshRenderPass, MeshPassProcessorCreateFunction> mAllPassProcessor;
 	static RoPassProcessorManager* mInstance;
 	RoPassProcessorManager();
+	void Init();
 public:
 	void RegistorPassProcessor(MeshRenderPass passType, MeshPassProcessorCreateFunction passProcessorGenerator);
 	MeshPassProcessorCreateFunction GetPassProcessor(MeshRenderPass passType);

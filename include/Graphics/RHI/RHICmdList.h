@@ -9,6 +9,24 @@
 namespace luna::render
 {
 
+struct CommandArgDesc
+{
+	RHIIndirectArgumentType mArgType;
+	UINT mSlotOrIndex;
+	UINT mConstantOffset;
+	UINT mConstantValueSize;
+};
+class RENDER_API RHICmdSignature : public RHIObject
+{
+protected:
+	RHIPipelineState* mPipeline;
+	LArray<CommandArgDesc> mCommondDescs;
+public:
+	RHICmdSignature(
+		RHIPipelineState* pipeline,
+		const LArray<CommandArgDesc> &allCommondDesc
+	):mPipeline(pipeline), mCommondDescs(allCommondDesc) {};
+};
 
 //命令分配器
 class RENDER_API RHICmdAllocator : public RHIObject
@@ -61,7 +79,7 @@ public:
 		uint32_t StartIndexLocation,
 		int32_t BaseVertexLocation,
 		int32_t StartInstanceLocation) = 0;
-
+	virtual void DrawIndirect() = 0;
 
 	virtual void SetDrawPrimitiveTopology(RHIPrimitiveTopology primitive_topology) = 0;
 

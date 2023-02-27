@@ -359,8 +359,8 @@ RHIBindingSetPtr RenderContext::CreateBindingset(RHIBindingSetLayoutPtr layout)
 
 void RenderContext::DrawRenderOBject(render::RenderObject* ro, render::MaterialInstance* mat, PackedParams* params)
 {
-	if(ro->mInstanceRes)
-		DrawMeshInstanced(ro->mMesh, mat, params, ro->mInstanceRes, ro->mID, 1);
+	//if(ro->mInstanceRes)
+	//	DrawMeshInstanced(ro->mMesh, mat, params, ro->mInstanceRes, ro->mID, 1);
 }
 
 void RenderContext::DrawMesh(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params)
@@ -421,6 +421,20 @@ void RenderContext::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialIns
 		break;
 	}
 	mGraphicCmd->DrawIndexedInstanced((uint32_t)indexCount, instancingSize, 0, 0, startInstanceIdx);
+	//mGraphicCmd->SetVertexBuffer(descs, 0);
+	//mGraphicCmd->SetIndexBuffer(ib);
+	//switch (mat->mMaterialTemplate->GetPrimitiveType())
+	//{
+	//case RHIPrimitiveTopologyType::Triangle:
+	//	mGraphicCmd->SetDrawPrimitiveTopology(RHIPrimitiveTopology::TriangleList);
+	//	break;
+	//case RHIPrimitiveTopologyType::Line:
+	//	mGraphicCmd->SetDrawPrimitiveTopology(RHIPrimitiveTopology::LineList);
+	//	break;
+	//default:
+	//	break;
+	//}
+	//mGraphicCmd->DrawIndexedInstanced((uint32_t)indexCount, instancingSize, 0, 0, startInstanceIdx);
 }
 
 }

@@ -16,6 +16,56 @@
 namespace luna::render
 {
 
+int32_t AssetSceneData::AddMeshData(SubMesh* meshData)
+{
+	if (meshData == nullptr)
+	{
+		return -1;
+	}
+	int32_t primitiveIndex = GetMeshDataId(meshData);
+	if (primitiveIndex != -1)
+	{
+		return primitiveIndex;
+	}
+	if (emptyMeshId.empty())
+	{
+		primitiveIndex = meshPrimitiveName.size();
+	}
+	else
+	{
+		primitiveIndex = emptyMeshId.front();
+		emptyMeshId.pop();
+	}
+	meshPrimitiveName.insert({ GetSubmeshName(meshData) ,primitiveIndex });
+	meshPrimitiveBuffer[primitiveIndex].Init(meshData);
+	return primitiveIndex;
+}
+
+int32_t AssetSceneData::GetMeshDataId(SubMesh* meshData)
+{
+	auto primitiveIndex = meshPrimitiveName.find(GetSubmeshName(meshData));
+	if (primitiveIndex == meshPrimitiveName.end())
+	{
+		return -1;
+	}
+	return primitiveIndex->second;
+}
+
+RenderMeshBase* AssetSceneData::GetMeshData(int32_t meshId)
+{
+	auto primitiveData = meshPrimitiveBuffer.find(meshId);
+	if (primitiveData == meshPrimitiveBuffer.end())
+	{
+		return nullptr;
+	}
+	return &primitiveData->second;
+}
+
+LString AssetSceneData::GetSubmeshName(SubMesh* meshData)
+{
+	LString primitiveName = meshData->mAssetPath + "_#_" + std::to_string(meshData->mSubmeshIndex);
+	return primitiveName;
+}
 
 RenderScene::RenderScene()
 {
@@ -36,32 +86,45 @@ uint64_t RenderScene::CreateRenderObject(MaterialInstance* mat, SubMesh* meshDat
 		mRoIndex.pop();
 	}
 	ro->mID = mRenderObjects.size();
-	meshData;
-	ro->mMeshIndex = ;
+	ro->mMeshIndex = mSceneDataGpu.AddMeshData(meshData);
 	ro->mMaterial = mat;
 	ro->mWorldMat = worldMat;
 	ro->mCastShadow = castShadow;
 	mRenderObjects.insert({ ro->mID,ro});
-	for (int32_t passType = 0;passType < MeshRenderPass::AllNum; ++passType)
-	{
-		MeshRenderPass meshRenderPass = static_cast<MeshRenderPass>(passType);
-		RoPassProcessorBase* roPassGen = RoPassProcessorManager::GetInstance()->GetPassProcessor(meshRenderPass)(this, meshRenderPass);
-		roPassGen->AddRenderObject(ro);
-	}
-
-
+	UpdateRenderObject(ro->mID);
 	return ro->mID;
 }
 
-void RenderScene::UpdateRenderObject(uint64_t roId, MaterialInstance* mat, SubMesh* meshData, bool castShadow, LMatrix4f* worldMat)
+void RenderScene::UpdateRenderObject(uint64_t roId)
 {
-	meshData;
-	mRenderObjects[roId]->mMeshIndex = ;
-	mRenderObjects[roId]->mMaterial = mat;
-	mRenderObjects[roId]->mWorldMat = worldMat;
+	for (int32_t passType = 0; passType < MeshRenderPass::AllNum; ++passType)
+	{
+		MeshRenderPass meshRenderPass = static_cast<MeshRenderPass>(passType);
+		RoPassProcessorBase* roPassGen = RoPassProcessorManager::GetInstance()->GetPassProcessor(meshRenderPass)(this, meshRenderPass);
+		roPassGen->AddRenderObject(mRenderObjects[roId]);
+	}
+}
+
+void RenderScene::SetRenderObjectMesh(uint64_t roId, SubMesh* meshData)
+{
+	mRenderObjects[roId]->mMeshIndex = mSceneDataGpu.AddMeshData(meshData);
+}
+
+void RenderScene::SetRenderObjectCastShadow(uint64_t roId, bool castShadow)
+{
 	mRenderObjects[roId]->mCastShadow = castShadow;
 }
 
+void RenderScene::SetRenderObjectTransformRef(uint64_t roId, LMatrix4f* worldMat)
+{
+	mRenderObjects[roId]->mWorldMat = worldMat;
+}
+
+void RenderScene::SetRenderObjectMaterial(uint64_t roId, MaterialInstance* mat)
+{
+	mRenderObjects[roId]->mMaterial = mat;
+	UpdateRenderObject(roId);
+}
 
 void RenderScene::PrepareScene()
 {
@@ -323,11 +386,17 @@ void RoPassProcessorBase::BuildMeshRenderCommands(
 
 RoPassProcessorManager* RoPassProcessorManager::mInstance = nullptr;
 
+RoPassProcessorManager::RoPassProcessorManager()
+{
+
+}
+
 RoPassProcessorManager* RoPassProcessorManager::GetInstance()
 {
 	if (mInstance == nullptr)
 	{
 		mInstance = new RoPassProcessorManager();
+		mInstance->Init();
 	}
 	return mInstance;
 }
