@@ -73,6 +73,7 @@ RegisterTypeEmbedd_Imp(MaterialParam)
 		.Serialize();
 	cls->BindingProperty<&Self::mParamName>("param_name")
 		.Serialize();
+	BindingModule::Luna()->AddType(cls);
 }
 
 RegisterTypeEmbedd_Imp(MaterialParamInt)
@@ -80,6 +81,7 @@ RegisterTypeEmbedd_Imp(MaterialParamInt)
 	cls->Ctor<MaterialParamInt>();
 	cls->BindingProperty<&Self::mValue>("value")
 		.Serialize();
+	BindingModule::Luna()->AddType(cls);
 }
 
 RegisterTypeEmbedd_Imp(MaterialParamFloat)
@@ -87,6 +89,15 @@ RegisterTypeEmbedd_Imp(MaterialParamFloat)
 	cls->Ctor<MaterialParamFloat>();
 	cls->BindingProperty<&Self::mValue>("value")
 		.Serialize();
+	BindingModule::Luna()->AddType(cls);
+}
+
+RegisterTypeEmbedd_Imp(MaterialParamFloat2)
+{
+	cls->Ctor<MaterialParamFloat2>();
+	cls->BindingProperty<&Self::mValue>("value")
+		.Serialize();
+	BindingModule::Luna()->AddType(cls);
 }
 
 RegisterTypeEmbedd_Imp(MaterialParamFloat3)
@@ -94,6 +105,7 @@ RegisterTypeEmbedd_Imp(MaterialParamFloat3)
 	cls->Ctor<MaterialParamFloat3>();
 	cls->BindingProperty<&Self::mValue>("value")
 		.Serialize();
+	BindingModule::Luna()->AddType(cls);
 }
 
 RegisterTypeEmbedd_Imp(MaterialParamFloat4)
@@ -101,6 +113,7 @@ RegisterTypeEmbedd_Imp(MaterialParamFloat4)
 	cls->Ctor<MaterialParamFloat4>();
 	cls->BindingProperty<&MaterialParamFloat4::mValue>("value")
 		.Serialize();
+	BindingModule::Luna()->AddType(cls);
 }
 RegisterTypeEmbedd_Imp(MaterialParamTexture2D)
 {
@@ -114,6 +127,7 @@ RegisterTypeEmbedd_Imp(MaterialParamTextureCube)
 	cls->Ctor<MaterialParamTextureCube>();
 	cls->BindingProperty< &Self::mValue>("texture")
 		.Serialize();
+	BindingModule::Luna()->AddType(cls);
 }
 
 RegisterTypeEmbedd_Imp(MaterialInstance)

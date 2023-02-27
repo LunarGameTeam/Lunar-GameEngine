@@ -127,6 +127,17 @@ public:
 	float mValue;
 };
 
+class RENDER_API MaterialParamFloat2 : public MaterialParam
+{
+	RegisterTypeEmbedd(MaterialParamFloat2, MaterialParam)
+public:
+	MaterialParamFloat2()
+	{
+	};
+	MaterialParamType mParamType = MaterialParamType::Float;
+
+	LVector2f mValue;
+};
 
 class RENDER_API MaterialParamFloat3 : public MaterialParam
 {

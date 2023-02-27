@@ -105,8 +105,10 @@ void AssetModule::RemoveAsset(Asset* asset)
 {
 	auto it = mCachedAssets.find(asset->mAssetPath);
 	if (it != mCachedAssets.end())
+	{
 		delete it->second;
-	mCachedAssets.erase(it);
+		mCachedAssets.erase(it);
+	}
 }
 
 SharedPtr<Asset> AssetModule::BindingLoadAsset(const char* path, LType* asset_type)

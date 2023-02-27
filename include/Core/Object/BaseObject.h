@@ -238,10 +238,11 @@ struct binding_converter<U*, typename  std::enable_if_t<std::is_base_of_v<LObjec
 	using binding_object_t = typename U::binding_t;
 
 	static PyObject* to_binding(LObject* obj)
-	{
-		PyTypeObject* typeobject = LType::Get<U>()->GetBindingType();
+	{		
+		
 		if (obj)
 		{
+			PyTypeObject* typeobject = obj->GetClass()->GetBindingType();
 			PyObject* bindingObject = nullptr;
 			typeobject = obj->GetClass()->GetBindingType();
 			bindingObject = obj->GetBindingObject();
@@ -303,9 +304,11 @@ struct binding_converter<TPPtrArray<U>>
 	static PyObject* to_binding(const TPPtrArray<U>& array)
 	{
 		PyObject* res = PyList_New(array.Size());
+		int idx = 0;
 		for (auto& it: array)
 		{
-			PyList_Append(res, binding_converter<U*>::to_binding(it.Get()));
+			PyList_SetItem(res, idx, binding_converter<U*>::to_binding(it.Get()));
+			idx++;
 		}
 		return (PyObject*)res;
 	}

@@ -35,7 +35,8 @@ class LibraryPanel(PanelBase):
         else:
             imgui.text("{} {}".format(imgui.ICON_FA_FILE, cur_item.name))
             if clicked:
-                EditorModule.instance().open_asset(cur_item)
+                from ui.asset_inspector_panel import AssetPanel
+                EditorModule.instance().main_scene_window.get_panel(AssetPanel).set_item(cur_item)
 
         if expand:
             if isinstance(cur_item, FolderInfo):

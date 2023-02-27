@@ -65,13 +65,15 @@ class MainPanel(WindowBase):
         from ui.inspector_panel import InspectorPanel
         from ui.scene_panel import ScenePanel
         from ui.library_panel import LibraryPanel
-        from ui.imgui_demo import DemoPanel
+        from ui.asset_inspector_panel import AssetPanel
+        #from ui.imgui_demo import DemoPanel
 
         self.hierarchy_panel = self.add_panel(HierarchyPanel)
-        self.demo_panel = self.add_panel(DemoPanel)
+        #self.demo_panel = self.add_panel(DemoPanel)
         self.scene_panel = self.add_panel(ScenePanel)
         self.library_panel = self.add_panel(LibraryPanel)
         self.inspector = self.add_panel(InspectorPanel)
+        self.asset_panel = self.add_panel(AssetPanel)
 
     def on_title(self):
         proj_dir = EditorModule.instance().project_dir
