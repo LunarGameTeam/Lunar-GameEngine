@@ -2,7 +2,8 @@ import os
 
 import luna
 from editor.core.asset import FolderInfo, FileInfo
-from editor.core.editor_module import EditorModule
+from editor.core.editor_module import EditorModule, asset_module
+from editor.core.inspector_base import create_inspector
 from luna import imgui
 from editor.ui.panel import PanelBase
 
@@ -35,8 +36,11 @@ class LibraryPanel(PanelBase):
         else:
             imgui.text("{} {}".format(imgui.ICON_FA_FILE, cur_item.name))
             if clicked:
-                from editor.ui.asset_inspector_panel import AssetPanel
-                EditorModule.instance().main_scene_window.get_panel(AssetPanel).set_item(cur_item)
+                if cur_item.name.endswith(".mat"):
+                    from editor.ui.inspector_panel import InspectorPanel
+                    material = asset_module.load_asset(cur_item.path, luna.MaterialTemplateAsset)
+                    editor = create_inspector(material)
+                    EditorModule.instance().main_scene_window.get_panel(InspectorPanel).set_editor(editor)
 
         if expand:
             if isinstance(cur_item, FolderInfo):

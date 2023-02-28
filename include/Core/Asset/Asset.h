@@ -85,6 +85,8 @@ struct static_type<SharedPtr<T>>
 	{
 		LType* type = NewTemplateType<T>("SharedPtr", sizeof(SharedPtr<T>), nullptr);
 		type->mIsAssetPtr = true;
+		Py_XINCREF(LType::Get<T>()->GetBindingType());
+		type->mPyType = LType::Get<T>()->GetBindingType();
 		return type;
 	}
 	static LType* StaticType()

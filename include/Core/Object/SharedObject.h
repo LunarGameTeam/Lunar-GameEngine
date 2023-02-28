@@ -19,7 +19,9 @@ using SharedPtr = std::shared_ptr<T>;
 template<typename T>
 SharedPtr<T> ToSharedPtr(T* val)
 {
-	return std::dynamic_pointer_cast<T, SharedObject>(val->shared_from_this());
+	if(val)
+		return std::dynamic_pointer_cast<T, SharedObject>(val->shared_from_this());
+	return SharedPtr<T>();
 }
 
 class CORE_API SharedObject : public LObject, public std::enable_shared_from_this<SharedObject>

@@ -14,7 +14,6 @@ class ScenePanel(PanelBase):
         super().__init__()
         self.title = "Scene"
         self.scene = None
-        self.has_menubar = True
         self.scene_texture = None
         self.camera = None
         self.main_light = None
@@ -24,6 +23,7 @@ class ScenePanel(PanelBase):
         self.dragging = False
         self.need_update_texture = False
         self.rad = 0
+        self.has_menu = False
         self.operation = imgui.gizmos.Operation_TRANSLATE
 
     def create_editor_camera(self, scene: 'luna.Scene'):
@@ -116,54 +116,9 @@ class ScenePanel(PanelBase):
             transform.local_rotation = rotation
             imgui.reset_mouse_drag_delta(1)
 
-    def create_geometry(self, mesh_asset):
-        if self.scene:
-            entity = self.scene.create_entity("Cube")
-            renderer = entity.add_component(luna.MeshRenderer)
-            from editor.core.editor_module import asset_module
-            renderer.mesh = asset_module.load_asset(mesh_asset, luna.MeshAsset)
-            renderer.material = asset_module.load_asset("/assets/built-in/Pbr.mat", luna.MaterialTemplateAsset)
-
-    def create_point_light(self):
-        if self.scene:
-            entity = self.scene.create_entity("PointLight")
-            transform = entity.add_component(luna.Transform)
-            light = entity.add_component(luna.PointLightComponent)
-            light.color = luna.LVector4f(1, 1, 1, 1)
-            light.intensity = 1.0
-
-    def create_direction_light(self):
-        if self.scene:
-            entity = self.scene.create_entity("Main Direction Light")
-            transform = entity.add_component(luna.Transform)
-            light = entity.add_component(luna.DirectionLightComponent)
-            light.color = luna.LVector4f(1, 1, 1, 1)
-            light.intensity = 1.0
 
     def on_menu(self):
-        if luna.imgui.begin_menu_bar():
-            if luna.imgui.begin_menu("创建", True):
-                if imgui.menu_item("Scene Environment"):
-                    entity = self.scene.create_entity("SceneEnv")
-                    scene_env = entity.add_component(luna.SceneEnvComponent)
-                if imgui.menu_item("Cube"):
-                    self.create_geometry("/assets/built-in/Geometry/Box.lmesh")
-                if imgui.menu_item("Sphere"):
-                    self.create_geometry("/assets/built-in/Geometry/Sphere.lmesh")
-                if imgui.menu_item("Plane"):
-                    self.create_geometry("/assets/built-in/Geometry/Plane.lmesh")
-                if imgui.menu_item("PointLight"):
-                    self.create_point_light()
-                if imgui.menu_item("Directional Light"):
-                    if self.scene:
-                        entity = self.scene.create_entity("Main Directional Light")
-                        transform = entity.add_component(luna.Transform)
-                        light = entity.add_component(luna.DirectionLightComponent)
-                        light.color = luna.LVector4f(1, 1, 1, 1)
-                        light.intensity = 1.0
-                    pass
-                luna.imgui.end_menu()
-            luna.imgui.end_menu_bar()
+        pass
 
     def on_gizmos(self):
         key_pressed = False
@@ -218,7 +173,6 @@ class ScenePanel(PanelBase):
         self.scene_content = content
         if self.scene_texture:
             luna.imgui.image(self.scene_texture, content, luna.LVector2f(0, 0), luna.LVector2f(1, 1))
-
 
         if imgui.is_mouse_dragging(0, -1.0):
             if vmin != self.last_min or vmax != self.last_max:

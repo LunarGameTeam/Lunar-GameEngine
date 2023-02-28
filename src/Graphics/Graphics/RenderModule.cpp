@@ -454,7 +454,7 @@ void RenderModule::RenderIMGUI()
 
 	for (auto& it : mImguiTextures)
 	{
-		mRenderContext->mGraphicCmd->ResourceBarrierExt({ it.second.mView->mBindResource, render::ResourceState::kRenderTarget, render::ResourceState::kShaderReadOnly});
+		mRenderContext->mGraphicCmd->ResourceBarrierExt({ it.second.mView->mBindResource, it.second.mView->mBindResource->mState, render::ResourceState::kShaderReadOnly});
 	}
 	mRenderContext->mGraphicCmd->CloseCommondList();
 	graphQueue->ExecuteCommandLists(mRenderContext->mGraphicCmd);
@@ -471,13 +471,7 @@ void RenderModule::RenderIMGUI()
 	mRenderContext->mGraphicCmd->EndRenderPass();
 
 	mRenderContext->mGraphicCmd->ResourceBarrierExt({ sRenderModule->GetSwapChain()->GetBackBuffer(index), render::ResourceState::kRenderTarget , render::ResourceState::kPresent });
-
-
-	for (auto& it : mImguiTextures)
-	{
-		mRenderContext->mGraphicCmd->ResourceBarrierExt({ it.second.mView->mBindResource, render::ResourceState::kShaderReadOnly, render::ResourceState::kRenderTarget });
-	}
-
+	
 	mRenderContext->mGraphicCmd->EndEvent();
 	mRenderContext->mGraphicCmd->CloseCommondList();
 

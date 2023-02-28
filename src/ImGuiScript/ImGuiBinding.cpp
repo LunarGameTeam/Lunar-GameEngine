@@ -394,6 +394,24 @@ bool PyIsOver(int op)
 	return ImGuizmo::IsOver(ImGuizmo::OPERATION(op));
 }
 
+void PySetNextWindowSizeConstraint(const ImVec2& min, const ImVec2& max)
+{
+	ImGui::SetNextWindowSizeConstraints(min, max);
+}
+
+bool PySelectable(const char* label, bool selected, int flags, const ImVec2& size)
+{
+	bool res = ImGui::Selectable(label, &selected, flags, size);	
+	return binding_return(res, selected);	
+}
+bool PyImageButton(const char* id, render::RHIResource* image, const ImVec2& size, 
+	const ImVec2& uv, const ImVec2& uv2,  const ImVec4& bgCol, const ImVec4& hintCol)
+{
+	if (!sRenderModule->IsImuiTexture(image))
+		sRenderModule->AddImguiTexture(image);
+	return ImGui::ImageButton(id, (ImTextureID)sRenderModule->GetImguiTexture(image)->mImg, size, uv, uv2, bgCol, hintCol);
+}
+
 #define AddIMGUIConstant(name) imguiModule->AddConstant(#name, name)
 
 STATIC_INIT(imgui)
@@ -416,11 +434,124 @@ STATIC_INIT(imgui)
 		gizmosModule->AddConstant("Operation_SCALE", ImGuizmo::OPERATION::SCALE);
 
 		BindingModule* imguiModule = BindingModule::Get("luna.imgui");
+		
+
+		imguiModule->AddMethod<&InputLString>("input");
+		imguiModule->AddMethod<[](){
+			ImGui::ShowDemoWindow(nullptr);
+		}>("show_demo_window");
+
+		imguiModule->AddMethod<&PyBegin>("begin");
+		imguiModule->AddMethod<&ImGui::End>("end");
+
+		imguiModule->AddMethod<(bool(*)(const char* , const ImVec2& , bool , ImGuiWindowFlags))&ImGui::BeginChild>("begin_child");
+		imguiModule->AddMethod<&ImGui::EndChild>("end_child");
+		
+
+		imguiModule->AddMethod<&PySetNextWindowSizeConstraint>("set_next_window_size_constraints");
+		imguiModule->AddMethod<&ImGui::GetWindowContentRegionMin> ("get_window_content_min");
+		imguiModule->AddMethod<&ImGui::GetWindowContentRegionMax>("get_window_content_max");
+		
+		imguiModule->AddMethod<&ImGui::IsMouseHoveringRect>("is_mouse_hovering_rect");
+		imguiModule->AddMethod<&ImGui::IsItemHovered>("is_item_hovered");
+		imguiModule->AddMethod<&ImGui::IsMouseDragging>("is_mouse_dragging");
+		imguiModule->AddMethod<&ImGui::IsMouseDoubleClicked>("is_mouse_double_clicked");
+
+		imguiModule->AddMethod<(bool(*)(ImGuiMouseButton))&ImGui::IsMouseDown>("is_mouse_down");
+		imguiModule->AddMethod<&ImGui::GetMouseDragDelta>("get_mouse_drag_delta");
+		imguiModule->AddMethod<&ImGui::ResetMouseDragDelta>("reset_mouse_drag_delta");
+
+		imguiModule->AddMethod<&ImGui::BeginPopupContextItem>("begin_popup_context_item");
+		imguiModule->AddMethod<&ImGui::BeginPopup>("begin_popup");
+		imguiModule->AddMethod<(void(*)(const char*, int))&ImGui::OpenPopup>("open_popup");
+		imguiModule->AddMethod<&ImGui::EndPopup>("end_popup");
+		imguiModule->AddMethod<&PyBeginPopupModal>("begin_popup_modal");
+
+		imguiModule->AddMethod<&ImGui::BeginMenuBar>("begin_menu_bar");
+		
+		imguiModule->AddMethod<&ImGui::EndMenuBar>("end_menu_bar");
+		imguiModule->AddMethod<&ImGui::BeginMenu>("begin_menu");
+		imguiModule->AddMethod<&ImGui::EndMenu>("end_menu");
+		imguiModule->AddMethod<&ImGui::GetWindowPos>("get_window_pos");
+		imguiModule->AddMethod<&PyMenuItem>("menu_item");
+		imguiModule->AddMethod<&PyImage>("image");
+
+		imguiModule->AddMethod<&ImGui::BeginGroup>("begin_group");
+		imguiModule->AddMethod<&ImGui::EndGroup>("end_group");
+		
+		imguiModule->AddMethod<&PyTreeNode>("tree_node");
+		imguiModule->AddMethod<&TreeNodeCallbackEx>("tree_node_callback");
+
+		imguiModule->AddMethod<&ImGui::IsMouseDragging>("is_mouse_dragging");
+		imguiModule->AddMethod<static_cast<bool(*)(ImGuiMouseButton)>(&ImGui::IsMouseReleased)>("is_mouse_released");
+		imguiModule->AddMethod<static_cast<bool(*)(ImGuiMouseButton, bool)>(&ImGui::IsMouseClicked)>("is_mouse_clicked");
+		
+		imguiModule->AddMethod<static_cast<bool(*)(ImGuiKey)>(&ImGui::IsKeyDown)>("is_key_down");
+		imguiModule->AddMethod<static_cast<bool(*)(ImGuiKey, bool)>(&ImGui::IsKeyPressed)>("is_key_pressed");
+		imguiModule->AddMethod<static_cast<bool(*)(ImGuiKey)>(&ImGui::IsKeyReleased)>("is_key_released");
+
+		imguiModule->AddMethod<&ImGui::TreePop>("tree_pop");
+		imguiModule->AddMethod<&PyPushID>("push_id");
+		imguiModule->AddMethod<&ImGui::PopID>("pop_id");
+		imguiModule->AddMethod<&ImGui::SameLine>("same_line");
+		imguiModule->AddMethod<&PyText>("text");
+		imguiModule->AddMethod<&PySelectable>("selectable");
+		imguiModule->AddMethod<&PyButton>("button");
+		imguiModule->AddMethod<&PyImageButton>("image_button");
+		
+		imguiModule->AddMethod<&PyCalcTextSize>("calc_text_size");
+		imguiModule->AddMethod<&ImGui::GetContentRegionAvail>("get_content_region_avail");
+
+
+		imguiModule->AddMethod<&PyDragFloat3>("drag_float3");
+		imguiModule->AddMethod<&PyDragFloat>("drag_float");
+		imguiModule->AddMethod<&PyCheckBox>("checkbox");
+		imguiModule->AddMethod<&PyColor4Picker>("color4_picker");
+
+		imguiModule->AddMethod<&ImGui::BeginDragDropSource>("begin_drag_drop_souce");
+		imguiModule->AddMethod<&ImGui::EndDragDropSource>("end_drag_drop_souce");
+		imguiModule->AddMethod<&ImGui::BeginDragDropTarget>("begin_drag_drop_target");
+		imguiModule->AddMethod<&ImGui::EndDragDropTarget>("end_drag_drop_target");
+		imguiModule->AddMethod<&ImGui::AcceptDragDropPayload>("accept_drag_drop_payload");
+		
+				
+		imguiModule->AddMethod<&PySetDragDropPayload>("set_drag_drop_payload");
+
+
+		imguiModule->AddMethod<&ImGui::AlignTextToFramePadding>("align_text_to_frame_padding");
+		imguiModule->AddMethod<&ImGui::Separator>("separator");
+
+		imguiModule->AddMethod<&ImGui::SetNextWindowSize>("set_next_window_size");
+		imguiModule->AddMethod<&ImGui::SetNextWindowPos>("set_next_window_pos");
+		imguiModule->AddMethod<&GetMainViewportID>("get_main_viewport_id");
+		imguiModule->AddMethod<&GetViewportPos>("get_viewport_pos");
+		imguiModule->AddMethod<&PyGetWindowViewport>("get_window_viewport");
+		imguiModule->AddMethod<&ImGui::SetNextWindowDockID>("set_next_window_dock_id");
+		imguiModule->AddMethod<&ImGui::SetNextWindowViewport>("set_next_window_viewport");
+		imguiModule->AddMethod<&ImGui::GetWindowSize>("get_window_size");
+		imguiModule->AddMethod<&PyDockSpace>("dock_space");
+
+		imguiModule->AddMethod<&ImGui::GetCursorPos>("get_cursor_pos");
+		imguiModule->AddMethod<&ImGui::SetCursorPos>("set_cursor_pos");
+		imguiModule->AddMethod<&ImGui::GetMousePos>("get_mouse_pos");
+
+		imguiModule->AddMethod<(void(*)(int, float))& ImGui::PushStyleVar>("push_style_float");
+		imguiModule->AddMethod<(void(*)(int, const ImVec4&))& ImGui::PushStyleColor>("push_style_color");
+		imguiModule->AddMethod<(void(*)(int, const ImVec2&))& ImGui::PushStyleVar>("push_style_vec2");
+		imguiModule->AddMethod<&ImGui::PopStyleVar>("pop_style_var");		
+		imguiModule->AddMethod<&ImGui::PopStyleColor>("pop_style_color");
+		imguiModule->AddMethod<&ImGui::GetStyleColorVec4>("get_style_color");		
+		imguiModule->AddMethod<&SetStyleColor>("set_color");
+		imguiModule->AddMethod<&SetStyleColorUint>("set_color_uint");
+		imguiModule->AddMethod<&GetID>("get_id");
+
+		AddIMGUIConstant(ImGuiSelectableFlags_None);
+		AddIMGUIConstant(ImGuiSelectableFlags_SelectOnClick);		
 		//Cond
 		AddIMGUIConstant(ImGuiCond_Always);
 		AddIMGUIConstant(ImGuiCond_FirstUseEver);
 		AddIMGUIConstant(ImGuiCond_Once);
-		
+
 		AddIMGUIConstant(ImGuiDockNodeFlags_PassthruCentralNode);
 		AddIMGUIConstant(ImGuiDockNodeFlags_AutoHideTabBar);
 		//Window Flags
@@ -453,7 +584,7 @@ STATIC_INIT(imgui)
 		AddIMGUIConstant(ImGuiDragDropFlags_None);
 		AddIMGUIConstant(ImGuiDragDropFlags_AcceptBeforeDelivery);
 		AddIMGUIConstant(ImGuiDragDropFlags_SourceAllowNullID);
-		
+
 
 		//Popup Flags
 		AddIMGUIConstant(ImGuiPopupFlags_None);
@@ -463,6 +594,8 @@ STATIC_INIT(imgui)
 		AddIMGUIConstant(ImGuiTreeNodeFlags_DefaultOpen);
 		AddIMGUIConstant(ImGuiTreeNodeFlags_Leaf);
 		AddIMGUIConstant(ImGuiTreeNodeFlags_OpenOnArrow);
+		AddIMGUIConstant(ImGuiTreeNodeFlags_CollapsingHeader);
+		
 		AddIMGUIConstant(ImGuiTreeNodeFlags_OpenOnDoubleClick);
 
 		AddIMGUIConstant(ImGuiColorEditFlags_None);
@@ -490,7 +623,7 @@ STATIC_INIT(imgui)
 		AddIMGUIConstant(ImGuiColorEditFlags_PickerHueBar);
 		AddIMGUIConstant(ImGuiColorEditFlags_InputRGB);
 		AddIMGUIConstant(ImGuiColorEditFlags_InputHSV);
-		
+
 
 		//Key
 		AddIMGUIConstant(ImGuiKey_A);
@@ -536,7 +669,31 @@ STATIC_INIT(imgui)
 
 		AddIMGUIConstant(ImGuiHoveredFlags_None);
 
+		AddIMGUIConstant(ImGuiStyleVar_Alpha);
+		AddIMGUIConstant(ImGuiStyleVar_DisabledAlpha);
+		AddIMGUIConstant(ImGuiStyleVar_WindowRounding);
+		AddIMGUIConstant(ImGuiStyleVar_WindowPadding);
+		AddIMGUIConstant(ImGuiStyleVar_WindowBorderSize);
+		AddIMGUIConstant(ImGuiStyleVar_WindowMinSize);
+		AddIMGUIConstant(ImGuiStyleVar_WindowTitleAlign);
+		AddIMGUIConstant(ImGuiStyleVar_ChildBorderSize);
+		AddIMGUIConstant(ImGuiStyleVar_PopupRounding);
+		AddIMGUIConstant(ImGuiStyleVar_PopupBorderSize);		
 		AddIMGUIConstant(ImGuiStyleVar_FramePadding);
+		AddIMGUIConstant(ImGuiStyleVar_FrameRounding);
+		AddIMGUIConstant(ImGuiStyleVar_FrameBorderSize);
+		AddIMGUIConstant(ImGuiStyleVar_ItemSpacing);         // ImVec2    ItemSpacing
+		AddIMGUIConstant(ImGuiStyleVar_ItemInnerSpacing);    // ImVec2    ItemInnerSpacing
+		AddIMGUIConstant(ImGuiStyleVar_IndentSpacing);       // float     IndentSpacing
+		AddIMGUIConstant(ImGuiStyleVar_CellPadding);         // ImVec2    CellPadding
+		AddIMGUIConstant(ImGuiStyleVar_ScrollbarSize);       // float     ScrollbarSize
+		AddIMGUIConstant(ImGuiStyleVar_ScrollbarRounding);   // float     ScrollbarRounding
+		AddIMGUIConstant(ImGuiStyleVar_GrabMinSize);         // float     GrabMinSize
+		AddIMGUIConstant(ImGuiStyleVar_GrabRounding);        // float     GrabRounding
+		AddIMGUIConstant(ImGuiStyleVar_TabRounding);         // float     TabRounding
+		AddIMGUIConstant(ImGuiStyleVar_ButtonTextAlign);     // ImVec2    ButtonTextAlign
+		AddIMGUIConstant(ImGuiStyleVar_SelectableTextAlign); // ImVec2    SelectableTextAlign
+
 
 		AddIMGUIConstant(ImGuiCol_Text);
 		AddIMGUIConstant(ImGuiCol_TextDisabled);
@@ -544,7 +701,7 @@ STATIC_INIT(imgui)
 		AddIMGUIConstant(ImGuiCol_ChildBg);               // Background of child windows
 		AddIMGUIConstant(ImGuiCol_PopupBg);               // Background of popups, menus, tooltips windows
 		AddIMGUIConstant(ImGuiCol_Border);
-		AddIMGUIConstant(ImGuiCol_BorderShadow);
+		AddIMGUIConstant(ImGuiCol_BorderShadow);		
 		AddIMGUIConstant(ImGuiCol_FrameBg);               // Background of checkbox, radio button, plot, slider, text input
 		AddIMGUIConstant(ImGuiCol_FrameBgHovered);
 		AddIMGUIConstant(ImGuiCol_FrameBgActive);
@@ -602,113 +759,6 @@ STATIC_INIT(imgui)
 		AddIMGUIConstant(ICON_FA_IMAGE);
 		AddIMGUIConstant(ICON_FA_LAYER_GROUP);
 		AddIMGUIConstant(ICON_FA_MOON);
-
-		imguiModule->AddMethod<&InputLString>("input");
-		imguiModule->AddMethod<[](){
-			ImGui::ShowDemoWindow(nullptr);
-		}>("show_demo_window");
-
-		imguiModule->AddMethod<&PyBegin>("begin");
-		imguiModule->AddMethod<&ImGui::End>("end");
-
-		imguiModule->AddMethod<(bool(*)(const char* , const ImVec2& , bool , ImGuiWindowFlags))&ImGui::BeginChild>("begin_child");
-		imguiModule->AddMethod<&ImGui::EndChild>("end_child");
-		
-		
-		imguiModule->AddMethod<&ImGui::GetWindowContentRegionMin> ("get_window_content_min");
-		imguiModule->AddMethod<&ImGui::GetWindowContentRegionMax>("get_window_content_max");
-		
-		imguiModule->AddMethod<&ImGui::IsMouseHoveringRect>("is_mouse_hovering_rect");
-		imguiModule->AddMethod<&ImGui::IsItemHovered>("is_item_hovered");
-		imguiModule->AddMethod<&ImGui::IsMouseDragging>("is_mouse_dragging");
-		imguiModule->AddMethod<&ImGui::IsMouseDoubleClicked>("is_mouse_double_clicked");
-
-		imguiModule->AddMethod<(bool(*)(ImGuiMouseButton))&ImGui::IsMouseDown>("is_mouse_down");
-		imguiModule->AddMethod<&ImGui::GetMouseDragDelta>("get_mouse_drag_delta");
-		imguiModule->AddMethod<&ImGui::ResetMouseDragDelta>("reset_mouse_drag_delta");
-
-		imguiModule->AddMethod<&ImGui::BeginPopupContextItem>("begin_popup_context_item");
-		imguiModule->AddMethod<&ImGui::BeginPopup>("begin_popup");
-		imguiModule->AddMethod<(void(*)(const char*, int))&ImGui::OpenPopup>("open_popup");
-		imguiModule->AddMethod<&ImGui::EndPopup>("end_popup");
-		imguiModule->AddMethod<&PyBeginPopupModal>("begin_popup_modal");
-
-		imguiModule->AddMethod<&ImGui::BeginMenuBar>("begin_menu_bar");
-		
-		imguiModule->AddMethod<&ImGui::EndMenuBar>("end_menu_bar");
-		imguiModule->AddMethod<&ImGui::BeginMenu>("begin_menu");
-		imguiModule->AddMethod<&ImGui::EndMenu>("end_menu");
-		imguiModule->AddMethod<&ImGui::GetWindowPos>("get_window_pos");
-		imguiModule->AddMethod<&PyMenuItem>("menu_item");
-		imguiModule->AddMethod<&PyImage>("image");
-
-		imguiModule->AddMethod<&ImGui::BeginGroup>("begin_group");
-		imguiModule->AddMethod<&ImGui::EndGroup>("end_group");
-		
-		imguiModule->AddMethod<&PyTreeNode>("tree_node");
-		imguiModule->AddMethod<&TreeNodeCallbackEx>("tree_node_callback");
-
-		imguiModule->AddMethod<&ImGui::IsMouseDragging>("is_mouse_dragging");
-		imguiModule->AddMethod<static_cast<bool(*)(ImGuiMouseButton)>(&ImGui::IsMouseReleased)>("is_mouse_released");
-		imguiModule->AddMethod<static_cast<bool(*)(ImGuiMouseButton, bool)>(&ImGui::IsMouseClicked)>("is_mouse_clicked");
-		
-		imguiModule->AddMethod<static_cast<bool(*)(ImGuiKey)>(&ImGui::IsKeyDown)>("is_key_down");
-		imguiModule->AddMethod<static_cast<bool(*)(ImGuiKey, bool)>(&ImGui::IsKeyPressed)>("is_key_pressed");
-		imguiModule->AddMethod<static_cast<bool(*)(ImGuiKey)>(&ImGui::IsKeyReleased)>("is_key_released");
-
-		imguiModule->AddMethod<&ImGui::TreePop>("tree_pop");
-		imguiModule->AddMethod<&PyPushID>("push_id");
-		imguiModule->AddMethod<&ImGui::PopID>("pop_id");
-		imguiModule->AddMethod<&ImGui::SameLine>("same_line");
-		imguiModule->AddMethod<&PyText>("text");
-		imguiModule->AddMethod<&PyButton>("button");
-		
-		imguiModule->AddMethod<&PyCalcTextSize>("calc_text_size");
-		imguiModule->AddMethod<&ImGui::GetContentRegionAvail>("get_content_region_avail");
-
-
-		imguiModule->AddMethod<&PyDragFloat3>("drag_float3");
-		imguiModule->AddMethod<&PyDragFloat>("drag_float");
-		imguiModule->AddMethod<&PyCheckBox>("checkbox");
-		imguiModule->AddMethod<&PyColor4Picker>("color4_picker");
-
-		imguiModule->AddMethod<&ImGui::BeginDragDropSource>("begin_drag_drop_souce");
-		imguiModule->AddMethod<&ImGui::EndDragDropSource>("end_drag_drop_souce");
-		imguiModule->AddMethod<&ImGui::BeginDragDropTarget>("begin_drag_drop_target");
-		imguiModule->AddMethod<&ImGui::EndDragDropTarget>("end_drag_drop_target");
-		imguiModule->AddMethod<&ImGui::AcceptDragDropPayload>("accept_drag_drop_payload");
-		
-				
-		imguiModule->AddMethod<&PySetDragDropPayload>("set_drag_drop_payload");
-
-
-		imguiModule->AddMethod<&ImGui::AlignTextToFramePadding>("align_text_to_frame_padding");
-		imguiModule->AddMethod<&ImGui::Separator>("separator");
-
-		imguiModule->AddMethod<&ImGui::SetNextWindowSize>("set_next_window_size");
-		imguiModule->AddMethod<&ImGui::SetNextWindowPos>("set_next_window_pos");
-		imguiModule->AddMethod<&GetMainViewportID>("get_main_viewport_id");
-		imguiModule->AddMethod<&GetViewportPos>("get_viewport_pos");
-		imguiModule->AddMethod<&PyGetWindowViewport>("get_window_viewport");
-		imguiModule->AddMethod<&ImGui::SetNextWindowDockID>("set_next_window_dock_id");
-		imguiModule->AddMethod<&ImGui::SetNextWindowViewport>("set_next_window_viewport");
-		imguiModule->AddMethod<&ImGui::GetWindowSize>("get_window_size");
-		imguiModule->AddMethod<&PyDockSpace>("dock_space");
-
-		imguiModule->AddMethod<&ImGui::GetCursorPos>("get_cursor_pos");
-		imguiModule->AddMethod<&ImGui::GetMousePos>("get_mouse_pos");
-
-		imguiModule->AddMethod<(void(*)(int, float))& ImGui::PushStyleVar>("push_style_float");
-		imguiModule->AddMethod<(void(*)(int, const ImVec4&))& ImGui::PushStyleColor>("push_style_color");
-		imguiModule->AddMethod<(void(*)(int, const ImVec2&))& ImGui::PushStyleVar>("push_style_vec2");
-		imguiModule->AddMethod<&ImGui::PopStyleVar>("pop_style_var");
-		imguiModule->AddMethod<&ImGui::PopStyleColor>("pop_style_color");
-
-		imguiModule->AddMethod<&SetStyleColor>("set_color");
-		imguiModule->AddMethod<&SetStyleColorUint>("set_color_uint");
-		imguiModule->AddMethod<&GetID>("get_id");
-
-
 
 		imguiModule->Init();
 

@@ -19,6 +19,9 @@ class WindowBase(object):
         self.id = WindowBase.id
         WindowBase.id = WindowBase.id + 1
 
+        from editor.ui.tool_bar import MainToolBar
+        self.toolbar = MainToolBar.instance()
+
         if self.id == 1:
             self.view_port = imgui.get_main_viewport_id()
         else:
@@ -67,7 +70,6 @@ class WindowBase(object):
         view_pos = self.view_pos
         x = self.view_pos.x + self.width / 2.0
         y = self.view_pos.y + self.height / 2.0
-
         imgui.set_next_window_pos(luna.LVector2f(x, y), imgui.ImGuiCond_Always, luna.LVector2f(0.5, 0.5))
         show, is_open = imgui.begin_popup_modal(self._dialog_title, self._dialog_open,
                                                 imgui.ImGuiWindowFlags_NoSavedSettings)
@@ -113,22 +115,40 @@ class WindowBase(object):
         if imgui.is_mouse_released(0):
             if self.press_titlebar:
                 self.press_titlebar = None
+    def on_toolbar(self):
+        pass
 
     def do_imgui(self, delta_time):
         self.setup_color()
         self.on_title()
+
         window_module = luna.get_module(luna.PlatformModule)
         main_window = window_module.main_window
         size = luna.LVector2f(main_window.width, main_window.height)
+        toolbar_color = imgui.get_style_color(imgui.ImGuiCol_TitleBg)
+        imgui.push_style_color(imgui.ImGuiCol_WindowBg, toolbar_color)
+        imgui.set_next_window_pos(luna.LVector2f(0, 70))
+        imgui.set_next_window_size(luna.LVector2f(50, main_window.height))
+        imgui.push_style_vec2(imgui.ImGuiStyleVar_FramePadding, luna.LVector2f(0.0, 0))
+        imgui.push_style_vec2(imgui.ImGuiStyleVar_WindowPadding, luna.LVector2f(0.0, 0))
+        imgui.push_style_vec2(imgui.ImGuiStyleVar_ItemSpacing, luna.LVector2f(0,))
+        imgui.push_style_color(imgui.ImGuiCol_Button, luna.LVector4f(0,0,0,0))
+        imgui.begin("Toolbar", imgui.ImGuiWindowFlags_NoSavedSettings |
+                    imgui.ImGuiWindowFlags_NoResize | imgui.ImGuiWindowFlags_NoMove
+                    | imgui.ImGuiWindowFlags_NoCollapse | imgui.ImGuiWindowFlags_NoTitleBar)
+        self.toolbar.do_imgui(delta_time)
+        imgui.pop_style_var(3)
+        imgui.pop_style_color(2)
+        imgui.end()
+
         imgui.set_next_window_size(size, 0)
 
         exiting = False
 
         imgui.push_style_vec2(imgui.ImGuiStyleVar_FramePadding, luna.LVector2f(16, 8))
-        flags = imgui.ImGuiWindowFlags_MenuBar \
-                | imgui.ImGuiWindowFlags_NoCollapse \
+        flags = imgui.ImGuiWindowFlags_NoCollapse \
                 | imgui.ImGuiWindowFlags_NoMove \
-                | imgui.ImGuiWindowFlags_NoBringToFrontOnFocus
+                | imgui.ImGuiWindowFlags_NoBringToFrontOnFocus | luna.imgui.ImGuiWindowFlags_MenuBar
         imgui.set_next_window_viewport(self.view_port)
         imgui.set_next_window_pos(luna.LVector2f(0, 0), 0, luna.LVector2f(0, 0))
 
@@ -136,6 +156,7 @@ class WindowBase(object):
 
         exiting = not imgui.begin(self.title + "###" + self.__class__.window_name, flags, True)
 
+        imgui.set_cursor_pos(luna.LVector2f(50, 70))
         imgui.dock_space(dock_id, luna.LVector2f(0, 0), imgui.ImGuiDockNodeFlags_PassthruCentralNode)
         self.on_imgui(delta_time)
         imgui.pop_style_var(1)
@@ -186,11 +207,12 @@ class PanelBase(object):
         self.title = "Panel"
         self.width = 1
         self.height = 1
-        self.has_menu = False
+        self.has_menu = True
         self.parent_window = None
 
         self.window_size = luna.LVector2f.zero()
         self.window_pos = luna.LVector2f.zero()
+        self.flag = luna.imgui.ImGuiWindowFlags_NoCollapse | imgui.ImGuiWindowFlags_NoBringToFrontOnFocus
 
     def on_imgui(self, delta_time):
         vmax = imgui.get_window_content_max()
@@ -199,7 +221,7 @@ class PanelBase(object):
         self.height = vmax.y - vmin.y
 
     def do_imgui(self, delta_time):
-        flag = luna.imgui.ImGuiWindowFlags_NoCollapse | imgui.ImGuiWindowFlags_NoBringToFrontOnFocus
+        flag = self.flag
         if self.has_menu:
             flag = flag | luna.imgui.ImGuiWindowFlags_MenuBar
         imgui.begin(self.title + "###" + self.title + self.parent_window.window_name, flag, False)

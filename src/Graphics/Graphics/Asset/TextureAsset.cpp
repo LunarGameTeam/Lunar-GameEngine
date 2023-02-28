@@ -23,6 +23,7 @@ RegisterTypeEmbedd_Imp(Texture2D)
 {
 	cls->Ctor<Texture2D>(); 
 	cls->Binding<Texture2D>();
+	cls->BindingMethod<&Texture2D::GetRHITexture>("get_rhi_texture");
 	BindingModule::Luna()->AddType(cls);
 };
 
