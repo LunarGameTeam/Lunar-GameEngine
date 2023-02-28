@@ -1,19 +1,19 @@
 import typing
 
 import luna
-from core.editor_module import asset_module
+from editor.core.editor_module import asset_module
 from luna import imgui
 
 editors = dict()
 
 
-def register_type_editor(cls):
+def register_type_inspector(cls):
     global editors
     editors[cls.target_type] = cls
     return cls
 
 
-def get_type_editor(cls):
+def get_inspector_type(cls):
     global editors
     base = cls
     while base:
@@ -23,14 +23,14 @@ def get_type_editor(cls):
     return None
 
 
-def create_editor(target):
-    editor_cls = get_type_editor(target.__class__)
+def create_inspector(target):
+    editor_cls = get_inspector_type(target.__class__)
     return editor_cls(target)
 
 
-@register_type_editor
-class EditorBase(object):
-    child_editor_list: list['EditorBase']
+@register_type_inspector
+class InspectorBase(object):
+    child_editor_list: list['InspectorBase']
     target: luna.LObject
     target_type = luna.LObject
 
@@ -135,8 +135,8 @@ class EditorBase(object):
         return []
 
 
-@register_type_editor
-class EntityEditor(EditorBase):
+@register_type_inspector
+class EntityInspector(InspectorBase):
     target_type = luna.Entity
     target: luna.Entity
 
@@ -158,11 +158,11 @@ class EntityEditor(EditorBase):
             it.on_imgui()
 
     def create_child_editor(self):
-        child_editor: list[EditorBase] = []
+        child_editor: list[InspectorBase] = []
         indent = 0
         for i in range(0, self.target.component_count):
             comp = self.target.get_component_at(i)
-            editor_type = get_type_editor(comp.__class__)
+            editor_type = get_inspector_type(comp.__class__)
             editor = editor_type(comp)
             child_editor.append(editor)
         for editor in child_editor:
@@ -173,8 +173,8 @@ class EntityEditor(EditorBase):
         return child_editor
 
 
-@register_type_editor
-class ComponentEditor(EditorBase):
+@register_type_inspector
+class ComponentInspector(InspectorBase):
     target_type = luna.Component
 
     def __init__(self, target):
@@ -190,8 +190,8 @@ class ComponentEditor(EditorBase):
         imgui.separator()
 
 
-@register_type_editor
-class MeshRendererEditor(ComponentEditor):
+@register_type_inspector
+class MeshRendererEditor(ComponentInspector):
     target_type = luna.MeshRenderer
     target: 'luna.MeshRenderer' = None
 

@@ -1,10 +1,10 @@
 import os
 
 import luna
-from core.asset import FolderInfo, FileInfo
-from core.editor_module import platform_module, EditorModule
+from editor.core.asset import FolderInfo, FileInfo
+from editor.core.editor_module import EditorModule
 from luna import imgui
-from ui.panel import PanelBase
+from editor.ui.panel import PanelBase
 
 
 class LibraryPanel(PanelBase):
@@ -35,7 +35,7 @@ class LibraryPanel(PanelBase):
         else:
             imgui.text("{} {}".format(imgui.ICON_FA_FILE, cur_item.name))
             if clicked:
-                from ui.asset_inspector_panel import AssetPanel
+                from editor.ui.asset_inspector_panel import AssetPanel
                 EditorModule.instance().main_scene_window.get_panel(AssetPanel).set_item(cur_item)
 
         if expand:

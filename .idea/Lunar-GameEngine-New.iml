@@ -4,8 +4,11 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/editor" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/temp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/scripting" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/third-party/site-packages" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/venv" />
     </content>
-    <orderEntry type="jdk" jdkName="Python 3.11 Debug" jdkType="Python SDK" />
+    <orderEntry type="jdk" jdkName="Python 3.11" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="PyDocumentationSettings">

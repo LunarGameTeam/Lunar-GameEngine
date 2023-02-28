@@ -1,14 +1,14 @@
-import core
+from editor import core
 import luna
-from core.asset import FileInfo
-from core.editor import create_editor, EditorBase, register_type_editor
-from core.editor_module import asset_module
+from editor.core.asset import FileInfo
+from editor.core.inspector_base import create_inspector, InspectorBase, register_type_inspector
+from editor.core.editor_module import asset_module
 from luna import imgui
-from ui.panel import PanelBase
+from editor.ui.panel import PanelBase
 
 
-@register_type_editor
-class MeshRendererEditor(EditorBase):
+@register_type_inspector
+class MeshRendererInspector(InspectorBase):
     target_type = luna.MaterialTemplateAsset
     target: 'luna.MaterialTemplateAsset' = None
 
@@ -31,8 +31,8 @@ class MeshRendererEditor(EditorBase):
 
 class AssetPanel(PanelBase):
     item: FileInfo
-    editor_list: list[core.editor.EditorBase]
-    editor: core.editor.EditorBase
+    editor_list: list[core.inspector_base.InspectorBase]
+    editor: core.inspector_base.InspectorBase
     selected_entity: luna.Entity
     world_sys: luna.GameModule
 
@@ -48,7 +48,7 @@ class AssetPanel(PanelBase):
         if self.item:
             if self.item.name.endswith(".mat"):
                 material = asset_module.load_asset(item.path, luna.MaterialTemplateAsset)
-                editor = create_editor(material)
+                editor = create_inspector(material)
                 self.editor = editor
         else:
             self.editor = None

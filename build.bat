@@ -15,7 +15,5 @@ call sdk\vcpkg\bootstrap-vcpkg.bat
 .\sdk\vcpkg\vcpkg.exe install tinyobjloader:x64-windows
 .\sdk\vcpkg\vcpkg.exe install ms-gltf:x64-windows
 pause
-mkdir build
-echo begin cmake
-cmake -D WIN32=1 -G "Visual Studio 17" -DBUILD_EXAMPLES=OFF -DBUILD_UNIT_TESTS=OFF -DASSIMP_BUILD_TESTS=OFF -DASSIMP_BUILD_ASSIMP_TOOLS=OFF -DJSON_WITH_EXAMPLE=False -DBUILD_TESTING=False -DBUILD_GMOCK=False -DJSONCPP_WITH_TESTS=False -A x64  -B ./build 
+call CMakeGenerate.bat
 pause

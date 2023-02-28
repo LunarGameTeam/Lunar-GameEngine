@@ -3,6 +3,7 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sdk/imgui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/sdk/tracy" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sdk/vcpkg" vcs="Git" />
   </component>
 </project>

@@ -4,7 +4,7 @@ import os
 class FileInfo(object):
     def __init__(self, file_path):
         self.abs_path = file_path
-        from core.editor_module import platform_module
+        from editor.core.editor_module import platform_module
         self.path = os.path.relpath(file_path, platform_module.engine_dir)
         self.name = os.path.basename(file_path)
 

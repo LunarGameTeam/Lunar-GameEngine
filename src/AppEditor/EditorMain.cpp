@@ -25,7 +25,7 @@ int main(int argc, char** argv)
 	ConfigLoader::instance();
 
 	LString workDir = luna::LString(tempPath);
-	LString startScript = workDir + "/editor/main.py";
+	LString startScript = workDir + "/scripting/editor/main.py";
 
 	status = PyConfig_SetString(&config, &config.home, pythonHome.c_str());
 		

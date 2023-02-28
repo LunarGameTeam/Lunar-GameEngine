@@ -24,7 +24,7 @@
          "ambient_color" : [ 0.10000000149011612, 0.10000000149011612, 0.10000000149011612, 1.0 ],
          "draw_gizmos" : true,
          "fog_color" : [ 0.10000000149011612, 0.10000000149011612, 0.10000000149011612, 1.0 ],
-         "skybox_material" : "/assets/built-in/skybox/Skybox.mat",
+         "skybox_material" : "/assets/built-in/Skybox/Skybox.mat",
          "skybox_mesh" : ""
       },
       {

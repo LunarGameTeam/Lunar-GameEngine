@@ -2,13 +2,11 @@ import inspect
 import os
 import tkinter.filedialog
 import types
-import typing
-from typing import T
 
 import luna
-from core.editor_module import platform_module, EditorModule, asset_module, game_module
+from editor.core.editor_module import platform_module, EditorModule, asset_module, game_module
 from luna import imgui
-from ui.panel import WindowBase
+from editor.ui.panel import WindowBase
 
 
 def generate_class_doc(cls: 'type'):
@@ -61,11 +59,11 @@ class MainPanel(WindowBase):
 
         self.main_scene = None
 
-        from ui.hierarchy_panel import HierarchyPanel
-        from ui.inspector_panel import InspectorPanel
-        from ui.scene_panel import ScenePanel
-        from ui.library_panel import LibraryPanel
-        from ui.asset_inspector_panel import AssetPanel
+        from editor.ui.hierarchy_panel import HierarchyPanel
+        from editor.ui.inspector_panel import InspectorPanel
+        from editor.ui.scene_panel import ScenePanel
+        from editor.ui.library_panel import LibraryPanel
+        from editor.ui.asset_inspector_panel import AssetPanel
         #from ui.imgui_demo import DemoPanel
 
         self.hierarchy_panel = self.add_panel(HierarchyPanel)

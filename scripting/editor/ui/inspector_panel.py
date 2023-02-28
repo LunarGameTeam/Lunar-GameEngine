@@ -1,12 +1,12 @@
-import core.editor
 import luna
 from luna import imgui
-from ui.panel import PanelBase
+from editor.ui.panel import PanelBase
+from editor.core.inspector_base import InspectorBase
 
 
 class InspectorPanel(PanelBase):
-    editor_list: list[core.editor.EditorBase]
-    editor: core.editor.EditorBase
+    editor_list: list[InspectorBase]
+    editor: InspectorBase
     selected_entity: luna.Entity
     world_sys: luna.GameModule
 
@@ -23,10 +23,7 @@ class InspectorPanel(PanelBase):
     def imgui_menu(self):
         if luna.imgui.begin_menu_bar():
             if luna.imgui.begin_menu("创建", True):
-                if imgui.menu_item("RotateComponent"):
-                    entity: luna.Entity = self.editor.target
-                    entity.add_component(luna.RotateComponent)
-                luna.imgui.end_menu()
+                pass
             luna.imgui.end_menu_bar()
 
     def on_imgui(self, delta_time) -> None:

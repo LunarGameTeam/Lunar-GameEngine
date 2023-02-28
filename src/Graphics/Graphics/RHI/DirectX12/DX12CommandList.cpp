@@ -3,7 +3,7 @@
 #include "DX12DescriptorPool.h"
 #include "DX12Resource.h"
 #include "DX12Device.h"
-#include "pix3.h"
+#include "pix.h"
 #include "DX12BindingSet.h"
 #include "DX12View.h"
 

@@ -16,7 +16,7 @@ class FileModifyHandler(FileSystemEventHandler):
         if "__pycache__" in event.src_path or event.src_path.endswith('~') or event.is_directory:
             return
 
-        from core.editor_module import EditorModule
+        from editor.core.editor_module import EditorModule
 
         p = os.path.relpath(event.src_path, self.watch_path)
         module_name = p.replace("\\", ".")

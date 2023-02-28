@@ -1,10 +1,9 @@
-import importlib
 import os
 import sys
 
 work_dir = os.getcwd()
 bin_dir = os.path.dirname(sys.executable)
-editor_dir = work_dir + "\\editor"
+editor_dir = work_dir + "\\scripting"
 packages_dir = work_dir + "\\third-party\\site-packages"
 
 
@@ -26,7 +25,7 @@ def init_editor():
     sys.path.append(editor_dir)
     sys.path.append(packages_dir)
 
-    from core.hot_patch import watch_scripts
+    from editor.core.hot_patch import watch_scripts
     watch_scripts(editor_dir)
 
     luna.load_library("ImGuiScript.dll")
@@ -34,12 +33,11 @@ def init_editor():
     luna.load_library("AssetImport.dll")
     app = luna.LunaCore.instance()
 
-
-    from core.test import binding_test
+    from unit_test.test import binding_test
     # 先做 binding test 再执行
     binding_test()
 
-    from core.editor_module import EditorModule
+    from editor.core.editor_module import EditorModule
     luna.add_module(EditorModule.instance())
 
     platform_module = luna.get_module(luna.PlatformModule)

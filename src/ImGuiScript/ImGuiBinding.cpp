@@ -394,7 +394,7 @@ bool PyIsOver(int op)
 	return ImGuizmo::IsOver(ImGuizmo::OPERATION(op));
 }
 
-#define AddIMGUIConstant(name) imguiModule->AddConstant(#name, name);
+#define AddIMGUIConstant(name) imguiModule->AddConstant(#name, name)
 
 STATIC_INIT(imgui)
 {
@@ -534,6 +534,8 @@ STATIC_INIT(imgui)
 		AddIMGUIConstant(ImGuiKey_8);
 		AddIMGUIConstant(ImGuiKey_9);
 
+		AddIMGUIConstant(ImGuiHoveredFlags_None);
+
 		AddIMGUIConstant(ImGuiStyleVar_FramePadding);
 
 		AddIMGUIConstant(ImGuiCol_Text);
@@ -612,11 +614,15 @@ STATIC_INIT(imgui)
 		imguiModule->AddMethod<(bool(*)(const char* , const ImVec2& , bool , ImGuiWindowFlags))&ImGui::BeginChild>("begin_child");
 		imguiModule->AddMethod<&ImGui::EndChild>("end_child");
 		
-
+		
 		imguiModule->AddMethod<&ImGui::GetWindowContentRegionMin> ("get_window_content_min");
 		imguiModule->AddMethod<&ImGui::GetWindowContentRegionMax>("get_window_content_max");
 		
 		imguiModule->AddMethod<&ImGui::IsMouseHoveringRect>("is_mouse_hovering_rect");
+		imguiModule->AddMethod<&ImGui::IsItemHovered>("is_item_hovered");
+		imguiModule->AddMethod<&ImGui::IsMouseDragging>("is_mouse_dragging");
+		imguiModule->AddMethod<&ImGui::IsMouseDoubleClicked>("is_mouse_double_clicked");
+
 		imguiModule->AddMethod<(bool(*)(ImGuiMouseButton))&ImGui::IsMouseDown>("is_mouse_down");
 		imguiModule->AddMethod<&ImGui::GetMouseDragDelta>("get_mouse_drag_delta");
 		imguiModule->AddMethod<&ImGui::ResetMouseDragDelta>("reset_mouse_drag_delta");

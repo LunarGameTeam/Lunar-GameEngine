@@ -60,7 +60,7 @@ struct binding_converter<SharedPtr<U>>
 {
 	inline static PyObject* to_binding(SharedPtr<U> pptr)
 	{
-		LObject* obj = pptr.get();
+		SharedObject* obj = pptr.get();
 		BindingSharedObject* bindingObject = static_cast<BindingSharedObject*>(binding_converter<U*>::to_binding(obj));
 		return (PyObject*)bindingObject;
 	}

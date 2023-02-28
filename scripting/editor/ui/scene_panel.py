@@ -2,7 +2,7 @@ import math
 
 import luna
 from luna import imgui
-from ui.panel import PanelBase
+from editor.ui.panel import PanelBase
 
 
 class ScenePanel(PanelBase):
@@ -120,7 +120,7 @@ class ScenePanel(PanelBase):
         if self.scene:
             entity = self.scene.create_entity("Cube")
             renderer = entity.add_component(luna.MeshRenderer)
-            from core.editor_module import asset_module
+            from editor.core.editor_module import asset_module
             renderer.mesh = asset_module.load_asset(mesh_asset, luna.MeshAsset)
             renderer.material = asset_module.load_asset("/assets/built-in/Pbr.mat", luna.MaterialTemplateAsset)
 
@@ -174,7 +174,7 @@ class ScenePanel(PanelBase):
             key_pressed = True
             self.operation = imgui.gizmos.Operation_ROTATE
 
-        from ui.hierarchy_panel import HierarchyPanel
+        from editor.ui.hierarchy_panel import HierarchyPanel
         selected: 'luna.Entity' = self.parent_window.get_panel(HierarchyPanel).selected_entity
 
         imgui.gizmos.set_rect(self.window_pos.x + self.scene_pos.x, self.window_pos.y + self.scene_pos.y,

@@ -1,6 +1,6 @@
 import luna
 
-from ui.panel import PanelBase
+from editor.ui.panel import PanelBase
 
 
 class DemoPanel(PanelBase):

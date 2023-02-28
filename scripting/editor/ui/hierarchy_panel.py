@@ -1,7 +1,6 @@
 import luna
-from core.editor_module import EditorModule
 from luna import imgui
-from ui.panel import PanelBase
+from editor.ui.panel import PanelBase
 
 
 class HierarchyPanel(PanelBase):
@@ -45,8 +44,8 @@ class HierarchyPanel(PanelBase):
     def on_entity_clicked(self, entity):
         if entity:
             self.selected_entity = entity
-            from core.editor import create_editor
-            editor = create_editor(entity)
-            from ui.inspector_panel import InspectorPanel
+            from editor.core.inspector_base import create_inspector
+            editor = create_inspector(entity)
+            from editor.ui.inspector_panel import InspectorPanel
             self.parent_window.get_panel(InspectorPanel).set_editor(editor)
         pass

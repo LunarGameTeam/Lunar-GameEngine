@@ -1,16 +1,18 @@
 # encoding:utf-8
 import time
-import tkinter
 
 import luna
-from core.asset import FileInfo
-from core.hot_patch import reload_module
-from ui.panel import WindowBase
+
+from editor.core.asset import FileInfo
+from editor.core.hot_patch import reload_module
 
 asset_module: 'luna.AssetModule' = luna.get_module(luna.AssetModule)
 render_module: 'luna.RenderModule' = luna.get_module(luna.RenderModule)
 game_module: 'luna.GameModule' = luna.get_module(luna.GameModule)
 platform_module: 'luna.PlatformModule' = luna.get_module(luna.PlatformModule)
+
+if not __import__:
+    from editor.ui.panel import WindowBase
 
 
 def update_asset(path, asset_type):
@@ -40,7 +42,7 @@ class EditorModule(luna.LModule):
 
     def open_asset(self, f: 'FileInfo'):
         if not self.material_window:
-            from ui.material_window import MaterialWindow
+            from editor.ui import MaterialWindow
             self.material_window = MaterialWindow()
 
     def on_load(self):
@@ -53,8 +55,8 @@ class EditorModule(luna.LModule):
 
     def on_init(self):
 
-        from ui.scene_window import MainPanel
-        from ui.scene_window import generate_doc_for_module
+        from editor.ui.scene_window import MainPanel
+        from editor.ui.scene_window import generate_doc_for_module
 
         global asset_module, game_module, render_module, platform_module
 
@@ -73,7 +75,6 @@ class EditorModule(luna.LModule):
 
     def on_tick(self, delta_time):
         pass
-
 
     def on_imgui(self):
         if self.reload_module:
