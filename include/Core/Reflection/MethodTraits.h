@@ -14,16 +14,24 @@ union function_pointer_container
 	void* ptr;
 	FN fn;
 };
+
+
 template<typename> struct function_traits
 {
-	using return_type = void;
-	using class_type = void;
-	using args_type = std::tuple<void>;
-	static constexpr std::size_t args_count = 0;
 };
 
 
 // std::function traits
+template<typename Ret, typename... Args>
+struct function_traits<std::function<Ret(Args...)>>
+{
+	using return_type = Ret;
+	using args_type = std::tuple<Args...>;
+	using func_type = std::function<Ret(Args...)>;
+
+	static constexpr std::size_t args_count = sizeof...(Args);
+};
+
 template<typename Ret, typename... Args>
 struct function_traits<Ret(Args...)>
 {
@@ -56,7 +64,29 @@ struct function_traits<Ret(Cls::*)(Args...)>
 
 	static constexpr std::size_t args_count = sizeof...(Args);
 };
+// member method
+template<typename Ret, typename Cls, typename... Args>
+struct function_traits<Ret(Cls::*)(Args...) const>
+{
+	using return_type = Ret;
+	using class_type = std::remove_const_t<Cls>;
+	using args_type = std::tuple<Args...>;
+	using func_type = std::function<Ret(Args...)>;
 
+	static constexpr std::size_t args_count = sizeof...(Args);
+};
+
+// member method
+template<typename Ret, typename Cls, typename... Args>
+struct function_traits<Ret(Cls::* const)(Args...) const>
+{
+	using return_type = Ret;
+	using class_type = std::remove_const_t<Cls>;
+	using args_type = std::tuple<Args...>;
+	using func_type = std::function<Ret(Args...)>;
+
+	static constexpr std::size_t args_count = sizeof...(Args);
+};
 
 }
 

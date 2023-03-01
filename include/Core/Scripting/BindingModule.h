@@ -39,6 +39,23 @@ public:
 		return def;
 	}
 
+	template<auto lambda_v>
+	PyMethodDef& AddLambda(const char* name)
+	{
+
+		using lambda_t = decltype(lambda_v);
+		constexpr auto fn = &lambda_t::operator();
+		constexpr auto args_count = function_traits<decltype(fn)>::args_count;
+		PyCFunction p = binding::lambda_pycfunction_select<lambda_t, fn>(std::make_index_sequence<args_count>{});
+		const LString& method_name = LString::MakeStatic(name);
+		PyMethodDef& def = mMethods[method_name];
+		def.ml_name = method_name.c_str();
+		def.ml_meth = p;
+		def.ml_flags = METH_VARARGS;
+		def.ml_doc = LString::MakeStatic(binding::static_method_doc<fn>(method_name.c_str()));
+		return def;
+	}
+	
 	template<auto fn>
 	PyMethodDef& AddCFunction(const char* name)
 	{

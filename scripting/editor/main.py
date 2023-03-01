@@ -8,18 +8,6 @@ packages_dir = work_dir + "\\third-party\\site-packages"
 
 
 def init_editor():
-    # app = QtWidgets.QApplication([])
-    # widget = QWidget()
-    # widget.resize(800, 600)
-    # widget.show()
-    # global is_looping
-    # def f():
-    # 	global is_looping
-    # 	is_looping = False
-    # QCoreApplication.instance().aboutToQuit.connect(f)
-    # while is_looping:
-    # 	QCoreApplication.instance().processEvents()
-    # return
     import luna
 
     sys.path.append(editor_dir)

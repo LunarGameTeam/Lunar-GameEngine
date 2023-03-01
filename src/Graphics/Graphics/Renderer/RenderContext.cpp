@@ -23,7 +23,7 @@
 namespace luna::render 
 {
 
-RENDER_API CONFIG_IMPLEMENT(LString, Render, RenderDeviceType, "DirectX12");
+RENDER_API CONFIG_IMPLEMENT(LString, Render, RenderDeviceType, "Vulkan");
 
 const size_t sStagingBufferMaxSize = 1024 * 1024 * 32 * 8;
 const size_t sFrameGraphBufferMaxSize = 1024 * 1024 * 32 * 8;
@@ -91,12 +91,11 @@ void RenderContext::Init()
 		mTransferQueue = CreateRHIObject<DX12RenderQueue>(RHIQueueType::eTransfer);
 		break;
 	case RenderDeviceType::Vulkan:
+	default:
 		mDevice = new VulkanDevice();
 		mDevice->InitDeviceData();
 		mGraphicQueue = CreateRHIObject<VulkanRenderQueue>();
 		mTransferQueue = CreateRHIObject<VulkanRenderQueue>(RHIQueueType::eTransfer);
-		break;
-	default:
 		break;
 	}
 	mFence = mDevice->CreateFence();

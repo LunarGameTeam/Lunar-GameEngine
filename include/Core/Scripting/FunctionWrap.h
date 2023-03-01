@@ -61,6 +61,23 @@ constexpr inline auto arg_get(PyObject* args) noexcept
 	return binding_converter<std::remove_cvref_t<std::tuple_element_t<Idx, T>>>::from_binding(obj);
 }
 
+template<typename T,auto fn, size_t ...I>
+PyObject* METH_LAMBDA_impl(PyObject* self, PyObject* args)
+{
+	using FN = decltype(fn);
+	using return_type = function_traits<FN>::return_type;
+	using args_type = function_traits<FN>::args_type;
+	T* t = nullptr;
+	if constexpr (std::is_same_v<return_type, void>)
+	{		
+		(t->*fn)(arg_get<I, args_type>(args)...);
+		Py_RETURN_NONE;
+	}
+	else
+		return to_binding<return_type>((t->*fn)(arg_get<I, args_type>(args)...));
+}
+
+
 template<auto fn, size_t ...I>
 PyObject* METH_STATIC_impl(PyObject* self, PyObject* args)
 {
@@ -205,5 +222,11 @@ PyCFunction static_pycfunction_select(std::index_sequence<I...>)
 	return (PyCFunction)detail::METH_STATIC_impl<fn, I...>;
 }
 
+template<typename T, auto fn, size_t ...I>
+PyCFunction lambda_pycfunction_select(std::index_sequence<I...>)
+{
+	using FN = decltype(fn);
+	return (PyCFunction)detail::METH_LAMBDA_impl<T, fn, I...>;
+}
 
 }
