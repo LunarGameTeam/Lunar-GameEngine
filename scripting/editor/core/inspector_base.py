@@ -37,7 +37,9 @@ class InspectorBase(object):
     def on_category(self):
         comp_name = self.target.__class__.__name__
         category_name = "{}  {}".format(imgui.ICON_FA_LAYER_GROUP, comp_name)
-        is_open = imgui.tree_node(id(self.target), imgui.ImGuiTreeNodeFlags_DefaultOpen, category_name)
+        clicked, is_open, double_click = imgui.tree_node_callback(id(self.target), luna.LVector2f(-1, 32),
+                                                                  imgui.ImGuiTreeNodeFlags_DefaultOpen)
+        imgui.text(category_name)
         return is_open
 
     def __init__(self, target):
@@ -210,4 +212,25 @@ class MeshRendererEditor(ComponentInspector):
             self.imgui_obj_property(self.target, "mesh", luna.MeshAsset)
             self.imgui_obj_property(self.target, "cast_shadow", bool)
             self.imgui_obj_property(self.target, "material", luna.MaterialTemplateAsset)
+            imgui.tree_pop()
+
+
+@register_type_inspector
+class MaterialAssetInspector(InspectorBase):
+    target_type = luna.MaterialTemplateAsset
+    target: 'luna.MaterialTemplateAsset' = None
+
+    def __init__(self, target):
+        super().__init__(target)
+
+    def get_indent(self):
+        indent = super().get_indent()
+        indent = max(indent, imgui.calc_text_size("Material").x)
+        return indent
+
+    def on_imgui(self):
+        if self.on_category():
+            params = self.target.params
+            for it in params:
+                pass
             imgui.tree_pop()

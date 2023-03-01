@@ -12,6 +12,7 @@ game_module: 'luna.GameModule' = luna.get_module(luna.GameModule)
 platform_module: 'luna.PlatformModule' = luna.get_module(luna.PlatformModule)
 
 if not __import__:
+    from editor.ui.scene_window import MainWindow
     from editor.ui.panel import WindowBase
 
 
@@ -21,7 +22,7 @@ def update_asset(path, asset_type):
 
 
 class EditorModule(luna.LModule):
-    main_scene_window: 'WindowBase'
+    main_scene_window: 'MainWindow'
     _instance = None
 
     def __init__(self):
@@ -55,12 +56,12 @@ class EditorModule(luna.LModule):
 
     def on_init(self):
 
-        from editor.ui.scene_window import MainPanel
+        from editor.ui.scene_window import MainWindow
         from editor.ui.scene_window import generate_doc_for_module
 
         global asset_module, game_module, render_module, platform_module
 
-        self.main_scene_window: 'MainPanel' = MainPanel()
+        self.main_scene_window: 'MainWindow' = MainWindow()
 
         generate_doc_for_module(luna)
 

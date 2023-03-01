@@ -7,6 +7,10 @@ from editor.core.inspector_base import create_inspector
 from luna import imgui
 from editor.ui.panel import PanelBase
 
+import luna
+from editor.core.editor_module import asset_module
+file_icon = asset_module.load_asset("assets/built-in/Editor/File.png", luna.Texture2D)
+
 
 class LibraryPanel(PanelBase):
     def __init__(self) -> None:
@@ -24,23 +28,19 @@ class LibraryPanel(PanelBase):
         elif isinstance(cur_item, FileInfo):
             flag = imgui.ImGuiTreeNodeFlags_Leaf
 
-        clicked, expand = imgui.tree_node_callback(id(cur_item), flag)
+        clicked, expand, double_click = imgui.tree_node_callback(id(cur_item), luna.LVector2f(-1, 32), flag)
 
         if luna.imgui.begin_drag_drop_souce(0):
             luna.imgui.text(cur_item.name)
             luna.imgui.set_drag_drop_payload("LibraryItem", cur_item, 0)
             luna.imgui.end_drag_drop_souce()
 
-        if isinstance(cur_item, FolderInfo):
-            imgui.text("{} {}".format(imgui.ICON_FA_FOLDER, cur_item.name))
-        else:
-            imgui.text("{} {}".format(imgui.ICON_FA_FILE, cur_item.name))
-            if clicked:
-                if cur_item.name.endswith(".mat"):
-                    from editor.ui.inspector_panel import InspectorPanel
-                    material = asset_module.load_asset(cur_item.path, luna.MaterialTemplateAsset)
-                    editor = create_inspector(material)
-                    EditorModule.instance().main_scene_window.get_panel(InspectorPanel).set_editor(editor)
+        imgui.text("{} {}".format(cur_item.asset_type.icon, cur_item.name))
+
+        if not isinstance(cur_item, FolderInfo):
+            if double_click:
+                cur_item.asset_type.on_double_click(cur_item)
+
 
         if expand:
             if isinstance(cur_item, FolderInfo):
@@ -51,14 +51,14 @@ class LibraryPanel(PanelBase):
     def on_imgui(self, delta_time) -> None:
         super().on_imgui(delta_time)
         flag = luna.imgui.ImGuiTreeNodeFlags_DefaultOpen
-        clicked, expand = imgui.tree_node_callback(id(self.engine_root), flag)
+        clicked, expand, double_click = imgui.tree_node_callback(id(self.engine_root), luna.LVector2f(-1, 32), flag)
         imgui.text("Engine")
         if expand:
             for f in self.engine_root.child_list:
                 self.on_imgui_folder(f)
             imgui.tree_pop()
 
-        clicked, expand = imgui.tree_node_callback(id(self.proj_root), flag)
+        clicked, expand, double_click = imgui.tree_node_callback(id(self.proj_root), luna.LVector2f(-1, 32), flag)
         imgui.text("Project")
         if expand:
             for f in self.proj_root.child_list:

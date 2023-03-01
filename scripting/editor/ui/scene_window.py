@@ -50,7 +50,7 @@ def generate_doc_for_module(target: 'types.ModuleType') -> object:
     return
 
 
-class MainPanel(WindowBase):
+class MainWindow(WindowBase):
     main_scene: 'luna.Scene' = None
     window_name = "Scene Window"
 
@@ -63,9 +63,9 @@ class MainPanel(WindowBase):
         from editor.ui.inspector_panel import InspectorPanel
         from editor.ui.scene_panel import ScenePanel
         from editor.ui.library_panel import LibraryPanel
-        #from editor.ui.imgui_demo import DemoPanel
+        from editor.ui.imgui_demo import DemoPanel
         self.hierarchy_panel = self.add_panel(HierarchyPanel)
-        #self.demo_panel = self.add_panel(DemoPanel)
+        self.demo_panel = self.add_panel(DemoPanel)
         self.scene_panel = self.add_panel(ScenePanel)
 
         self.library_panel = self.add_panel(LibraryPanel)

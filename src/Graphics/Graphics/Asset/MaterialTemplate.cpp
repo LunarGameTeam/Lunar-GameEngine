@@ -67,6 +67,10 @@ MaterialTemplateAsset::MaterialTemplateAsset() :
 {
 }
 
+MaterialTemplateAsset::~MaterialTemplateAsset()
+{
+}
+
 MaterialInstance* MaterialTemplateAsset::CreateInstance()
 {
 	MaterialInstance* mat = NewObject<MaterialInstance>();

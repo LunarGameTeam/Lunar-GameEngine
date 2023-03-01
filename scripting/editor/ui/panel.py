@@ -7,7 +7,7 @@ from luna import imgui
 
 
 class WindowBase(object):
-    editor_list: 'list[PanelBase]'
+    panel_list: 'list[PanelBase]'
     id = 1
     window_name = "MainWindow"
 
@@ -27,7 +27,7 @@ class WindowBase(object):
         else:
             self.view_port = imgui.get_id(self.window_name)
 
-        self.editor_list = []
+        self.panel_list = []
 
         self.view_pos = luna.LVector2f(0, 0)
 
@@ -47,13 +47,13 @@ class WindowBase(object):
 
     def add_panel(self, panel_type: 'typing.Type[T]') -> 'T':
         panel = panel_type()
-        self.editor_list.append(panel)
+        self.panel_list.append(panel)
         panel.parent_window = self
         return panel
 
-    def get_panel(self, panel_tyee: 'typing.Type[T]') -> 'T':
-        for editor in self.editor_list:
-            if isinstance(editor, panel_tyee):
+    def get_panel(self, panel_tye: 'typing.Type[T]') -> 'T':
+        for editor in self.panel_list:
+            if isinstance(editor, panel_tye):
                 return editor
         return None
 
@@ -160,7 +160,7 @@ class WindowBase(object):
         imgui.dock_space(dock_id, luna.LVector2f(0, 0), imgui.ImGuiDockNodeFlags_PassthruCentralNode)
         self.on_imgui(delta_time)
         imgui.pop_style_var(1)
-        for editor in self.editor_list:
+        for editor in self.panel_list:
             imgui.set_next_window_viewport(self.view_port)
             imgui.set_next_window_dock_id(dock_id, imgui.ImGuiCond_FirstUseEver)
             editor.do_imgui(delta_time)

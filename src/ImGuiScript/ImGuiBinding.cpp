@@ -328,28 +328,25 @@ STATIC_INIT(imgui)
 		return ImGui::TreeNodeEx(reinterpret_cast<const void*>(id), flags, name);
 	}>("tree_node");
 
-	imguiModule->AddLambda<[](uint64_t pid, ImGuiTreeNodeFlags flag)-> PyObject*
+	imguiModule->AddLambda<[](uint64_t pid, const ImVec2& size,ImGuiTreeNodeFlags flag)-> PyObject*
 	{
 		auto treeID = reinterpret_cast<const void*>(pid);
 		ImGuiID id = ImGui::GetID(treeID);
+
 		ImGuiWindow* window = ImGui::GetCurrentContext()->CurrentWindow;
 		ImVec2 pos = window->DC.CursorPos;
-		ImRect bb(pos, ImVec2(pos.x + ImGui::GetContentRegionAvail().x, pos.y + ImGui::GetFontSize()));
+		float width = size.x > 0 ? size.x : ImGui::GetContentRegionAvail().x;
+		float height = size.y > 0 ? size.y : ImGui::GetFontSize() + 4;
 
+		
+		ImRect arrowRect(pos, ImVec2(pos.x + 16, pos.y + height));
+		ImRect itemRect(pos, ImVec2(pos.x + width, pos.y + height));
+
+		
 		bool expand = ImGui::TreeNodeBehaviorIsOpen(id, flag);
-		bool hoverd, held = false;
+		bool hoverd, held, double_click = false;
 		bool clicked = false;
-
-		if (ImGui::ButtonBehavior(bb, id, &hoverd, &held))
-		{
-			clicked = true;
-			expand = !expand;
-			window->DC.StateStorage->SetInt(id, expand);
-		}
-
-		if (hoverd)
-			window->DrawList->AddRectFilled(bb.Min, bb.Max, ImGui::GetColorU32(ImGuiCol_DockingPreview));
-
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (height - ImGui::GetFontSize()) * 0.5f);
 		if ((flag & ImGuiTreeNodeFlags_Leaf))
 		{
 			ImGui::Text(" ");
@@ -357,18 +354,39 @@ STATIC_INIT(imgui)
 		else
 		{
 			ImGui::Text(expand ? ICON_FA_CARET_DOWN : ICON_FA_CARET_RIGHT);
+			if (ImGui::ButtonBehavior(arrowRect, id, nullptr, nullptr))
+			{
+				expand = !expand;			
+				window->DC.StateStorage->SetInt(id, expand);
+			}
 		}
 
 		float x = ImGui::GetCursorPosX();
 
 		ImGui::SameLine(x + 16);
+		
+		ImGui::ItemAdd(itemRect, id);
+		if (ImGui::IsItemClicked(0))
+		{
+			clicked = true;
+			if(ImGui::IsMouseDoubleClicked(0))
+			{
+				double_click = true;
+				expand = !expand;
+				window->DC.StateStorage->SetInt(id, expand);
+			}			
+		}
 
-		ImGui::ItemAdd(bb, id);
+		hoverd = ImGui::IsItemHovered();
+
+		if (hoverd)
+			window->DrawList->AddRectFilled(itemRect.Min, itemRect.Max, ImGui::GetColorU32(ImGuiCol_DockingPreview));
+
 
 		if (expand)
 			ImGui::TreePush(treeID);
 
-		return binding_return(clicked, expand);
+		return binding_return(clicked, expand, double_click);
 	}>("tree_node_callback");
 
 	imguiModule->AddMethod<&ImGui::IsMouseDragging>("is_mouse_dragging");
@@ -393,7 +411,10 @@ STATIC_INIT(imgui)
 	{
 		ImGui::Text(text);
 	}>("text");
-
+	imguiModule->AddLambda<[](const ImVec4 &color, const char* text)
+	{
+		ImGui::TextColored(color, text);
+	} > ("text_colored");
 	imguiModule->AddLambda<[](const char* label, bool selected, int flags, const ImVec2& size)
 	{
 		bool res = ImGui::Selectable(label, &selected, flags, size);
@@ -752,6 +773,13 @@ STATIC_INIT(imgui)
 	AddIMGUIConstant(ICON_FA_IMAGE);
 	AddIMGUIConstant(ICON_FA_LAYER_GROUP);
 	AddIMGUIConstant(ICON_FA_MOON);
+	AddIMGUIConstant(ICON_FA_CIRCLE);
+	AddIMGUIConstant(ICON_FA_CIRCLE_NOTCH);
+	AddIMGUIConstant(ICON_FA_ARROWS_ALT);
+	AddIMGUIConstant(ICON_FA_IMAGE);
+	AddIMGUIConstant(ICON_FA_FILE_IMAGE);
+	AddIMGUIConstant(ICON_FA_TREE);
+	AddIMGUIConstant(ICON_FA_TABLE_TENNIS);
 
 	imguiModule->Init();
 }

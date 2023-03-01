@@ -16,6 +16,7 @@ class RENDER_API MaterialTemplateAsset : public JsonAsset
 
 public:
 	MaterialTemplateAsset();
+	~MaterialTemplateAsset() override;
 	ShaderAsset* GetShaderAsset() { return mShader.get(); }
 	TPPtrArray<MaterialParam>& GetAllParams() { return mTemplateParams; }
 	MaterialInstance* CreateInstance();

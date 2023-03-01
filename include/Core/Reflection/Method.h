@@ -55,6 +55,7 @@ public:
 		if (ptr == nullptr)
 			ptr = wrapper->get_func_ptr();
 		function_pointer_container<FN> p;
+		p.fn = nullptr;
 		p.ptr = ptr;
 		return (cls->*(p.fn))(arg...);
 	}
