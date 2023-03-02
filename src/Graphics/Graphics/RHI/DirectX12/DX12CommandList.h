@@ -11,12 +11,26 @@ class RENDER_API DX12CmdSignature : public RHICmdSignature
 {
 private:
 	Microsoft::WRL::ComPtr<ID3D12CommandSignature> mDxCmdSignature;
+	size_t mByteStride;
 public:
 	DX12CmdSignature(
 		RHIPipelineState* pipeline,
 		const LArray<CommandArgDesc>& allCommondDesc
 	);
-	ID3D12CommandSignature* GetValue() { return mDxCmdSignature.Get(); }
+	ID3D12CommandSignature* GetValue() const { return mDxCmdSignature.Get(); }
+	const size_t GetPerElementByte() const { return mByteStride; };
+};
+
+class RENDER_API DX12CmdArgBuffer : RHICmdArgBuffer
+{
+	Microsoft::WRL::ComPtr<ID3D12Resource> mCommandBuffer;
+public:
+	DX12CmdArgBuffer(
+		size_t maxDrawSize,
+		const RHICmdSignature* commondBufferDataDescs
+	);
+	void UpdateArgDataImpl(const LArray<RHICmdArgBufferDataDesc>& argData) override;
+
 };
 
 class RENDER_API DX12GraphicCmdList : public RHIGraphicCmdList
@@ -53,7 +67,7 @@ public:
 		int32_t BaseVertexLocation,
 		int32_t StartInstanceLocation) override;
 
-	void DrawIndirect() override;
+	void DrawIndirectCommands(const RHICmdArgBuffer* DrawBuffer) override;
 
 	void SetVertexBuffer(const std::vector<RHIVertexBufferDesc>& vb, int32_t slot = 0) override;
 

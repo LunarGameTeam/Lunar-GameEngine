@@ -7,7 +7,7 @@
 
 namespace luna::render
 {
-	class RENDER_API  VulkanCmdSignature : public RHICmdSignature
+	class RENDER_API VulkanCmdSignature : public RHICmdSignature
 	{
 	private:
 		Microsoft::WRL::ComPtr<ID3D12CommandSignature> mDxCmdSignature;
@@ -34,7 +34,7 @@ public:
 		int32_t BaseVertexLocation,
 		int32_t StartInstanceLocation) override;
 	
-	void DrawIndirect() override;
+	void DrawIndirectCommands(const RHICmdArgBuffer* DrawBuffer) override;
 
 	void SetDrawPrimitiveTopology(RHIPrimitiveTopology primitive_topology) override;
 

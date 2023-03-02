@@ -26,8 +26,54 @@ public:
 		RHIPipelineState* pipeline,
 		const LArray<CommandArgDesc> &allCommondDesc
 	):mPipeline(pipeline), mCommondDescs(allCommondDesc) {};
+	const LArray<CommandArgDesc>& GetDesc() const{ return mCommondDescs;};
+};
+struct RHICmdArgBufferDataDesc
+{
+	//绘制参数类型
+	RHIIndirectArgumentType mArgType;
+	//vb与ib填充这两个参数
+	LArray<RHIVertexBufferDesc> mVbPointer;
+	RHIResource* mIbPointer;
+	//shader输入填充这个参数
+	RHIView* mCbvSrvUav;
+	//draw instance填充这个参数
+	uint32_t mIndexCountPerInstance;
+	uint32_t mInstanceCount;
+	uint32_t mStartIndexLocation;
+	int32_t  mBaseVertexLocation;
+	uint32_t mStartInstanceLocation;
+	//dispatch填充这个参数
+	uint32_t ThreadGroupCountX;
+	uint32_t ThreadGroupCountY;
+	uint32_t ThreadGroupCountZ;
 };
 
+class RENDER_API RHICmdArgBuffer : public RHIObject
+{
+protected:
+	size_t mMaxDrawSize;
+	const RHICmdSignature* mCommondBufferDataDescs;
+	LArray<RHICmdArgBufferDataDesc> mAllCommand;
+public:
+	RHICmdArgBuffer(
+		size_t maxDrawSize,
+		const RHICmdSignature* commondBufferDataDescs
+	) :mMaxDrawSize(maxDrawSize), mCommondBufferDataDescs(commondBufferDataDescs) {};
+	void UpdateArgData(const LArray<RHICmdArgBufferDataDesc>& argData)
+	{
+		mAllCommand.clear();
+		for (const RHICmdArgBufferDataDesc& eachValue : argData)
+		{
+			mAllCommand.push_back(eachValue);
+		}
+		UpdateArgDataImpl(argData);
+	}
+	const RHICmdSignature* GetCmdSignature() const { return mCommondBufferDataDescs; };
+	const LArray<RHICmdArgBufferDataDesc>& GetAllCommand() const { return mAllCommand; };
+private:
+	virtual void UpdateArgDataImpl(const LArray<RHICmdArgBufferDataDesc>& argData) {};
+};
 //命令分配器
 class RENDER_API RHICmdAllocator : public RHIObject
 {
@@ -79,7 +125,7 @@ public:
 		uint32_t StartIndexLocation,
 		int32_t BaseVertexLocation,
 		int32_t StartInstanceLocation) = 0;
-	virtual void DrawIndirect() = 0;
+	virtual void DrawIndirectCommands(const RHICmdArgBuffer* DrawBuffer) = 0;
 
 	virtual void SetDrawPrimitiveTopology(RHIPrimitiveTopology primitive_topology) = 0;
 

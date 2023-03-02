@@ -124,9 +124,37 @@ void VulkanGraphicCmdList::DrawIndexedInstanced(uint32_t IndexCountPerInstance, 
 	mCommandBuffer.drawIndexed(IndexCountPerInstance, 1, 0, 0, StartInstanceLocation);
 }
 
-void VulkanGraphicCmdList::DrawIndirect()
+void VulkanGraphicCmdList::DrawIndirectCommands(const RHICmdArgBuffer* DrawBuffer)
 {
-	mCommandBuffer.drawIndexedIndirect();
+	size_t perDrawCommand = DrawBuffer->GetCmdSignature()->GetDesc().size();
+	size_t allDrawCount = DrawBuffer->GetAllCommand().size() / perDrawCommand;
+	for (int i = 0; i < allDrawCount; ++i)
+	{
+		int commandOffset = i * perDrawCommand;
+		for (int j = 0; j < perDrawCommand; ++j)
+		{
+			const RHICmdArgBufferDataDesc& command = DrawBuffer->GetAllCommand()[commandOffset + j];
+			switch (command.mArgType)
+			{
+			case RHIIndirectArgumentType::AsVertexBuffer:
+			{
+				SetVertexBuffer(command.mVbPointer, DrawBuffer->GetCmdSignature()->GetDesc()[j].mSlotOrIndex);
+				break;
+			}
+			case RHIIndirectArgumentType::AsIndexBuffer:
+			{
+				SetIndexBuffer(command.mIbPointer);
+				break;
+			}
+			case RHIIndirectArgumentType::AsDrawCommand:
+			{
+				DrawIndexedInstanced(command.mIndexCountPerInstance, command.mInstanceCount, command.mStartIndexLocation, command.mBaseVertexLocation, command.mStartInstanceLocation);
+			}
+			default:
+				break;
+			}
+		}
+	}
 }
 
 void VulkanGraphicCmdList::SetDrawPrimitiveTopology(RHIPrimitiveTopology primitive_topology)

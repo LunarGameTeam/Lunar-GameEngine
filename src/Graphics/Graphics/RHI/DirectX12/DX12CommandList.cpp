@@ -16,11 +16,10 @@ namespace luna::render
 DX12CmdSignature::DX12CmdSignature(
 	RHIPipelineState* pipeline,
 	const LArray<CommandArgDesc>& allCommondDesc
-) :RHICmdSignature(pipeline, allCommondDesc)
+) :RHICmdSignature(pipeline, allCommondDesc), mByteStride(0)
 {
 	D3D12_COMMAND_SIGNATURE_DESC newSignatureDesc;
 	LArray<D3D12_INDIRECT_ARGUMENT_DESC> allIndirectDesc;
-	size_t byteStride = 0;
 	for (int32_t i = 0; i < allCommondDesc.size(); ++i)
 	{
 		D3D12_INDIRECT_ARGUMENT_DESC&newDesc = allIndirectDesc.emplace_back();
@@ -30,13 +29,13 @@ DX12CmdSignature::DX12CmdSignature(
 		{
 			newDesc.Type = D3D12_INDIRECT_ARGUMENT_TYPE::D3D12_INDIRECT_ARGUMENT_TYPE_VERTEX_BUFFER_VIEW;
 			newDesc.VertexBuffer.Slot = allCommondDesc[i].mSlotOrIndex;
-			byteStride += sizeof(D3D12_VERTEX_BUFFER_VIEW);
+			mByteStride += sizeof(D3D12_VERTEX_BUFFER_VIEW);
 			break;
 		}
 		case RHIIndirectArgumentType::AsIndexBuffer:
 		{
 			newDesc.Type = D3D12_INDIRECT_ARGUMENT_TYPE::D3D12_INDIRECT_ARGUMENT_TYPE_INDEX_BUFFER_VIEW;
-			byteStride += sizeof(D3D12_INDEX_BUFFER_VIEW);
+			mByteStride += sizeof(D3D12_INDEX_BUFFER_VIEW);
 			break;
 		}
 		case RHIIndirectArgumentType::AsUniformValue:
@@ -45,40 +44,40 @@ DX12CmdSignature::DX12CmdSignature(
 			newDesc.Constant.RootParameterIndex = allCommondDesc[i].mSlotOrIndex;
 			newDesc.Constant.DestOffsetIn32BitValues = allCommondDesc[i].mConstantOffset;
 			newDesc.Constant.Num32BitValuesToSet = allCommondDesc[i].mConstantValueSize;
-			byteStride += newDesc.Constant.Num32BitValuesToSet * sizeof(int32_t);
+			mByteStride += newDesc.Constant.Num32BitValuesToSet * sizeof(int32_t);
 			break;
 		}
 		case RHIIndirectArgumentType::AsUniformBuffer:
 		{
 			newDesc.Type = D3D12_INDIRECT_ARGUMENT_TYPE::D3D12_INDIRECT_ARGUMENT_TYPE_CONSTANT_BUFFER_VIEW;
 			newDesc.ConstantBufferView.RootParameterIndex = allCommondDesc[i].mSlotOrIndex;
-			byteStride += sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
+			mByteStride += sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
 			break;
 		}
 		case RHIIndirectArgumentType::AsShaderResource:
 		{
 			newDesc.Type = D3D12_INDIRECT_ARGUMENT_TYPE::D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
 			newDesc.ShaderResourceView.RootParameterIndex = allCommondDesc[i].mSlotOrIndex;
-			byteStride += sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
+			mByteStride += sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
 			break;
 		}
 		case RHIIndirectArgumentType::AsUnorderedAccess:
 		{
 			newDesc.Type = D3D12_INDIRECT_ARGUMENT_TYPE::D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
 			newDesc.UnorderedAccessView.RootParameterIndex = allCommondDesc[i].mSlotOrIndex;
-			byteStride += sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
+			mByteStride += sizeof(D3D12_GPU_VIRTUAL_ADDRESS);
 			break;
 		}
 		case RHIIndirectArgumentType::AsDrawCommand:
 		{
 			newDesc.Type = D3D12_INDIRECT_ARGUMENT_TYPE::D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
-			byteStride += sizeof(D3D12_DRAW_INDEXED_ARGUMENTS);
+			mByteStride += sizeof(D3D12_DRAW_INDEXED_ARGUMENTS);
 			break;
 		}
 		case RHIIndirectArgumentType::AsDispatchCommand:
 		{
 			newDesc.Type = D3D12_INDIRECT_ARGUMENT_TYPE::D3D12_INDIRECT_ARGUMENT_TYPE_DISPATCH;
-			byteStride += sizeof(D3D12_DISPATCH_ARGUMENTS);
+			mByteStride += sizeof(D3D12_DISPATCH_ARGUMENTS);
 			break;
 		}
 		default:
@@ -89,7 +88,7 @@ DX12CmdSignature::DX12CmdSignature(
 			
 		}
 	}
-	newSignatureDesc.ByteStride = byteStride;
+	newSignatureDesc.ByteStride = mByteStride;
 	newSignatureDesc.NodeMask = 0;
 	newSignatureDesc.NumArgumentDescs = allIndirectDesc.size();
 	newSignatureDesc.pArgumentDescs = allIndirectDesc.data();
@@ -98,6 +97,31 @@ DX12CmdSignature::DX12CmdSignature(
 	ID3D12Device* dxDevice = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
 	hr = dxDevice->CreateCommandSignature(&newSignatureDesc, dx12BindingSetLayout->GetRootSignature(), IID_PPV_ARGS(&mDxCmdSignature));
 	assert(SUCCEEDED(hr));
+}
+
+DX12CmdArgBuffer::DX12CmdArgBuffer(
+	size_t maxDrawSize,
+	const RHICmdSignature* commondBufferDataDescs
+) :RHICmdArgBuffer(maxDrawSize, commondBufferDataDescs)
+{
+	//todo:生成arg buffer数据
+	//const DX12CmdSignature* dx12Signature = static_cast<const DX12CmdSignature*>(commondBufferDataDescs);
+	//ID3D12Device* device = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
+	//const size_t commandBufferSize = dx12Signature->GetPerElementByte() * maxDrawSize;
+	//D3D12_RESOURCE_DESC commandBufferDesc = CD3DX12_RESOURCE_DESC::Buffer(commandBufferSize);
+	//device->CreateCommittedResource(
+	//	&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+	//	D3D12_HEAP_FLAG_NONE,
+	//	&commandBufferDesc,
+	//	D3D12_RESOURCE_STATE_COPY_DEST,
+	//	nullptr,
+	//	IID_PPV_ARGS(&mCommandBuffer)
+	//);
+}
+
+void DX12CmdArgBuffer::UpdateArgDataImpl(const LArray<RHICmdArgBufferDataDesc>& argData)
+{
+	//todo:生成arg buffer数据
 }
 
 DX12GraphicCmdList::DX12GraphicCmdList(RHICmdListType cmdListType)
@@ -128,15 +152,43 @@ void DX12GraphicCmdList::DrawIndexedInstanced(
 		BaseVertexLocation, StartInstanceLocation);
 };
 
-void DX12GraphicCmdList::DrawIndirect()
+void DX12GraphicCmdList::DrawIndirectCommands(const RHICmdArgBuffer* DrawBuffer)
 {
-	mDxCmdList->ExecuteIndirect(IndexCountPerInstance, InstanceCount, StartIndexLocation,
-		BaseVertexLocation, StartInstanceLocation);
+	//todo:使用mDxCmdList->ExecuteIndirect()
+	size_t perDrawCommand = DrawBuffer->GetCmdSignature()->GetDesc().size();
+	size_t allDrawCount = DrawBuffer->GetAllCommand().size() / perDrawCommand;
+	for (int i = 0; i < allDrawCount; ++i)
+	{
+		int commandOffset = i * perDrawCommand;
+		for (int j = 0; j < perDrawCommand; ++j)
+		{
+			const RHICmdArgBufferDataDesc& command = DrawBuffer->GetAllCommand()[commandOffset + j];
+			switch (command.mArgType)
+			{
+			case RHIIndirectArgumentType::AsVertexBuffer:
+			{
+				SetVertexBuffer(command.mVbPointer, DrawBuffer->GetCmdSignature()->GetDesc()[j].mSlotOrIndex);
+				break;
+			}
+			case RHIIndirectArgumentType::AsIndexBuffer:
+			{
+				SetIndexBuffer(command.mIbPointer);
+				break;
+			}
+			case RHIIndirectArgumentType::AsDrawCommand:
+			{
+				DrawIndexedInstanced(command.mIndexCountPerInstance, command.mInstanceCount, command.mStartIndexLocation, command.mBaseVertexLocation, command.mStartInstanceLocation);
+			}
+			default:
+				break;
+			}
+		}
+	}
 };
 
 void DX12GraphicCmdList::SetVertexBuffer(const LArray<RHIVertexBufferDesc>& bufferView, int32_t slot)
 {
-	std::vector<D3D12_VERTEX_BUFFER_VIEW> dx12BufferView(bufferView.size());	
+	std::vector<D3D12_VERTEX_BUFFER_VIEW> dx12BufferView(bufferView.size());
 	for (int32_t idx = 0; idx < bufferView.size(); ++idx)
 	{
 		const RHIVertexBufferDesc& view = bufferView[idx];
