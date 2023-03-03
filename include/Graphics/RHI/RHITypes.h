@@ -47,6 +47,9 @@ using RHIShaderBlobPtr     = TRHIPtr<RHIShaderBlob> ;
 class RHIResource;
 using RHIResourcePtr       = TRHIPtr<RHIResource> ;
 
+class RHICmdSignature;
+using RHICmdSignaturePtr = TRHIPtr<RHICmdSignature>;
+
 class RHIBindingSet;
 using RHIBindingSetPtr	   = TRHIPtr<RHIBindingSet>;
 

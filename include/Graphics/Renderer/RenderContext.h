@@ -49,7 +49,19 @@ struct StaticSampler
 	RHIResourcePtr mSampler;
 	RHIViewPtr     mView;	
 };
+class RENDER_API CommandArgBufferPool
+{
+	LString mCommandSignatureHash;
+	RHICmdSignaturePtr mCommandSignature;
+	LArray<RHICmdArgBuffer> mArgBufferPool;
+	LQueue<size_t> mEmptyBuffer;
+public:
+	CommandArgBufferPool(
+		RHIPipelineState* pipeline,
+		const LArray<CommandArgDesc>& allCommondDesc
+	);
 
+};
 class RENDER_API RenderContext final : NoCopy
 {
 public:
@@ -102,6 +114,7 @@ private:
 	RenderPassDesc                              mCurRenderPass;
 	LMap<size_t, RHIBindingSetPtr>              mBindingSetCache;
 	LMap<PipelineCacheKey, RHIPipelineStatePtr> mPipelineCache;
+	LMap<size_t, RHICmdSignaturePtr>              mCommandSignatureCache;
 	RHIPipelineStatePtr                         mLastPipline;
 
 	//----Draw Graph API End----

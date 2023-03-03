@@ -16,6 +16,7 @@ struct CommandArgDesc
 	UINT mConstantOffset;
 	UINT mConstantValueSize;
 };
+
 class RENDER_API RHICmdSignature : public RHIObject
 {
 protected:
@@ -28,6 +29,7 @@ public:
 	):mPipeline(pipeline), mCommondDescs(allCommondDesc) {};
 	const LArray<CommandArgDesc>& GetDesc() const{ return mCommondDescs;};
 };
+
 struct RHICmdArgBufferDataDesc
 {
 	//绘制参数类型

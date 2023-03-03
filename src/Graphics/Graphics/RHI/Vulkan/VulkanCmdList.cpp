@@ -19,6 +19,13 @@
 namespace luna::render
 {
 
+VulkanCmdSignature::VulkanCmdSignature(
+	RHIPipelineState* pipeline,
+	const LArray<CommandArgDesc>& allCommondDesc
+) :RHICmdSignature(pipeline, allCommondDesc)
+{
+}
+
 VulkanGraphicCmdList::VulkanGraphicCmdList(RHICmdListType type) : 
 	RHIGraphicCmdList(type)
 {

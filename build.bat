@@ -14,6 +14,7 @@ call sdk\vcpkg\bootstrap-vcpkg.bat
 .\sdk\vcpkg\vcpkg.exe install directxtex:x64-windows
 .\sdk\vcpkg\vcpkg.exe install tinyobjloader:x64-windows
 .\sdk\vcpkg\vcpkg.exe install ms-gltf:x64-windows
+.\sdk\vcpkg\vcpkg.exe install murmurhash:x64-windows
 pause
 call CMakeGenerate.bat
 pause

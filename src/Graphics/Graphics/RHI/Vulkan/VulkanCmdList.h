@@ -9,14 +9,11 @@ namespace luna::render
 {
 	class RENDER_API VulkanCmdSignature : public RHICmdSignature
 	{
-	private:
-		Microsoft::WRL::ComPtr<ID3D12CommandSignature> mDxCmdSignature;
 	public:
 		VulkanCmdSignature(
 			RHIPipelineState* pipeline,
 			const LArray<CommandArgDesc>& allCommondDesc
 		);
-		ID3D12CommandSignature* GetValue() { return mDxCmdSignature.Get(); }
 	};
 
 class VulkanGraphicCmdList : public RHIGraphicCmdList
