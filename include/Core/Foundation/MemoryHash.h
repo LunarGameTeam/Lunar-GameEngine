@@ -1,22 +1,27 @@
 
 #pragma once
 #include "core/Foundation/String.h"
-#include "MurmurHash2.h"
+#include "core/Foundation/Container.h"
 namespace luna
 {
 	class CORE_API LMemoryHash
 	{
 	private:
-		size_t    mMemorySize;
-		uint8_t*  mMemory;
+		LArray<uint8_t> mMemory;
 		size_t    mHash;
 	public:
 		LMemoryHash();
 		void Reset();
-		void Combine(uint8_t* memory,size_t size);
+		void GenerateHash();
+		void Combine(const uint8_t* memory,size_t size);
+		void Combine(const LArray<uint8_t> &memory);
 		const size_t& GetHash() const{ return mHash; }
 		bool operator==(const LMemoryHash& data) const {
-			return memcmp(mMemory, data.mMemory, mMemorySize) == 0;
+			if(mMemory.size() != data.mMemory.size())
+			{
+				return false;
+			}
+			return memcmp(mMemory.data(), data.mMemory.data(), mMemory.size()) == 0;
 		}
 	};
 }

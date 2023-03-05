@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Core/CoreMin.h"
-
+#include "Core/Foundation/MemoryHash.h"
 #include "Graphics/RenderConfig.h"
 #include "Graphics/RenderTypes.h"
 
 #include "Graphics/RHI/RHITypes.h"
 #include "Graphics/RHI/RHIDevice.h"
 #include "Graphics/RHI/RHIRenderPass.h"
+#include "Graphics/RHI/RHICmdList.h"
 
 #include "Graphics/Asset/ShaderAsset.h"
 
@@ -16,6 +17,64 @@ namespace luna::render
 {
 
 RENDER_API CONFIG_DECLARE(LString, Render, RenderDeviceType, 2);
+void GetShaderHashByDesc(luna::LMemoryHash& newHash, const luna::render::RHIShaderDesc& desc);
+
+class RhiObjectCache
+{
+	LQueue<size_t> emptyID;
+
+	LUnorderedMap<LMemoryHash, TRHIPtr<RHIObject>> mData;
+
+	LUnorderedMap<const RHIObject*, size_t> mDataGlobelId;
+public:
+	size_t GetDataGlobelId(const RHIObject* customData);
+
+	void ReleaseData(LMemoryHash& newHash);
+protected:
+
+	template <typename T, typename... Args>
+	TRHIPtr<T> CreateRHIObject(
+		RHIDevice* device, 
+		Args... inputDesc,
+		std::function<void(LMemoryHash&,Args...)> &dataHashFunc,
+		std::function<TRHIPtr<T>(RHIDevice* device, Args...)> dataCreateFunc
+	)
+	{
+		LMemoryHash newHash;
+		dataHashFunc(newHash, inputDesc...);
+		auto dataExist = mData.find(newHash);
+		if (dataExist != mData.end())
+		{
+			return dataExist->second;
+		}
+		RHIShaderBlobPtr newData = dataCreateFunc(device,inputDesc...);
+		mData.insert({ newHash ,newData });
+		if (emptyID.empty())
+		{
+			size_t newID = mDataGlobelId.size();
+			mDataGlobelId.insert({ newData ,newID });
+		}
+		else
+		{
+			size_t newID = emptyID.front();
+			emptyID.pop();
+			mDataGlobelId.insert({ newData ,newID });
+		}
+		return newData;
+	}
+};
+
+class ShaderBlobCache:public RhiObjectCache
+{
+public:
+	RHIShaderBlobPtr CreateShader(RHIDevice* mDevice, const RHIShaderDesc& desc);
+};
+
+class PipelineStateCache :public RhiObjectCache
+{
+public:
+	RHIPipelineStatePtr CreatePipeline(RHIDevice* mDevice, const RHIPipelineStateDesc& desc);
+};
 
 enum class RenderDeviceType : uint8_t
 {
@@ -51,7 +110,7 @@ struct StaticSampler
 };
 class RENDER_API CommandArgBufferPool
 {
-	LString mCommandSignatureHash;
+	LMemoryHash mCommandSignatureHash;
 	RHICmdSignaturePtr mCommandSignature;
 	LArray<RHICmdArgBuffer> mArgBufferPool;
 	LQueue<size_t> mEmptyBuffer;
@@ -62,6 +121,8 @@ public:
 	);
 
 };
+
+
 class RENDER_API RenderContext final : NoCopy
 {
 public:
@@ -97,6 +158,8 @@ public:
 	RHIResourcePtr CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData = nullptr, size_t dataSize = 0);
 	RHIResource* CreateInstancingBufferByRenderObjects(const LArray<RenderObject*>& RenderObjects);
 	void UpdateConstantBuffer(RHIResourcePtr target, void* data, size_t dataSize);
+	RHIShaderBlobPtr CreateShader(const RHIShaderDesc& desc);
+	size_t GetShaderId(const RHIShaderBlob* shader);
 	//----Resource Graph API End----
 
 	RHIBindingSetPtr CreateBindingset(RHIBindingSetLayoutPtr layout);
@@ -113,10 +176,9 @@ private:
 	using PipelineCacheKey = std::pair < MaterialInstance*, size_t>;
 	RenderPassDesc                              mCurRenderPass;
 	LMap<size_t, RHIBindingSetPtr>              mBindingSetCache;
-	LMap<PipelineCacheKey, RHIPipelineStatePtr> mPipelineCache;
-	LMap<size_t, RHICmdSignaturePtr>              mCommandSignatureCache;
-	RHIPipelineStatePtr                         mLastPipline;
-
+	LMap<size_t, RHICmdSignaturePtr>            mCommandSignatureCache;
+	ShaderBlobCache mShaderBlobCache;
+	PipelineStateCache mPipelineCache;
 	//----Draw Graph API End----
 
 public:
@@ -127,6 +189,13 @@ public:
 	RHIDescriptorPoolPtr GetDefaultDescriptorPool() { return mDefaultPool; }
 	RHIBindingSetLayoutPtr mViewBindingSet;
 	SharedPtr<ShaderAsset> mDefaultShader;
+private:
+	RHIPipelineStatePtr CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& desc, RHIVertexLayout* layout);
+
+	using PipelineCacheKey = std::pair<MaterialInstance*, size_t>;
+
+	RHIPipelineStatePtr GetPipeline(MaterialInstance* mat, RHIVertexLayout* layout);
+	RHIBindingSetPtr GetBindingSet(RHIPipelineState* pipeline, PackedParams* packparams);
 private:
 	
 	void FlushFrameInstancingBuffer() { mInstancingIdMemory.Reset(); };
@@ -147,7 +216,6 @@ public:
 	StaticSampler mClamp;
 	StaticSampler mRepeat;
 	
-
 };
 
 }

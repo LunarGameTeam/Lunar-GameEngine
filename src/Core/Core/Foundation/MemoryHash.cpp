@@ -1,33 +1,32 @@
 #pragma once
 
 #include"core/Foundation/MemoryHash.h"
+#include "MurmurHash2.h"
 namespace luna
 {
-	LMemoryHash::LMemoryHash():mMemory(nullptr), mMemorySize(0)
+	LMemoryHash::LMemoryHash()
 	{
-		mHash = size_t(-1);
+		Reset();
 	}
 	
 	void LMemoryHash::Reset()
 	{
-		mMemorySize = 0;
-		if (mMemory != nullptr)
-		{
-			delete[] mMemory;
-		}
+		mMemory.clear();
 		mHash = size_t(-1);
 	}
 
-	void LMemoryHash::Combine(uint8_t* memory, size_t size)
+	void LMemoryHash::Combine(const uint8_t* memory, size_t size)
 	{
-		size_t newSize = mMemorySize + size;
-		uint8_t* newMemory = new uint8_t[newSize];
-		memcpy(newMemory, mMemory, mMemorySize);
-		memcpy(newMemory + mMemorySize, memory, size);
-		Reset();
-		mMemorySize = newSize;
-		mMemory = newMemory;
+		mMemory.insert(mMemory.end(), memory, memory + size);
+	}
 
-		mHash = mStr.Hash();
+	void LMemoryHash::Combine(const LArray<uint8_t>& memory)
+	{
+		mMemory.insert(mMemory.end(), memory.begin(), memory.end());
+	}
+
+	void LMemoryHash::GenerateHash()
+	{
+		mHash = MurmurHash64A(mMemory.data(), mMemory.size(), 0);
 	}
 }

@@ -59,8 +59,6 @@ struct RENDER_API RenderPassDesc
 	LArray<RHIViewPtr>           mColorView;
 	LArray<PassDepthStencilDesc> mDepths;
 	RHIViewPtr                   mDepthStencilView;
-
-	size_t Hash() const;
 };
 
 
