@@ -73,11 +73,13 @@ namespace luna::render
 
 	class MeshRenderCommandsPassData
 	{
+		RenderScene* mScene = nullptr;
 		LArray<const MeshRenderCommand*> allVisibleCommandsRef;
 	public:
 		void DrawAllCommands(PackedParams* sceneAndViewParam);
 		void AddCommand(const MeshRenderCommand* data);
 		void ClearCommand();
+		void SetScene(RenderScene* scene) { mScene = scene; }
 	};
 
 

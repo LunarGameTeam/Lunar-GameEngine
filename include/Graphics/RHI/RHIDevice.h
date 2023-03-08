@@ -5,7 +5,7 @@
 
 #include "RHIBindingSetLayout.h"
 #include "Core/Platform/Window.h"
-
+#include "Graphics/RHI/RHICmdList.h"
 
 namespace luna::render
 {
@@ -20,6 +20,7 @@ public:
 	
 	virtual RHIShaderBlobPtr CreateShader(const RHIShaderDesc& desc)             = 0;
 	virtual RHIPipelineStatePtr CreatePipeline(const RHIPipelineStateDesc& desc) = 0;
+	virtual RHICmdSignaturePtr CreateCmdSignature(RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc) = 0;
 	virtual RHIRenderPassPtr CreateRenderPass(const RenderPassDesc& desc) = 0;
 	virtual RHIResourcePtr CreateSamplerExt(const SamplerDesc& desc)             = 0;
 	virtual RHIDescriptorPoolPtr CreateDescriptorPool(const DescriptorPoolDesc& desc) = 0;

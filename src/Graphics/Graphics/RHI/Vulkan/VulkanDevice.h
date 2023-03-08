@@ -5,7 +5,6 @@
 #include "Graphics/RHI/RHIDevice.h"
 
 
-
 namespace luna::render
 {
 
@@ -46,6 +45,8 @@ public:
 	RHIShaderBlobPtr     CreateShader(const RHIShaderDesc& desc) override;
 
 	RHIPipelineStatePtr  CreatePipeline(const RHIPipelineStateDesc& desc) override;
+
+	RHICmdSignaturePtr   CreateCmdSignature(RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc) override;
 
 	RHIMemoryPtr         AllocMemory(const RHIMemoryDesc& desc, uint32_t memoryBits = 0) override;
 

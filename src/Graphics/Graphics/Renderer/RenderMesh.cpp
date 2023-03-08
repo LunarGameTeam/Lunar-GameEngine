@@ -96,9 +96,27 @@ namespace luna::render
 		for (auto& eachBatch : batchList)
 		{
 			int32_t batchBegin = eachBatch.second[0];
-			allVisibleCommandsRef[batchBegin]->mRenderObjectId;
-
-
+			auto template_node = mScene->GetRenderObjects().find(allVisibleCommandsRef[batchBegin]->mRenderObjectId);
+			int32_t mesh_id = template_node->second->mMeshIndex;
+			//同一个shader，暂时认为vertexlayout一致
+			RHIVertexLayout vertex_layout = mScene->mSceneDataGpu.GetMeshData(mesh_id)->GetVertexLayout();
+			RHIPipelineStatePtr pipeline = sRenderModule->mRenderContext->CreatePipeline(template_node->second->mMaterial,&vertex_layout);
+			auto bindingset = sRenderModule->mRenderContext->GetBindingSet(pipeline, params);
+			sRenderModule->mRenderContext->mGraphicCmd->SetPipelineState(pipeline);
+			//sRenderModule->mRenderContext->mGraphicCmd->BindDesriptorSetExt(bindingset);
+			//接下来把相同材质的drawcommand继续按照模型是否相同进行instancing
+			std::unordered_map<int32_t,LArray<RenderObject*>> meshDivideCommand;
+			for (int32_t index_command = 0; index_command < eachBatch.second.size(); ++index_command)
+			{
+				int32_t batchDealId = eachBatch.second[index_command];
+				auto roDealData = mScene->GetRenderObjects().find(allVisibleCommandsRef[batchDealId]->mRenderObjectId);
+				meshDivideCommand[eachBatch.second[roDealData->second->mMeshIndex]].push_back(roDealData->second);
+			}
+			for (auto eachMeshBatch : meshDivideCommand)
+			{
+				eachMeshBatch.second.mater
+			}
+			
 			//RHIVertexLayout layout = mesh->GetVertexLayout();
 			//if (instanceMessage)
 			//	layout.AddVertexElement(VertexElementType::Int, VertexElementUsage::UsageInstanceMessage, 4, 1, VertexElementInstanceType::PerInstance);

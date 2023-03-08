@@ -159,6 +159,11 @@ luna::render::RHIPipelineStatePtr DX12Device::CreatePipeline(const RHIPipelineSt
 	return CreateRHIObject<DX12PipelineState>(desc);
 };
 
+RHICmdSignaturePtr DX12Device::CreateCmdSignature(RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc)
+{
+	return CreateRHIObject<DX12CmdSignature>(pipeline, allCommondDesc);
+}
+
 RHIBindingSetLayoutPtr DX12Device::CreateBindingSetLayout(const std::vector<RHIBindPoint>& bindKeys)
 {
 	return CreateRHIObject<DX12BindingSetLayout>(bindKeys);
