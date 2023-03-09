@@ -96,5 +96,4 @@ TextureCube _IrradianceTex : register(t2, SCENE_SPACE0);
 SamplerState _ClampSampler : register(s3, SCENE_SPACE0);
 SamplerState _RepeatSampler: register(s4, SCENE_SPACE0);
 
-
 #endif

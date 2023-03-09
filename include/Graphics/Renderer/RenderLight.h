@@ -31,7 +31,7 @@ struct RENDER_API PointLight : Light
 	float     mFar    = 50;
 	LArray<LMatrix4f> mViewMatrix;
 	LMatrix4f mProjMatrix;
-	LArray<ShaderParamsBuffer*>			mParamBuffer;
+	LArray<ShaderCBuffer*>			mParamBuffer;
 	void Update(RenderView* view);
 };
 
@@ -43,7 +43,7 @@ struct RENDER_API DirectionLight : Light
 
 	void Update(RenderView* view);
 
-	ShaderParamsBuffer* mParamBuffer;
+	ShaderCBuffer* mParamBuffer;
 };
 
 }

@@ -13,6 +13,7 @@
 #include "Graphics/Renderer/RenderLight.h"
 #include "Graphics/RenderModule.h"
 
+#include "Graphics/ForwardPipeline/ForwardRenderData.h"
 
 namespace luna::render
 {
@@ -26,38 +27,29 @@ void PostProcessPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* 
 	auto& node = builder->AddPass("GammaCorrection");
 	FGResourceView* sceneView = nullptr;
 
-	node.SetupFunc(builder, [&](FrameGraphBuilder* builder, FGNode& node)
-	{
-		SceneRenderData* data = renderScene->RequireData<SceneRenderData>();
-		
-		RHIResourcePtr colorTexture = view->GetRenderTarget() ? view->GetRenderTarget()->mColorTexture : sRenderModule->mMainRT->mColorTexture;
-		FGTexture* color = builder->BindExternalTexture( colorTexture, "ViewTargetColor");
-		
-		assert(color);
-		assert(data->mSceneColor);
+	SceneRenderData* data = renderScene->RequireData<SceneRenderData>();
 
-		sceneView = node.AddSRV(data->mSceneColor, RHIViewDimension::TextureView2D);
-		auto colorView = node.AddRTV(color, RHIViewDimension::TextureView2D);
-		
-		node.SetColorAttachment(colorView, LoadOp::kLoad);
-	});
+	RHIResourcePtr colorTexture = view->GetRenderTarget() ? view->GetRenderTarget()->mColorTexture : sRenderModule->mMainRT->mColorTexture;
+	FGTexture* color = builder->BindExternalTexture(colorTexture, "ViewTargetColor");
 
-	node.PreExecFunc([view, renderScene](FrameGraphBuilder* builder, FGNode& node)
-	{
+	assert(color);
+	assert(data->mSceneColor);
 
-	});
+	sceneView = node.AddSRV(data->mSceneColor, RHIViewDimension::TextureView2D);
+	auto colorView = node.AddRTV(color, RHIViewDimension::TextureView2D);
+
+	node.SetColorAttachment(colorView, LoadOp::kLoad);
+	
 	static auto postprocessMat = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/GammaCorrection.mat");
 	static MaterialInstance* debugMat = postprocessMat->GetDefaultInstance();
 	if (debugMat)
 		debugMat->Ready();
 	node.ExcuteFunc([view, renderScene, sceneView](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
 	{
-		PackedParams params;
 		PARAM_ID(_MainTex);
-		params.PushShaderParam(ParamID__MainTex, sceneView->mRHIView);
-		
-		params.PushShaderParam(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer);
-		device->DrawMesh(sRenderModule->mFullscreenMesh, debugMat, &params);
+		debugMat->SetShaderInput(ParamID__MainTex, sceneView->mRHIView);		
+		debugMat->SetShaderInput(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer->mView);
+		device->DrawMesh(sRenderModule->mFullscreenMesh, debugMat, nullptr);
 	});
 }
 

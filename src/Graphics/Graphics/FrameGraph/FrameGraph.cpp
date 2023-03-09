@@ -216,9 +216,7 @@ void FrameGraphBuilder::Flush()
 				node->mPassDesc.mDepths[0].mDepthStencilFormat = dsView.mRHIView->mBindResource->mResDesc.Format;
 			}
 			
-
-			node->PreExecute(this);
-
+			
 			renderDevice->BeginRenderPass(node->mPassDesc);
 			cmdlist->SetViewPort(0, 0, width, height);
 			cmdlist->SetScissorRects(0, 0, width, width);

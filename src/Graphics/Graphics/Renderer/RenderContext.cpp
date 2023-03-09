@@ -34,7 +34,7 @@ size_t GetOffset(size_t offset, size_t aligment)
 	return offset  + (aligment - offset) % aligment;
 }
 
-void DynamicMemoryBuffer::Init(RHIDevice* device, const RHIHeapType memoryHeapType,const int32_t memoryType)
+void RHIDynamicMemory::Init(RHIDevice* device, const RHIHeapType memoryHeapType,const int32_t memoryType)
 {
 	mDevice = device;
 	RHIMemoryDesc memoryDesc;
@@ -44,7 +44,7 @@ void DynamicMemoryBuffer::Init(RHIDevice* device, const RHIHeapType memoryHeapTy
 	
 }
 
-RHIResource* DynamicMemoryBuffer::AllocateNewBuffer(void* initData, size_t dataSize, size_t bufferResSize)
+RHIResource* RHIDynamicMemory::AllocateNewBuffer(void* initData, size_t dataSize, size_t bufferResSize)
 {
 	RHIBufferDesc newBufferDesc;
 	newBufferDesc.mSize = bufferResSize;
@@ -65,10 +65,17 @@ RHIResource* DynamicMemoryBuffer::AllocateNewBuffer(void* initData, size_t dataS
 	return newBuffer;
 }
 
-void DynamicMemoryBuffer::Reset()
+void RHIDynamicMemory::Reset()
 { 
 	mBufferOffset = 0;
 	mhistoryBuffer.clear();
+}
+
+void StaticSampler::Init(SamplerDesc& desc, ViewDesc& view)
+{
+	mSampler = sRenderModule->GetRHIDevice()->CreateSamplerExt(desc);
+	mView = sRenderModule->GetRHIDevice()->CreateView(view);
+	mView->BindResource(mSampler);
 };
 
 RenderContext::RenderContext() : mStagingMemory(sStagingBufferMaxSize, RHIBufferUsage::TransferSrcBit), mInstancingIdMemory(sInstancingBufferMaxSize, RHIBufferUsage::VertexBufferBit)
@@ -111,9 +118,8 @@ void RenderContext::Init()
 		desc.mode = SamplerTextureAddressMode::kClamp;
 		ViewDesc samplerDesc;
 		samplerDesc.mViewType = RHIViewType::kSampler;
-		mClampSampler = mDevice->CreateSamplerExt(desc);
-		mClampSamplerView = mDevice->CreateView(samplerDesc);
-		mClampSamplerView->BindResource(mClampSampler);
+		mClamp.Init(desc, samplerDesc);
+
 	}
 	{
 		SamplerDesc desc;		
@@ -121,10 +127,8 @@ void RenderContext::Init()
 		desc.func = SamplerComparisonFunc::kNever;
 		desc.mode = SamplerTextureAddressMode::kWrap;
 		ViewDesc samplerDesc;
-		samplerDesc.mViewType = RHIViewType::kSampler;		
-		mRepeatSampler = mDevice->CreateSamplerExt(desc);
-		mRepeatSamplerView = mDevice->CreateView(samplerDesc);
-		mRepeatSamplerView->BindResource(mRepeatSampler);
+		samplerDesc.mViewType = RHIViewType::kSampler;
+		mRepeat.Init(desc, samplerDesc);
 	}
 	{
 		DescriptorPoolDesc poolDesc;
@@ -320,39 +324,6 @@ RHIResource* RenderContext::CreateInstancingBufferByRenderObjects(const LArray<R
 	return mInstancingIdMemory.AllocateNewBuffer(ids.data(), ids.size() * sizeof(int32_t), ids.size() * sizeof(int32_t));
 }
 
-RHIPipelineStatePtr RenderContext::CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& passDesc, RHIVertexLayout* layout)
-{
-	size_t hashResult = 0;
-	boost::hash_combine(hashResult, layout->Hash());
-	boost::hash_combine(hashResult, passDesc.Hash());
-
-	auto key = std::make_pair(mat, hashResult);
-	auto it = mPipelineCache.find(key);
-	if (it != mPipelineCache.end())
-		return it->second;
-	
-	Log("Graphics", "Create pipeline for:{}", mat->GetShaderAsset()->GetAssetPath());
-	RHIPipelineStateDesc desc = {};
-	RenderPipelineStateDescGraphic& graphicDesc = desc.mGraphicDesc;
-	desc.mType = RHICmdListType::Graphic3D;
-
-	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthEnable = mat->mMaterialTemplate->IsDepthTestEnable();
-	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthWrite = mat->mMaterialTemplate->IsDepthWriteEnable();
-	graphicDesc.mPipelineStateDesc.RasterizerState.CullMode = mat->mMaterialTemplate->GetCullMode();
-	graphicDesc.mPipelineStateDesc.PrimitiveTopologyType =(RHIPrimitiveTopologyType) mat->mMaterialTemplate->GetPrimitiveType();
-	graphicDesc.mInputLayout = *layout;
-	graphicDesc.mPipelineStateDesc.mVertexShader = mat->GetShaderVS();
-	graphicDesc.mPipelineStateDesc.mPixelShader = mat->GetShaderPS();
-
-	graphicDesc.mRenderPassDesc = mCurRenderPass;
-
-	RHIBlendStateTargetDesc blend = {};
-	desc.mGraphicDesc.mPipelineStateDesc.BlendState.RenderTarget.push_back(blend);
-	auto pipeline = mDevice->CreatePipeline(desc);
-	mPipelineCache[key] = pipeline;
-	return pipeline;
-}
-
 void RenderContext::FlushStaging()
 {
 	mFence->Wait(mFenceValue);
@@ -380,12 +351,10 @@ void RenderContext::EndRenderPass()
 	mGraphicCmd->EndRender();	
 }
 
-RHIPipelineStatePtr RenderContext::GetPipeline(render::MaterialInstance* mat, RHIVertexLayout* layout)
+RHIBindingSetPtr RenderContext::CreateBindingset(RHIBindingSetLayoutPtr layout)
 {
-	ZoneScoped;
-	return CreatePipelineState(mat, mCurRenderPass, layout);
-// 	ShaderAsset* shader = mat->GetShaderAsset();
-
+	RHIBindingSetPtr bindingset = mDevice->CreateBindingSet(mDefaultPool, layout);
+	return bindingset;
 }
 
 void RenderContext::DrawRenderOBject(render::RenderObject* ro, render::MaterialInstance* mat, PackedParams* params)
@@ -401,18 +370,20 @@ void RenderContext::DrawMesh(render::SubMesh* mesh, render::MaterialInstance* ma
 }
 
 
-void RenderContext::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage /*= nullptr*/, int32_t startInstanceIdx /*= 1*/, int32_t instancingSize /*= 1*/)
+void RenderContext::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params,
+	render::RHIResource* vertexInputInstanceRes /*= nullptr*/,
+	int32_t startInstanceIdx /*= 1*/, int32_t instancingSize /*= 1*/)
 {
 	ZoneScoped;
 	RHIVertexLayout layout = mesh->GetVertexLayout();
-	if(instanceMessage)
+	if(vertexInputInstanceRes)
 		layout.AddVertexElement(VertexElementType::Int, VertexElementUsage::UsageInstanceMessage, 4, 1, VertexElementInstanceType::PerInstance);
 
-	auto pipeline = GetPipeline(mat, &layout);
-	auto bindingset = GetBindingSet(pipeline, params);
+	auto pipeline = mat->GetPipeline(&layout, mCurRenderPass);
+	auto matBindingset = mat->GetBindingSet();
 
 	mGraphicCmd->SetPipelineState(pipeline);
-	mGraphicCmd->BindDesriptorSetExt(bindingset);
+	mGraphicCmd->BindDesriptorSetExt(matBindingset);
 
 	size_t vertexCount = mesh->mVertexData.size();
 
@@ -427,13 +398,13 @@ void RenderContext::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialIns
 	vbDesc.mVertexStride = mesh->GetStridePerVertex();
 	vbDesc.mVertexRes = mesh->mVB;
 
-	if (instanceMessage != nullptr)
+	if (vertexInputInstanceRes != nullptr)
 	{
 		RHIVertexBufferDesc& vbInstancingDesc = descs.emplace_back();
 		vbInstancingDesc.mOffset = 0;
-		vbInstancingDesc.mBufferSize = instanceMessage->GetMemoryRequirements().size;
+		vbInstancingDesc.mBufferSize = vertexInputInstanceRes->GetMemoryRequirements().size;
 		vbInstancingDesc.mVertexStride = layout.GetSize()[1];
-		vbInstancingDesc.mVertexRes = instanceMessage;
+		vbInstancingDesc.mVertexRes = vertexInputInstanceRes;
 	}
 
 	mGraphicCmd->SetVertexBuffer(descs, 0);
@@ -450,35 +421,6 @@ void RenderContext::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialIns
 		break;
 	}
 	mGraphicCmd->DrawIndexedInstanced((uint32_t)indexCount, instancingSize, 0, 0, startInstanceIdx);
-}
-
-RHIBindingSetPtr RenderContext::GetBindingSet(RHIPipelineState* pipeline, PackedParams* packparams)
-{
-	ZoneScoped;
-	size_t paramsHash = packparams->mParamsHash;
-	auto it = mBindingSetCache.find(paramsHash);
-	if (it != mBindingSetCache.end())
-		return it->second;
-	RHIBindingSetPtr bindingset = mDevice->CreateBindingSet(mDefaultPool, pipeline->GetBindingSetLayout());	
-	std::vector<BindingDesc> desc;
-	{
-		PARAM_ID(_ClampSampler);
-		PARAM_ID(_RepeatSampler);
-		packparams->PushShaderParam(ParamID__ClampSampler, mClampSamplerView);
-		packparams->PushShaderParam(ParamID__RepeatSampler, mRepeatSamplerView);
-	}
-	
-	auto shader = pipeline->mPSODesc.mGraphicDesc.mPipelineStateDesc.mVertexShader;
-	for (auto& param : packparams->mParams)
-	{
-		auto it = shader->GetBindPoint(param.first);
-		if(it != shader->mBindPoints.end())
-			desc.emplace_back(it->second, param.second);
-	}
-	mBindingSetCache[paramsHash] = bindingset;
-	bindingset->WriteBindings(desc);
-	//Log("Graphics", "Create bindingset {}", pipeline->mShaders[RHIShaderType::Vertex]->mDesc.mName);
-	return bindingset;
 }
 
 }

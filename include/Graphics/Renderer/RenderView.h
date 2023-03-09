@@ -28,12 +28,11 @@ class RENDER_API RenderView : public RenderDataContainer
 {
 public:
 	RenderView();
-
 	~RenderView() = default;
+
 public:
 	void Culling(RenderScene* scene);
 	void Render(RenderScene* scene, FrameGraphBuilder* FG);
-
 	void PrepareView();
 	
 
@@ -48,10 +47,10 @@ public:
 	void SetViewPosition(const LVector3f& val) { mViewPos = val; }
 	void SetProjectionMatrix(const LMatrix4f& val) { mProjMatrix = val; }
 
-	RenderViewType mViewType = RenderViewType::SceneView;
+	RenderViewType mViewType   = RenderViewType::SceneView;
 
-	RenderScene*        mOwnerScene = nullptr;
-	ShaderParamsBuffer* mViewBuffer = nullptr;
+	RenderScene*   mOwnerScene = nullptr;
+	ShaderCBuffer* mViewBuffer = nullptr;
 private:
 	ROArray             mViewVisibleROs;
 	float               mNear = 0.1f;

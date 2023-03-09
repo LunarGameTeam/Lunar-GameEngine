@@ -5,13 +5,11 @@
 
 #include "Graphics/Renderer/RenderTarget.h"
 #include "Graphics/Renderer/MaterialInstance.h"
-#include "Graphics/Renderer/RenderScene.h"
+#include "Graphics/Renderer/MaterialParam.h"
 #include "Graphics/Renderer/RenderView.h"
 
-#include "Graphics/RHI/RHIResource.h"
 #include "Graphics/FrameGraph/FrameGraph.h"
 #include "Core/Asset/AssetModule.h"
-#include "Graphics/RHI/RHIShader.h"
 #include "Graphics/Asset/ShaderAsset.h"
 #include "Graphics/Renderer/RenderLight.h"
 
@@ -41,9 +39,9 @@ void RenderScene::PrepareScene()
 
 	uint32_t shadowmapIdx = 0;
 	if (mSceneParamsBuffer == nullptr)
-		mSceneParamsBuffer = new ShaderParamsBuffer(sRenderModule->GetRenderContext()->mDefaultShader->GetConstantBufferDesc(LString("SceneBuffer").Hash()));
+		mSceneParamsBuffer = new ShaderCBuffer(sRenderModule->GetRenderContext()->mDefaultShader->GetConstantBufferDesc(LString("SceneBuffer").Hash()));
 	if (mROIDInstancingBuffer == nullptr)
-		mROIDInstancingBuffer = new ShaderParamsBuffer(RHIBufferUsage::VertexBufferBit, sizeof(uint32_t) * 4 * 128);
+		mROIDInstancingBuffer = new ShaderCBuffer(RHIBufferUsage::VertexBufferBit, sizeof(uint32_t) * 4 * 128);
 
 	if (mMainDirLight)
 	{

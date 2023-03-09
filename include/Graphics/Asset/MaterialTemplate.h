@@ -18,8 +18,10 @@ public:
 	MaterialTemplateAsset();
 	~MaterialTemplateAsset() override;
 	ShaderAsset* GetShaderAsset() { return mShader.get(); }
-	TPPtrArray<MaterialParam>& GetAllParams() { return mTemplateParams; }
+	TPPtrArray<MaterialParam>& GetTemplateParams() { return mTemplateParams; }
+
 	MaterialInstance* CreateInstance();
+
 	MaterialInstance* GetDefaultInstance() { 
 		if (!mDefaultInstance)
 			mDefaultInstance = CreateInstance();

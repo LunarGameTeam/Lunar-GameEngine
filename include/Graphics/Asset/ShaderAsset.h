@@ -52,6 +52,7 @@ public:
 
 	RHIShaderBlobPtr& GetPixelShader() { return mPS; }
 
+	RHIBindingSetLayoutPtr mLayout;
 protected:
 	void Init();
 private:

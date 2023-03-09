@@ -13,6 +13,9 @@
 #include "Graphics/Renderer/RenderLight.h"
 #include "Graphics/RenderModule.h"
 
+#include "Graphics/ForwardPipeline/ForwardRenderData.h"
+
+#include "Graphics/Renderer/MaterialParam.h"
 
 namespace luna::render
 {
@@ -26,27 +29,20 @@ void OverlayPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rend
 	auto& node = builder->AddPass("Overlay");
 	FGResourceView* shadowmapView = nullptr;
 
-	node.SetupFunc(builder, [&](FrameGraphBuilder* builder, FGNode& node)
-	{
-		RHIResourcePtr colorTexture = view->GetRenderTarget() ? view->GetRenderTarget()->mColorTexture : sRenderModule->mMainRT->mColorTexture;
-		RHIResourcePtr depthTexture = view->GetRenderTarget() ? view->GetRenderTarget()->mDepthTexture : sRenderModule->mMainRT->mDepthTexture;
-		FGTexture* color = builder->BindExternalTexture(colorTexture, "ViewTargetColor");
-		FGTexture* depth = builder->BindExternalTexture(depthTexture, "ViewTargetDepth");
+	RHIResourcePtr colorTexture = view->GetRenderTarget() ? view->GetRenderTarget()->mColorTexture : sRenderModule->mMainRT->mColorTexture;
+	RHIResourcePtr depthTexture = view->GetRenderTarget() ? view->GetRenderTarget()->mDepthTexture : sRenderModule->mMainRT->mDepthTexture;
+	FGTexture* color = builder->BindExternalTexture(colorTexture, "ViewTargetColor");
+	FGTexture* depth = builder->BindExternalTexture(depthTexture, "ViewTargetDepth");
 
-		assert(color);
-		assert(depth);
+	assert(color);
+	assert(depth);
 
-		auto colorView = node.AddRTV(color, RHIViewDimension::TextureView2D);
-		auto depthView = node.AddDSV(depth);
+	auto colorView = node.AddRTV(color, RHIViewDimension::TextureView2D);
+	auto depthView = node.AddDSV(depth);
 
-		node.SetColorAttachment(colorView, LoadOp::kLoad);
-		node.SetDepthStencilAttachment(depthView);
-	});
+	node.SetColorAttachment(colorView, LoadOp::kLoad);
+	node.SetDepthStencilAttachment(depthView);
 
-	node.PreExecFunc([view, renderScene](FrameGraphBuilder* builder, FGNode& node)
-	{
-
-	});
 	static auto debugMatAsset = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/Line.mat");
 	static MaterialInstance* debugMat = debugMatAsset->GetDefaultInstance();
 	if (debugMat)
@@ -56,17 +52,16 @@ void OverlayPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rend
 		if (!renderScene->mDrawGizmos)
 			return;
 		ROArray& ROs = view->GetViewVisibleROs();
-		PackedParams params;
 		PARAM_ID(MaterialBuffer);
 		PARAM_ID(_MainTex);
 		PARAM_ID(_ShadowMap);
-		params.PushShaderParam(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer);
-		params.PushShaderParam(ParamID_ViewBuffer, view->mViewBuffer);
+		debugMat->SetShaderInput(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer->mView);
+		debugMat->SetShaderInput(ParamID_ViewBuffer, view->mViewBuffer->mView);
 		RHIResource* instancingBuffer = renderScene->mROIDInstancingBuffer->mRes;
 		if(renderScene->mDebugMeshLine->mVertexData.size())
-			device->DrawMesh(renderScene->mDebugMeshLine, debugMat, &params);
+			device->DrawMesh(renderScene->mDebugMeshLine, debugMat, nullptr);
 		if (renderScene->mDebugMesh->mVertexData.size())
-			device->DrawMesh(renderScene->mDebugMesh, debugMat, &params);
+			device->DrawMesh(renderScene->mDebugMesh, debugMat, nullptr);
 	});
 }
 

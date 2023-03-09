@@ -93,9 +93,10 @@ public:
 		//static_assert(std::is_base_of<LObject, T>::value, "T should inherit from LObject");
 	};
 
-	TPPtr(const TPPtr &)
+	TPPtr(const TPPtr & val) :
+		PPtr(val)
 	{
-		assert(0);
+
 	}
 
 	TPPtr& operator=(const TPPtr & val)

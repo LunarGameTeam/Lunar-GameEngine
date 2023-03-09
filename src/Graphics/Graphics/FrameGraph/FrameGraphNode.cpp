@@ -32,7 +32,6 @@ FGNode::~FGNode()
 	{
 		delete it;
 	}
-
 }
 
 
@@ -83,9 +82,10 @@ void FGNode::Execute(FrameGraphBuilder* m_builder)
 		mExecFunc(m_builder, *this, sRenderModule->GetRenderContext());
 }
 
-void FGNode::SetDepthClear(const PassDepthStencilDesc& desc)
+FGNode& FGNode::SetDepthClear(const PassDepthStencilDesc& desc)
 {
 	mPassDesc.mDepths.emplace_back(desc);
+	return *this;
 }
 
 

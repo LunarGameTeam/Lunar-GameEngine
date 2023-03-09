@@ -71,6 +71,24 @@ void ShaderAsset::Init()
 		mPS = sRenderModule->GetRHIDevice()->CreateShader(shaderDesc);
 		mInit = true;
 	}
+	std::vector<RHIBindPoint> bindingKeys;
+	std::map<std::tuple<uint32_t, uint32_t>, RHIBindPoint> result;
+	for (auto& it : mVS->mBindPoints)
+	{
+		auto& bindKey = it.second;
+		result[std::make_tuple(bindKey.mSpace, bindKey.mSlot)] = bindKey;
+	}
+	for (auto& it : mPS->mBindPoints)
+	{
+		auto& bindKey = it.second;
+		result[std::make_tuple(bindKey.mSpace, bindKey.mSlot)] = bindKey;
+	}
+	for (auto it : result)
+	{
+		bindingKeys.push_back(it.second);
+	}
+	mLayout = sRenderModule->GetRHIDevice()->CreateBindingSetLayout(bindingKeys);
+
 }
 };
 

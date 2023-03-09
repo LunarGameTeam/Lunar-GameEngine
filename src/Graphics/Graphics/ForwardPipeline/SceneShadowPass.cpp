@@ -14,6 +14,7 @@
 #include "Graphics/RenderModule.h"
 #include "Graphics/Renderer/RenderData.h"
 
+#include "Graphics/ForwardPipeline/ForwardRenderData.h"
 
 namespace luna::render
 {
@@ -27,31 +28,28 @@ void DirectionalLightShadowPass(FrameGraphBuilder* builder, RenderView* view, Re
 	if (!renderScene->mMainDirLight || !renderScene->mMainDirLight->mCastShadow)
 		return;
 	auto& node = builder->AddPass("Directional LightShadowmap");	
-	node.SetupFunc(builder, [=](FrameGraphBuilder* builder, FGNode& node)
-	{
-		auto shadowData = view->RequireData<ViewShadowData>();
+	auto shadowData = view->RequireData<ViewShadowData>();
 
-		FGTexture* color = builder->CreateTexture(
-			1024, 1024, 1, 1,
-			RHITextureFormat::R32_FLOAT, 
-			RHIImageUsage::ColorAttachmentBit | RHIImageUsage::SampledBit,
-			"DirecitonalShadowmap"
-		);
+	FGTexture* color = builder->CreateTexture(
+		1024, 1024, 1, 1,
+		RHITextureFormat::R32_FLOAT,
+		RHIImageUsage::ColorAttachmentBit | RHIImageUsage::SampledBit,
+		"DirecitonalShadowmap"
+	);
 
-		FGTexture* depth = builder->CreateTexture(
-			1024, 1024, 1, 1,
-			RHITextureFormat::D24_UNORM_S8_UINT,
-			RHIImageUsage::DepthStencilBit,
-			"DirecitonalShadowmapDepth"
-		);
+	FGTexture* depth = builder->CreateTexture(
+		1024, 1024, 1, 1,
+		RHITextureFormat::D24_UNORM_S8_UINT,
+		RHIImageUsage::DepthStencilBit,
+		"DirecitonalShadowmapDepth"
+	);
 
-		shadowData->mDirectionLightShadowmap = color;
+	shadowData->mDirectionLightShadowmap = color;
 
-		auto colorView = node.AddRTV(color, RHIViewDimension::TextureView2D);
-		auto depthView = node.AddDSV(depth);
-		node.SetColorAttachment(colorView, LoadOp::kClear);
-		node.SetDepthStencilAttachment(depthView);
-	});
+	auto colorView = node.AddRTV(color, RHIViewDimension::TextureView2D);
+	auto depthView = node.AddDSV(depth);
+	node.SetColorAttachment(colorView, LoadOp::kClear);
+	node.SetDepthStencilAttachment(depthView);
 
 	static auto shadowMatAsset = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/Depth.mat");
 	static MaterialInstance* shadowMat = shadowMatAsset->GetDefaultInstance();
@@ -61,26 +59,26 @@ void DirectionalLightShadowPass(FrameGraphBuilder* builder, RenderView* view, Re
 	node.ExcuteFunc([view, renderScene](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
 	{
 		ROArray& ROs = view->GetViewVisibleROs();
-		PackedParams params;
 		RHIResource* instancingBuffer = renderScene->mROIDInstancingBuffer->mRes;
-		params.PushShaderParam(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer);
-		params.PushShaderParam(ParamID_ViewBuffer, renderScene->mMainDirLight->mParamBuffer);
+		shadowMat->SetShaderInput(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer->mView);
+		shadowMat->SetShaderInput(ParamID_ViewBuffer, renderScene->mMainDirLight->mParamBuffer->mView);
+
 		for (auto it : ROs)
 		{
 			RenderObject* ro = it;
 			if (!it->mCastShadow)
 				continue;
 			it->mInstanceRes = instancingBuffer;
-			device->DrawMeshInstanced(ro->mMesh, shadowMat, &params, ro->mInstanceRes, ro->mID);
+			device->DrawMeshInstanced(ro->mMesh, shadowMat, nullptr, ro->mInstanceRes, ro->mID);
 		}
 	});
 }
 
 void PointShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene)
 {
-
-	if (renderScene->mPointLights.size() == 0)
+	if (renderScene->mPointLights.empty())
 		return;
+
 	bool hasShadow = false;
 	for (PointLight* it : renderScene->mPointLights)
 	{
@@ -93,34 +91,31 @@ void PointShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* 
 	{
 		auto& node = builder->AddPass(LString::Format("PointLightShadowmap{}", idx));
 
-		node.SetupFunc(builder, [=](FrameGraphBuilder* builder, FGNode& node)
-		{
-			FGTexture* color = builder->CreateTexture(
-				512, 512, 6, 1,
-				RHITextureFormat::R32_FLOAT,
-				RHIImageUsage::ColorAttachmentBit | RHIImageUsage::SampledBit,
-				"PointShadowmap"
-			);
+		FGTexture* color = builder->CreateTexture(
+			512, 512, 6, 1,
+			RHITextureFormat::R32_FLOAT,
+			RHIImageUsage::ColorAttachmentBit | RHIImageUsage::SampledBit,
+			"PointShadowmap"
+		);
 
-			FGTexture* depth = builder->CreateTexture(
-				512, 512, 6, 1,
-				RHITextureFormat::D24_UNORM_S8_UINT,
-				RHIImageUsage::DepthStencilBit,
-				"PointShadowmapDepth"
-			);
+		FGTexture* depth = builder->CreateTexture(
+			512, 512, 6, 1,
+			RHITextureFormat::D24_UNORM_S8_UINT,
+			RHIImageUsage::DepthStencilBit,
+			"PointShadowmapDepth"
+		);
 
-			assert(color);
-			assert(depth);
+		assert(color);
+		assert(depth);
 
-			auto data = view->RequireData<ViewShadowData>();
-			data->mPointShadowmap = color;
+		auto data = view->RequireData<ViewShadowData>();
+		data->mPointShadowmap = color;
 
-			auto colorView = node.AddRTV(color, RHIViewDimension::TextureView2D, idx, 1);
-			auto depthView = node.AddDSV(depth);
+		auto colorView = node.AddRTV(color, RHIViewDimension::TextureView2D, idx, 1);
+		auto depthView = node.AddDSV(depth);
 
-			node.SetColorAttachment(colorView, LoadOp::kClear, StoreOp::kStore, LVector4f(1, 1, 1, 1));
-			node.SetDepthStencilAttachment(depthView);
-		});
+		node.SetColorAttachment(colorView, LoadOp::kClear, StoreOp::kStore, LVector4f(1, 1, 1, 1));
+		node.SetDepthStencilAttachment(depthView);
 
 		static auto shadowMatAsset = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/Depth.mat");
 		static auto shadowMat = shadowMatAsset->GetDefaultInstance();
@@ -133,18 +128,17 @@ void PointShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* 
 			{
 				if (!it->mCastShadow)
 					continue;
-				ROArray& ROs = view->GetViewVisibleROs();
-				PackedParams params;
+				ROArray& ROs = view->GetViewVisibleROs();				
 				RHIResource* instancingBuffer = renderScene->mROIDInstancingBuffer->mRes;
-				params.PushShaderParam(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer);
-				params.PushShaderParam(ParamID_ViewBuffer, it->mParamBuffer[idx]);
+				shadowMat->SetShaderInput(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer->mView);
+				shadowMat->SetShaderInput(ParamID_ViewBuffer, it->mParamBuffer[idx]->mView);
 				for (auto it : ROs)
 				{
 					RenderObject* ro = it;
 					if (!it->mCastShadow)
 						continue;
 					it->mInstanceRes = instancingBuffer;
-					device->DrawMeshInstanced(ro->mMesh, shadowMat, &params, ro->mInstanceRes, ro->mID);
+					device->DrawMeshInstanced(ro->mMesh, shadowMat, nullptr, ro->mInstanceRes, ro->mID);
 				}
 			}
 

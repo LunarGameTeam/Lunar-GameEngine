@@ -410,7 +410,7 @@ ImguiTexture* RenderModule::AddImguiTexture(RHIResource* res)
 	imguiTexture->mView->BindResource(res);
 	if (sRenderModule->GetDeviceType() == render::RenderDeviceType::Vulkan)
 	{
-		VkDescriptorSet  newSet = ImGui_ImplVulkan_AddTexture(mRenderContext->mClampSampler->As<render::VulkanResource>()->mSampler, imguiTexture->mView->As<VulkanView>()->mImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		VkDescriptorSet  newSet = ImGui_ImplVulkan_AddTexture(mRenderContext->mClamp.mSampler->As<render::VulkanResource>()->mSampler, imguiTexture->mView->As<VulkanView>()->mImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		imguiTexture->mImg = newSet;
 	}
 	else

@@ -26,22 +26,29 @@ enum class RenderDeviceType : uint8_t
 
 size_t GetOffset(size_t offset, uint16_t aliment);
 
-class RENDER_API DynamicMemoryBuffer
+class RENDER_API RHIDynamicMemory
 {
-	RHIDevice*                  mDevice;
-	RHIBufferUsage              mBufferUsage;
-	RHIMemoryPtr                mFullMemory;
-	std::vector<RHIResourcePtr> mhistoryBuffer;
-	size_t                      mBufferOffset = 0;
-	size_t                      mMaxSize;
-public:
-	DynamicMemoryBuffer(size_t maxSize, RHIBufferUsage bufferUsage) :mMaxSize(maxSize), mBufferUsage(bufferUsage) {};
-	void Init(RHIDevice* device,const RHIHeapType memoryHeapType, const int32_t memoryType);
+	RHIDevice*             mDevice;
+	RHIBufferUsage         mBufferUsage;
+	RHIMemoryPtr           mFullMemory;
+	LArray<RHIResourcePtr> mhistoryBuffer;
+	size_t                 mBufferOffset = 0;
+	size_t                 mMaxSize      = 0;
+ public:
+	RHIDynamicMemory(size_t maxSize, RHIBufferUsage bufferUsage) : mMaxSize(maxSize), mBufferUsage(bufferUsage) { };
+
+	void         Init(RHIDevice* device, const RHIHeapType memoryHeapType, const int32_t memoryType);
 	RHIResource* AllocateNewBuffer(void* initData, size_t dataSize, size_t bufferResSize);
-	void Reset();
+	void         Reset();
 };
 
+struct StaticSampler
+{
+	void Init(SamplerDesc& desc, ViewDesc& view);
 
+	RHIResourcePtr mSampler;
+	RHIViewPtr     mView;	
+};
 
 class RENDER_API RenderContext final : NoCopy
 {
@@ -80,6 +87,8 @@ public:
 	void UpdateConstantBuffer(RHIResourcePtr target, void* data, size_t dataSize);
 	//----Resource Graph API End----
 
+	RHIBindingSetPtr CreateBindingset(RHIBindingSetLayoutPtr layout);
+
 	//----Draw Graph API Begin----
 public:
 	void BeginRenderPass(const RenderPassDesc&);
@@ -87,7 +96,7 @@ public:
 
 	void DrawRenderOBject(render::RenderObject* mesh, render::MaterialInstance* mat, PackedParams* params);
 	void DrawMesh(render::SubMesh*, render::MaterialInstance* mat, PackedParams* params);
-	void DrawMeshInstanced(render::SubMesh*, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* instanceMessage = nullptr, int32_t startInstanceIdx = 1, int32_t instancingSize = 1);
+	void DrawMeshInstanced(render::SubMesh*, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* vertexInputInstanceRes = nullptr, int32_t startInstanceIdx = 1, int32_t instancingSize = 1);
 private:
 	using PipelineCacheKey = std::pair < MaterialInstance*, size_t>;
 	RenderPassDesc                              mCurRenderPass;
@@ -103,18 +112,8 @@ public:
 	void FlushStaging();
 
 	RHIDescriptorPoolPtr GetDefaultDescriptorPool() { return mDefaultPool; }
-
 	RHIBindingSetLayoutPtr mViewBindingSet;
-	SharedPtr<ShaderAsset>        mDefaultShader;
-private:
-	RHIPipelineStatePtr CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& desc, RHIVertexLayout* layout);
-
-	using PipelineCacheKey = std::pair<MaterialInstance*, size_t>;
-
-	RHIPipelineStatePtr GetPipeline(MaterialInstance* mat, RHIVertexLayout* layout);
-	RHIBindingSetPtr GetBindingSet(RHIPipelineState* pipeline, PackedParams* packparams);
-
-
+	SharedPtr<ShaderAsset> mDefaultShader;
 private:
 	
 	void FlushFrameInstancingBuffer() { mInstancingIdMemory.Reset(); };
@@ -125,19 +124,16 @@ private:
 		void* initData , size_t dataSize, RHIMemoryPtr targetMemory, size_t& memoryOffset);
 
 private:
-
-	DynamicMemoryBuffer                         mStagingMemory;
-	DynamicMemoryBuffer                         mInstancingIdMemory;
+	RHIDynamicMemory                         mStagingMemory;
+	RHIDynamicMemory                         mInstancingIdMemory;
 
 	RHIDescriptorPoolPtr                        mDefaultPool;
 
 public:
 	//Samplers
-	RHIResourcePtr                              mClampSampler;
-	RHIViewPtr                                  mClampSamplerView;
-	RHIResourcePtr                              mRepeatSampler;
-	RHIViewPtr                                  mRepeatSamplerView;
-private:
+	StaticSampler mClamp;
+	StaticSampler mRepeat;
+	
 
 };
 

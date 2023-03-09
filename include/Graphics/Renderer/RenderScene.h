@@ -61,8 +61,8 @@ public:
 	auto&       GetAllView() const                { return mViews; };
 
 
-	ShaderParamsBuffer* mSceneParamsBuffer    = nullptr;
-	ShaderParamsBuffer* mROIDInstancingBuffer = nullptr;
+	ShaderCBuffer* mSceneParamsBuffer    = nullptr;
+	ShaderCBuffer* mROIDInstancingBuffer = nullptr;
 
 	//Gizmos Mesh
 	SubMesh*            mDebugMeshLine        = nullptr;

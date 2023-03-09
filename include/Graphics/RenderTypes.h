@@ -6,7 +6,7 @@ namespace luna::render
 {
 
 struct PackedParams;
-struct ShaderParamsBuffer;
+struct ShaderCBuffer;
 
 class MaterialTemplateAsset;
 class MaterialInstance;
