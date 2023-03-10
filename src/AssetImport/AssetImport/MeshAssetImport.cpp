@@ -4,6 +4,7 @@ namespace luna::asset
 {
 	void LMeshAssetImport::ParsingImportSceneImpl(const asset::LImportScene& importSceneData, LAssetPack& outAssetPack)
 	{
+		render::MeshAsset* meshValuePtr = outAssetPack.CreateAsset<render::MeshAsset>("emptyNew");
 		size_t nodeAllSize = importSceneData.GetNodeSize();
 		for (size_t nodeIndex = 0; nodeIndex < nodeAllSize; ++nodeIndex)
 		{
@@ -16,7 +17,6 @@ namespace luna::asset
 				{
 					size_t dataIndex = nodeDataValue.second;
 					const asset::LImportNodeDataMesh* dataValue = importSceneData.GetData<asset::LImportNodeDataMesh>(dataIndex);
-					render::MeshAsset* meshValuePtr= outAssetPack.CreateAsset<render::MeshAsset>(nodeValue.mName);
 					for (size_t submeshIndex = 0; submeshIndex < dataValue->GetSubMeshSize(); ++submeshIndex)
 					{
 						render::SubMesh* it = TCreateObject<render::SubMesh>();

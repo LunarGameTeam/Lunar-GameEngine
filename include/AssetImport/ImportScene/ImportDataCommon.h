@@ -59,9 +59,9 @@ namespace luna::asset
 
 		inline LImportNodeDataType GetType() { return mType; }
 
-		void ConvertDataAxisAndUnit(LMatrix4f convertInvMatrix, LMatrix4f convertMatrix);
+		void ConvertDataAxisAndUnit(bool hasReflectTransform, LMatrix4f convertInvMatrix, LMatrix4f convertMatrix);
 	private:
-		virtual void ConvertDataAxisAndUnitImpl(LMatrix4f convertInvMatrix, LMatrix4f convertMatrix) = 0;
+		virtual void ConvertDataAxisAndUnitImpl(bool hasReflectTransform, LMatrix4f convertInvMatrix, LMatrix4f convertMatrix) = 0;
 	};
 }
 

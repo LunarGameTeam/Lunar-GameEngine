@@ -107,7 +107,7 @@ namespace luna::lfbx
 				{
 					new_vertex.mUvs[uv_channel] = meshData->GetUvByIndex(vertIndex, faceData.mTextureUvIndex[j], uv_channel);
 				}
-				new_vertex.baseIndex = polygenIndex;
+				new_vertex.baseIndex = vertexCombineData[faceData.mMaterialIndex].mVertexs.size();
 				vertexCombineData[faceData.mMaterialIndex].mVertexs.push_back(new_vertex);
 			}
 		}

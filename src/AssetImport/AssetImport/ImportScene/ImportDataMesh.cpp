@@ -48,7 +48,7 @@ namespace luna::asset
 		mSubmesh[subMeshIndex].mIndices.push_back(index);
 	}
 
-	void LImportNodeDataMesh::ConvertDataAxisAndUnitImpl(LMatrix4f convertInvMatrix, LMatrix4f convertMatrix)
+	void LImportNodeDataMesh::ConvertDataAxisAndUnitImpl(bool hasReflectTransform, LMatrix4f convertInvMatrix, LMatrix4f convertMatrix)
 	{
 		for (size_t submeshID = 0; submeshID < mSubmesh.size(); ++submeshID)
 		{
@@ -76,6 +76,15 @@ namespace luna::asset
 				tangentValue.normalize();
 				float bnormalSign = subMeshData.mVertexTangent[vertexID].w();
 				subMeshData.mVertexTangent[vertexID] = LVector4f(tangentValue.x(), tangentValue.y(), tangentValue.z(), bnormalSign);
+			}
+			if (hasReflectTransform)
+			{
+				for (size_t faceID = 0; faceID < subMeshData.mIndices.size() / 3; ++faceID)
+				{
+					uint32_t mid_index = subMeshData.mIndices[faceID * 3];
+					subMeshData.mIndices[faceID * 3] = subMeshData.mIndices[faceID * 3 + 2];
+					subMeshData.mIndices[faceID * 3 + 2] = mid_index;
+				}
 			}
 		}
 	}
@@ -133,6 +142,10 @@ namespace luna::asset
 		for (size_t subMeshIndex = 0; subMeshIndex < mSubmesh.size(); ++subMeshIndex)
 		{
 			LImportSubmesh& submeshData = mSubmesh[subMeshIndex];
+			if (submeshData.mVertexUv[0].empty())
+			{
+				continue;
+			}
 			SMikkTSpaceInterface MikkTInterface;
 			MikkTInterface.m_getNormal = MikkGetNormal;
 			MikkTInterface.m_getNumFaces = MikkGetNumFaces;

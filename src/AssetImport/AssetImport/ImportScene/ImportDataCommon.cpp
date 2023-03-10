@@ -14,9 +14,9 @@ namespace luna::asset
 	{
 	};
 
-	void LImportNodeDataBase::ConvertDataAxisAndUnit(LMatrix4f convertInvMatrix, LMatrix4f convertMatrix)
+	void LImportNodeDataBase::ConvertDataAxisAndUnit(bool hasReflectTransform,LMatrix4f convertInvMatrix, LMatrix4f convertMatrix)
 	{
-		ConvertDataAxisAndUnitImpl(convertInvMatrix, convertMatrix);
+		ConvertDataAxisAndUnitImpl(hasReflectTransform, convertInvMatrix, convertMatrix);
 	}
 }
 

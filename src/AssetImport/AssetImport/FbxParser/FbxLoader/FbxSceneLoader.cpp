@@ -287,11 +287,12 @@ namespace luna::lfbx
 	)
 	{
 		size_t node_index = scene_out.mNodes.size();
-		LFbxNodeBase &newNode = scene_out.mNodes.emplace_back();
+		LFbxNodeBase newNode;
 		newNode.mName = pNode->GetName();
 		newNode.mIndex = node_index;
 		newNode.mParent = nodeParent;
 		ComputeLclTransform(pNode,newNode.mLocalTranslation, newNode.mLocalRotation, newNode.mLocalScaling, newNode.mGlobelTransform);
+		scene_out.mNodes.push_back(newNode);
 		if (pNode->GetNodeAttribute())
 		{
 			switch (pNode->GetNodeAttribute()->GetAttributeType())

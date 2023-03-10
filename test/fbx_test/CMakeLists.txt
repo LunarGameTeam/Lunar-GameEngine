@@ -13,16 +13,12 @@ auto_source_group(fbx_test "${ALL_FILES}" DST_FILES "")
 add_executable(fbx_test ${DST_FILES})
 
 
-add_compile_definitions(FBX_LIB_INITED)
 add_dependencies(fbx_test FbxParser)
 target_link_libraries(fbx_test FbxParser)
 
-
-add_compile_definitions(OBJ_LIB_INITED)
 add_dependencies(fbx_test ObjParser)
 target_link_libraries(fbx_test ObjParser)
 
-add_compile_definitions(GLTF_LIB_INITED)
 add_dependencies(fbx_test GltfParser)
 target_link_libraries(fbx_test GltfParser)
 

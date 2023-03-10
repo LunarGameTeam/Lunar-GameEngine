@@ -118,7 +118,12 @@ namespace luna::asset
 		//根据转换矩阵，转换所有资源数据
 		for (auto each_data : mDatas)
 		{
-			each_data->ConvertDataAxisAndUnit(convertInvMatrix, convertMatrix);
+			bool ifReflect = false;
+			if (mAxis == ImportAxisZupRightHand || axis == ImportAxisYupRightHand)
+			{
+				ifReflect = true;
+			}
+			each_data->ConvertDataAxisAndUnit(ifReflect,convertInvMatrix, convertMatrix);
 		}
 	}
 

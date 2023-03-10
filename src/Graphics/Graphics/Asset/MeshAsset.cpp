@@ -149,12 +149,12 @@ void MeshAsset::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> fil
 	const byte* ptr = data_header;
 	size_t submeshSize;
 	memcpy(&submeshSize, ptr, sizeof(size_t));
+	ptr += sizeof(size_t);
 	for (size_t id = 0; id < submeshSize; ++id)
 	{
 		render::SubMesh* sub_mesh = TCreateObject<render::SubMesh>();
 		size_t submeshVertexSize;
 		size_t submeshIndexSize;
-		ptr += sizeof(size_t);
 		memcpy(&submeshVertexSize, ptr, sizeof(size_t));
 		ptr += sizeof(size_t);
 		memcpy(&submeshIndexSize, ptr, sizeof(size_t));

@@ -51,7 +51,7 @@ namespace luna::asset
 			return mSubmesh[index];
 		}
 	private:
-		void ConvertDataAxisAndUnitImpl(LMatrix4f convertInvMatrix, LMatrix4f convertMatrix) override;
+		void ConvertDataAxisAndUnitImpl(bool hasReflectTransform, LMatrix4f convertInvMatrix, LMatrix4f convertMatrix) override;
 
 		void CopyAndClearSubmeshVertex(LImportSubmesh &src, LImportSubmesh& dst);
 
