@@ -12,9 +12,9 @@ namespace luna::render
 struct CommandArgDesc
 {
 	RHIIndirectArgumentType mArgType;
-	UINT mSlotOrIndex = -1;
-	UINT mConstantOffset = -1;
-	UINT mConstantValueSize = -1;
+	uint32_t mSlotOrIndex = uint32_t(-1) ;
+	uint32_t mConstantOffset = uint32_t(-1);
+	uint32_t mConstantValueSize = uint32_t(-1);
 };
 
 class RENDER_API RHICmdSignature : public RHIObject

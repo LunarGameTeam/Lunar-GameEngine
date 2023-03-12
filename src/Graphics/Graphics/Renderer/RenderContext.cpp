@@ -109,8 +109,16 @@ RHIPipelineStatePtr PipelineStateCache::CreatePipeline(RenderContext* mDevice, c
 				RHITextureFormat& srv_desc = view->mBindResource->mResDesc.Format;
 				newHash.Combine((uint8_t*)&srv_desc, sizeof(srv_desc));
 			}
-			RHITextureFormat& dsv_desc = desc.mGraphicDesc.mRenderPassDesc.mDepthStencilView->mBindResource->mResDesc.Format;
-			newHash.Combine((uint8_t*)&dsv_desc, sizeof(dsv_desc));
+			if (desc.mGraphicDesc.mRenderPassDesc.mDepths.size() > 0)
+			{
+				RHITextureFormat& dsv_desc = desc.mGraphicDesc.mRenderPassDesc.mDepthStencilView->mBindResource->mResDesc.Format;
+				newHash.Combine((uint8_t*)&dsv_desc, sizeof(dsv_desc));
+			}
+			else
+			{
+				RHITextureFormat dsv_desc = RHITextureFormat::FORMAT_UNKNOWN;
+				newHash.Combine((uint8_t*)&dsv_desc, sizeof(dsv_desc));
+			}
 			//graph desc shader信息
 			newHash.Combine((uint8_t*)&pipelineGraphDesc.BlendState.AlphaToCoverageEnable, sizeof(pipelineGraphDesc.BlendState.AlphaToCoverageEnable));
 			newHash.Combine((uint8_t*)&pipelineGraphDesc.BlendState.IndependentBlendEnable, sizeof(pipelineGraphDesc.BlendState.IndependentBlendEnable));
@@ -553,25 +561,21 @@ RHIPipelineStatePtr RenderContext::CreatePipeline(render::MaterialInstance* mat,
 // 	ShaderAsset* shader = mat->GetShaderAsset();
 
 }
-void RenderContext::DrawRenderOBject(render::RenderObject* ro, render::MaterialInstance* mat, PackedParams* params)
-{
-	//if(ro->mInstanceRes)
-	//	DrawMeshInstanced(ro->mMesh, mat, params, ro->mInstanceRes, ro->mID, 1);
-}
 
-void RenderContext::DrawMesh(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params)
+void RenderContext::DrawMesh(render::RenderMeshBase* mesh, render::MaterialInstance* mat, PackedParams* params)
 {
 	ZoneScoped;
 	DrawMeshInstanced(mesh, mat, params, nullptr, 0, 1);
 }
 
 
-void RenderContext::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params,
+void RenderContext::DrawMeshInstanced(render::RenderMeshBase* mesh, render::MaterialInstance* mat, PackedParams* params,
 	render::RHIResource* vertexInputInstanceRes /*= nullptr*/,
 	int32_t startInstanceIdx /*= 1*/, int32_t instancingSize /*= 1*/)
 {
 	ZoneScoped;
 	RHIVertexLayout layout = mesh->GetVertexLayout();
+	//todo:这里vulkan发现vertexinput和shader定义不一样长会报错
 	if(vertexInputInstanceRes)
 		layout.AddVertexElement(VertexElementType::Int, VertexElementUsage::UsageInstanceMessage, 4, 1, VertexElementInstanceType::PerInstance);
 
@@ -581,18 +585,18 @@ void RenderContext::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialIns
 	mGraphicCmd->SetPipelineState(pipeline);
 	mGraphicCmd->BindDesriptorSetExt(matBindingset);
 
-	size_t vertexCount = mesh->mVertexData.size();
+	size_t vertexCount = mesh->GetVertexSize();
 
-	RHIResource* vb = mesh->mVB;
-	size_t indexCount = mesh->mIndexData.size();
-	RHIResource* ib = mesh->mIB;
+	RHIResource* vb = mesh->GetVertexBuffer();
+	size_t indexCount = mesh->GetIndexSize();
+	RHIResource* ib = mesh->GetIndexBuffer();
 
 	LArray<RHIVertexBufferDesc> descs;
 	RHIVertexBufferDesc& vbDesc = descs.emplace_back();
 	vbDesc.mOffset = 0;
 	vbDesc.mBufferSize = vertexCount * mesh->GetStridePerVertex();
 	vbDesc.mVertexStride = mesh->GetStridePerVertex();
-	vbDesc.mVertexRes = mesh->mVB;
+	vbDesc.mVertexRes = vb;
 
 	if (vertexInputInstanceRes != nullptr)
 	{
@@ -617,20 +621,6 @@ void RenderContext::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialIns
 		break;
 	}
 	mGraphicCmd->DrawIndexedInstanced((uint32_t)indexCount, instancingSize, 0, 0, startInstanceIdx);
-	//mGraphicCmd->SetVertexBuffer(descs, 0);
-	//mGraphicCmd->SetIndexBuffer(ib);
-	//switch (mat->mMaterialTemplate->GetPrimitiveType())
-	//{
-	//case RHIPrimitiveTopologyType::Triangle:
-	//	mGraphicCmd->SetDrawPrimitiveTopology(RHIPrimitiveTopology::TriangleList);
-	//	break;
-	//case RHIPrimitiveTopologyType::Line:
-	//	mGraphicCmd->SetDrawPrimitiveTopology(RHIPrimitiveTopology::LineList);
-	//	break;
-	//default:
-	//	break;
-	//}
-	//mGraphicCmd->DrawIndexedInstanced((uint32_t)indexCount, instancingSize, 0, 0, startInstanceIdx);
 }
 
 }

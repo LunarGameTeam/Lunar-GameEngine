@@ -45,6 +45,7 @@ void RenderView::Culling(RenderScene* scene)
 	{
 		mMeshRenderCommandsPass[eachPassIndex].ClearCommand();
 		mMeshRenderCommandsPass[eachPassIndex].SetScene(scene);
+		mMeshRenderCommandsPass[eachPassIndex].SetView(this);
 		for(auto& eachCommand : scene->mAllMeshDrawCommands[eachPassIndex].GetCommands())
 		{
 			mMeshRenderCommandsPass[eachPassIndex].AddCommand(&eachCommand.second);

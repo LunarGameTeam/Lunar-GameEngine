@@ -22,7 +22,31 @@ namespace luna::render
 PARAM_ID(SceneBuffer);
 PARAM_ID(ViewBuffer);
 PARAM_ID(MaterialBuffer);
+class ShadowDepthPassProcessor : public RoPassProcessorBase
+{
+public:
+	ShadowDepthPassProcessor(RenderScene* scene, MeshRenderPass passType);
+	void AddRenderObject(RenderObject* renderObject) override;
+};
+ShadowDepthPassProcessor::ShadowDepthPassProcessor(RenderScene* scene, MeshRenderPass passType) : RoPassProcessorBase(scene, passType)
+{
 
+}
+void ShadowDepthPassProcessor::AddRenderObject(RenderObject* renderObject)
+{	
+	if (renderObject->mReceiveShadow)
+	{
+		static auto shadowMatAsset = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/Depth.mat");
+		static auto shadowMat = shadowMatAsset->GetDefaultInstance();
+		if (shadowMat)
+			shadowMat->Ready();
+		BuildMeshRenderCommands(renderObject, shadowMat);
+	}
+}
+RoPassProcessorBase* ShadowDepthPassProcessorCreateFunction(RenderScene* scene, MeshRenderPass passType)
+{
+	return new ShadowDepthPassProcessor(scene, passType);
+}
 void DirectionalLightShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene)
 {
 	if (!renderScene->mMainDirLight || !renderScene->mMainDirLight->mCastShadow)
@@ -51,29 +75,16 @@ void DirectionalLightShadowPass(FrameGraphBuilder* builder, RenderView* view, Re
 	node.SetColorAttachment(colorView, LoadOp::kClear);
 	node.SetDepthStencilAttachment(depthView);
 
-	static auto shadowMatAsset = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/Depth.mat");
-	static MaterialInstance* shadowMat = shadowMatAsset->GetDefaultInstance();
-	if (shadowMat)
-		shadowMat->Ready();
-
 	node.ExcuteFunc([view, renderScene](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
 	{
-		ROArray& ROs = view->GetViewVisibleROs();
-		RHIResource* instancingBuffer = renderScene->mROIDInstancingBuffer->mRes;
-		shadowMat->SetShaderInput(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer->mView);
-		shadowMat->SetShaderInput(ParamID_ViewBuffer, renderScene->mMainDirLight->mParamBuffer->mView);
-
-		for (auto it : ROs)
-		{
-			RenderObject* ro = it;
-			if (!it->mCastShadow)
-				continue;
-			it->mInstanceRes = instancingBuffer;
-			device->DrawMeshInstanced(ro->mMesh, shadowMat, nullptr, ro->mInstanceRes, ro->mID);
-		}
+		std::unordered_map<luna::render::ShaderParamID, luna::render::RHIView*> shaderBindingParam;
+		view->mMeshRenderCommandsPass[MeshRenderPass::DirectLightShadowDepthPass].DrawAllCommands(renderScene->mMainDirLight->mParamBuffer->mView.get(), shaderBindingParam);
 	});
 }
-
+RoPassProcessorBase* PointShadowPassProcessorCreateFunction(RenderScene* scene, MeshRenderPass passType)
+{
+	return new ShadowDepthPassProcessor(scene, passType);
+}
 void PointShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene)
 {
 	if (renderScene->mPointLights.empty())
@@ -117,31 +128,15 @@ void PointShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* 
 		node.SetColorAttachment(colorView, LoadOp::kClear, StoreOp::kStore, LVector4f(1, 1, 1, 1));
 		node.SetDepthStencilAttachment(depthView);
 
-		static auto shadowMatAsset = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/Depth.mat");
-		static auto shadowMat = shadowMatAsset->GetDefaultInstance();
-		if (shadowMat)
-			shadowMat->Ready();
-
 		node.ExcuteFunc([view, renderScene, idx](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
 		{
 			for (PointLight* it : renderScene->mPointLights)
 			{
 				if (!it->mCastShadow)
 					continue;
-				ROArray& ROs = view->GetViewVisibleROs();				
-				RHIResource* instancingBuffer = renderScene->mROIDInstancingBuffer->mRes;
-				shadowMat->SetShaderInput(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer->mView);
-				shadowMat->SetShaderInput(ParamID_ViewBuffer, it->mParamBuffer[idx]->mView);
-				for (auto it : ROs)
-				{
-					RenderObject* ro = it;
-					if (!it->mCastShadow)
-						continue;
-					it->mInstanceRes = instancingBuffer;
-					device->DrawMeshInstanced(ro->mMesh, shadowMat, nullptr, ro->mInstanceRes, ro->mID);
-				}
+				std::unordered_map<luna::render::ShaderParamID, luna::render::RHIView*> shaderBindingParam;
+				view->mMeshRenderCommandsPass[MeshRenderPass::PointLightShadowDepthPass].DrawAllCommands(it->mParamBuffer[idx]->mView, shaderBindingParam);
 			}
-
 		});
 	}
 	

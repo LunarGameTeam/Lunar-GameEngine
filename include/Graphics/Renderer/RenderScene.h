@@ -78,6 +78,9 @@ public:
 
 	bool mRenderable = true;
 	bool mDrawGizmos = true;
+
+	RenderMeshBase  mDebugMeshLineData;
+	RenderMeshBase  mDebugMeshData;
 public:
 	void        SetSceneBufferDirty()             { mBufferDirty = true; }
 	RenderView* GetRenderView(uint32_t idx) const { return mViews[idx]; };
@@ -91,8 +94,8 @@ public:
 	ShaderCBuffer* mROIDInstancingBuffer = nullptr;
 
 	//Gizmos Mesh
-	SubMesh*            mDebugMeshLine        = nullptr;
-	SubMesh*            mDebugMesh            = nullptr;
+	//SubMesh*            mDebugMeshLine        = nullptr;
+	//SubMesh*            mDebugMesh            = nullptr;
 
 	//先不做Culling，这里应该交给View进行Culling并进行ID更新
 	
@@ -132,12 +135,7 @@ public:
 
 	void BuildMeshRenderCommands(
 		RenderObject* renderObject,
-		const LString& materialAsset
-	);
-
-	void BuildMeshRenderCommands(
-		RenderObject* renderObject,
-		MaterialTemplateAsset* materialAsset
+		MaterialInstance* materialInstance
 	);
 };
 

@@ -49,7 +49,7 @@ void PostProcessPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* 
 		PARAM_ID(_MainTex);
 		debugMat->SetShaderInput(ParamID__MainTex, sceneView->mRHIView);		
 		debugMat->SetShaderInput(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer->mView);
-		device->DrawMesh(sRenderModule->mFullscreenMesh, debugMat, nullptr);
+		device->DrawMesh(&sRenderModule->mFullscreenMesh , debugMat, nullptr);
 	});
 }
 

@@ -11,7 +11,7 @@
 #include "Graphics/RHI/RHICmdList.h"
 
 #include "Graphics/Asset/ShaderAsset.h"
-
+#include "Graphics/Renderer/RenderMesh.h"
 
 namespace luna::render
 {
@@ -46,7 +46,7 @@ protected:
 		{
 			return dataExist->second;
 		}
-		RHIShaderBlobPtr newData = dataCreateFunc(device,inputDesc...);
+		TRHIPtr<T> newData = dataCreateFunc(device,inputDesc...);
 		mData.insert({ newHash ,newData });
 		if (emptyID.empty())
 		{
@@ -187,9 +187,8 @@ public:
 	void BeginRenderPass(const RenderPassDesc&);
 	void EndRenderPass();
 
-	void DrawRenderOBject(render::RenderObject* mesh, render::MaterialInstance* mat, PackedParams* params);
-	void DrawMesh(render::SubMesh*, render::MaterialInstance* mat, PackedParams* params);
-	void DrawMeshInstanced(render::SubMesh*, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* vertexInputInstanceRes = nullptr, int32_t startInstanceIdx = 1, int32_t instancingSize = 1);
+	void DrawMesh(render::RenderMeshBase*, render::MaterialInstance* mat, PackedParams* params);
+	void DrawMeshInstanced(render::RenderMeshBase*, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* vertexInputInstanceRes = nullptr, int32_t startInstanceIdx = 1, int32_t instancingSize = 1);
 private:
 	using PipelineCacheKey = std::pair < MaterialInstance*, size_t>;
 	RenderPassDesc                              mCurRenderPass;

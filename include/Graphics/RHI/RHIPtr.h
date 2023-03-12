@@ -81,7 +81,7 @@ public:
 		if (lval)
 		{
 			T* _p = dynamic_cast<T*>(lval.get());
-			ptr.reset(_p);
+			ptr = lval.ptr;
 		}
 	}
 

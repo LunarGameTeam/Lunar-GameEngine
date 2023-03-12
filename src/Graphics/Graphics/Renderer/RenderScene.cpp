@@ -195,10 +195,6 @@ RenderView* RenderScene::CreateRenderView()
 
 void RenderScene::Render(FrameGraphBuilder* FG)
 {
-	if(mDebugMesh)
-		mDebugMesh->ClearVertexData();
-	if(mDebugMeshLine)
-		mDebugMeshLine->ClearVertexData();
 	PrepareScene();
 
 	for (RenderView* renderView : mViews)
@@ -299,35 +295,24 @@ void RenderScene::Debug()
 	if (!mDrawGizmos)
 		return;
 
-	if (mDebugMesh == nullptr)
-	{
-		mDebugMesh = new SubMesh();
-		RHIVertexLayout& vertexlayout = mDebugMesh->GetVertexLayout();
-		mDebugMesh->Update();
-	}
-
-	if (mDebugMeshLine == nullptr)
-	{
-		mDebugMeshLine = new SubMesh();
-		RHIVertexLayout& vertexlayout = mDebugMeshLine->GetVertexLayout();
-		mDebugMeshLine->Update();
-	}
+	SubMesh            mDebugMeshLine;
+	SubMesh            mDebugMesh;
 	if (mMainDirLight && mMainDirLight->mCastShadow)
 	{
 		LFrustum f = LFrustum::FromOrth(0.01, 50, 30, 30);
 		f.Multiple(mMainDirLight->mViewMatrix.inverse());
-		mDebugMeshLine->AddLine(f.mNearPlane[0], f.mNearPlane[1]);
-		mDebugMeshLine->AddLine(f.mNearPlane[1], f.mNearPlane[2]);
-		mDebugMeshLine->AddLine(f.mNearPlane[2], f.mNearPlane[3]);
-		mDebugMeshLine->AddLine(f.mNearPlane[3], f.mNearPlane[0]);
-		mDebugMeshLine->AddLine(f.mNearPlane[0], f.mFarPlane[0]);
-		mDebugMeshLine->AddLine(f.mNearPlane[1], f.mFarPlane[1]);
-		mDebugMeshLine->AddLine(f.mNearPlane[2], f.mFarPlane[2]);
-		mDebugMeshLine->AddLine(f.mNearPlane[3], f.mFarPlane[3]);
-		mDebugMeshLine->AddLine(f.mFarPlane[0], f.mFarPlane[1]);
-		mDebugMeshLine->AddLine(f.mFarPlane[1], f.mFarPlane[2]);
-		mDebugMeshLine->AddLine(f.mFarPlane[2], f.mFarPlane[3]);
-		mDebugMeshLine->AddLine(f.mFarPlane[3], f.mFarPlane[0]);
+		mDebugMeshLine.AddLine(f.mNearPlane[0], f.mNearPlane[1]);
+		mDebugMeshLine.AddLine(f.mNearPlane[1], f.mNearPlane[2]);
+		mDebugMeshLine.AddLine(f.mNearPlane[2], f.mNearPlane[3]);
+		mDebugMeshLine.AddLine(f.mNearPlane[3], f.mNearPlane[0]);
+		mDebugMeshLine.AddLine(f.mNearPlane[0], f.mFarPlane[0]);
+		mDebugMeshLine.AddLine(f.mNearPlane[1], f.mFarPlane[1]);
+		mDebugMeshLine.AddLine(f.mNearPlane[2], f.mFarPlane[2]);
+		mDebugMeshLine.AddLine(f.mNearPlane[3], f.mFarPlane[3]);
+		mDebugMeshLine.AddLine(f.mFarPlane[0], f.mFarPlane[1]);
+		mDebugMeshLine.AddLine(f.mFarPlane[1], f.mFarPlane[2]);
+		mDebugMeshLine.AddLine(f.mFarPlane[2], f.mFarPlane[3]);
+		mDebugMeshLine.AddLine(f.mFarPlane[3], f.mFarPlane[0]);
 	}
 
 	for (int i = 0; i < mPointLights.size(); i++)
@@ -339,26 +324,26 @@ void RenderScene::Debug()
 			{
 				LFrustum f = LFrustum::MakeFrustrum(light->mFov, light->mNear, light->mFar, light->mAspect);
 				f.Multiple(light->mViewMatrix[faceIdx].inverse());
-				mDebugMeshLine->AddLine(f.mNearPlane[0], f.mNearPlane[1]);
-				mDebugMeshLine->AddLine(f.mNearPlane[1], f.mNearPlane[2]);
-				mDebugMeshLine->AddLine(f.mNearPlane[2], f.mNearPlane[3]);
-				mDebugMeshLine->AddLine(f.mNearPlane[3], f.mNearPlane[0]);
-				mDebugMeshLine->AddLine(f.mNearPlane[0], f.mFarPlane[0]);
-				mDebugMeshLine->AddLine(f.mNearPlane[1], f.mFarPlane[1]);
-				mDebugMeshLine->AddLine(f.mNearPlane[2], f.mFarPlane[2]);
-				mDebugMeshLine->AddLine(f.mNearPlane[3], f.mFarPlane[3]);
-				mDebugMeshLine->AddLine(f.mFarPlane[0], f.mFarPlane[1]);
-				mDebugMeshLine->AddLine(f.mFarPlane[1], f.mFarPlane[2]);
-				mDebugMeshLine->AddLine(f.mFarPlane[2], f.mFarPlane[3]);
-				mDebugMeshLine->AddLine(f.mFarPlane[3], f.mFarPlane[0]);
+				mDebugMeshLine.AddLine(f.mNearPlane[0], f.mNearPlane[1]);
+				mDebugMeshLine.AddLine(f.mNearPlane[1], f.mNearPlane[2]);
+				mDebugMeshLine.AddLine(f.mNearPlane[2], f.mNearPlane[3]);
+				mDebugMeshLine.AddLine(f.mNearPlane[3], f.mNearPlane[0]);
+				mDebugMeshLine.AddLine(f.mNearPlane[0], f.mFarPlane[0]);
+				mDebugMeshLine.AddLine(f.mNearPlane[1], f.mFarPlane[1]);
+				mDebugMeshLine.AddLine(f.mNearPlane[2], f.mFarPlane[2]);
+				mDebugMeshLine.AddLine(f.mNearPlane[3], f.mFarPlane[3]);
+				mDebugMeshLine.AddLine(f.mFarPlane[0], f.mFarPlane[1]);
+				mDebugMeshLine.AddLine(f.mFarPlane[1], f.mFarPlane[2]);
+				mDebugMeshLine.AddLine(f.mFarPlane[2], f.mFarPlane[3]);
+				mDebugMeshLine.AddLine(f.mFarPlane[3], f.mFarPlane[0]);
 			}
 			
 		}
-		mDebugMeshLine->AddCubeWired(light->mPosition, LVector3f(1, 1, 1), light->mColor);
+		mDebugMeshLine.AddCubeWired(light->mPosition, LVector3f(1, 1, 1), light->mColor);
 	}
 
-	mDebugMesh->Update();
-	mDebugMeshLine->Update();
+	mDebugMeshData.Init(&mDebugMesh);
+	mDebugMeshLineData.Init(&mDebugMeshLine);
 }
 
 RoPassProcessorBase::RoPassProcessorBase(RenderScene* scene, MeshRenderPass passType) : mScene(scene), mPassType(passType)
@@ -368,19 +353,10 @@ RoPassProcessorBase::RoPassProcessorBase(RenderScene* scene, MeshRenderPass pass
 
 void RoPassProcessorBase::BuildMeshRenderCommands(
 	RenderObject* renderObject,
-	const LString& materialAsset
+	MaterialInstance* materialInstance
 )
 {
-	size_t newCommandId = mScene->mAllMeshDrawCommands[mPassType].AddCommand(renderObject, materialAsset);
-	renderObject->mAllCommandsIndex.insert({ mPassType,newCommandId});
-}
-
-void RoPassProcessorBase::BuildMeshRenderCommands(
-	RenderObject* renderObject,
-	MaterialTemplateAsset* materialAsset
-)
-{
-	size_t newCommandId = mScene->mAllMeshDrawCommands[mPassType].AddCommand(renderObject, materialAsset);
+	size_t newCommandId = mScene->mAllMeshDrawCommands[mPassType].AddCommand(renderObject, materialInstance);
 	renderObject->mAllCommandsIndex.insert({ mPassType,newCommandId });
 }
 

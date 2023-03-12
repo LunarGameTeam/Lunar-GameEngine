@@ -273,34 +273,23 @@ RHIBindingSetPtr MaterialInstance::GetBindingSet()
 
 RHIPipelineState* MaterialInstance::GetPipeline(RHIVertexLayout* layout, const RenderPassDesc& passDesc)
 {
-	size_t hashResult = 0;
-	boost::hash_combine(hashResult, layout->Hash());
-	boost::hash_combine(hashResult, passDesc.Hash());
-	
-	auto it = mPipelineCaches.find(hashResult);
-	if (it != mPipelineCaches.end())
-		return it->second;
-
-	Log("Graphics", "Create pipeline for:{}", GetShaderAsset()->GetAssetPath());
 	RHIPipelineStateDesc desc = {};
 	RenderPipelineStateDescGraphic& graphicDesc = desc.mGraphicDesc;
 	desc.mType = RHICmdListType::Graphic3D;
 
 	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthEnable = mMaterialTemplate->IsDepthTestEnable();
 	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthWrite = mMaterialTemplate->IsDepthWriteEnable();
-	graphicDesc.mPipelineStateDesc.RasterizerState.CullMode = mMaterialTemplate->GetCullMode();
 	graphicDesc.mPipelineStateDesc.PrimitiveTopologyType = (RHIPrimitiveTopologyType)mMaterialTemplate->GetPrimitiveType();
 	graphicDesc.mInputLayout = *layout;
 	graphicDesc.mPipelineStateDesc.mVertexShader = GetShaderVS();
 	graphicDesc.mPipelineStateDesc.mPixelShader = GetShaderPS();
+
 	graphicDesc.mRenderPassDesc = passDesc;
 
 	RHIBlendStateTargetDesc blend = {};
 	desc.mGraphicDesc.mPipelineStateDesc.BlendState.RenderTarget.push_back(blend);
-	auto pipeline = sRenderModule->GetRHIDevice()->CreatePipeline(desc);
-	mPipelineCaches[hashResult] = pipeline;
-	return pipeline;
-
+	Log("Graphics", "Create pipeline for:{}", GetShaderAsset()->GetAssetPath());
+	return sRenderModule->mRenderContext->CreatePipeline(desc);
 }
 }
 

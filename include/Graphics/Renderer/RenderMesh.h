@@ -5,6 +5,8 @@
 #include "Core/Foundation/Container.h"
 #include "Core/Foundation/String.h"
 #include "Graphics/RHI/RHIResource.h"
+#include "Graphics/RHI/RHIDescriptor.h"
+#include "Graphics/RHI/RHICmdList.h"
 #include <functional>
 
 
@@ -22,12 +24,19 @@ namespace luna::render
 
 	class RenderMeshBase
 	{
+		size_t mVertexSize = 0;
 		RHIResourcePtr mVB;
+		size_t mIndexSize = 0;
 		RHIResourcePtr mIB;
 		RHIVertexLayout mVeretexLayout;
 	public:
 		size_t GetStridePerVertex() { return mVeretexLayout.GetSize()[0]; };
 		size_t GetStridePerInstance() { return mVeretexLayout.GetSize()[1]; };
+		size_t GetVertexSize() { return mVertexSize; };
+		size_t GetIndexSize() { return mIndexSize; };
+
+		RHIResource* GetVertexBuffer() { return mVB.get(); };
+		RHIResource* GetIndexBuffer() { return mIB.get(); };
 		RHIVertexLayout& GetVertexLayout() { return mVeretexLayout; };
 		void Init(SubMesh* meshData);
 	};
@@ -47,8 +56,7 @@ namespace luna::render
 	{
 	public:
 		size_t mRenderObjectId;
-		MaterialTemplateAsset* mMaterialTemplate;
-		size_t mMaterialInstanceIndex;
+		MaterialInstance* mMaterialInstance;
 		size_t mCanBatchHash;
 	};
 
@@ -57,11 +65,7 @@ namespace luna::render
 	public:
 		size_t AddCommand(
 			RenderObject* renderObject,
-			const LString& materialAsset
-		);
-		size_t AddCommand(
-			RenderObject* renderObject,
-			MaterialTemplateAsset* materialAsset
+			MaterialInstance* materialInstance
 		);
 
 		const LUnorderedMap<uint64_t, MeshRenderCommand>& GetCommands()const { return mAllCommands; }
@@ -74,12 +78,16 @@ namespace luna::render
 	class MeshRenderCommandsPassData
 	{
 		RenderScene* mScene = nullptr;
+		RenderView*  mView = nullptr;
 		LArray<const MeshRenderCommand*> allVisibleCommandsRef;
 	public:
-		void DrawAllCommands(PackedParams* sceneAndViewParam);
+		void DrawAllCommands(const std::unordered_map<luna::render::ShaderParamID, luna::render::RHIView*> &shaderBindingParam);
+		//暂时添加一个可以传入指定scene view的接口用于阴影这种渲染和裁剪的view不同的情况，后面看看有没有办法去掉
+		void DrawAllCommands(RHIView* sceneViewParamBuffer, const std::unordered_map<luna::render::ShaderParamID, luna::render::RHIView*>& shaderBindingParam);
 		void AddCommand(const MeshRenderCommand* data);
 		void ClearCommand();
 		void SetScene(RenderScene* scene) { mScene = scene; }
+		void SetView(RenderView* view) { mView = view; }
 	};
 
 
