@@ -236,8 +236,7 @@ bool RenderModule::OnInit()
 
 	mDefaultWhiteTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/White.png"));
 	mDefaultNormalTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/Normal.png"));
-	
-	mFullscreenMesh = new render::SubMesh();
+	SubMesh mFullscreenMeshAsset;
 	BaseVertex v1, v2, v3;
 	v1.pos = LVector3f(-1, -1, 0);
 	v1.uv[0] = LVector2f(0, 1);
@@ -245,16 +244,16 @@ bool RenderModule::OnInit()
 	v2.uv[0] = LVector2f(0, 0);
 	v3.pos = LVector3f(1, 1, 0);
 	v3.uv[0] = LVector2f(1, 0);
-	mFullscreenMesh->AddTriangle(v1, v2, v3);
+	mFullscreenMeshAsset.AddTriangle(v1, v2, v3);
 	v1.pos = LVector3f(1, 1, 0);
 	v1.uv[0] = LVector2f(1, 0);
 	v2.pos = LVector3f(1, -1, 0);
 	v2.uv[0] = LVector2f(1, 1);
 	v3.pos = LVector3f(-1, -1, 0);
 	v3.uv[0] = LVector2f(0, 1);
-	mFullscreenMesh->AddTriangle(v1, v2, v3);
-	mFullscreenMesh->Update();
-
+	mFullscreenMeshAsset.AddTriangle(v1, v2, v3);
+	mFullscreenMeshAsset.Update();
+	mFullscreenMesh.Init(&mFullscreenMeshAsset);
 	SetupIMGUI();
 
 	render::RenderContext* renderDevice = sRenderModule->GetRenderContext();

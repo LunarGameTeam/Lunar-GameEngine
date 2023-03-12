@@ -873,7 +873,17 @@ enum class RHIViewType
 	kAccelerationStructure,
 	kShadingRateSource,
 };
-
+enum class RHIIndirectArgumentType
+{
+	AsVertexBuffer = 0,
+	AsIndexBuffer,
+	AsUniformValue,
+	AsUniformBuffer,
+	AsShaderResource,
+	AsUnorderedAccess,
+	AsDrawCommand,
+	AsDispatchCommand
+};
 
 //交换链，用于绑定渲染窗口
 struct RHISwapchainDesc

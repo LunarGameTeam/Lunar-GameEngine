@@ -32,20 +32,7 @@ void SubMesh::Release()
 
 void SubMesh::Update()
 {
-	if (mReady)
-		return;
-	if (mVertexData.size() == 0 || mIndexData.size() == 0)
-		return;
-	RHIBufferDesc desc;
-	desc.mSize = sizeof(BaseVertex) * mVertexData.size();
-	desc.mBufferUsage = RHIBufferUsage::VertexBufferBit;
 
-	mVB = sRenderModule->mRenderContext->CreateBuffer(desc, mVertexData.data());
-
-	desc.mSize = sizeof(uint32_t) * mIndexData.size();
-	desc.mBufferUsage = RHIBufferUsage::IndexBufferBit;
-	mIB = sRenderModule->mRenderContext->CreateBuffer( desc, mIndexData.data());
-	mReady = true;
 }
 
 void SubMesh::ClearVertexData()
@@ -161,6 +148,9 @@ void MeshAsset::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> fil
 		ptr += sizeof(size_t);
 		sub_mesh->mVertexData.resize(submeshVertexSize);
 		sub_mesh->mIndexData.resize(submeshIndexSize);
+
+		sub_mesh->mAssetPath = GetAssetPath();
+		sub_mesh->mSubmeshIndex = id;
 		mSubMesh.push_back(sub_mesh);
 	}
 

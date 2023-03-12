@@ -50,14 +50,20 @@ public:
 
 	RHIShaderBlobPtr& GetVertexShader() { return mVS; }
 
+	size_t GetVsId() { return mVsId; };
+
 	RHIShaderBlobPtr& GetPixelShader() { return mPS; }
 
+	size_t GetPsId() { return mPsId; };
 	RHIBindingSetLayoutPtr mLayout;
+
 protected:
 	void Init();
 private:
 	RHIShaderBlobPtr mVS;
+	size_t mVsId;
 	RHIShaderBlobPtr mPS;
+	size_t mPsId;
 	bool mInit = false;
 };
 }

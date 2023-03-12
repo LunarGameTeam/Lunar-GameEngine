@@ -7,7 +7,14 @@
 
 namespace luna::render
 {
-
+	class RENDER_API VulkanCmdSignature : public RHICmdSignature
+	{
+	public:
+		VulkanCmdSignature(
+			RHIPipelineState* pipeline,
+			const LArray<CommandArgDesc>& allCommondDesc
+		);
+	};
 
 class VulkanGraphicCmdList : public RHIGraphicCmdList
 {
@@ -23,6 +30,8 @@ public:
 		uint32_t StartIndexLocation,
 		int32_t BaseVertexLocation,
 		int32_t StartInstanceLocation) override;
+	
+	void DrawIndirectCommands(const RHICmdArgBuffer* DrawBuffer) override;
 
 	void SetDrawPrimitiveTopology(RHIPrimitiveTopology primitive_topology) override;
 

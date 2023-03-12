@@ -1,4 +1,5 @@
 #pragma once
+#include "Graphics/Renderer/RenderMesh.h"
 #include "Graphics/RenderConfig.h"
 #include "Graphics/RenderTypes.h"
 
@@ -30,6 +31,7 @@ public:
 	RenderView();
 	~RenderView() = default;
 
+	MeshRenderCommandsPassData mMeshRenderCommandsPass[MeshRenderPass::AllNum];
 public:
 	void Culling(RenderScene* scene);
 	void Render(RenderScene* scene, FrameGraphBuilder* FG);
@@ -38,7 +40,7 @@ public:
 
 public:
 	RenderTarget* GetRenderTarget() const { return mRT.Get(); }
-	ROArray& GetViewVisibleROs() { return mViewVisibleROs; }
+	//ROArray& GetViewVisibleROs() { return mViewVisibleROs; }
 	const LMatrix4f& GetViewMatrix() const { return mViewMatrix; }
 	const LMatrix4f& GetProjectionMatrix() const { return mProjMatrix; }
 
@@ -52,7 +54,7 @@ public:
 	RenderScene*   mOwnerScene = nullptr;
 	ShaderCBuffer* mViewBuffer = nullptr;
 private:
-	ROArray             mViewVisibleROs;
+	//ROArray             mViewVisibleROs;
 	float               mNear = 0.1f;
 	float               mFar  = 1000.0f;
 

@@ -1,21 +1,91 @@
 #pragma once
 
 #include "Core/CoreMin.h"
-
+#include "Core/Foundation/MemoryHash.h"
 #include "Graphics/RenderConfig.h"
 #include "Graphics/RenderTypes.h"
 
 #include "Graphics/RHI/RHITypes.h"
 #include "Graphics/RHI/RHIDevice.h"
 #include "Graphics/RHI/RHIRenderPass.h"
+#include "Graphics/RHI/RHICmdList.h"
 
 #include "Graphics/Asset/ShaderAsset.h"
-
+#include "Graphics/Renderer/RenderMesh.h"
 
 namespace luna::render
 {
 
 RENDER_API CONFIG_DECLARE(LString, Render, RenderDeviceType, 2);
+class RenderContext;
+class RhiObjectCache
+{
+	LQueue<size_t> emptyID;
+
+	LUnorderedMap<LMemoryHash, TRHIPtr<RHIObject>> mData;
+
+	LUnorderedMap<const RHIObject*, size_t> mDataGlobelId;
+public:
+	size_t GetDataGlobelId(const RHIObject* customData);
+
+	void ReleaseData(LMemoryHash& newHash);
+protected:
+
+	template <typename T, typename... Args>
+	TRHIPtr<T> CreateRHIObject(
+		RenderContext* device,
+		Args... inputDesc,
+		std::function<void(LMemoryHash&,Args...)> &dataHashFunc,
+		std::function<TRHIPtr<T>(RenderContext* device, Args...)> dataCreateFunc
+	)
+	{
+		LMemoryHash newHash;
+		dataHashFunc(newHash, inputDesc...);
+		auto dataExist = mData.find(newHash);
+		if (dataExist != mData.end())
+		{
+			return dataExist->second;
+		}
+		TRHIPtr<T> newData = dataCreateFunc(device,inputDesc...);
+		mData.insert({ newHash ,newData });
+		if (emptyID.empty())
+		{
+			size_t newID = mDataGlobelId.size();
+			mDataGlobelId.insert({ newData ,newID });
+		}
+		else
+		{
+			size_t newID = emptyID.front();
+			emptyID.pop();
+			mDataGlobelId.insert({ newData ,newID });
+		}
+		return newData;
+	}
+};
+
+class ShaderBlobCache:public RhiObjectCache
+{
+public:
+	RHIShaderBlobPtr CreateShader(RenderContext* mDevice, const RHIShaderDesc& desc);
+};
+
+class PipelineStateCache :public RhiObjectCache
+{
+public:
+	RHIPipelineStatePtr CreatePipeline(RenderContext* mDevice, const RHIPipelineStateDesc& desc);
+private:
+	void PackShaderToMemory(RenderContext* mDevice, luna::LMemoryHash& newHash, const RHIShaderBlob* shaderData);
+};
+
+class CmdSignatureCache :public RhiObjectCache
+{
+public:
+	RHICmdSignaturePtr CreateCmdSignature(
+		RenderContext* mDevice,
+		RHIPipelineState* pipeline,
+		const LArray<CommandArgDesc>& allCommondDesc
+	);
+};
 
 enum class RenderDeviceType : uint8_t
 {
@@ -49,6 +119,20 @@ struct StaticSampler
 	RHIResourcePtr mSampler;
 	RHIViewPtr     mView;	
 };
+class RENDER_API CommandArgBufferPool
+{
+	LMemoryHash mCommandSignatureHash;
+	RHICmdSignaturePtr mCommandSignature;
+	LArray<RHICmdArgBuffer> mArgBufferPool;
+	LQueue<size_t> mEmptyBuffer;
+public:
+	CommandArgBufferPool(
+		RHIPipelineState* pipeline,
+		const LArray<CommandArgDesc>& allCommondDesc
+	);
+
+};
+
 
 class RENDER_API RenderContext final : NoCopy
 {
@@ -85,6 +169,15 @@ public:
 	RHIResourcePtr CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData = nullptr, size_t dataSize = 0);
 	RHIResource* CreateInstancingBufferByRenderObjects(const LArray<RenderObject*>& RenderObjects);
 	void UpdateConstantBuffer(RHIResourcePtr target, void* data, size_t dataSize);
+	
+	RHIShaderBlobPtr CreateShader(const RHIShaderDesc& desc);
+	size_t GetShaderId(const RHIShaderBlob* shader);
+	RHIPipelineStatePtr CreatePipeline(const RHIPipelineStateDesc& desc);
+	RHIPipelineStatePtr CreatePipeline(MaterialInstance* mat, RHIVertexLayout* layout);
+	size_t GetPipelineId(const RHIPipelineState* pipeline);
+	RHICmdSignaturePtr CreateCmdSignature(RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc);
+	size_t GetCmdSignatureId(const RHICmdSignature* pipeline);
+	RHIBindingSetPtr GetBindingSet(RHIPipelineState* pipeline, PackedParams* packparams);
 	//----Resource Graph API End----
 
 	RHIBindingSetPtr CreateBindingset(RHIBindingSetLayoutPtr layout);
@@ -94,16 +187,16 @@ public:
 	void BeginRenderPass(const RenderPassDesc&);
 	void EndRenderPass();
 
-	void DrawRenderOBject(render::RenderObject* mesh, render::MaterialInstance* mat, PackedParams* params);
-	void DrawMesh(render::SubMesh*, render::MaterialInstance* mat, PackedParams* params);
-	void DrawMeshInstanced(render::SubMesh*, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* vertexInputInstanceRes = nullptr, int32_t startInstanceIdx = 1, int32_t instancingSize = 1);
+	void DrawMesh(render::RenderMeshBase*, render::MaterialInstance* mat, PackedParams* params);
+	void DrawMeshInstanced(render::RenderMeshBase*, render::MaterialInstance* mat, PackedParams* params, render::RHIResource* vertexInputInstanceRes = nullptr, int32_t startInstanceIdx = 1, int32_t instancingSize = 1);
 private:
 	using PipelineCacheKey = std::pair < MaterialInstance*, size_t>;
 	RenderPassDesc                              mCurRenderPass;
 	LMap<size_t, RHIBindingSetPtr>              mBindingSetCache;
-	LMap<PipelineCacheKey, RHIPipelineStatePtr> mPipelineCache;
-	RHIPipelineStatePtr                         mLastPipline;
-
+	LMap<size_t, RHICmdSignaturePtr>            mCommandSignatureCache;
+	ShaderBlobCache mShaderBlobCache;
+	PipelineStateCache mPipelineCache;
+	CmdSignatureCache mCmdSignatureCache;
 	//----Draw Graph API End----
 
 public:
@@ -114,6 +207,11 @@ public:
 	RHIDescriptorPoolPtr GetDefaultDescriptorPool() { return mDefaultPool; }
 	RHIBindingSetLayoutPtr mViewBindingSet;
 	SharedPtr<ShaderAsset> mDefaultShader;
+private:
+	RHIPipelineStatePtr CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& desc, RHIVertexLayout* layout);
+
+	using PipelineCacheKey = std::pair<MaterialInstance*, size_t>;
+
 private:
 	
 	void FlushFrameInstancingBuffer() { mInstancingIdMemory.Reset(); };
@@ -134,7 +232,6 @@ public:
 	StaticSampler mClamp;
 	StaticSampler mRepeat;
 	
-
 };
 
 }

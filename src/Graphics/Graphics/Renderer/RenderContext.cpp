@@ -25,6 +25,154 @@ namespace luna::render
 
 RENDER_API CONFIG_IMPLEMENT(LString, Render, RenderDeviceType, "Vulkan");
 
+size_t RhiObjectCache::GetDataGlobelId(const RHIObject* customData)
+{
+	auto dataExist = mDataGlobelId.find(customData);
+	if (dataExist != mDataGlobelId.end())
+	{
+		return dataExist->second;
+	}
+	return size_t(-1);
+}
+
+void RhiObjectCache::ReleaseData(LMemoryHash& newHash)
+{
+	auto dataExist = mData.find(newHash);
+	if (dataExist != mData.end())
+	{
+		mData.erase(dataExist);
+		emptyID.push(mDataGlobelId[dataExist->second]);
+		mDataGlobelId.erase(dataExist->second);
+	}
+}
+
+RHIShaderBlobPtr ShaderBlobCache::CreateShader(RenderContext* mDevice, const RHIShaderDesc& desc)
+{
+	std::function<void(luna::LMemoryHash&, const luna::render::RHIShaderDesc&)> dataHashFunc = [&](luna::LMemoryHash& newHash, const luna::render::RHIShaderDesc& desc)
+	{
+		newHash.Combine((uint8_t*)desc.mName.c_str(), desc.mName.Length() * sizeof(char));
+		newHash.Combine((uint8_t*)desc.mContent.c_str(), desc.mContent.Length() * sizeof(char));
+		newHash.Combine((uint8_t*)desc.mEntryPoint.c_str(), desc.mEntryPoint.Length() * sizeof(char));
+		newHash.Combine((uint8_t*)&desc.mType, sizeof(desc.mType));
+		newHash.GenerateHash();
+	};
+	std::function<RHIShaderBlobPtr(RenderContext* device, const RHIShaderDesc &desc)> dataCreateFunc = [&](RenderContext* device, const RHIShaderDesc& desc)->RHIShaderBlobPtr
+	{
+		return device->mDevice->CreateShader(desc);
+	};
+	return CreateRHIObject<RHIShaderBlob,const luna::render::RHIShaderDesc&>(
+		mDevice,
+		desc,
+		dataHashFunc,
+		dataCreateFunc
+	);
+}
+
+void PipelineStateCache::PackShaderToMemory(RenderContext* mDevice, luna::LMemoryHash& newHash, const RHIShaderBlob* shaderData)
+{
+	size_t shader_id = -1;
+	if (shaderData != nullptr)
+	{
+		shader_id = mDevice->GetShaderId(shaderData);
+		
+	}
+	newHash.Combine((uint8_t*)&shader_id, sizeof(size_t));
+}
+
+RHIPipelineStatePtr PipelineStateCache::CreatePipeline(RenderContext* mDevice, const RHIPipelineStateDesc& desc)
+{
+	std::function<void(luna::LMemoryHash&, const luna::render::RHIPipelineStateDesc&)> dataHashFunc = [&](luna::LMemoryHash& newHash, const luna::render::RHIPipelineStateDesc& desc)
+	{
+		newHash.Combine((uint8_t*)&desc.mType, sizeof(desc.mType));
+		if (desc.mType == RHICmdListType::Graphic3D)
+		{	
+			//graph desc shader信息
+			const RHIPipelineStateObjectDesc& pipelineGraphDesc = desc.mGraphicDesc.mPipelineStateDesc;
+			PackShaderToMemory(mDevice, newHash, pipelineGraphDesc.mVertexShader.get());
+			PackShaderToMemory(mDevice, newHash, pipelineGraphDesc.mPixelShader.get());
+			PackShaderToMemory(mDevice, newHash, pipelineGraphDesc.mGeometryShader.get());
+			PackShaderToMemory(mDevice, newHash, pipelineGraphDesc.mDominShader.get());
+			PackShaderToMemory(mDevice, newHash, pipelineGraphDesc.mHullShader.get());
+			//input element信息
+			for (auto& element : desc.mGraphicDesc.mInputLayout.mElements)
+			{
+				newHash.Combine((uint8_t*)&element.mElementType, sizeof(element.mElementType));
+				newHash.Combine((uint8_t*)&element.mElementCount, sizeof(element.mElementCount));
+				newHash.Combine((uint8_t*)&element.mUsage, sizeof(element.mUsage));
+				newHash.Combine((uint8_t*)&element.mOffset, sizeof(element.mOffset));
+				newHash.Combine((uint8_t*)&element.mBufferSlot, sizeof(element.mBufferSlot));
+				newHash.Combine((uint8_t*)&element.mInstanceUsage, sizeof(element.mInstanceUsage));
+			}
+			//pass信息
+			for (auto& view : desc.mGraphicDesc.mRenderPassDesc.mColorView)
+			{
+				RHITextureFormat& srv_desc = view->mBindResource->mResDesc.Format;
+				newHash.Combine((uint8_t*)&srv_desc, sizeof(srv_desc));
+			}
+			if (desc.mGraphicDesc.mRenderPassDesc.mDepths.size() > 0)
+			{
+				RHITextureFormat& dsv_desc = desc.mGraphicDesc.mRenderPassDesc.mDepthStencilView->mBindResource->mResDesc.Format;
+				newHash.Combine((uint8_t*)&dsv_desc, sizeof(dsv_desc));
+			}
+			else
+			{
+				RHITextureFormat dsv_desc = RHITextureFormat::FORMAT_UNKNOWN;
+				newHash.Combine((uint8_t*)&dsv_desc, sizeof(dsv_desc));
+			}
+			//graph desc shader信息
+			newHash.Combine((uint8_t*)&pipelineGraphDesc.BlendState.AlphaToCoverageEnable, sizeof(pipelineGraphDesc.BlendState.AlphaToCoverageEnable));
+			newHash.Combine((uint8_t*)&pipelineGraphDesc.BlendState.IndependentBlendEnable, sizeof(pipelineGraphDesc.BlendState.IndependentBlendEnable));
+			newHash.Combine((uint8_t*)pipelineGraphDesc.BlendState.RenderTarget.data(), pipelineGraphDesc.BlendState.RenderTarget.size() * sizeof(RHIBlendStateTargetDesc));
+			newHash.Combine((uint8_t*)&pipelineGraphDesc.SampleMask, sizeof(pipelineGraphDesc.SampleMask));
+			newHash.Combine((uint8_t*)&pipelineGraphDesc.RasterizerState, sizeof(pipelineGraphDesc.RasterizerState));
+			newHash.Combine((uint8_t*)&pipelineGraphDesc.DepthStencilState, sizeof(pipelineGraphDesc.DepthStencilState));
+			newHash.Combine((uint8_t*)&pipelineGraphDesc.IBStripCutValue, sizeof(pipelineGraphDesc.IBStripCutValue));
+			newHash.Combine((uint8_t*)&pipelineGraphDesc.PrimitiveTopologyType, sizeof(pipelineGraphDesc.PrimitiveTopologyType));
+			newHash.Combine((uint8_t*)&pipelineGraphDesc.NumRenderTargets, sizeof(pipelineGraphDesc.NumRenderTargets));
+			newHash.Combine((uint8_t*)&pipelineGraphDesc.SampleDesc, sizeof(pipelineGraphDesc.SampleDesc));
+			newHash.Combine((uint8_t*)&pipelineGraphDesc.NodeMask, sizeof(pipelineGraphDesc.NodeMask));
+		}
+		newHash.GenerateHash();
+	};
+	std::function<RHIPipelineStatePtr(RenderContext* device, const RHIPipelineStateDesc& desc)> dataCreateFunc = [&](RenderContext* device, const RHIPipelineStateDesc& desc)->RHIPipelineStatePtr
+	{
+		return device->mDevice->CreatePipeline(desc);
+	};
+	return CreateRHIObject<RHIPipelineState, const luna::render::RHIPipelineStateDesc&>(
+		mDevice,
+		desc,
+		dataHashFunc,
+		dataCreateFunc
+		);
+}
+
+RHICmdSignaturePtr CmdSignatureCache::CreateCmdSignature(
+	RenderContext* mDevice,
+	RHIPipelineState* pipeline,
+	const LArray<CommandArgDesc>& allCommondDesc
+)
+{
+	std::function<void(luna::LMemoryHash&, RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc)> dataHashFunc = [&](luna::LMemoryHash& newHash, RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc)
+	{
+		size_t pipelineId = mDevice->GetPipelineId(pipeline);
+		newHash.Combine((uint8_t*)&pipelineId, sizeof(size_t));
+		newHash.Combine((uint8_t*)allCommondDesc.data(), allCommondDesc.size() * sizeof(CommandArgDesc));
+		newHash.GenerateHash();
+	};
+	std::function<RHICmdSignaturePtr(RenderContext* device, RHIPipelineState* pipeline,const LArray<CommandArgDesc>& allCommondDesc)> dataCreateFunc = [&](
+		RenderContext* device,RHIPipelineState* pipeline,const LArray<CommandArgDesc>& allCommondDesc)->RHICmdSignaturePtr
+	{
+		return device->mDevice->CreateCmdSignature(pipeline, allCommondDesc);
+	};
+	return CreateRHIObject<RHICmdSignature, RHIPipelineState*, const LArray<CommandArgDesc>&>(
+		mDevice,
+		pipeline,
+		allCommondDesc,
+		dataHashFunc,
+		dataCreateFunc
+		);
+}
+
 const size_t sStagingBufferMaxSize = 1024 * 1024 * 32 * 8;
 const size_t sFrameGraphBufferMaxSize = 1024 * 1024 * 32 * 8;
 const size_t sInstancingBufferMaxSize = 128 * 128;
@@ -324,6 +472,57 @@ RHIResource* RenderContext::CreateInstancingBufferByRenderObjects(const LArray<R
 	return mInstancingIdMemory.AllocateNewBuffer(ids.data(), ids.size() * sizeof(int32_t), ids.size() * sizeof(int32_t));
 }
 
+RHIShaderBlobPtr RenderContext::CreateShader(const RHIShaderDesc& desc)
+{
+	return mShaderBlobCache.CreateShader(this,desc);
+}
+
+size_t RenderContext::GetShaderId(const RHIShaderBlob* shader)
+{
+	return mShaderBlobCache.GetDataGlobelId(shader);
+}
+
+RHIPipelineStatePtr RenderContext::CreatePipeline(const RHIPipelineStateDesc& desc)
+{
+	return mPipelineCache.CreatePipeline(this, desc);
+}
+
+size_t RenderContext::GetPipelineId(const RHIPipelineState* pipeline)
+{
+	return mPipelineCache.GetDataGlobelId(pipeline);
+}
+
+RHICmdSignaturePtr RenderContext::CreateCmdSignature(RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc)
+{
+	return mCmdSignatureCache.CreateCmdSignature(this, pipeline, allCommondDesc);
+}
+
+size_t RenderContext::GetCmdSignatureId(const RHICmdSignature* pipeline)
+{
+	return mCmdSignatureCache.GetDataGlobelId(pipeline);
+}
+
+RHIPipelineStatePtr RenderContext::CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& passDesc, RHIVertexLayout* layout)
+{
+	RHIPipelineStateDesc desc = {};
+	RenderPipelineStateDescGraphic& graphicDesc = desc.mGraphicDesc;
+	desc.mType = RHICmdListType::Graphic3D;
+
+	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthEnable = mat->mMaterialTemplate->IsDepthTestEnable();
+	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthWrite = mat->mMaterialTemplate->IsDepthWriteEnable();
+	graphicDesc.mPipelineStateDesc.PrimitiveTopologyType = (RHIPrimitiveTopologyType)mat->mMaterialTemplate->GetPrimitiveType();
+	graphicDesc.mInputLayout = *layout;
+	graphicDesc.mPipelineStateDesc.mVertexShader = mat->GetShaderVS();
+	graphicDesc.mPipelineStateDesc.mPixelShader = mat->GetShaderPS();
+
+	graphicDesc.mRenderPassDesc = mCurRenderPass;
+
+	RHIBlendStateTargetDesc blend = {};
+	desc.mGraphicDesc.mPipelineStateDesc.BlendState.RenderTarget.push_back(blend);
+	Log("Graphics", "Create pipeline for:{}", mat->GetShaderAsset()->GetAssetPath());
+	return mPipelineCache.CreatePipeline(this,desc);
+}
+
 void RenderContext::FlushStaging()
 {
 	mFence->Wait(mFenceValue);
@@ -356,26 +555,27 @@ RHIBindingSetPtr RenderContext::CreateBindingset(RHIBindingSetLayoutPtr layout)
 	RHIBindingSetPtr bindingset = mDevice->CreateBindingSet(mDefaultPool, layout);
 	return bindingset;
 }
-
-void RenderContext::DrawRenderOBject(render::RenderObject* ro, render::MaterialInstance* mat, PackedParams* params)
+RHIPipelineStatePtr RenderContext::CreatePipeline(render::MaterialInstance* mat, RHIVertexLayout* layout)
 {
-	if(ro->mInstanceRes)
-		DrawMeshInstanced(ro->mMesh, mat, params, ro->mInstanceRes, ro->mID, 1);
+	return CreatePipelineState(mat, mCurRenderPass, layout);
+// 	ShaderAsset* shader = mat->GetShaderAsset();
+
 }
 
-void RenderContext::DrawMesh(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params)
+void RenderContext::DrawMesh(render::RenderMeshBase* mesh, render::MaterialInstance* mat, PackedParams* params)
 {
 	ZoneScoped;
 	DrawMeshInstanced(mesh, mat, params, nullptr, 0, 1);
 }
 
 
-void RenderContext::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialInstance* mat, PackedParams* params,
+void RenderContext::DrawMeshInstanced(render::RenderMeshBase* mesh, render::MaterialInstance* mat, PackedParams* params,
 	render::RHIResource* vertexInputInstanceRes /*= nullptr*/,
 	int32_t startInstanceIdx /*= 1*/, int32_t instancingSize /*= 1*/)
 {
 	ZoneScoped;
 	RHIVertexLayout layout = mesh->GetVertexLayout();
+	//todo:这里vulkan发现vertexinput和shader定义不一样长会报错
 	if(vertexInputInstanceRes)
 		layout.AddVertexElement(VertexElementType::Int, VertexElementUsage::UsageInstanceMessage, 4, 1, VertexElementInstanceType::PerInstance);
 
@@ -385,18 +585,18 @@ void RenderContext::DrawMeshInstanced(render::SubMesh* mesh, render::MaterialIns
 	mGraphicCmd->SetPipelineState(pipeline);
 	mGraphicCmd->BindDesriptorSetExt(matBindingset);
 
-	size_t vertexCount = mesh->mVertexData.size();
+	size_t vertexCount = mesh->GetVertexSize();
 
-	RHIResource* vb = mesh->mVB;
-	size_t indexCount = mesh->mIndexData.size();
-	RHIResource* ib = mesh->mIB;
+	RHIResource* vb = mesh->GetVertexBuffer();
+	size_t indexCount = mesh->GetIndexSize();
+	RHIResource* ib = mesh->GetIndexBuffer();
 
 	LArray<RHIVertexBufferDesc> descs;
 	RHIVertexBufferDesc& vbDesc = descs.emplace_back();
 	vbDesc.mOffset = 0;
 	vbDesc.mBufferSize = vertexCount * mesh->GetStridePerVertex();
 	vbDesc.mVertexStride = mesh->GetStridePerVertex();
-	vbDesc.mVertexRes = mesh->mVB;
+	vbDesc.mVertexRes = vb;
 
 	if (vertexInputInstanceRes != nullptr)
 	{

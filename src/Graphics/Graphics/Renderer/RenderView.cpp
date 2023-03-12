@@ -41,8 +41,19 @@ void RenderView::PrepareView()
 
 void RenderView::Culling(RenderScene* scene)
 {
-	mViewVisibleROs.clear();
-	mViewVisibleROs = scene->GetRenderObjects();
+	for(size_t eachPassIndex =0; eachPassIndex < MeshRenderPass::AllNum; ++eachPassIndex)
+	{
+		mMeshRenderCommandsPass[eachPassIndex].ClearCommand();
+		mMeshRenderCommandsPass[eachPassIndex].SetScene(scene);
+		mMeshRenderCommandsPass[eachPassIndex].SetView(this);
+		for(auto& eachCommand : scene->mAllMeshDrawCommands[eachPassIndex].GetCommands())
+		{
+			mMeshRenderCommandsPass[eachPassIndex].AddCommand(&eachCommand.second);
+		}
+	}
+
+	//mViewVisibleROs.clear();
+	//mViewVisibleROs = scene->GetRenderObjects();
 }
 
 void RenderView::Render(RenderScene* scene, FrameGraphBuilder* FG)

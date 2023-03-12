@@ -22,7 +22,24 @@ namespace luna::render
 PARAM_ID(SceneBuffer);
 PARAM_ID(ViewBuffer);
 PARAM_ID(MaterialBuffer);
+class OpaquePassProcessor : public RoPassProcessorBase
+{
+public:
+	OpaquePassProcessor(RenderScene* scene, MeshRenderPass passType);
+	void AddRenderObject(RenderObject* renderObject) override;
+};
+OpaquePassProcessor::OpaquePassProcessor(RenderScene* scene, MeshRenderPass passType) : RoPassProcessorBase(scene, passType)
+{
 
+}
+void OpaquePassProcessor::AddRenderObject(RenderObject* renderObject)
+{
+	BuildMeshRenderCommands(renderObject, renderObject->mMaterial);
+}
+RoPassProcessorBase* OpaquePassProcessorCreateFunction(RenderScene* scene, MeshRenderPass passType)
+{
+	return new OpaquePassProcessor(scene, passType);
+}
 void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene)
 {
 	
@@ -89,11 +106,12 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 	node.SetDepthStencilAttachment(depthView);
 
 	static auto sSkyboxMesh = sAssetModule->LoadAsset<MeshAsset>("/assets/built-in/Geometry/Sphere.lmesh");	
-	
+	static int32_t sSkyboxMeshID = renderScene->mSceneDataGpu.AddMeshData(sSkyboxMesh->GetSubMeshAt(0));
+	static RenderMeshBase* sSkyboxRenderMesh = renderScene->mSceneDataGpu.GetMeshData(sSkyboxMeshID);
 
 	node.ExcuteFunc([=](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
 	{
-		ROArray& ROs = view->GetViewVisibleROs();
+		//ROArray& ROs = view->GetViewVisibleROs();
 	
 		PARAM_ID(_MainTex);
 		PARAM_ID(_LUTTex);
@@ -102,44 +120,30 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 		PARAM_ID(_DirectionLightShadowMap);
 		PARAM_ID(_IrradianceTex);
 
-		RHIResource* instancingBuffer = renderScene->mROIDInstancingBuffer->mRes;
 		//»­Ìì¿ÕºÐ×Ó
 		if (renderScene->mSkyboxMaterial)
 		{
-			auto skyboxSubmesh = sSkyboxMesh->GetSubMeshAt(0);
 			MaterialInstance* mat = renderScene->mSkyboxMaterial;
 			mat->SetShaderInput(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer->mView);
 			mat->SetShaderInput(ParamID_ViewBuffer, view->mViewBuffer->mView);
-			device->DrawMesh(skyboxSubmesh, mat, nullptr);
+			device->DrawMesh(sSkyboxRenderMesh, mat, nullptr);
 		}
 
-		for (auto it : ROs)
-		{
-			MaterialInstance* mat = it->mMaterial;
-			RenderObject* ro = it;
-			if (mat)
-				mat->Ready();
+		RHIResource* instancingBuffer = renderScene->mROIDInstancingBuffer->mRes;
+		std::unordered_map<luna::render::ShaderParamID, luna::render::RHIView*> shaderBindingParam;
+		if (shadowmapView)
+			shaderBindingParam.insert({ ParamID__ShadowMap ,shadowmapView->mRHIView.get() });
 
-			it->mInstanceRes = instancingBuffer;
-			ShaderAsset* shader = mat->GetShaderAsset();
-			
-			if(shadowmapView)
-				mat->SetShaderInput(ParamID__ShadowMap, shadowmapView->mRHIView);
+		if (directionalShadowmapView)
+			shaderBindingParam.insert({ ParamID__DirectionLightShadowMap ,directionalShadowmapView->mRHIView.get() });
 
-			if(directionalShadowmapView)
-				mat->SetShaderInput(ParamID__DirectionLightShadowMap, directionalShadowmapView->mRHIView);
-
-			if(envView)
-				mat->SetShaderInput(ParamID__EnvTex, envView->mRHIView);
-			if(lutView)
-				mat->SetShaderInput(ParamID__LUTTex, lutView->mRHIView);
-			if(irradianceView)
-				mat->SetShaderInput(ParamID__IrradianceTex, irradianceView->mRHIView);
-			mat->SetShaderInput(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer->mView);
-			mat->SetShaderInput(ParamID_ViewBuffer, view->mViewBuffer->mView);
-			
-			device->DrawRenderOBject(ro, mat, nullptr);
-		}
+		if (envView)
+			shaderBindingParam.insert({ ParamID__EnvTex ,envView->mRHIView.get() });
+		if (lutView)
+			shaderBindingParam.insert({ ParamID__LUTTex ,lutView->mRHIView.get() });
+		if (irradianceView)
+			shaderBindingParam.insert({ ParamID__IrradianceTex ,irradianceView->mRHIView.get() });
+		view->mMeshRenderCommandsPass[MeshRenderPass::LightingPass].DrawAllCommands(shaderBindingParam);
 		
 	});
 }

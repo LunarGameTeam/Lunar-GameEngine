@@ -64,11 +64,13 @@ void ShaderAsset::Init()
 		shaderDesc.mContent = vertexContent;
 		shaderDesc.mEntryPoint = "VSMain";
 		shaderDesc.mType = RHIShaderType::Vertex;
-		mVS = sRenderModule->GetRHIDevice()->CreateShader(shaderDesc);
+		mVS = sRenderModule->GetRenderContext()->CreateShader(shaderDesc);
+		mVsId = sRenderModule->GetRenderContext()->GetShaderId(mVS);
 		shaderDesc.mContent = fragContent;
 		shaderDesc.mEntryPoint = "PSMain";
 		shaderDesc.mType = RHIShaderType::Pixel;
-		mPS = sRenderModule->GetRHIDevice()->CreateShader(shaderDesc);
+		mPS = sRenderModule->GetRenderContext()->CreateShader(shaderDesc);
+		mPsId = sRenderModule->GetRenderContext()->GetShaderId(mPS);
 		mInit = true;
 	}
 	std::vector<RHIBindPoint> bindingKeys;

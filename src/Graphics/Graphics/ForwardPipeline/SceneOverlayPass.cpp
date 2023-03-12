@@ -51,17 +51,16 @@ void OverlayPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rend
 	{
 		if (!renderScene->mDrawGizmos)
 			return;
-		ROArray& ROs = view->GetViewVisibleROs();
 		PARAM_ID(MaterialBuffer);
 		PARAM_ID(_MainTex);
 		PARAM_ID(_ShadowMap);
 		debugMat->SetShaderInput(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer->mView);
 		debugMat->SetShaderInput(ParamID_ViewBuffer, view->mViewBuffer->mView);
 		RHIResource* instancingBuffer = renderScene->mROIDInstancingBuffer->mRes;
-		if(renderScene->mDebugMeshLine->mVertexData.size())
-			device->DrawMesh(renderScene->mDebugMeshLine, debugMat, nullptr);
-		if (renderScene->mDebugMesh->mVertexData.size())
-			device->DrawMesh(renderScene->mDebugMesh, debugMat, nullptr);
+		if(renderScene->mDebugMeshLineData.GetVertexSize() != 0)
+			device->DrawMesh(&renderScene->mDebugMeshLineData, debugMat, nullptr);
+		if (renderScene->mDebugMeshData.GetVertexSize() != 0)
+			device->DrawMesh(&renderScene->mDebugMeshData, debugMat, nullptr);
 	});
 }
 

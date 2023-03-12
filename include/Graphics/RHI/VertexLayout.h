@@ -82,17 +82,6 @@ struct RHIVertexLayoutElement
 		}
 		mSize = elementSize * mElementCount;
 	}
-	size_t Hash() const 
-	{
-		size_t result = 0;
-		boost::hash_combine(result, mElementType);
-		boost::hash_combine(result, mElementCount);
-		boost::hash_combine(result, mUsage);
-		boost::hash_combine(result, mOffset);
-		boost::hash_combine(result, mBufferSlot);
-		boost::hash_combine(result, mInstanceUsage);
-		return result;
-	}
 
 	VertexElementType mElementType;
 	uint8_t mElementCount;
@@ -123,27 +112,12 @@ struct RHIVertexLayout
 		mDirty = true;
 	}
 
-	size_t Hash()
-	{
-		if (mDirty)
-		{
-			mHash = 0;
-			for (auto& element : mElements)
-			{
-				boost::hash_combine(mHash, element.Hash());
-			}
-			mDirty = false;
-		}
-		return mHash;
-	}
-
 	LArray<size_t> GetSize() const
 	{
 		return mSize;
 	}
 
 	bool mDirty = true;
-	size_t mHash = 0;
 	LArray<size_t> mSize;
 	LArray<RHIVertexLayoutElement> mElements;
 };

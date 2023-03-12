@@ -59,14 +59,18 @@ void PBRPreparePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* r
 	node.ExcuteFunc([view, renderScene, sceneView](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
 	{
 		lutMatInstance->SetShaderInput(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer->mView);
-	device->DrawMesh(sRenderModule->mFullscreenMesh, lutMatInstance, nullptr);
+	device->DrawMesh(&sRenderModule->mFullscreenMesh, lutMatInstance, nullptr);
 	});
 
 	
 
 	static auto irrMat = sAssetModule->LoadAsset<MaterialTemplateAsset>(
 		"/assets/built-in/IrradianceCube.mat");
-	static auto cube = sAssetModule->LoadAsset<MeshAsset>("/assets/built-in/Geometry/Box.lmesh");
+	static SharedPtr<MeshAsset> cubeMeshAsset = sAssetModule->LoadAsset<MeshAsset>("/assets/built-in/Geometry/Box.lmesh");
+	static int32_t cubeMeshID = renderScene->mSceneDataGpu.AddMeshData(cubeMeshAsset->GetSubMeshAt(0));
+	static RenderMeshBase* cubeRenderMesh = renderScene->mSceneDataGpu.GetMeshData(cubeMeshID);
+
+
 	static LArray<MaterialInstance*> iradMatInstance;
 	iradMatInstance.push_back(irrMat->CreateInstance());
 	iradMatInstance.push_back(irrMat->CreateInstance());
@@ -139,7 +143,6 @@ void PBRPreparePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* r
 		{
 			PARAM_ID(_EnvTex);
 		PARAM_ID(ViewBuffer);
-		SubMesh* cubeSubMesh = cube->GetSubMeshAt(0);
 		for (const auto& param : renderScene->mSkyboxMaterial->GeTemplateParams())
 		{
 			if (param->mParamType == MaterialParamType::TextureCube)
@@ -147,7 +150,7 @@ void PBRPreparePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* r
 				auto cube = (MaterialParamTextureCube*)(param.Get());
 				iradMatInstance[idx]->SetShaderInput(ParamID_ViewBuffer, sViewBuffers[idx]->mView);
 				iradMatInstance[idx]->SetShaderInput(ParamID__EnvTex, envView->mRHIView);
-				device->DrawMesh(cubeSubMesh, iradMatInstance[idx], nullptr);
+				device->DrawMesh(cubeRenderMesh, iradMatInstance[idx], nullptr);
 				break;
 			}
 		}

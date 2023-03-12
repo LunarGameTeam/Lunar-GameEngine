@@ -81,7 +81,7 @@ public:
 		if (lval)
 		{
 			T* _p = dynamic_cast<T*>(lval.get());
-			ptr.reset(_p);
+			ptr = lval.ptr;
 		}
 	}
 
@@ -128,6 +128,8 @@ public:
 
 
 	T* get() { return dynamic_cast<T*>(ptr.get()); }
+
+	const T* get()const { return dynamic_cast<const T*>(ptr.get()); }
 
 	[[nodiscard]] T* operator->() const noexcept { return dynamic_cast<T*>(ptr.get()); }
 

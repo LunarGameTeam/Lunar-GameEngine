@@ -91,7 +91,11 @@ private:
 	//全局反射信息注册
 	void AddDirectXEnumVariable();
 	RHIShaderBlobPtr CreateShader(const RHIShaderDesc& desc) override;
+	
 	RHIPipelineStatePtr CreatePipeline(const RHIPipelineStateDesc& desc) override;
+
+	RHICmdSignaturePtr CreateCmdSignature(RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc) override;
+
 	inline void MemcopyDataToResource(
 		_In_ const D3D12_MEMCPY_DEST* pDest,
 		_In_ const D3D12_SUBRESOURCE_DATA* pSrc,

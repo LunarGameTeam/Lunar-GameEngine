@@ -19,6 +19,13 @@
 namespace luna::render
 {
 
+VulkanCmdSignature::VulkanCmdSignature(
+	RHIPipelineState* pipeline,
+	const LArray<CommandArgDesc>& allCommondDesc
+) :RHICmdSignature(pipeline, allCommondDesc)
+{
+}
+
 VulkanGraphicCmdList::VulkanGraphicCmdList(RHICmdListType type) : 
 	RHIGraphicCmdList(type)
 {
@@ -122,6 +129,39 @@ void VulkanGraphicCmdList::SetScissorRects(size_t x, size_t y, size_t width, siz
 void VulkanGraphicCmdList::DrawIndexedInstanced(uint32_t IndexCountPerInstance, uint32_t InstanceCount, uint32_t StartIndexLocation, int32_t BaseVertexLocation, int32_t StartInstanceLocation)
 {
 	mCommandBuffer.drawIndexed(IndexCountPerInstance, 1, 0, 0, StartInstanceLocation);
+}
+
+void VulkanGraphicCmdList::DrawIndirectCommands(const RHICmdArgBuffer* DrawBuffer)
+{
+	size_t perDrawCommand = DrawBuffer->GetCmdSignature()->GetDesc().size();
+	size_t allDrawCount = DrawBuffer->GetAllCommand().size() / perDrawCommand;
+	for (int i = 0; i < allDrawCount; ++i)
+	{
+		int commandOffset = i * perDrawCommand;
+		for (int j = 0; j < perDrawCommand; ++j)
+		{
+			const RHICmdArgBufferDataDesc& command = DrawBuffer->GetAllCommand()[commandOffset + j];
+			switch (command.mArgType)
+			{
+			case RHIIndirectArgumentType::AsVertexBuffer:
+			{
+				SetVertexBuffer(command.mVbPointer, DrawBuffer->GetCmdSignature()->GetDesc()[j].mSlotOrIndex);
+				break;
+			}
+			case RHIIndirectArgumentType::AsIndexBuffer:
+			{
+				SetIndexBuffer(command.mIbPointer);
+				break;
+			}
+			case RHIIndirectArgumentType::AsDrawCommand:
+			{
+				DrawIndexedInstanced(command.mIndexCountPerInstance, command.mInstanceCount, command.mStartIndexLocation, command.mBaseVertexLocation, command.mStartInstanceLocation);
+			}
+			default:
+				break;
+			}
+		}
+	}
 }
 
 void VulkanGraphicCmdList::SetDrawPrimitiveTopology(RHIPrimitiveTopology primitive_topology)

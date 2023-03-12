@@ -156,7 +156,6 @@ public:
 	RHIBindingSetPtr GetBindingSet();
 	RHIPipelineState* GetPipeline(RHIVertexLayout* layout, const RenderPassDesc& pass);
 public:
-	LMap<size_t, RHIPipelineStatePtr> mPipelineCaches;
 	LMap<ShaderParamID, RHIViewPtr> mInputs;
 	
 	size_t mMaterialBufferSize = 0;

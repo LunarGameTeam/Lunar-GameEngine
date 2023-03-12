@@ -368,6 +368,11 @@ RHIPipelineStatePtr VulkanDevice::CreatePipeline(const RHIPipelineStateDesc& des
 	return CreateRHIObject<VulkanPipelineState>(desc);
 }
 
+RHICmdSignaturePtr VulkanDevice::CreateCmdSignature(RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc)
+{
+	return CreateRHIObject<VulkanCmdSignature>(pipeline, allCommondDesc);
+}
+
 RHIBindingSetPtr VulkanDevice::CreateBindingSet(RHIDescriptorPool* pool, RHIBindingSetLayoutPtr layout)
 {
 	return CreateRHIObject<VulkanBindingSet>(pool, layout);

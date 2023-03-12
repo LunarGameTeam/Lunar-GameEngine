@@ -38,17 +38,6 @@ void MeshRenderer::OnCreate()
 		mMaterialInstance->Ready();
 	}
 	CreateRenderObject();
-
-	
-	if (mMaterialInstance && mMeshAsset && mRO)
-	{
-		mRO->mMaterial = mMaterialInstance.Get();
-		mRO->mMesh = mMeshAsset->GetSubMeshAt(0);
-		mRO->mMesh->Update();
-	}
-
-	if(mRO)
-		mRO->mWorldMat = &(mTransform->GetLocalToWorldMatrix());
 }
 
 void MeshRenderer::OnActivate()
@@ -63,9 +52,16 @@ MeshRenderer::~MeshRenderer()
 
 void MeshRenderer::CreateRenderObject()
 {	
-	if (mRO || !GetScene())
+	if (mRO != uint64_t(-1) || !GetScene())
+	{
 		return;
-	mRO = GetScene()->GetRenderScene()->CreateRenderObject();
+	}
+	mRO = GetScene()->GetRenderScene()->CreateRenderObject(
+		mMaterialInstance.Get(),
+		mMeshAsset->GetSubMeshAt(0),
+		mCastShadow,
+		&mTransform->GetLocalToWorldMatrix()
+	);
 	
 }
 
@@ -75,34 +71,31 @@ void MeshRenderer::SetMaterial(MaterialTemplateAsset* mat)
 	mMaterialInstance = mat->CreateInstance();
 	if (mMaterialInstance)
 		mMaterialInstance->Ready();
-	if (!mRO)
+	if (mRO == uint64_t(-1))
 	{
-		CreateRenderObject();
+		return;
 	}
-	else
-	{
-		mRO->mMaterial = mMaterialInstance.Get();
-	}
+	GetScene()->GetRenderScene()->SetRenderObjectMaterial(mRO, mMaterialInstance.Get());
 }
 
 void MeshRenderer::SetMeshAsset(MeshAsset* obj)
 {
 	mMeshAsset = ToSharedPtr(obj);
-	if (!mRO)
+	if (mRO == uint64_t(-1))
 	{
-		CreateRenderObject();
+		return;
 	}
-	else
-	{
-		mRO->mMesh = obj->GetSubMeshAt(0);
-	}
+	GetScene()->GetRenderScene()->SetRenderObjectMesh(mRO,mMeshAsset->GetSubMeshAt(0));
 }
 
 void MeshRenderer::SetCastShadow(bool val)
 {
+	if (mRO == uint64_t(-1))
+	{
+		return;
+	}
 	mCastShadow = val;
-	if (mRO)
-		mRO->mCastShadow = mCastShadow;
+	GetScene()->GetRenderScene()->SetRenderObjectCastShadow(mRO, mCastShadow);
 }
 
 }
