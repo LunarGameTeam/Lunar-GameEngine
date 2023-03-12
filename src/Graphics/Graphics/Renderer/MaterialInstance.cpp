@@ -157,6 +157,8 @@ void MaterialInstance::Init()
 
 void MaterialInstance::SetShaderInput(ShaderParamID id, RHIView* view)
 {
+	if (mInputs[id] == view)
+		return;
 	mInputs[id] = view;
 	mBindingDirty = true;
 }

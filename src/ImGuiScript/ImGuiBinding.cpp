@@ -366,15 +366,15 @@ STATIC_INIT(imgui)
 		ImGui::SameLine(x + 16);
 		
 		ImGui::ItemAdd(itemRect, id);
-		if (ImGui::IsItemClicked(0))
+		if (ImGui::ButtonBehavior(itemRect, id, nullptr, nullptr))
 		{
 			clicked = true;
-			if(ImGui::IsMouseDoubleClicked(0))
+			if (ImGui::IsMouseDoubleClicked(0))
 			{
 				double_click = true;
 				expand = !expand;
 				window->DC.StateStorage->SetInt(id, expand);
-			}			
+			}
 		}
 
 		hoverd = ImGui::IsItemHovered();

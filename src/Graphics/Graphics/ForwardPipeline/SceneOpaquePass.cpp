@@ -58,10 +58,18 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 
 	auto colorView = node.AddRTV(data->mSceneColor, RHIViewDimension::TextureView2D);
 	auto depthView = node.AddDSV(data->mSceneDepth);
+	if(data->mLUTTex)
+		lutView = node.AddSRV(data->mLUTTex, RHIViewDimension::TextureView2D);
+	else
+		lutView = node.AddSRV(builder->GetTexture("white"), RHIViewDimension::TextureView2D);
 
-	lutView        = node.AddSRV(data-> mLUTTex, RHIViewDimension::TextureView2D);
-	irradianceView = node.AddSRV(data-> mIrradianceTex, RHIViewDimension::TextureViewCube, 0, 6);
-	envView = node.AddSRV(data->mEnvTex, RHIViewDimension::TextureViewCube, 0, 6);
+	if(data->mIrradianceTex)
+		irradianceView = node.AddSRV(data-> mIrradianceTex, RHIViewDimension::TextureViewCube, 0, 6);
+
+
+	if(data->mEnvTex)
+		envView = node.AddSRV(data->mEnvTex, RHIViewDimension::TextureViewCube, 0, 6);
+
 
 	if (shadowData)
 	{
@@ -121,9 +129,12 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 			if(directionalShadowmapView)
 				mat->SetShaderInput(ParamID__DirectionLightShadowMap, directionalShadowmapView->mRHIView);
 
-			mat->SetShaderInput(ParamID__EnvTex, envView->mRHIView);
-			mat->SetShaderInput(ParamID__LUTTex, lutView->mRHIView);
-			mat->SetShaderInput(ParamID__IrradianceTex, irradianceView->mRHIView);
+			if(envView)
+				mat->SetShaderInput(ParamID__EnvTex, envView->mRHIView);
+			if(lutView)
+				mat->SetShaderInput(ParamID__LUTTex, lutView->mRHIView);
+			if(irradianceView)
+				mat->SetShaderInput(ParamID__IrradianceTex, irradianceView->mRHIView);
 			mat->SetShaderInput(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer->mView);
 			mat->SetShaderInput(ParamID_ViewBuffer, view->mViewBuffer->mView);
 			

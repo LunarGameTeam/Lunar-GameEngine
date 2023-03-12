@@ -119,7 +119,7 @@ class MainWindow(WindowBase):
                                                           initialdir=platform_module.project_dir + "/assets")
                 file_with_extension = os.path.basename(name)
                 (file_without_extension,file_extension) = os.path.splitext(file_with_extension)
-                luna.resource_parse.import_resource_file(name,platform_module.project_dir + "/assets",file_without_extension,file_extension)
+                luna.editor.import_mesh(name,platform_module.project_dir + "/assets",file_without_extension,file_extension)
                 
             if imgui.menu_item("生成 Python API"):
                 self.show_status("生成PythonAPI中")

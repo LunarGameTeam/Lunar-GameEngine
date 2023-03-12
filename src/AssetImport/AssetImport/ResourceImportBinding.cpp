@@ -44,8 +44,8 @@ namespace luna
 	}
 	STATIC_INIT(ResourceImport)
 	{
-		BindingModule* resourceParseModule = BindingModule::Get("luna.resource_parse");
-		resourceParseModule->AddMethod<&ImportFileToLunaResource>("import_resource_file");
+		BindingModule* resourceParseModule = BindingModule::Get("luna.editor");
+		resourceParseModule->AddMethod<&ImportFileToLunaResource>("import_mesh");
 		resourceParseModule->Init();
 	};
 }

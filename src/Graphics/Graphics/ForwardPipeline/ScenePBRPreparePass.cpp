@@ -30,7 +30,8 @@ void PBRPreparePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* r
 {
 	SceneRenderData* data = renderScene->RequireData<SceneRenderData>();
 	FGResourceView* sceneView = nullptr;
-
+	if (!renderScene->mSkyboxMaterial)
+		return;
 	for (const auto& param : renderScene->mSkyboxMaterial->GeTemplateParams())
 	{
 		if (param->mParamType == MaterialParamType::TextureCube)

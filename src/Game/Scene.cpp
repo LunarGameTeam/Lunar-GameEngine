@@ -96,7 +96,7 @@ void Scene::Tick(float deltaTime)
 
 void Scene::Destroy()
 {
-	delete this;
+	return;
 }
 
 void Scene::OnLoad()
