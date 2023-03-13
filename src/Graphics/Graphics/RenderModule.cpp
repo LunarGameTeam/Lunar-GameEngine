@@ -460,7 +460,7 @@ void RenderModule::RenderIMGUI()
 	graphQueue->Signal(mRenderContext->mFence, ++fenceValue);
 	mRenderContext->mFence->Wait(fenceValue);
 	mRenderContext->mGraphicCmd->Reset();
-
+	mRenderContext->mGraphicCmd->BindDescriptorHeap();
 	mRenderContext->mGraphicCmd->ResourceBarrierExt({ sRenderModule->GetSwapChain()->GetBackBuffer(index), render::ResourceState::kUndefined, render::ResourceState::kRenderTarget });
 	mRenderContext->mGraphicCmd->BeginRenderPass(mIMGUIRenderPass, mFrameBuffer[index]);
 	if (mRenderContext->mDeviceType == render::RenderDeviceType::DirectX12)

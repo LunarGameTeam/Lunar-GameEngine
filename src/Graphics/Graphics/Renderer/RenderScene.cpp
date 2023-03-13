@@ -133,7 +133,7 @@ void RenderScene::PrepareScene()
 
 	uint32_t shadowmapIdx = 0;
 	if (mSceneParamsBuffer == nullptr)
-		mSceneParamsBuffer = new ShaderCBuffer(sRenderModule->GetRenderContext()->mDefaultShader->GetConstantBufferDesc(LString("SceneBuffer").Hash()));
+		mSceneParamsBuffer = new ShaderCBuffer(sRenderModule->GetRenderContext()->mDefaultShaderPbr->GetConstantBufferDesc(LString("SceneBuffer").Hash()));
 	if (mROIDInstancingBuffer == nullptr)
 		mROIDInstancingBuffer = new ShaderCBuffer(RHIBufferUsage::VertexBufferBit, sizeof(uint32_t) * 4 * 128);
 

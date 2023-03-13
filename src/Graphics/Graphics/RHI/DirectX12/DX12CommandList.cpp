@@ -493,11 +493,22 @@ D3D12_PRIMITIVE_TOPOLOGY DX12GraphicCmdList::GetDirectXPrimitiveTopology(
 
 void DX12GraphicCmdList::BeginRenderPass(RHIRenderPass* pass, RHIFrameBuffer* buffer)
 {
+	bool ifClearColor = false;
+	bool ifClearDepth = false;
+
+	if (pass->mDesc.mColors.size() > 0 && pass->mDesc.mColors[0].mLoadOp == LoadOp::kClear)
+	{
+		ifClearColor = true;
+	}
+	if (pass->mDesc.mDepths.size() > 0 && pass->mDesc.mDepths[0].mDepthLoadOp == LoadOp::kClear)
+	{
+		ifClearDepth = true;
+	}
 	DX12FrameBuffer* dx12Target = static_cast<DX12FrameBuffer*>(buffer);
-	BindAndClearView(dx12Target->mRTV, dx12Target->mDsv);
+	BindAndClearView(ifClearColor, ifClearDepth,dx12Target->mRTV, dx12Target->mDsv);
 }
 
-void DX12GraphicCmdList::BindAndClearView(RHIView* descriptor_rtv, RHIView* descriptor_dsv)
+void DX12GraphicCmdList::BindAndClearView(bool ifClearColor, bool ifClearDepth, RHIView* descriptor_rtv, RHIView* descriptor_dsv)
 {
 	DX12View* rtv_directx_pointer = static_cast<DX12View*>(descriptor_rtv);
 	DX12View* dsv_directx_pointer = static_cast<DX12View*>(descriptor_dsv);
@@ -524,11 +535,11 @@ void DX12GraphicCmdList::BindAndClearView(RHIView* descriptor_rtv, RHIView* desc
 	}
 
 	mDxCmdList->OMSetRenderTargets(1, rtv_final, false, dsv_final);
-	if (rtv_directx_pointer != nullptr)
+	if (rtv_directx_pointer != nullptr && ifClearColor)
 	{
 		ClearRTView(rtv_directx_pointer, LVector4f(0, 0, 0, 1), 0, 0, width, height);
 	}
-	if (dsv_directx_pointer != nullptr)
+	if (dsv_directx_pointer != nullptr && ifClearDepth)
 	{
 		ClearDSView(0, 0, width, height, dsv_directx_pointer, 1, 0);
 	}
@@ -536,7 +547,18 @@ void DX12GraphicCmdList::BindAndClearView(RHIView* descriptor_rtv, RHIView* desc
 
 void DX12GraphicCmdList::BeginRender(const RenderPassDesc& passDesc)
 {
-	BindAndClearView(passDesc.mColorView[0], passDesc.mDepthStencilView);
+	bool ifClearColor = false;
+	bool ifClearDepth = false;
+
+	if (passDesc.mColors.size() > 0 && passDesc.mColors[0].mLoadOp == LoadOp::kClear)
+	{
+		ifClearColor = true;
+	}
+	if (passDesc.mDepths.size() > 0 && passDesc.mDepths[0].mDepthLoadOp == LoadOp::kClear)
+	{
+		ifClearDepth = true;
+	}
+	BindAndClearView(ifClearColor, ifClearDepth,passDesc.mColorView[0], passDesc.mDepthStencilView);
 }
 void DX12GraphicCmdList::EndRenderPass()
 {

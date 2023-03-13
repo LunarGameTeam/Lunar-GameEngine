@@ -176,7 +176,10 @@ void MaterialInstance::UpdateBindingSet()
 		bindingDescs.emplace_back(shader->GetBindPoint(ParamID_MaterialBuffer), mCBufferView);
 	for(auto& it : mInputs)
 	{
-		bindingDescs.emplace_back(shader->GetBindPoint(it.first), it.second);
+		if (shader->HasBindPoint(it.first))
+		{
+			bindingDescs.emplace_back(shader->GetBindPoint(it.first), it.second);
+		}
 	}
 	mBindingSet->WriteBindings(bindingDescs);
 }

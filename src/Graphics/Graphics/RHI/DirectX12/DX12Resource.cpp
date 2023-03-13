@@ -98,8 +98,18 @@ namespace luna::render
 		case RHITextureFormat::D24_UNORM_S8_UINT:
 			mDxDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 			break;
+		case RHITextureFormat::R16G16B16A16_FLOAT:
+			mDxDesc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+			break;
+		case RHITextureFormat::R16G16B16A16_UNORM:
+			mDxDesc.Format = DXGI_FORMAT_R16G16B16A16_UNORM;
+			break;
+		case RHITextureFormat::R8G8B8A8_UNORM_SRGB:
+			mDxDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+			break;
 		default:
-			mDxDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			mDxDesc.Format = DXGI_FORMAT_UNKNOWN;
+			assert(0);
 			break;
 		}
 		switch (resDesc.Dimension)

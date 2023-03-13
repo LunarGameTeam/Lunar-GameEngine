@@ -136,6 +136,6 @@ public:
 	void CloseCommondList() override;
 private:
 	D3D12_PRIMITIVE_TOPOLOGY GetDirectXPrimitiveTopology(const RHIPrimitiveTopology& primitive_topology);
-	void BindAndClearView(RHIView* descriptor_rtv, RHIView* descriptor_dsv);
+	void BindAndClearView(bool ifClearColor,bool ifClearDepth,RHIView* descriptor_rtv, RHIView* descriptor_dsv);
 };
 }

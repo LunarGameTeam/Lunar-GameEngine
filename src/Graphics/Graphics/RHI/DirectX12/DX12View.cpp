@@ -56,14 +56,22 @@ void DX12View::BindResource(RHIResource* buffer_data)
 			srvDesc.Buffer.StructureByteStride = mBindResource->GetMemoryRequirements().size;
 			break;
 		case RHIResDimension::Texture2D:
+		{
 			srvDesc.Texture2D.MipLevels = mViewDesc.mLevelCount;
+			if (mViewDesc.mViewDimension == RHIViewDimension::TextureView2DArray)
+			{
+				srvDesc.Texture2DArray.ArraySize = mViewDesc.mLevelCount;
+			}
 			break;
+		}
+			
 		case RHIResDimension::Texture3D:
 
 		default:
 			break;
 		}
 		device->CreateShaderResourceView(dx12Res->mDxRes.Get(), &srvDesc, mCPUHandle);
+
 		break;
 	}
 	case RHIViewType::kRenderTarget:

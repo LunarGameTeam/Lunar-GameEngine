@@ -284,7 +284,14 @@ D3D12_GRAPHICS_PIPELINE_STATE_DESC DX12PipelineState::GetPipelineDesc(const RHIP
 	{
 		desc_out.RTVFormats[rtv_index] = GetGraphicFormat(pass_desc.mColorView[rtv_index]->mBindResource->mResDesc.Format);
 	}
-	desc_out.DSVFormat = GetGraphicFormat(pass_desc.mDepths[0].mDepthStencilFormat);
+	if (pass_desc.mDepths.size() > 0)
+	{
+		desc_out.DSVFormat = GetGraphicFormat(pass_desc.mDepths[0].mDepthStencilFormat);
+	}
+	else
+	{
+		desc_out.DSVFormat = DXGI_FORMAT::DXGI_FORMAT_UNKNOWN;
+	}
 	desc_out.SampleDesc.Count = pipeline_desc.SampleDesc.Count;
 	desc_out.SampleDesc.Quality = pipeline_desc.SampleDesc.Quality;
 	return desc_out;
