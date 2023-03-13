@@ -132,6 +132,7 @@ void RenderScene::PrepareScene()
 		return;
 
 	uint32_t shadowmapIdx = 0;
+	//todo:这里dx会出现变量被优化的情况
 	if (mSceneParamsBuffer == nullptr)
 		mSceneParamsBuffer = new ShaderCBuffer(sRenderModule->GetRenderContext()->mDefaultShaderPbr->GetConstantBufferDesc(LString("SceneBuffer").Hash()));
 	if (mROIDInstancingBuffer == nullptr)

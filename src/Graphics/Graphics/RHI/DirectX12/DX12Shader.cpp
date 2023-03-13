@@ -81,13 +81,39 @@ bool DX12ShaderBlob::InitShader(const RHIShaderDesc& resource_desc)
 		for (uint32_t idx = 0; idx < dxShaderDesc.Variables; ++idx)
 		{
 			CBufferVar cbVar;
-			auto uniforms = it->GetVariableByIndex(idx);
+			ID3D12ShaderReflectionVariable* uniforms = it->GetVariableByIndex(idx);
 			D3D12_SHADER_VARIABLE_DESC varDesc;
 			uniforms->GetDesc(&varDesc);
+			ID3D12ShaderReflectionType* variableType = uniforms->GetType();
+			D3D12_SHADER_TYPE_DESC variableTypeDesc;
+			variableType->GetDesc(&variableTypeDesc);
 			size_t varHash = LString(varDesc.Name).Hash();
 			cbVar.mOffset = varDesc.StartOffset;
 			cbVar.mSize = varDesc.Size;
 			cbVar.mName = varDesc.Name;
+			if (variableTypeDesc.Elements > 0)
+			{
+				cbVar.mIsArray = true;
+				cbVar.mElementSize = variableTypeDesc.Rows * variableTypeDesc.Columns * sizeof(float);
+			}
+			if (variableTypeDesc.Class == D3D_SHADER_VARIABLE_CLASS::D3D10_SVC_STRUCT)
+			{
+				cbVar.mIsStruct = true;
+				for (int32_t memberIndex = 0; memberIndex < variableTypeDesc.Members; ++memberIndex)
+				{
+					ID3D12ShaderReflectionType* variableMemberType = variableType->GetMemberTypeByIndex(memberIndex);
+					D3D12_SHADER_TYPE_DESC variableMemberTypeDesc;
+					variableMemberType->GetDesc(&variableMemberTypeDesc);
+					size_t varMemberHash = LString(variableMemberTypeDesc.Name).Hash();
+					CBufferVar cbMemberVar;
+					cbVar.mOffset = variableMemberTypeDesc.Offset;
+					cbVar.mSize = variableMemberTypeDesc.Rows * variableMemberTypeDesc.Columns * sizeof(float);
+					cbVar.mName = variableMemberTypeDesc.Name;
+					cbVar.mStructVars.insert({ varMemberHash,cbVar});
+				}
+				
+			}
+
 			cb.mVars[varHash]  =  cbVar;
 		}
 		mUniformBuffers[hash] =  cb;
