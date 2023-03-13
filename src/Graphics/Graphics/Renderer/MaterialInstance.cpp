@@ -279,6 +279,7 @@ RHIPipelineState* MaterialInstance::GetPipeline(RHIVertexLayout* layout, const R
 
 	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthEnable = mMaterialTemplate->IsDepthTestEnable();
 	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthWrite = mMaterialTemplate->IsDepthWriteEnable();
+	graphicDesc.mPipelineStateDesc.RasterizerState.CullMode = mMaterialTemplate->GetCullMode();
 	graphicDesc.mPipelineStateDesc.PrimitiveTopologyType = (RHIPrimitiveTopologyType)mMaterialTemplate->GetPrimitiveType();
 	graphicDesc.mInputLayout = *layout;
 	graphicDesc.mPipelineStateDesc.mVertexShader = GetShaderVS();
@@ -288,7 +289,6 @@ RHIPipelineState* MaterialInstance::GetPipeline(RHIVertexLayout* layout, const R
 
 	RHIBlendStateTargetDesc blend = {};
 	desc.mGraphicDesc.mPipelineStateDesc.BlendState.RenderTarget.push_back(blend);
-	Log("Graphics", "Create pipeline for:{}", GetShaderAsset()->GetAssetPath());
 	return sRenderModule->mRenderContext->CreatePipeline(desc);
 }
 }

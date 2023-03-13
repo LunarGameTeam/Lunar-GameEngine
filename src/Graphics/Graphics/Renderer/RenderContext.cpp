@@ -48,6 +48,7 @@ void RhiObjectCache::ReleaseData(LMemoryHash& newHash)
 
 RHIShaderBlobPtr ShaderBlobCache::CreateShader(RenderContext* mDevice, const RHIShaderDesc& desc)
 {
+	Log("Graphics", "Create shader:{}", desc.mName);
 	std::function<void(luna::LMemoryHash&, const luna::render::RHIShaderDesc&)> dataHashFunc = [&](luna::LMemoryHash& newHash, const luna::render::RHIShaderDesc& desc)
 	{
 		newHash.Combine((uint8_t*)desc.mName.c_str(), desc.mName.Length() * sizeof(char));
@@ -119,7 +120,7 @@ RHIPipelineStatePtr PipelineStateCache::CreatePipeline(RenderContext* mDevice, c
 				RHITextureFormat dsv_desc = RHITextureFormat::FORMAT_UNKNOWN;
 				newHash.Combine((uint8_t*)&dsv_desc, sizeof(dsv_desc));
 			}
-			//graph desc shader信息
+			//graph desc state信息
 			newHash.Combine((uint8_t*)&pipelineGraphDesc.BlendState.AlphaToCoverageEnable, sizeof(pipelineGraphDesc.BlendState.AlphaToCoverageEnable));
 			newHash.Combine((uint8_t*)&pipelineGraphDesc.BlendState.IndependentBlendEnable, sizeof(pipelineGraphDesc.BlendState.IndependentBlendEnable));
 			newHash.Combine((uint8_t*)pipelineGraphDesc.BlendState.RenderTarget.data(), pipelineGraphDesc.BlendState.RenderTarget.size() * sizeof(RHIBlendStateTargetDesc));
@@ -136,6 +137,10 @@ RHIPipelineStatePtr PipelineStateCache::CreatePipeline(RenderContext* mDevice, c
 	};
 	std::function<RHIPipelineStatePtr(RenderContext* device, const RHIPipelineStateDesc& desc)> dataCreateFunc = [&](RenderContext* device, const RHIPipelineStateDesc& desc)->RHIPipelineStatePtr
 	{
+		if (desc.mGraphicDesc.mPipelineStateDesc.mVertexShader != nullptr)
+		{
+			Log("Graphics", "Create pipeline for shader:{}", desc.mGraphicDesc.mPipelineStateDesc.mVertexShader->mDesc.mName);
+		}
 		return device->mDevice->CreatePipeline(desc);
 	};
 	return CreateRHIObject<RHIPipelineState, const luna::render::RHIPipelineStateDesc&>(
