@@ -15,7 +15,7 @@ class LType;
 CORE_API LType* NewType(const char* name, size_t size, LType* base);
 
 
-
+template<typename> struct function_traits;
 template<typename> struct raw_class_type;
 template<typename> struct member_pointer_traits;
 
