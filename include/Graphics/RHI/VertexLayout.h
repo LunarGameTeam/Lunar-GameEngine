@@ -19,16 +19,17 @@ inline size_t Alignment(size_t size, size_t alignment)
 enum class VertexElementUsage : uint8_t
 {
 	UsagePosition = 0,
-	UsageBlendWeight = 1,
-	UsageNormal = 2,
-	UsageDiffuse = 3,
-	UsageTangent = 4,
-	UsageColor = 5,
-	UsageTexture0 = 6,
-	UsageTexture1 = 7,
-	UsageTexture2 = 8,
-	UsageTexture3 = 9,
-	UsageInstanceMessage = 10,
+	UsageBlendIndex,
+	UsageBlendWeight,
+	UsageNormal,
+	UsageDiffuse,
+	UsageTangent,
+	UsageColor,
+	UsageTexture0,
+	UsageTexture1,
+	UsageTexture2,
+	UsageTexture3,
+	UsageInstanceMessage,
 	UsageMax,
 };
 

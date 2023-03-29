@@ -2,6 +2,7 @@
 #include "Core/CoreMin.h"
 #include "Core/Object/SharedObject.h"
 #include "Animation/AnimationConfig.h"
+#include "Animation/Asset/SkeletonAsset.h"
 namespace luna::animation
 {
 	enum SkeletonAnimationType
@@ -11,15 +12,25 @@ namespace luna::animation
 		AnimationGraphInstance
 	};
 
-	class ANIMATION_API SkeletalAnimInstance : public LObject
+	class ANIMATION_API SkeletalAnimInstanceBase : public LObject
 	{
-		RegisterTypeEmbedd(SkeletalAnimInstance, LObject)
+		RegisterTypeEmbedd(SkeletalAnimInstanceBase, LObject)
+
 	public:
-		SkeletalAnimInstance();
+		SkeletalAnimInstanceBase();
+
 		void SetIndex(size_t index);
+
 		void UpdateAnimation(float deltaTime);
-	private:
+
+	protected:
 		size_t mIndex;
+
 		SkeletonAnimationType mAnimationType;
+
+		SharedPtr<SkeletonAsset> mSkeletonAsset;
+
+	private:
+		virtual void UpdateAnimationImpl(float deltaTime) { assert(false); };
 	};
 }

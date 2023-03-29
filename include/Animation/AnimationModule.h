@@ -1,7 +1,7 @@
 #pragma once
 #include "Core/Framework/Module.h"
 #include "Animation/AnimationConfig.h"
-#include "Animation/SkeletonAnimation/SkeletalAnimInstance.h"
+#include "Animation/SkeletonAnimation/SkeletalAnimInstanceBase.h"
 namespace luna::animation
 {
 	class ANIMATION_API AnimationModule : public LModule
@@ -19,11 +19,11 @@ namespace luna::animation
 		void Tick(float deltaTime) override;
 		void RenderTick(float delta_time) override;
 
-		SkeletalAnimInstance* CreateAnimationInstance(const LString& animAssetName);
+		SkeletalAnimInstanceBase* CreateAnimationInstance(const LString& animAssetName);
 		void FreeAnimationInstance(size_t instanceId);
 		LQueue<size_t> mEmptyIndex;
 	private:
-		LUnorderedMap<size_t, TPPtr<SkeletalAnimInstance>> mAnimationInstances;
+		LUnorderedMap<size_t, TPPtr<SkeletalAnimInstanceBase>> mAnimationInstances;
 
 	};
 }

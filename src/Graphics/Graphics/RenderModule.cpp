@@ -57,6 +57,7 @@
 
 #include "Core/Foundation/AwesomeFont.h"
 #include "Graphics/Asset/MeshAsset.h"
+#include "Graphics/Asset/MeshAssetUtils.h"
 
 
 RENDER_API luna::render::RenderModule* luna::sRenderModule = nullptr;
@@ -244,15 +245,14 @@ bool RenderModule::OnInit()
 	v2.uv[0] = LVector2f(0, 0);
 	v3.pos = LVector3f(1, 1, 0);
 	v3.uv[0] = LVector2f(1, 0);
-	mFullscreenMeshAsset.AddTriangle(v1, v2, v3);
+	AddTriangleToSubMesh(v1, v2, v3, mFullscreenMeshAsset);
 	v1.pos = LVector3f(1, 1, 0);
 	v1.uv[0] = LVector2f(1, 0);
 	v2.pos = LVector3f(1, -1, 0);
 	v2.uv[0] = LVector2f(1, 1);
 	v3.pos = LVector3f(-1, -1, 0);
 	v3.uv[0] = LVector2f(0, 1);
-	mFullscreenMeshAsset.AddTriangle(v1, v2, v3);
-	mFullscreenMeshAsset.Update();
+	AddTriangleToSubMesh(v1, v2, v3, mFullscreenMeshAsset);
 	mFullscreenMesh.Init(&mFullscreenMeshAsset);
 	SetupIMGUI();
 

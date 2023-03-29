@@ -2,7 +2,7 @@
 #include "Graphics/RenderModule.h"
 
 #include "Graphics/Asset/MeshAsset.h"
-
+#include "Graphics/Asset/MeshAssetUtils.h"
 #include "Graphics/Renderer/RenderTarget.h"
 #include "Graphics/Renderer/MaterialInstance.h"
 #include "Graphics/Renderer/MaterialParam.h"
@@ -302,18 +302,18 @@ void RenderScene::Debug()
 	{
 		LFrustum f = LFrustum::FromOrth(0.01, 50, 30, 30);
 		f.Multiple(mMainDirLight->mViewMatrix.inverse());
-		mDebugMeshLine.AddLine(f.mNearPlane[0], f.mNearPlane[1]);
-		mDebugMeshLine.AddLine(f.mNearPlane[1], f.mNearPlane[2]);
-		mDebugMeshLine.AddLine(f.mNearPlane[2], f.mNearPlane[3]);
-		mDebugMeshLine.AddLine(f.mNearPlane[3], f.mNearPlane[0]);
-		mDebugMeshLine.AddLine(f.mNearPlane[0], f.mFarPlane[0]);
-		mDebugMeshLine.AddLine(f.mNearPlane[1], f.mFarPlane[1]);
-		mDebugMeshLine.AddLine(f.mNearPlane[2], f.mFarPlane[2]);
-		mDebugMeshLine.AddLine(f.mNearPlane[3], f.mFarPlane[3]);
-		mDebugMeshLine.AddLine(f.mFarPlane[0], f.mFarPlane[1]);
-		mDebugMeshLine.AddLine(f.mFarPlane[1], f.mFarPlane[2]);
-		mDebugMeshLine.AddLine(f.mFarPlane[2], f.mFarPlane[3]);
-		mDebugMeshLine.AddLine(f.mFarPlane[3], f.mFarPlane[0]);
+		AddLineToSubMesh(f.mNearPlane[0], f.mNearPlane[1], mDebugMeshLine);
+		AddLineToSubMesh(f.mNearPlane[1], f.mNearPlane[2], mDebugMeshLine);
+		AddLineToSubMesh(f.mNearPlane[2], f.mNearPlane[3], mDebugMeshLine);
+		AddLineToSubMesh(f.mNearPlane[3], f.mNearPlane[0], mDebugMeshLine);
+		AddLineToSubMesh(f.mNearPlane[0], f.mFarPlane[0], mDebugMeshLine);
+		AddLineToSubMesh(f.mNearPlane[1], f.mFarPlane[1], mDebugMeshLine);
+		AddLineToSubMesh(f.mNearPlane[2], f.mFarPlane[2], mDebugMeshLine);
+		AddLineToSubMesh(f.mNearPlane[3], f.mFarPlane[3], mDebugMeshLine);
+		AddLineToSubMesh(f.mFarPlane[0], f.mFarPlane[1], mDebugMeshLine);
+		AddLineToSubMesh(f.mFarPlane[1], f.mFarPlane[2], mDebugMeshLine);
+		AddLineToSubMesh(f.mFarPlane[2], f.mFarPlane[3], mDebugMeshLine);
+		AddLineToSubMesh(f.mFarPlane[3], f.mFarPlane[0], mDebugMeshLine);
 	}
 
 	for (int i = 0; i < mPointLights.size(); i++)
@@ -325,22 +325,23 @@ void RenderScene::Debug()
 			{
 				LFrustum f = LFrustum::MakeFrustrum(light->mFov, light->mNear, light->mFar, light->mAspect);
 				f.Multiple(light->mViewMatrix[faceIdx].inverse());
-				mDebugMeshLine.AddLine(f.mNearPlane[0], f.mNearPlane[1]);
-				mDebugMeshLine.AddLine(f.mNearPlane[1], f.mNearPlane[2]);
-				mDebugMeshLine.AddLine(f.mNearPlane[2], f.mNearPlane[3]);
-				mDebugMeshLine.AddLine(f.mNearPlane[3], f.mNearPlane[0]);
-				mDebugMeshLine.AddLine(f.mNearPlane[0], f.mFarPlane[0]);
-				mDebugMeshLine.AddLine(f.mNearPlane[1], f.mFarPlane[1]);
-				mDebugMeshLine.AddLine(f.mNearPlane[2], f.mFarPlane[2]);
-				mDebugMeshLine.AddLine(f.mNearPlane[3], f.mFarPlane[3]);
-				mDebugMeshLine.AddLine(f.mFarPlane[0], f.mFarPlane[1]);
-				mDebugMeshLine.AddLine(f.mFarPlane[1], f.mFarPlane[2]);
-				mDebugMeshLine.AddLine(f.mFarPlane[2], f.mFarPlane[3]);
-				mDebugMeshLine.AddLine(f.mFarPlane[3], f.mFarPlane[0]);
+
+				AddLineToSubMesh(f.mNearPlane[0], f.mNearPlane[1], mDebugMeshLine);
+				AddLineToSubMesh(f.mNearPlane[1], f.mNearPlane[2], mDebugMeshLine);
+				AddLineToSubMesh(f.mNearPlane[2], f.mNearPlane[3], mDebugMeshLine);
+				AddLineToSubMesh(f.mNearPlane[3], f.mNearPlane[0], mDebugMeshLine);
+				AddLineToSubMesh(f.mNearPlane[0], f.mFarPlane[0], mDebugMeshLine);
+				AddLineToSubMesh(f.mNearPlane[1], f.mFarPlane[1], mDebugMeshLine);
+				AddLineToSubMesh(f.mNearPlane[2], f.mFarPlane[2], mDebugMeshLine);
+				AddLineToSubMesh(f.mNearPlane[3], f.mFarPlane[3], mDebugMeshLine);
+				AddLineToSubMesh(f.mFarPlane[0], f.mFarPlane[1], mDebugMeshLine);
+				AddLineToSubMesh(f.mFarPlane[1], f.mFarPlane[2], mDebugMeshLine);
+				AddLineToSubMesh(f.mFarPlane[2], f.mFarPlane[3], mDebugMeshLine);
+				AddLineToSubMesh(f.mFarPlane[3], f.mFarPlane[0], mDebugMeshLine);
 			}
 			
 		}
-		mDebugMeshLine.AddCubeWired(light->mPosition, LVector3f(1, 1, 1), light->mColor);
+		AddCubeWiredToSubMesh(mDebugMeshLine,light->mPosition, LVector3f(1, 1, 1), light->mColor);
 	}
 
 	mDebugMeshData.Init(&mDebugMesh);

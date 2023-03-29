@@ -1,5 +1,6 @@
 #include "Animation/AnimationModule.h"
-
+#include "Animation/SkeletonAnimation/SkeletalAnimInstanceClip.h"
+#include "Core/Asset/AssetModule.h"
 
 ANIMATION_API luna::animation::AnimationModule* luna::sAnimationModule = nullptr;
 
@@ -49,7 +50,7 @@ namespace luna::animation
 	{
 	}
 
-	SkeletalAnimInstance* AnimationModule::CreateAnimationInstance(
+	SkeletalAnimInstanceBase* AnimationModule::CreateAnimationInstance(
 		const LString& animAssetName)
 	{
 		size_t newIndex = mAnimationInstances.size();
@@ -58,8 +59,12 @@ namespace luna::animation
 			newIndex = mEmptyIndex.front();
 			mEmptyIndex.pop();
 		}
-		mAnimationInstances.emplace(newIndex, this); 
-		mAnimationInstances[newIndex].SetPtr(TCreateObject<SkeletalAnimInstance>());
+		mAnimationInstances.emplace(newIndex, this);
+		SkeletalAnimInstanceClip* newInstance = TCreateObject<SkeletalAnimInstanceClip>();
+		LSharedPtr<AnimationClipAsset> animationAsset = sAssetModule->LoadAsset<AnimationClipAsset>(animAssetName);
+		newInstance->SetAssetValue(animationAsset);
+		newInstance->SetIndex(newIndex);
+		mAnimationInstances[newIndex].SetPtr(newInstance);
 		return mAnimationInstances[newIndex].Get();
 	}
 
