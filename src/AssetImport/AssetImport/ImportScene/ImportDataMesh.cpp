@@ -24,7 +24,31 @@ namespace luna::asset
 		mSubmesh[subMeshIndex].mVertexTangent.push_back(tangent);
 		mSubmesh[subMeshIndex].mVertexUv.push_back(uv);
 		mSubmesh[subMeshIndex].mVertexColor.push_back(color);
+		for(int32_t i = 0; i < 8; ++i)
+		{
+			mSubmesh[subMeshIndex].mRefBone.push_back(0);
+			mSubmesh[subMeshIndex].mWeight.push_back(0);
+		}
 	};
+
+	void LImportNodeDataMesh::AddFullSkin(
+		const size_t subMeshIndex,
+		const LArray<uint32_t>& mRefBone,
+		const LArray<float>& mWeight
+	)
+	{
+		int32_t addCount = (int32_t)mRefBone.size();
+		for (int32_t i = 0; i < addCount; ++i)
+		{
+			mSubmesh[subMeshIndex].mRefBone.push_back(mRefBone[i]);
+			mSubmesh[subMeshIndex].mWeight.push_back(mWeight[i]);
+		}
+		for (int32_t i = addCount; i < 8; ++i)
+		{
+			mSubmesh[subMeshIndex].mRefBone.push_back(0);
+			mSubmesh[subMeshIndex].mWeight.push_back(0);
+		}
+	}
 
 	size_t LImportNodeDataMesh::AddSubMeshMessage(
 		const LString& name,
@@ -46,6 +70,12 @@ namespace luna::asset
 			return;
 		};
 		mSubmesh[subMeshIndex].mIndices.push_back(index);
+	}
+
+	void LImportNodeDataMesh::AddBoneMessageToSubmesh(const size_t subMeshIndex, const LString& boneName, const LMatrix4f& bonePose)
+	{
+		mSubmesh[subMeshIndex].mRefBoneName.push_back(boneName);
+		mSubmesh[subMeshIndex].mRefBonePose.push_back(bonePose);
 	}
 
 	void LImportNodeDataMesh::ConvertDataAxisAndUnitImpl(bool hasReflectTransform, LMatrix4f convertInvMatrix, LMatrix4f convertMatrix)
@@ -85,6 +115,12 @@ namespace luna::asset
 					subMeshData.mIndices[faceID * 3] = subMeshData.mIndices[faceID * 3 + 2];
 					subMeshData.mIndices[faceID * 3 + 2] = mid_index;
 				}
+			}
+			for (int32_t boneId = 0; boneId < subMeshData.mRefBonePose.size(); ++boneId)
+			{
+				LMatrix4f refMatMid;
+				refMatMid = convertInvMatrix * subMeshData.mRefBonePose[boneId] * convertMatrix;
+				subMeshData.mRefBonePose[boneId] = refMatMid;
 			}
 		}
 	}

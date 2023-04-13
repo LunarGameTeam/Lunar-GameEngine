@@ -16,6 +16,12 @@ namespace luna::asset
 		LArray<LVector4f> mVertexTangent;
 		LArray<LArray<LVector2f>> mVertexUv;
 		LArray<LVector4f> mVertexColor;
+		LArray<uint32_t>  mRefBone;
+		LArray<float>     mWeight;
+
+		LArray<LString>   mRefBoneName;
+		LArray<LMatrix4f> mRefBonePose;
+	
 	};
 
 	class ASSET_IMPORT_API LImportNodeDataMesh : public LImportNodeDataBase
@@ -33,9 +39,17 @@ namespace luna::asset
 			const LVector4f color
 		);
 
+		void AddFullSkin(
+			const size_t subMeshIndex,
+			const LArray<uint32_t> &mRefBone,
+			const LArray<float> &mWeight
+		);
+
 		size_t AddSubMeshMessage(const LString& name, const size_t materialUse);
 
 		void AddFaceIndexDataToSubmesh(const size_t subMeshIndex, const uint32_t index);
+
+		void AddBoneMessageToSubmesh(const size_t subMeshIndex, const LString &boneName, const LMatrix4f& bonePose);
 
 		void GenerateMikkTspaceTangent();
 

@@ -2,24 +2,30 @@
 #include "AssetImport/FbxParser/FbxLoader/FbxSceneLoader.h"
 #include "AssetImport/FbxParser/FbxLoader/FbxMeshLoader.h"
 #include "AssetImport/FbxParser/FbxLoader/FbxSkeletonLoader.h"
-#include "AssetImport/FbxParser/FbxLoader/FbxAnimationLoader.h"
 #include "AssetImport/FbxParser/FbxLoader/FbxMaterialLoader.h"
 #include "AssetImport/FbxParser/FbxLoader/FbxCameraLoader.h"
+using namespace fbxsdk;
 namespace luna::lfbx
 {
 	LFbxLoaderFactory::LFbxLoaderFactory()
 	{
-		mLoaders.insert(std::pair<LFbxDataType, std::shared_ptr<LFbxLoaderBase>>(LFbxDataType::FbxMeshData, std::make_shared<LFbxLoaderMesh>()));
+		mResourceLoaders.insert(std::pair<LFbxDataType, std::shared_ptr<LFbxLoaderBase>>(LFbxDataType::FbxMeshData, std::make_shared<LFbxLoaderMesh>()));
+		mResourceLoaders.insert(std::pair<LFbxDataType, std::shared_ptr<LFbxLoaderBase>>(LFbxDataType::FbxSkeletonData, std::make_shared<LFbxLoaderSkeleton>()));
 	}
 
-	std::shared_ptr<LFbxDataBase> LFbxLoaderFactory::LoadFbxData(LFbxDataType type, const LArray<LFbxNodeBase>& sceneNodes, fbxsdk::FbxNode* pNode, FbxManager* pManager)
+	std::shared_ptr<LFbxDataBase> LFbxLoaderFactory::LoadFbxData(LFbxDataType type, const LArray<LFbxNodeBase>& sceneNodes, fbxsdk::FbxNode* pNode, LFbxLoadContext context)
 	{
-		auto needLoader = mLoaders.find(type);
-		if (needLoader == mLoaders.end())
+		auto needLoader = mResourceLoaders.find(type);
+		if (needLoader == mResourceLoaders.end())
 		{
 			return nullptr;
 		}
-		return needLoader->second->ParsingData(sceneNodes, pNode, pManager);
+		return needLoader->second->ParsingData(sceneNodes, pNode, context);
+	}
+
+	void LFbxLoaderFactory::LoadFbxAnimation(const FbxAnimStack* curAnimStack, LArray<LFbxAnimationStack>& outAnim, LFbxLoadContext context)
+	{
+		mAnimationLoders.ParsingData(curAnimStack, outAnim, context);
 	}
 
 	void LFbxLoaderHelper::LoadFbxFile(const char* pFilename, LFbxSceneData& sceneOut)
@@ -30,11 +36,14 @@ namespace luna::lfbx
 		auto root_node = lScene->GetRootNode();
 		std::unordered_map<LFbxDataType, LArray<NodeDataPack>> nodeData;
 		ProcessNode(size_t(-1),root_node, sceneOut, nodeData);
+		LFbxLoadContext loderContext;
+		loderContext.lScene = lScene;
+		loderContext.lSdkManager = lSdkManager;
 		for (auto& eachDataGroup : nodeData)
 		{
 			for (auto &eachData : eachDataGroup.second)
 			{
-				std::shared_ptr<LFbxDataBase> newImportData = singleLoaderInterface->LoadFbxData(eachDataGroup.first, sceneOut.mNodes, eachData.pNode, lSdkManager);
+				std::shared_ptr<LFbxDataBase> newImportData = singleLoaderInterface->LoadFbxData(eachDataGroup.first, sceneOut.mNodes, eachData.pNode, loderContext);
 				if (newImportData != nullptr)
 				{
 					sceneOut.mNodes[eachData.nodeIndex].mNodeData.insert(std::pair<LFbxDataType, size_t>(eachDataGroup.first, sceneOut.mDatas.size()));
@@ -43,6 +52,13 @@ namespace luna::lfbx
 				}
 			}
 		}
+		int32_t animStackCount = lScene->GetSrcObjectCount<FbxAnimStack>();
+		for (int32_t animIndex = 0; animIndex < animStackCount; ++animIndex)
+		{
+			FbxAnimStack* curAnimStack = lScene->GetSrcObject<FbxAnimStack>(animIndex);
+			singleLoaderInterface->LoadFbxAnimation(curAnimStack, sceneOut.mAnimations, loderContext);
+		}
+
 		DestroySdkObjects(lSdkManager, true);
 	}
 
@@ -303,6 +319,7 @@ namespace luna::lfbx
 				newDataPack.nodeIndex = node_index;
 				newDataPack.pNode = pNode;
 				nodeData[LFbxDataType::FbxMeshData].push_back(newDataPack);
+				nodeData[LFbxDataType::FbxSkeletonData].push_back(newDataPack);
 				//nodeData[LFbxDataType::FbxMaterialData].push_back(newDataPack);
 			}
 			break;

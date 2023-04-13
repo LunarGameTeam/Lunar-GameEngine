@@ -3,6 +3,12 @@
 #include <fbxsdk.h>
 namespace luna::lfbx
 {
+	struct LFbxLoadContext
+	{
+		FbxManager* lSdkManager = nullptr;
+		FbxScene* lScene = nullptr;
+	};
+
 	class LFbxImportLog
 	{
 		LArray<LString> mLogData;
@@ -53,8 +59,8 @@ namespace luna::lfbx
 	{
 	public:
 		LFbxLoaderBase() {};
-		std::shared_ptr<LFbxDataBase> ParsingData(const LArray<LFbxNodeBase>& sceneNodes,fbxsdk::FbxNode* pNode, FbxManager* pManager);
+		std::shared_ptr<LFbxDataBase> ParsingData(const LArray<LFbxNodeBase>& sceneNodes,fbxsdk::FbxNode* pNode, LFbxLoadContext context);
 	private:
-		virtual std::shared_ptr<LFbxDataBase> ParsingDataImpl(const LArray<LFbxNodeBase>& sceneNodes, fbxsdk::FbxNode* pNode, FbxManager* pManager) = 0;
+		virtual std::shared_ptr<LFbxDataBase> ParsingDataImpl(const LArray<LFbxNodeBase>& sceneNodes, fbxsdk::FbxNode* pNode, LFbxLoadContext context) = 0;
 	};
 }

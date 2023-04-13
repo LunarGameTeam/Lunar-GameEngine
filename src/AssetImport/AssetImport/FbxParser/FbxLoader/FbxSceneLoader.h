@@ -1,21 +1,28 @@
 #pragma once
 #include "AssetImport/FbxParser/FbxLoader/FbxLoaderCommon.h"
+#include "AssetImport/FbxParser/FbxLoader/FbxAnimationLoader.h"
 namespace luna::lfbx
 {
 	struct LFbxSceneData
 	{
-		fbxsdk::FbxAxisSystem mAxis;
-		fbxsdk::FbxSystemUnit mUnit;
+		FbxAxisSystem mAxis;
+		FbxSystemUnit mUnit;
 		LArray<LFbxNodeBase> mNodes;
 		LArray<std::shared_ptr<LFbxDataBase>> mDatas;
+		LArray<LFbxAnimationStack> mAnimations;
 	};
 
 	class LFbxLoaderFactory
 	{
-		LUnorderedMap<LFbxDataType, std::shared_ptr<LFbxLoaderBase>> mLoaders;
+		LUnorderedMap<LFbxDataType, std::shared_ptr<LFbxLoaderBase>> mResourceLoaders;
+		LFbxAnimationLoader mAnimationLoders;
 	public:
+
 		LFbxLoaderFactory();
-		std::shared_ptr<LFbxDataBase> LoadFbxData(LFbxDataType type, const LArray<LFbxNodeBase>& sceneNodes, fbxsdk::FbxNode* pNode, FbxManager* pManager);
+
+		std::shared_ptr<LFbxDataBase> LoadFbxData(LFbxDataType type, const LArray<LFbxNodeBase>& sceneNodes, FbxNode* pNode, LFbxLoadContext context);
+
+		void LoadFbxAnimation(const FbxAnimStack* curAnimStack, LArray<LFbxAnimationStack>& outAnim, LFbxLoadContext context);
 	};
 	static std::shared_ptr<LFbxLoaderFactory> singleLoaderInterface = std::make_shared<LFbxLoaderFactory>();
 
@@ -24,37 +31,37 @@ namespace luna::lfbx
 		struct NodeDataPack
 		{
 			size_t nodeIndex;
-			fbxsdk::FbxNode* pNode;
+			FbxNode* pNode;
 		};
 
-		fbxsdk::FbxManager* lSdkManager = NULL;
+		FbxManager* lSdkManager = NULL;
 
-		fbxsdk::FbxScene* lScene = NULL;
+		FbxScene* lScene = NULL;
 	public:
 		void LoadFbxFile(const char* pFilename, LFbxSceneData& scene_out);
 	private:
-		void InitializeSdkObjects(fbxsdk::FbxManager*& pManager, fbxsdk::FbxScene*& pScene);
+		void InitializeSdkObjects(FbxManager*& pManager, FbxScene*& pScene);
 
-		void DestroySdkObjects(fbxsdk::FbxManager* pManager, bool pExitStatus);
+		void DestroySdkObjects(FbxManager* pManager, bool pExitStatus);
 
-		bool LoadScene(fbxsdk::FbxManager* pManager,fbxsdk::FbxDocument* pScene, const char* pFilename);
+		bool LoadScene(FbxManager* pManager,FbxDocument* pScene, const char* pFilename);
 
 		void InitSceneMessage(LFbxSceneData& sceneOut);
 
 		void ProcessNode(
 			size_t nodeParent,
-			fbxsdk::FbxNode* pNode,
+			FbxNode* pNode,
 			LFbxSceneData& sceneOut,
 			std::unordered_map<LFbxDataType, LArray<NodeDataPack>> &nodeData
 		);
 
-		//fbxsdk::FbxAMatrix ComputeNodeMatrix(fbxsdk::FbxNode* Node);
+		//FbxAMatrix ComputeNodeMatrix(FbxNode* Node);
 		void ComputeLclTransform(
-			fbxsdk::FbxNode* pNode,
+			FbxNode* pNode,
 			FbxDouble3 &lclPosition,
 			FbxDouble3 &lclRotation,
 			FbxDouble3 &lclScale,
-			fbxsdk::FbxAMatrix& globalTransform
+			FbxAMatrix& globalTransform
 		);
 	};
 }

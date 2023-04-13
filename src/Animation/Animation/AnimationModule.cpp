@@ -15,6 +15,7 @@ namespace luna::animation
 	}
 	AnimationModule::AnimationModule()
 	{
+		mNeedTick = true;
 		sAnimationModule = this;
 	}
 

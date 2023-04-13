@@ -45,8 +45,41 @@ namespace luna::lfbx
 		out.y() = in.mData[1];
 	}
 
-	void LFbxImporterBase::ParsingData(const LFbxDataBase* fbxDataInput, const LFbxNodeBase& fbxNodeInput, asset::LImportScene& outputScene)
+	void FbxMatrixToMatrix(const fbxsdk::FbxAMatrix& in, LMatrix4f& out)
 	{
-		ParsingDataImpl(fbxDataInput, fbxNodeInput,outputScene);
+		for (int32_t rowId = 0; rowId < 4; ++rowId)
+		{
+			for (int32_t colId = 0; colId < 4; ++colId)
+			{
+				out.row(rowId).data()[colId] = (float)in.mData[rowId].mData[colId];
+			}
+		}
+		out = out.transpose();
+	}
+
+	LFbxContextComponent* LFbxImportContext::GetComponent(asset::LImportNodeDataType compType)
+	{
+		auto value = mComponents.find(compType);
+		if (value != mComponents.end())
+		{
+			return value->second.get();
+		}
+		return nullptr;
+	}
+
+	void LFbxImportContext::AddComponent( LSharedPtr<LFbxContextComponent> compData)
+	{
+		mComponents.insert({ compData->GetType() ,compData});
+	}
+
+	void LFbxImporterBase::ParsingData(
+		const size_t nodeIdex,
+		const LFbxDataBase* fbxDataInput,
+		const LFbxNodeBase& fbxNodeInput,
+		LFbxImportContext& dataContext,
+		asset::LImportScene& outputScene
+	)
+	{
+		ParsingDataImpl(nodeIdex,fbxDataInput, fbxNodeInput, dataContext,outputScene);
 	}
 }

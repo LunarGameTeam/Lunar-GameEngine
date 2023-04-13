@@ -16,8 +16,9 @@ namespace luna::asset
 	enum class LImportNodeDataType : uint8_t
 	{
 		ImportDataMesh = 0,
-		ImportDataCamera,
-		ImportDataMaterial
+		ImportDataMaterial,
+		ImportDataSkeleton,
+		ImportDataCamera
 	};
 
 	enum LImportAxisType : uint8_t
@@ -58,6 +59,8 @@ namespace luna::asset
 		LImportNodeDataBase(const LImportNodeDataType type, const size_t index);
 
 		inline LImportNodeDataType GetType() { return mType; }
+
+		inline const size_t GetId()const { return mIndex; };
 
 		void ConvertDataAxisAndUnit(bool hasReflectTransform, LMatrix4f convertInvMatrix, LMatrix4f convertMatrix);
 	private:

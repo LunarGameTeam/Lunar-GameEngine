@@ -4,6 +4,7 @@
 #include "Core/Framework/LunaCore.h"
 
 #include "windows.h"
+#include "Animation/AnimationModule.h"
 #include "Graphics/RenderModule.h"
 #include "Game/GameModule.h"
 
@@ -11,7 +12,8 @@ using namespace luna;
 
 
 void LoadGameLib()
-{	
+{
+	gEngine->LoadModule<animation::AnimationModule>();
 	gEngine->LoadModule<render::RenderModule>();
 	gEngine->LoadModule<GameModule>();
 }

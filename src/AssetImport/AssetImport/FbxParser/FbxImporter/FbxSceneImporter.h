@@ -18,9 +18,11 @@ namespace luna::lfbx
 		);
 
 		void ParseSceneData(
-			asset::LImportNodeDataType type,
+			const asset::LImportNodeDataType type,
+			const size_t nodeIdex,
 			const LFbxDataBase* fbxDataInput,
 			const LFbxNodeBase& fbxNodeInput,
+			LFbxImportContext &dataContext,
 			asset::LImportScene& outputScene
 		);
 		asset::LImportNodeDataType GetTypeByFbxType(LFbxDataType inType);

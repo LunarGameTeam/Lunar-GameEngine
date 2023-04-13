@@ -13,6 +13,11 @@ namespace luna::asset
 		mNodes.push_back(node);
 	}
 
+	void LImportScene::ResetNodeData(size_t nodeIndex, asset::LImportNodeDataType dataType, size_t dataIndex)
+	{
+		mNodes[nodeIndex].mNodeData[dataType] = dataIndex;
+	}
+
 	float LImportScene::GetUnitValue(LImportUnitType unit)
 	{
 		switch (unit)

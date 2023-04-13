@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "AssetImport/ImportScene/ImportDataMesh.h"
-
+#include "AssetImport/ImportScene/ImportDataSkeleton.h"
 #ifndef ASSET_IMPORT_API
 #ifdef ASSET_IMPORT_EXPORT
 #define ASSET_IMPORT_API __declspec( dllexport )
@@ -46,6 +46,8 @@ namespace luna::asset
 		{
 			return mNodes[dataIndex];
 		};
+
+		void ResetNodeData(size_t nodeIndex, asset::LImportNodeDataType dataType,size_t dataIndex);
 
 		size_t GetNodeDataSize()const
 		{

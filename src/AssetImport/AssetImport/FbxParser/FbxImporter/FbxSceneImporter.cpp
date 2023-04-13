@@ -9,15 +9,7 @@ namespace luna::lfbx
 {
 	LFbxSceneImportHelper::LFbxSceneImportHelper()
 	{
-		mImporters.insert(std::pair<
-			asset::LImportNodeDataType, 
-			std::shared_ptr<LFbxImporterBase>
-		>
-			(
-				asset::LImportNodeDataType::ImportDataMesh,
-				std::make_shared<LFbxImporterMesh>()
-			)
-		);
+		mImporters.insert({asset::LImportNodeDataType::ImportDataMesh,std::make_shared<LFbxImporterMesh>()});
 	}
 
 	void LFbxSceneImportHelper::ParseScene(const LFbxSceneData* fbxDataInput, asset::LImportScene& outputScene)
@@ -41,6 +33,9 @@ namespace luna::lfbx
 				case FbxMeshData:
 					newDataType = asset::LImportNodeDataType::ImportDataMesh;
 					break;
+				case FbxSkeletonData:
+					newDataType = asset::LImportNodeDataType::ImportDataSkeleton;
+					break;
 				default:
 					assert(0);
 					break;
@@ -49,11 +44,12 @@ namespace luna::lfbx
 			}
 			outputScene.AddNodeData(node_value);
 		}
+		LFbxImportContext dataContext;
 		for (auto &eachData : fbxDataInput->mDatas)
 		{
 			LFbxDataType dataType = eachData->GetType();
 			size_t nodeIdex = eachData->GetNodeIndex();
-			ParseSceneData(GetTypeByFbxType(dataType), eachData.get(), fbxDataInput->mNodes[nodeIdex], outputScene);
+			ParseSceneData(GetTypeByFbxType(dataType), nodeIdex,eachData.get(), fbxDataInput->mNodes[nodeIdex], dataContext, outputScene);
 		}
 	}
 
@@ -101,9 +97,11 @@ namespace luna::lfbx
 	}
 
 	void LFbxSceneImportHelper::ParseSceneData(
-		asset::LImportNodeDataType type,
+		const asset::LImportNodeDataType type,
+		const size_t nodeIdex,
 		const LFbxDataBase* fbxDataInput,
 		const LFbxNodeBase &fbxNodeInput,
+		LFbxImportContext& dataContext,
 		asset::LImportScene& outputScene
 	)
 	{
@@ -112,7 +110,7 @@ namespace luna::lfbx
 		{
 			return;
 		}
-		return needImporter->second->ParsingData(fbxDataInput, fbxNodeInput, outputScene);
+		return needImporter->second->ParsingData(fbxDataInput, fbxNodeInput, dataContext,outputScene);
 	}
 
 	asset::LImportNodeDataType LFbxSceneImportHelper::GetTypeByFbxType(LFbxDataType inType)

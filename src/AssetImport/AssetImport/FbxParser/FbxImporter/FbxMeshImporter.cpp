@@ -7,6 +7,8 @@ namespace luna::lfbx
 		LString & hashString
 	)
 	{
+		hashString.Append(std::to_string(vertData.globelIndex) + "--");
+
 		for (int32_t i = 0; i < 4; ++i)
 		{
 			const int64_t hash_num = vertData.mPosition.mData[i] / deltaEpsion;
@@ -47,7 +49,13 @@ namespace luna::lfbx
 
 	}
 
-	void LFbxImporterMesh::ParsingDataImpl(const LFbxDataBase* fbxDataInput, const LFbxNodeBase& fbxNodeInput, asset::LImportScene& outputScene)
+	void LFbxImporterMesh::ParsingDataImpl(
+		const size_t nodeIdex,
+		const LFbxDataBase* fbxDataInput,
+		const LFbxNodeBase& fbxNodeInput,
+		LFbxImportContext& dataContext,
+		asset::LImportScene& outputScene
+	)
 	{
 		const LFbxDataMesh* meshData = static_cast<const LFbxDataMesh*>(fbxDataInput);
 		asset::LImportNodeDataMesh* nowOutData = outputScene.AddNewData<asset::LImportNodeDataMesh>();
@@ -78,17 +86,67 @@ namespace luna::lfbx
 				{
 					FbxVector2ToVector2(newVertData.mUvs[uvChannel],vertUv[uvChannel]);
 				}
+				//拷贝蒙皮信息
 				nowOutData->AddFullVertex(realSubIndex,vertPosition, vertNormal, vertTangent, vertUv, vertColor);
+				nowOutData->AddFullSkin(realSubIndex, newVertData.mRefBones, newVertData.mWeights);
 			}
+			//拷贝三角面信息
 			for (int32_t vertId = 0; vertId < newOptimizeIndexMember.size(); ++vertId)
 			{
 				nowOutData->AddFaceIndexDataToSubmesh(realSubIndex, newOptimizeIndexMember[vertId]);
+			}
+			//拷贝绑定信息
+			for (int32_t boneId = 0; boneId < meshData->GetRefBoneCount(); ++boneId)
+			{
+				LString curBoneName = meshData->GetRefBoneNameByIndex(boneId);
+				FbxAMatrix curBonePose = meshData->GetBonePoseByIndex(boneId);
+				LMatrix4f curBonePoseOut;
+				FbxMatrixToMatrix(curBonePose, curBonePoseOut);
+				nowOutData->AddBoneMessageToSubmesh(realSubIndex, curBoneName, curBonePoseOut);
 			}
 		}
 	}
 
 	void LFbxImporterMesh::CombineVertexData(const LFbxDataMesh* meshData, LArray<VertexDataFullCombine>& vertexCombineData)
 	{
+		struct RefSkinData
+		{
+			int32_t vertexRefBone;
+			float vertexBoneWeight;
+		};
+		LArray<LArray<RefSkinData>> vertexSkinInfo;
+		//将fbx里得到的权重和骨骼引用信息取出
+		int32_t controlVertSize = meshData->GetControlPointSize();
+		vertexSkinInfo.resize(controlVertSize);
+		int32_t allBoneCount = meshData->GetRefBoneCount();
+		for (int32_t boneId = 0; boneId < allBoneCount; ++boneId)
+		{
+			const FbxClusterControlPointData& vertControlData = meshData->GetBoneControlVertexDataByIndex(boneId);
+			for(int32_t controlVertId = 0; controlVertId < vertControlData.mCtrlPointCount; ++controlVertId)
+			{
+				RefSkinData newSkinInfo;
+				newSkinInfo.vertexRefBone = boneId;
+				newSkinInfo.vertexBoneWeight = vertControlData.mWeights[controlVertId];
+				vertexSkinInfo[vertControlData.mIndices[controlVertId]].push_back(newSkinInfo);
+			}
+		}
+		//接下来进行权重剔除和排序
+		for (int32_t controlVertId = 0; controlVertId < controlVertSize; ++controlVertId)
+		{
+			size_t refBoneCount = vertexSkinInfo[controlVertId].size();
+			if (refBoneCount > 8)
+			{
+				sort(vertexSkinInfo[controlVertId].begin(), vertexSkinInfo[controlVertId].end(), [&](const RefSkinData& a, const RefSkinData& b)->bool {
+					return a.vertexBoneWeight > b.vertexBoneWeight;
+					}
+				);
+				int32_t removeNum = refBoneCount - 8;
+				for (int32_t removeId = 0; removeId < removeNum; ++removeId)
+				{
+					vertexSkinInfo[controlVertId].pop_back();
+				}
+			}
+		}
 		//这一步先把所有的fbx layer数据塌陷到三角网格上面
 		for (int i = 0; i < meshData->GetFaceSize(); ++i)
 		{
@@ -107,7 +165,13 @@ namespace luna::lfbx
 				{
 					new_vertex.mUvs[uv_channel] = meshData->GetUvByIndex(vertIndex, faceData.mTextureUvIndex[j], uv_channel);
 				}
+				new_vertex.globelIndex = vertIndex;
 				new_vertex.baseIndex = vertexCombineData[faceData.mMaterialIndex].mVertexs.size();
+				for (int32_t refBoneId = 0; refBoneId < vertexSkinInfo[vertIndex].size(); ++refBoneId)
+				{
+					new_vertex.mRefBones.push_back(vertexSkinInfo[vertIndex][refBoneId].vertexRefBone);
+					new_vertex.mWeights.push_back(vertexSkinInfo[vertIndex][refBoneId].vertexBoneWeight);
+				}
 				vertexCombineData[faceData.mMaterialIndex].mVertexs.push_back(new_vertex);
 			}
 		}

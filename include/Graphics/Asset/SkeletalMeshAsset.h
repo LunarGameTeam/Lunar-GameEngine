@@ -4,6 +4,7 @@
 namespace luna::render
 {
 	class RHIResource;
+
 	struct SkinVertex
 	{
 		uint32_t mRefBone[4];
@@ -28,10 +29,9 @@ namespace luna::render
 		}
 	};
 
-
 	class RENDER_API SubMeshSkeletal : public SubMesh
 	{
-		RegisterTypeEmbedd(SubMesh, InvalidType)
+		RegisterTypeEmbedd(SubMeshSkeletal, InvalidType)
 	public:
 		SubMeshSkeletal();
 		~SubMeshSkeletal() { }
