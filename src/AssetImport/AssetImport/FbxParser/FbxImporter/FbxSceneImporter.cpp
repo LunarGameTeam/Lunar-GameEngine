@@ -4,12 +4,15 @@
 #include "FbxAnimationImporter.h"
 #include "FbxMaterialImporter.h"
 #include "FbxCameraImporter.h"
-
+#include "FbxAnimationImporter.h"
 namespace luna::lfbx
 {
 	LFbxSceneImportHelper::LFbxSceneImportHelper()
 	{
-		mImporters.insert({asset::LImportNodeDataType::ImportDataMesh,std::make_shared<LFbxImporterMesh>()});
+		mImporters.insert({ asset::LImportNodeDataType::ImportDataMesh,std::make_shared<LFbxImporterMesh>() });
+		mImporters.insert({ asset::LImportNodeDataType::ImportDataSkeleton,std::make_shared<LFbxImporterSkeleton>() });
+
+		mAnimationImporters.insert({ asset::LImportNodeAnimationType::ImportSkeletonAnimation,std::make_shared<LFbxImporterSkeletonAnimation>() });
 	}
 
 	void LFbxSceneImportHelper::ParseScene(const LFbxSceneData* fbxDataInput, asset::LImportScene& outputScene)
@@ -49,7 +52,11 @@ namespace luna::lfbx
 		{
 			LFbxDataType dataType = eachData->GetType();
 			size_t nodeIdex = eachData->GetNodeIndex();
-			ParseSceneData(GetTypeByFbxType(dataType), nodeIdex,eachData.get(), fbxDataInput->mNodes[nodeIdex], dataContext, outputScene);
+			ParseSceneData(GetTypeByFbxType(dataType), nodeIdex,eachData.get(), fbxDataInput, dataContext, outputScene);
+		}
+		for (auto& eachAniamtion : fbxDataInput->mAnimations)
+		{
+			ParseAnimationData(&eachAniamtion, dataContext, outputScene);
 		}
 	}
 
@@ -100,7 +107,7 @@ namespace luna::lfbx
 		const asset::LImportNodeDataType type,
 		const size_t nodeIdex,
 		const LFbxDataBase* fbxDataInput,
-		const LFbxNodeBase &fbxNodeInput,
+		const LFbxSceneData* fbxScene,
 		LFbxImportContext& dataContext,
 		asset::LImportScene& outputScene
 	)
@@ -110,7 +117,19 @@ namespace luna::lfbx
 		{
 			return;
 		}
-		return needImporter->second->ParsingData(fbxDataInput, fbxNodeInput, dataContext,outputScene);
+		return needImporter->second->ParsingData(nodeIdex,fbxDataInput, fbxScene, dataContext,outputScene);
+	}
+
+	void LFbxSceneImportHelper::ParseAnimationData(
+		const LFbxAnimationStack* fbxAnimationInput,
+		LFbxImportContext& dataContext,
+		asset::LImportScene& outputScene
+	)
+	{
+		for (auto eachAnimImport : mAnimationImporters)
+		{
+			eachAnimImport.second->ParsingAnimation(fbxAnimationInput, dataContext, outputScene);
+		}
 	}
 
 	asset::LImportNodeDataType LFbxSceneImportHelper::GetTypeByFbxType(LFbxDataType inType)
@@ -125,6 +144,9 @@ namespace luna::lfbx
 			break;
 		case luna::lfbx::FbxCameraData:
 			return asset::LImportNodeDataType::ImportDataCamera;
+			break;
+		case luna::lfbx::FbxSkeletonData:
+			return asset::LImportNodeDataType::ImportDataSkeleton;
 			break;
 		default:
 			assert(0);

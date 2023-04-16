@@ -1,7 +1,7 @@
 #pragma once
 #include "AssetImport/FbxParser/FbxLoader/FbxLoaderUtil.h"
 #include "AssetImport/ImportScene/ImportScene.h"
-
+#include "AssetImport/FbxParser/FbxLoader/FbxSceneLoader.h"
 namespace luna::lfbx
 {
 	void FbxEulaToQuaternion(const fbxsdk::FbxDouble3& in, LQuaternion& out);
@@ -45,7 +45,7 @@ namespace luna::lfbx
 		void ParsingData(
 			const size_t nodeIdex,
 			const LFbxDataBase* fbxDataInput,
-			const LFbxNodeBase& fbxNodeInput,
+			const LFbxSceneData* fbxScene,
 			LFbxImportContext& dataContext,
 			asset::LImportScene& outputScene
 		);
@@ -53,7 +53,24 @@ namespace luna::lfbx
 		virtual void ParsingDataImpl(
 			const size_t nodeIdex,
 			const LFbxDataBase* fbxDataInput,
-			const LFbxNodeBase& fbxNodeInput,
+			const LFbxSceneData* fbxScene,
+			LFbxImportContext& dataContext,
+			asset::LImportScene& outputScene
+		) = 0;
+	};
+
+	class LFbxAnimationImporterBase
+	{
+	public:
+		LFbxAnimationImporterBase() {};
+		void ParsingAnimation(
+			const LFbxAnimationStack* fbxAnimationInput,
+			LFbxImportContext& dataContext,
+			asset::LImportScene& outputScene
+		);
+	private:
+		virtual void ParsingAnimationImpl(
+			const LFbxAnimationStack* fbxDataInput,
 			LFbxImportContext& dataContext,
 			asset::LImportScene& outputScene
 		) = 0;

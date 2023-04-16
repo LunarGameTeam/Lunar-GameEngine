@@ -52,11 +52,12 @@ namespace luna::lfbx
 	void LFbxImporterMesh::ParsingDataImpl(
 		const size_t nodeIdex,
 		const LFbxDataBase* fbxDataInput,
-		const LFbxNodeBase& fbxNodeInput,
+		const LFbxSceneData* fbxScene,
 		LFbxImportContext& dataContext,
 		asset::LImportScene& outputScene
 	)
 	{
+		const LFbxNodeBase& fbxNodeInput = fbxScene->mNodes[nodeIdex];
 		const LFbxDataMesh* meshData = static_cast<const LFbxDataMesh*>(fbxDataInput);
 		asset::LImportNodeDataMesh* nowOutData = outputScene.AddNewData<asset::LImportNodeDataMesh>();
 		LArray<VertexDataFullCombine> newCombineData;

@@ -71,8 +71,18 @@ namespace luna::asset
 			translationMid.translate(eachValue.mInitLocation);
 			LMatrix4f transDataAns = convertInvMatrix * translationMid.matrix() * convertMatrix;
 			eachValue.mInitLocation = transDataAns.block<3, 1>(0, 3);
-
-			eachValue.mInitLocation = 
+			//变换scal数据
+			LTransform scalMid;
+			scalMid.setIdentity();
+			scalMid.scale(eachValue.mInitScal);
+			LMatrix4f scalDataAns = convertInvMatrix * scalMid.matrix() * convertMatrix;
+			eachValue.mInitScal = scalDataAns.block<3, 1>(0, 3);
+			//变换rotation数据
+			LMatrix4f matrixRotation = LMatrix4f::Identity();
+			matrixRotation.block(0, 0, 3, 3) = eachValue.mInitRotation.toRotationMatrix();
+			LMatrix4f rotationDataAns = convertInvMatrix * matrixRotation * convertMatrix;
+			LMatrix3f rotationDataMat = rotationDataAns.block(0, 0, 3, 3);
+			eachValue.mInitRotation = LQuaternion(rotationDataMat);
 		}
 	}
 

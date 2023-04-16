@@ -5,12 +5,12 @@ namespace luna::lfbx
 	class LFbxDataSkeleton : public LFbxDataBase
 	{
 		bool HasMultiRoot = false;
-		LArray<const FbxNode*> skeletonBoneGroup;
+		LArray<LString> skeletonBoneGroup;
 	public:
 		LFbxDataSkeleton() : LFbxDataBase(LFbxDataType::FbxSkeletonData) {};
 		inline void MarkMultiRoot() { HasMultiRoot = true; }
-		inline void AddNodeToGroup(const FbxNode* nodeData) { skeletonBoneGroup.push_back(nodeData); };
-		inline const LArray<const FbxNode*>& GetSkeletonNodes() const{ return skeletonBoneGroup; };
+		inline void AddNodeToGroup(const FbxNode* nodeData) { skeletonBoneGroup.push_back(nodeData->GetName()); };
+		inline const LArray<LString>& GetSkeletonNodes() const{ return skeletonBoneGroup; };
 	};
 
 	class LFbxLoaderSkeleton : public LFbxLoaderBase

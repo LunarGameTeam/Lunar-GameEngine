@@ -54,7 +54,7 @@ namespace luna::lfbx
 				out.row(rowId).data()[colId] = (float)in.mData[rowId].mData[colId];
 			}
 		}
-		out = out.transpose();
+		out.transposeInPlace();
 	}
 
 	LFbxContextComponent* LFbxImportContext::GetComponent(asset::LImportNodeDataType compType)
@@ -75,11 +75,20 @@ namespace luna::lfbx
 	void LFbxImporterBase::ParsingData(
 		const size_t nodeIdex,
 		const LFbxDataBase* fbxDataInput,
-		const LFbxNodeBase& fbxNodeInput,
+		const LFbxSceneData* fbxScene,
 		LFbxImportContext& dataContext,
 		asset::LImportScene& outputScene
 	)
 	{
-		ParsingDataImpl(nodeIdex,fbxDataInput, fbxNodeInput, dataContext,outputScene);
+		ParsingDataImpl(nodeIdex,fbxDataInput, fbxScene, dataContext,outputScene);
+	}
+	
+	void LFbxAnimationImporterBase::ParsingAnimation(
+		const LFbxAnimationStack* fbxAnimationInput,
+		LFbxImportContext& dataContext,
+		asset::LImportScene& outputScene
+	) 
+	{
+		ParsingAnimationImpl(fbxAnimationInput, dataContext, outputScene);
 	}
 }

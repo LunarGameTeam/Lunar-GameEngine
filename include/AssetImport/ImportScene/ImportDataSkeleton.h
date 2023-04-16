@@ -22,6 +22,8 @@ namespace luna::asset
 		void AddBoneToData(const SkeletonBoneData& boneData);
 
 		void SortBoneData();
+
+		const LArray<SkeletonBoneData>& GetBones() const { return skeletonBones; };
 	private:
 		void ConvertDataAxisAndUnitImpl(bool hasReflectTransform, LMatrix4f convertInvMatrix, LMatrix4f convertMatrix) override;
 	};

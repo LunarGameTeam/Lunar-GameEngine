@@ -21,6 +21,15 @@ namespace luna::asset
 		ImportDataCamera
 	};
 
+	enum class LImportNodeAnimationType : uint8_t
+	{
+		ImportSkeletonAnimation = 0,
+		ImportMorphAnimation,
+		ImportVertexCacheAnimation,
+		ImportTransformAnimation,
+		ImportCameraAnimation,
+	};
+
 	enum LImportAxisType : uint8_t
 	{
 		ImportAxisZupLeftHand = 0,
@@ -59,6 +68,22 @@ namespace luna::asset
 		LImportNodeDataBase(const LImportNodeDataType type, const size_t index);
 
 		inline LImportNodeDataType GetType() { return mType; }
+
+		inline const size_t GetId()const { return mIndex; };
+
+		void ConvertDataAxisAndUnit(bool hasReflectTransform, LMatrix4f convertInvMatrix, LMatrix4f convertMatrix);
+	private:
+		virtual void ConvertDataAxisAndUnitImpl(bool hasReflectTransform, LMatrix4f convertInvMatrix, LMatrix4f convertMatrix) = 0;
+	};
+
+	class ASSET_IMPORT_API LImportNodeAnimationBase
+	{
+		LImportNodeAnimationType mType;
+		size_t mIndex;
+	public:
+		LImportNodeAnimationBase(const LImportNodeAnimationType type, const size_t index);
+
+		inline LImportNodeAnimationType GetType() { return mType; }
 
 		inline const size_t GetId()const { return mIndex; };
 

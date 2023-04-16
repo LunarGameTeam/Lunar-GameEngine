@@ -20,6 +20,8 @@ namespace luna::lfbx
 		) :mNodeName(nodeName), mCurveType(curveType)
 		{
 		}
+		inline const LString& GetName() const { return mNodeName; };
+		inline const LFbxAnimationCurveType GetType() const { return mCurveType; };
 	};
 
 	template<typename CurveValueType>
@@ -31,19 +33,26 @@ namespace luna::lfbx
 			LFbxAnimationCurveType curveType) :LFbxCurveBase(nodeName, curveType)
 		{
 		}
+
 		void AddValue(CurveValueType value)
 		{
 			mValue.push_back(value);
 		}
+
+		const LArray<CurveValueType>& GetValues() const { return mValue; }
 	};
 
 	class LFbxAnimationStack
 	{
 		LString mAnimationName;
+
 		LArray<std::shared_ptr<LFbxCurveBase>> mAllCurves;
 	public:
 		LFbxAnimationStack(const LString& name) :mAnimationName(name) {};
+
 		void AddCurve(std::shared_ptr<LFbxCurveBase> newCurve) { mAllCurves.push_back(newCurve); };
+
+		const LArray<std::shared_ptr<LFbxCurveBase>>& GetCurves() const { return mAllCurves; }
 	};
 
 	class LFbxAnimationLoader

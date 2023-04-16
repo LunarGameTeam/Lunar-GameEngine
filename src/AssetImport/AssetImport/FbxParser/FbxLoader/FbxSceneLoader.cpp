@@ -308,6 +308,7 @@ namespace luna::lfbx
 		newNode.mIndex = node_index;
 		newNode.mParent = nodeParent;
 		ComputeLclTransform(pNode,newNode.mLocalTranslation, newNode.mLocalRotation, newNode.mLocalScaling, newNode.mGlobelTransform);
+		scene_out.mNodesNameRef.insert({ newNode.mName ,scene_out.mNodes.size()});
 		scene_out.mNodes.push_back(newNode);
 		if (pNode->GetNodeAttribute())
 		{

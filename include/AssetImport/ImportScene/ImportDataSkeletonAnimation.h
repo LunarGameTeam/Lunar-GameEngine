@@ -4,7 +4,7 @@
 
 namespace luna::asset
 {
-	class ASSET_IMPORT_API LImportNodeDataSkeletonAnimation : public LImportNodeDataBase
+	class ASSET_IMPORT_API LImportNodeDataSkeletonAnimation : public LImportNodeAnimationBase
 	{
 	public:
 		LImportNodeDataSkeletonAnimation(const size_t index);

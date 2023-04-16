@@ -132,6 +132,19 @@ namespace luna::asset
 		}
 	}
 
+	LArray<size_t> LImportScene::FilterDataByType(LImportNodeDataType type)
+	{
+		LArray<size_t> out;
+		for (int32_t i = 0; i < mDatas.size(); ++i)
+		{
+			if (mDatas[i]->GetType() == type)
+			{
+				out.push_back(i);
+			}
+		}
+		return out;
+	}
+
 	void LImportScene::PostProcessData()
 	{
 		for (auto each_data : mDatas)

@@ -18,5 +18,16 @@ namespace luna::asset
 	{
 		ConvertDataAxisAndUnitImpl(hasReflectTransform, convertInvMatrix, convertMatrix);
 	}
+
+
+	LImportNodeAnimationBase::LImportNodeAnimationBase(const LImportNodeAnimationType type, const size_t index) :mType(type), mIndex(index)
+	{
+
+	}
+
+	void LImportNodeAnimationBase::ConvertDataAxisAndUnit(bool hasReflectTransform, LMatrix4f convertInvMatrix, LMatrix4f convertMatrix)
+	{
+		ConvertDataAxisAndUnitImpl(hasReflectTransform, convertInvMatrix, convertMatrix);
+	}
 }
 

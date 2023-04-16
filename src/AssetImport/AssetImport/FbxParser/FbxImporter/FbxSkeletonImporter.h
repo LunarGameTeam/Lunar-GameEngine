@@ -7,6 +7,11 @@ namespace luna::lfbx
 	{
 		LUnorderedMap<LString, size_t> mExistSkeletonMap;
 	public:
+		LFbxContextComponentSkeleton() : LFbxContextComponent(asset::LImportNodeDataType::ImportDataSkeleton)
+		{
+
+		};
+
 		void Insert(const LString& skeletonHash, size_t skeletonDataId);
 		
 		bool Check(const LString& skeletonHash);
@@ -23,7 +28,7 @@ namespace luna::lfbx
 		void ParsingDataImpl(
 			const size_t nodeIdex,
 			const LFbxDataBase* fbxDataInput,
-			const LFbxNodeBase& fbxNodeInput,
+			const LFbxSceneData* fbxScene,
 			LFbxImportContext& dataContext,
 			asset::LImportScene& outputScene
 		) override;

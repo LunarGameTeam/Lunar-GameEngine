@@ -31,7 +31,7 @@ namespace luna::lfbx
 		void ParsingDataImpl(
 			const size_t nodeIdex,
 			const LFbxDataBase* fbxDataInput,
-			const LFbxNodeBase& fbxNodeInput,
+			const LFbxSceneData* fbxScene,
 			LFbxImportContext& dataContext,
 			asset::LImportScene& outputScene
 		) override;

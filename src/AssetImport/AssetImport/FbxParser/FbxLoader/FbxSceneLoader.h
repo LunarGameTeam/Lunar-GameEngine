@@ -8,6 +8,7 @@ namespace luna::lfbx
 		FbxAxisSystem mAxis;
 		FbxSystemUnit mUnit;
 		LArray<LFbxNodeBase> mNodes;
+		LUnorderedMap<LString,size_t> mNodesNameRef;
 		LArray<std::shared_ptr<LFbxDataBase>> mDatas;
 		LArray<LFbxAnimationStack> mAnimations;
 	};
