@@ -114,21 +114,31 @@ namespace luna::asset
 		LMatrix4f convertMatrix,convertInvMatrix;
 		ComputeConvertMatrix(axis, unit,convertMatrix, convertInvMatrix);
 		//根据转换矩阵，转换所有节点的变换矩阵
-		for (LImportSceneNode &each_node : mNodes)
+		for (LImportSceneNode &eachNode : mNodes)
 		{
-			LMatrix4f nodeTransformMatrix = LMath::MatrixCompose(each_node.mTranslation, each_node.mRotation, each_node.mScal);
+			LMatrix4f nodeTransformMatrix = LMath::MatrixCompose(eachNode.mTranslation, eachNode.mRotation, eachNode.mScal);
 			LMatrix4f newTransformMatrix = convertInvMatrix * nodeTransformMatrix * convertMatrix;
-			LMath::MatrixDecompose(newTransformMatrix, each_node.mTranslation, each_node.mRotation, each_node.mScal);
+			LMath::MatrixDecompose(newTransformMatrix, eachNode.mTranslation, eachNode.mRotation, eachNode.mScal);
 		}
 		//根据转换矩阵，转换所有资源数据
-		for (auto each_data : mDatas)
+		for (auto eachData : mDatas)
 		{
 			bool ifReflect = false;
 			if (mAxis == ImportAxisZupRightHand || axis == ImportAxisYupRightHand)
 			{
 				ifReflect = true;
 			}
-			each_data->ConvertDataAxisAndUnit(ifReflect,convertInvMatrix, convertMatrix);
+			eachData->ConvertDataAxisAndUnit(ifReflect,convertInvMatrix, convertMatrix);
+		}
+		//根据转换矩阵，转换所有动画数据
+		for (auto eachAniamtion : mAnimations)
+		{
+			bool ifReflect = false;
+			if (mAxis == ImportAxisZupRightHand || axis == ImportAxisYupRightHand)
+			{
+				ifReflect = true;
+			}
+			eachAniamtion->ConvertAnimationAxisAndUnit(ifReflect, convertInvMatrix, convertMatrix);
 		}
 	}
 

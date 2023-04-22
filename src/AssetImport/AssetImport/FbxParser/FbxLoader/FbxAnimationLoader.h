@@ -14,18 +14,25 @@ namespace luna::lfbx
 	{
 		LString mNodeName;
 		LFbxAnimationCurveType mCurveType;
+		LArray<fbxsdk::FbxTime> mTimes;
 	public:
 		LFbxCurveBase(const LString& nodeName,
 			LFbxAnimationCurveType curveType
 		) :mNodeName(nodeName), mCurveType(curveType)
 		{
 		}
+
 		inline const LString& GetName() const { return mNodeName; };
+
 		inline const LFbxAnimationCurveType GetType() const { return mCurveType; };
+
+		inline void AddTimePoint(FbxTime time) { mTimes.push_back(time); };
+
+		const LArray<FbxTime>& GetTimes() const { return mTimes; };
 	};
 
 	template<typename CurveValueType>
-	struct LFbxTemplateCurve : public LFbxCurveBase
+	class LFbxTemplateCurve : public LFbxCurveBase
 	{
 		LArray<CurveValueType> mValue;
 	public:
@@ -68,6 +75,8 @@ namespace luna::lfbx
 		bool CheckNodeHasTransformAnimation(fbxsdk::FbxNode* targetNode, FbxAnimLayer* animLayer);
 
 		void GetNodeFromAnimLayer(fbxsdk::FbxNode* parentNode, FbxAnimLayer* animLayer, LUnorderedMap<LString, fbxsdk::FbxNode*>& allNodeOut);
+
+		void SampleKeyValue(LArray<fbxsdk::FbxAnimCurve*> newCurves, LSharedPtr<LFbxTemplateCurve<FbxDouble3>>& curveOut);
 	};
 
 }

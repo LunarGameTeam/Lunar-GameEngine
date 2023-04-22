@@ -8,7 +8,10 @@
 #include "Graphics/Renderer/MaterialInstance.h"
 
 #include "Graphics/Asset/MeshAsset.h"
+#include "Graphics/Asset/SkeletalMeshAsset.h"
 #include "Graphics/Asset/TextureAsset.h"
+#include "Animation/Asset/SkeletonAsset.h"
+#include "Animation/SkeletonAnimation/SkeletalAnimInstanceBase.h"
 
 #include "Graphics/Asset/MaterialTemplate.h"
 
@@ -44,15 +47,20 @@ private:
 	SharedPtr<MeshAsset> mMeshAsset;
 	SharedPtr<render::MaterialTemplateAsset> mMaterialAsset;
 	TPPtr<render::MaterialInstance> mMaterialInstance;
+
 };
 
 class GAME_API StaticMeshRenderer : public MeshRenderer
 {
+	RegisterTypeEmbedd(StaticMeshRenderer,MeshRenderer)
+	
 };
 
 
 class GAME_API SkeletonMeshRenderer : public MeshRenderer
 {
+	RegisterTypeEmbedd(SkeletonMeshRenderer, MeshRenderer)
+	SharedPtr<animation::SkeletonAsset> mSkeletonAsset;
 };
 
 }

@@ -54,4 +54,11 @@ void SkeletonAsset::OnAssetFileWrite(LSharedPtr<JsonDict> meta, LArray<byte>& da
 	memcpy(dst, mBoneTree.data(), SkeletonBoneSize * sizeof(LSingleBone));
 }
 
+void SkeletonAsset::AddBoneToTree(const LSingleBone& boneData)
+{
+	mSearchIndex.insert({ boneData.mBoneName,mBoneTree.size() });
+	mBoneTree.push_back(boneData);
+
+};
+
 }

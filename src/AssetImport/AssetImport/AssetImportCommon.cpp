@@ -1,5 +1,7 @@
 #include "AssetImport/AssetImportCommon.h"
 #include "Graphics/Asset/MeshAsset.h"
+#include "Graphics/Asset/SkeletalMeshAsset.h"
+#include "Animation/Asset/SkeletonAsset.h"
 namespace luna::asset
 {
 	void LAssetPack::SerializeAllAsset(const LPath& path)
@@ -25,6 +27,14 @@ namespace luna::asset
 			if (assetValue->GetClass()->GetName() == LType::Get<render::MeshAsset>()->GetName())
 			{
 				newPath = newPath + ".lmesh";
+			}
+			else if (assetValue->GetClass()->GetName() == LType::Get<render::SkeletalMeshAsset>()->GetName())
+			{
+				newPath = newPath + ".lskelmesh";
+			}
+			else if (assetValue->GetClass()->GetName() == LType::Get<animation::SkeletonAsset>()->GetName())
+			{
+				newPath = newPath + ".lskeleton";
 			}
 			sAssetModule->SaveAsset(assetValue, newPath);
 		}

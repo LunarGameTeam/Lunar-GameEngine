@@ -48,7 +48,7 @@ namespace luna::render
 	void SkeletalMeshAsset::WriteVertexData(size_t idx, byte* dst)
 	{
 		luna::render::SubMeshSkeletal* subMeshData = static_cast<SubMeshSkeletal*>(mSubMesh[idx]);
-		memcpy(dst, subMeshData->mSkinData.data(), subMeshData->mSkinData.size() * sizeof(BaseVertex));
-		dst += subMeshData->mSkinData.size() * sizeof(BaseVertex);
+		memcpy(dst, subMeshData->mSkinData.data(), subMeshData->mSkinData.size() * sizeof(SkinVertex));
+		dst += subMeshData->mSkinData.size() * sizeof(SkinVertex);
 	}
 }

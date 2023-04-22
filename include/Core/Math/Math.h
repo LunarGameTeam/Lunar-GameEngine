@@ -21,7 +21,8 @@ using LTransformd = Eigen::Transform<double, 3, Eigen::Affine, Eigen::RowMajor>;
 using LMatrix3f = Eigen::Matrix<float, 3, 3, Eigen::RowMajor>;
 using LMatrix4f = Eigen::Matrix<float, 4, 4, Eigen::RowMajor>;
 using LAABB = Eigen::AlignedBox<float, 3>;
-
+static constexpr float gMax16BitFloat = 65535.0f;
+static constexpr int32_t gMax16BitUint = 65535;
 class CORE_API LMath
 {
 public:
@@ -70,6 +71,12 @@ public:
 		LTransform transform(mat);
 		return LQuaternion(transform.rotation());		
 	}
+
+	static uint32_t CombineUint16(uint16_t a, uint16_t b);
+
+	static void SplitUint32(uint32_t data, uint16_t& a, uint16_t& b);
+
+	static uint16_t NormalizedFloatToUnit16(float data);
 };
 
 struct LRay;

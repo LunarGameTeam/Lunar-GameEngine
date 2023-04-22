@@ -401,6 +401,8 @@ namespace luna::lfbx
 			int* pCtrlPointIndices = pCluster->GetControlPointIndices();
 			double* pCtrlPointWeights = pCluster->GetControlPointWeights();
 			SetBoneControlData(skeletonIndex, ctrlPointCount, pCtrlPointIndices, pCtrlPointWeights);
+
+			mHasSkinMessage = true;
 		}
 	}
 

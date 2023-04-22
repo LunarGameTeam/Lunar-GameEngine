@@ -4,6 +4,7 @@
 
 namespace luna::asset
 {
+	static constexpr int32_t gSkinPerVertex = 8;
 	struct ASSET_IMPORT_API LImportSubmesh
 	{
 		size_t mIndex;
@@ -16,16 +17,16 @@ namespace luna::asset
 		LArray<LVector4f> mVertexTangent;
 		LArray<LArray<LVector2f>> mVertexUv;
 		LArray<LVector4f> mVertexColor;
+		//skin–≈œ¢
 		LArray<uint32_t>  mRefBone;
 		LArray<float>     mWeight;
-
 		LArray<LString>   mRefBoneName;
 		LArray<LMatrix4f> mRefBonePose;
-	
 	};
 
 	class ASSET_IMPORT_API LImportNodeDataMesh : public LImportNodeDataBase
 	{
+		bool mHasSkin = false;
 		LArray<LImportSubmesh> mSubmesh;
 	public:
 		LImportNodeDataMesh(const size_t index);
@@ -64,6 +65,8 @@ namespace luna::asset
 		{
 			return mSubmesh[index];
 		}
+
+		inline bool HasSkin()const { return mHasSkin; }
 	private:
 		void ConvertDataAxisAndUnitImpl(bool hasReflectTransform, LMatrix4f convertInvMatrix, LMatrix4f convertMatrix) override;
 

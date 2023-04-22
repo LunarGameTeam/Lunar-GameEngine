@@ -68,6 +68,10 @@ namespace luna::lfbx
 		OptimizeCombineVert(newCombineData, newOptimizeData, newOptimizeIndex);
 		for (int32_t submeshId = 0; submeshId < newOptimizeData.size(); ++submeshId)
 		{
+			if (newOptimizeData[submeshId].mVertexs.size() == 0)
+			{
+				continue;
+			}
 			//暂时认为submeshid就是材质id
 			size_t realSubIndex = nowOutData->AddSubMeshMessage(fbxNodeInput.mName, submeshId);
 			VertexDataFullCombine &newOptimizeDataMember = newOptimizeData[submeshId];
@@ -87,9 +91,12 @@ namespace luna::lfbx
 				{
 					FbxVector2ToVector2(newVertData.mUvs[uvChannel],vertUv[uvChannel]);
 				}
-				//拷贝蒙皮信息
 				nowOutData->AddFullVertex(realSubIndex,vertPosition, vertNormal, vertTangent, vertUv, vertColor);
-				nowOutData->AddFullSkin(realSubIndex, newVertData.mRefBones, newVertData.mWeights);
+				//拷贝蒙皮信息
+				if (meshData->HasSkinInfo())
+				{
+					nowOutData->AddFullSkin(realSubIndex, newVertData.mRefBones, newVertData.mWeights);
+				}
 			}
 			//拷贝三角面信息
 			for (int32_t vertId = 0; vertId < newOptimizeIndexMember.size(); ++vertId)
@@ -97,13 +104,16 @@ namespace luna::lfbx
 				nowOutData->AddFaceIndexDataToSubmesh(realSubIndex, newOptimizeIndexMember[vertId]);
 			}
 			//拷贝绑定信息
-			for (int32_t boneId = 0; boneId < meshData->GetRefBoneCount(); ++boneId)
+			if (meshData->HasSkinInfo())
 			{
-				LString curBoneName = meshData->GetRefBoneNameByIndex(boneId);
-				FbxAMatrix curBonePose = meshData->GetBonePoseByIndex(boneId);
-				LMatrix4f curBonePoseOut;
-				FbxMatrixToMatrix(curBonePose, curBonePoseOut);
-				nowOutData->AddBoneMessageToSubmesh(realSubIndex, curBoneName, curBonePoseOut);
+				for (int32_t boneId = 0; boneId < meshData->GetRefBoneCount(); ++boneId)
+				{
+					LString curBoneName = meshData->GetRefBoneNameByIndex(boneId);
+					FbxAMatrix curBonePose = meshData->GetBonePoseByIndex(boneId);
+					LMatrix4f curBonePoseOut;
+					FbxMatrixToMatrix(curBonePose, curBonePoseOut);
+					nowOutData->AddBoneMessageToSubmesh(realSubIndex, curBoneName, curBonePoseOut);
+				}
 			}
 		}
 	}
@@ -116,35 +126,38 @@ namespace luna::lfbx
 			float vertexBoneWeight;
 		};
 		LArray<LArray<RefSkinData>> vertexSkinInfo;
-		//将fbx里得到的权重和骨骼引用信息取出
-		int32_t controlVertSize = meshData->GetControlPointSize();
-		vertexSkinInfo.resize(controlVertSize);
-		int32_t allBoneCount = meshData->GetRefBoneCount();
-		for (int32_t boneId = 0; boneId < allBoneCount; ++boneId)
+		if (meshData->HasSkinInfo())
 		{
-			const FbxClusterControlPointData& vertControlData = meshData->GetBoneControlVertexDataByIndex(boneId);
-			for(int32_t controlVertId = 0; controlVertId < vertControlData.mCtrlPointCount; ++controlVertId)
+			//将fbx里得到的权重和骨骼引用信息取出
+			int32_t controlVertSize = meshData->GetControlPointSize();
+			vertexSkinInfo.resize(controlVertSize);
+			int32_t allBoneCount = meshData->GetRefBoneCount();
+			for (int32_t boneId = 0; boneId < allBoneCount; ++boneId)
 			{
-				RefSkinData newSkinInfo;
-				newSkinInfo.vertexRefBone = boneId;
-				newSkinInfo.vertexBoneWeight = vertControlData.mWeights[controlVertId];
-				vertexSkinInfo[vertControlData.mIndices[controlVertId]].push_back(newSkinInfo);
-			}
-		}
-		//接下来进行权重剔除和排序
-		for (int32_t controlVertId = 0; controlVertId < controlVertSize; ++controlVertId)
-		{
-			size_t refBoneCount = vertexSkinInfo[controlVertId].size();
-			if (refBoneCount > 8)
-			{
-				sort(vertexSkinInfo[controlVertId].begin(), vertexSkinInfo[controlVertId].end(), [&](const RefSkinData& a, const RefSkinData& b)->bool {
-					return a.vertexBoneWeight > b.vertexBoneWeight;
-					}
-				);
-				int32_t removeNum = refBoneCount - 8;
-				for (int32_t removeId = 0; removeId < removeNum; ++removeId)
+				const FbxClusterControlPointData& vertControlData = meshData->GetBoneControlVertexDataByIndex(boneId);
+				for (int32_t controlVertId = 0; controlVertId < vertControlData.mCtrlPointCount; ++controlVertId)
 				{
-					vertexSkinInfo[controlVertId].pop_back();
+					RefSkinData newSkinInfo;
+					newSkinInfo.vertexRefBone = boneId;
+					newSkinInfo.vertexBoneWeight = vertControlData.mWeights[controlVertId];
+					vertexSkinInfo[vertControlData.mIndices[controlVertId]].push_back(newSkinInfo);
+				}
+			}
+			//接下来进行权重剔除和排序
+			for (int32_t controlVertId = 0; controlVertId < controlVertSize; ++controlVertId)
+			{
+				size_t refBoneCount = vertexSkinInfo[controlVertId].size();
+				if (refBoneCount > asset::gSkinPerVertex)
+				{
+					sort(vertexSkinInfo[controlVertId].begin(), vertexSkinInfo[controlVertId].end(), [&](const RefSkinData& a, const RefSkinData& b)->bool {
+						return a.vertexBoneWeight > b.vertexBoneWeight;
+						}
+					);
+					int32_t removeNum = refBoneCount - asset::gSkinPerVertex;
+					for (int32_t removeId = 0; removeId < removeNum; ++removeId)
+					{
+						vertexSkinInfo[controlVertId].pop_back();
+					}
 				}
 			}
 		}
@@ -168,11 +181,16 @@ namespace luna::lfbx
 				}
 				new_vertex.globelIndex = vertIndex;
 				new_vertex.baseIndex = vertexCombineData[faceData.mMaterialIndex].mVertexs.size();
-				for (int32_t refBoneId = 0; refBoneId < vertexSkinInfo[vertIndex].size(); ++refBoneId)
+				//生成蒙皮信息
+				if (vertexSkinInfo.size() > 0)
 				{
-					new_vertex.mRefBones.push_back(vertexSkinInfo[vertIndex][refBoneId].vertexRefBone);
-					new_vertex.mWeights.push_back(vertexSkinInfo[vertIndex][refBoneId].vertexBoneWeight);
+					for (int32_t refBoneId = 0; refBoneId < vertexSkinInfo[vertIndex].size(); ++refBoneId)
+					{
+						new_vertex.mRefBones.push_back(vertexSkinInfo[vertIndex][refBoneId].vertexRefBone);
+						new_vertex.mWeights.push_back(vertexSkinInfo[vertIndex][refBoneId].vertexBoneWeight);
+					}
 				}
+
 				vertexCombineData[faceData.mMaterialIndex].mVertexs.push_back(new_vertex);
 			}
 		}

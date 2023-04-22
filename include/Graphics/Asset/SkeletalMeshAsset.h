@@ -8,7 +8,7 @@ namespace luna::render
 	struct SkinVertex
 	{
 		uint32_t mRefBone[4];
-		float mWeight[4];
+		uint32_t mWeight[4];
 		static RHIVertexLayout GetVertexLayout()
 		{
 			RHIVertexLayout layout;
@@ -36,6 +36,8 @@ namespace luna::render
 		SubMeshSkeletal();
 		~SubMeshSkeletal() { }
 		LArray<SkinVertex> mSkinData;
+		LArray<LString>    mRefBoneName;
+		LArray<LMatrix4f>  mRefBonePose;
 	};
 
 	class RENDER_API SkeletalMeshAsset : public MeshAsset

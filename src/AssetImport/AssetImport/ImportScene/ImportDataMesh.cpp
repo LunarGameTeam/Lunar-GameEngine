@@ -24,11 +24,6 @@ namespace luna::asset
 		mSubmesh[subMeshIndex].mVertexTangent.push_back(tangent);
 		mSubmesh[subMeshIndex].mVertexUv.push_back(uv);
 		mSubmesh[subMeshIndex].mVertexColor.push_back(color);
-		for(int32_t i = 0; i < 8; ++i)
-		{
-			mSubmesh[subMeshIndex].mRefBone.push_back(0);
-			mSubmesh[subMeshIndex].mWeight.push_back(0);
-		}
 	};
 
 	void LImportNodeDataMesh::AddFullSkin(
@@ -38,12 +33,16 @@ namespace luna::asset
 	)
 	{
 		int32_t addCount = (int32_t)mRefBone.size();
+		if (!mHasSkin && addCount > 0)
+		{
+			mHasSkin = true;
+		}
 		for (int32_t i = 0; i < addCount; ++i)
 		{
 			mSubmesh[subMeshIndex].mRefBone.push_back(mRefBone[i]);
 			mSubmesh[subMeshIndex].mWeight.push_back(mWeight[i]);
 		}
-		for (int32_t i = addCount; i < 8; ++i)
+		for (int32_t i = addCount; i < asset::gSkinPerVertex; ++i)
 		{
 			mSubmesh[subMeshIndex].mRefBone.push_back(0);
 			mSubmesh[subMeshIndex].mWeight.push_back(0);

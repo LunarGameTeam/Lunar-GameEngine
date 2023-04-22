@@ -20,6 +20,8 @@ namespace luna::lfbx
 			const asset::LImportNodeDataSkeleton* skeletonData,
 			asset::LImportScene& outputScene
 		);
+
+		void FbxEulaCurveToImportData(const LFbxTemplateCurve<FbxDouble3>* fbxCurve, asset::LImportNodeSkeletonAnimation* newAnimation);
 	};
 	
 }

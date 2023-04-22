@@ -68,25 +68,64 @@ namespace luna::lfbx
 		FbxTime timeIncrement = 0;
 		timeIncrement.SetSecondDouble(1.0 / ((double)(reSampleRate)));
 		const FbxTime TimeComparisonThreshold = 0.001;
+		//将所有层的动画重采样塌陷到第一层
+		const_cast<FbxAnimStack*>(curAnimStack)->BakeLayers(context.lScene->GetAnimationEvaluator(), AnimStackTimeSpan.GetStart(), AnimStackTimeSpan.GetStop(), timeIncrement);
+		int32_t AnimStackLayerCount = curAnimStack->GetMemberCount();
+		assert(AnimStackLayerCount == 1);
+		FbxAnimLayer* baseAnimLayer = (FbxAnimLayer*)curAnimStack->GetMember(0);
 		for (auto& eachAnimNode : allNodeOut)
 		{
-			std::shared_ptr<LFbxTemplateCurve<FbxVector4>> newCurveTranslation = std::make_shared<LFbxTemplateCurve<FbxVector4>>(eachAnimNode.first, LFbxAnimationCurveType::NODE_TRANSLATION);
-			std::shared_ptr<LFbxTemplateCurve<FbxVector4>> newCurveScaling = std::make_shared<LFbxTemplateCurve<FbxVector4>>(eachAnimNode.first, LFbxAnimationCurveType::NODE_SCALING);
-			std::shared_ptr<LFbxTemplateCurve<FbxQuaternion>> newCurveRotation = std::make_shared<LFbxTemplateCurve<FbxQuaternion>>(eachAnimNode.first, LFbxAnimationCurveType::NODE_ROTATION);
-			for (FbxTime curTime = AnimStackTimeSpan.GetStart(); curTime < (AnimStackTimeSpan.GetStop() + TimeComparisonThreshold); curTime += timeIncrement)
+			LSharedPtr<LFbxTemplateCurve<FbxDouble3>> newCurveTranslation = MakeShared<LFbxTemplateCurve<FbxDouble3>>(eachAnimNode.first, LFbxAnimationCurveType::NODE_TRANSLATION);
+			LSharedPtr<LFbxTemplateCurve<FbxDouble3>> newCurveRotation = MakeShared<LFbxTemplateCurve<FbxDouble3>>(eachAnimNode.first, LFbxAnimationCurveType::NODE_ROTATION);
+			LSharedPtr<LFbxTemplateCurve<FbxDouble3>> newCurveScaling = MakeShared<LFbxTemplateCurve<FbxDouble3>>(eachAnimNode.first, LFbxAnimationCurveType::NODE_SCALING);
+			LArray<fbxsdk::FbxAnimCurve*> newCurvesTranslation;
+			LArray<fbxsdk::FbxAnimCurve*> newCurvesRotation;
+			LArray<fbxsdk::FbxAnimCurve*> newCurvesScale;
+			newCurvesTranslation.resize(3);
+			newCurvesRotation.resize(3);
+			newCurvesScale.resize(3);
+			newCurvesTranslation[0] = eachAnimNode.second->LclTranslation.GetCurve(baseAnimLayer, FBXSDK_CURVENODE_COMPONENT_X, false);
+			newCurvesTranslation[1] = eachAnimNode.second->LclTranslation.GetCurve(baseAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y, false);
+			newCurvesTranslation[2] = eachAnimNode.second->LclTranslation.GetCurve(baseAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z, false);
+			
+			newCurvesRotation[0] = eachAnimNode.second->LclRotation.GetCurve(baseAnimLayer, FBXSDK_CURVENODE_COMPONENT_X, false);
+			newCurvesRotation[1] = eachAnimNode.second->LclRotation.GetCurve(baseAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y, false);
+			newCurvesRotation[2] = eachAnimNode.second->LclRotation.GetCurve(baseAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z, false);
+			
+			newCurvesScale[0] = eachAnimNode.second->LclScaling.GetCurve(baseAnimLayer, FBXSDK_CURVENODE_COMPONENT_X, false);
+			newCurvesScale[1] = eachAnimNode.second->LclScaling.GetCurve(baseAnimLayer, FBXSDK_CURVENODE_COMPONENT_Y, false);
+			newCurvesScale[2] = eachAnimNode.second->LclScaling.GetCurve(baseAnimLayer, FBXSDK_CURVENODE_COMPONENT_Z, false);
+			if (newCurvesTranslation[0] != nullptr)
 			{
-				FbxAMatrix nodeLocalMatrix = eachAnimNode.second->EvaluateLocalTransform(curTime);
-				FbxVector4 newLocalT = nodeLocalMatrix.GetT();
-				FbxVector4 newLocalS = nodeLocalMatrix.GetS();
-				FbxQuaternion newLocalQ = nodeLocalMatrix.GetQ();
-				newCurveTranslation->AddValue(newLocalT);
-				newCurveScaling->AddValue(newLocalS);
-				newCurveRotation->AddValue(newLocalQ);
+				SampleKeyValue(newCurvesTranslation, newCurveTranslation);
+				newStackClip.AddCurve(newCurveTranslation);
 			}
-			newStackClip.AddCurve(newCurveTranslation);
-			newStackClip.AddCurve(newCurveRotation);
-			newStackClip.AddCurve(newCurveScaling);
+			if (newCurvesRotation[0] != nullptr)
+			{
+				SampleKeyValue(newCurvesRotation, newCurveRotation);
+				newStackClip.AddCurve(newCurveRotation);
+			}
+			if (newCurvesScale[0] != nullptr)
+			{
+				SampleKeyValue(newCurvesScale, newCurveScaling);
+				newStackClip.AddCurve(newCurveScaling);
+			}
 		}
 		outAnim.push_back(newStackClip);
+	}
+
+	void LFbxAnimationLoader::SampleKeyValue(LArray<fbxsdk::FbxAnimCurve*> newCurves, LSharedPtr<LFbxTemplateCurve<FbxDouble3>>& curveOut)
+	{
+		assert(newCurves[0]->KeyGetCount() == newCurves[1]->KeyGetCount());
+		assert(newCurves[1]->KeyGetCount() == newCurves[2]->KeyGetCount());
+		for (size_t i = 0; i < newCurves[0]->KeyGetCount(); ++i)
+		{
+			fbxsdk::FbxAnimCurveKey keyValueX = newCurves[0]->KeyGet(i);
+			fbxsdk::FbxAnimCurveKey keyValueY = newCurves[1]->KeyGet(i);
+			fbxsdk::FbxAnimCurveKey keyValueZ = newCurves[2]->KeyGet(i);
+			curveOut->AddTimePoint(keyValueX.GetTime());
+			FbxDouble3 vectorData(keyValueX.GetValue(), keyValueY.GetValue(), keyValueZ.GetValue());
+			curveOut->AddValue(vectorData);
+		}
 	}
 }

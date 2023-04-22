@@ -66,23 +66,11 @@ namespace luna::asset
 		for (auto &eachValue : skeletonBones)
 		{
 			//变换loacation数据
-			LTransform translationMid;
-			translationMid.setIdentity();
-			translationMid.translate(eachValue.mInitLocation);
-			LMatrix4f transDataAns = convertInvMatrix * translationMid.matrix() * convertMatrix;
-			eachValue.mInitLocation = transDataAns.block<3, 1>(0, 3);
+			ConvertPositionByTransform(hasReflectTransform, convertInvMatrix, convertMatrix,eachValue.mInitLocation);
 			//变换scal数据
-			LTransform scalMid;
-			scalMid.setIdentity();
-			scalMid.scale(eachValue.mInitScal);
-			LMatrix4f scalDataAns = convertInvMatrix * scalMid.matrix() * convertMatrix;
-			eachValue.mInitScal = scalDataAns.block<3, 1>(0, 3);
+			ConvertScaleByTransform(hasReflectTransform, convertInvMatrix, convertMatrix, eachValue.mInitScal);
 			//变换rotation数据
-			LMatrix4f matrixRotation = LMatrix4f::Identity();
-			matrixRotation.block(0, 0, 3, 3) = eachValue.mInitRotation.toRotationMatrix();
-			LMatrix4f rotationDataAns = convertInvMatrix * matrixRotation * convertMatrix;
-			LMatrix3f rotationDataMat = rotationDataAns.block(0, 0, 3, 3);
-			eachValue.mInitRotation = LQuaternion(rotationDataMat);
+			ConvertRotationByTransform(hasReflectTransform, convertInvMatrix, convertMatrix, eachValue.mInitRotation);
 		}
 	}
 

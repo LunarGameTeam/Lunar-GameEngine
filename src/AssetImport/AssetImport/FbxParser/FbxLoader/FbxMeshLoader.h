@@ -34,6 +34,8 @@ namespace luna::lfbx
 
 	class LFbxDataMesh : public LFbxDataBase
 	{
+		bool mHasSkinMessage = false;
+
 		FbxLayerElement::EMappingMode mMaterialMode;
 
 		int32_t mMaterialRefCount = 0;
@@ -62,6 +64,8 @@ namespace luna::lfbx
 		
 	public:
 		LFbxDataMesh() : LFbxDataBase(LFbxDataType::FbxMeshData) {};
+
+		bool HasSkinInfo()const { return mHasSkinMessage; };
 
 		int32_t TryAddBone(const LString &boneName);
 
