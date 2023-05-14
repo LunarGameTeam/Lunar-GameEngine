@@ -31,20 +31,18 @@ public:
 
 	virtual ~MeshRenderer();
 
-	void SetMeshAsset(MeshAsset* mesh);
-
 	void SetMaterial(MaterialTemplateAsset* mat);
 	void SetCastShadow(bool val);
 	void OnCreate() override;
 
+	virtual MeshAsset* GetMeshAsset() { return nullptr; };
 
 	void OnActivate() override;
 protected:
 	void CreateRenderObject();
-private:
+protected:
 	bool mCastShadow = true;
 	uint64_t mRO = uint64_t(-1);
-	SharedPtr<MeshAsset> mMeshAsset;
 	SharedPtr<render::MaterialTemplateAsset> mMaterialAsset;
 	TPPtr<render::MaterialInstance> mMaterialInstance;
 
@@ -53,14 +51,23 @@ private:
 class GAME_API StaticMeshRenderer : public MeshRenderer
 {
 	RegisterTypeEmbedd(StaticMeshRenderer,MeshRenderer)
-	
+public:
+	void SetMeshAsset(MeshAsset* obj);
+	MeshAsset* GetMeshAsset() override { return mMeshAsset.get(); }
+private:
+	SharedPtr<MeshAsset> mMeshAsset;
 };
 
 
 class GAME_API SkeletonMeshRenderer : public MeshRenderer
 {
 	RegisterTypeEmbedd(SkeletonMeshRenderer, MeshRenderer)
+public:
+	MeshAsset* GetMeshAsset() override { return mSkeletalMeshAsset.get(); }
+	void SetMeshAsset(SkeletalMeshAsset* obj);
+private:
 	SharedPtr<animation::SkeletonAsset> mSkeletonAsset;
+	SharedPtr<SkeletalMeshAsset> mSkeletalMeshAsset;
 };
 
 }

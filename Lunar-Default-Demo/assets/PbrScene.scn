@@ -120,7 +120,7 @@
          "local_scale" : [ 1.0, 1.0, 1.0 ]
       },
       {
-         "__class__" : "MeshRenderer",
+         "__class__" : "StaticMeshRenderer",
          "__fid__" : 14,
          "__index__" : 0,
          "__parent__" : 12,
@@ -148,7 +148,7 @@
          "local_scale" : [ 1.0, 1.0, 1.0 ]
       },
       {
-         "__class__" : "MeshRenderer",
+         "__class__" : "StaticMeshRenderer",
          "__fid__" : 17,
          "__index__" : 0,
          "__parent__" : 15,
@@ -176,7 +176,7 @@
          "local_scale" : [ 1.0, 1.0, 1.0 ]
       },
       {
-         "__class__" : "MeshRenderer",
+         "__class__" : "StaticMeshRenderer",
          "__fid__" : 20,
          "__index__" : 0,
          "__parent__" : 18,
@@ -204,13 +204,13 @@
          "local_scale" : [ 1.0, 1.0, 1.0 ]
       },
       {
-         "__class__" : "MeshRenderer",
+         "__class__" : "SkeletonMeshRenderer",
          "__fid__" : 23,
          "__index__" : 0,
          "__parent__" : 21,
          "cast_shadow" : true,
          "material" : "/assets/Pbr/4.mat",
-         "mesh" : "/assets/built-in/Geometry/Sphere.lmesh",
+         "mesh" : "/assets/lion2.lskelmesh",
          "receive_shadow" : true
       },
       {
@@ -232,7 +232,7 @@
          "local_scale" : [ 1.0, 1.0, 1.0 ]
       },
       {
-         "__class__" : "MeshRenderer",
+         "__class__" : "StaticMeshRenderer",
          "__fid__" : 26,
          "__index__" : 0,
          "__parent__" : 24,
@@ -260,7 +260,7 @@
          "local_scale" : [ 1.0, 1.0, 1.0 ]
       },
       {
-         "__class__" : "MeshRenderer",
+         "__class__" : "StaticMeshRenderer",
          "__fid__" : 29,
          "__index__" : 0,
          "__parent__" : 27,
@@ -288,7 +288,7 @@
          "local_scale" : [ 1.0, 1.0, 1.0 ]
       },
       {
-         "__class__" : "MeshRenderer",
+         "__class__" : "StaticMeshRenderer",
          "__fid__" : 32,
          "__index__" : 0,
          "__parent__" : 30,
@@ -316,7 +316,7 @@
          "local_scale" : [ 1.0, 1.0, 1.0 ]
       },
       {
-         "__class__" : "MeshRenderer",
+         "__class__" : "StaticMeshRenderer",
          "__fid__" : 35,
          "__index__" : 0,
          "__parent__" : 33,
@@ -344,7 +344,7 @@
          "local_scale" : [ 1.0, 1.0, 1.0 ]
       },
       {
-         "__class__" : "MeshRenderer",
+         "__class__" : "StaticMeshRenderer",
          "__fid__" : 38,
          "__index__" : 0,
          "__parent__" : 36,

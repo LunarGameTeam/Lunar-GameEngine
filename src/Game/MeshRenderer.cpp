@@ -14,10 +14,6 @@ RegisterTypeEmbedd_Imp(MeshRenderer)
 	cls->Ctor<MeshRenderer>();
 	cls->Binding<Self>();
 
-	cls->BindingProperty<&Self::mMeshAsset>("mesh")
-		.Setter<&MeshRenderer::SetMeshAsset>()
-		.Serialize();
-
 	cls->BindingProperty<&Self::mMaterialAsset>("material")
 		.Setter<&MeshRenderer::SetMaterial>()
 		.Serialize();
@@ -58,7 +54,7 @@ void MeshRenderer::CreateRenderObject()
 	}
 	mRO = GetScene()->GetRenderScene()->CreateRenderObject(
 		mMaterialInstance.Get(),
-		mMeshAsset->GetSubMeshAt(0),
+		GetMeshAsset()->GetSubMeshAt(0),
 		mCastShadow,
 		&mTransform->GetLocalToWorldMatrix()
 	);
@@ -78,15 +74,7 @@ void MeshRenderer::SetMaterial(MaterialTemplateAsset* mat)
 	GetScene()->GetRenderScene()->SetRenderObjectMaterial(mRO, mMaterialInstance.Get());
 }
 
-void MeshRenderer::SetMeshAsset(MeshAsset* obj)
-{
-	mMeshAsset = ToSharedPtr(obj);
-	if (mRO == uint64_t(-1))
-	{
-		return;
-	}
-	GetScene()->GetRenderScene()->SetRenderObjectMesh(mRO,mMeshAsset->GetSubMeshAt(0));
-}
+
 
 void MeshRenderer::SetCastShadow(bool val)
 {
@@ -96,6 +84,50 @@ void MeshRenderer::SetCastShadow(bool val)
 	}
 	mCastShadow = val;
 	GetScene()->GetRenderScene()->SetRenderObjectCastShadow(mRO, mCastShadow);
+}
+
+RegisterTypeEmbedd_Imp(StaticMeshRenderer)
+{
+	cls->Ctor<StaticMeshRenderer>();
+	cls->Binding<Self>();
+
+	cls->BindingProperty<&Self::mMeshAsset>("mesh")
+		.Setter<&StaticMeshRenderer::SetMeshAsset>()
+		.Serialize();
+
+	BindingModule::Luna()->AddType(cls);
+}
+
+void StaticMeshRenderer::SetMeshAsset(MeshAsset* obj)
+{
+	mMeshAsset = ToSharedPtr(obj);
+	if (mRO == uint64_t(-1))
+	{
+		return;
+	}
+	GetScene()->GetRenderScene()->SetRenderObjectMesh(mRO, mMeshAsset->GetSubMeshAt(0));
+}
+
+RegisterTypeEmbedd_Imp(SkeletonMeshRenderer)
+{
+	cls->Ctor<SkeletonMeshRenderer>();
+	cls->Binding<Self>();
+
+	cls->BindingProperty<&Self::mSkeletalMeshAsset>("mesh")
+		.Setter<&SkeletonMeshRenderer::SetMeshAsset>()
+		.Serialize();
+
+	BindingModule::Luna()->AddType(cls);
+}
+
+void SkeletonMeshRenderer::SetMeshAsset(SkeletalMeshAsset* obj)
+{
+	mSkeletalMeshAsset = ToSharedPtr(obj);
+	if (mRO == uint64_t(-1))
+	{
+		return;
+	}
+	GetScene()->GetRenderScene()->SetRenderObjectMesh(mRO, mSkeletalMeshAsset->GetSubMeshAt(0));
 }
 
 }

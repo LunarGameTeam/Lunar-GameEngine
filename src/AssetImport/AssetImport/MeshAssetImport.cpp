@@ -90,6 +90,8 @@ namespace luna::asset
 			const asset::LImportSubmesh& submeshData = dataValue->GettSubMesh(submeshIndex);
 			CopySubmeshVertexCommonInfo(submeshData, it);
 			CopySubmeshVertexSkinInfo(submeshData, it);
+			it->mRefBonePose = submeshData.mRefBonePose;
+			it->mRefBoneName = submeshData.mRefBoneName;
 			meshSkeletalValuePtr->mSubMesh.push_back(it);
 		}
 	}
