@@ -38,17 +38,46 @@ namespace luna::render
 		return sub_mesh;
 	}
 
-	void SkeletalMeshAsset::ReadVertexData(size_t idx, const byte* ptr)
+	void SkeletalMeshAsset::ReadVertexData(size_t idx, const byte* &ptr)
 	{
+		MeshAsset::ReadVertexData(idx, ptr);
 		luna::render::SubMeshSkeletal* subMeshData = static_cast<SubMeshSkeletal*>(mSubMesh[idx]);
 		memcpy(subMeshData->mSkinData.data(), ptr, subMeshData->mSkinData.size() * sizeof(SkinVertex));
 		ptr += subMeshData->mSkinData.size() * sizeof(SkinVertex);
+		size_t refBoneNumber = 0;
+		memcpy(&refBoneNumber, ptr, sizeof(size_t));
+		ptr += sizeof(size_t);
+		for (int32_t boneIndex = 0; boneIndex < refBoneNumber; ++boneIndex)
+		{
+			size_t nameLength = 0;
+			memcpy(&nameLength, ptr, sizeof(size_t));
+			ptr += sizeof(size_t);
+			char* namePtr = new char[nameLength + 1];
+			namePtr[nameLength] = '\0';
+			memcpy(namePtr, ptr, nameLength * sizeof(char));
+			subMeshData->mRefBoneName.push_back(namePtr);
+			delete[] namePtr;
+			ptr += nameLength * sizeof(char);
+		}
+		subMeshData->mRefBonePose.resize(refBoneNumber);
+		memcpy(subMeshData->mRefBonePose.data(), ptr, refBoneNumber * sizeof(luna::LMatrix4f));
+		ptr += refBoneNumber * sizeof(luna::LMatrix4f);
 	}
 
-	void SkeletalMeshAsset::WriteVertexData(size_t idx, byte* dst)
+	void SkeletalMeshAsset::WriteVertexData(size_t idx, LArray<byte>& data)
 	{
+		MeshAsset::WriteVertexData(idx, data);
 		luna::render::SubMeshSkeletal* subMeshData = static_cast<SubMeshSkeletal*>(mSubMesh[idx]);
-		memcpy(dst, subMeshData->mSkinData.data(), subMeshData->mSkinData.size() * sizeof(SkinVertex));
-		dst += subMeshData->mSkinData.size() * sizeof(SkinVertex);
+		CopyPointToByteArray(subMeshData->mSkinData.data(), subMeshData->mSkinData.size() * sizeof(SkinVertex), data);
+		size_t refBoneNumber = subMeshData->mRefBoneName.size();
+		CopyPointToByteArray(&refBoneNumber, sizeof(size_t), data);
+		for (int32_t boneIndex = 0; boneIndex < subMeshData->mRefBoneName.size(); ++boneIndex)
+		{
+			LString &eachBoneName = subMeshData->mRefBoneName[boneIndex];
+			size_t nameLength = eachBoneName.Length();
+			CopyPointToByteArray(&nameLength, sizeof(size_t), data);
+			CopyPointToByteArray(eachBoneName.c_str(), eachBoneName.Length() * sizeof(char), data);
+		}
+		CopyPointToByteArray(subMeshData->mRefBonePose.data(), subMeshData->mRefBonePose.size() * sizeof(luna::LMatrix4f), data);
 	}
 }

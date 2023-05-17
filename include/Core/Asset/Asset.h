@@ -38,6 +38,9 @@ public:
 private:
 	friend class AssetModule;
 	LString mAssetPath;//统一的Asset URL path
+
+protected:
+	void CopyPointToByteArray(const void* dataSrc, size_t dataLength, LArray<byte>& dataDst);
 };
 
 class CORE_API LBinaryAsset : public Asset

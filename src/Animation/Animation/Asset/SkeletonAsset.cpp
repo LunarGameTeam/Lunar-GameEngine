@@ -22,15 +22,33 @@ void SkeletonAsset::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile>
 	const byte* data_header = file->GetData().data();
 	size_t offset = 0;
 	const byte* ptr = data_header;
-	size_t SkeletonBoneSize;
+	size_t SkeletonBoneSize = 0;
 	memcpy(&SkeletonBoneSize, ptr, sizeof(size_t));
 	ptr += sizeof(size_t);
 	mBoneTree.clear();
 	for (size_t id = 0; id < SkeletonBoneSize; ++id)
 	{
 		LSingleBone newBoneData;
-		memcpy(&newBoneData, ptr, sizeof(LSingleBone));
-		ptr += sizeof(LSingleBone);
+		size_t curBoneNameLength = 0;
+		memcpy(&curBoneNameLength, ptr, sizeof(size_t));
+		ptr += sizeof(size_t);
+
+		char* namePtr = new char[curBoneNameLength + 1];
+		namePtr[curBoneNameLength] = '\0';
+		memcpy(namePtr, ptr, curBoneNameLength * sizeof(char));
+		newBoneData.mBoneName = namePtr;
+		ptr += curBoneNameLength * sizeof(char);
+		delete[] namePtr;
+
+		memcpy(&newBoneData.mBaseTranslation, ptr, sizeof(newBoneData.mBaseTranslation));
+		ptr += sizeof(newBoneData.mBaseTranslation);
+		memcpy(&newBoneData.mBaseRotation, ptr, sizeof(newBoneData.mBaseRotation));
+		ptr += sizeof(newBoneData.mBaseRotation);
+		memcpy(&newBoneData.mBaseScal, ptr, sizeof(newBoneData.mBaseScal));
+		ptr += sizeof(newBoneData.mBaseScal);
+		memcpy(&newBoneData.mParentIndex, ptr, sizeof(newBoneData.mParentIndex));
+		ptr += sizeof(newBoneData.mParentIndex);
+
 		mSearchIndex.insert({ newBoneData.mBoneName,mBoneTree.size() });
 		mBoneTree.push_back(newBoneData);
 	}
@@ -39,19 +57,19 @@ void SkeletonAsset::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile>
 
 void SkeletonAsset::OnAssetFileWrite(LSharedPtr<JsonDict> meta, LArray<byte>& data)
 {
-	size_t globel_size = 0;
-	size_t offset = 0;
-	globel_size += sizeof(size_t);
-	for (size_t id = 0; id < mBoneTree.size(); ++id)
-	{
-		globel_size += sizeof(LSingleBone);
-	}
-	data.resize(globel_size);
-	byte* dst = data.data();
 	size_t SkeletonBoneSize = mBoneTree.size();
-	memcpy(dst, &SkeletonBoneSize, sizeof(size_t));
-	dst += sizeof(size_t);
-	memcpy(dst, mBoneTree.data(), SkeletonBoneSize * sizeof(LSingleBone));
+	CopyPointToByteArray(&SkeletonBoneSize,sizeof(size_t),data);
+	for (int32_t skeletonBoneId = 0; skeletonBoneId < SkeletonBoneSize; ++skeletonBoneId)
+	{
+		LSingleBone& curBoneData = mBoneTree[skeletonBoneId];
+		size_t curBoneNameLength = curBoneData.mBoneName.Length();
+		CopyPointToByteArray(&curBoneNameLength, sizeof(size_t), data);
+		CopyPointToByteArray(curBoneData.mBoneName.c_str(), curBoneNameLength * sizeof(char), data);
+		CopyPointToByteArray(&curBoneData.mBaseTranslation,sizeof(curBoneData.mBaseTranslation),data);
+		CopyPointToByteArray(&curBoneData.mBaseRotation, sizeof(curBoneData.mBaseRotation), data);
+		CopyPointToByteArray(&curBoneData.mBaseScal, sizeof(curBoneData.mBaseScal), data);
+		CopyPointToByteArray(&curBoneData.mParentIndex, sizeof(curBoneData.mParentIndex), data);
+	}
 }
 
 void SkeletonAsset::AddBoneToTree(const LSingleBone& boneData)

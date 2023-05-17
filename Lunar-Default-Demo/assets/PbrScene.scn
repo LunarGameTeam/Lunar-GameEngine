@@ -210,7 +210,8 @@
          "__parent__" : 21,
          "cast_shadow" : true,
          "material" : "/assets/Pbr/4.mat",
-         "mesh" : "/assets/lion2.lskelmesh",
+         "mesh" : "/assets/lion3.lskelmesh",
+         "skeleton" : "/assets/lion3.lskeleton",
          "receive_shadow" : true
       },
       {

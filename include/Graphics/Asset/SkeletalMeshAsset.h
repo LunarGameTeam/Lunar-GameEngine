@@ -49,8 +49,8 @@ namespace luna::render
 		}
 	private:
 		render::SubMesh* GenerateSubmesh(size_t submeshVertexSize, size_t submeshIndexSize) override;
-		void ReadVertexData(size_t idx, const byte* ptr) override;
-		void WriteVertexData(size_t idx, byte* dst) override;
+		void ReadVertexData(size_t idx, const byte* &ptr) override;
+		void WriteVertexData(size_t idx, LArray<byte>& data) override;
 
 	};
 

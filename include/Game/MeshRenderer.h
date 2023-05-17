@@ -64,9 +64,14 @@ class GAME_API SkeletonMeshRenderer : public MeshRenderer
 	RegisterTypeEmbedd(SkeletonMeshRenderer, MeshRenderer)
 public:
 	MeshAsset* GetMeshAsset() override { return mSkeletalMeshAsset.get(); }
+	
 	void SetMeshAsset(SkeletalMeshAsset* obj);
+	
+	void SetSkeletonAsset(animation::SkeletonAsset* obj);
 private:
+	
 	SharedPtr<animation::SkeletonAsset> mSkeletonAsset;
+	
 	SharedPtr<SkeletalMeshAsset> mSkeletalMeshAsset;
 };
 

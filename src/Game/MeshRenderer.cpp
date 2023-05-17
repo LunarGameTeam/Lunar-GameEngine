@@ -117,6 +117,10 @@ RegisterTypeEmbedd_Imp(SkeletonMeshRenderer)
 		.Setter<&SkeletonMeshRenderer::SetMeshAsset>()
 		.Serialize();
 
+	cls->BindingProperty<&Self::mSkeletonAsset>("skeleton")
+		.Setter<&SkeletonMeshRenderer::SetSkeletonAsset>()
+		.Serialize();
+
 	BindingModule::Luna()->AddType(cls);
 }
 
@@ -128,6 +132,11 @@ void SkeletonMeshRenderer::SetMeshAsset(SkeletalMeshAsset* obj)
 		return;
 	}
 	GetScene()->GetRenderScene()->SetRenderObjectMesh(mRO, mSkeletalMeshAsset->GetSubMeshAt(0));
+}
+
+void SkeletonMeshRenderer::SetSkeletonAsset(animation::SkeletonAsset* obj)
+{
+	mSkeletonAsset = ToSharedPtr(obj);
 }
 
 }

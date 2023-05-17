@@ -73,39 +73,24 @@ namespace luna::render
 
 	void MeshAsset::OnAssetFileWrite(LSharedPtr<JsonDict> meta, LArray<byte>& data)
 	{
-		size_t globel_size = 0;
-		size_t offset = 0;
-		globel_size += sizeof(size_t);
-		for (size_t id = 0; id < mSubMesh.size(); ++id)
-		{
-			luna::render::SubMesh* subMeshData = mSubMesh[id];
-			globel_size += 2 * sizeof(size_t);
-			globel_size += subMeshData->mVertexData.size() * sizeof(BaseVertex);
-			globel_size += subMeshData->mIndexData.size() * sizeof(uint32_t);
-		}
-		data.resize(globel_size);
-		byte* dst = data.data();
 		size_t submeshSize = mSubMesh.size();
-		memcpy(dst, &submeshSize, sizeof(size_t));
-		dst += sizeof(size_t);
+		CopyPointToByteArray(&submeshSize, sizeof(size_t), data);
 		for (size_t submeshIndex = 0; submeshIndex < mSubMesh.size(); ++submeshIndex)
 		{
 			luna::render::SubMesh* subMeshData = mSubMesh[submeshIndex];
 			size_t submeshVertexSize = subMeshData->mVertexData.size();
 			size_t submeshIndexSize = subMeshData->mIndexData.size();
-			memcpy(dst, &submeshVertexSize, sizeof(size_t));
-			dst += sizeof(size_t);
-			memcpy(dst, &submeshIndexSize, sizeof(size_t));
-			dst += sizeof(size_t);
+			CopyPointToByteArray(&submeshVertexSize, sizeof(size_t), data);
+			CopyPointToByteArray(&submeshIndexSize, sizeof(size_t), data);
 		}
 
 		for (size_t idx = 0; idx < mSubMesh.size(); ++idx)
 		{
-			WriteVertexData(idx, dst);
+			WriteVertexData(idx, data);
 		}
 	}
 
-	void MeshAsset::ReadVertexData(size_t idx, const byte* ptr)
+	void MeshAsset::ReadVertexData(size_t idx, const byte* &ptr)
 	{
 		luna::render::SubMesh* subMeshData = mSubMesh[idx];
 		memcpy(subMeshData->mVertexData.data(), ptr, subMeshData->mVertexData.size() * sizeof(BaseVertex));
@@ -114,13 +99,11 @@ namespace luna::render
 		ptr += subMeshData->mIndexData.size() * sizeof(uint32_t);
 	}
 
-	void MeshAsset::WriteVertexData(size_t idx, byte* dst)
+	void MeshAsset::WriteVertexData(size_t idx, LArray<byte>& data)
 	{
 		luna::render::SubMesh* subMeshData = mSubMesh[idx];
-		memcpy(dst, subMeshData->mVertexData.data(), subMeshData->mVertexData.size() * sizeof(BaseVertex));
-		dst += subMeshData->mVertexData.size() * sizeof(BaseVertex);
-		memcpy(dst, subMeshData->mIndexData.data(), subMeshData->mIndexData.size() * sizeof(uint32_t));
-		dst += subMeshData->mIndexData.size() * sizeof(uint32_t);
+		CopyPointToByteArray(subMeshData->mVertexData.data(), subMeshData->mVertexData.size() * sizeof(BaseVertex),data);
+		CopyPointToByteArray(subMeshData->mIndexData.data(), subMeshData->mIndexData.size() * sizeof(uint32_t), data);
 	}
 
 	render::SubMesh* MeshAsset::GenerateSubmesh(size_t submeshVertexSize, size_t submeshIndexSize)
@@ -130,5 +113,4 @@ namespace luna::render
 		sub_mesh->mIndexData.resize(submeshIndexSize);
 		return sub_mesh;
 	}
-
 }
