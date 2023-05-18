@@ -20,6 +20,7 @@ namespace luna::render
 //优化 增量更新
 PARAM_ID(MaterialBuffer);
 
+
 RegisterTypeEmbedd_Imp(MaterialParam)
 {
 	cls->Ctor<MaterialParam>();

@@ -29,6 +29,12 @@ namespace luna::render
 		}
 	};
 
+	struct SkinRenderVertex
+	{
+		BaseVertex mBaseValue;
+		SkinVertex mSkinValue;
+	};
+
 	class RENDER_API SubMeshSkeletal : public SubMesh
 	{
 		RegisterTypeEmbedd(SubMeshSkeletal, InvalidType)

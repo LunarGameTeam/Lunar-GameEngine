@@ -12,6 +12,7 @@
 
 #include "Graphics/Renderer/ScenePipeline.h"
 #include "Graphics/Asset/MeshAsset.h"
+#include "Graphics/Asset/SkeletalMeshAsset.h"
 #include "Graphics/Asset/MaterialTemplate.h"
 namespace luna::render
 {
@@ -22,17 +23,31 @@ namespace luna::render
 		if (meshData->mVertexData.size() == 0 || meshData->mIndexData.size() == 0)
 			return;
 		RHIBufferDesc desc;
-		mVertexSize = meshData->mVertexData.size();
-		desc.mSize = sizeof(BaseVertex) * mVertexSize;
 		desc.mBufferUsage = RHIBufferUsage::VertexBufferBit;
-
-		mVB = sRenderModule->mRenderContext->CreateBuffer(desc, meshData->mVertexData.data());
+		mVertexSize = meshData->mVertexData.size();
+		mVeretexLayout = meshData->GetVertexLayout();
+		if (meshData->mType == SubMeshType::SubMeshSkined)
+		{
+			SubMeshSkeletal* meshSkeletalData = static_cast<SubMeshSkeletal*>(meshData);
+			LArray<SkinRenderVertex> combineData;
+			for(int32_t vertId = 0; vertId < mVertexSize; ++vertId)
+			{
+				combineData.emplace_back();
+				combineData.back().mBaseValue = meshSkeletalData->mVertexData[vertId];
+				combineData.back().mSkinValue = meshSkeletalData->mSkinData[vertId];
+			}
+			desc.mSize = sizeof(SkinRenderVertex) * mVertexSize;
+			mVB = sRenderModule->mRenderContext->CreateBuffer(desc, combineData.data());
+		}
+		else
+		{
+			desc.mSize = sizeof(BaseVertex) * mVertexSize;
+			mVB = sRenderModule->mRenderContext->CreateBuffer(desc, meshData->mVertexData.data());
+		}
 		mIndexSize = meshData->mIndexData.size();
 		desc.mSize = sizeof(uint32_t) * mIndexSize;
 		desc.mBufferUsage = RHIBufferUsage::IndexBufferBit;
 		mIB = sRenderModule->mRenderContext->CreateBuffer(desc, meshData->mIndexData.data());
-
-		mVeretexLayout = BaseVertex::GetVertexLayout();
 	}
 
 	size_t MeshRenderCommandsPacket::AddCommand(

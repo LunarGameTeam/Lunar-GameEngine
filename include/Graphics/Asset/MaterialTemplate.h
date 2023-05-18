@@ -51,7 +51,10 @@ private:
 	
 	TPPtr< MaterialInstance> mDefaultInstance;
 	TPPtrArray<MaterialParam> mTemplateParams;
-
+	TPPtrArray<ShaderMacro> mTemplateMacros;
 	SharedPtr<ShaderAsset> mShader;
+	SharedPtr<LShaderInstance> mVs;
+	SharedPtr<LShaderInstance> mPs;
+	RHIBindingSetLayoutPtr mLayout;
 };
 }

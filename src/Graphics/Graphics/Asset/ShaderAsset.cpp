@@ -9,6 +9,17 @@
 
 namespace luna::render
 {
+
+RegisterTypeEmbedd_Imp(ShaderMacro)
+{
+	cls->Ctor<ShaderMacro>();
+	cls->Property<&Self::mMacroName>("macro_name")
+		.Serialize();
+	cls->BindingProperty<&Self::mMacroValue>("macro_value")
+		.Serialize();
+	BindingModule::Luna()->AddType(cls);
+}
+
 RegisterTypeEmbedd_Imp(ShaderAsset)
 {
 	cls->Binding<Self>();;
@@ -19,78 +30,44 @@ RegisterTypeEmbedd_Imp(ShaderAsset)
 void ShaderAsset::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> file)
 {
 	TextAsset::OnAssetFileRead(meta, file);
-	Init();
-	// 	size_t pos;
-	// 	std::vector<std::string> m_lines;
-	// 	boost::algorithm::split(m_lines, m_content.str(), boost::is_any_of("\n"));
-	// 	std::string res;
-	// 	for (std::string &line : m_lines)
-	// 	{
-	// 		auto pos = line.find("#include");
-	// 		if (pos != std::string::npos)
-	// 		{
-	// 			std::string file = line.substr(pos + 8);
-	// 			boost::algorithm::replace_all(file, "\r", "");			
-	// 			boost::algorithm::trim(file);
-	// 			ShaderAsset* header = g_asset_sys->LoadAsset<ShaderAsset>(file.c_str());
-	// 			line = header->m_content.str();
-	// 		}
-	// 		res += line;
-	// 	}
-	// 	m_content.Assign(res);		
-	// 	
 }
 
-void ShaderAsset::Init()
+SharedPtr<LShaderInstance> ShaderAsset::GenerateShaderInstance(RHIShaderType shaderType,const LArray<ShaderMacro*>& shaderMacros)
 {
-	LString content = GetContent();
-	LString vertexContent;
-	LString fragContent;
-	auto pos = content.Find("//Split");
-	if (pos == content.npos)
-	{
-		fragContent = content;
-		vertexContent = content;
-	}
-	else
-	{
-		vertexContent = content.Substr(0, pos);
-		fragContent = content.Substr(pos);
-	}
+	SharedPtr<LShaderInstance> newInstance = MakeShared<LShaderInstance>(shaderType, GetAssetPath());
+	newInstance->Init(GetContent(), shaderMacros);
+}
+
+void LShaderInstance::Init(
+	const LString& content,
+	LArray<ShaderMacro*> shaderMacros
+)
+{
 	if (!mInit)
 	{
 		RHIShaderDesc shaderDesc;
-		shaderDesc.mName = GetAssetPath();
-		shaderDesc.mContent = vertexContent;
-		shaderDesc.mEntryPoint = "VSMain";
-		shaderDesc.mType = RHIShaderType::Vertex;
-		mVS = sRenderModule->GetRenderContext()->CreateShader(shaderDesc);
-		mVsId = sRenderModule->GetRenderContext()->GetShaderId(mVS);
-		shaderDesc.mContent = fragContent;
-		shaderDesc.mEntryPoint = "PSMain";
-		shaderDesc.mType = RHIShaderType::Pixel;
-		mPS = sRenderModule->GetRenderContext()->CreateShader(shaderDesc);
-		mPsId = sRenderModule->GetRenderContext()->GetShaderId(mPS);
+		shaderDesc.mContent = content;
+		shaderDesc.mName = mShaderName;
+		shaderDesc.mType = mType;
+		switch (mType)
+		{
+			case luna::render::RHIShaderType::Vertex:
+			{
+				shaderDesc.mEntryPoint = "VSMain";
+			}
+			break;
+			case luna::render::RHIShaderType::Pixel:
+			{
+				shaderDesc.mEntryPoint = "PSMain";
+			}
+			break;
+			default:
+			break;
+		}
+		mRhiShader = sRenderModule->GetRenderContext()->CreateShader(shaderDesc);
+		mShaderCacheId = sRenderModule->GetRenderContext()->GetShaderId(mRhiShader);
 		mInit = true;
 	}
-	std::vector<RHIBindPoint> bindingKeys;
-	std::map<std::tuple<uint32_t, uint32_t>, RHIBindPoint> result;
-	for (auto& it : mVS->mBindPoints)
-	{
-		auto& bindKey = it.second;
-		result[std::make_tuple(bindKey.mSpace, bindKey.mSlot)] = bindKey;
-	}
-	for (auto& it : mPS->mBindPoints)
-	{
-		auto& bindKey = it.second;
-		result[std::make_tuple(bindKey.mSpace, bindKey.mSlot)] = bindKey;
-	}
-	for (auto it : result)
-	{
-		bindingKeys.push_back(it.second);
-	}
-	mLayout = sRenderModule->GetRHIDevice()->CreateBindingSetLayout(bindingKeys);
-
 }
 };
 

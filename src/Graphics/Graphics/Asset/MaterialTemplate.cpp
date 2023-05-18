@@ -6,7 +6,7 @@
 
 #include "Graphics/Asset/MaterialTemplate.h"
 #include "Graphics/Asset/TextureAsset.h"
-
+#include "Graphics/RenderModule.h"
 
 namespace luna
 {
@@ -37,6 +37,9 @@ RegisterTypeEmbedd_Imp(MaterialTemplateAsset)
 	cls->BindingProperty<&Self::mTemplateParams>("params")
 		.Serialize();
 
+	cls->BindingProperty<&Self::mTemplateMacros>("macros")
+		.Serialize();
+
 	cls->BindingProperty<&Self::mShader>("shader")
 		.Serialize();
 
@@ -63,7 +66,8 @@ RegisterTypeEmbedd_Imp(MaterialTemplateAsset)
 
 MaterialTemplateAsset::MaterialTemplateAsset() :
 	mTemplateParams(this),
-	mDefaultInstance(this)
+	mDefaultInstance(this),
+	mTemplateMacros(this)
 {
 }
 
@@ -85,6 +89,35 @@ void MaterialTemplateAsset::OnLoad()
 	{
 		it->SetParent(this);
 	}
+	for (auto& it : mTemplateMacros)
+	{
+		it->SetParent(this);
+	}
+	LArray<ShaderMacro*> shaderMacros;
+	for (int32_t macroId = 0; macroId < mTemplateMacros.Size(); ++macroId)
+	{
+		shaderMacros.push_back(mTemplateMacros[macroId]);
+	}
+	mVs = mShader->GenerateShaderInstance(RHIShaderType::Vertex, shaderMacros);
+	mPs = mShader->GenerateShaderInstance(RHIShaderType::Pixel, shaderMacros);
+
+	std::vector<RHIBindPoint> bindingKeys;
+	std::map<std::tuple<uint32_t, uint32_t>, RHIBindPoint> result;
+	for (auto& it : mVs->GetRhiShader()->mBindPoints)
+	{
+		auto& bindKey = it.second;
+		result[std::make_tuple(bindKey.mSpace, bindKey.mSlot)] = bindKey;
+	}
+	for (auto& it : mPs->GetRhiShader()->mBindPoints)
+	{
+		auto& bindKey = it.second;
+		result[std::make_tuple(bindKey.mSpace, bindKey.mSlot)] = bindKey;
+	}
+	for (auto it : result)
+	{
+		bindingKeys.push_back(it.second);
+	}
+	mLayout = sRenderModule->GetRHIDevice()->CreateBindingSetLayout(bindingKeys);
 }
 
 RHIRasterizerCullMode MaterialTemplateAsset::GetCullMode()

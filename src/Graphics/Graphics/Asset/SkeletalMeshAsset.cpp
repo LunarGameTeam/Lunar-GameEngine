@@ -27,6 +27,7 @@ namespace luna::render
 	SubMeshSkeletal::SubMeshSkeletal()
 	{
 		mVeretexLayout = SkinVertex::GetVertexLayout();
+		mType = SubMeshType::SubMeshSkined;
 	}
 
 	render::SubMesh* SkeletalMeshAsset::GenerateSubmesh(size_t submeshVertexSize, size_t submeshIndexSize)

@@ -309,7 +309,9 @@ void RenderContext::Init()
 	mBarrierCmd->Reset();
 
 	mDefaultShader = sAssetModule->LoadAsset<ShaderAsset>("/assets/built-in/Shader/Debug.hlsl");
+	mDefaultShader->Init();
 	mDefaultShaderPbr = sAssetModule->LoadAsset<ShaderAsset>("/assets/built-in/Shader/Pbr.hlsl");
+	mDefaultShaderPbr->Init();
 	PARAM_ID(ViewBuffer);
 	PARAM_ID(SceneBuffer);
 	RHIBindPoint bindpoint = mDefaultShader->GetBindPoint(ParamID_ViewBuffer);

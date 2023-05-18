@@ -39,6 +39,7 @@ namespace luna::render
 	SubMesh::SubMesh()
 	{
 		mVeretexLayout = BaseVertex::GetVertexLayout();
+		mType = SubMeshType::SubMeshStatic;
 	}
 
 	void MeshAsset::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> file)

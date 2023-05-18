@@ -23,7 +23,9 @@ struct BaseVertex
 	[[vk::location(5)]] float2 uv2 : TEXCOORD2;
 	[[vk::location(6)]] float2 uv3 : TEXCOORD3;
 	[[vk::location(7)]] float2 uv4 : TEXCOORD4;
-	[[vk::location(8)]] uint4 instancemessage : INSTANCEMESSAGE;	
+	[[vk::location(8)]] uint4 blendindex : BLENDINDEX;
+    [[vk::location(9)]] uint4 blendweight : BLENDWEIGHT;
+	[[vk::location(10)]] uint4 instancemessage : INSTANCEMESSAGE;	
 };
 
 struct BaseFragment

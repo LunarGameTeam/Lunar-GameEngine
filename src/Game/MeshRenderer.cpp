@@ -46,21 +46,6 @@ MeshRenderer::~MeshRenderer()
 		GetScene()->GetRenderScene()->DestroyRenderObject(mRO);
 }
 
-void MeshRenderer::CreateRenderObject()
-{	
-	if (mRO != uint64_t(-1) || !GetScene())
-	{
-		return;
-	}
-	mRO = GetScene()->GetRenderScene()->CreateRenderObject(
-		mMaterialInstance.Get(),
-		GetMeshAsset()->GetSubMeshAt(0),
-		mCastShadow,
-		&mTransform->GetLocalToWorldMatrix()
-	);
-	
-}
-
 void MeshRenderer::SetMaterial(MaterialTemplateAsset* mat)
 {
 	mMaterialAsset = ToSharedPtr(mat);
@@ -108,6 +93,21 @@ void StaticMeshRenderer::SetMeshAsset(MeshAsset* obj)
 	GetScene()->GetRenderScene()->SetRenderObjectMesh(mRO, mMeshAsset->GetSubMeshAt(0));
 }
 
+void StaticMeshRenderer::CreateRenderObject()
+{
+	if (mRO != uint64_t(-1) || !GetScene())
+	{
+		return;
+	}
+	mRO = GetScene()->GetRenderScene()->CreateRenderObject(
+		mMaterialInstance.Get(),
+		GetMeshAsset()->GetSubMeshAt(0),
+		mCastShadow,
+		&mTransform->GetLocalToWorldMatrix()
+	);
+
+}
+
 RegisterTypeEmbedd_Imp(SkeletonMeshRenderer)
 {
 	cls->Ctor<SkeletonMeshRenderer>();
@@ -137,6 +137,21 @@ void SkeletonMeshRenderer::SetMeshAsset(SkeletalMeshAsset* obj)
 void SkeletonMeshRenderer::SetSkeletonAsset(animation::SkeletonAsset* obj)
 {
 	mSkeletonAsset = ToSharedPtr(obj);
+}
+
+void SkeletonMeshRenderer::CreateRenderObject()
+{
+	if (mRO != uint64_t(-1) || !GetScene())
+	{
+		return;
+	}
+	mRO = GetScene()->GetRenderScene()->CreateRenderObject(
+		mMaterialInstance.Get(),
+		GetMeshAsset()->GetSubMeshAt(0),
+		mCastShadow,
+		&mTransform->GetLocalToWorldMatrix()
+	);
+
 }
 
 }

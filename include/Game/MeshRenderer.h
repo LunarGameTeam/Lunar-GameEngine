@@ -39,7 +39,7 @@ public:
 
 	void OnActivate() override;
 protected:
-	void CreateRenderObject();
+	virtual void CreateRenderObject() {};
 protected:
 	bool mCastShadow = true;
 	uint64_t mRO = uint64_t(-1);
@@ -55,6 +55,7 @@ public:
 	void SetMeshAsset(MeshAsset* obj);
 	MeshAsset* GetMeshAsset() override { return mMeshAsset.get(); }
 private:
+	void CreateRenderObject() override;
 	SharedPtr<MeshAsset> mMeshAsset;
 };
 
@@ -73,6 +74,8 @@ private:
 	SharedPtr<animation::SkeletonAsset> mSkeletonAsset;
 	
 	SharedPtr<SkeletalMeshAsset> mSkeletalMeshAsset;
+
+	void CreateRenderObject() override;
 };
 
 }

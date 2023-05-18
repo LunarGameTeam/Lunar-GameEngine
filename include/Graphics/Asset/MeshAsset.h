@@ -36,6 +36,11 @@ namespace luna::render
 		}
 	};
 
+	enum SubMeshType
+	{
+		SubMeshStatic,
+		SubMeshSkined
+	};
 
 	class RENDER_API SubMesh
 	{
@@ -58,6 +63,7 @@ namespace luna::render
 		RHIVertexLayout mVeretexLayout;
 		LString mAssetPath;
 		size_t mSubmeshIndex;
+		SubMeshType mType;
 		size_t GetStridePerVertex() { return mVeretexLayout.GetSize()[0]; };
 		size_t GetStridePerInstance() { return mVeretexLayout.GetSize()[1]; };
 
