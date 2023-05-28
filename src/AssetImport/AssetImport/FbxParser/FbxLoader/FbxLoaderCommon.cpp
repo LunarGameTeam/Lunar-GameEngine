@@ -42,8 +42,8 @@ namespace luna::lfbx
 		}
 		mLogData.push_back(_Result);
 	}
-	std::shared_ptr<LFbxDataBase> LFbxLoaderBase::ParsingData(const LArray<LFbxNodeBase>& sceneNodes, fbxsdk::FbxNode* pNode, FbxManager* pManager)
+	std::shared_ptr<LFbxDataBase> LFbxLoaderBase::ParsingData(const LArray<LFbxNodeBase>& sceneNodes, fbxsdk::FbxNode* pNode, LFbxLoadContext context)
 	{
-		return ParsingDataImpl(sceneNodes, pNode, pManager);
+		return ParsingDataImpl(sceneNodes, pNode, context);
 	}
 }

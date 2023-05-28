@@ -27,6 +27,8 @@ namespace luna::animation
 		virtual void OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> file) override;
 		//Asset资源写入到磁盘时回调	
 		virtual void OnAssetFileWrite(LSharedPtr<JsonDict> meta, LArray<byte>& data) override;
+
+		void AddBoneToTree(const LSingleBone& boneData);
 	private:
 		LArray<LSingleBone> mBoneTree;
 		LUnorderedMap<LString, int32_t> mSearchIndex;

@@ -49,12 +49,25 @@ void RhiObjectCache::ReleaseData(LMemoryHash& newHash)
 RHIShaderBlobPtr ShaderBlobCache::CreateShader(RenderContext* mDevice, const RHIShaderDesc& desc)
 {
 	Log("Graphics", "Create shader:{}", desc.mName);
+	
 	std::function<void(luna::LMemoryHash&, const luna::render::RHIShaderDesc&)> dataHashFunc = [&](luna::LMemoryHash& newHash, const luna::render::RHIShaderDesc& desc)
 	{
 		newHash.Combine((uint8_t*)desc.mName.c_str(), desc.mName.Length() * sizeof(char));
-		newHash.Combine((uint8_t*)desc.mContent.c_str(), desc.mContent.Length() * sizeof(char));
+		//newHash.Combine((uint8_t*)desc.mContent.c_str(), desc.mContent.Length() * sizeof(char));
 		newHash.Combine((uint8_t*)desc.mEntryPoint.c_str(), desc.mEntryPoint.Length() * sizeof(char));
 		newHash.Combine((uint8_t*)&desc.mType, sizeof(desc.mType));
+		LArray<RhiShaderMacro> curMacroValues = desc.mShaderMacros;
+		std::sort(curMacroValues.begin(), curMacroValues.end(), [&](const RhiShaderMacro& a, const RhiShaderMacro& b)->bool {
+			return a.mMacroName.Compare(b.mMacroName) > 0;
+			}
+		);
+		for (RhiShaderMacro& eachMacro : curMacroValues)
+		{
+			newHash.Combine((uint8_t*)eachMacro.mMacroName.c_str(), eachMacro.mMacroName.Length() * sizeof(char));
+			char divide = '\t';
+			newHash.Combine((uint8_t*)&divide, sizeof(divide));
+			newHash.Combine((uint8_t*)eachMacro.mMacroValue.c_str(), eachMacro.mMacroValue.Length() * sizeof(char));
+		}
 		newHash.GenerateHash();
 	};
 	std::function<RHIShaderBlobPtr(RenderContext* device, const RHIShaderDesc &desc)> dataCreateFunc = [&](RenderContext* device, const RHIShaderDesc& desc)->RHIShaderBlobPtr
@@ -307,12 +320,30 @@ void RenderContext::Init()
 	mGraphicCmd->Reset();
 	mTransferCmd->Reset();
 	mBarrierCmd->Reset();
-
+	
+	
+	LArray<ShaderMacro*> emptyShaderMacros;
 	mDefaultShader = sAssetModule->LoadAsset<ShaderAsset>("/assets/built-in/Shader/Debug.hlsl");
+	
+	mDefaultShaderVertexInstance = mDefaultShader->GenerateShaderInstance(RHIShaderType::Vertex, emptyShaderMacros);
+	mDefaultShaderFragmentInstance = mDefaultShader->GenerateShaderInstance(RHIShaderType::Pixel, emptyShaderMacros);
 	mDefaultShaderPbr = sAssetModule->LoadAsset<ShaderAsset>("/assets/built-in/Shader/Pbr.hlsl");
+	mDefaultShaderVertexPbrInstance = mDefaultShaderPbr->GenerateShaderInstance(RHIShaderType::Vertex, emptyShaderMacros);
+	mDefaultShaderFragmentPbrInstance = mDefaultShaderPbr->GenerateShaderInstance(RHIShaderType::Pixel, emptyShaderMacros);
 	PARAM_ID(ViewBuffer);
 	PARAM_ID(SceneBuffer);
-	RHIBindPoint bindpoint = mDefaultShader->GetBindPoint(ParamID_ViewBuffer);
+
+	RHIBindPoint bindpoint;
+	if (mDefaultShaderVertexInstance->GetRhiShader()->HasBindPoint(ParamID_ViewBuffer))
+	{
+		bindpoint = mDefaultShaderVertexInstance->GetRhiShader()->GetBindPoint(ParamID_ViewBuffer)->second;
+	}
+	else 
+	{
+		bindpoint = mDefaultShaderFragmentInstance->GetRhiShader()->GetBindPoint(ParamID_ViewBuffer)->second;
+	}
+	
+
 	LArray<RHIBindPoint> bindingpoints;
 	bindingpoints.push_back(bindpoint);
 	mViewBindingSet = mDevice->CreateBindingSetLayout(bindingpoints);
@@ -527,6 +558,20 @@ RHIPipelineStatePtr RenderContext::CreatePipelineState(MaterialInstance* mat, co
 	desc.mGraphicDesc.mPipelineStateDesc.BlendState.RenderTarget.push_back(blend);
 	Log("Graphics", "Create pipeline for:{}", mat->GetShaderAsset()->GetAssetPath());
 	return mPipelineCache.CreatePipeline(this,desc);
+}
+
+RHICBufferDesc& RenderContext::GetDefaultShaderConstantBufferDesc(ShaderParamID name)
+{
+	if (mDefaultShaderVertexPbrInstance->GetRhiShader()->HasUniformBuffer(name))
+	{
+		return mDefaultShaderVertexPbrInstance->GetRhiShader()->GetUniformBuffer(name);
+	}
+	else if (mDefaultShaderFragmentPbrInstance->GetRhiShader()->HasUniformBuffer(name))
+	{
+		return mDefaultShaderFragmentPbrInstance->GetRhiShader()->GetUniformBuffer(name);
+	}
+	RHICBufferDesc empty;
+	return empty;
 }
 
 void RenderContext::FlushStaging()

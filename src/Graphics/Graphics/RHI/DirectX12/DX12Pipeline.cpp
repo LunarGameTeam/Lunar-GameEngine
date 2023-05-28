@@ -14,6 +14,7 @@ DX12PipelineState::DX12PipelineState(const RHIPipelineStateDesc& pso_desc) : RHI
 	InitPipeline(pso_desc);
 }
 static const char DX_VERTEX_ELEMENT_POSITION[] = "POSITION";
+static const char DX_VERTEX_ELEMENT_BLENDINDEX[] = "BLENDINDEX";
 static const char DX_VERTEX_ELEMENT_BLENDWEIGHT[] = "BLENDWEIGHT";
 static const char DX_VERTEX_ELEMENT_NORMAL[] = "NORMAL";
 static const char DX_VERTEX_ELEMENT_DIFFUSE[] = "DIFFUSE";
@@ -26,6 +27,9 @@ const char* DX12PipelineState::GetDx12ElementName(VertexElementUsage m_usage)
 	{
 	case luna::render::VertexElementUsage::UsagePosition:
 		return DX_VERTEX_ELEMENT_POSITION;
+		break;
+	case luna::render::VertexElementUsage::UsageBlendIndex:
+		return DX_VERTEX_ELEMENT_BLENDINDEX;
 		break;
 	case luna::render::VertexElementUsage::UsageBlendWeight:
 		return DX_VERTEX_ELEMENT_BLENDWEIGHT;

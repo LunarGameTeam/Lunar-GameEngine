@@ -11,4 +11,4 @@ add_library(Game SHARED ${PROJECT_HEADERS} ${PROJECT_CPPS})
 
 add_compile_definitions(GAME_EXPORT)
 
-target_link_libraries(Game Core Graphics)
+target_link_libraries(Game Core Graphics Animation)

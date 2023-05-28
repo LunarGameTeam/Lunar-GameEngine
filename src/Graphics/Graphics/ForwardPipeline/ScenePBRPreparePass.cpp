@@ -89,7 +89,7 @@ void PBRPreparePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* r
 	LArray<ShaderCBuffer*> sViewBuffers;
 	if (sViewBuffers.size() == 0)
 	{
-		const auto& desc = sRenderModule->GetRenderContext()->mDefaultShader->GetConstantBufferDesc(LString("ViewBuffer").Hash());
+		const auto& desc = sRenderModule->GetRenderContext()->GetDefaultShaderConstantBufferDesc(LString("ViewBuffer").Hash());
 		sViewBuffers.push_back(new ShaderCBuffer(desc));
 		sViewBuffers.push_back(new ShaderCBuffer(desc));
 		sViewBuffers.push_back(new ShaderCBuffer(desc));

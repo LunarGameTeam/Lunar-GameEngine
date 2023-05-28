@@ -8,8 +8,6 @@
 namespace luna::render
 {
 
-
-
 #define PARAM_ID(name) static luna::render::ShaderParamID ParamID_##name = luna::LString(#name).Hash();
 
 struct RHIShaderDesc
@@ -18,6 +16,7 @@ struct RHIShaderDesc
 	LString       mContent;
 	RHIShaderType mType;
 	LString       mEntryPoint;
+	LArray<RhiShaderMacro> mShaderMacros;
 };
 
 struct CBufferVar

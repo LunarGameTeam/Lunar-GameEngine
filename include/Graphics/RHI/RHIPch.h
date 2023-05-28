@@ -929,4 +929,11 @@ inline void GetFormatInfo(
 	rows = height;
 	totalBytes = rowBytes * rows;
 };
+
+struct RhiShaderMacro
+{
+	LString mMacroName;
+	LString mMacroValue;
+};
+
 }

@@ -4,10 +4,11 @@
 namespace luna::render
 {
 	class RHIResource;
+
 	struct SkinVertex
 	{
 		uint32_t mRefBone[4];
-		float mWeight[4];
+		uint32_t mWeight[4];
 		static RHIVertexLayout GetVertexLayout()
 		{
 			RHIVertexLayout layout;
@@ -28,14 +29,21 @@ namespace luna::render
 		}
 	};
 
+	struct SkinRenderVertex
+	{
+		BaseVertex mBaseValue;
+		SkinVertex mSkinValue;
+	};
 
 	class RENDER_API SubMeshSkeletal : public SubMesh
 	{
-		RegisterTypeEmbedd(SubMesh, InvalidType)
+		RegisterTypeEmbedd(SubMeshSkeletal, InvalidType)
 	public:
 		SubMeshSkeletal();
 		~SubMeshSkeletal() { }
 		LArray<SkinVertex> mSkinData;
+		LArray<LString>    mRefBoneName;
+		LArray<LMatrix4f>  mRefBonePose;
 	};
 
 	class RENDER_API SkeletalMeshAsset : public MeshAsset
@@ -47,8 +55,8 @@ namespace luna::render
 		}
 	private:
 		render::SubMesh* GenerateSubmesh(size_t submeshVertexSize, size_t submeshIndexSize) override;
-		void ReadVertexData(size_t idx, const byte* ptr) override;
-		void WriteVertexData(size_t idx, byte* dst) override;
+		void ReadVertexData(size_t idx, const byte* &ptr) override;
+		void WriteVertexData(size_t idx, LArray<byte>& data) override;
 
 	};
 

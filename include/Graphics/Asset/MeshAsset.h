@@ -36,6 +36,11 @@ namespace luna::render
 		}
 	};
 
+	enum SubMeshType
+	{
+		SubMeshStatic,
+		SubMeshSkined
+	};
 
 	class RENDER_API SubMesh
 	{
@@ -58,6 +63,7 @@ namespace luna::render
 		RHIVertexLayout mVeretexLayout;
 		LString mAssetPath;
 		size_t mSubmeshIndex;
+		SubMeshType mType;
 		size_t GetStridePerVertex() { return mVeretexLayout.GetSize()[0]; };
 		size_t GetStridePerInstance() { return mVeretexLayout.GetSize()[1]; };
 
@@ -86,10 +92,10 @@ namespace luna::render
 		virtual void OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> file) override;
 		//Asset资源写入到磁盘时回调	
 		virtual void OnAssetFileWrite(LSharedPtr<JsonDict> meta, LArray<byte>& data) override;
-	private:
+	protected:
 		virtual render::SubMesh* GenerateSubmesh(size_t submeshVertexSize,size_t submeshIndexSize);
-		virtual void ReadVertexData(size_t idx,const byte* ptr);
-		virtual void WriteVertexData(size_t idx, byte* dst);
+		virtual void ReadVertexData(size_t idx, const byte* &ptr);
+		virtual void WriteVertexData(size_t idx, LArray<byte>& data);
 	};
 
 }

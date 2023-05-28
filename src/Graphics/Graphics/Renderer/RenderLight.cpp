@@ -13,7 +13,7 @@ namespace luna::render
 void DirectionLight::Update(RenderView* view)
 {
 	if(!mParamBuffer)
-		mParamBuffer = new ShaderCBuffer(sRenderModule->GetRenderContext()->mDefaultShader->GetConstantBufferDesc(LString("ViewBuffer").Hash()));
+		mParamBuffer = new ShaderCBuffer(sRenderModule->GetRenderContext()->GetDefaultShaderConstantBufferDesc(LString("ViewBuffer").Hash()));
 	LTransform transform = LTransform::Identity();
 	auto rota = LQuaternion::FromTwoVectors(LVector3f(0, 0, 1), mDirection);
 	transform.rotate(rota);
@@ -33,7 +33,7 @@ void PointLight::Update(RenderView* view)
 	{
 		if (mParamBuffer.size() == 0)
 		{
-			const auto& desc = sRenderModule->GetRenderContext()->mDefaultShader->GetConstantBufferDesc(LString("ViewBuffer").Hash());
+			const auto& desc = sRenderModule->GetRenderContext()->GetDefaultShaderConstantBufferDesc(LString("ViewBuffer").Hash());
 			mParamBuffer.push_back(new ShaderCBuffer(desc));
 			mParamBuffer.push_back(new ShaderCBuffer(desc));
 			mParamBuffer.push_back(new ShaderCBuffer(desc));

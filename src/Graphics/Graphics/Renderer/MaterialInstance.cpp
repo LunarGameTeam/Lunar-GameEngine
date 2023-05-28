@@ -20,6 +20,7 @@ namespace luna::render
 //优化 增量更新
 PARAM_ID(MaterialBuffer);
 
+
 RegisterTypeEmbedd_Imp(MaterialParam)
 {
 	cls->Ctor<MaterialParam>();
@@ -107,12 +108,12 @@ MaterialInstance::MaterialInstance() :
 
 RHIShaderBlob* MaterialInstance::GetShaderVS()
 {
-	return mMaterialTemplate->GetShaderAsset()->GetVertexShader().get();
+	return mMaterialTemplate->GetShaderVertexInstance()->GetRhiShader().get();
 }
 
 RHIShaderBlob* MaterialInstance::GetShaderPS()
 {
-	return mMaterialTemplate->GetShaderAsset()->GetPixelShader().get();
+	return mMaterialTemplate->GetShaderPixelInstance()->GetRhiShader().get();
 }
 
 ShaderAsset* MaterialInstance::GetShaderAsset()
@@ -124,12 +125,12 @@ void MaterialInstance::Init()
 {
 	if (mMaterialTemplate)
 	{
-		auto* shader = mMaterialTemplate->GetShaderAsset();
 		mTemplateParams = mMaterialTemplate->GetTemplateParams();
 		PARAM_ID(MaterialBuffer);
-		if (shader->GetVertexShader()->HasBindPoint(ParamID_MaterialBuffer) || shader->GetPixelShader()->HasBindPoint(ParamID_MaterialBuffer))
+		if (HasBindPoint(ParamID_MaterialBuffer))
 		{
-			RHICBufferDesc materialBufferDesc = mMaterialTemplate->GetShaderAsset()->GetConstantBufferDesc(ParamID_MaterialBuffer);
+			RHICBufferDesc materialBufferDesc = GetConstantBufferDesc(ParamID_MaterialBuffer);
+
 			RHIBufferDesc desc;
 			desc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
 			desc.mSize = materialBufferDesc.mSize;
@@ -144,7 +145,7 @@ void MaterialInstance::Init()
 		}
 		UpdateParamsToBuffer();
 
-		mBindingSet = sRenderModule->GetRenderContext()->CreateBindingset(shader->mLayout);
+		mBindingSet = sRenderModule->GetRenderContext()->CreateBindingset(mMaterialTemplate->GetBindingSetLayout());
 
 		PARAM_ID(_ClampSampler);
 		PARAM_ID(_RepeatSampler);
@@ -173,12 +174,12 @@ void MaterialInstance::UpdateBindingSet()
 	auto shader = mMaterialTemplate->GetShaderAsset();
 	std::vector<BindingDesc> bindingDescs;
 	if (mCBufferView)
-		bindingDescs.emplace_back(shader->GetBindPoint(ParamID_MaterialBuffer), mCBufferView);
+		bindingDescs.emplace_back(GetBindPoint(ParamID_MaterialBuffer), mCBufferView);
 	for(auto& it : mInputs)
 	{
-		if (shader->HasBindPoint(it.first))
+		if (HasBindPoint(it.first))
 		{
-			bindingDescs.emplace_back(shader->GetBindPoint(it.first), it.second);
+			bindingDescs.emplace_back(GetBindPoint(it.first), it.second);
 		}
 	}
 	mBindingSet->WriteBindings(bindingDescs);
@@ -188,13 +189,13 @@ void MaterialInstance::UpdateParamsToBuffer()
 {
 	auto& params = mTemplateParams;
 	auto shader = mMaterialTemplate->GetShaderAsset();
-	const RHICBufferDesc& matBufferDesc = shader->GetConstantBufferDesc(ParamID_MaterialBuffer);
+	const RHICBufferDesc& matBufferDesc = GetConstantBufferDesc(ParamID_MaterialBuffer);
 
 	std::vector<byte> data;
 	data.resize(matBufferDesc.mSize);
 
 
-	bool hasCbuffer = mMaterialTemplate->GetShaderAsset()->HasBindPoint(ParamID_MaterialBuffer);
+	bool hasCbuffer = HasBindPoint(ParamID_MaterialBuffer);
 	
 	for (auto& param : mTemplateParams)
 	{
@@ -258,7 +259,7 @@ void MaterialInstance::UpdateParamsToBuffer()
 			}
 		}
 	}	
-	if (mMaterialTemplate->GetShaderAsset()->HasBindPoint(ParamID_MaterialBuffer))
+	if (HasBindPoint(ParamID_MaterialBuffer))
 		sRenderModule->GetRenderContext()->UpdateConstantBuffer(mCBuffer, data.data(), data.size());
 
 }
@@ -294,5 +295,40 @@ RHIPipelineState* MaterialInstance::GetPipeline(RHIVertexLayout* layout, const R
 	desc.mGraphicDesc.mPipelineStateDesc.BlendState.RenderTarget.push_back(blend);
 	return sRenderModule->mRenderContext->CreatePipeline(desc);
 }
+
+RHIBindPoint MaterialInstance::GetBindPoint(ShaderParamID id) const
+{
+	LShaderInstance* curVertexShader = mMaterialTemplate->GetShaderVertexInstance();
+	LShaderInstance* curPixelShader = mMaterialTemplate->GetShaderPixelInstance();
+	if (curVertexShader->GetRhiShader()->HasBindPoint(id))
+		return curVertexShader->GetRhiShader()->GetBindPoint(id)->second;
+	return curPixelShader->GetRhiShader()->GetBindPoint(id)->second;
+};
+
+RHICBufferDesc& MaterialInstance::GetConstantBufferDesc(ShaderParamID name)
+{
+	LShaderInstance* curVertexShader = mMaterialTemplate->GetShaderVertexInstance();
+	LShaderInstance* curPixelShader = mMaterialTemplate->GetShaderPixelInstance();
+	if (curVertexShader->GetRhiShader()->HasUniformBuffer(name))
+	{
+		return curVertexShader->GetRhiShader()->GetUniformBuffer(name);
+	}
+	else if (curPixelShader->GetRhiShader()->HasUniformBuffer(name))
+	{
+		return curPixelShader->GetRhiShader()->GetUniformBuffer(name);
+	}
+	RHICBufferDesc empty;
+	return empty;
+}
+
+bool MaterialInstance::HasBindPoint(ShaderParamID id) const
+{
+	LShaderInstance* curVertexShader = mMaterialTemplate->GetShaderVertexInstance();
+	LShaderInstance* curPixelShader = mMaterialTemplate->GetShaderPixelInstance();
+	if (curVertexShader->GetRhiShader()->HasBindPoint(id))
+		return true;
+	return curPixelShader->GetRhiShader()->HasBindPoint(id);
+}
+
 }
 

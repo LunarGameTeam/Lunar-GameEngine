@@ -141,6 +141,7 @@ bool LAabb::IntersectRay(const LRay& ray)
 	// 		}
 	return true;
 }
+
 LMatrix4f LMath::MatrixCompose(LVector3f& translation, LQuaternion& rotation, LVector3f& scale)
 {
 	LTransform transformvalue;
@@ -166,6 +167,24 @@ void LMath::MatrixDecompose(const LMatrix4f& m, LVector3f& translation, LQuatern
 	scale.y() = mat_scaling(1, 1);
 	scale.z() = mat_scaling(2, 2);
 
+}
+
+
+uint32_t LMath::CombineUint16(uint16_t a, uint16_t b)
+{
+	return static_cast<uint32_t>(a) << 16 | static_cast<uint32_t>(b);
+}
+
+void LMath::SplitUint32(uint32_t data, uint16_t& a, uint16_t& b)
+{
+	a = static_cast<uint16_t>(data >> 16 & 0xFFFF);
+	b = static_cast<uint16_t>(data & 0xFFFF);
+}
+
+uint16_t LMath::NormalizedFloatToUnit16(float data)
+{
+	int32_t mid = std::clamp(static_cast<int32_t>(data * gMax16BitFloat), 0, gMax16BitUint);
+	return static_cast<uint16_t>(mid);
 }
 
 LFrustum LFrustum::FromOrth(float zNear, float zFar, float width, float height)

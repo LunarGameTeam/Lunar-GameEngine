@@ -45,6 +45,12 @@ LString Asset::GetAssetPath()
 	return mAssetPath;
 }
 
+void Asset::CopyPointToByteArray(const void* dataSrc, size_t dataLength, LArray<byte>& dataDst)
+{
+	const byte* bytePointer = (const byte*)(dataSrc);
+	dataDst.insert(dataDst.end(), bytePointer, bytePointer + dataLength / sizeof(byte));
+}
+
 RegisterTypeEmbedd_Imp(TextAsset)
 {
 	cls->Binding<Self>();

@@ -7,7 +7,8 @@
          "__parent__" : 0,
          "name" : "",
          "params" : [ 2, 3, 4, 5],
-         "shader" : "/assets/built-in/Shader/Pbr.hlsl"
+         "shader" : "/assets/built-in/Shader/Pbr.hlsl",
+         "macros":[6]
       },
       {
          "__class__" : "MaterialParamTexture2D",
@@ -48,6 +49,15 @@
          "param_name" : "_Roughness",
          "type" : 1,
          "value" : 0.6
+      },
+      {
+         "__class__" : "ShaderMacro",
+         "__fid__" : 6,
+         "__index__" : 0,
+         "__parent__" : 1,
+         "name" : "",
+         "macro_name" : "USE_SKIN_VERTEX",
+         "macro_value" : "1",
       }
    ]
 }

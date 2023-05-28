@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "AssetImport/ImportScene/ImportDataMesh.h"
-
+#include "AssetImport/ImportScene/ImportDataSkeleton.h"
+#include "AssetImport/ImportScene/ImportDataSkeletonAnimation.h"
 #ifndef ASSET_IMPORT_API
 #ifdef ASSET_IMPORT_EXPORT
 #define ASSET_IMPORT_API __declspec( dllexport )
@@ -14,9 +15,15 @@ namespace luna::asset
 	class ASSET_IMPORT_API LImportScene
 	{
 		LImportAxisType mAxis;
+
 		LImportUnitType mUnit;
+
 		LArray<LImportSceneNode> mNodes;
+
 		LArray<std::shared_ptr<LImportNodeDataBase>> mDatas;
+
+		LArray<std::shared_ptr<LImportNodeAnimationBase>> mAnimations;
+
 	public:
 		void SetAxisAndUnit(LImportAxisType axis, LImportUnitType unit);
 
@@ -37,6 +44,15 @@ namespace luna::asset
 			return dynamic_cast<ImportDataType*>(newData.get());
 		};
 
+		template<typename ImportAnimationType>
+		ImportAnimationType* AddNewAnimation()
+		{
+			size_t newIndex = mAnimations.size();
+			std::shared_ptr<ImportAnimationType> newData = std::make_shared<ImportAnimationType>(newIndex);
+			mAnimations.push_back(newData);
+			return dynamic_cast<ImportAnimationType*>(newData.get());
+		};
+
 		size_t GetNodeSize()const
 		{
 			return mNodes.size();
@@ -46,6 +62,8 @@ namespace luna::asset
 		{
 			return mNodes[dataIndex];
 		};
+
+		void ResetNodeData(size_t nodeIndex, asset::LImportNodeDataType dataType,size_t dataIndex);
 
 		size_t GetNodeDataSize()const
 		{
@@ -61,6 +79,19 @@ namespace luna::asset
 			}
 			ImportDataType* dataFind = dynamic_cast<ImportDataType*>(mDatas[dataIndex].get());
 			return dataFind;
+		};
+
+		LArray<size_t> FilterDataByType(LImportNodeDataType type);
+
+		template<typename ImportAnimationType>
+		const ImportAnimationType* GetAnimation(size_t animIndex) const
+		{
+			if (animIndex >= mAnimations.size())
+			{
+				return nullptr;
+			}
+			ImportAnimationType* animFind = dynamic_cast<ImportAnimationType*>(mAnimations[animIndex].get());
+			return animFind;
 		};
 
 	private:

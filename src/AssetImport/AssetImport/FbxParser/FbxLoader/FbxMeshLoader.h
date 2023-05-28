@@ -5,41 +5,94 @@ namespace luna::lfbx
 	template<typename layerDataType>
 	struct LFbxLayerData
 	{
-		fbxsdk::FbxLayerElement::EMappingMode mMapMode;
-		fbxsdk::FbxLayerElement::EReferenceMode mRefMode;
-		fbxsdk::FbxLayerElementTemplate<layerDataType>* mLayerMapRefData;
+		FbxLayerElement::EMappingMode mMapMode;
+
+		FbxLayerElement::EReferenceMode mRefMode;
+
+		FbxLayerElementTemplate<layerDataType>* mLayerMapRefData;
+
 		LArray<layerDataType> mLayerData;
 	};
 
 	struct FbxFaceData
 	{
 		LArray<int32_t> mIndex;
+
 		LArray<int32_t> mTextureUvIndex;
+
 		int32_t mMaterialIndex;
+	};
+
+	struct FbxClusterControlPointData
+	{
+		int32_t mCtrlPointCount;
+
+		LArray<int> mIndices;
+
+		LArray<double> mWeights;
 	};
 
 	class LFbxDataMesh : public LFbxDataBase
 	{
-		fbxsdk::FbxLayerElement::EMappingMode mMaterialMode;
+		bool mHasSkinMessage = false;
+
+		FbxLayerElement::EMappingMode mMaterialMode;
+
 		int32_t mMaterialRefCount = 0;
-		LArray<fbxsdk::FbxVector4> mControlPoints;
-		LFbxLayerData<fbxsdk::FbxVector4> mNormalLayer;
-		LFbxLayerData<fbxsdk::FbxVector4> mTangentLayer;
-		LFbxLayerData<fbxsdk::FbxColor> mColorLayer;
-		LArray<LFbxLayerData<fbxsdk::FbxVector2>> mUvLayer;
+
+		LArray<FbxVector4> mControlPoints;
+
+		LFbxLayerData<FbxVector4> mNormalLayer;
+
+		LFbxLayerData<FbxVector4> mTangentLayer;
+
+		LFbxLayerData<FbxColor> mColorLayer;
+
+		LArray<LFbxLayerData<FbxVector2>> mUvLayer;
+
 		LArray<FbxFaceData> mFace;
-		fbxsdk::FbxAMatrix mGeometryMatrix;
+
+		FbxAMatrix mGeometryMatrix;
+
+		LArray<LString> mBindBoneName;
+
+		LArray<FbxAMatrix> mPoseMatrix;
+
+		LArray<FbxClusterControlPointData> mBindBoneControlData;
+
+		LUnorderedMap<LString,int32_t> mBindBoneNameRef;
+		
 	public:
 		LFbxDataMesh() : LFbxDataBase(LFbxDataType::FbxMeshData) {};
 
+		bool HasSkinInfo()const { return mHasSkinMessage; };
+
+		int32_t TryAddBone(const LString &boneName);
+
+		void SetBonePoseMatrix(int32_t BoneIndex,const FbxAMatrix &linkMatrix);
+
+		void SetBoneControlData(int32_t BoneIndex, int32_t CtrlPointCount, int* pCtrlPointIndices, double* pCtrlPointWeights);
+
+		inline int32_t GetRefBoneCount() const
+		{
+			return (int32_t)mBindBoneName.size();
+		}
+
+		LString GetRefBoneNameByIndex(int32_t BoneIndex) const;
+
+		FbxAMatrix GetBonePoseByIndex(int32_t BoneIndex) const;
+		
+		const FbxClusterControlPointData& GetBoneControlVertexDataByIndex(int32_t BoneIndex) const;
+
+
 		inline void SetMaterialDataType(
-			fbxsdk::FbxLayerElement::EMappingMode mapMode
+			FbxLayerElement::EMappingMode mapMode
 		) 
 		{
 			mMaterialMode = mapMode;
 		};
 
-		inline void SetMatrixGeometry(fbxsdk::FbxAMatrix geometryMatrix)
+		inline void SetMatrixGeometry(FbxAMatrix geometryMatrix)
 		{
 			mGeometryMatrix = geometryMatrix;
 		}
@@ -54,7 +107,7 @@ namespace luna::lfbx
 			return mMaterialRefCount;
 		}
 
-		fbxsdk::FbxLayerElement::EMappingMode GetMaterialRefType() const 
+		FbxLayerElement::EMappingMode GetMaterialRefType() const 
 		{
 			return mMaterialMode;
 		}
@@ -66,40 +119,40 @@ namespace luna::lfbx
 			mMaterialRefCount = materialRefCount;
 		};
 
-		void AddControlPoint(const fbxsdk::FbxVector4& point);
+		void AddControlPoint(const FbxVector4& point);
 
 		void SetNormalDataType(
-			fbxsdk::FbxLayerElement::EMappingMode mapMode,
-			fbxsdk::FbxLayerElement::EReferenceMode refMode,
-			fbxsdk::FbxLayerElementTemplate<fbxsdk::FbxVector4>* layerData
+			FbxLayerElement::EMappingMode mapMode,
+			FbxLayerElement::EReferenceMode refMode,
+			FbxLayerElementTemplate<FbxVector4>* layerData
 		);
 
-		void AddNormal(const fbxsdk::FbxVector4& normal);
+		void AddNormal(const FbxVector4& normal);
 
 		void SetTangentDataType(
-			fbxsdk::FbxLayerElement::EMappingMode mapMode,
-			fbxsdk::FbxLayerElement::EReferenceMode refMode,
-			fbxsdk::FbxLayerElementTemplate<fbxsdk::FbxVector4>* layerData
+			FbxLayerElement::EMappingMode mapMode,
+			FbxLayerElement::EReferenceMode refMode,
+			FbxLayerElementTemplate<FbxVector4>* layerData
 		);
 
-		void AddTangent(const fbxsdk::FbxVector4& tangent);
+		void AddTangent(const FbxVector4& tangent);
 
 		void SetColorDataType(
-			fbxsdk::FbxLayerElement::EMappingMode mapMode,
-			fbxsdk::FbxLayerElement::EReferenceMode refMode,
-			fbxsdk::FbxLayerElementTemplate<fbxsdk::FbxColor>* layerData
+			FbxLayerElement::EMappingMode mapMode,
+			FbxLayerElement::EReferenceMode refMode,
+			FbxLayerElementTemplate<FbxColor>* layerData
 		);
 
-		void AddColor(const fbxsdk::FbxColor& color);
+		void AddColor(const FbxColor& color);
 
 		void SetUvDataType(
 			int32_t channel,
-			fbxsdk::FbxLayerElement::EMappingMode mapMode,
-			fbxsdk::FbxLayerElement::EReferenceMode refMode,
-			fbxsdk::FbxLayerElementTemplate<fbxsdk::FbxVector2>* layerData
+			FbxLayerElement::EMappingMode mapMode,
+			FbxLayerElement::EReferenceMode refMode,
+			FbxLayerElementTemplate<FbxVector2>* layerData
 		);
 
-		void AddUv(const fbxsdk::FbxVector2& uv,int32_t channel);
+		void AddUv(const FbxVector2& uv,int32_t channel);
 
 		void AddFace(const FbxFaceData& face_data);
 
@@ -113,30 +166,39 @@ namespace luna::lfbx
 			return mFace[index];
 		}
 
-		inline const fbxsdk::FbxVector4 GetControlPointByIndex(const size_t index) const
+		inline const FbxVector4 GetControlPointByIndex(const size_t index) const
 		{
 			return mControlPoints[index];
 		}
 
-		const fbxsdk::FbxColor GetColorByIndex(const size_t vertIndex, const size_t polygenIndex) const;
+		inline const size_t GetControlPointSize() const
+		{
+			return mControlPoints.size();
+		}
 
-		const fbxsdk::FbxVector4 GetNormalByIndex(const size_t vertIndex, const size_t polygenIndex) const;
+		const FbxColor GetColorByIndex(const size_t vertIndex, const size_t polygenIndex) const;
 
-		const fbxsdk::FbxVector4 GetTangentByIndex(const size_t vertIndex, const size_t polygenIndex) const;
+		const FbxVector4 GetNormalByIndex(const size_t vertIndex, const size_t polygenIndex) const;
 
-		const fbxsdk::FbxVector2 GetUvByIndex(const size_t vertIndex, const size_t polygenTextureIndex,const size_t uv_channel) const;
+		const FbxVector4 GetTangentByIndex(const size_t vertIndex, const size_t polygenIndex) const;
+
+		const FbxVector2 GetUvByIndex(const size_t vertIndex, const size_t polygenTextureIndex,const size_t uv_channel) const;
 
 		inline const size_t GetUvChannelSize() const
 		{
 			return mUvLayer.size();
 		};
+
+		void GenerateBindPoseToMesh(const FbxSkin* pSkin);
 	};
 
 	class LFbxLoaderMesh : public LFbxLoaderBase
 	{
 	public:
+
 		LFbxLoaderMesh(){};
 	private:
-		std::shared_ptr<LFbxDataBase> ParsingDataImpl(const LArray<LFbxNodeBase>& sceneNodes, fbxsdk::FbxNode* pNode, FbxManager* pManager) override;
+
+		std::shared_ptr<LFbxDataBase> ParsingDataImpl(const LArray<LFbxNodeBase>& sceneNodes, FbxNode* pNode, LFbxLoadContext context) override;
 	};
 }

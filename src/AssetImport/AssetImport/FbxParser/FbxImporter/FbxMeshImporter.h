@@ -7,12 +7,15 @@ namespace luna::lfbx
 
 	struct VertexDataFullMember
 	{
+		size_t globelIndex;
 		size_t baseIndex;
 		fbxsdk::FbxVector4 mPosition;
 		fbxsdk::FbxVector4 mNormal;
 		fbxsdk::FbxVector4 mTangent;
 		fbxsdk::FbxColor mColor;
 		LArray<fbxsdk::FbxVector2> mUvs;
+		LArray<uint32_t> mRefBones;
+		LArray<float> mWeights;
 	};
 
 	struct VertexDataFullCombine
@@ -25,7 +28,13 @@ namespace luna::lfbx
 	public:
 		LFbxImporterMesh() {};
 	private:
-		void ParsingDataImpl(const LFbxDataBase* fbxDataInput, const LFbxNodeBase& fbxNodeInput, asset::LImportScene& outputScene) override;
+		void ParsingDataImpl(
+			const size_t nodeIdex,
+			const LFbxDataBase* fbxDataInput,
+			const LFbxSceneData* fbxScene,
+			LFbxImportContext& dataContext,
+			asset::LImportScene& outputScene
+		) override;
 
 		void CombineVertexData(const LFbxDataMesh* meshData, LArray<VertexDataFullCombine>& vertexCombineData);
 

@@ -51,7 +51,7 @@ bool DX12ShaderBlob::InitShader(const RHIShaderDesc& resource_desc)
 
 	std::vector<uint32_t> dst;
 	ComPtr<IDxcBlob> code;
-	DxcCompile(resource_desc.mType, resource_desc.mName, resource_desc.mContent, dst, code);
+	DxcCompile(resource_desc.mType, resource_desc.mName, resource_desc.mContent, dst, code, resource_desc.mShaderMacros);
 	D3DCreateBlob(dst.size() * 4, &mShaderBlob);
 	
 	memcpy(mShaderBlob->GetBufferPointer(), dst.data(), mShaderBlob->GetBufferSize());	

@@ -18,6 +18,8 @@ public:
 	MaterialTemplateAsset();
 	~MaterialTemplateAsset() override;
 	ShaderAsset* GetShaderAsset() { return mShader.get(); }
+	LShaderInstance* GetShaderVertexInstance() { return mVs.get(); }
+	LShaderInstance* GetShaderPixelInstance() { return mPs.get(); }
 	TPPtrArray<MaterialParam>& GetTemplateParams() { return mTemplateParams; }
 
 	MaterialInstance* CreateInstance();
@@ -39,7 +41,7 @@ public:
 
 	RHIPrimitiveTopologyType GetPrimitiveType() { return mPrimitiveType; }
 	void SetPrimitiveType(RHIPrimitiveTopologyType val) { mPrimitiveType = val; }
-
+	RHIBindingSetLayoutPtr GetBindingSetLayout() { return mLayout; }
 public:
 	void OnLoad() override;
 
@@ -51,7 +53,10 @@ private:
 	
 	TPPtr< MaterialInstance> mDefaultInstance;
 	TPPtrArray<MaterialParam> mTemplateParams;
-
+	TPPtrArray<ShaderMacro> mTemplateMacros;
 	SharedPtr<ShaderAsset> mShader;
+	SharedPtr<LShaderInstance> mVs;
+	SharedPtr<LShaderInstance> mPs;
+	RHIBindingSetLayoutPtr mLayout;
 };
 }

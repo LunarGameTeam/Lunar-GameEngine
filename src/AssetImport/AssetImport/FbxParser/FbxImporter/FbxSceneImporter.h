@@ -7,6 +7,7 @@ namespace luna::lfbx
 	class LFbxSceneImportHelper
 	{
 		LUnorderedMap<asset::LImportNodeDataType, std::shared_ptr<LFbxImporterBase>> mImporters;
+		LUnorderedMap<asset::LImportNodeAnimationType, std::shared_ptr<LFbxAnimationImporterBase>> mAnimationImporters;
 	public:
 		LFbxSceneImportHelper();
 		void ParseScene(const LFbxSceneData* fbxDataInput, asset::LImportScene& outputScene);
@@ -18,11 +19,20 @@ namespace luna::lfbx
 		);
 
 		void ParseSceneData(
-			asset::LImportNodeDataType type,
+			const asset::LImportNodeDataType type,
+			const size_t nodeIdex,
 			const LFbxDataBase* fbxDataInput,
-			const LFbxNodeBase& fbxNodeInput,
+			const LFbxSceneData* fbxScene,
+			LFbxImportContext &dataContext,
 			asset::LImportScene& outputScene
 		);
+
+		void ParseAnimationData(
+			const LFbxAnimationStack* fbxAnimationInput,
+			LFbxImportContext& dataContext,
+			asset::LImportScene& outputScene
+		);
+
 		asset::LImportNodeDataType GetTypeByFbxType(LFbxDataType inType);
 	};
 

@@ -23,6 +23,7 @@ namespace luna::animation
 
 		void UpdateAnimation(float deltaTime);
 
+		void ApplyAnimation();
 	protected:
 		size_t mIndex;
 

@@ -39,6 +39,6 @@ add_custom_command(TARGET AssetImport
     COMMAND xcopy "\"${FBX_ROOT_DIR}/lib\\*.dll\"" "\"$(OutDir)\"" /Y
 )
 
-add_dependencies(AssetImport Core Graphics GLTFSDK tinyobjloader::tinyobjloader)
+add_dependencies(AssetImport Core Graphics Animation GLTFSDK tinyobjloader::tinyobjloader)
 
-target_link_libraries(AssetImport Core Graphics GLTFSDK tinyobjloader::tinyobjloader)
+target_link_libraries(AssetImport Core Graphics Animation GLTFSDK tinyobjloader::tinyobjloader)

@@ -115,6 +115,11 @@ public:
 		return mStdStr.substr(pos);
 	}
 
+	inline int Compare(const LString& other) const
+	{
+		return mStdStr.compare(other.c_str());
+	}
+
 	void SplitOnce(std::vector<LString>& result, const char* s) const
 	{
 		auto it = mStdStr.find_first_of(s);
