@@ -23,19 +23,16 @@ RenderView::RenderView() :
 
 void RenderView::PrepareView()
 {
+	for (auto data : mDatas)
+	{
+		data->PerViewUpdate(this);
+	}
+
 	mViewBuffer->Set("cViewMatrix", mViewMatrix);
 	mViewBuffer->Set("cProjectionMatrix", mProjMatrix);
 	LVector2f cNearFar(mNear, mFar);
 	mViewBuffer->Set("cNearFar", cNearFar);
-	mViewBuffer->Set("cCamPos", LMath::GetMatrixTranslaton(mViewMatrix.inverse()));
-	if (mOwnerScene->mMainDirLight)
-	{
-		mOwnerScene->mMainDirLight->Update(this);
-	}
-	for (PointLight* it : mOwnerScene->mPointLights)
-	{
-		it->Update(this);
-	}
+	mViewBuffer->Set("cCamPos", LMath::GetMatrixTranslaton(mViewMatrix.inverse()));	
 	mViewBuffer->Commit();
 }
 

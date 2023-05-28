@@ -8,6 +8,8 @@ namespace luna::render
 {
 struct RenderData
 {
+	virtual void PerSceneUpdate(RenderScene* renderScene);
+	virtual void PerViewUpdate(RenderView* renderView);
 	virtual ~RenderData() {};
 };
 

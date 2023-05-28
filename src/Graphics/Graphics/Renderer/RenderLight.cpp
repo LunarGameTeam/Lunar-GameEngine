@@ -12,7 +12,11 @@ namespace luna::render
 
 void DirectionLight::Update(RenderView* view)
 {
-	if(!mParamBuffer)
+}
+
+void DirectionLight::PerViewUpdate(RenderView* view)
+{
+	if (!mParamBuffer)
 		mParamBuffer = new ShaderCBuffer(sRenderModule->GetRenderContext()->GetDefaultShaderConstantBufferDesc(LString("ViewBuffer").Hash()));
 	LTransform transform = LTransform::Identity();
 	auto rota = LQuaternion::FromTwoVectors(LVector3f(0, 0, 1), mDirection);
@@ -22,12 +26,12 @@ void DirectionLight::Update(RenderView* view)
 	LMath::GenOrthoLHMatrix(proj, 30, 30, 0.01, 50);
 	mParamBuffer->Set("cViewMatrix", mViewMatrix);
 	mParamBuffer->Set("cProjectionMatrix", proj);
- 	view->mOwnerScene->mSceneParamsBuffer->Set("cDirectionLightViewMatrix", mViewMatrix, 0);
+	view->mOwnerScene->mSceneParamsBuffer->Set("cDirectionLightViewMatrix", mViewMatrix, 0);
 	view->mOwnerScene->mSceneParamsBuffer->Set("cDirectionLightProjMatrix", proj, 0);
 	mParamBuffer->Commit();
 }
 
-void PointLight::Update(RenderView* view)
+void PointLight::PerViewUpdate(RenderView* view)
 {
 	if (mCastShadow)
 	{
@@ -57,7 +61,7 @@ void PointLight::Update(RenderView* view)
 		for (uint32_t idx = 0; idx < 6; idx++)
 		{
 			LTransform transform = LTransform::Identity();
-			transform.translate(mPosition);			
+			transform.translate(mPosition);
 			transform.rotate(rotation[idx]);
 			mViewMatrix[idx] = transform.matrix().inverse();
 			mParamBuffer[idx]->Set("cViewMatrix", mViewMatrix[idx]);
@@ -70,6 +74,11 @@ void PointLight::Update(RenderView* view)
 			mParamBuffer[idx]->Commit();
 		}
 	}
+}
+
+void PointLight::Update(RenderView* view)
+{
+	
 	
 }
 

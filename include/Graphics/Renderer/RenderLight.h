@@ -7,11 +7,13 @@
 
 #include <memory>
 
+#include "RenderData.h"
+
 
 namespace luna::render
 {
 
-struct RENDER_API Light
+struct RENDER_API Light : public RenderData
 {
 	LVector4f    mColor      = LVector4f(1, 1, 1, 1);
 	bool         mCastShadow = false;
@@ -32,6 +34,9 @@ struct RENDER_API PointLight : Light
 	LArray<LMatrix4f> mViewMatrix;
 	LMatrix4f mProjMatrix;
 	LArray<ShaderCBuffer*>			mParamBuffer;
+
+	void PerViewUpdate(RenderView* renderScene) override;
+
 	void Update(RenderView* view);
 };
 
@@ -42,6 +47,7 @@ struct RENDER_API DirectionLight : Light
 	LMatrix4f mViewMatrix;
 
 	void Update(RenderView* view);
+	void PerViewUpdate(RenderView* renderScene) override;
 
 	ShaderCBuffer* mParamBuffer;
 };

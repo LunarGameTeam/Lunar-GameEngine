@@ -18,7 +18,7 @@ void DirectionalLightShadowPass(FrameGraphBuilder* builder, RenderView* view, Re
 RoPassProcessorBase* PointShadowPassProcessorCreateFunction(RenderScene* scene, MeshRenderPass passType);
 void PointShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene);
 
-void OverlayPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene);
 void PostProcessPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene);
+void OverlayPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene);
 
 }

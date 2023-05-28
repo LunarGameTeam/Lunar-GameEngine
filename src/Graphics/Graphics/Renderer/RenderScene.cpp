@@ -128,6 +128,7 @@ void RenderScene::SetRenderObjectMaterial(uint64_t roId, MaterialInstance* mat)
 
 void RenderScene::PrepareScene()
 {
+
 	if (!mBufferDirty)
 		return;
 
@@ -196,6 +197,11 @@ RenderView* RenderScene::CreateRenderView()
 
 void RenderScene::Render(FrameGraphBuilder* FG)
 {
+	for (auto data : mDatas)
+	{
+		data->PerSceneUpdate(this);
+	}
+
 	PrepareScene();
 
 	for (RenderView* renderView : mViews)
