@@ -51,6 +51,8 @@ public:
 	);
 
 	RHIShaderBlobPtr GetRhiShader() { return mRhiShader; }
+
+	RHIBindingSetLayoutPtr mLayout;
 private:
 	RHIShaderBlobPtr mRhiShader;
 

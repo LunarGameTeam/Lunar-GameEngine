@@ -18,7 +18,7 @@ RenderView::RenderView() :
 	mRT(nullptr)
 {	
 	auto device = sRenderModule->GetRenderContext();
-	mViewBuffer = new ShaderCBuffer(device->mDefaultShader->GetConstantBufferDesc(LString("ViewBuffer").Hash()));
+	mViewBuffer = new ShaderCBuffer(device->GetDefaultShaderConstantBufferDesc(LString("ViewBuffer").Hash()));
 }
 
 void RenderView::PrepareView()

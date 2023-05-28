@@ -36,6 +36,7 @@ SharedPtr<LShaderInstance> ShaderAsset::GenerateShaderInstance(RHIShaderType sha
 {
 	SharedPtr<LShaderInstance> newInstance = MakeShared<LShaderInstance>(shaderType, GetAssetPath());
 	newInstance->Init(GetContent(), shaderMacros);
+	return newInstance;
 }
 
 void LShaderInstance::Init(
@@ -49,6 +50,10 @@ void LShaderInstance::Init(
 		shaderDesc.mContent = content;
 		shaderDesc.mName = mShaderName;
 		shaderDesc.mType = mType;
+		for (ShaderMacro* eachMacro : shaderMacros)
+		{
+			shaderDesc.mShaderMacros.push_back({ eachMacro->mMacroName, eachMacro->mMacroValue});
+		}
 		switch (mType)
 		{
 			case luna::render::RHIShaderType::Vertex:
@@ -66,6 +71,19 @@ void LShaderInstance::Init(
 		}
 		mRhiShader = sRenderModule->GetRenderContext()->CreateShader(shaderDesc);
 		mShaderCacheId = sRenderModule->GetRenderContext()->GetShaderId(mRhiShader);
+
+		std::vector<RHIBindPoint> bindingKeys;
+		std::map<std::tuple<uint32_t, uint32_t>, RHIBindPoint> result;
+		for (auto& it : mRhiShader->mBindPoints)
+		{
+			auto& bindKey = it.second;
+			result[std::make_tuple(bindKey.mSpace, bindKey.mSlot)] = bindKey;
+		}
+		for (auto it : result)
+		{
+			bindingKeys.push_back(it.second);
+		}
+		mLayout = sRenderModule->GetRHIDevice()->CreateBindingSetLayout(bindingKeys);
 		mInit = true;
 	}
 }

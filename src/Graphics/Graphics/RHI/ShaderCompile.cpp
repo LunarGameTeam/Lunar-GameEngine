@@ -13,9 +13,25 @@ static Microsoft::WRL::ComPtr<IDxcLibrary> sDxcLib;
 static Microsoft::WRL::ComPtr<IDxcCompiler> sDxcCompiler;
 static Microsoft::WRL::ComPtr<IDxcIncludeHandler> sDefaultIncludeHandler;
 
+std::wstring CompileStringToLPCWSTR(std::string orig)
+{
+	std::wstring newWstring;
+	size_t origsize = orig.length() + 1;
+	const size_t newsize = 100;
+	size_t convertedChars = 0;
+	newWstring.resize(orig.length() - 1);
+	mbstowcs_s(&convertedChars, newWstring.data(), origsize, orig.c_str(), _TRUNCATE);
+	return newWstring;
+}
 
-bool DxcCompile(RHIShaderType stage, const LString& name, const LString& pShader, std::vector<uint32_t>& spirv,
-	ComPtr<IDxcBlob>& code)
+bool DxcCompile(
+	RHIShaderType stage,
+	const LString& name,
+	const LString& pShader,
+	std::vector<uint32_t>& spirv,
+	ComPtr<IDxcBlob>& code,
+	const LArray<RhiShaderMacro> &mShaderMacros
+)
 {
 	HRESULT hres = S_OK;
 	if (!sDxcLib)
@@ -65,17 +81,31 @@ bool DxcCompile(RHIShaderType stage, const LString& name, const LString& pShader
 #endif
 	};
 
-
+	DxcDefine* dxcMacroDefinePointer = nullptr;
+	LArray<DxcDefine> dxcMacroDefine;
+	LArray<std::wstring> nameTable;
+	for (auto& eachMacro : mShaderMacros)
+	{
+		DxcDefine dxcMacroMember;
+		nameTable.push_back(CompileStringToLPCWSTR(eachMacro.mMacroName.c_str()));
+		dxcMacroMember.Name = nameTable.back().data();
+		nameTable.push_back(CompileStringToLPCWSTR(eachMacro.mMacroValue.c_str()));
+		dxcMacroMember.Value = nameTable.back().data();
+		dxcMacroDefine.push_back(dxcMacroMember);
+	}
+	if (mShaderMacros.size() > 0)
+	{
+		dxcMacroDefinePointer = dxcMacroDefine.data();
+	}
 	hres = sDxcCompiler->Compile(
 		sourceBlob.Get(), // pSource
 		L"PS.hlsl", // pSourceName
 		shaderEntry, // pEntryPoint
 		shaderStageName, // pTargetProfile
 		arguments.data(), (uint32_t)arguments.size(), // pArguments, argCount
-		NULL, 0, // pDefines, defineCount
+		dxcMacroDefinePointer, dxcMacroDefine.size(), // pDefines, defineCount
 		&includeHandler, // pIncludeHandler
 		&result); // ppResult
-
 	LUNA_ASSERT(SUCCEEDED(hres));
 	result->GetResult(&code);
 	ComPtr<IDxcBlobEncoding> error;

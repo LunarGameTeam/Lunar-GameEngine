@@ -174,7 +174,12 @@ private:
 	RHIBindingSetPtr mBindingSet;
 	bool mBindingDirty = true;
 	bool mReady = false;
-	
+
+	RHIBindPoint GetBindPoint(ShaderParamID id) const;
+
+	RHICBufferDesc& GetConstantBufferDesc(ShaderParamID name);
+
+	bool HasBindPoint(ShaderParamID id) const;
 };
 }
 

@@ -148,7 +148,7 @@ bool VulkanShaderBlob::InitShader(const RHIShaderDesc& desc)
 	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
 	std::vector<uint32_t> shaderBytes;
 	Microsoft::WRL::ComPtr<IDxcBlob> code;
-	DxcCompile(desc.mType, desc.mName, desc.mContent, shaderBytes, code);
+	DxcCompile(desc.mType, desc.mName, desc.mContent, shaderBytes, code, desc.mShaderMacros);
 
 
 	InitDescriptor(shaderBytes);

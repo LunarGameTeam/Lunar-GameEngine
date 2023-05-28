@@ -205,11 +205,22 @@ public:
 	void FlushStaging();
 
 	RHIDescriptorPoolPtr GetDefaultDescriptorPool() { return mDefaultPool; }
+
+	RHICBufferDesc& GetDefaultShaderConstantBufferDesc(ShaderParamID name);
+
 	RHIBindingSetLayoutPtr mViewBindingSet;
 	SharedPtr<ShaderAsset> mDefaultShader;
+
+	SharedPtr<LShaderInstance> mDefaultShaderVertexInstance;
+	SharedPtr<LShaderInstance> mDefaultShaderFragmentInstance;
+
 	SharedPtr<ShaderAsset> mDefaultShaderPbr;
+	SharedPtr<LShaderInstance> mDefaultShaderVertexPbrInstance;
+	SharedPtr<LShaderInstance> mDefaultShaderFragmentPbrInstance;
 private:
 	RHIPipelineStatePtr CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& desc, RHIVertexLayout* layout);
+
+	
 
 	using PipelineCacheKey = std::pair<MaterialInstance*, size_t>;
 
