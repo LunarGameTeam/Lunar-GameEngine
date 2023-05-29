@@ -206,7 +206,7 @@ public:
 
 	RHIDescriptorPoolPtr GetDefaultDescriptorPool() { return mDefaultPool; }
 
-	RHICBufferDesc& GetDefaultShaderConstantBufferDesc(ShaderParamID name);
+	RHICBufferDesc GetDefaultShaderConstantBufferDesc(ShaderParamID name);
 
 	RHIBindingSetLayoutPtr mViewBindingSet;
 	SharedPtr<ShaderAsset> mDefaultShader;

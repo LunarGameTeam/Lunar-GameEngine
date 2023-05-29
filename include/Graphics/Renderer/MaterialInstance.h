@@ -177,7 +177,7 @@ private:
 
 	RHIBindPoint GetBindPoint(ShaderParamID id) const;
 
-	RHICBufferDesc& GetConstantBufferDesc(ShaderParamID name);
+	RHICBufferDesc GetConstantBufferDesc(ShaderParamID name);
 
 	bool HasBindPoint(ShaderParamID id) const;
 };

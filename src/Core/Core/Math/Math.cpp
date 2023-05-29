@@ -142,7 +142,7 @@ bool LAabb::IntersectRay(const LRay& ray)
 	return true;
 }
 
-LMatrix4f LMath::MatrixCompose(LVector3f& translation, LQuaternion& rotation, LVector3f& scale)
+LMatrix4f LMath::MatrixCompose(const LVector3f& translation, const LQuaternion& rotation, const LVector3f& scale)
 {
 	LTransform transformvalue;
 	transformvalue.setIdentity();

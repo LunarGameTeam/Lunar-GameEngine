@@ -560,7 +560,7 @@ RHIPipelineStatePtr RenderContext::CreatePipelineState(MaterialInstance* mat, co
 	return mPipelineCache.CreatePipeline(this,desc);
 }
 
-RHICBufferDesc& RenderContext::GetDefaultShaderConstantBufferDesc(ShaderParamID name)
+RHICBufferDesc RenderContext::GetDefaultShaderConstantBufferDesc(ShaderParamID name)
 {
 	if (mDefaultShaderVertexPbrInstance->GetRhiShader()->HasUniformBuffer(name))
 	{

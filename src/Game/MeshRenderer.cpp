@@ -134,9 +134,27 @@ void SkeletonMeshRenderer::SetMeshAsset(SkeletalMeshAsset* obj)
 	GetScene()->GetRenderScene()->SetRenderObjectMesh(mRO, mSkeletalMeshAsset->GetSubMeshAt(0));
 }
 
+void SkeletonMeshRenderer::GetSkeletonPoseMatrix(LArray<LMatrix4f>& poseMatrix)
+{
+	for (int32_t i = 0; i < mSkeletonAsset->GetBoneCount(); ++i)
+	{
+		const animation::LSingleBone& boneData = mSkeletonAsset->GetBone(i);
+		poseMatrix.push_back(LMath::MatrixCompose(boneData.mBaseTranslation, boneData.mBaseRotation, boneData.mBaseScal));
+	}
+}
+
 void SkeletonMeshRenderer::SetSkeletonAsset(animation::SkeletonAsset* obj)
 {
 	mSkeletonAsset = ToSharedPtr(obj);
+	if (mRO == uint64_t(-1))
+	{
+		return;
+	}
+	LString skeletonUniqueName = mSkeletonAsset->GetAssetPath();
+	GetScene()->GetRenderScene()->SetRenderObjectMeshSkletonCluster(mRO, mSkeletalMeshAsset->GetSubMeshAt(0), mSkeletonAsset->GetSearchIndex(), skeletonUniqueName);
+	LArray<LMatrix4f> allBoneMatrix;
+	GetSkeletonPoseMatrix(allBoneMatrix);
+	GetScene()->GetRenderScene()->SetRenderObjectAnimInstance(mRO, skeletonUniqueName, allBoneMatrix);
 }
 
 void SkeletonMeshRenderer::CreateRenderObject()
@@ -145,10 +163,17 @@ void SkeletonMeshRenderer::CreateRenderObject()
 	{
 		return;
 	}
-	mRO = GetScene()->GetRenderScene()->CreateRenderObject(
+	LString skeletonUniqueName = mSkeletonAsset->GetAssetPath();
+	LArray<LMatrix4f> allBoneMatrix;
+	GetSkeletonPoseMatrix(allBoneMatrix);
+	mRO = GetScene()->GetRenderScene()->CreateRenderObjectDynamic(
 		mMaterialInstance.Get(),
 		GetMeshAsset()->GetSubMeshAt(0),
-		mCastShadow,
+		mSkeletonAsset->GetSearchIndex(),
+		skeletonUniqueName,
+		skeletonUniqueName,
+		allBoneMatrix,
+		mCastShadow, 
 		&mTransform->GetLocalToWorldMatrix()
 	);
 

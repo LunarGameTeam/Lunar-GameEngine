@@ -29,6 +29,12 @@ namespace luna::animation
 		virtual void OnAssetFileWrite(LSharedPtr<JsonDict> meta, LArray<byte>& data) override;
 
 		void AddBoneToTree(const LSingleBone& boneData);
+
+		const LUnorderedMap<LString, int32_t>& GetSearchIndex() { return mSearchIndex; }
+
+		size_t GetBoneCount() { return mBoneTree.size(); }
+
+		const LSingleBone& GetBone(size_t index) { return mBoneTree[index]; };
 	private:
 		LArray<LSingleBone> mBoneTree;
 		LUnorderedMap<LString, int32_t> mSearchIndex;

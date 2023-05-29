@@ -41,6 +41,17 @@ namespace luna::render
 		void Init(SubMesh* meshData);
 	};
 
+	struct MeshSkeletonLinkClusterBase
+	{
+		LUnorderedMap<int32_t, int32_t> mSkinBoneIndex2SkeletonBoneIndex;
+		LArray<LMatrix4f> mBindposeMatrix;
+	};
+
+	struct AnimationInstanceMatrix
+	{
+		LArray<LMatrix4f> mBoneMatrix;
+	};
+
 	class ShaderParamSceneBuffer
 	{
 		//存储全部材质参数信息的buffer

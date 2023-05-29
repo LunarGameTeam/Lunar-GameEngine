@@ -305,7 +305,7 @@ RHIBindPoint MaterialInstance::GetBindPoint(ShaderParamID id) const
 	return curPixelShader->GetRhiShader()->GetBindPoint(id)->second;
 };
 
-RHICBufferDesc& MaterialInstance::GetConstantBufferDesc(ShaderParamID name)
+RHICBufferDesc MaterialInstance::GetConstantBufferDesc(ShaderParamID name)
 {
 	LShaderInstance* curVertexShader = mMaterialTemplate->GetShaderVertexInstance();
 	LShaderInstance* curPixelShader = mMaterialTemplate->GetShaderPixelInstance();

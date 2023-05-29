@@ -49,7 +49,7 @@ void SkeletonAsset::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile>
 		memcpy(&newBoneData.mParentIndex, ptr, sizeof(newBoneData.mParentIndex));
 		ptr += sizeof(newBoneData.mParentIndex);
 
-		mSearchIndex.insert({ newBoneData.mBoneName,mBoneTree.size() });
+		mSearchIndex.insert({ newBoneData.mBoneName,(int32_t)mBoneTree.size() });
 		mBoneTree.push_back(newBoneData);
 	}
 	OnLoad();
@@ -74,7 +74,7 @@ void SkeletonAsset::OnAssetFileWrite(LSharedPtr<JsonDict> meta, LArray<byte>& da
 
 void SkeletonAsset::AddBoneToTree(const LSingleBone& boneData)
 {
-	mSearchIndex.insert({ boneData.mBoneName,mBoneTree.size() });
+	mSearchIndex.insert({ boneData.mBoneName,(int32_t)mBoneTree.size() });
 	mBoneTree.push_back(boneData);
 
 };

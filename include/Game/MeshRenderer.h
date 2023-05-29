@@ -76,6 +76,8 @@ private:
 	SharedPtr<SkeletalMeshAsset> mSkeletalMeshAsset;
 
 	void CreateRenderObject() override;
+
+	void GetSkeletonPoseMatrix(LArray<LMatrix4f>& poseMatrix);
 };
 
 }
