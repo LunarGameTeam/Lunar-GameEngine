@@ -17,6 +17,20 @@
 namespace luna::render
 {
 
+AssetSceneData::AssetSceneData()
+{
+	RHIBufferDesc desc;
+	desc.mBufferUsage = RHIBufferUsage::StructureBuffer;
+	desc.mSize = sizeof(LMatrix4f) * 128;
+	mSkeletonResultBuffer = sRenderModule->mRenderContext->CreateBuffer(desc);
+	ViewDesc viewDesc;
+	viewDesc.mViewType = RHIViewType::kStructuredBuffer;
+	viewDesc.mViewDimension = RHIViewDimension::BufferView;
+	viewDesc.mStructureStride = sizeof(LMatrix4f);
+	mSkeletonResultBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
+	mSkeletonResultBufferView->BindResource(mSkeletonResultBuffer);
+}
+
 int32_t AssetSceneData::AddMeshData(SubMesh* meshData)
 {
 	LString primitiveName = GetSubmeshName(meshData);

@@ -24,6 +24,9 @@ cbuffer MaterialBuffer : register(b3, MATERIAL_SPACE0)
 	float3 _AlebdoColor;
 }
 
+#if USE_SKIN_VERTEX
+StructuredBuffer<float4x4> _SkinMatrix : register(t0, SKIN_SPACE0);
+#endif
 ////////////////////////////////////////////////////////////////////////////////
 // Vertex Shader
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +37,10 @@ BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
 	// Change the position vector to be 4 units for proper matrix calculations.
     float4 position = float4(input.position, 1.0);
 	matrix worldMatrix = cRoWorldMatrix[instanceID];
-
+#if USE_SKIN_VERTEX
+	float4x4 skinMatrix = _SkinMatrix[instanceID];
+	worldMatrix += skinMatrix *0.0001;
+#endif
 	// Calculate the position of the vertex against the world, view, and projection matrices.
     output.position = mul(position, worldMatrix);
 	output.viewDir = normalize(cCamPos - output.position.xyz);

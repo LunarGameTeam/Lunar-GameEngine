@@ -627,8 +627,8 @@ void RenderContext::DrawMeshInstanced(render::RenderMeshBase* mesh, render::Mate
 	ZoneScoped;
 	RHIVertexLayout layout = mesh->GetVertexLayout();
 	//todo:这里vulkan发现vertexinput和shader定义不一样长会报错，dx会直接crash
-	if(vertexInputInstanceRes)
-		layout.AddVertexElement(VertexElementType::Int, VertexElementUsage::UsageInstanceMessage, 4, 1, VertexElementInstanceType::PerInstance);
+	//if(vertexInputInstanceRes)
+	layout.AddVertexElement(VertexElementType::Int, VertexElementUsage::UsageInstanceMessage, 4, 1, VertexElementInstanceType::PerInstance);
 
 	auto pipeline = mat->GetPipeline(&layout, mCurRenderPass);
 	auto matBindingset = mat->GetBindingSet();

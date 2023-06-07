@@ -114,7 +114,7 @@ namespace luna::render
 	void MeshRenderCommandsPassData::DrawAllCommands(RHIView* sceneViewParamBuffer, const std::unordered_map<luna::render::ShaderParamID, luna::render::RHIView*>& shaderBindingParam)
 	{
 		for (int32_t visibleRoIndex = 0; visibleRoIndex < allVisibleCommandsRef.size(); ++visibleRoIndex)
-		{
+		{	
 			luna::render::RenderObject* drawRenderObject = mScene->GetRenderObjects().find(allVisibleCommandsRef[visibleRoIndex]->mRenderObjectId)->second;
 			int32_t mesh_id = drawRenderObject->mMeshIndex;
 			RenderMeshBase* renderMeshData = mScene->mSceneDataGpu.GetMeshData(mesh_id);

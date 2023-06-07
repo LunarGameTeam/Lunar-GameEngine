@@ -10,6 +10,8 @@
 #define MATERIAL_SPACE0 space4
 #define MATERIAL_SPACE1 space5
 
+#define SKIN_SPACE0 space6
+
 #ifndef USE_SKIN_VERTEX
 #define USE_SKIN_VERTEX 0
 #endif

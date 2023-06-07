@@ -228,7 +228,11 @@ void VulkanShaderBlob::InitDescriptor(std::vector<uint32_t>& shaderBytes)
 			else if (descriptorBinding.descriptor_type == SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLED_IMAGE)
 			{
 				key.mViewType = RHIViewType::kTexture;
-			}				
+			}
+			else if (descriptorBinding.descriptor_type == SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_BUFFER)
+			{
+				key.mViewType = RHIViewType::kStructuredBuffer;
+			}
 			else
 				assert(false);
 			
