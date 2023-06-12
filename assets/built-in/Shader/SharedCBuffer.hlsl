@@ -58,6 +58,10 @@ cbuffer ViewBuffer : register(b0, VIEW_SPACE0)
 	float3 cCamPos;
 };
 
+#if USE_SKIN_VERTEX
+StructuredBuffer<float4x4> SkinMatrixBuffer : register(t0, SKIN_SPACE0);
+#endif
+
 Texture2DArray _ShadowMap : register(t1, VIEW_SPACE0);
 Texture2DArray _DirectionLightShadowMap : register(t2, VIEW_SPACE0);
 

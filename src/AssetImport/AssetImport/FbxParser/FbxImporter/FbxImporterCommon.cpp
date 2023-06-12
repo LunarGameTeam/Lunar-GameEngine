@@ -4,9 +4,13 @@ namespace luna::lfbx
 {
 	void FbxEulaToQuaternion(const fbxsdk::FbxDouble3& in, LQuaternion& out)
 	{
-		out = Eigen::AngleAxisf(in.mData[0], Eigen::Vector3f::UnitX())
-			* Eigen::AngleAxisf(in.mData[1], Eigen::Vector3f::UnitY())
-			* Eigen::AngleAxisf(in.mData[2], Eigen::Vector3f::UnitZ());
+		FbxQuaternion q1;
+		FbxVector4 v(in[0], in[1], in[2]);
+		q1.ComposeSphericalXYZ(v);
+		out.x() = q1.GetAt(0);
+		out.y() = q1.GetAt(1);
+		out.z() = q1.GetAt(2);
+		out.w() = q1.GetAt(3);
 	}
 
 	void FbxVector3ToVector3(const fbxsdk::FbxDouble3& in, LVector3f& out)

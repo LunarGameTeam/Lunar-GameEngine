@@ -139,7 +139,12 @@ void SkeletonMeshRenderer::GetSkeletonPoseMatrix(LArray<LMatrix4f>& poseMatrix)
 	for (int32_t i = 0; i < mSkeletonAsset->GetBoneCount(); ++i)
 	{
 		const animation::LSingleBone& boneData = mSkeletonAsset->GetBone(i);
-		poseMatrix.push_back(LMath::MatrixCompose(boneData.mBaseTranslation, boneData.mBaseRotation, boneData.mBaseScal));
+		LMatrix4f worldSpacePose = LMath::MatrixCompose(boneData.mBaseTranslation, boneData.mBaseRotation, boneData.mBaseScal);
+		if (boneData.mParentIndex != uint32_t(-1))
+		{
+			worldSpacePose = poseMatrix[boneData.mParentIndex] * worldSpacePose;
+		}
+		poseMatrix.push_back(worldSpacePose);
 	}
 }
 

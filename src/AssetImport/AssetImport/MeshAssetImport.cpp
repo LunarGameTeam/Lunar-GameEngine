@@ -137,7 +137,7 @@ namespace luna::asset
 				float weight2Value = submeshData.mWeight[vertexIndex * asset::gSkinPerVertex + refId + 1];
 				uint16_t weight1ValueBit = LMath::NormalizedFloatToUnit16(weight1Value);
 				uint16_t weight2ValueBit = LMath::NormalizedFloatToUnit16(weight2Value);
-				uint32_t CombineWeightValueBit = LMath::CombineUint16(ref1ValueBit, ref2ValueBit);
+				uint32_t CombineWeightValueBit = LMath::CombineUint16(weight1ValueBit, weight2ValueBit);
 				newSkinData.mWeight[refId / 2] = CombineWeightValueBit;
 			}
 			skeletonPointer->mSkinData.push_back(newSkinData);

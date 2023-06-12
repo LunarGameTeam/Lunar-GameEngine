@@ -18,6 +18,7 @@ namespace luna::render
 {
 	PARAM_ID(SceneBuffer);
 	PARAM_ID(ViewBuffer);
+	PARAM_ID(SkinMatrixBuffer);
 	void RenderMeshBase::Init(SubMesh* meshData)
 	{
 		if (meshData->mVertexData.size() == 0 || meshData->mIndexData.size() == 0)
@@ -103,6 +104,11 @@ namespace luna::render
 
 			allVisibleCommandsRef[visibleRoIndex]->mMaterialInstance->SetShaderInput(ParamID_SceneBuffer, mScene->mSceneParamsBuffer->mView);
 			allVisibleCommandsRef[visibleRoIndex]->mMaterialInstance->SetShaderInput(ParamID_ViewBuffer, mView->mViewBuffer->mView);
+			if (drawRenderObject->mSkinClusterIndex != -1)
+			{
+				//mScene->mSceneDataGpu.GetMeshSkeletonLinkClusterData(,);
+				allVisibleCommandsRef[visibleRoIndex]->mMaterialInstance->SetShaderInput(ParamID_SkinMatrixBuffer, mScene->mSceneDataGpu.GetSkinMatrixBuffer());
+			}
 			for (auto& eachShaderParam : shaderBindingParam)
 			{
 				allVisibleCommandsRef[visibleRoIndex]->mMaterialInstance->SetShaderInput(eachShaderParam.first, eachShaderParam.second);

@@ -85,7 +85,9 @@ public:
 
 	AnimationInstanceMatrix* GetAnimationInstanceMatrixData(int32_t animInstanceId);
 
-	
+	RHIView* GetSkinMatrixBuffer() { return mSkeletonResultBufferView.get(); }
+
+	void Update();
 private:
 	LQueue<size_t> emptyMeshId;
 

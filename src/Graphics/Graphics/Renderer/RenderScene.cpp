@@ -131,6 +131,22 @@ LString AssetSceneData::GetClusterName(SubMesh* meshData, const LString& skeleto
 	return GetSubmeshName(meshData) + "_##_" + skeletonUniqueName;
 }
 
+void AssetSceneData::Update()
+{
+	AnimationInstanceMatrix* animationMatrixBuffer = mAnimationInstanceMatrixBuffer.GetData(0);
+	MeshSkeletonLinkClusterBase* beginbuffer = mMeshSkeletonLinkClusterBuffer.GetData(0);
+	LArray<LMatrix4f> skinMatrixResult;
+	for(int32_t i = 0;i < beginbuffer->mBindposeMatrix.size(); ++i)
+	{
+		LMatrix4f skinRefMatrix = beginbuffer->mBindposeMatrix[i];
+		int32_t animationBoneId = beginbuffer->mSkinBoneIndex2SkeletonBoneIndex[i];
+		LMatrix4f animationMatrix = animationMatrixBuffer->mBoneMatrix[animationBoneId];
+		skinMatrixResult.push_back(skinRefMatrix * animationMatrix);
+
+	}
+	sRenderModule->GetRenderContext()->UpdateConstantBuffer(mSkeletonResultBuffer, skinMatrixResult.data(), skinMatrixResult.size() * sizeof(LMatrix4f));
+}
+
 RenderScene::RenderScene()
 {
 
@@ -288,6 +304,7 @@ RenderView* RenderScene::CreateRenderView()
 
 void RenderScene::Render(FrameGraphBuilder* FG)
 {
+	mSceneDataGpu.Update();
 	for (auto data : mDatas)
 	{
 		data->PerSceneUpdate(this);

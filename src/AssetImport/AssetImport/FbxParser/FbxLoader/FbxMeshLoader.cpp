@@ -393,7 +393,8 @@ namespace luna::lfbx
 			FbxAMatrix transformMatrix, transformLinkMatrix;
 			pCluster->GetTransformMatrix(transformMatrix);
 			pCluster->GetTransformLinkMatrix(transformLinkMatrix);
-			FbxAMatrix poseMat = transformLinkMatrix.Inverse() * transformMatrix;
+			FbxAMatrix linkMatInv = transformLinkMatrix.Inverse();
+			FbxAMatrix poseMat = linkMatInv * transformMatrix;
 			SetBonePoseMatrix(skeletonIndex, poseMat);
 
 			//这里把每个骨骼影响到的顶点的蒙皮信息存储下来
@@ -440,8 +441,10 @@ namespace luna::lfbx
 		Geometry.SetS(Scaling);
 		newMesh->SetMatrixGeometry(Geometry);
 		//设置材质引用信息
+		bool hasMaterial = false;
 		if (pMesh->GetElementMaterial())
 		{
+			hasMaterial = true;
 			newMesh->SetMaterialDataType(pMesh->GetElementMaterial()->GetMappingMode());
 			newMesh->SetMaterialRefCount(pNode->GetMaterialCount());
 		}
@@ -561,13 +564,14 @@ namespace luna::lfbx
 		for (int triangleId = 0; triangleId < triangleCount; ++triangleId)
 		{
 			FbxFaceData newFace;
-			if (newMesh->GetMaterialRefType() == FbxLayerElement::EMappingMode::eAllSame)
+			if (!hasMaterial || newMesh->GetMaterialRefType() == FbxLayerElement::EMappingMode::eAllSame)
 			{
 				newFace.mMaterialIndex = 0;
 			}
 			else
 			{
-				newFace.mMaterialIndex = pMesh->GetElementMaterial()->GetIndexArray()[triangleId];
+				FbxGeometryElementMaterial* elementMaterial = pMesh->GetElementMaterial();
+				newFace.mMaterialIndex = elementMaterial->GetIndexArray()[triangleId];
 			}
 			if(newMesh->GetMaterialCount() < newFace.mMaterialIndex + 1)
 			{
