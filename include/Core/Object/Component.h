@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Core/Object/BaseObject.h"
 
@@ -18,12 +18,14 @@ public:
 
 	Component(const Component &comp) = delete;
 
-	inline Entity *GetEntity()
+	Entity *GetEntity()
 	{
 		return mOwnerEntity;
 	}
-	void Destroy();
-	Scene *GetScene();
+
+	void   Destroy();
+	Scene* GetScene();
+
 	virtual void OnDeactivate();
 	virtual void OnActivate();
 	virtual void OnCreate();

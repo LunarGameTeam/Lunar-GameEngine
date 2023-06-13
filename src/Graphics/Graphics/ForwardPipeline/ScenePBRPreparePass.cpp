@@ -1,4 +1,4 @@
-#include "Graphics/Renderer/MaterialInstance.h"
+﻿#include "Graphics/Renderer/MaterialInstance.h"
 #include "Graphics/Asset/MeshAsset.h"
 #include "Graphics/Asset/MaterialTemplate.h"
 
@@ -67,8 +67,8 @@ void PBRPreparePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* r
 	static auto irrMat = sAssetModule->LoadAsset<MaterialTemplateAsset>(
 		"/assets/built-in/IrradianceCube.mat");
 	static SharedPtr<MeshAsset> cubeMeshAsset = sAssetModule->LoadAsset<MeshAsset>("/assets/built-in/Geometry/Box.lmesh");
-	static int32_t cubeMeshID = renderScene->mSceneDataGpu.AddMeshData(cubeMeshAsset->GetSubMeshAt(0));
-	static RenderMeshBase* cubeRenderMesh = renderScene->mSceneDataGpu.GetMeshData(cubeMeshID);
+	static int32_t cubeMeshID = renderScene->GetData<AssetSceneData>()->AddMeshData(cubeMeshAsset->GetSubMeshAt(0));
+	static RenderMeshBase* cubeRenderMesh = renderScene->GetData<AssetSceneData>()->GetMeshData(cubeMeshID);
 
 
 	static LArray<MaterialInstance*> iradMatInstance;

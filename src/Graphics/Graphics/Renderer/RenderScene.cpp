@@ -1,4 +1,4 @@
-#include "Graphics/Renderer/RenderScene.h"
+ï»¿#include "Graphics/Renderer/RenderScene.h"
 #include "Graphics/RenderModule.h"
 
 #include "Graphics/Asset/MeshAsset.h"
@@ -140,12 +140,12 @@ LString AssetSceneData::GetClusterName(SubMesh* meshData, const LString& skeleto
 	return GetSubmeshName(meshData) + "_##_" + skeletonUniqueName;
 }
 
-void AssetSceneData::Update()
+void AssetSceneData::PerSceneUpdate(RenderScene* renderScene)
 {
 	AnimationInstanceMatrix* animationMatrixBuffer = mAnimationInstanceMatrixBuffer.GetData(0);
 	MeshSkeletonLinkClusterBase* beginbuffer = mMeshSkeletonLinkClusterBuffer.GetData(0);
 	LArray<LMatrix4f> skinMatrixResult;
-	for(int32_t i = 0;i < beginbuffer->mBindposeMatrix.size(); ++i)
+	for (int32_t i = 0; i < beginbuffer->mBindposeMatrix.size(); ++i)
 	{
 		LMatrix4f skinRefMatrix = beginbuffer->mBindposeMatrix[i];
 		int32_t animationBoneId = beginbuffer->mSkinBoneIndex2SkeletonBoneIndex[i];
@@ -158,9 +158,8 @@ void AssetSceneData::Update()
 
 RenderScene::RenderScene()
 {
-
+	RequireData<AssetSceneData>();
 }
-
 
 uint64_t RenderScene::CreateRenderObject(MaterialInstance* mat, SubMesh* meshData, bool castShadow, LMatrix4f* worldMat)
 {
@@ -175,12 +174,12 @@ uint64_t RenderScene::CreateRenderObject(MaterialInstance* mat, SubMesh* meshDat
 		mRoIndex.pop();
 	}
 	ro->mID = mRenderObjects.size();
-	ro->mMeshIndex = mSceneDataGpu.AddMeshData(meshData);
+	ro->mMeshIndex = GetData<AssetSceneData>()->AddMeshData(meshData);
 	ro->mMaterial = mat;
 	ro->mWorldMat = worldMat;
 	ro->mCastShadow = castShadow;
-	mRenderObjects.insert({ ro->mID,ro});
-	UpdateRenderObject(ro->mID);
+	mRenderObjects.insert({ ro->mID,ro });
+	mDirtyROs.insert(ro);
 	return ro->mID;
 }
 
@@ -201,34 +200,24 @@ uint64_t RenderScene::CreateRenderObjectDynamic(
 	return newRoId;
 }
 
-void RenderScene::UpdateRenderObject(uint64_t roId)
-{
-	for (int32_t passType = 0; passType < MeshRenderPass::AllNum; ++passType)
-	{
-		MeshRenderPass meshRenderPass = static_cast<MeshRenderPass>(passType);
-		RoPassProcessorBase* roPassGen = RoPassProcessorManager::GetInstance()->GetPassProcessor(meshRenderPass)(this, meshRenderPass);
-		roPassGen->AddRenderObject(mRenderObjects[roId]);
-	}
-}
-
 void RenderScene::SetRenderObjectMesh(uint64_t roId, SubMesh* meshData)
 {
-	mRenderObjects[roId]->mMeshIndex = mSceneDataGpu.AddMeshData(meshData);
+	mRenderObjects[roId]->mMeshIndex = GetData<AssetSceneData>()->AddMeshData(meshData);
 }
 
 void RenderScene::SetRenderObjectMeshSkletonCluster(uint64_t roId, SubMesh* meshData, const LUnorderedMap<LString, int32_t>& skeletonId, const LString& skeletonUniqueName)
 {
-	mRenderObjects[roId]->mSkinClusterIndex = mSceneDataGpu.AddMeshSkeletonLinkClusterData(meshData, skeletonId, skeletonUniqueName);
+	mRenderObjects[roId]->mSkinClusterIndex = GetData<AssetSceneData>()->AddMeshSkeletonLinkClusterData(meshData, skeletonId, skeletonUniqueName);
 }
 
 void RenderScene::SetRenderObjectAnimInstance(uint64_t roId, const LString& animaInstanceUniqueName, const LArray<LMatrix4f>& allBoneMatrix)
 {
-	mRenderObjects[roId]->mAnimInstanceIndex = mSceneDataGpu.AddAnimationInstanceMatrixData(animaInstanceUniqueName, allBoneMatrix);
+	mRenderObjects[roId]->mAnimInstanceIndex = GetData<AssetSceneData>()->AddAnimationInstanceMatrixData(animaInstanceUniqueName, allBoneMatrix);
 }
 
 void RenderScene::UpdateRenderObjectAnimInstance(uint64_t roId, const LArray<LMatrix4f>& allBoneMatrix)
 {
-	mSceneDataGpu.UpdateAnimationInstanceMatrixData(mRenderObjects[roId]->mAnimInstanceIndex, allBoneMatrix);
+	GetData<AssetSceneData>()->UpdateAnimationInstanceMatrixData(mRenderObjects[roId]->mAnimInstanceIndex, allBoneMatrix);
 }
 
 void RenderScene::SetRenderObjectCastShadow(uint64_t roId, bool castShadow)
@@ -244,7 +233,7 @@ void RenderScene::SetRenderObjectTransformRef(uint64_t roId, LMatrix4f* worldMat
 void RenderScene::SetRenderObjectMaterial(uint64_t roId, MaterialInstance* mat)
 {
 	mRenderObjects[roId]->mMaterial = mat;
-	UpdateRenderObject(roId);
+	mDirtyROs.insert(mRenderObjects[roId]);
 }
 
 void RenderScene::PrepareScene()
@@ -254,7 +243,7 @@ void RenderScene::PrepareScene()
 		return;
 
 	uint32_t shadowmapIdx = 0;
-	//todo:ÕâÀïdx»á³öÏÖ±äÁ¿±»ÓÅ»¯µÄÇé¿ö
+	//todo:è¿™é‡Œdxä¼šå‡ºçŽ°å˜é‡è¢«ä¼˜åŒ–çš„æƒ…å†µ
 	if (mSceneParamsBuffer == nullptr)
 		mSceneParamsBuffer = new ShaderCBuffer(sRenderModule->GetRenderContext()->GetDefaultShaderConstantBufferDesc(LString("SceneBuffer").Hash()));
 	if (mROIDInstancingBuffer == nullptr)
@@ -267,16 +256,16 @@ void RenderScene::PrepareScene()
 	}
 	else
 	{
-		mSceneParamsBuffer->Set("cDirectionLightColor", LVector4f(0,0,0,0));
-	}	
-	
+		mSceneParamsBuffer->Set("cDirectionLightColor", LVector4f(0, 0, 0, 0));
+	}
+
 	mSceneParamsBuffer->Set("cPointLightsCount", mPointLights.size());
 	mSceneParamsBuffer->Set("cShadowmapCount", 0);
 	for (int i = 0; i < mPointLights.size(); i++)
 	{
 		PointLight* light = mPointLights[i];
-		if(light->mCastShadow)
-			mSceneParamsBuffer->Set("cShadowmapCount", 6);  
+		if (light->mCastShadow)
+			mSceneParamsBuffer->Set("cShadowmapCount", 6);
 
 		mSceneParamsBuffer->Set("cPointLights", light->mPosition, i, 0);
 		mSceneParamsBuffer->Set("cPointLights", LMath::sRGB2LinearColor(light->mColor), i, 16);
@@ -284,13 +273,18 @@ void RenderScene::PrepareScene()
 	}
 	mSceneParamsBuffer->Set("cAmbientColor", LMath::sRGB2LinearColor(mAmbientColor));
 	for (auto& ro : mRenderObjects)
-	{		
+	{
 		uint32_t idx = ro.second->mID;
-		mSceneParamsBuffer->Set("cRoWorldMatrix", * ro.second->mWorldMat, idx);
+		mSceneParamsBuffer->Set("cRoWorldMatrix", *ro.second->mWorldMat, idx);
 		mROIDInstancingBuffer->Set(idx * sizeof(uint32_t) * 4, idx);
 	}
-	
-	
+
+
+}
+
+void RenderScene::Init()
+{
+
 }
 
 DirectionLight* RenderScene::CreateMainDirLight()
@@ -318,7 +312,6 @@ RenderView* RenderScene::CreateRenderView()
 
 void RenderScene::Render(FrameGraphBuilder* FG)
 {
-	mSceneDataGpu.Update();
 	for (auto data : mDatas)
 	{
 		data->PerSceneUpdate(this);
@@ -328,7 +321,7 @@ void RenderScene::Render(FrameGraphBuilder* FG)
 
 	for (RenderView* renderView : mViews)
 	{
-		renderView->PrepareView();	
+		renderView->PrepareView();
 	}
 
 	Debug();
@@ -356,8 +349,8 @@ void RenderScene::DestroyRenderView(RenderView* renderView)
 	for (auto it = mViews.begin(); it != mViews.end(); ++it)
 	{
 		if (renderView == *it)
-		{			
-			mViews.erase(it);			
+		{
+			mViews.erase(it);
 			delete renderView;
 			return;
 		}
@@ -374,7 +367,7 @@ void RenderScene::DestroyLight(Light* ro)
 			delete ro;
 			break;
 		}
-	}	
+	}
 	mBufferDirty = true;
 }
 
@@ -386,7 +379,7 @@ void RenderScene::DestroyRenderObject(uint64_t ro)
 		mRoIndex.push(check->first);
 		delete check->second;
 		mRenderObjects.erase(check);
-		
+
 	}
 	mBufferDirty = true;
 }
@@ -467,54 +460,13 @@ void RenderScene::Debug()
 				AddLineToSubMesh(f.mFarPlane[2], f.mFarPlane[3], mDebugMeshLine);
 				AddLineToSubMesh(f.mFarPlane[3], f.mFarPlane[0], mDebugMeshLine);
 			}
-			
+
 		}
-		AddCubeWiredToSubMesh(mDebugMeshLine,light->mPosition, LVector3f(1, 1, 1), light->mColor);
+		AddCubeWiredToSubMesh(mDebugMeshLine, light->mPosition, LVector3f(1, 1, 1), light->mColor);
 	}
 
 	mDebugMeshData.Init(&mDebugMesh);
 	mDebugMeshLineData.Init(&mDebugMeshLine);
-}
-
-RoPassProcessorBase::RoPassProcessorBase(RenderScene* scene, MeshRenderPass passType) : mScene(scene), mPassType(passType)
-{
-
-}
-
-void RoPassProcessorBase::BuildMeshRenderCommands(
-	RenderObject* renderObject,
-	MaterialInstance* materialInstance
-)
-{
-	size_t newCommandId = mScene->mAllMeshDrawCommands[mPassType].AddCommand(renderObject, materialInstance);
-	renderObject->mAllCommandsIndex.insert({ mPassType,newCommandId });
-}
-
-RoPassProcessorManager* RoPassProcessorManager::mInstance = nullptr;
-
-RoPassProcessorManager::RoPassProcessorManager()
-{
-
-}
-
-RoPassProcessorManager* RoPassProcessorManager::GetInstance()
-{
-	if (mInstance == nullptr)
-	{
-		mInstance = new RoPassProcessorManager();
-		mInstance->Init();
-	}
-	return mInstance;
-}
-
-void RoPassProcessorManager::RegistorPassProcessor(MeshRenderPass passType, MeshPassProcessorCreateFunction passProcessorGenerator)
-{
-	mAllPassProcessor.insert({ passType ,passProcessorGenerator });
-}
-
-MeshPassProcessorCreateFunction RoPassProcessorManager::GetPassProcessor(MeshRenderPass passType)
-{
-	return mAllPassProcessor[passType];
 }
 
 }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Core/CoreMin.h"
 #include "Core/Foundation/MemoryHash.h"

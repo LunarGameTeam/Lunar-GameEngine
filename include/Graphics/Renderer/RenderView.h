@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Graphics/Renderer/RenderMesh.h"
 #include "Graphics/RenderConfig.h"
 #include "Graphics/RenderTypes.h"
@@ -30,8 +30,7 @@ class RENDER_API RenderView : public RenderDataContainer
 public:
 	RenderView();
 	~RenderView() = default;
-
-	MeshRenderCommandsPassData mMeshRenderCommandsPass[MeshRenderPass::AllNum];
+	
 public:
 	void Culling(RenderScene* scene);
 	void Render(RenderScene* scene, FrameGraphBuilder* FG);

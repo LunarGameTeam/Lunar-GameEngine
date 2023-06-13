@@ -1,4 +1,4 @@
-#include "Graphics/Renderer/MaterialInstance.h"
+ï»¿#include "Graphics/Renderer/MaterialInstance.h"
 #include "Graphics/Asset/MeshAsset.h"
 #include "Graphics/Asset/MaterialTemplate.h"
 
@@ -22,29 +22,17 @@ namespace luna::render
 PARAM_ID(SceneBuffer);
 PARAM_ID(ViewBuffer);
 PARAM_ID(MaterialBuffer);
-class OpaquePassProcessor : public RoPassProcessorBase
-{
-public:
-	OpaquePassProcessor(RenderScene* scene, MeshRenderPass passType);
-	void AddRenderObject(RenderObject* renderObject) override;
-};
-OpaquePassProcessor::OpaquePassProcessor(RenderScene* scene, MeshRenderPass passType) : RoPassProcessorBase(scene, passType)
-{
 
-}
-void OpaquePassProcessor::AddRenderObject(RenderObject* renderObject)
-{
-	BuildMeshRenderCommands(renderObject, renderObject->mMaterial);
-}
-RoPassProcessorBase* OpaquePassProcessorCreateFunction(RenderScene* scene, MeshRenderPass passType)
-{
-	return new OpaquePassProcessor(scene, passType);
-}
 void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene)
 {
 	
 	auto& node = builder->AddPass("Opaque");
-	
+	auto meshCmds = view->RequireData<MeshPassDrawData>();
+	meshCmds->SetROFilter(MeshRenderPass::LightingPass, [](RenderObject*ro)->bool
+	{
+		return true;		
+	});
+
 	FGResourceView* shadowmapView = nullptr;	
 	FGResourceView* directionalShadowmapView = nullptr;
 	FGResourceView* lutView = nullptr;
@@ -106,8 +94,8 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 	node.SetDepthStencilAttachment(depthView);
 
 	static auto sSkyboxMesh = sAssetModule->LoadAsset<MeshAsset>("/assets/built-in/Geometry/Sphere.lmesh");	
-	static int32_t sSkyboxMeshID = renderScene->mSceneDataGpu.AddMeshData(sSkyboxMesh->GetSubMeshAt(0));
-	static RenderMeshBase* sSkyboxRenderMesh = renderScene->mSceneDataGpu.GetMeshData(sSkyboxMeshID);
+	static int32_t sSkyboxMeshID = renderScene->GetData<AssetSceneData>()->AddMeshData(sSkyboxMesh->GetSubMeshAt(0));
+	static RenderMeshBase* sSkyboxRenderMesh = renderScene->GetData<AssetSceneData>()->GetMeshData(sSkyboxMeshID);
 
 	node.ExcuteFunc([=](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
 	{
@@ -120,7 +108,7 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 		PARAM_ID(_DirectionLightShadowMap);
 		PARAM_ID(_IrradianceTex);
 
-		//»­Ìì¿ÕºÐ×Ó
+		//ç”»å¤©ç©ºç›’å­
 		if (renderScene->mSkyboxMaterial)
 		{
 			MaterialInstance* mat = renderScene->mSkyboxMaterial;
@@ -143,7 +131,8 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 			shaderBindingParam.insert({ ParamID__LUTTex ,lutView->mRHIView.get() });
 		if (irradianceView)
 			shaderBindingParam.insert({ ParamID__IrradianceTex ,irradianceView->mRHIView.get() });
-		view->mMeshRenderCommandsPass[MeshRenderPass::LightingPass].DrawAllCommands(shaderBindingParam);
+
+		view->RequireData<MeshPassDrawData>()->DrawMeshs(MeshRenderPass::LightingPass, shaderBindingParam, nullptr);
 		
 	});
 }

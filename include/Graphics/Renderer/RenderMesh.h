@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Graphics/RenderConfig.h"
 #include "Graphics/RenderTypes.h"
 
@@ -6,14 +6,15 @@
 #include "Core/Foundation/String.h"
 #include "Graphics/RHI/RHIResource.h"
 #include "Graphics/RHI/RHIDescriptor.h"
-#include "Graphics/RHI/RHICmdList.h"
+#include "Graphics/Renderer/MaterialInstance.h"
 #include <functional>
 
+#include "RenderData.h"
 
 
 namespace luna::render
 {
-	//ÕâÀï±ê¼ÇÁË³¡¾°äÖÈ¾Æ÷ÓÃµ½µÄËùÓĞµÄmeshÏà¹ØµÄrenderpass
+	//è¿™é‡Œæ ‡è®°äº†åœºæ™¯æ¸²æŸ“å™¨ç”¨åˆ°çš„æ‰€æœ‰çš„meshç›¸å…³çš„renderpass
 	enum MeshRenderPass
 	{
 		DirectLightShadowDepthPass = 0,
@@ -24,10 +25,10 @@ namespace luna::render
 
 	class RenderMeshBase
 	{
-		size_t mVertexSize = 0;
-		RHIResourcePtr mVB;
-		size_t mIndexSize = 0;
-		RHIResourcePtr mIB;
+		size_t          mVertexSize = 0;
+		RHIResourcePtr  mVB;
+		size_t          mIndexSize  = 0;
+		RHIResourcePtr  mIB;
 		RHIVertexLayout mVeretexLayout;
 	public:
 		size_t GetStridePerVertex() { return mVeretexLayout.GetSize()[0]; };
@@ -54,16 +55,16 @@ namespace luna::render
 
 	class ShaderParamSceneBuffer
 	{
-		//´æ´¢È«²¿²ÄÖÊ²ÎÊıĞÅÏ¢µÄbuffer
+		//å­˜å‚¨å…¨éƒ¨æè´¨å‚æ•°ä¿¡æ¯çš„buffer
 		RHIResourcePtr shaderParamBuffer;
-		//´æ´¢È«²¿²ÄÖÊÌùÍ¼ĞÅÏ¢µÄview
+		//å­˜å‚¨å…¨éƒ¨æè´¨è´´å›¾ä¿¡æ¯çš„view
 		LArray<RHIViewPtr> shaderParamTexture;
-		//Ã¿¸ö²ÄÖÊ²ÎÊıµÄ´óĞ¡
+		//æ¯ä¸ªæè´¨å‚æ•°çš„å¤§å°
 		size_t perElementSize;
 
 	};
 
-	class MeshRenderCommand
+	class MeshDrawCommand
 	{
 	public:
 		size_t mRenderObjectId;
@@ -71,7 +72,7 @@ namespace luna::render
 		size_t mCanBatchHash;
 	};
 
-	class MeshRenderCommandsPacket
+	class PerPassDrawCmds
 	{
 	public:
 		size_t AddCommand(
@@ -79,26 +80,37 @@ namespace luna::render
 			MaterialInstance* materialInstance
 		);
 
-		const LUnorderedMap<uint64_t, MeshRenderCommand>& GetCommands()const { return mAllCommands; }
+		const LUnorderedMap<uint64_t, MeshDrawCommand>& GetCommands()const { return mAllCommands; }
 	private:
 		LQueue<size_t> mEmptyId;
-		LUnorderedMap<uint64_t, MeshRenderCommand> mAllCommands;
+		LUnorderedMap<uint64_t, MeshDrawCommand> mAllCommands;
 		LUnorderedMap<uint64_t, uint64_t> mRoCommandIndex;
 	};
-
-	class MeshRenderCommandsPassData
+	
+	class MeshPassDrawData : public RenderData
 	{
-		RenderScene* mScene = nullptr;
-		RenderView*  mView = nullptr;
-		LArray<const MeshRenderCommand*> allVisibleCommandsRef;
 	public:
-		void DrawAllCommands(const std::unordered_map<luna::render::ShaderParamID, luna::render::RHIView*> &shaderBindingParam);
-		//ÔİÊ±Ìí¼ÓÒ»¸ö¿ÉÒÔ´«ÈëÖ¸¶¨scene viewµÄ½Ó¿ÚÓÃÓÚÒõÓ°ÕâÖÖäÖÈ¾ºÍ²Ã¼ôµÄview²»Í¬µÄÇé¿ö£¬ºóÃæ¿´¿´ÓĞÃ»ÓĞ°ì·¨È¥µô
-		void DrawAllCommands(RHIView* sceneViewParamBuffer, const std::unordered_map<luna::render::ShaderParamID, luna::render::RHIView*>& shaderBindingParam);
-		void AddCommand(const MeshRenderCommand* data);
-		void ClearCommand();
-		void SetScene(RenderScene* scene) { mScene = scene; }
-		void SetView(RenderView* view) { mView = view; }
+		using ROFilterFunc = std::function<bool(RenderObject*)>;
+
+		LArray<const MeshDrawCommand*> allVisibleCommandsRef[MeshRenderPass::AllNum];
+		PerPassDrawCmds                mAllMeshDrawCommands[MeshRenderPass::AllNum];
+		MaterialInstance*              mOverrideMaterialInst[MeshRenderPass::AllNum] = {nullptr};
+		ROFilterFunc                   mFilters[MeshRenderPass::AllNum];
+		RenderScene*                   mScene = nullptr;
+		RenderView*                    mView  = nullptr;
+
+		void DrawMeshs(MeshRenderPass pass, const std::unordered_map<luna::render::ShaderParamID, luna::render::RHIView*>& shaderBindingParam, RHIView* temp);
+
+		void SetROFilter(MeshRenderPass pass, ROFilterFunc func)
+		{
+			mFilters[pass] = func;			
+		}
+		void SetOverrideMaterialInstance(MeshRenderPass pass, MaterialInstance* mat)
+		{
+			mOverrideMaterialInst[pass] = mat;
+		}
+
+		void PerViewUpdate(RenderView* renderView) override;
 	};
 
 

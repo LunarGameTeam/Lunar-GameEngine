@@ -1,4 +1,4 @@
-#include "Graphics/Renderer/RenderView.h"
+﻿#include "Graphics/Renderer/RenderView.h"
 
 #include "Core/Asset/AssetModule.h"
 
@@ -38,16 +38,6 @@ void RenderView::PrepareView()
 
 void RenderView::Culling(RenderScene* scene)
 {
-	for(size_t eachPassIndex =0; eachPassIndex < MeshRenderPass::AllNum; ++eachPassIndex)
-	{
-		mMeshRenderCommandsPass[eachPassIndex].ClearCommand();
-		mMeshRenderCommandsPass[eachPassIndex].SetScene(scene);
-		mMeshRenderCommandsPass[eachPassIndex].SetView(this);
-		for(auto& eachCommand : scene->mAllMeshDrawCommands[eachPassIndex].GetCommands())
-		{
-			mMeshRenderCommandsPass[eachPassIndex].AddCommand(&eachCommand.second);
-		}
-	}
 
 	//mViewVisibleROs.clear();
 	//mViewVisibleROs = scene->GetRenderObjects();

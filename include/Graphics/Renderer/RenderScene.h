@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Core/CoreMin.h"
 
 #include "Graphics/RenderConfig.h"
@@ -61,12 +61,12 @@ public:
 		return curData->second.get();
 	}
 };
-class AssetSceneData
+class AssetSceneData : public RenderData
 {
 public:
 	AssetSceneData();
 	LUnorderedMap<LString, ShaderParamSceneBuffer> materialBuffer;
-	//meshÏÖÔÚÏÈÖ»Ìí¼Ó²»É¾³ı£¬ÓĞÊ±¼äÔÙ´¦ÀíroÀë¿ª³¡¾°ÔõÃ´É¾³ı¶ÔÓ¦µÄscene×ÊÔ´µÄÎÊÌâ
+	//meshç°åœ¨å…ˆåªæ·»åŠ ä¸åˆ é™¤ï¼Œæœ‰æ—¶é—´å†å¤„ç†roç¦»å¼€åœºæ™¯æ€ä¹ˆåˆ é™¤å¯¹åº”çš„sceneèµ„æºçš„é—®é¢˜
 	int32_t AddMeshData(SubMesh* meshData);
 
 	int32_t GetMeshDataId(SubMesh* meshData);
@@ -89,7 +89,9 @@ public:
 
 	RHIView* GetSkinMatrixBuffer() { return mSkeletonResultBufferView.get(); }
 
-	void Update();
+public:
+	void PerSceneUpdate(RenderScene* renderScene) override;
+
 private:
 	LQueue<size_t> emptyMeshId;
 
@@ -104,7 +106,7 @@ private:
 	LString GetClusterName(SubMesh* meshData, const LString& skeletonUniqueName);
 
 	RHIResourcePtr mSkeletonResultBuffer;
-	RHIViewPtr mSkeletonResultBufferView;
+	RHIViewPtr     mSkeletonResultBufferView;
 };
 
 struct RENDER_API RenderObject
@@ -125,11 +127,11 @@ class RENDER_API RenderScene final : public RenderDataContainer
 {
 public:
 	RenderScene();
-	~RenderScene();;	
+	virtual ~RenderScene();
 
 	void Render(FrameGraphBuilder* FG);
-	//ÔİÊ±ÏÈ¹Ì¶¨mesh passÔÚÃ¶¾ÙÈ·¶¨£¬ºóÃæÔÙ¿´ÔõÃ´ÍØÕ¹
-	MeshRenderCommandsPacket mAllMeshDrawCommands[MeshRenderPass::AllNum];
+	//æš‚æ—¶å…ˆå›ºå®šmesh passåœ¨æšä¸¾ç¡®å®šï¼Œåé¢å†çœ‹æ€ä¹ˆæ‹“å±•
+	PerPassDrawCmds mAllMeshDrawCommands[MeshRenderPass::AllNum];
 public:
 	
 	void Init();
@@ -184,6 +186,7 @@ public:
 	size_t      GetRenderViewNum() const          { return mViews.size(); }
 	auto&       GetRenderObjects() const          { return mRenderObjects; };
 	auto&       GetAllView() const                { return mViews; };
+	auto&		GetDirtyRos() {return mDirtyROs;}
 
 
 	ShaderCBuffer* mSceneParamsBuffer    = nullptr;
@@ -193,20 +196,19 @@ public:
 	//SubMesh*            mDebugMeshLine        = nullptr;
 	//SubMesh*            mDebugMesh            = nullptr;
 
-	//ÏÈ²»×öCulling£¬ÕâÀïÓ¦¸Ã½»¸øView½øĞĞCulling²¢½øĞĞID¸üĞÂ
+	//å…ˆä¸åšCullingï¼Œè¿™é‡Œåº”è¯¥äº¤ç»™Viewè¿›è¡ŒCullingå¹¶è¿›è¡ŒIDæ›´æ–°
 	
 	RHIResourcePtr      mIDInstanceBuffer;
 
-	//Main·½Ïò¹â
+	//Mainæ–¹å‘å…‰
 	DirectionLight*     mMainDirLight   = nullptr;
 	//Point Lights
 	LArray<PointLight*> mPointLights;
-	//»·¾³¹â
+	//ç¯å¢ƒå…‰
 	LVector4f           mAmbientColor   = LVector4f(0.05, 0.05, 0.05, 1.0);
 	//Skybox
 	MaterialInstance*   mSkyboxMaterial = nullptr;
-
-	AssetSceneData      mSceneDataGpu;
+	
 protected:
 	void PrepareScene();
 	void Debug();
@@ -217,37 +219,7 @@ private:
 	LQueue<uint64_t> mRoIndex;
 	LUnorderedMap<uint64_t, RenderObject* > mRenderObjects;
 	ViewArray       mViews;
+
+	LSet<RenderObject*> mDirtyROs;
 };
-
-//Ò»¸ö¼òµ¥µÄpass´¦ÀíRoµÄ»ùÀà£¬ÔİÊ±²»¿¼ÂÇÅÅĞò¼°×Ô¶¨ÒåÊı¾İµÄ¹¦ÄÜ
-class RoPassProcessorBase
-{
-	RenderScene* mScene;
-	MeshRenderPass mPassType;
-public:
-	RoPassProcessorBase(RenderScene* scene, MeshRenderPass passType);
-
-	virtual void AddRenderObject(RenderObject* renderObject) = 0;
-
-	void BuildMeshRenderCommands(
-		RenderObject* renderObject,
-		MaterialInstance* materialInstance
-	);
-};
-
-typedef RoPassProcessorBase* (*MeshPassProcessorCreateFunction)(RenderScene* scene, MeshRenderPass passType);
-
-class RoPassProcessorManager
-{
-	LUnorderedMap<MeshRenderPass, MeshPassProcessorCreateFunction> mAllPassProcessor;
-	static RoPassProcessorManager* mInstance;
-	RoPassProcessorManager();
-	void Init();
-public:
-	void RegistorPassProcessor(MeshRenderPass passType, MeshPassProcessorCreateFunction passProcessorGenerator);
-	MeshPassProcessorCreateFunction GetPassProcessor(MeshRenderPass passType);
-	
-	static RoPassProcessorManager* GetInstance();
-};
-
 }

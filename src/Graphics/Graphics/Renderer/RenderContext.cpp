@@ -1,4 +1,4 @@
-#include "Graphics/Renderer/RenderContext.h"
+ï»¿#include "Graphics/Renderer/RenderContext.h"
 
 #include "Graphics/RenderModule.h"
 
@@ -100,14 +100,14 @@ RHIPipelineStatePtr PipelineStateCache::CreatePipeline(RenderContext* mDevice, c
 		newHash.Combine((uint8_t*)&desc.mType, sizeof(desc.mType));
 		if (desc.mType == RHICmdListType::Graphic3D)
 		{	
-			//graph desc shaderĞÅÏ¢
+			//graph desc shaderä¿¡æ¯
 			const RHIPipelineStateObjectDesc& pipelineGraphDesc = desc.mGraphicDesc.mPipelineStateDesc;
 			PackShaderToMemory(mDevice, newHash, pipelineGraphDesc.mVertexShader.get());
 			PackShaderToMemory(mDevice, newHash, pipelineGraphDesc.mPixelShader.get());
 			PackShaderToMemory(mDevice, newHash, pipelineGraphDesc.mGeometryShader.get());
 			PackShaderToMemory(mDevice, newHash, pipelineGraphDesc.mDominShader.get());
 			PackShaderToMemory(mDevice, newHash, pipelineGraphDesc.mHullShader.get());
-			//input elementĞÅÏ¢
+			//input elementä¿¡æ¯
 			for (auto& element : desc.mGraphicDesc.mInputLayout.mElements)
 			{
 				newHash.Combine((uint8_t*)&element.mElementType, sizeof(element.mElementType));
@@ -117,7 +117,7 @@ RHIPipelineStatePtr PipelineStateCache::CreatePipeline(RenderContext* mDevice, c
 				newHash.Combine((uint8_t*)&element.mBufferSlot, sizeof(element.mBufferSlot));
 				newHash.Combine((uint8_t*)&element.mInstanceUsage, sizeof(element.mInstanceUsage));
 			}
-			//passĞÅÏ¢
+			//passä¿¡æ¯
 			for (auto& view : desc.mGraphicDesc.mRenderPassDesc.mColorView)
 			{
 				RHITextureFormat& srv_desc = view->mBindResource->mResDesc.Format;
@@ -133,7 +133,7 @@ RHIPipelineStatePtr PipelineStateCache::CreatePipeline(RenderContext* mDevice, c
 				RHITextureFormat dsv_desc = RHITextureFormat::FORMAT_UNKNOWN;
 				newHash.Combine((uint8_t*)&dsv_desc, sizeof(dsv_desc));
 			}
-			//graph desc stateĞÅÏ¢
+			//graph desc stateä¿¡æ¯
 			newHash.Combine((uint8_t*)&pipelineGraphDesc.BlendState.AlphaToCoverageEnable, sizeof(pipelineGraphDesc.BlendState.AlphaToCoverageEnable));
 			newHash.Combine((uint8_t*)&pipelineGraphDesc.BlendState.IndependentBlendEnable, sizeof(pipelineGraphDesc.BlendState.IndependentBlendEnable));
 			newHash.Combine((uint8_t*)pipelineGraphDesc.BlendState.RenderTarget.data(), pipelineGraphDesc.BlendState.RenderTarget.size() * sizeof(RHIBlendStateTargetDesc));
@@ -606,11 +606,10 @@ RHIBindingSetPtr RenderContext::CreateBindingset(RHIBindingSetLayoutPtr layout)
 	RHIBindingSetPtr bindingset = mDevice->CreateBindingSet(mDefaultPool, layout);
 	return bindingset;
 }
+
 RHIPipelineStatePtr RenderContext::CreatePipeline(render::MaterialInstance* mat, RHIVertexLayout* layout)
 {
 	return CreatePipelineState(mat, mCurRenderPass, layout);
-// 	ShaderAsset* shader = mat->GetShaderAsset();
-
 }
 
 void RenderContext::DrawMesh(render::RenderMeshBase* mesh, render::MaterialInstance* mat, PackedParams* params)
@@ -626,7 +625,7 @@ void RenderContext::DrawMeshInstanced(render::RenderMeshBase* mesh, render::Mate
 {
 	ZoneScoped;
 	RHIVertexLayout layout = mesh->GetVertexLayout();
-	//todo:ÕâÀïvulkan·¢ÏÖvertexinputºÍshader¶¨Òå²»Ò»Ñù³¤»á±¨´í£¬dx»áÖ±½Ócrash
+	//todo:è¿™é‡Œvulkanå‘ç°vertexinputå’Œshaderå®šä¹‰ä¸ä¸€æ ·é•¿ä¼šæŠ¥é”™ï¼Œdxä¼šç›´æ¥crash
 	//if(vertexInputInstanceRes)
 	layout.AddVertexElement(VertexElementType::Int, VertexElementUsage::UsageInstanceMessage, 4, 1, VertexElementInstanceType::PerInstance);
 

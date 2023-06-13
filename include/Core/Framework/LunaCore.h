@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 
 #include "Core/Framework/Module.h"
@@ -30,9 +30,9 @@ public:
 		return mLogicTickTime;
 	}
 
-	int mLogicFPS = 0;
-	int mRenderFPS = 0;
-	float mLogicTickTime = 0.0;
+	int   mLogicFPS       = 0;
+	int   mRenderFPS      = 0;
+	float mLogicTickTime  = 0.0;
 	float mRenderTickTime = 0.0;
 
 public:
@@ -47,11 +47,11 @@ public:
 
 	LModule* AddModule(LModule* m);
 
-	void OnRenderTick(float deltaTime);
-	void OnLogicTick(float delta_time);
-	void OnImGUI();
+	void     OnRenderTick(float deltaTime);
+	void     OnLogicTick(float delta_time);
+	void     OnImGUI();
 
-	void ShutdownModule();
+	void     ShutdownModule();
 
 	template<typename T>
 	T* GetTModule()
@@ -89,22 +89,22 @@ public:
 		mPendingExit = true;
 	}
 
-	static LunaCore* Ins();
+	static  LunaCore* Ins();
 
 	LString GetConfig(const LString& key);
 
-	void SetConfig(const LString& key, const LString& val);
+	void    SetConfig(const LString& key, const LString& val);
 
-	bool GetPendingExit() const { return mPendingExit; }
+	bool    GetPendingExit() const { return mPendingExit; }
 private:
 	LunaCore();
-	bool mPendingExit = false;
+	bool                                    mPendingExit      = false;
 
-	TPPtrArray<LModule> mModules;
-	LArray<LModule*> mOrderedModules;
+	TPPtrArray<LModule>                     mModules;
+	LArray<LModule*>                        mOrderedModules;
 	LUnorderedMap<luna::LString, LModule* > mModulesMap;
-	float mLogicFrameDelta = 0.0;
-	float mRenderFrameDelta = 0.0;
+	float                                   mLogicFrameDelta  = 0.0;
+	float                                   mRenderFrameDelta = 0.0;
 
 
 };
