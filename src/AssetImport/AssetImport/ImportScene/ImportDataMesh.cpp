@@ -262,6 +262,13 @@ namespace luna::asset
 			dst.mVertexUv[vertexID].resize(uvChannelSize);
 			std::swap(src.mVertexUv[vertexID], dst.mVertexUv[vertexID]);
 		}
+		if(mHasSkin)
+		{
+			dst.mRefBone.resize(vertexSize * asset::gSkinPerVertex);
+			std::swap(src.mRefBone, dst.mRefBone);
+			dst.mWeight.resize(vertexSize * asset::gSkinPerVertex);
+			std::swap(src.mWeight, dst.mWeight);
+		}
 	}
 
 	void LImportNodeDataMesh::CopyVertexData(LImportSubmesh& src, LImportSubmesh& dst, size_t srcId, size_t dstId)
@@ -274,6 +281,14 @@ namespace luna::asset
 		for (size_t uvChannel = 0; uvChannel < uvChannelSize; ++uvChannel)
 		{
 			dst.mVertexUv[dstId][uvChannel] = src.mVertexUv[srcId][uvChannel];
+		}
+		if (mHasSkin)
+		{
+			for (int32_t refIndex = 0; refIndex < asset::gSkinPerVertex; ++refIndex)
+			{
+				dst.mRefBone[dstId * asset::gSkinPerVertex + refIndex] = src.mRefBone[srcId * asset::gSkinPerVertex + refIndex];
+				dst.mWeight[dstId * asset::gSkinPerVertex + refIndex] = src.mWeight[srcId * asset::gSkinPerVertex + refIndex];
+			}
 		}
 	}
 }

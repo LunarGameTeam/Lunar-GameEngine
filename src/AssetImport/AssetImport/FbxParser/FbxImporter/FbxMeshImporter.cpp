@@ -227,12 +227,13 @@ namespace luna::lfbx
 				{
 					size_t vertIndexNew = vertexCombineDataOutMember.mVertexs.size();
 					vertexCombineDataOutMember.mVertexs.push_back(vertexCombineDataInMember.mVertexs[vertIndex]);
-					repeatCheckMap.insert(std::pair<LString, VertexDataFullMember>(hashData, vertexCombineDataInMember.mVertexs[vertIndex]));
+					vertexCombineDataOutMember.mVertexs.back().baseIndex = vertIndexNew;
+					repeatCheckMap.insert(std::pair<LString, VertexDataFullMember>(hashData, vertexCombineDataOutMember.mVertexs.back()));
 					OptimizeIndexMember[vertIndex] = vertIndexNew;
 				}
 				else
 				{
-					OptimizeIndexMember[vertIndex] = OptimizeIndexMember[repeatFindData->second.baseIndex];
+					OptimizeIndexMember[vertIndex] = repeatFindData->second.baseIndex;
 				}
 			}
 		}

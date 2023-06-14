@@ -141,7 +141,7 @@ void AssetSceneData::Update()
 		LMatrix4f skinRefMatrix = beginbuffer->mBindposeMatrix[i];
 		int32_t animationBoneId = beginbuffer->mSkinBoneIndex2SkeletonBoneIndex[i];
 		LMatrix4f animationMatrix = animationMatrixBuffer->mBoneMatrix[animationBoneId];
-		skinMatrixResult.push_back(skinRefMatrix * animationMatrix);
+		skinMatrixResult.push_back(animationMatrix * skinRefMatrix);
 
 	}
 	sRenderModule->GetRenderContext()->UpdateConstantBuffer(mSkeletonResultBuffer, skinMatrixResult.data(), skinMatrixResult.size() * sizeof(LMatrix4f));

@@ -4,9 +4,11 @@ namespace luna::lfbx
 {
 	void FbxEulaToQuaternion(const fbxsdk::FbxDouble3& in, LQuaternion& out)
 	{
-		FbxQuaternion q1;
-		FbxVector4 v(in[0], in[1], in[2]);
-		q1.ComposeSphericalXYZ(v);
+		FbxAMatrix rotationMat;
+		rotationMat.SetR(in);
+		rotationMat.SetT(fbxsdk::FbxDouble3(0,0,0));
+		rotationMat.SetS(fbxsdk::FbxDouble3(1, 1, 1));
+		FbxQuaternion q1 = rotationMat.GetQ();
 		out.x() = q1.GetAt(0);
 		out.y() = q1.GetAt(1);
 		out.z() = q1.GetAt(2);
