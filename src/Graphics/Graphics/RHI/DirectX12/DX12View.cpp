@@ -41,6 +41,7 @@ void DX12View::BindResource(RHIResource* buffer_data)
 		device->CreateConstantBufferView(&constantBufferDesc, mCPUHandle);
 		break;
 	}
+	case RHIViewType::kStructuredBuffer:
 	case RHIViewType::kTexture:
 	{
 		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
@@ -49,6 +50,12 @@ void DX12View::BindResource(RHIResource* buffer_data)
 		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		switch (dx12Res->GetDesc().Dimension)
 		{
+		case RHIResDimension::Buffer:
+			srvDesc.Buffer.FirstElement = 0;
+			srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAGS::D3D12_BUFFER_SRV_FLAG_NONE;
+			srvDesc.Buffer.NumElements = mBindResource->GetDesc().Width / mViewDesc.mStructureStride;
+			srvDesc.Buffer.StructureByteStride = mViewDesc.mStructureStride;
+			break;
 		case RHIResDimension::Texture1D:
 			srvDesc.Buffer.FirstElement = 0;
 			srvDesc.Buffer.Flags = D3D12_BUFFER_SRV_FLAGS::D3D12_BUFFER_SRV_FLAG_NONE;
@@ -106,6 +113,11 @@ bool DX12View::GetDescriptorType(D3D12_DESCRIPTOR_HEAP_TYPE& descriptor_type)
 	switch (mViewType)
 	{
 	case RHIViewType::kConstantBuffer:
+	{
+		descriptor_type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
+		break;
+	}
+	case RHIViewType::kStructuredBuffer:
 	{
 		descriptor_type = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV;
 		break;

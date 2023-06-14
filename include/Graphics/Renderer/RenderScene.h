@@ -64,6 +64,7 @@ public:
 class AssetSceneData
 {
 public:
+	AssetSceneData();
 	LUnorderedMap<LString, ShaderParamSceneBuffer> materialBuffer;
 	//mesh现在先只添加不删除，有时间再处理ro离开场景怎么删除对应的scene资源的问题
 	int32_t AddMeshData(SubMesh* meshData);
@@ -84,7 +85,9 @@ public:
 
 	AnimationInstanceMatrix* GetAnimationInstanceMatrixData(int32_t animInstanceId);
 
-	
+	RHIView* GetSkinMatrixBuffer() { return mSkeletonResultBufferView.get(); }
+
+	void Update();
 private:
 	LQueue<size_t> emptyMeshId;
 
@@ -97,6 +100,9 @@ private:
 	LString GetSubmeshName(SubMesh* meshData);
 
 	LString GetClusterName(SubMesh* meshData, const LString& skeletonUniqueName);
+
+	RHIResourcePtr mSkeletonResultBuffer;
+	RHIViewPtr mSkeletonResultBufferView;
 };
 
 struct RENDER_API RenderObject

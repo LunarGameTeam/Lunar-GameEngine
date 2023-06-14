@@ -28,6 +28,7 @@ void VulkanView::BindResource(RHIResource* res)
 		mDescriptorBuffer.range = mViewDesc.mBufferSize;
 		mDesciptor.pBufferInfo = &mDescriptorBuffer;
 		mDesciptor.pTexelBufferView = &mBufferView;
+		mDesciptor.descriptorType = VULKAN_HPP_NAMESPACE::DescriptorType::eUniformBuffer;
 		break;
 	}
 	case RHIViewType::kUnorderedAccess:
@@ -51,7 +52,18 @@ void VulkanView::BindResource(RHIResource* res)
 		mDesciptor.pImageInfo = &mDescriptorImage;
 		break;
 	}
+	case RHIViewType::kStructuredBuffer:
+	{
+		mDescriptorBuffer.buffer = mRes->mBuffer;
+		mDescriptorBuffer.offset = mViewDesc.mOffset;
+		mDescriptorBuffer.range = mViewDesc.mBufferSize;
+		mDesciptor.pBufferInfo = &mDescriptorBuffer;
+		mDesciptor.pTexelBufferView = &mBufferView;
+		mDesciptor.descriptorType = VULKAN_HPP_NAMESPACE::DescriptorType::eStorageBuffer;
+		break;
+	}
 	default:
+		assert(false);
 		break;
 
 	}

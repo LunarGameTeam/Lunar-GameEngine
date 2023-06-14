@@ -118,6 +118,7 @@ DoubleConverter<RHIViewType, vk::DescriptorType > sViewDescriptor = {
 	{RHIViewType::kConstantBuffer, vk::DescriptorType::eUniformBuffer},
 	{RHIViewType::kSampler, vk::DescriptorType::eSampler},
 	{RHIViewType::kTexture, vk::DescriptorType::eSampledImage},
+	{RHIViewType::kStructuredBuffer, vk::DescriptorType::eStorageBuffer},
 };
 
 vk::DescriptorType Convert(RHIViewType view_type)

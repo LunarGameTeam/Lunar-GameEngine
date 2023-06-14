@@ -35,6 +35,7 @@ D3D12_DESCRIPTOR_RANGE_TYPE GetRangeType(RHIViewType view_type)
 	{
 	case RHIViewType::kTexture:
 	case RHIViewType::kBuffer:
+	case RHIViewType::kStructuredBuffer:
 		return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	case RHIViewType::kRWTexture:
 	case RHIViewType::kRWBuffer:

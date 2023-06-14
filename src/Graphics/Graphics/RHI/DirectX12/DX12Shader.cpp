@@ -140,6 +140,9 @@ bool DX12ShaderBlob::InitShader(const RHIShaderDesc& resource_desc)
 		case D3D_SHADER_INPUT_TYPE::D3D_SIT_SAMPLER:
 			bindKey.mViewType = RHIViewType::kSampler;
 			break;
+		case D3D_SHADER_INPUT_TYPE::D3D_SIT_STRUCTURED:
+			bindKey.mViewType = RHIViewType::kStructuredBuffer;
+			break;
 		default:
 			assert(false);
 			break;

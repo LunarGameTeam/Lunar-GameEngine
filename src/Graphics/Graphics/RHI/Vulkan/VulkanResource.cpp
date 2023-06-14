@@ -116,12 +116,14 @@ VulkanResource::VulkanResource(const RHIBufferDesc& desc)
 		bufferInfo.usage |= vk::BufferUsageFlagBits::eIndexBuffer;
 	if (Has(desc.mBufferUsage, RHIBufferUsage::VertexBufferBit))
 		bufferInfo.usage |= vk::BufferUsageFlagBits::eVertexBuffer;
+	if (Has(desc.mBufferUsage, RHIBufferUsage::StructureBuffer))
+		bufferInfo.usage |= vk::BufferUsageFlagBits::eStorageBuffer;
 	
 	bufferInfo.sharingMode = vk::SharingMode::eExclusive;
 	
 	if (device.createBuffer(&bufferInfo, nullptr, &mBuffer) != vk::Result::eSuccess)
 	{
-		throw std::runtime_error("failed to create vertex buffer!");
+		throw std::runtime_error("failed to create Vulkan gpu buffer!");
 	}
 	SetInitialState(ResourceState::kCommon);
 

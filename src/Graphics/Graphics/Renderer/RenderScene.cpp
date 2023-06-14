@@ -17,6 +17,20 @@
 namespace luna::render
 {
 
+AssetSceneData::AssetSceneData()
+{
+	RHIBufferDesc desc;
+	desc.mBufferUsage = RHIBufferUsage::StructureBuffer;
+	desc.mSize = sizeof(LMatrix4f) * 128;
+	mSkeletonResultBuffer = sRenderModule->mRenderContext->CreateBuffer(desc);
+	ViewDesc viewDesc;
+	viewDesc.mViewType = RHIViewType::kStructuredBuffer;
+	viewDesc.mViewDimension = RHIViewDimension::BufferView;
+	viewDesc.mStructureStride = sizeof(LMatrix4f);
+	mSkeletonResultBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
+	mSkeletonResultBufferView->BindResource(mSkeletonResultBuffer);
+}
+
 int32_t AssetSceneData::AddMeshData(SubMesh* meshData)
 {
 	LString primitiveName = GetSubmeshName(meshData);
@@ -115,6 +129,22 @@ LString AssetSceneData::GetSubmeshName(SubMesh* meshData)
 LString AssetSceneData::GetClusterName(SubMesh* meshData, const LString& skeletonUniqueName)
 {
 	return GetSubmeshName(meshData) + "_##_" + skeletonUniqueName;
+}
+
+void AssetSceneData::Update()
+{
+	AnimationInstanceMatrix* animationMatrixBuffer = mAnimationInstanceMatrixBuffer.GetData(0);
+	MeshSkeletonLinkClusterBase* beginbuffer = mMeshSkeletonLinkClusterBuffer.GetData(0);
+	LArray<LMatrix4f> skinMatrixResult;
+	for(int32_t i = 0;i < beginbuffer->mBindposeMatrix.size(); ++i)
+	{
+		LMatrix4f skinRefMatrix = beginbuffer->mBindposeMatrix[i];
+		int32_t animationBoneId = beginbuffer->mSkinBoneIndex2SkeletonBoneIndex[i];
+		LMatrix4f animationMatrix = animationMatrixBuffer->mBoneMatrix[animationBoneId];
+		skinMatrixResult.push_back(animationMatrix * skinRefMatrix);
+
+	}
+	sRenderModule->GetRenderContext()->UpdateConstantBuffer(mSkeletonResultBuffer, skinMatrixResult.data(), skinMatrixResult.size() * sizeof(LMatrix4f));
 }
 
 RenderScene::RenderScene()
@@ -274,6 +304,7 @@ RenderView* RenderScene::CreateRenderView()
 
 void RenderScene::Render(FrameGraphBuilder* FG)
 {
+	mSceneDataGpu.Update();
 	for (auto data : mDatas)
 	{
 		data->PerSceneUpdate(this);
