@@ -9,8 +9,8 @@ namespace luna::render
 }
 namespace luna::asset
 {
-
-class ASSET_IMPORT_API LMeshAssetImport :public LAssetImportBase
+//经典导出器，该导出器会把场景里的mesh节点按照骨骼归类，并将对应的animation也导出
+class ASSET_IMPORT_API LSingleMeshAndAnimationAssetImport :public LAssetImportBase
 {
 private:
 	void ParsingImportSceneImpl(const asset::LImportScene& importSceneData, LAssetPack& outAssetPack) override;

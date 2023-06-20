@@ -27,6 +27,7 @@ namespace luna::lfbx
 		}
 
 		asset::LImportNodeSkeletonAnimation* newAnimation = outputScene.AddNewAnimation<asset::LImportNodeSkeletonAnimation>();
+		newAnimation->SetSkeletonIndex(skeletonData->GetId());
 		for (int32_t boneId = 0; boneId < allBoneData.size(); ++boneId)
 		{
 			auto curveBone = nodeTransformCurveMark.find(allBoneData[boneId].mBoneName);

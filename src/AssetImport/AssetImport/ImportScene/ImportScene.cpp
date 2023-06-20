@@ -155,6 +155,19 @@ namespace luna::asset
 		return out;
 	}
 
+	LArray<size_t> LImportScene::FilterAnimationByType(LImportNodeAnimationType type)const
+	{
+		LArray<size_t> out;
+		for (int32_t i = 0; i < mAnimations.size(); ++i)
+		{
+			if (mAnimations[i]->GetType() == type)
+			{
+				out.push_back(i);
+			}
+		}
+		return out;
+	}
+
 	void LImportScene::PostProcessData()
 	{
 		for (auto each_data : mDatas)
