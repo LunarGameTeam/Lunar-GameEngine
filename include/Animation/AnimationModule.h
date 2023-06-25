@@ -19,7 +19,8 @@ namespace luna::animation
 		void Tick(float deltaTime) override;
 		void RenderTick(float delta_time) override;
 
-		SkeletalAnimInstanceBase* CreateAnimationInstance(const LString& animAssetName);
+		SkeletalAnimInstanceBase* CreateAnimationInstanceClip(const AnimationClipAsset* animAssetData, const SkeletonAsset* skeletonAssetData);
+
 		void FreeAnimationInstance(size_t instanceId);
 		LQueue<size_t> mEmptyIndex;
 	private:

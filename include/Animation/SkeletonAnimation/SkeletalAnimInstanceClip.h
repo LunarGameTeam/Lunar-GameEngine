@@ -5,16 +5,14 @@ namespace luna::animation
 {
 	class ANIMATION_API SkeletalAnimInstanceClip : public SkeletalAnimInstanceBase
 	{
-		RegisterTypeEmbedd(SkeletalAnimInstanceClip, LObject)
-
+		RegisterTypeEmbedd(SkeletalAnimInstanceClip, SkeletalAnimInstanceBase)
 	public:
 		SkeletalAnimInstanceClip();
-
-		void SetAssetValue(SharedPtr<AnimationClipAsset> animationClipAsset);
-
 	private:
-		SharedPtr<AnimationClipAsset> mAnimationClipAsset;
+		const AnimationClipAsset* mClipAsset;
 
 		void UpdateAnimationImpl(float deltaTime) override;
+
+		void OnAssetChanged(const Asset* animationAsset) override;
 	};
 }

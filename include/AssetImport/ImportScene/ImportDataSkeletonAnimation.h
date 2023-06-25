@@ -28,6 +28,8 @@ namespace luna::asset
 
 		const LImportAnimationTemplateCurve<LVector3f>& GetScaleCurve()const { return mScaleCurve; }
 
+		const LString& GetBoneName() const{ return mNodeName; }
+
 		void ConvertAnimationAxisAndUnitImpl(bool hasReflectTransform, LMatrix4f convertInvMatrix, LMatrix4f convertMatrix);
 	};
 

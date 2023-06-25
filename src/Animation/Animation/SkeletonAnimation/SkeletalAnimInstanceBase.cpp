@@ -1,4 +1,5 @@
 #include "Animation/SkeletonAnimation/SkeletalAnimInstanceBase.h"
+#include "Animation/Asset/AnimationClipAsset.h"
 namespace luna::animation
 {
 	RegisterTypeEmbedd_Imp(SkeletalAnimInstanceBase)
@@ -18,9 +19,21 @@ namespace luna::animation
 		mIndex = index;
 	}
 
+	void SkeletalAnimInstanceBase::SetAsset(const Asset* animationAsset)
+	{
+		mAnimationAsset = animationAsset;
+		OnAssetChanged(mAnimationAsset);
+	}
+
 	void SkeletalAnimInstanceBase::UpdateAnimation(float deltaTime)
 	{
 		UpdateAnimationImpl(deltaTime);
 	}
+
+	void SkeletalAnimInstanceBase::ApplyAnimation()
+	{
+
+	}
+
 
 }

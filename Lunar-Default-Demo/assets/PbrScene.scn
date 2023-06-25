@@ -212,6 +212,7 @@
          "material" : "/assets/Pbr/4.mat",
          "mesh" : "/assets/lion3.lskelmesh",
          "skeleton" : "/assets/lion3.lskeleton",
+         "skelanim" : "/assets/lion3.lskelanimclip",
          "receive_shadow" : true
       },
       {

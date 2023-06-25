@@ -31,10 +31,6 @@ namespace luna::animation
 		//Asset资源写入到磁盘时回调	
 		virtual void OnAssetFileWrite(LSharedPtr<JsonDict> meta, LArray<byte>& data) override;
 
-		SharedPtr<SkeletonAsset> GetSkeleton() { return mSkeleton; };
-
-		LString mSkeletonPath;
-
 		LAnimLerpType mLerpType;
 
 		uint32_t      mFramePerSec;
@@ -48,6 +44,5 @@ namespace luna::animation
 		LUnorderedMap<LString, int32_t> mBoneNameIdRef;
 
 	private:
-		SharedPtr<SkeletonAsset> mSkeleton;
 	};
 }

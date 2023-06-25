@@ -3,6 +3,7 @@
 #include "Game/Scene.h"
 
 #include "Core/Memory/PtrBinding.h"
+#include "Animation/AnimationModule.h"
 
 namespace luna
 {
@@ -121,6 +122,9 @@ RegisterTypeEmbedd_Imp(SkeletonMeshRenderer)
 		.Setter<&SkeletonMeshRenderer::SetSkeletonAsset>()
 		.Serialize();
 
+	cls->BindingProperty<&Self::mSkelAnimAsset>("skelanim")
+		.Setter<&SkeletonMeshRenderer::SetSkelAnimationAsset>()
+		.Serialize();
 	BindingModule::Luna()->AddType(cls);
 }
 
@@ -151,15 +155,43 @@ void SkeletonMeshRenderer::GetSkeletonPoseMatrix(LArray<LMatrix4f>& poseMatrix)
 void SkeletonMeshRenderer::SetSkeletonAsset(animation::SkeletonAsset* obj)
 {
 	mSkeletonAsset = ToSharedPtr(obj);
+
+	if (mSkelAnimAsset != nullptr)
+	{
+		
+		animation::AnimationModule* animModule = gEngine->GetTModule<animation::AnimationModule>();
+		if (mAnimationInstance != nullptr)
+		{
+			animModule->FreeAnimationInstance(mAnimationInstance->GetAnimIndex());
+		}
+		mAnimationInstance = animModule->CreateAnimationInstanceClip(mSkelAnimAsset.get(), mSkeletonAsset.get());
+	}
 	if (mRO == uint64_t(-1))
 	{
 		return;
 	}
+	mAnimationInstance->SetRenderObject(mRO);
 	LString skeletonUniqueName = mSkeletonAsset->GetAssetPath();
 	GetScene()->GetRenderScene()->SetRenderObjectMeshSkletonCluster(mRO, mSkeletalMeshAsset->GetSubMeshAt(0), mSkeletonAsset->GetSearchIndex(), skeletonUniqueName);
 	LArray<LMatrix4f> allBoneMatrix;
 	GetSkeletonPoseMatrix(allBoneMatrix);
 	GetScene()->GetRenderScene()->SetRenderObjectAnimInstance(mRO, skeletonUniqueName, allBoneMatrix);
+
+
+}
+
+void SkeletonMeshRenderer::SetSkelAnimationAsset(animation::AnimationClipAsset* obj)
+{
+	mSkelAnimAsset = ToSharedPtr(obj);
+	if (mSkeletonAsset != nullptr)
+	{
+		animation::AnimationModule* animModule = gEngine->GetTModule<animation::AnimationModule>();
+		mAnimationInstance = animModule->CreateAnimationInstanceClip(mSkelAnimAsset.get(), mSkeletonAsset.get());
+	}
+	if (mAnimationInstance != nullptr && mRO != uint64_t(-1))
+	{
+		mAnimationInstance->SetRenderObject(mRO);
+	}
 }
 
 void SkeletonMeshRenderer::CreateRenderObject()
@@ -181,7 +213,10 @@ void SkeletonMeshRenderer::CreateRenderObject()
 		mCastShadow, 
 		&mTransform->GetLocalToWorldMatrix()
 	);
-
+	if (mAnimationInstance != nullptr)
+	{
+		mAnimationInstance->SetRenderObject(mRO);
+	}
 }
 
 }
