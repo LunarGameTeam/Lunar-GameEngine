@@ -43,6 +43,7 @@ namespace luna::animation
 
 		LUnorderedMap<LString, int32_t> mBoneNameIdRef;
 
+		LArray<float> mKeyTimes;
 	private:
 	};
 }

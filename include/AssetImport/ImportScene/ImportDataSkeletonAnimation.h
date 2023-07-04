@@ -40,6 +40,10 @@ namespace luna::asset
 		LArray<LSharedPtr<BoneAnimationCurve>> mBoneAnimations;
 
 		LUnorderedMap<LString, size_t> mBoneNameRef;
+
+		float mAnimLength = 0;
+
+		uint32_t mAnimFramePerSecond = 0;
 	public:
 		LImportNodeSkeletonAnimation(const size_t index);
 
@@ -50,6 +54,14 @@ namespace luna::asset
 		void AddCurveScaleToNode(const LString &nodeName, float time, LVector3f value);
 
 		void SetSkeletonIndex(int32_t skeletonIndex) { mSkeletonIndex = skeletonIndex; }
+
+		void SetAnimationLength(float animLength) { mAnimLength = animLength; }
+
+		float GetAnimationLength() const{return mAnimLength; }
+
+		void SetAnimationFps(uint32_t animDeltatime) { mAnimFramePerSecond = animDeltatime; }
+
+		float GetAnimationFps() const { return mAnimFramePerSecond; }
 
 		int32_t GetSkeletonIndex() const{ return mSkeletonIndex; }
 

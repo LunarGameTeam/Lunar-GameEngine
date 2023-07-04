@@ -11,12 +11,18 @@ namespace luna::animation
 
 	SkeletalAnimInstanceBase::SkeletalAnimInstanceBase()
 	{
+	}
 
+	void SkeletalAnimInstanceBase::SetSkeleton(const SkeletonAsset* skeletonAsset)
+	{ 
+		mSkeletonAsset = skeletonAsset;
+		poseMatrix.resize(mSkeletonAsset->GetBoneCount());
 	}
 
 	void SkeletalAnimInstanceBase::SetIndex(size_t index)
 	{
 		mIndex = index;
+		mInstanceUniqueName = "AnimationInstance::" + std::to_string(mIndex);
 	}
 
 	void SkeletalAnimInstanceBase::SetAsset(const Asset* animationAsset)
@@ -27,7 +33,8 @@ namespace luna::animation
 
 	void SkeletalAnimInstanceBase::UpdateAnimation(float deltaTime)
 	{
-		UpdateAnimationImpl(deltaTime);
+		UpdateAnimationImpl(deltaTime, poseMatrix);
+		onUpdateFinishedFunc(poseMatrix);
 	}
 
 	void SkeletalAnimInstanceBase::ApplyAnimation()

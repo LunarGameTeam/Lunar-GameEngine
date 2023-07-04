@@ -40,7 +40,7 @@ void Asset::OnAssetRelease()
 
 }
 
-LString Asset::GetAssetPath()
+LString Asset::GetAssetPath()const
 {
 	return mAssetPath;
 }

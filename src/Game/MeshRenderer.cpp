@@ -152,13 +152,24 @@ void SkeletonMeshRenderer::GetSkeletonPoseMatrix(LArray<LMatrix4f>& poseMatrix)
 	}
 }
 
+void SkeletonMeshRenderer::UpdateAnimationInstanceRo()
+{
+	if (mAnimationInstance != nullptr && mRO != uint64_t(-1))
+	{
+		auto onAnimationUpdateFinish = [&](const LArray<LMatrix4f>& allBoneMatrix)
+		{
+			GetScene()->GetRenderScene()->UpdateRenderObjectAnimInstance(mRO, allBoneMatrix);
+		}; 
+		mAnimationInstance->SetOnUpdateFinishMethod(onAnimationUpdateFinish);
+	}
+}
+
 void SkeletonMeshRenderer::SetSkeletonAsset(animation::SkeletonAsset* obj)
 {
 	mSkeletonAsset = ToSharedPtr(obj);
 
 	if (mSkelAnimAsset != nullptr)
 	{
-		
 		animation::AnimationModule* animModule = gEngine->GetTModule<animation::AnimationModule>();
 		if (mAnimationInstance != nullptr)
 		{
@@ -170,7 +181,7 @@ void SkeletonMeshRenderer::SetSkeletonAsset(animation::SkeletonAsset* obj)
 	{
 		return;
 	}
-	mAnimationInstance->SetRenderObject(mRO);
+	UpdateAnimationInstanceRo();
 	LString skeletonUniqueName = mSkeletonAsset->GetAssetPath();
 	GetScene()->GetRenderScene()->SetRenderObjectMeshSkletonCluster(mRO, mSkeletalMeshAsset->GetSubMeshAt(0), mSkeletonAsset->GetSearchIndex(), skeletonUniqueName);
 	LArray<LMatrix4f> allBoneMatrix;
@@ -188,10 +199,7 @@ void SkeletonMeshRenderer::SetSkelAnimationAsset(animation::AnimationClipAsset* 
 		animation::AnimationModule* animModule = gEngine->GetTModule<animation::AnimationModule>();
 		mAnimationInstance = animModule->CreateAnimationInstanceClip(mSkelAnimAsset.get(), mSkeletonAsset.get());
 	}
-	if (mAnimationInstance != nullptr && mRO != uint64_t(-1))
-	{
-		mAnimationInstance->SetRenderObject(mRO);
-	}
+	UpdateAnimationInstanceRo();
 }
 
 void SkeletonMeshRenderer::CreateRenderObject()
@@ -201,6 +209,7 @@ void SkeletonMeshRenderer::CreateRenderObject()
 		return;
 	}
 	LString skeletonUniqueName = mSkeletonAsset->GetAssetPath();
+	LString animationUniqueName = mAnimationInstance->GetAnimInstanceUniqueName();
 	LArray<LMatrix4f> allBoneMatrix;
 	GetSkeletonPoseMatrix(allBoneMatrix);
 	mRO = GetScene()->GetRenderScene()->CreateRenderObjectDynamic(
@@ -208,15 +217,12 @@ void SkeletonMeshRenderer::CreateRenderObject()
 		GetMeshAsset()->GetSubMeshAt(0),
 		mSkeletonAsset->GetSearchIndex(),
 		skeletonUniqueName,
-		skeletonUniqueName,
+		animationUniqueName,
 		allBoneMatrix,
 		mCastShadow, 
 		&mTransform->GetLocalToWorldMatrix()
 	);
-	if (mAnimationInstance != nullptr)
-	{
-		mAnimationInstance->SetRenderObject(mRO);
-	}
+	UpdateAnimationInstanceRo();
 }
 
 }

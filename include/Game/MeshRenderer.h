@@ -85,6 +85,8 @@ private:
 	void CreateRenderObject() override;
 
 	void GetSkeletonPoseMatrix(LArray<LMatrix4f>& poseMatrix);
+
+	void UpdateAnimationInstanceRo();
 };
 
 }

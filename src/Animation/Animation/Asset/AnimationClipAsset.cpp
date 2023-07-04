@@ -64,6 +64,12 @@ namespace luna::animation
 			memcpy(mRawData.back().mScalKeys.data(), ptr, scaleKeySize * sizeof(LVector3f));
 			ptr += scaleKeySize * sizeof(LVector3f);
 		}
+		size_t timeKeySize = 0;
+		memcpy(&timeKeySize, ptr, sizeof(size_t));
+		ptr += sizeof(size_t);
+		mKeyTimes.resize(timeKeySize);
+		memcpy(mKeyTimes.data(), ptr, timeKeySize * sizeof(float));
+		ptr += timeKeySize * sizeof(float);
 		OnLoad();
 	};
 
@@ -98,6 +104,9 @@ namespace luna::animation
 			CopyPointToByteArray(&scaleKeySize, sizeof(size_t), data);
 			CopyPointToByteArray(mRawData[id].mScalKeys.data(), scaleKeySize * sizeof(LVector3f), data);
 		}
+		size_t timeKeySize = mKeyTimes.size();
+		CopyPointToByteArray(&timeKeySize, sizeof(size_t), data);
+		CopyPointToByteArray(mKeyTimes.data(), timeKeySize * sizeof(float), data);
 	}
 
 }

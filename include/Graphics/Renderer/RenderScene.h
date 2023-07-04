@@ -81,6 +81,8 @@ public:
 
 	int32_t AddAnimationInstanceMatrixData(const LString& animaInstanceUniqueName, const LArray<LMatrix4f> &allBoneMatrix);
 
+	void UpdateAnimationInstanceMatrixData(int32_t animInstanceId,const LArray<LMatrix4f>& allBoneMatrix);
+
 	int32_t GetAnimationInstanceMatrixDataId(const LString& animaInstanceUniqueName);
 
 	AnimationInstanceMatrix* GetAnimationInstanceMatrixData(int32_t animInstanceId);
@@ -150,14 +152,20 @@ public:
 	);
 
 	void UpdateRenderObject(uint64_t roId);
+
 	void SetRenderObjectMesh(uint64_t roId,SubMesh* meshData);
+
 	void SetRenderObjectMeshSkletonCluster(uint64_t roId, SubMesh* meshData, const LUnorderedMap<LString, int32_t>& skeletonId, const LString& skeletonUniqueName);
+
 	void SetRenderObjectAnimInstance(uint64_t roId, const LString& animaInstanceUniqueName, const LArray<LMatrix4f>& allBoneMatrix);
+
+	void UpdateRenderObjectAnimInstance(uint64_t roId, const LArray<LMatrix4f>& allBoneMatrix);
+
 	void SetRenderObjectCastShadow(uint64_t roId, bool castShadow);
+
 	void SetRenderObjectTransformRef(uint64_t roId, LMatrix4f* worldMat);
+
 	void SetRenderObjectMaterial(uint64_t roId, MaterialInstance* mat);
-
-
 
 	RenderView* CreateRenderView();
 	void DestroyLight(Light* ro);

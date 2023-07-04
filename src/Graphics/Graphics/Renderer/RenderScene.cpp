@@ -90,6 +90,15 @@ int32_t AssetSceneData::AddAnimationInstanceMatrixData(const LString& animaInsta
 	return animInstanceIndex;
 }
 
+void AssetSceneData::UpdateAnimationInstanceMatrixData(int32_t animInstanceId, const LArray<LMatrix4f>& allBoneMatrix)
+{
+	AnimationInstanceMatrix* newAnimInstanceData = mAnimationInstanceMatrixBuffer.GetData(animInstanceId);
+	for (int32_t i = 0; i < allBoneMatrix.size(); ++i)
+	{
+		newAnimInstanceData->mBoneMatrix[i] = allBoneMatrix[i];
+	}
+}
+
 int32_t AssetSceneData::GetMeshDataId(SubMesh* meshData)
 {
 	return meshPrimitiveBuffer.CheckDataIdByName(GetSubmeshName(meshData));
@@ -215,6 +224,11 @@ void RenderScene::SetRenderObjectMeshSkletonCluster(uint64_t roId, SubMesh* mesh
 void RenderScene::SetRenderObjectAnimInstance(uint64_t roId, const LString& animaInstanceUniqueName, const LArray<LMatrix4f>& allBoneMatrix)
 {
 	mRenderObjects[roId]->mAnimInstanceIndex = mSceneDataGpu.AddAnimationInstanceMatrixData(animaInstanceUniqueName, allBoneMatrix);
+}
+
+void RenderScene::UpdateRenderObjectAnimInstance(uint64_t roId, const LArray<LMatrix4f>& allBoneMatrix)
+{
+	mSceneDataGpu.UpdateAnimationInstanceMatrixData(mRenderObjects[roId]->mAnimInstanceIndex, allBoneMatrix);
 }
 
 void RenderScene::SetRenderObjectCastShadow(uint64_t roId, bool castShadow)

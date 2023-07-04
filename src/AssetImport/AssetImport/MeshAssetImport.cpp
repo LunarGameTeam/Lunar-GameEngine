@@ -78,15 +78,24 @@ namespace luna::asset
 			const LImportNodeSkeletonAnimation* skeletonAnimationData = importSceneData.GetAnimation<LImportNodeSkeletonAnimation>(skelAnimationIndex);
 			animation::AnimationClipAsset* animationValuePtr = outAssetPack.CreateAsset<animation::AnimationClipAsset>("emptyNewAnimation");
 			animationValuePtr->mLerpType = animation::LAnimLerpType::LerpLinear;
-			animationValuePtr->mFramePerSec = 30;
-			animationValuePtr->mAnimClipLength = 1;
+			animationValuePtr->mFramePerSec = skeletonAnimationData->GetAnimationFps();
+			animationValuePtr->mAnimClipLength = skeletonAnimationData->GetAnimationLength();
 			size_t curveCount = skeletonAnimationData->GetAnimationCurveCount();
+
+			animationValuePtr->mKeyTimes = skeletonAnimationData->GetAnimationCurveByIndex(0)->GetTranslateCurve().GetTimes();
 			for (size_t curveIndex = 0; curveIndex < curveCount; ++curveIndex)
 			{
 				const BoneAnimationCurve* boneCurve = skeletonAnimationData->GetAnimationCurveByIndex(curveIndex);
 				animationValuePtr->mBoneName.push_back(boneCurve->GetBoneName());
 				animationValuePtr->mBoneNameIdRef.insert({ boneCurve->GetBoneName(),(int32_t)curveIndex });
 				animationValuePtr->mRawData.emplace_back();
+				if (
+					(boneCurve->GetTranslateCurve().GetTimes().size() != boneCurve->GetRotationCurve().GetTimes().size()) 
+					||(boneCurve->GetRotationCurve().GetTimes().size() != boneCurve->GetScaleCurve().GetTimes().size())
+					)
+				{
+					assert(false);
+				}
 				animationValuePtr->mRawData.back().mPosKeys = boneCurve->GetTranslateCurve().GetValues();
 				animationValuePtr->mRawData.back().mRotKeys = boneCurve->GetRotationCurve().GetValues();
 				animationValuePtr->mRawData.back().mScalKeys = boneCurve->GetScaleCurve().GetValues();

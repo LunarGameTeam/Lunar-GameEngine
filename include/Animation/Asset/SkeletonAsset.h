@@ -32,9 +32,9 @@ namespace luna::animation
 
 		const LUnorderedMap<LString, int32_t>& GetSearchIndex() { return mSearchIndex; }
 
-		size_t GetBoneCount() { return mBoneTree.size(); }
+		size_t GetBoneCount() const{ return mBoneTree.size(); }
 
-		const LSingleBone& GetBone(size_t index) { return mBoneTree[index]; };
+		const LSingleBone& GetBone(size_t index)const { return mBoneTree[index]; };
 	private:
 		LArray<LSingleBone> mBoneTree;
 		LUnorderedMap<LString, int32_t> mSearchIndex;

@@ -25,15 +25,22 @@ namespace luna::animation
 
 		size_t GetAnimIndex() { return mIndex; };
 
+		const LString& GetAnimInstanceUniqueName() { return mInstanceUniqueName; }
+
 		void UpdateAnimation(float deltaTime);
 
 		void ApplyAnimation();
 
 		void SetAsset(const Asset* animationAsset);
 
-		void SetSkeleton(const SkeletonAsset* skeletonAsset) { mSkeletonAsset = skeletonAsset; }
+		void SetSkeleton(const SkeletonAsset* skeletonAsset);
 
-		void SetRenderObject(const uint64_t roData) { mRO = roData; }
+		const Asset* GetAsset()const { return mAnimationAsset; }
+
+		void SetOnUpdateFinishMethod(std::function<void(const LArray<LMatrix4f>& allBoneMatrix)> func)
+		{
+			onUpdateFinishedFunc = func;
+		};
 	protected:
 		size_t mIndex;
 
@@ -43,12 +50,15 @@ namespace luna::animation
 
 		const Asset* mAnimationAsset;
 
-		uint64_t mRO;
-
+		LString mInstanceUniqueName;
 	private:
-		virtual void UpdateAnimationImpl(float deltaTime) { assert(false); }
+		virtual void UpdateAnimationImpl(float deltaTime, LArray<LMatrix4f>& allBoneMatrix) { assert(false); }
 
 		virtual void OnAssetChanged(const Asset* animationAsset) { assert(false); }
+
+		std::function<void(const LArray<LMatrix4f>& allBoneMatrix)> onUpdateFinishedFunc;
+
+		LArray<LMatrix4f> poseMatrix;
 	};
 
 
