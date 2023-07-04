@@ -54,29 +54,93 @@ namespace luna::lfbx
 		LString mAnimationName;
 
 		LArray<std::shared_ptr<LFbxCurveBase>> mAllCurves;
+
+		fbxsdk::FbxTime mAnimStartTime;
+
+		fbxsdk::FbxTime mAnimEndTime;
+
+		int32_t mFramePerSecond;
 	public:
 		LFbxAnimationStack(const LString& name) :mAnimationName(name) {};
 
 		void AddCurve(std::shared_ptr<LFbxCurveBase> newCurve) { mAllCurves.push_back(newCurve); };
 
 		const LArray<std::shared_ptr<LFbxCurveBase>>& GetCurves() const { return mAllCurves; }
+
+		void SetAnimMessage(
+			fbxsdk::FbxTime animStartTime,
+			fbxsdk::FbxTime animEndTime,
+			int32_t framePerSecond
+		)
+		{
+			mAnimStartTime = animStartTime;
+			mAnimEndTime = animEndTime;
+			mFramePerSecond = framePerSecond;
+		}
+
+		fbxsdk::FbxTime GetTimeStart() const { return mAnimStartTime; }
+
+		fbxsdk::FbxTime GetTimeEnd() const { return mAnimEndTime; }
+
+		int32_t GetFramePerSecond() const { return mFramePerSecond; }
 	};
 
 	class LFbxAnimationLoader
 	{
 	public:
 		LFbxAnimationLoader() {};
-		void ParsingData(const FbxAnimStack* curAnimStack, LArray<LFbxAnimationStack>& outAnim, LFbxLoadContext context);
+		void ParsingData(const fbxsdk::FbxAnimStack* curAnimStack, LArray<LFbxAnimationStack>& outAnim, LFbxLoadContext context);
 	private:
-		FbxTimeSpan GetAnimationTimeSpan(const LUnorderedMap<LString, fbxsdk::FbxNode*>& allNodeOut, const FbxAnimStack* AnimStack);
+		FbxTimeSpan GetAnimationTimeSpan(const LUnorderedMap<LString, fbxsdk::FbxNode*>& allNodeOut, const fbxsdk::FbxAnimStack* AnimStack);
 
-		void FindAllAnimateNode(fbxsdk::FbxNode* rootNode, const FbxAnimStack* curAnimStack,LUnorderedMap<LString,fbxsdk::FbxNode*> &allNodeOut);
+		void FindAllAnimateNode(fbxsdk::FbxNode* rootNode, const fbxsdk::FbxAnimStack* curAnimStack,LUnorderedMap<LString,fbxsdk::FbxNode*> &allNodeOut);
 
 		bool CheckNodeHasTransformAnimation(fbxsdk::FbxNode* targetNode, FbxAnimLayer* animLayer);
 
 		void GetNodeFromAnimLayer(fbxsdk::FbxNode* parentNode, FbxAnimLayer* animLayer, LUnorderedMap<LString, fbxsdk::FbxNode*>& allNodeOut);
 
-		void SampleKeyValue(LArray<fbxsdk::FbxAnimCurve*> newCurves, LSharedPtr<LFbxTemplateCurve<FbxDouble3>>& curveOut);
+		void SampleKeyValue(
+			LArray<fbxsdk::FbxAnimCurve*> newCurves,
+			LFbxTemplateCurve<FbxDouble3>* curveOut,
+			FbxTime startTime,
+			FbxTime endTime,
+			FbxTime lerpDelta
+		);
+
+		void ChangeAnimationLength(
+			fbxsdk::FbxAnimCurve* curvePointer,
+			fbxsdk::FbxTime& timeStart,
+			fbxsdk::FbxTime& timeEnd
+		);
+
+		void CheckAnimationLength(
+			fbxsdk::FbxAnimLayer* animLayer,
+			LUnorderedMap<LString, fbxsdk::FbxNode*>& allNodeOut,
+			fbxsdk::FbxTime& timeStart,
+			fbxsdk::FbxTime& timeEnd
+		);
+
+		void GenerateConstantKeyCurve(FbxDouble3 constantValue,LFbxTemplateCurve<FbxDouble3>* curveOut, FbxTime startTime, FbxTime endTime, FbxTime lerpDelta);
+
+		void ResampleFloat3CurveValue(
+			FbxDouble3 defaultValue,
+			LArray<fbxsdk::FbxAnimCurve*> &curvesArray,
+			LFbxTemplateCurve<FbxDouble3>* newCurveData,
+			FbxTime startTime,
+			FbxTime endTime,
+			FbxTime lerpDelta
+		);
+
+		void AddFloat3CurveToStack(
+			FbxPropertyT<FbxDouble3> &curvesProperty,
+			fbxsdk::FbxAnimLayer* baseAnimLayer,
+			const LString &nodeName,
+			LFbxAnimationCurveType curveType,
+			FbxTime startTime,
+			FbxTime endTime,
+			FbxTime lerpDelta,
+			LFbxAnimationStack& animStack
+		);
 	};
 
 }

@@ -83,6 +83,13 @@ namespace luna::asset
 
 		LArray<size_t> FilterDataByType(LImportNodeDataType type);
 
+		size_t GetAnimationDataSize()const
+		{
+			return mAnimations.size();
+		};
+
+		LArray<size_t> FilterAnimationByType(LImportNodeAnimationType type)const;
+
 		template<typename ImportAnimationType>
 		const ImportAnimationType* GetAnimation(size_t animIndex) const
 		{

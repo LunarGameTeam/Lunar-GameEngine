@@ -109,7 +109,7 @@ namespace luna::asset
 
 		inline void AddTimePoint(float time) { mTimes.push_back(time); };
 
-		LArray<float>& GetTimes() { return mTimes; };
+		const LArray<float>& GetTimes() const{ return mTimes; };
 	};
 
 	template<typename CurveValueType>

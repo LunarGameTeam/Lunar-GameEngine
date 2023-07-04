@@ -21,7 +21,7 @@ namespace luna::lfbx
 			asset::LImportScene& outputScene
 		);
 
-		void FbxEulaCurveToImportData(const LFbxTemplateCurve<FbxDouble3>* fbxCurve, asset::LImportNodeSkeletonAnimation* newAnimation);
+		void FbxEulaCurveToImportData(const LFbxTemplateCurve<FbxDouble3>* fbxCurve, asset::LImportNodeSkeletonAnimation* newAnimation, fbxsdk::FbxTime startTime);
 	};
 	
 }

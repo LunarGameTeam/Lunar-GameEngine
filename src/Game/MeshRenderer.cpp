@@ -3,6 +3,7 @@
 #include "Game/Scene.h"
 
 #include "Core/Memory/PtrBinding.h"
+#include "Animation/AnimationModule.h"
 
 namespace luna
 {
@@ -121,6 +122,9 @@ RegisterTypeEmbedd_Imp(SkeletonMeshRenderer)
 		.Setter<&SkeletonMeshRenderer::SetSkeletonAsset>()
 		.Serialize();
 
+	cls->BindingProperty<&Self::mSkelAnimAsset>("skelanim")
+		.Setter<&SkeletonMeshRenderer::SetSkelAnimationAsset>()
+		.Serialize();
 	BindingModule::Luna()->AddType(cls);
 }
 
@@ -148,18 +152,54 @@ void SkeletonMeshRenderer::GetSkeletonPoseMatrix(LArray<LMatrix4f>& poseMatrix)
 	}
 }
 
+void SkeletonMeshRenderer::UpdateAnimationInstanceRo()
+{
+	if (mAnimationInstance != nullptr && mRO != uint64_t(-1))
+	{
+		auto onAnimationUpdateFinish = [&](const LArray<LMatrix4f>& allBoneMatrix)
+		{
+			GetScene()->GetRenderScene()->UpdateRenderObjectAnimInstance(mRO, allBoneMatrix);
+		}; 
+		mAnimationInstance->SetOnUpdateFinishMethod(onAnimationUpdateFinish);
+	}
+}
+
 void SkeletonMeshRenderer::SetSkeletonAsset(animation::SkeletonAsset* obj)
 {
 	mSkeletonAsset = ToSharedPtr(obj);
+
+	if (mSkelAnimAsset != nullptr)
+	{
+		animation::AnimationModule* animModule = gEngine->GetTModule<animation::AnimationModule>();
+		if (mAnimationInstance != nullptr)
+		{
+			animModule->FreeAnimationInstance(mAnimationInstance->GetAnimIndex());
+		}
+		mAnimationInstance = animModule->CreateAnimationInstanceClip(mSkelAnimAsset.get(), mSkeletonAsset.get());
+	}
 	if (mRO == uint64_t(-1))
 	{
 		return;
 	}
+	UpdateAnimationInstanceRo();
 	LString skeletonUniqueName = mSkeletonAsset->GetAssetPath();
 	GetScene()->GetRenderScene()->SetRenderObjectMeshSkletonCluster(mRO, mSkeletalMeshAsset->GetSubMeshAt(0), mSkeletonAsset->GetSearchIndex(), skeletonUniqueName);
 	LArray<LMatrix4f> allBoneMatrix;
 	GetSkeletonPoseMatrix(allBoneMatrix);
 	GetScene()->GetRenderScene()->SetRenderObjectAnimInstance(mRO, skeletonUniqueName, allBoneMatrix);
+
+
+}
+
+void SkeletonMeshRenderer::SetSkelAnimationAsset(animation::AnimationClipAsset* obj)
+{
+	mSkelAnimAsset = ToSharedPtr(obj);
+	if (mSkeletonAsset != nullptr)
+	{
+		animation::AnimationModule* animModule = gEngine->GetTModule<animation::AnimationModule>();
+		mAnimationInstance = animModule->CreateAnimationInstanceClip(mSkelAnimAsset.get(), mSkeletonAsset.get());
+	}
+	UpdateAnimationInstanceRo();
 }
 
 void SkeletonMeshRenderer::CreateRenderObject()
@@ -169,6 +209,7 @@ void SkeletonMeshRenderer::CreateRenderObject()
 		return;
 	}
 	LString skeletonUniqueName = mSkeletonAsset->GetAssetPath();
+	LString animationUniqueName = mAnimationInstance->GetAnimInstanceUniqueName();
 	LArray<LMatrix4f> allBoneMatrix;
 	GetSkeletonPoseMatrix(allBoneMatrix);
 	mRO = GetScene()->GetRenderScene()->CreateRenderObjectDynamic(
@@ -176,12 +217,12 @@ void SkeletonMeshRenderer::CreateRenderObject()
 		GetMeshAsset()->GetSubMeshAt(0),
 		mSkeletonAsset->GetSearchIndex(),
 		skeletonUniqueName,
-		skeletonUniqueName,
+		animationUniqueName,
 		allBoneMatrix,
 		mCastShadow, 
 		&mTransform->GetLocalToWorldMatrix()
 	);
-
+	UpdateAnimationInstanceRo();
 }
 
 }

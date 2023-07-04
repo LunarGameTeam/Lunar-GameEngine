@@ -2,9 +2,10 @@
 #include"Graphics/Asset/MeshAsset.h"
 #include"Graphics/Asset/SkeletalMeshAsset.h"
 #include"Animation/Asset/SkeletonAsset.h"
+#include"Animation/Asset/AnimationClipAsset.h"
 namespace luna::asset
 {
-	void LMeshAssetImport::ParsingImportSceneImpl(const asset::LImportScene& importSceneData, LAssetPack& outAssetPack)
+	void LSingleMeshAndAnimationAssetImport::ParsingImportSceneImpl(const asset::LImportScene& importSceneData, LAssetPack& outAssetPack)
 	{
 		//mesh 导出器会把所有的mesh node进行合并，因此只需要创建两个总的mesh asset
 		render::MeshAsset* meshValuePtr = nullptr;
@@ -16,6 +17,7 @@ namespace luna::asset
 			const asset::LImportSceneNode &nodeValue = importSceneData.GetNode(nodeIndex);
 			for (auto& nodeDataValue : nodeValue.mNodeData)
 			{
+				//todo:这里暂时不处理一个文件多套骨骼的情况，后面再处理
 				switch (nodeDataValue.first)
 				{
 				case asset::LImportNodeDataType::ImportDataMesh:
@@ -48,7 +50,7 @@ namespace luna::asset
 						continue;
 					}
 					const asset::LImportNodeDataSkeleton* dataValue = importSceneData.GetData<asset::LImportNodeDataSkeleton>(dataIndex);
-					animation::SkeletonAsset* meshValuePtr = outAssetPack.CreateAsset<animation::SkeletonAsset>("emptyNewMesh");
+					animation::SkeletonAsset* skeleotnValuePtr = outAssetPack.CreateAsset<animation::SkeletonAsset>("emptyNewMesh");
 					
 					const LArray<SkeletonBoneData>& skeletonBonesData = dataValue->GetBones();
 					for (size_t boneIndex = 0; boneIndex < skeletonBonesData.size();  ++boneIndex)
@@ -60,7 +62,7 @@ namespace luna::asset
 						newBoneData.mBaseRotation = importBoneData.mInitRotation;
 						newBoneData.mBaseScal = importBoneData.mInitScal;
 						newBoneData.mParentIndex = importBoneData.mParentId;
-						meshValuePtr->AddBoneToTree(newBoneData);
+						skeleotnValuePtr->AddBoneToTree(newBoneData);
 					}
 					existSkeleton.insert(dataIndex);
 				}
@@ -69,9 +71,39 @@ namespace luna::asset
 				}
 			}
 		}
+		LArray<size_t> allSkeletonAnimation = importSceneData.FilterAnimationByType(LImportNodeAnimationType::ImportSkeletonAnimation);
+		for (int32_t animIndex = 0; animIndex < allSkeletonAnimation.size(); ++animIndex)
+		{
+			int32_t skelAnimationIndex = allSkeletonAnimation[animIndex];
+			const LImportNodeSkeletonAnimation* skeletonAnimationData = importSceneData.GetAnimation<LImportNodeSkeletonAnimation>(skelAnimationIndex);
+			animation::AnimationClipAsset* animationValuePtr = outAssetPack.CreateAsset<animation::AnimationClipAsset>("emptyNewAnimation");
+			animationValuePtr->mLerpType = animation::LAnimLerpType::LerpLinear;
+			animationValuePtr->mFramePerSec = skeletonAnimationData->GetAnimationFps();
+			animationValuePtr->mAnimClipLength = skeletonAnimationData->GetAnimationLength();
+			size_t curveCount = skeletonAnimationData->GetAnimationCurveCount();
+
+			animationValuePtr->mKeyTimes = skeletonAnimationData->GetAnimationCurveByIndex(0)->GetTranslateCurve().GetTimes();
+			for (size_t curveIndex = 0; curveIndex < curveCount; ++curveIndex)
+			{
+				const BoneAnimationCurve* boneCurve = skeletonAnimationData->GetAnimationCurveByIndex(curveIndex);
+				animationValuePtr->mBoneName.push_back(boneCurve->GetBoneName());
+				animationValuePtr->mBoneNameIdRef.insert({ boneCurve->GetBoneName(),(int32_t)curveIndex });
+				animationValuePtr->mRawData.emplace_back();
+				if (
+					(boneCurve->GetTranslateCurve().GetTimes().size() != boneCurve->GetRotationCurve().GetTimes().size()) 
+					||(boneCurve->GetRotationCurve().GetTimes().size() != boneCurve->GetScaleCurve().GetTimes().size())
+					)
+				{
+					assert(false);
+				}
+				animationValuePtr->mRawData.back().mPosKeys = boneCurve->GetTranslateCurve().GetValues();
+				animationValuePtr->mRawData.back().mRotKeys = boneCurve->GetRotationCurve().GetValues();
+				animationValuePtr->mRawData.back().mScalKeys = boneCurve->GetScaleCurve().GetValues();
+			}
+		}
 	}
 
-	void LMeshAssetImport::AddSceneNodeToStaticMesh(const asset::LImportNodeDataMesh* dataValue, render::MeshAsset* meshValuePtr)
+	void LSingleMeshAndAnimationAssetImport::AddSceneNodeToStaticMesh(const asset::LImportNodeDataMesh* dataValue, render::MeshAsset* meshValuePtr)
 	{
 		for (size_t submeshIndex = 0; submeshIndex < dataValue->GetSubMeshSize(); ++submeshIndex)
 		{
@@ -82,7 +114,7 @@ namespace luna::asset
 		}
 	}
 
-	void LMeshAssetImport::AddSceneNodeToSkeletalMesh(const asset::LImportNodeDataMesh* dataValue, render::SkeletalMeshAsset* meshSkeletalValuePtr)
+	void LSingleMeshAndAnimationAssetImport::AddSceneNodeToSkeletalMesh(const asset::LImportNodeDataMesh* dataValue, render::SkeletalMeshAsset* meshSkeletalValuePtr)
 	{
 		for (size_t submeshIndex = 0; submeshIndex < dataValue->GetSubMeshSize(); ++submeshIndex)
 		{
@@ -96,7 +128,7 @@ namespace luna::asset
 		}
 	}
 
-	void LMeshAssetImport::CopySubmeshVertexCommonInfo(const asset::LImportSubmesh& submeshData,render::SubMesh* it)
+	void LSingleMeshAndAnimationAssetImport::CopySubmeshVertexCommonInfo(const asset::LImportSubmesh& submeshData,render::SubMesh* it)
 	{
 		for (size_t vertexIndex = 0; vertexIndex < submeshData.mVertexPosition.size(); ++vertexIndex)
 		{
@@ -117,7 +149,7 @@ namespace luna::asset
 		}
 	}
 
-	void LMeshAssetImport::CopySubmeshVertexSkinInfo(const asset::LImportSubmesh& submeshData, render::SubMeshSkeletal* it)
+	void LSingleMeshAndAnimationAssetImport::CopySubmeshVertexSkinInfo(const asset::LImportSubmesh& submeshData, render::SubMeshSkeletal* it)
 	{
 		render::SubMeshSkeletal* skeletonPointer = static_cast<render::SubMeshSkeletal*>(it);
 		for (size_t vertexIndex = 0; vertexIndex < submeshData.mVertexPosition.size(); ++vertexIndex)

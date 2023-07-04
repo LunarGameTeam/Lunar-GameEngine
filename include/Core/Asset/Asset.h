@@ -33,7 +33,7 @@ public:
 	virtual void OnLoad() {};
 	
 
-	LString GetAssetPath();
+	LString GetAssetPath()const;
 	
 private:
 	friend class AssetModule;

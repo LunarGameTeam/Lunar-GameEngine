@@ -2,6 +2,7 @@
 #include "Graphics/Asset/MeshAsset.h"
 #include "Graphics/Asset/SkeletalMeshAsset.h"
 #include "Animation/Asset/SkeletonAsset.h"
+#include "Animation/Asset/AnimationClipAsset.h"
 namespace luna::asset
 {
 	void LAssetPack::SerializeAllAsset(const LPath& path)
@@ -35,6 +36,11 @@ namespace luna::asset
 			else if (assetValue->GetClass()->GetName() == LType::Get<animation::SkeletonAsset>()->GetName())
 			{
 				newPath = newPath + ".lskeleton";
+			}
+			else if (assetValue->GetClass()->GetName() == LType::Get<animation::AnimationClipAsset>()->GetName())
+			{
+				//track，默认让animation引用同路径下的同名动画,后面资源导入有界面这里就不需要了
+				newPath = newPath + ".lskelanimclip";
 			}
 			sAssetModule->SaveAsset(assetValue, newPath);
 		}

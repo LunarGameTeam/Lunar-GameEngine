@@ -37,9 +37,9 @@ namespace luna
 			importScene.PostProcessData();
 		}
 
-		luna::asset::LMeshAssetImport meshAssetImporter;
+		luna::asset::LSingleMeshAndAnimationAssetImport commonAssetImporter;
 		luna::asset::LAssetPack assetPackData;
-		meshAssetImporter.ParsingImportScene(importScene, assetPackData);
+		commonAssetImporter.ParsingImportScene(importScene, assetPackData);
 		assetPackData.SerializeAllAsset(resSavePath, fileName);
 	}
 	STATIC_INIT(ResourceImport)

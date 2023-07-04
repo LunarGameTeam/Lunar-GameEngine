@@ -11,6 +11,7 @@
 #include "Graphics/Asset/SkeletalMeshAsset.h"
 #include "Graphics/Asset/TextureAsset.h"
 #include "Animation/Asset/SkeletonAsset.h"
+#include "Animation/Asset/AnimationClipAsset.h"
 #include "Animation/SkeletonAnimation/SkeletalAnimInstanceBase.h"
 
 #include "Graphics/Asset/MaterialTemplate.h"
@@ -69,15 +70,23 @@ public:
 	void SetMeshAsset(SkeletalMeshAsset* obj);
 	
 	void SetSkeletonAsset(animation::SkeletonAsset* obj);
+
+	void SetSkelAnimationAsset(animation::AnimationClipAsset* obj);
 private:
 	
 	SharedPtr<animation::SkeletonAsset> mSkeletonAsset;
+
+	SharedPtr<animation::AnimationClipAsset> mSkelAnimAsset;
 	
 	SharedPtr<SkeletalMeshAsset> mSkeletalMeshAsset;
+
+	animation::SkeletalAnimInstanceBase* mAnimationInstance;
 
 	void CreateRenderObject() override;
 
 	void GetSkeletonPoseMatrix(LArray<LMatrix4f>& poseMatrix);
+
+	void UpdateAnimationInstanceRo();
 };
 
 }

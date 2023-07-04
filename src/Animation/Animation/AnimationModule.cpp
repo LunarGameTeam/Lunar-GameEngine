@@ -49,10 +49,16 @@ namespace luna::animation
 
 	void AnimationModule::RenderTick(float delta_time)
 	{
+		for (auto& eachData : mAnimationInstances)
+		{
+			eachData.second->ApplyAnimation();
+		}
 	}
 
-	SkeletalAnimInstanceBase* AnimationModule::CreateAnimationInstance(
-		const LString& animAssetName)
+	SkeletalAnimInstanceBase* AnimationModule::CreateAnimationInstanceClip(
+		const AnimationClipAsset* animAssetData,
+		const SkeletonAsset* skeletonAssetData
+	)
 	{
 		size_t newIndex = mAnimationInstances.size();
 		if (!mEmptyIndex.empty())
@@ -62,8 +68,8 @@ namespace luna::animation
 		}
 		mAnimationInstances.emplace(newIndex, this);
 		SkeletalAnimInstanceClip* newInstance = TCreateObject<SkeletalAnimInstanceClip>();
-		LSharedPtr<AnimationClipAsset> animationAsset = sAssetModule->LoadAsset<AnimationClipAsset>(animAssetName);
-		newInstance->SetAssetValue(animationAsset);
+		newInstance->SetAsset(animAssetData);
+		newInstance->SetSkeleton(skeletonAssetData);
 		newInstance->SetIndex(newIndex);
 		mAnimationInstances[newIndex].SetPtr(newInstance);
 		return mAnimationInstances[newIndex].Get();
