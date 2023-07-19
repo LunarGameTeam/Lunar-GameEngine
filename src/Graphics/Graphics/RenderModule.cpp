@@ -114,6 +114,7 @@ void RenderModule::SetupIMGUI()
 		icon_ranges);
 	//ImGui::PushFont(font);
 	io.ConfigFlags = io.ConfigFlags | ImGuiConfigFlags_DockingEnable;
+	io.ConfigFlags = io.ConfigFlags | ImGuiConfigFlags_ViewportsEnable;
 	(void)io;
 
 	io.IniFilename = nullptr;
@@ -338,6 +339,7 @@ void RenderModule::Tick(float deltaTime)
 	ImGui::NewFrame();
 	gEngine->OnImGUI();
 	ImGui::EndFrame();
+	mLogicUpdated.store(true);
 }
 
 void RenderModule::RenderTick(float delta_time)
@@ -359,15 +361,17 @@ void RenderModule::RenderTick(float delta_time)
 		ImGui::Render();
 		RenderIMGUI();
 	}	
-
-// 	auto& io = ImGui::GetIO();
-// 	if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-// 	{
-// 		ImGui::UpdatePlatformWindows();
-// 		ImGui::RenderPlatformWindowsDefault();
-// 	}
-
-
+	if (mLogicUpdated.load())
+	{
+		//这里更新每个viewport的window需要等待前一次的ImGui::EndFrame，否则会出现帧数不匹配导致的crash
+		mLogicUpdated.store(false);
+		auto& io = ImGui::GetIO();
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+		}
+	}
 	mFrameGraph->Clear();
 	mRenderContext->OnFrameEnd();
 	{

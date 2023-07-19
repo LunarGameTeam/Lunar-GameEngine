@@ -107,5 +107,7 @@ private:
 	FrameGraphBuilder*                 mFrameGraph          = nullptr;
 
 	bool                               mNeedResizeSwapchain = false;
+
+	std::atomic_bool                   mLogicUpdated = false;
 };
 }
