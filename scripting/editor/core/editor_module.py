@@ -34,7 +34,7 @@ class EditorModule(luna.LModule):
         self.reload_module = set()
         self.windows = {}
 
-        self.current_window = None
+        self.customWindowPannels = []
 
         if False:
             update_asset("/assets/test.scn", luna.Scene)
@@ -61,6 +61,9 @@ class EditorModule(luna.LModule):
             self.current_window = self.windows[cls.__class__]
             self.current_window.on_activate()
 
+    def add_custom_window(self,custom_window):
+        self.customWindowPannels.append(custom_window)
+
     def on_shutdown(self):
         luna.set_config("DefaultProject", self.project_dir)
         if self.main_scene_window.main_scene:
@@ -69,7 +72,7 @@ class EditorModule(luna.LModule):
     def on_init(self):
 
         from editor.scene.scene_window import SceneWindow
-        from editor.ui.custom_window_panel import CustomWindowPanel
+        from editor.ui.model_window import ModelEditWindow
         from editor.scene.scene_window import generate_doc_for_module
 
         global asset_module, game_module, render_module, platform_module
@@ -78,7 +81,8 @@ class EditorModule(luna.LModule):
         self.main_scene_window = self.get_window(SceneWindow)
         self.set_window(SceneWindow)
 
-        self.custom_scene_window  = CustomWindowPanel('CustomWindow',1366,720)
+        #self.custom_scene_window  = CustomWindowPanel('CustomWindow',1366,720)
+        self.add_custom_window(ModelEditWindow(1366,720))
 
         generate_doc_for_module(luna)
 
@@ -107,7 +111,11 @@ class EditorModule(luna.LModule):
         now = time.time()
         delta = now - self.now
 
-        self.custom_scene_window.do_imgui(delta)
+        for i in range(len(self.customWindowPannels) - 1, -1, -1):
+            if self.customWindowPannels[i].check_closed():
+                del self.customWindowPannels[i]
+            else:
+                self.customWindowPannels[i].do_imgui(delta)
         main_view_offset = imgui.get_viewport_pos(self.main_scene_window.view_port)
         imgui.set_color(imgui.ImGuiCol_FrameBgActive, 0x4296FA59)
         window_module = luna.get_module(luna.PlatformModule)
