@@ -17,6 +17,7 @@
 
 #include "Graphics/Renderer/RenderScene.h"
 #include "Graphics/Renderer/RenderView.h"
+#include "Graphics/Renderer/SkeletonSkin.h"
 #include "Graphics/RenderModule.h"
 
 namespace luna::graphics
@@ -24,6 +25,7 @@ namespace luna::graphics
 
 PARAM_ID(SceneBuffer);
 PARAM_ID(ViewBuffer);
+PARAM_ID(SkinMatrixBuffer);
 
 void RenderObjectDrawData::DrawRenderObjects(
 	MeshRenderPass pass, 
@@ -49,7 +51,10 @@ void RenderObjectDrawData::DrawRenderObjects(
 			matInstance->SetShaderInput(ParamID_SceneBuffer, mScene->mSceneParamsBuffer->mView);
 			matInstance->SetShaderInput(ParamID_ViewBuffer, overrideRenderViewBuffer);
 		}
-
+		if (drawRenderObject->mSkinClusterIndex != -1)
+		{
+			matInstance->SetShaderInput(ParamID_SkinMatrixBuffer, mScene->RequireData<SkeletonSkinData>()->GetSkinMatrixBuffer());
+		}
 		for (auto& eachShaderParam : shaderBindingParam)
 		{
 			matInstance->SetShaderInput(eachShaderParam.first, eachShaderParam.second);
