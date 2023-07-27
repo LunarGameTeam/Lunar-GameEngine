@@ -39,14 +39,14 @@ public:
 
 	void Tick(float deltaTime);
 
-	render::RenderScene* GetRenderScene() { return mRenderScene; };
+	graphics::RenderScene* GetRenderScene() { return mRenderScene; };
 public:
 	void Destroy();
 	void OnLoad() override;
 
 private:
 	bool                     mInit = false;
-	render::RenderScene*     mRenderScene;
+	graphics::RenderScene*     mRenderScene;
 	DirectionLightComponent* m_main_light;
 	TPPtrArray<Entity>       mEntites;
 

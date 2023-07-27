@@ -40,7 +40,7 @@ RegisterTypeEmbedd_Imp(CameraComponent)
 	cls->VirtualProperty("render_target")
 		.Getter<&CameraComponent::GetRenderViewTarget>()
 		.Setter<&CameraComponent::SetRenderViewTarget>()
-		.Binding<CameraComponent, render::RenderTarget*>();
+		.Binding<CameraComponent, graphics::RenderTarget*>();
 	cls->VirtualProperty("transform")
 		.Getter<&CameraComponent::GetTransform>()
 		.Binding<CameraComponent, Transform*>();
@@ -102,7 +102,7 @@ void CameraComponent::SetNear(float val)
 	mNear = val;
 }
 
-render::RenderTarget* CameraComponent::GetRenderViewTarget()
+graphics::RenderTarget* CameraComponent::GetRenderViewTarget()
 {
 	if (mRenderView)
 	{
@@ -113,7 +113,7 @@ render::RenderTarget* CameraComponent::GetRenderViewTarget()
 	return nullptr;
 }
 
-void CameraComponent::SetRenderViewTarget(render::RenderTarget* target)
+void CameraComponent::SetRenderViewTarget(graphics::RenderTarget* target)
 {
 	mRenderView->SetRenderTarget(target);
 }

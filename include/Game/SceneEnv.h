@@ -26,7 +26,7 @@ public:
 	{
 
 	}
-	void SetSkyboxMaterial(render::MaterialTemplateAsset* val);
+	void SetSkyboxMaterial(graphics::MaterialTemplateAsset* val);
 
 	void SetAmbientColor(const LVector4f& ambient);
 	void SetGizmosEnable(bool val);
@@ -39,11 +39,11 @@ private:
 	LVector4f mFogColor     = LVector4f(0.1, 0.1, 0.1, 1);
 	LVector4f mAmbientColor = LVector4f(0.1, 0.1, 0.1, 1);
 
-	SharedPtr<render::MeshAsset>             mSkyboxMesh;
-	SharedPtr<render::MaterialTemplateAsset> mSkyboxMaterial;
+	SharedPtr<graphics::MeshAsset>             mSkyboxMesh;
+	SharedPtr<graphics::MaterialTemplateAsset> mSkyboxMaterial;
 
 private:
-	TPPtr<render::MaterialInstance> mMaterialInstance;
+	TPPtr<graphics::MaterialInstance> mMaterialInstance;
 };
 
 }

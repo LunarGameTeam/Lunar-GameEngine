@@ -19,7 +19,7 @@
 using Microsoft::WRL::ComPtr;
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 
@@ -149,12 +149,12 @@ void DX12Device::GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppA
 	*ppAdapter = adapter.Detach();
 }
 
-luna::render::RHIShaderBlobPtr DX12Device::CreateShader(const RHIShaderDesc& desc)
+luna::graphics::RHIShaderBlobPtr DX12Device::CreateShader(const RHIShaderDesc& desc)
 {
 	return CreateRHIObject<DX12ShaderBlob>(desc);
 }
 
-luna::render::RHIPipelineStatePtr DX12Device::CreatePipeline(const RHIPipelineStateDesc& desc)
+luna::graphics::RHIPipelineStatePtr DX12Device::CreatePipeline(const RHIPipelineStateDesc& desc)
 {
 	return CreateRHIObject<DX12PipelineState>(desc);
 };
@@ -169,12 +169,12 @@ RHIBindingSetLayoutPtr DX12Device::CreateBindingSetLayout(const std::vector<RHIB
 	return CreateRHIObject<DX12BindingSetLayout>(bindKeys);
 }
 
-luna::render::TRHIPtr<luna::render::RHIMemory> DX12Device::AllocMemory(const RHIMemoryDesc& desc, uint32_t memoryBits /*= 0*/)
+luna::graphics::TRHIPtr<luna::graphics::RHIMemory> DX12Device::AllocMemory(const RHIMemoryDesc& desc, uint32_t memoryBits /*= 0*/)
 {
 	return CreateRHIObject<DX12Memory>(desc);;
 }
 
-luna::render::RHIDescriptorPoolPtr DX12Device::CreateDescriptorPool(const DescriptorPoolDesc& desc)
+luna::graphics::RHIDescriptorPoolPtr DX12Device::CreateDescriptorPool(const DescriptorPoolDesc& desc)
 {
 	return CreateRHIObject<DX12DescriptorPool>(desc);
 }
@@ -231,7 +231,7 @@ RHIBindingSetPtr DX12Device::CreateBindingSet(RHIDescriptorPool* pool, RHIBindin
 	return CreateRHIObject<DX12BindingSet>(pool, layout);
 }
 
-luna::render::RHIResourcePtr DX12Device::CreateTextureExt(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc)
+luna::graphics::RHIResourcePtr DX12Device::CreateTextureExt(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc)
 {
 	return CreateRHIObject<DX12Resource>(textureDesc, resDesc);
 }

@@ -1,7 +1,7 @@
 #pragma once
 #include "Graphics/Asset/MeshAsset.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 	void AddLineToSubMesh(const BaseVertex& v1, const BaseVertex& v2, SubMesh& submeshData);
 

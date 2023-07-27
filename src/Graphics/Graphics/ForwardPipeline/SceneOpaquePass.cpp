@@ -16,7 +16,7 @@
 
 #include "Graphics/ForwardPipeline/ForwardRenderData.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 PARAM_ID(SceneBuffer);
@@ -27,7 +27,7 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 {
 	
 	auto& node = builder->AddPass("Opaque");
-	auto meshCmds = view->RequireData<MeshPassDrawData>();
+	auto meshCmds = view->RequireData<RenderObjectDrawData>();
 	meshCmds->SetROFilter(MeshRenderPass::LightingPass, [](RenderObject*ro)->bool
 	{
 		return true;		
@@ -93,9 +93,8 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 	node.SetColorAttachment(colorView);
 	node.SetDepthStencilAttachment(depthView);
 
-	static auto sSkyboxMesh = sAssetModule->LoadAsset<MeshAsset>("/assets/built-in/Geometry/Sphere.lmesh");	
-	static int32_t sSkyboxMeshID = renderScene->GetData<AssetSceneData>()->AddMeshData(sSkyboxMesh->GetSubMeshAt(0));
-	static RenderMeshBase* sSkyboxRenderMesh = renderScene->GetData<AssetSceneData>()->GetMeshData(sSkyboxMeshID);
+	static auto sSkyboxMesh = sAssetModule->LoadAsset<MeshAsset>("/assets/built-in/Geometry/Sphere.lmesh");		
+	static RenderMeshBase* sSkyboxRenderMesh = sSkyboxMesh->GetSubMeshAt(0)->GetRenderMeshBase();
 
 	node.ExcuteFunc([=](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
 	{
@@ -118,7 +117,7 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 		}
 
 		RHIResource* instancingBuffer = renderScene->mROIDInstancingBuffer->mRes;
-		std::unordered_map<luna::render::ShaderParamID, luna::render::RHIView*> shaderBindingParam;
+		std::unordered_map<luna::graphics::ShaderParamID, luna::graphics::RHIView*> shaderBindingParam;
 		if (shadowmapView)
 			shaderBindingParam.insert({ ParamID__ShadowMap ,shadowmapView->mRHIView.get() });
 
@@ -132,7 +131,7 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 		if (irradianceView)
 			shaderBindingParam.insert({ ParamID__IrradianceTex ,irradianceView->mRHIView.get() });
 
-		view->RequireData<MeshPassDrawData>()->DrawMeshs(MeshRenderPass::LightingPass, shaderBindingParam, nullptr);
+		view->RequireData<RenderObjectDrawData>()->DrawRenderObjects(MeshRenderPass::LightingPass, shaderBindingParam, nullptr);
 		
 	});
 }

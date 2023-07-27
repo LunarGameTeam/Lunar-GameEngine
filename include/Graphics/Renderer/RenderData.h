@@ -4,7 +4,7 @@
 #include "Graphics/RenderTypes.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 struct RENDER_API RenderData
 {

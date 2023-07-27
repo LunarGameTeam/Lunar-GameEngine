@@ -8,7 +8,7 @@
 
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 void DX12BindingSet::WriteBindings( const std::vector<BindingDesc>& bindings)

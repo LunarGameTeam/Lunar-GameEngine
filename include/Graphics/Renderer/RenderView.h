@@ -15,7 +15,7 @@
 
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 

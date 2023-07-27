@@ -3,7 +3,7 @@
 #include "DX12Pch.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 	class RENDER_API Dx12RenderPass : public RHIRenderPass
 	{

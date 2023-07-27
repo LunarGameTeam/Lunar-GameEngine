@@ -5,7 +5,7 @@
 #include "Graphics/RHI/RHICmdList.h"
 #include "Graphics/RHI/RHIFrameBuffer.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 class RENDER_API DX12CmdSignature : public RHICmdSignature
 {

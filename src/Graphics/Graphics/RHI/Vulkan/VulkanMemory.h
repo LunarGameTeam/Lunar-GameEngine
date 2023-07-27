@@ -7,7 +7,7 @@
 
 #include <Vulkan/vulkan.h>
 
-namespace luna::render
+namespace luna::graphics
 {
 class RENDER_API VulkanMemory : public RHIMemory
 {

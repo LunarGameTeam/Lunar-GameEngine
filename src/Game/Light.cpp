@@ -86,7 +86,7 @@ void LightComponent::SetCastShadow(bool val)
 void DirectionLightComponent::OnTransformDirty(Transform* transform)
 {
 	mLight->mDirty = true;
-	render::DirectionLight* light = (render::DirectionLight*)mLight;
+	graphics::DirectionLight* light = (graphics::DirectionLight*)mLight;
 	light->mDirection = GetDirection();
 
 }
@@ -127,7 +127,7 @@ void PointLightComponent::OnTransformDirty(Transform* transform)
 {
 	GetScene()->GetRenderScene()->SetSceneBufferDirty();
 	mLight->mDirty = true;
-	render::PointLight* light = (render::PointLight*)mLight;
+	graphics::PointLight* light = (graphics::PointLight*)mLight;
 	light->mPosition = mTransform->GetPosition();
 
 }

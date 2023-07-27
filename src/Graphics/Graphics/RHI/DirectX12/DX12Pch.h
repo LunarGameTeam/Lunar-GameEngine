@@ -13,7 +13,7 @@
 #include "Graphics/RHI/RHIDevice.h"
 #include "Graphics/RHI/RHIDescriptor.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 ENABLE_BITMASK_OPERATORS(D3D12_SHADER_VISIBILITY);

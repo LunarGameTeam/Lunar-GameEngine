@@ -5,7 +5,7 @@
 #include "Graphics/RHI/RHIDevice.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 vk::DescriptorType Convert(RHIViewType view_type);

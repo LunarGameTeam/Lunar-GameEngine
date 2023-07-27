@@ -5,7 +5,7 @@
 #include "Graphics/RHI/RHIPipeline.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 class RENDER_API DX12PipelineState : public RHIPipelineState
 {

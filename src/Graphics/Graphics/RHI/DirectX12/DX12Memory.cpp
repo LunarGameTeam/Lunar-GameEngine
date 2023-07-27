@@ -5,7 +5,7 @@
 #include "Graphics/RHI/DirectX12/DX12Device.h"
 #include "Graphics/RenderModule.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 DX12Memory::DX12Memory(const RHIMemoryDesc& memoryDesc) : RHIMemory(memoryDesc)
 {

@@ -3,7 +3,7 @@
 #include "d3dx12.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 
@@ -895,34 +895,34 @@ D3D12_SRV_DIMENSION RENDER_API GetSrvDimentionByView(RHIViewDimension view_dimen
 {
 	switch (view_dimension)
 	{
-	case luna::render::RHIViewDimension::BufferView:
+	case luna::graphics::RHIViewDimension::BufferView:
 		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_BUFFER;
 		break;
-	case luna::render::RHIViewDimension::TextureView1D:
+	case luna::graphics::RHIViewDimension::TextureView1D:
 		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURE1D;
 		break;
-	case luna::render::RHIViewDimension::TextureView1DArray:
+	case luna::graphics::RHIViewDimension::TextureView1DArray:
 		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURE1DARRAY;
 		break;
-	case luna::render::RHIViewDimension::TextureView2D:
+	case luna::graphics::RHIViewDimension::TextureView2D:
 		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURE2D;
 		break;
-	case luna::render::RHIViewDimension::TextureView2DArray:
+	case luna::graphics::RHIViewDimension::TextureView2DArray:
 		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURE2DARRAY;
 		break;
-	case luna::render::RHIViewDimension::TextureView3D:
+	case luna::graphics::RHIViewDimension::TextureView3D:
 		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURE3D;
 		break;
-	case luna::render::RHIViewDimension::TextureView3DArray:
+	case luna::graphics::RHIViewDimension::TextureView3DArray:
 		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURE3D;
 		break;
-	case luna::render::RHIViewDimension::TextureViewCube:
+	case luna::graphics::RHIViewDimension::TextureViewCube:
 		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURECUBE;
 		break;
-	case luna::render::RHIViewDimension::TextureViewCubeArray:
+	case luna::graphics::RHIViewDimension::TextureViewCubeArray:
 		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
 		break;
-	case luna::render::RHIViewDimension::Unknown:
+	case luna::graphics::RHIViewDimension::Unknown:
 		return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_UNKNOWN;
 		break;
 	default:
@@ -1165,13 +1165,13 @@ D3D12_DSV_FLAGS RENDER_API GetBufferDsvFlags(LDSViewFlags dsv_flag)
 {
 	switch (dsv_flag)
 	{
-	case luna::render::LUNA_DSV_FLAG_NONE:
+	case luna::graphics::LUNA_DSV_FLAG_NONE:
 		return D3D12_DSV_FLAGS::D3D12_DSV_FLAG_NONE;
 		break;
-	case luna::render::LUNA_DSV_FLAG_READ_ONLY_DEPTH:
+	case luna::graphics::LUNA_DSV_FLAG_READ_ONLY_DEPTH:
 		return D3D12_DSV_FLAGS::D3D12_DSV_FLAG_READ_ONLY_DEPTH;
 		break;
-	case luna::render::LUNA_DSV_FLAG_READ_ONLY_STENCIL:
+	case luna::graphics::LUNA_DSV_FLAG_READ_ONLY_STENCIL:
 		return D3D12_DSV_FLAGS::D3D12_DSV_FLAG_READ_ONLY_STENCIL;
 		break;
 	default:

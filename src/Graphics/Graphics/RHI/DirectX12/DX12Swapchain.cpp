@@ -7,7 +7,7 @@
 using namespace Microsoft::WRL;
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 void DX12SwapChain::PresentFrame(RHIFence* fence, uint64_t waitValue)
@@ -62,11 +62,11 @@ bool DX12SwapChain::Reset(const RHISwapchainDesc& window_width_in)
 		RHIResourcePtr back_rt_tex = CreateRHIObject<DX12Resource>(frameIndex,this);
 		mBackBuffers.push_back(back_rt_tex);
 
-		render::ViewDesc backbufferViewDesc;
+		graphics::ViewDesc backbufferViewDesc;
 
 		backbufferViewDesc.mBaseMipLevel = 0;
-		backbufferViewDesc.mViewType = render::RHIViewType::kRenderTarget;
-		backbufferViewDesc.mViewDimension = render::RHIViewDimension::TextureView2D;
+		backbufferViewDesc.mViewType = graphics::RHIViewType::kRenderTarget;
+		backbufferViewDesc.mViewDimension = graphics::RHIViewDimension::TextureView2D;
 		RHIViewPtr back_rt_view = sRenderModule->GetRHIDevice()->CreateView(backbufferViewDesc);
 		back_rt_view->BindResource(back_rt_tex);
 		mViews.push_back(back_rt_view);

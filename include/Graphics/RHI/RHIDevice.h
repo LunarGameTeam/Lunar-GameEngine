@@ -7,7 +7,7 @@
 #include "Core/Platform/Window.h"
 #include "Graphics/RHI/RHICmdList.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 //图形设备单例，用于处理图形资源的分配和管理
 class RENDER_API RHIDevice : public RHIObject

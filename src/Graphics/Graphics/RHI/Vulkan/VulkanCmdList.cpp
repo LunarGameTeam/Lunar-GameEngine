@@ -16,7 +16,7 @@
 
 #include "Graphics/RenderModule.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 VulkanCmdSignature::VulkanCmdSignature(

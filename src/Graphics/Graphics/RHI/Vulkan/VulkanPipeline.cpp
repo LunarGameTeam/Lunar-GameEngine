@@ -14,7 +14,7 @@
 #include <Vulkan/vulkan_format_traits.hpp>
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 

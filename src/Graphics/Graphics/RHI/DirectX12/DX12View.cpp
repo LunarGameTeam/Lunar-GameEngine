@@ -6,7 +6,7 @@
 
 #include "Graphics/RenderModule.h"
 
-namespace luna::render 
+namespace luna::graphics 
 {
 
 DX12View::DX12View(const ViewDesc& viewDesc) :

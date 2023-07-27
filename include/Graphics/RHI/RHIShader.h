@@ -5,10 +5,10 @@
 #include "Graphics/RHI/RHIPtr.h"
 #include "Graphics/RHI/RHIBindingSetLayout.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
-#define PARAM_ID(name) static luna::render::ShaderParamID ParamID_##name = luna::LString(#name).Hash();
+#define PARAM_ID(name) static luna::graphics::ShaderParamID ParamID_##name = luna::LString(#name).Hash();
 
 struct RHIShaderDesc
 {

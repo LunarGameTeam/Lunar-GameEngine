@@ -4,7 +4,7 @@
 #include "Graphics/RHI/DirectX12/DX12Pch.h"
 #include"Graphics/RHI/DirectX12/DX12DescriptorImpl.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 

@@ -7,7 +7,7 @@
 #include "Graphics/RenderModule.h"
 #include "Graphics/RHI/Vulkan/VulkanResource.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 class RENDER_API VulkanView : public RHIView

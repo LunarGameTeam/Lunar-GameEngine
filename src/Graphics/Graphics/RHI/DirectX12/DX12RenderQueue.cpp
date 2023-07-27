@@ -8,7 +8,7 @@ using Microsoft::WRL::ComPtr;
 using namespace luna;
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 DX12RenderQueue::DX12RenderQueue(RHIQueueType type)
@@ -20,10 +20,10 @@ DX12RenderQueue::DX12RenderQueue(RHIQueueType type)
 
 	switch (type)
 	{
-	case luna::render::RHIQueueType::eGraphic:
+	case luna::graphics::RHIQueueType::eGraphic:
 		queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 		break;
-	case luna::render::RHIQueueType::eTransfer:
+	case luna::graphics::RHIQueueType::eTransfer:
 		queueDesc.Type = D3D12_COMMAND_LIST_TYPE_COPY;
 		break;
 	default:

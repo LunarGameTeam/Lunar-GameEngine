@@ -5,7 +5,7 @@
 #include "Graphics/RHI/RHIDescriptorHeap.h"
 #include "Graphics/RHI/RHIPtr.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 struct LShaderResourceViewDesc

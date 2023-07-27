@@ -7,7 +7,7 @@
 using Microsoft::WRL::ComPtr;
 
 
-namespace luna::render
+namespace luna::graphics
 {
 	DX12Resource::DX12Resource(const RHIBufferDesc& buffer_desc)
 	{

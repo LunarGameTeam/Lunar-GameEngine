@@ -2,7 +2,7 @@
 
 #include <boost/container_hash/hash.hpp>
 
-namespace luna::render
+namespace luna::graphics
 {
 
 }

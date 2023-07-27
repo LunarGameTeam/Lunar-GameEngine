@@ -8,7 +8,7 @@
 
 #include "Graphics/RHI/DirectX12/DX12DescriptorPool.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 class DX12BindingSetLayout;

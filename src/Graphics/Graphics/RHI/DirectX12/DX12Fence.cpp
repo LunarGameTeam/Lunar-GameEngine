@@ -5,7 +5,7 @@
 #include "Graphics/RenderModule.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 DX12Fence::DX12Fence() : mEvent(nullptr)
 {

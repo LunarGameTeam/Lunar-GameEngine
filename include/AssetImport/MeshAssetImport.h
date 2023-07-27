@@ -1,6 +1,6 @@
 #pragma once
 #include "AssetImport/AssetImportCommon.h"
-namespace luna::render
+namespace luna::graphics
 {
 	class MeshAsset;
 	class SkeletalMeshAsset;
@@ -15,13 +15,13 @@ class ASSET_IMPORT_API LSingleMeshAndAnimationAssetImport :public LAssetImportBa
 private:
 	void ParsingImportSceneImpl(const asset::LImportScene& importSceneData, LAssetPack& outAssetPack) override;
 
-	void AddSceneNodeToStaticMesh(const asset::LImportNodeDataMesh* dataValue, render::MeshAsset* meshValuePtr);
+	void AddSceneNodeToStaticMesh(const asset::LImportNodeDataMesh* dataValue, graphics::MeshAsset* meshValuePtr);
 
-	void AddSceneNodeToSkeletalMesh(const asset::LImportNodeDataMesh* dataValue, render::SkeletalMeshAsset* meshSkeletalValuePtr);
+	void AddSceneNodeToSkeletalMesh(const asset::LImportNodeDataMesh* dataValue, graphics::SkeletalMeshAsset* meshSkeletalValuePtr);
 
-	void CopySubmeshVertexCommonInfo(const asset::LImportSubmesh& submeshData, render::SubMesh* it);
+	void CopySubmeshVertexCommonInfo(const asset::LImportSubmesh& submeshData, graphics::SubMesh* it);
 
-	void CopySubmeshVertexSkinInfo(const asset::LImportSubmesh& submeshData, render::SubMeshSkeletal* it);
+	void CopySubmeshVertexSkinInfo(const asset::LImportSubmesh& submeshData, graphics::SubMeshSkeletal* it);
 };
 
 }

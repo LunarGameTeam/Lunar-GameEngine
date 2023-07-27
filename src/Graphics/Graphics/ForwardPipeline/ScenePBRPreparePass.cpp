@@ -19,7 +19,7 @@
 
 #include "Graphics/ForwardPipeline/ForwardRenderData.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 PARAM_ID(SceneBuffer);
@@ -66,9 +66,8 @@ void PBRPreparePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* r
 
 	static auto irrMat = sAssetModule->LoadAsset<MaterialTemplateAsset>(
 		"/assets/built-in/IrradianceCube.mat");
-	static SharedPtr<MeshAsset> cubeMeshAsset = sAssetModule->LoadAsset<MeshAsset>("/assets/built-in/Geometry/Box.lmesh");
-	static int32_t cubeMeshID = renderScene->GetData<AssetSceneData>()->AddMeshData(cubeMeshAsset->GetSubMeshAt(0));
-	static RenderMeshBase* cubeRenderMesh = renderScene->GetData<AssetSceneData>()->GetMeshData(cubeMeshID);
+	static SharedPtr<MeshAsset> cubeMeshAsset = sAssetModule->LoadAsset<MeshAsset>("/assets/built-in/Geometry/Box.lmesh");	
+	static RenderMeshBase* cubeRenderMesh = cubeMeshAsset->GetSubMeshAt(0)->GetRenderMeshBase();
 
 
 	static LArray<MaterialInstance*> iradMatInstance;

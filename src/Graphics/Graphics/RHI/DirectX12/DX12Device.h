@@ -5,7 +5,7 @@
 #include "Graphics/RHI/DirectX12/DX12Device.h"
 #include "Graphics/RHI/DirectX12/DX12DescriptorImpl.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 class LDirectx12DynamicRingBuffer;
 

@@ -12,7 +12,7 @@
 #include "Graphics/RHI/RHIDescriptor.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 class RENDER_API Texture2D : public LBinaryAsset

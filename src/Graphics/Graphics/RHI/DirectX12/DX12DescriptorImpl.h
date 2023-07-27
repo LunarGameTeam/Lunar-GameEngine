@@ -6,7 +6,7 @@
 
 using namespace Microsoft::WRL;
 
-namespace luna::render
+namespace luna::graphics
 {
 
 struct Dx12DescriptorList

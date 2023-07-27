@@ -1,7 +1,7 @@
 #include "Graphics/RHI/Vulkan/VulkanResource.h"
 #include "Graphics/RHI/Vulkan/VulkanMemory.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 void VulkanResource::UpdateUploadBuffer(size_t offset, const void* copy_data, size_t data_size)

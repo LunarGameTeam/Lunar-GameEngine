@@ -4,7 +4,7 @@
 #include "Graphics/RHI/RHITypes.h"
 #include "Graphics/RHI/VertexLayout.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 #define VULKAN_ASSERT(res) LUNA_ASSERT((res) == vk::Result::eSuccess)

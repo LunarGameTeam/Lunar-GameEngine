@@ -4,7 +4,7 @@
 #include "VulkanBindingSet.h"
 #include "VulkanView.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 VulkanBindingSetLayout::VulkanBindingSetLayout(const std::vector<RHIBindPoint>& bindKeys)

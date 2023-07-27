@@ -38,7 +38,7 @@ RegisterTypeEmbedd_Imp(SceneEnvComponent)
 	BindingModule::Luna()->AddType(cls);
 }
 
-void SceneEnvComponent::SetSkyboxMaterial(render::MaterialTemplateAsset* val)
+void SceneEnvComponent::SetSkyboxMaterial(graphics::MaterialTemplateAsset* val)
 {
 	if (GetScene() && val)
 	{

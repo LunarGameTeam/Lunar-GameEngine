@@ -4,7 +4,7 @@
 #include "Graphics/RHI/RHIPtr.h"
 
 //fence,用于检测gpu端命令是否运行完毕
-namespace luna ::render
+namespace luna ::graphics
 {
 
 class RENDER_API RHIFence : public RHIObject

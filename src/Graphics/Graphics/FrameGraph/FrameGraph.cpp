@@ -15,7 +15,7 @@
 #include "Graphics/Asset/ShaderAsset.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 FrameGraphBuilder::FrameGraphBuilder(const LString& graph_name)

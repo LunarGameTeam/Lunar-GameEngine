@@ -2,7 +2,7 @@
 #include "Graphics/RenderModule.h"
 #include "Game/Scene.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 RegisterTypeEmbedd_Imp(RendererComponent)

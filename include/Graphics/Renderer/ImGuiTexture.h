@@ -6,10 +6,10 @@
 
 namespace luna
 {
-RegisterType(RENDER_API, render::RHIResource, RHIResource);
+RegisterType(RENDER_API, graphics::RHIResource, RHIResource);
 }
 
-namespace luna::render
+namespace luna::graphics
 {
 
 //IMGUI
@@ -24,6 +24,6 @@ public:
 
 namespace luna::binding
 {
-template<> struct binding_converter<render::RHIResource*> : native_converter<render::RHIResource> { };
-template<> struct binding_proxy<render::RHIResource> : native_binding_proxy<render::RHIResource> { };
+template<> struct binding_converter<graphics::RHIResource*> : native_converter<graphics::RHIResource> { };
+template<> struct binding_proxy<graphics::RHIResource> : native_binding_proxy<graphics::RHIResource> { };
 }

@@ -9,7 +9,7 @@
 #include "Graphics/RHI/RHIResource.h"
 #include "Graphics/RHI/RHIDescriptor.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 

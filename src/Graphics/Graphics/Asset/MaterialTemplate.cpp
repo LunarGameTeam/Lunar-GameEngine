@@ -11,23 +11,23 @@
 namespace luna
 {
 
-REGISTER_ENUM_TYPE(render::RHIPrimitiveTopologyType, int)
-REGISTER_ENUM_TYPE(render::RHIRasterizerCullMode, int)
+REGISTER_ENUM_TYPE(graphics::RHIPrimitiveTopologyType, int)
+REGISTER_ENUM_TYPE(graphics::RHIRasterizerCullMode, int)
 
 namespace binding
 {
 
 template<>
-struct binding_converter<render::RHIPrimitiveTopologyType> : enum_converter< render::RHIPrimitiveTopologyType> {};
+struct binding_converter<graphics::RHIPrimitiveTopologyType> : enum_converter< graphics::RHIPrimitiveTopologyType> {};
 
 template<>
-struct binding_converter<render::RHIRasterizerCullMode> : enum_converter< render::RHIRasterizerCullMode> {};
+struct binding_converter<graphics::RHIRasterizerCullMode> : enum_converter< graphics::RHIRasterizerCullMode> {};
 
 }
 
 
 }
-namespace luna::render
+namespace luna::graphics
 {
 
 RegisterTypeEmbedd_Imp(MaterialTemplateAsset)

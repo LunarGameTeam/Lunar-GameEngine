@@ -8,7 +8,7 @@
 
 #include <algorithm>
 
-namespace luna::render
+namespace luna::graphics
 {
 	RegisterTypeEmbedd_Imp(SubMeshSkeletal)
 	{
@@ -30,9 +30,9 @@ namespace luna::render
 		mType = SubMeshType::SubMeshSkined;
 	}
 
-	render::SubMesh* SkeletalMeshAsset::GenerateSubmesh(size_t submeshVertexSize, size_t submeshIndexSize)
+	graphics::SubMesh* SkeletalMeshAsset::GenerateSubmesh(size_t submeshVertexSize, size_t submeshIndexSize)
 	{
-		render::SubMeshSkeletal* sub_mesh = TCreateObject<render::SubMeshSkeletal>();
+		graphics::SubMeshSkeletal* sub_mesh = TCreateObject<graphics::SubMeshSkeletal>();
 		sub_mesh->mVertexData.resize(submeshVertexSize);
 		sub_mesh->mIndexData.resize(submeshIndexSize);
 		sub_mesh->mSkinData.resize(submeshVertexSize);
@@ -42,7 +42,7 @@ namespace luna::render
 	void SkeletalMeshAsset::ReadVertexData(size_t idx, const byte* &ptr)
 	{
 		MeshAsset::ReadVertexData(idx, ptr);
-		luna::render::SubMeshSkeletal* subMeshData = static_cast<SubMeshSkeletal*>(mSubMesh[idx]);
+		luna::graphics::SubMeshSkeletal* subMeshData = static_cast<SubMeshSkeletal*>(mSubMesh[idx]);
 		memcpy(subMeshData->mSkinData.data(), ptr, subMeshData->mSkinData.size() * sizeof(SkinVertex));
 		ptr += subMeshData->mSkinData.size() * sizeof(SkinVertex);
 		size_t refBoneNumber = 0;
@@ -68,7 +68,7 @@ namespace luna::render
 	void SkeletalMeshAsset::WriteVertexData(size_t idx, LArray<byte>& data)
 	{
 		MeshAsset::WriteVertexData(idx, data);
-		luna::render::SubMeshSkeletal* subMeshData = static_cast<SubMeshSkeletal*>(mSubMesh[idx]);
+		luna::graphics::SubMeshSkeletal* subMeshData = static_cast<SubMeshSkeletal*>(mSubMesh[idx]);
 		CopyPointToByteArray(subMeshData->mSkinData.data(), subMeshData->mSkinData.size() * sizeof(SkinVertex), data);
 		size_t refBoneNumber = subMeshData->mRefBoneName.size();
 		CopyPointToByteArray(&refBoneNumber, sizeof(size_t), data);

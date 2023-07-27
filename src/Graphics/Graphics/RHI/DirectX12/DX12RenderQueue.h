@@ -3,7 +3,7 @@
 #include "DX12CommandList.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 static constexpr int32_t MaxCommonListSubmit = 64;
 

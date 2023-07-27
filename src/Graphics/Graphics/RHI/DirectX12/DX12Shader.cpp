@@ -4,7 +4,7 @@ using namespace luna;
 using Microsoft::WRL::ComPtr;
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 Microsoft::WRL::ComPtr<IDxcContainerReflection> sReflection;

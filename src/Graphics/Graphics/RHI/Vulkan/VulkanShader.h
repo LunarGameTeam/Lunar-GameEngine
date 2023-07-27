@@ -12,7 +12,7 @@
 #include <dxc/dxcapi.h>
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 void InitResources(TBuiltInResource& Resources);

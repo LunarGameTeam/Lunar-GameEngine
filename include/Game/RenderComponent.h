@@ -9,7 +9,7 @@
 
 
 
-namespace luna::render
+namespace luna::graphics
 {
 class GAME_API RendererComponent : public Component
 {

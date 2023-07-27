@@ -6,7 +6,7 @@
 #include "Graphics/RHI/RHIMemory.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 enum class ResourceType

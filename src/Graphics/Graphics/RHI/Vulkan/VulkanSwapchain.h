@@ -11,7 +11,7 @@
 #include <Vulkan/vulkan_win32.h>
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 struct SwapChainSupportDetails

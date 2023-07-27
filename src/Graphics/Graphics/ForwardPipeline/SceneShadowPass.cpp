@@ -16,7 +16,7 @@
 
 #include "Graphics/ForwardPipeline/ForwardRenderData.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 PARAM_ID(SceneBuffer);
@@ -27,14 +27,14 @@ void DirectionalLightShadowPass(FrameGraphBuilder* builder, RenderView* view, Re
 {
 	if (!renderScene->mMainDirLight || !renderScene->mMainDirLight->mCastShadow)
 		return;
-	auto meshCmds = view->RequireData<MeshPassDrawData>();
+	auto meshCmds = view->RequireData<RenderObjectDrawData>();
 	meshCmds->SetROFilter(MeshRenderPass::DirectLightShadowDepthPass, [](RenderObject* renderObject)->bool
 	{
 		if (renderObject->mCastShadow)
 		{
 			return true;
 		}
-		return false;		
+		return false;
 	});
 	static auto shadowMatAsset = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/Depth.mat");
 	static auto shadowMat = shadowMatAsset->GetDefaultInstance();
@@ -42,7 +42,7 @@ void DirectionalLightShadowPass(FrameGraphBuilder* builder, RenderView* view, Re
 		shadowMat->Ready();
 	meshCmds->SetOverrideMaterialInstance(MeshRenderPass::DirectLightShadowDepthPass, shadowMat);
 
-	auto& node = builder->AddPass("Directional LightShadowmap");	
+	auto& node = builder->AddPass("Directional LightShadowmap");
 	auto shadowData = view->RequireData<ViewShadowData>();
 
 	FGTexture* color = builder->CreateTexture(
@@ -68,10 +68,10 @@ void DirectionalLightShadowPass(FrameGraphBuilder* builder, RenderView* view, Re
 
 	node.ExcuteFunc([view, renderScene](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
 	{
-		std::unordered_map<luna::render::ShaderParamID, luna::render::RHIView*> shaderBindingParam;
+		std::unordered_map<luna::graphics::ShaderParamID, luna::graphics::RHIView*> shaderBindingParam;
 		(renderScene->mMainDirLight->mParamBuffer->mView.get(), shaderBindingParam);
 
-		view->RequireData<MeshPassDrawData>()->DrawMeshs(MeshRenderPass::DirectLightShadowDepthPass,shaderBindingParam, renderScene->mMainDirLight->mParamBuffer->mView.get());
+		view->RequireData<RenderObjectDrawData>()->DrawRenderObjects(MeshRenderPass::DirectLightShadowDepthPass, shaderBindingParam, renderScene->mMainDirLight->mParamBuffer->mView.get());
 	});
 }
 
@@ -93,14 +93,14 @@ void PointShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* 
 		shadowMat->Ready();
 
 
-	auto meshCmds = view->RequireData<MeshPassDrawData>();
+	auto meshCmds = view->RequireData<RenderObjectDrawData>();
 	meshCmds->SetROFilter(MeshRenderPass::PointLightShadowDepthPass, [](RenderObject* renderObject)->bool
 	{
 		if (renderObject->mCastShadow)
 		{
 			return true;
 		}
-		return false;		
+		return false;
 	});
 	meshCmds->SetOverrideMaterialInstance(MeshRenderPass::PointLightShadowDepthPass, shadowMat);
 
@@ -142,12 +142,12 @@ void PointShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* 
 			{
 				if (!it->mCastShadow)
 					continue;
-				std::unordered_map<luna::render::ShaderParamID, luna::render::RHIView*> shaderBindingParam;
-				view->RequireData<MeshPassDrawData>()->DrawMeshs(MeshRenderPass::PointLightShadowDepthPass,shaderBindingParam, it->mParamBuffer[idx]->mView);	
+				std::unordered_map<luna::graphics::ShaderParamID, luna::graphics::RHIView*> shaderBindingParam;
+				view->RequireData<RenderObjectDrawData>()->DrawRenderObjects(MeshRenderPass::PointLightShadowDepthPass, shaderBindingParam, it->mParamBuffer[idx]->mView);
 			}
 		});
 	}
-	
+
 }
 
 }

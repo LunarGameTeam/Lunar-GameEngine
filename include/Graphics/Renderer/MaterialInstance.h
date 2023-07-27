@@ -11,7 +11,7 @@
 #include "Core/Object/SharedObject.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 enum class MaterialParamType : uint8_t
@@ -185,5 +185,5 @@ private:
 
 namespace luna
 {
-REGISTER_ENUM_TYPE(render::MaterialParamType, int)
+REGISTER_ENUM_TYPE(graphics::MaterialParamType, int)
 }

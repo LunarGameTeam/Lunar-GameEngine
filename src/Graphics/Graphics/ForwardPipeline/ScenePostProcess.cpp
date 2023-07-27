@@ -15,7 +15,7 @@
 
 #include "Graphics/ForwardPipeline/ForwardRenderData.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 PARAM_ID(SceneBuffer);

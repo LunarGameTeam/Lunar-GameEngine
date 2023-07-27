@@ -5,7 +5,7 @@
 #include <vector>
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 RegisterTypeEmbedd_Imp(RenderTarget)

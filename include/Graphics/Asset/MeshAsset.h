@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Core/Math/Math.h"
 #include "Core/Foundation/Container.h"
 #include "Core/Scripting/Binding.h"
@@ -8,9 +8,10 @@
 #include "Graphics/RHI/RHIResource.h"
 #include "Core/Scripting/BindingProxy.h"
 
-namespace luna::render
+namespace luna::graphics
 {
-	class RHIResource;
+class RenderMeshBase;
+class RHIResource;
 
 
 	struct BaseVertex
@@ -57,12 +58,18 @@ namespace luna::render
 		int GetVertexCount() const { return (int)mVertexData.size(); }
 		int GetIndexCount() const { return(int)mIndexData.size(); }
 
-		LArray<BaseVertex> mVertexData;
-		LArray<uint32_t> mIndexData;
+		graphics::RenderMeshBase* GetRenderMeshBase();
 
-		RHIVertexLayout mVeretexLayout;
-		LString mAssetPath;
-		size_t mSubmeshIndex;
+
+		RenderMeshBase*    mMeshData = nullptr;
+
+		LArray<BaseVertex> mVertexData;
+		LArray<uint32_t>   mIndexData;
+
+		RHIVertexLayout    mVeretexLayout;
+		LString            mAssetPath;
+		size_t             mSubmeshIndex;
+
 		SubMeshType mType;
 		size_t GetStridePerVertex() { return mVeretexLayout.GetSize()[0]; };
 		size_t GetStridePerInstance() { return mVeretexLayout.GetSize()[1]; };
@@ -88,12 +95,12 @@ namespace luna::render
 
 		LArray<SubMesh*> mSubMesh;
 
-		//Asset×ÊÔ´¶ÁÈëµ½ÄÚ´æÊ±»Øµ÷
+		//Assetèµ„æºè¯»å…¥åˆ°å†…å­˜æ—¶å›è°ƒ
 		virtual void OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> file) override;
-		//Asset×ÊÔ´Ğ´Èëµ½´ÅÅÌÊ±»Øµ÷	
+		//Assetèµ„æºå†™å…¥åˆ°ç£ç›˜æ—¶å›è°ƒ	
 		virtual void OnAssetFileWrite(LSharedPtr<JsonDict> meta, LArray<byte>& data) override;
 	protected:
-		virtual render::SubMesh* GenerateSubmesh(size_t submeshVertexSize,size_t submeshIndexSize);
+		virtual graphics::SubMesh* GenerateSubmesh(size_t submeshVertexSize,size_t submeshIndexSize);
 		virtual void ReadVertexData(size_t idx, const byte* &ptr);
 		virtual void WriteVertexData(size_t idx, LArray<byte>& data);
 	};
@@ -102,5 +109,5 @@ namespace luna::render
 
 namespace luna::binding
 {
-template<> struct binding_proxy<render::SubMesh> : native_binding_proxy<render::SubMesh> {};
+template<> struct binding_proxy<graphics::SubMesh> : native_binding_proxy<graphics::SubMesh> {};
 }

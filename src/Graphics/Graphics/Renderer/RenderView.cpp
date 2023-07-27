@@ -11,7 +11,7 @@
 
 #include "Graphics/Renderer/ScenePipeline.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 RenderView::RenderView() :

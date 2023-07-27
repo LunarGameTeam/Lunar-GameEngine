@@ -10,7 +10,7 @@
 #include "Core/Asset/AssetModule.h"
 #include "Graphics/RHI/RHIPch.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 bool DxcCompile(

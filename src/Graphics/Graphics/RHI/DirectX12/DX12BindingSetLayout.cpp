@@ -6,7 +6,7 @@
 using Microsoft::WRL::ComPtr;
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 

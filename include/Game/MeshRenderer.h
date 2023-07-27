@@ -17,7 +17,7 @@
 #include "Graphics/Asset/MaterialTemplate.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 class GAME_API MeshRenderer : public RendererComponent
@@ -44,8 +44,8 @@ protected:
 protected:
 	bool mCastShadow = true;
 	uint64_t mRO = uint64_t(-1);
-	SharedPtr<render::MaterialTemplateAsset> mMaterialAsset;
-	TPPtr<render::MaterialInstance> mMaterialInstance;
+	SharedPtr<graphics::MaterialTemplateAsset> mMaterialAsset;
+	TPPtr<graphics::MaterialInstance> mMaterialInstance;
 
 };
 

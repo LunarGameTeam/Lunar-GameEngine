@@ -2,7 +2,7 @@
 
 #include "Core/Foundation/Container.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 struct PackedParams;

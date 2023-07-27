@@ -11,7 +11,7 @@
 #include "VulkanFence.h"
 #include "VulkanResource.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 bool VulkanSwapChain::Init()
@@ -105,11 +105,11 @@ bool VulkanSwapChain::Init()
 		if (!mFence[i])
 			VULKAN_ASSERT(device.createFence(&fenceInfo, nullptr, &mFence[i]));
 
-		render::ViewDesc backbufferViewDesc;
+		graphics::ViewDesc backbufferViewDesc;
 
 		backbufferViewDesc.mBaseMipLevel = 0;
-		backbufferViewDesc.mViewType = render::RHIViewType::kRenderTarget;
-		backbufferViewDesc.mViewDimension = render::RHIViewDimension::TextureView2D;
+		backbufferViewDesc.mViewType = graphics::RHIViewType::kRenderTarget;
+		backbufferViewDesc.mViewDimension = graphics::RHIViewDimension::TextureView2D;
 		mViews[i] = sRenderModule->GetRHIDevice()->CreateView(backbufferViewDesc);
 		mViews[i]->BindResource(mBackBuffers[i]);
 	}

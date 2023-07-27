@@ -4,7 +4,7 @@
 #include "Graphics/RenderTypes.h"
 #include "Graphics/Renderer/RenderScene.h"
 #include "Graphics/Renderer/RenderView.h"
-namespace luna::render
+namespace luna::graphics
 {
 
 void PBRPreparePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene);

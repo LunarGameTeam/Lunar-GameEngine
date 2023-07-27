@@ -7,7 +7,7 @@
 
 namespace luna
 {
-namespace render
+namespace graphics
 {
 
 RegisterTypeEmbedd_Imp(MeshRenderer)

@@ -7,7 +7,7 @@
 using Microsoft::WRL::ComPtr;
 
 
-namespace luna::render
+namespace luna::graphics
 {
 DX12PipelineState::DX12PipelineState(const RHIPipelineStateDesc& pso_desc) : RHIPipelineState(pso_desc)
 {
@@ -25,40 +25,40 @@ const char* DX12PipelineState::GetDx12ElementName(VertexElementUsage m_usage)
 {
 	switch (m_usage)
 	{
-	case luna::render::VertexElementUsage::UsagePosition:
+	case luna::graphics::VertexElementUsage::UsagePosition:
 		return DX_VERTEX_ELEMENT_POSITION;
 		break;
-	case luna::render::VertexElementUsage::UsageBlendIndex:
+	case luna::graphics::VertexElementUsage::UsageBlendIndex:
 		return DX_VERTEX_ELEMENT_BLENDINDEX;
 		break;
-	case luna::render::VertexElementUsage::UsageBlendWeight:
+	case luna::graphics::VertexElementUsage::UsageBlendWeight:
 		return DX_VERTEX_ELEMENT_BLENDWEIGHT;
 		break;
-	case luna::render::VertexElementUsage::UsageNormal:
+	case luna::graphics::VertexElementUsage::UsageNormal:
 		return DX_VERTEX_ELEMENT_NORMAL;
 		break;
-	case luna::render::VertexElementUsage::UsageDiffuse:
+	case luna::graphics::VertexElementUsage::UsageDiffuse:
 		return DX_VERTEX_ELEMENT_DIFFUSE;
 		break;
-	case luna::render::VertexElementUsage::UsageTangent:
+	case luna::graphics::VertexElementUsage::UsageTangent:
 		return DX_VERTEX_ELEMENT_TANGENT;
 		break;
-	case luna::render::VertexElementUsage::UsageColor:
+	case luna::graphics::VertexElementUsage::UsageColor:
 		return DX_VERTEX_ELEMENT_TEXCOORD;
 		break;
-	case luna::render::VertexElementUsage::UsageTexture0:
+	case luna::graphics::VertexElementUsage::UsageTexture0:
 		return DX_VERTEX_ELEMENT_TEXCOORD;
 		break;
-	case luna::render::VertexElementUsage::UsageTexture1:
+	case luna::graphics::VertexElementUsage::UsageTexture1:
 		return DX_VERTEX_ELEMENT_TEXCOORD;
 		break;
-	case luna::render::VertexElementUsage::UsageTexture2:
+	case luna::graphics::VertexElementUsage::UsageTexture2:
 		return DX_VERTEX_ELEMENT_TEXCOORD;
 		break;
-	case luna::render::VertexElementUsage::UsageTexture3:
+	case luna::graphics::VertexElementUsage::UsageTexture3:
 		return DX_VERTEX_ELEMENT_TEXCOORD;
 		break;
-	case luna::render::VertexElementUsage::UsageInstanceMessage:
+	case luna::graphics::VertexElementUsage::UsageInstanceMessage:
 		return DX_VERTEX_ELEMENT_INSTANCEMESSAGE;
 		break;
 	default:
@@ -71,24 +71,24 @@ int32_t DX12PipelineState::GetDx12ElementIndex(VertexElementUsage m_usage)
 {
 	switch (m_usage)
 	{
-	case luna::render::VertexElementUsage::UsagePosition:
-	case luna::render::VertexElementUsage::UsageBlendWeight:
-	case luna::render::VertexElementUsage::UsageNormal:
-	case luna::render::VertexElementUsage::UsageDiffuse:
-	case luna::render::VertexElementUsage::UsageTangent:
-	case luna::render::VertexElementUsage::UsageColor:
+	case luna::graphics::VertexElementUsage::UsagePosition:
+	case luna::graphics::VertexElementUsage::UsageBlendWeight:
+	case luna::graphics::VertexElementUsage::UsageNormal:
+	case luna::graphics::VertexElementUsage::UsageDiffuse:
+	case luna::graphics::VertexElementUsage::UsageTangent:
+	case luna::graphics::VertexElementUsage::UsageColor:
 		return 0;
 		break;
-	case luna::render::VertexElementUsage::UsageTexture0:
+	case luna::graphics::VertexElementUsage::UsageTexture0:
 		return 1;
 		break;
-	case luna::render::VertexElementUsage::UsageTexture1:
+	case luna::graphics::VertexElementUsage::UsageTexture1:
 		return 2;
 		break;
-	case luna::render::VertexElementUsage::UsageTexture2:
+	case luna::graphics::VertexElementUsage::UsageTexture2:
 		return 3;
 		break;
-	case luna::render::VertexElementUsage::UsageTexture3:
+	case luna::graphics::VertexElementUsage::UsageTexture3:
 		return 4;
 		break;
 	default:
@@ -101,7 +101,7 @@ DXGI_FORMAT DX12PipelineState::GetDx12ElementFormat(VertexElementType elementTyp
 {
 	switch (elementType)
 	{
-	case luna::render::VertexElementType::Float:
+	case luna::graphics::VertexElementType::Float:
 	{
 		switch (elementCount)
 		{
@@ -122,7 +122,7 @@ DXGI_FORMAT DX12PipelineState::GetDx12ElementFormat(VertexElementType elementTyp
 		}
 	}
 	break;
-	case luna::render::VertexElementType::Int:
+	case luna::graphics::VertexElementType::Int:
 	{
 		switch (elementCount)
 		{

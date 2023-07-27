@@ -28,7 +28,7 @@
 #include "Graphics/RHI/Vulkan/VulkanBindingSet.h"
 #include "Core/Platform/PlatformModule.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 

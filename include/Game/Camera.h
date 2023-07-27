@@ -52,13 +52,13 @@ public:
 	GET_SET_VALUE(LVector3f, mDirection, FlyDirection);
 	GET_SET_VALUE(float, mSpeed, Speed);
 
-	render::RenderTarget* GetRenderViewTarget();
-	void SetRenderViewTarget(render::RenderTarget* target);
+	graphics::RenderTarget* GetRenderViewTarget();
+	void SetRenderViewTarget(graphics::RenderTarget* target);
 
 	void SetAspectRatio(float val);
 
 private:
-	render::RenderView* mRenderView;
+	graphics::RenderView* mRenderView;
 	Transform* mTransform;
 
 	float mFar = 200.f, mNear = 0.1f;

@@ -1,7 +1,7 @@
 #pragma once
 #include "Animation/SkeletonAnimation/SkeletalAnimInstanceBase.h"
 #include "Animation/Asset/AnimationClipAsset.h"
-namespace luna::render
+namespace luna::graphics
 {
 	class RenderScene;
 }
@@ -19,7 +19,7 @@ namespace luna::animation
 
 		const AnimationClipAsset* mClipAsset;
 
-		luna::render::RenderScene* mRenderSceneProxcy;
+		luna::graphics::RenderScene* mRenderSceneProxcy;
 
 		void UpdateAnimationImpl(float deltaTime, LArray<LMatrix4f>& allBoneMatrix) override;
 

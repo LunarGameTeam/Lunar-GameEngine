@@ -3,7 +3,7 @@
 #include "memory"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 template <typename T>
 class TRHIPtr;

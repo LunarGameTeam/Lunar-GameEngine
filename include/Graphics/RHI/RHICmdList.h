@@ -6,7 +6,7 @@
 #include "Graphics/RHI/RHIDescriptor.h"
 #include "Graphics/RHI/RHIRenderPass.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 struct CommandArgDesc

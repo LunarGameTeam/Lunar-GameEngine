@@ -10,7 +10,7 @@
 #include "RenderData.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 struct RENDER_API Light : public RenderData

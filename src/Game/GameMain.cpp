@@ -14,7 +14,7 @@ using namespace luna;
 void LoadGameLib()
 {
 	gEngine->LoadModule<animation::AnimationModule>();
-	gEngine->LoadModule<render::RenderModule>();
+	gEngine->LoadModule<graphics::RenderModule>();
 	gEngine->LoadModule<GameModule>();
 }
 

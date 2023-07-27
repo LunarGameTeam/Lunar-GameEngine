@@ -2,7 +2,7 @@
 #include "Graphics/FrameGraph/FrameGraphResource.h"
 #include "Graphics/RenderModule.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 FGResourceView* FGNode::AddSRV(FGTexture* res, const ViewDesc& desc)

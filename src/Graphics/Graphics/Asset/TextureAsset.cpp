@@ -16,7 +16,7 @@
 #include "stb_image_write.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 RegisterTypeEmbedd_Imp(Texture2D)

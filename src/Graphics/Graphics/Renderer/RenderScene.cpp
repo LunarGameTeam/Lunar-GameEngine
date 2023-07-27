@@ -13,152 +13,14 @@
 #include "Core/Asset/AssetModule.h"
 #include "Graphics/Asset/ShaderAsset.h"
 #include "Graphics/Renderer/RenderLight.h"
+#include "Graphics/Renderer/SkeletonSkin.h"
 
-namespace luna::render
+namespace luna::graphics
 {
-
-AssetSceneData::AssetSceneData()
-{
-	RHIBufferDesc desc;
-	desc.mBufferUsage = RHIBufferUsage::StructureBuffer;
-	desc.mSize = sizeof(LMatrix4f) * 128;
-	mSkeletonResultBuffer = sRenderModule->mRenderContext->CreateBuffer(desc);
-	ViewDesc viewDesc;
-	viewDesc.mViewType = RHIViewType::kStructuredBuffer;
-	viewDesc.mViewDimension = RHIViewDimension::BufferView;
-	viewDesc.mStructureStride = sizeof(LMatrix4f);
-	mSkeletonResultBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
-	mSkeletonResultBufferView->BindResource(mSkeletonResultBuffer);
-}
-
-int32_t AssetSceneData::AddMeshData(SubMesh* meshData)
-{
-	LString primitiveName = GetSubmeshName(meshData);
-	int32_t primitiveIndex = meshPrimitiveBuffer.CheckDataIdByName(primitiveName);
-	if (primitiveIndex != -1)
-	{
-		return primitiveIndex;
-	}
-	primitiveIndex = meshPrimitiveBuffer.AddData(primitiveName);
-	meshPrimitiveBuffer.GetData(primitiveIndex)->Init(meshData);
-	return primitiveIndex;
-}
-
-int32_t AssetSceneData::AddMeshSkeletonLinkClusterData(SubMesh* meshData, const LUnorderedMap<LString, int32_t>& skeletonId, const LString& skeletonUniqueName)
-{
-	if (meshData == nullptr || meshData->mType != SubMeshType::SubMeshSkined)
-	{
-		return -1;
-	}
-	LString clusterName = GetClusterName(meshData, skeletonUniqueName);
-	int32_t clusterIndex = mMeshSkeletonLinkClusterBuffer.CheckDataIdByName(clusterName);
-	if (clusterIndex != -1)
-	{
-		return clusterIndex;
-	}
-	clusterIndex = mMeshSkeletonLinkClusterBuffer.AddData(clusterName);
-	MeshSkeletonLinkClusterBase* newClusterData = mMeshSkeletonLinkClusterBuffer.GetData(clusterIndex);
-
-	SubMeshSkeletal* meshSkeletalData = static_cast<SubMeshSkeletal*>(meshData);
-	int32_t refBoneCount = meshSkeletalData->mRefBoneName.size();
-	for (int32_t refBoneId = 0; refBoneId < refBoneCount; ++refBoneId)
-	{
-		LString& refBoneName = meshSkeletalData->mRefBoneName[refBoneId];
-		LMatrix4f& refBonePose = meshSkeletalData->mRefBonePose[refBoneId];
-		auto itor = skeletonId.find(refBoneName);
-		assert(itor != skeletonId.end());
-		int32_t refBoneSkeletonId = itor->second;
-		newClusterData->mBindposeMatrix.push_back(refBonePose);
-		newClusterData->mSkinBoneIndex2SkeletonBoneIndex.insert({ refBoneId ,refBoneSkeletonId });
-	}
-	return clusterIndex;
-}
-
-int32_t AssetSceneData::AddAnimationInstanceMatrixData(const LString& animaInstanceUniqueName, const LArray<LMatrix4f>& allBoneMatrix)
-{
-	int32_t animInstanceIndex = mAnimationInstanceMatrixBuffer.CheckDataIdByName(animaInstanceUniqueName);
-	if (animInstanceIndex != -1)
-	{
-		return animInstanceIndex;
-	}
-	animInstanceIndex = mAnimationInstanceMatrixBuffer.AddData(animaInstanceUniqueName);
-	AnimationInstanceMatrix* newAnimInstanceData = mAnimationInstanceMatrixBuffer.GetData(animInstanceIndex);
-	for (int32_t i = 0; i < allBoneMatrix.size(); ++i)
-	{
-		newAnimInstanceData->mBoneMatrix.push_back(allBoneMatrix[i]);
-	}
-	return animInstanceIndex;
-}
-
-void AssetSceneData::UpdateAnimationInstanceMatrixData(int32_t animInstanceId, const LArray<LMatrix4f>& allBoneMatrix)
-{
-	AnimationInstanceMatrix* newAnimInstanceData = mAnimationInstanceMatrixBuffer.GetData(animInstanceId);
-	for (int32_t i = 0; i < allBoneMatrix.size(); ++i)
-	{
-		newAnimInstanceData->mBoneMatrix[i] = allBoneMatrix[i];
-	}
-}
-
-int32_t AssetSceneData::GetMeshDataId(SubMesh* meshData)
-{
-	return meshPrimitiveBuffer.CheckDataIdByName(GetSubmeshName(meshData));
-}
-
-RenderMeshBase* AssetSceneData::GetMeshData(int32_t meshId)
-{
-	return meshPrimitiveBuffer.GetData(meshId);
-}
-
-int32_t AssetSceneData::GetMeshSkeletonLinkClusterDataId(SubMesh* meshData, const LString& skeletonUniqueName)
-{
-	return mMeshSkeletonLinkClusterBuffer.CheckDataIdByName(GetClusterName(meshData, skeletonUniqueName));
-}
-
-MeshSkeletonLinkClusterBase* AssetSceneData::GetMeshSkeletonLinkClusterData(int32_t clusterId)
-{
-	return mMeshSkeletonLinkClusterBuffer.GetData(clusterId);
-}
-
-int32_t AssetSceneData::GetAnimationInstanceMatrixDataId(const LString& animaInstanceUniqueName)
-{
-	return mAnimationInstanceMatrixBuffer.CheckDataIdByName(animaInstanceUniqueName);
-}
-
-AnimationInstanceMatrix* AssetSceneData::GetAnimationInstanceMatrixData(int32_t animInstanceId)
-{
-	return mAnimationInstanceMatrixBuffer.GetData(animInstanceId);
-}
-
-LString AssetSceneData::GetSubmeshName(SubMesh* meshData)
-{
-	LString primitiveName = meshData->mAssetPath + "_#_" + std::to_string(meshData->mSubmeshIndex);
-	return primitiveName;
-}
-
-LString AssetSceneData::GetClusterName(SubMesh* meshData, const LString& skeletonUniqueName)
-{
-	return GetSubmeshName(meshData) + "_##_" + skeletonUniqueName;
-}
-
-void AssetSceneData::PerSceneUpdate(RenderScene* renderScene)
-{
-	AnimationInstanceMatrix* animationMatrixBuffer = mAnimationInstanceMatrixBuffer.GetData(0);
-	MeshSkeletonLinkClusterBase* beginbuffer = mMeshSkeletonLinkClusterBuffer.GetData(0);
-	LArray<LMatrix4f> skinMatrixResult;
-	for (int32_t i = 0; i < beginbuffer->mBindposeMatrix.size(); ++i)
-	{
-		LMatrix4f skinRefMatrix = beginbuffer->mBindposeMatrix[i];
-		int32_t animationBoneId = beginbuffer->mSkinBoneIndex2SkeletonBoneIndex[i];
-		LMatrix4f animationMatrix = animationMatrixBuffer->mBoneMatrix[animationBoneId];
-		skinMatrixResult.push_back(animationMatrix * skinRefMatrix);
-
-	}
-	sRenderModule->GetRenderContext()->UpdateConstantBuffer(mSkeletonResultBuffer, skinMatrixResult.data(), skinMatrixResult.size() * sizeof(LMatrix4f));
-}
 
 RenderScene::RenderScene()
 {
-	RequireData<AssetSceneData>();
+	RequireData<SkeletonSkinData>();
 }
 
 uint64_t RenderScene::CreateRenderObject(MaterialInstance* mat, SubMesh* meshData, bool castShadow, LMatrix4f* worldMat)
@@ -173,12 +35,14 @@ uint64_t RenderScene::CreateRenderObject(MaterialInstance* mat, SubMesh* meshDat
 		ro->mID = mRoIndex.front();
 		mRoIndex.pop();
 	}
+	ro->mOwnerScene = this;
 	ro->mID = mRenderObjects.size();
-	ro->mMeshIndex = GetData<AssetSceneData>()->AddMeshData(meshData);
+	ro->mMeshIndex = meshData->GetRenderMeshBase();
 	ro->mMaterial = mat;
 	ro->mWorldMat = worldMat;
 	ro->mCastShadow = castShadow;
-	mRenderObjects.insert({ ro->mID,ro });
+	mRenderObjects.resize(ro->mID + 1);
+	mRenderObjects[ro->mID] = ro;
 	mDirtyROs.insert(ro);
 	return ro->mID;
 }
@@ -202,22 +66,22 @@ uint64_t RenderScene::CreateRenderObjectDynamic(
 
 void RenderScene::SetRenderObjectMesh(uint64_t roId, SubMesh* meshData)
 {
-	mRenderObjects[roId]->mMeshIndex = GetData<AssetSceneData>()->AddMeshData(meshData);
+	mRenderObjects[roId]->mMeshIndex = meshData->GetRenderMeshBase();
 }
 
 void RenderScene::SetRenderObjectMeshSkletonCluster(uint64_t roId, SubMesh* meshData, const LUnorderedMap<LString, int32_t>& skeletonId, const LString& skeletonUniqueName)
 {
-	mRenderObjects[roId]->mSkinClusterIndex = GetData<AssetSceneData>()->AddMeshSkeletonLinkClusterData(meshData, skeletonId, skeletonUniqueName);
+	mRenderObjects[roId]->mSkinClusterIndex = GetData<SkeletonSkinData>()->AddMeshSkeletonLinkClusterData(meshData, skeletonId, skeletonUniqueName);
 }
 
 void RenderScene::SetRenderObjectAnimInstance(uint64_t roId, const LString& animaInstanceUniqueName, const LArray<LMatrix4f>& allBoneMatrix)
 {
-	mRenderObjects[roId]->mAnimInstanceIndex = GetData<AssetSceneData>()->AddAnimationInstanceMatrixData(animaInstanceUniqueName, allBoneMatrix);
+	mRenderObjects[roId]->mAnimInstanceIndex = GetData<SkeletonSkinData>()->AddAnimationInstanceMatrixData(animaInstanceUniqueName, allBoneMatrix);
 }
 
 void RenderScene::UpdateRenderObjectAnimInstance(uint64_t roId, const LArray<LMatrix4f>& allBoneMatrix)
 {
-	GetData<AssetSceneData>()->UpdateAnimationInstanceMatrixData(mRenderObjects[roId]->mAnimInstanceIndex, allBoneMatrix);
+	GetData<SkeletonSkinData>()->UpdateAnimationInstanceMatrixData(mRenderObjects[roId]->mAnimInstanceIndex, allBoneMatrix);
 }
 
 void RenderScene::SetRenderObjectCastShadow(uint64_t roId, bool castShadow)
@@ -274,12 +138,10 @@ void RenderScene::PrepareScene()
 	mSceneParamsBuffer->Set("cAmbientColor", LMath::sRGB2LinearColor(mAmbientColor));
 	for (auto& ro : mRenderObjects)
 	{
-		uint32_t idx = ro.second->mID;
-		mSceneParamsBuffer->Set("cRoWorldMatrix", *ro.second->mWorldMat, idx);
+		uint32_t idx = ro->mID;
+		mSceneParamsBuffer->Set("cRoWorldMatrix", *ro->mWorldMat, idx);
 		mROIDInstancingBuffer->Set(idx * sizeof(uint32_t) * 4, idx);
 	}
-
-
 }
 
 void RenderScene::Init()
@@ -373,14 +235,12 @@ void RenderScene::DestroyLight(Light* ro)
 
 void RenderScene::DestroyRenderObject(uint64_t ro)
 {
-	auto check = mRenderObjects.find(ro);
-	if (check == mRenderObjects.end())
-	{
-		mRoIndex.push(check->first);
-		delete check->second;
-		mRenderObjects.erase(check);
-
-	}
+	if (ro >= mRenderObjects.size())
+		return;
+	auto check = mRenderObjects.at(ro);
+	mRoIndex.push(check->mID);	
+	delete check;
+	mRenderObjects[ro] = nullptr;	
 	mBufferDirty = true;
 }
 
@@ -407,7 +267,7 @@ RenderScene::~RenderScene()
 	mViews.clear();
 	for (auto it : mRenderObjects)
 	{
-		delete it.second;
+		delete it;
 	}
 	mRenderObjects.clear();
 }

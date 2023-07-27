@@ -38,7 +38,7 @@ protected:
 	LVector4f      mColor      = LVector4f(0.8f, 0.8f, 0.8f, 1.0f);
 	bool           mCastShadow = false;
 	float          mIntensity = 1.0f;
-	render::Light* mLight      = nullptr;
+	graphics::Light* mLight      = nullptr;
 };
 
 class GAME_API PointLightComponent : public LightComponent

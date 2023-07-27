@@ -4,7 +4,7 @@
 #include "Graphics/RHI/RHIBindingSetLayout.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 struct BindingLayout

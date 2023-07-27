@@ -6,7 +6,7 @@
 #include "Graphics/Renderer/RenderScene.h"
 #include "Graphics/Asset/MeshAsset.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 

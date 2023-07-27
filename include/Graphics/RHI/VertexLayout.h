@@ -8,7 +8,7 @@
 #include <boost/container_hash/hash.hpp>
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 inline size_t Alignment(size_t size, size_t alignment)
@@ -60,22 +60,22 @@ struct RHIVertexLayoutElement
 		uint8_t elementSize = 0;
 		switch (mElementType)
 		{
-		case luna::render::VertexElementType::Float:
+		case luna::graphics::VertexElementType::Float:
 			elementSize = 4;
 			break;
-		case luna::render::VertexElementType::Short:
+		case luna::graphics::VertexElementType::Short:
 			elementSize = 2;
 			break;
-		case luna::render::VertexElementType::UShort:
+		case luna::graphics::VertexElementType::UShort:
 			elementSize = 2;
 			break;
-		case luna::render::VertexElementType::Byte:
+		case luna::graphics::VertexElementType::Byte:
 			elementSize = 1;
 			break;
-		case luna::render::VertexElementType::UByte:
+		case luna::graphics::VertexElementType::UByte:
 			elementSize = 1;
 			break;
-		case luna::render::VertexElementType::Int:
+		case luna::graphics::VertexElementType::Int:
 			elementSize = 4;
 			break;
 		default:

@@ -4,7 +4,7 @@
 #include "DX12Pch.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 class RENDER_API DX12Memory : public RHIMemory
 {

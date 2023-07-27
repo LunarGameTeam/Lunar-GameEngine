@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Graphics/RenderConfig.h"
 #include "Core/CoreMin.h"
 
@@ -9,11 +9,11 @@
 #include "Core/Object/SharedObject.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
-// Shader BufferµÄ·â×°£¬¸ù¾İCBufferµÄDesc´´½¨£¬ÄÚ²¿·â×°ÁËRHIResourceºÍRHIView
-// Ìá¹©¿ì½İÉèÖÃÊı¾İºÍCommit½Ó¿Ú
+// Shader Bufferçš„å°è£…ï¼Œæ ¹æ®CBufferçš„Descåˆ›å»ºï¼Œå†…éƒ¨å°è£…äº†RHIResourceå’ŒRHIView
+// æä¾›å¿«æ·è®¾ç½®æ•°æ®å’ŒCommitæ¥å£
 struct RENDER_API ShaderCBuffer : NoCopy
 {
 	ShaderCBuffer(const RHICBufferDesc& cbDesc);
@@ -60,7 +60,7 @@ struct RENDER_API ShaderCBuffer : NoCopy
 	RHIViewPtr               mView;
 };
 
-//°ÑShaderParam´ò°ü£¬ParamÃû×Ö + Texture View£¬»òÕßÊÇ·ÅShaderParamBuffer
+//æŠŠShaderParamæ‰“åŒ…ï¼ŒParamåå­— + Texture Viewï¼Œæˆ–è€…æ˜¯æ”¾ShaderParamBuffer
 struct RENDER_API PackedParams : NoCopy
 {
 	void PushShaderParam(RHIBindPoint id, RHIViewPtr view);

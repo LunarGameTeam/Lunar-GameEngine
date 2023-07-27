@@ -5,7 +5,7 @@
 #include "Graphics/RHI/RHICmdList.h"
 #include <Vulkan/vulkan.hpp>
 
-namespace luna::render
+namespace luna::graphics
 {
 	class RENDER_API VulkanCmdSignature : public RHICmdSignature
 	{

@@ -7,7 +7,7 @@
 #include "Graphics/RHI/RHIPtr.h"
 #include "Graphics/RHI/RHIRenderPass.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 //绑定槽位的名称格式

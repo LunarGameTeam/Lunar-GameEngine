@@ -23,14 +23,14 @@
 /// 
 namespace luna
 {
-namespace render
+namespace graphics
 {
 class RenderModule;
 class RenderContext;
 }
 
 
-RENDER_API extern render::RenderModule* sRenderModule;
+RENDER_API extern graphics::RenderModule* sRenderModule;
 
 
 

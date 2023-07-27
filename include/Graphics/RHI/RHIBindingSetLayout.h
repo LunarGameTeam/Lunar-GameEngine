@@ -5,7 +5,7 @@
 #include "Graphics/RHI/RHIPch.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 enum class SamplerFilter

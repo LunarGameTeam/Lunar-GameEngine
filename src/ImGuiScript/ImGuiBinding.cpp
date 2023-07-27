@@ -311,7 +311,7 @@ STATIC_INIT(imgui)
 		return ImGui::MenuItem(label);
 	}>("menu_item");
 
-	imguiModule->AddLambda<[](render::RHIResource* texture, const LVector2f& size, const LVector2f& uv0,
+	imguiModule->AddLambda<[](graphics::RHIResource* texture, const LVector2f& size, const LVector2f& uv0,
 	                          const LVector2f& uv1)
 	{
 		if (!sRenderModule->IsImuiTexture(texture))
@@ -422,7 +422,7 @@ STATIC_INIT(imgui)
 	}>("selectable");
 	imguiModule->AddLambda<[](const char* text) { return ImGui::Button(text); }>("button");
 	imguiModule->AddLambda<[]
-	(const char* id, render::RHIResource* image, const ImVec2& size, const ImVec2& uv, const ImVec2& uv2,
+	(const char* id, graphics::RHIResource* image, const ImVec2& size, const ImVec2& uv, const ImVec2& uv2,
 	 const ImVec4& bgCol, const ImVec4& hintCol)
 		{
 			if (!sRenderModule->IsImuiTexture(image))

@@ -5,7 +5,7 @@
 #include "Graphics/RHI/RHISwapchain.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 using LDXGISwapchain = IDXGISwapChain3;
 

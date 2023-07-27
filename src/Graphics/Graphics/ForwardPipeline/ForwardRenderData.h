@@ -4,7 +4,7 @@
 #include "Graphics/Renderer/RenderData.h"
 
 
-namespace  luna::render
+namespace  luna::graphics
 {
 
 struct ViewShadowData : public RenderData

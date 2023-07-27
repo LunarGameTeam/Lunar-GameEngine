@@ -8,7 +8,7 @@
 
 
 
-namespace luna::render
+namespace luna::graphics
 {
 class RENDER_API MaterialTemplateAsset : public JsonAsset
 {

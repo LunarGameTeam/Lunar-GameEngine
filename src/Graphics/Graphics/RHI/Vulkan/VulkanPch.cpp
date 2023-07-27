@@ -1,6 +1,6 @@
 #include "VulkanPch.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 DoubleConverter<RHITextureFormat, vk::Format> sVulkanFormtas =

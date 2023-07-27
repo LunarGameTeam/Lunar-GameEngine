@@ -5,7 +5,7 @@
 #include "Graphics/RenderModule.h"
 #include <vulkan/vulkan.hpp>
 
-namespace luna::render
+namespace luna::graphics
 {
 
 class RENDER_API VulkanFrameBuffer : public RHIFrameBuffer

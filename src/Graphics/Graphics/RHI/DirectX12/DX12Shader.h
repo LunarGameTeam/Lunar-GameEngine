@@ -4,7 +4,7 @@
 #include "Graphics/RHI/RHIShader.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 class RENDER_API DX12ShaderBlob : public RHIShaderBlob
 {

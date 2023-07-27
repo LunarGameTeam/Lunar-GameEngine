@@ -5,7 +5,7 @@
 #include <wincodec.h>
 //#include <LoaderHelpers.h>
 
-namespace luna::render
+namespace luna::graphics
 {
 
 class DX12SwapChain;

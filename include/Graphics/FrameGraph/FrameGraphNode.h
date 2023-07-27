@@ -5,7 +5,7 @@
 #include "Graphics/RHI/RHITypes.h"
 #include "Graphics/RHI/RHIRenderPass.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 class FrameGraphBuilder;

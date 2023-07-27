@@ -3,7 +3,7 @@
 #include "Graphics/RHI/RHITypes.h"
 #include "Graphics/RHI/RHIPch.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 class RENDER_API FrameGraphBuilder

@@ -7,7 +7,7 @@
 #include "Graphics/RenderModule.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 RegisterTypeEmbedd_Imp(ShaderMacro)
@@ -56,12 +56,12 @@ void LShaderInstance::Init(
 		}
 		switch (mType)
 		{
-			case luna::render::RHIShaderType::Vertex:
+			case luna::graphics::RHIShaderType::Vertex:
 			{
 				shaderDesc.mEntryPoint = "VSMain";
 			}
 			break;
-			case luna::render::RHIShaderType::Pixel:
+			case luna::graphics::RHIShaderType::Pixel:
 			{
 				shaderDesc.mEntryPoint = "PSMain";
 			}

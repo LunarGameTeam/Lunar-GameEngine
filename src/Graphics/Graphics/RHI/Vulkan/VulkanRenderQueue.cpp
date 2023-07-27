@@ -8,7 +8,7 @@
 #include "Graphics/RHI/Vulkan/VulkanSwapchain.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 

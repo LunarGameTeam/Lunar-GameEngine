@@ -4,7 +4,7 @@
 
 #include <Vulkan/vulkan.hpp>
 
-namespace luna::render
+namespace luna::graphics
 {
 
 vk::DescriptorType Convert(RHIViewType view_type);

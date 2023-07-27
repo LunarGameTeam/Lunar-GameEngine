@@ -3,7 +3,7 @@
 #include "Graphics/RHI/RHIPtr.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 class VulkanDevice; 

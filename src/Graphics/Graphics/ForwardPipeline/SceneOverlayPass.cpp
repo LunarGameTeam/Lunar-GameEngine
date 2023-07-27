@@ -17,7 +17,7 @@
 
 #include "Graphics/Renderer/MaterialParam.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 PARAM_ID(SceneBuffer);

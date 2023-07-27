@@ -4,7 +4,7 @@
 #include "Graphics/RHI/Vulkan/VulkanView.h"
 #include "Graphics/RHI/Vulkan/VulkanBindingSetLayout.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 

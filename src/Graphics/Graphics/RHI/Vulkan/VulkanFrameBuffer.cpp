@@ -6,7 +6,7 @@
 #include "Graphics/RHI/Vulkan/VulkanRenderPass.h"
 #include "Graphics/RHI/Vulkan/VulkanView.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 

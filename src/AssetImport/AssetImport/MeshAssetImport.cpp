@@ -8,8 +8,8 @@ namespace luna::asset
 	void LSingleMeshAndAnimationAssetImport::ParsingImportSceneImpl(const asset::LImportScene& importSceneData, LAssetPack& outAssetPack)
 	{
 		//mesh 导出器会把所有的mesh node进行合并，因此只需要创建两个总的mesh asset
-		render::MeshAsset* meshValuePtr = nullptr;
-		render::SkeletalMeshAsset* meshSkeletalValuePtr = nullptr;
+		graphics::MeshAsset* meshValuePtr = nullptr;
+		graphics::SkeletalMeshAsset* meshSkeletalValuePtr = nullptr;
 		LUnorderedSet<size_t> existSkeleton;
 		size_t nodeAllSize = importSceneData.GetNodeSize();
 		for (size_t nodeIndex = 0; nodeIndex < nodeAllSize; ++nodeIndex)
@@ -28,7 +28,7 @@ namespace luna::asset
 					{
 						if (meshSkeletalValuePtr == nullptr)
 						{
-							meshSkeletalValuePtr = outAssetPack.CreateAsset<render::SkeletalMeshAsset>("emptyNewSkeletonMesh");
+							meshSkeletalValuePtr = outAssetPack.CreateAsset<graphics::SkeletalMeshAsset>("emptyNewSkeletonMesh");
 						}
 						AddSceneNodeToSkeletalMesh(dataValue, meshSkeletalValuePtr);
 					}
@@ -36,7 +36,7 @@ namespace luna::asset
 					{
 						if (meshValuePtr == nullptr)
 						{
-							meshValuePtr = outAssetPack.CreateAsset<render::MeshAsset>("emptyNewMesh");
+							meshValuePtr = outAssetPack.CreateAsset<graphics::MeshAsset>("emptyNewMesh");
 						}
 						AddSceneNodeToStaticMesh(dataValue, meshValuePtr);
 					}
@@ -103,22 +103,22 @@ namespace luna::asset
 		}
 	}
 
-	void LSingleMeshAndAnimationAssetImport::AddSceneNodeToStaticMesh(const asset::LImportNodeDataMesh* dataValue, render::MeshAsset* meshValuePtr)
+	void LSingleMeshAndAnimationAssetImport::AddSceneNodeToStaticMesh(const asset::LImportNodeDataMesh* dataValue, graphics::MeshAsset* meshValuePtr)
 	{
 		for (size_t submeshIndex = 0; submeshIndex < dataValue->GetSubMeshSize(); ++submeshIndex)
 		{
-			render::SubMesh* it = TCreateObject<render::SubMesh>();
+			graphics::SubMesh* it = TCreateObject<graphics::SubMesh>();
 			const asset::LImportSubmesh& submeshData = dataValue->GettSubMesh(submeshIndex);
 			CopySubmeshVertexCommonInfo(submeshData,it);
 			meshValuePtr->mSubMesh.push_back(it);
 		}
 	}
 
-	void LSingleMeshAndAnimationAssetImport::AddSceneNodeToSkeletalMesh(const asset::LImportNodeDataMesh* dataValue, render::SkeletalMeshAsset* meshSkeletalValuePtr)
+	void LSingleMeshAndAnimationAssetImport::AddSceneNodeToSkeletalMesh(const asset::LImportNodeDataMesh* dataValue, graphics::SkeletalMeshAsset* meshSkeletalValuePtr)
 	{
 		for (size_t submeshIndex = 0; submeshIndex < dataValue->GetSubMeshSize(); ++submeshIndex)
 		{
-			render::SubMeshSkeletal* it = TCreateObject<render::SubMeshSkeletal>();
+			graphics::SubMeshSkeletal* it = TCreateObject<graphics::SubMeshSkeletal>();
 			const asset::LImportSubmesh& submeshData = dataValue->GettSubMesh(submeshIndex);
 			CopySubmeshVertexCommonInfo(submeshData, it);
 			CopySubmeshVertexSkinInfo(submeshData, it);
@@ -128,11 +128,11 @@ namespace luna::asset
 		}
 	}
 
-	void LSingleMeshAndAnimationAssetImport::CopySubmeshVertexCommonInfo(const asset::LImportSubmesh& submeshData,render::SubMesh* it)
+	void LSingleMeshAndAnimationAssetImport::CopySubmeshVertexCommonInfo(const asset::LImportSubmesh& submeshData,graphics::SubMesh* it)
 	{
 		for (size_t vertexIndex = 0; vertexIndex < submeshData.mVertexPosition.size(); ++vertexIndex)
 		{
-			render::BaseVertex newVertexData;
+			graphics::BaseVertex newVertexData;
 			newVertexData.pos = submeshData.mVertexPosition[vertexIndex];
 			newVertexData.normal = submeshData.mVertexNormal[vertexIndex];
 			newVertexData.tangent = submeshData.mVertexTangent[vertexIndex];
@@ -149,12 +149,12 @@ namespace luna::asset
 		}
 	}
 
-	void LSingleMeshAndAnimationAssetImport::CopySubmeshVertexSkinInfo(const asset::LImportSubmesh& submeshData, render::SubMeshSkeletal* it)
+	void LSingleMeshAndAnimationAssetImport::CopySubmeshVertexSkinInfo(const asset::LImportSubmesh& submeshData, graphics::SubMeshSkeletal* it)
 	{
-		render::SubMeshSkeletal* skeletonPointer = static_cast<render::SubMeshSkeletal*>(it);
+		graphics::SubMeshSkeletal* skeletonPointer = static_cast<graphics::SubMeshSkeletal*>(it);
 		for (size_t vertexIndex = 0; vertexIndex < submeshData.mVertexPosition.size(); ++vertexIndex)
 		{
-			render::SkinVertex newSkinData;
+			graphics::SkinVertex newSkinData;
 			for (size_t refId = 0; refId < asset::gSkinPerVertex; refId += 2)
 			{
 				//将两个骨骼ID合并为16位保存

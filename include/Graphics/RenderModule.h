@@ -29,7 +29,7 @@
 #include "Graphics/RHI/RHITypes.h"
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 class RENDER_API RenderModule : public LModule
@@ -98,9 +98,9 @@ private:
 	LArray<RenderScene*>               mRenderScenes;
 	LMap<RHIResourcePtr, ImguiTexture> mImguiTextures;
 
-	render::RHIRenderPassPtr           mIMGUIRenderPass;
-	render::RHIFrameBufferPtr          mFrameBuffer[2];
-	render::RHISwapchainDesc           mSwapchainDesc;
+	graphics::RHIRenderPassPtr           mIMGUIRenderPass;
+	graphics::RHIFrameBufferPtr          mFrameBuffer[2];
+	graphics::RHISwapchainDesc           mSwapchainDesc;
 
 	RHISwapChainPtr                    mMainSwapchain;
 	//framegraph

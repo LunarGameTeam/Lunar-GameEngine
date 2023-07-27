@@ -11,7 +11,7 @@ namespace luna::asset
 		for (Asset* assetValue : mAssetDatas)
 		{
 			LString newPath = rootPath + "/" + assetValue->GetObjectName();
-			if (assetValue->GetClass()->GetName() == LType::Get<render::MeshAsset>()->GetName())
+			if (assetValue->GetClass()->GetName() == LType::Get<graphics::MeshAsset>()->GetName())
 			{
 				newPath = newPath + ".lmesh";
 			}
@@ -25,11 +25,11 @@ namespace luna::asset
 		for (Asset* assetValue : mAssetDatas)
 		{
 			LString newPath = rootPath + "/" + assetName;
-			if (assetValue->GetClass()->GetName() == LType::Get<render::MeshAsset>()->GetName())
+			if (assetValue->GetClass()->GetName() == LType::Get<graphics::MeshAsset>()->GetName())
 			{
 				newPath = newPath + ".lmesh";
 			}
-			else if (assetValue->GetClass()->GetName() == LType::Get<render::SkeletalMeshAsset>()->GetName())
+			else if (assetValue->GetClass()->GetName() == LType::Get<graphics::SkeletalMeshAsset>()->GetName())
 			{
 				newPath = newPath + ".lskelmesh";
 			}

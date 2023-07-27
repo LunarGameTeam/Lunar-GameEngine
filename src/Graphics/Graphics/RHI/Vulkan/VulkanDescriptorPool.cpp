@@ -1,6 +1,6 @@
 #include "Graphics/RHI/Vulkan/VulkanDescriptorPool.h"
 
-namespace luna::render
+namespace luna::graphics
 {
 
 RENDER_API VKDescriptorSetSegment* AllocateDescriptorSet(RHIDescriptorPool* pool, vk::DescriptorSetLayout& set_layout, const std::map<vk::DescriptorType, size_t>& count)

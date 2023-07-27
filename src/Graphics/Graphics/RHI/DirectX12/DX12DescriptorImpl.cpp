@@ -8,7 +8,7 @@
 using namespace luna;
 
 
-namespace luna::render
+namespace luna::graphics
 {
 
 DX12GpuDescriptorSegment::DX12GpuDescriptorSegment(

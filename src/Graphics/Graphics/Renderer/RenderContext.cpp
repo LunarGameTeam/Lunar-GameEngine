@@ -20,7 +20,7 @@
 #include "Graphics/Renderer/RenderView.h"
 
 
-namespace luna::render 
+namespace luna::graphics 
 {
 
 RENDER_API CONFIG_IMPLEMENT(LString, Render, RenderDeviceType, "Vulkan");
@@ -50,7 +50,7 @@ RHIShaderBlobPtr ShaderBlobCache::CreateShader(RenderContext* mDevice, const RHI
 {
 	Log("Graphics", "Create shader:{}", desc.mName);
 	
-	std::function<void(luna::LMemoryHash&, const luna::render::RHIShaderDesc&)> dataHashFunc = [&](luna::LMemoryHash& newHash, const luna::render::RHIShaderDesc& desc)
+	std::function<void(luna::LMemoryHash&, const luna::graphics::RHIShaderDesc&)> dataHashFunc = [&](luna::LMemoryHash& newHash, const luna::graphics::RHIShaderDesc& desc)
 	{
 		newHash.Combine((uint8_t*)desc.mName.c_str(), desc.mName.Length() * sizeof(char));
 		//newHash.Combine((uint8_t*)desc.mContent.c_str(), desc.mContent.Length() * sizeof(char));
@@ -74,7 +74,7 @@ RHIShaderBlobPtr ShaderBlobCache::CreateShader(RenderContext* mDevice, const RHI
 	{
 		return device->mDevice->CreateShader(desc);
 	};
-	return CreateRHIObject<RHIShaderBlob,const luna::render::RHIShaderDesc&>(
+	return CreateRHIObject<RHIShaderBlob,const luna::graphics::RHIShaderDesc&>(
 		mDevice,
 		desc,
 		dataHashFunc,
@@ -95,7 +95,7 @@ void PipelineStateCache::PackShaderToMemory(RenderContext* mDevice, luna::LMemor
 
 RHIPipelineStatePtr PipelineStateCache::CreatePipeline(RenderContext* mDevice, const RHIPipelineStateDesc& desc)
 {
-	std::function<void(luna::LMemoryHash&, const luna::render::RHIPipelineStateDesc&)> dataHashFunc = [&](luna::LMemoryHash& newHash, const luna::render::RHIPipelineStateDesc& desc)
+	std::function<void(luna::LMemoryHash&, const luna::graphics::RHIPipelineStateDesc&)> dataHashFunc = [&](luna::LMemoryHash& newHash, const luna::graphics::RHIPipelineStateDesc& desc)
 	{
 		newHash.Combine((uint8_t*)&desc.mType, sizeof(desc.mType));
 		if (desc.mType == RHICmdListType::Graphic3D)
@@ -156,7 +156,7 @@ RHIPipelineStatePtr PipelineStateCache::CreatePipeline(RenderContext* mDevice, c
 		}
 		return device->mDevice->CreatePipeline(desc);
 	};
-	return CreateRHIObject<RHIPipelineState, const luna::render::RHIPipelineStateDesc&>(
+	return CreateRHIObject<RHIPipelineState, const luna::graphics::RHIPipelineStateDesc&>(
 		mDevice,
 		desc,
 		dataHashFunc,
@@ -607,20 +607,20 @@ RHIBindingSetPtr RenderContext::CreateBindingset(RHIBindingSetLayoutPtr layout)
 	return bindingset;
 }
 
-RHIPipelineStatePtr RenderContext::CreatePipeline(render::MaterialInstance* mat, RHIVertexLayout* layout)
+RHIPipelineStatePtr RenderContext::CreatePipeline(graphics::MaterialInstance* mat, RHIVertexLayout* layout)
 {
 	return CreatePipelineState(mat, mCurRenderPass, layout);
 }
 
-void RenderContext::DrawMesh(render::RenderMeshBase* mesh, render::MaterialInstance* mat, PackedParams* params)
+void RenderContext::DrawMesh(graphics::RenderMeshBase* mesh, graphics::MaterialInstance* mat, PackedParams* params)
 {
 	ZoneScoped;
 	DrawMeshInstanced(mesh, mat, params, nullptr, 0, 1);
 }
 
 
-void RenderContext::DrawMeshInstanced(render::RenderMeshBase* mesh, render::MaterialInstance* mat, PackedParams* params,
-	render::RHIResource* vertexInputInstanceRes /*= nullptr*/,
+void RenderContext::DrawMeshInstanced(graphics::RenderMeshBase* mesh, graphics::MaterialInstance* mat, PackedParams* params,
+	graphics::RHIResource* vertexInputInstanceRes /*= nullptr*/,
 	int32_t startInstanceIdx /*= 1*/, int32_t instancingSize /*= 1*/)
 {
 	ZoneScoped;
