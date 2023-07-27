@@ -6,7 +6,7 @@ class ModelSubmeshPanel(PanelBase):
     def __init__(self) -> None:
         super().__init__()
         self.scene = None
-        self.title = "子模型"
+        self.title = "submesh"
         self.selected_entity = None
 
     def on_menu(self):

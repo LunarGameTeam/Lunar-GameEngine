@@ -8,7 +8,6 @@ from editor.core.editor_module import platform_module, EditorModule, asset_modul
 from luna import imgui
 from editor.ui.custom_window_panel import CustomWindowPanel
 
-
 class ModelEditWindow(CustomWindowPanel):
     def __init__(self,initwidth,initheight) -> None:
         super().__init__("ModelEditWindow",initwidth,initheight)
@@ -17,7 +16,8 @@ class ModelEditWindow(CustomWindowPanel):
         self.add_panel(CustomSceneViewPanel)
         from editor.ui.model_submesh_panel import ModelSubmeshPanel
         self.add_panel(ModelSubmeshPanel)
-
+        from editor.ui.model_property_panel import ModelPropertyPanel
+        self.add_panel(ModelPropertyPanel)
 
     def on_title(self):
         proj_dir = EditorModule.instance().project_dir
