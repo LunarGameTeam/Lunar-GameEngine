@@ -49,7 +49,11 @@ class MaterialAssetType(AssetType):
         import luna
         material = asset_module.load_asset(cur_item.path, luna.MaterialTemplateAsset)
         editor = create_inspector(material)
-        EditorModule.instance().main_scene_window.get_panel(InspectorPanel).set_editor(editor)
+        from editor.ui.material_window import MaterialWindow
+
+        material_window = EditorModule.instance().get_window(MaterialWindow)
+        EditorModule.instance().set_window(material_window)
+        material_window.get_panel(InspectorPanel).set_editor(editor)
 
 
 @register_asset_type
@@ -79,9 +83,12 @@ class SceneAssetType(AssetType):
         from editor.core.editor_module import asset_module
         scn = asset_module.load_asset(cur_item.path, luna.Scene)
         from editor.core.editor_module import EditorModule
-        from editor.ui.scene_window import MainWindow
+        from editor.ui.scene_window import SceneWindow
+
+        scn_window = EditorModule.instance().get_window(SceneWindow)
+        EditorModule.instance().set_window(scn_window)
         if scn:
-            EditorModule.instance().main_scene_window.set_main_scene(scn)
+            scn_window.set_main_scene(scn)
 
 class FileInfo(object):
     asset_type: Type[AssetType]
@@ -89,7 +96,13 @@ class FileInfo(object):
     def __init__(self, file_path):
         self.abs_path = file_path
         from editor.core.editor_module import platform_module
-        self.path = os.path.relpath(file_path, platform_module.engine_dir)
+        if file_path.startswith(platform_module.project_dir):
+            self.path = os.path.relpath(file_path, platform_module.project_dir)
+        else:
+            self.path = os.path.relpath(file_path, platform_module.engine_dir)
+
+        self.path = self.path.replace('\\', '/')
+
         self.name = os.path.basename(file_path)
         self.asset_type = get_asset_type(self.name)
 
@@ -104,7 +117,7 @@ class FolderInfo(FileInfo):
 
     def init(self):
         for f in os.listdir(self.abs_path):
-            abs_path = os.path.join(self.abs_path, f)
+            abs_path = self.abs_path + os.sep + f
             if os.path.isdir(abs_path):
                 d = FolderInfo(abs_path)
                 self.child_list.append(d)

@@ -3,15 +3,15 @@ from editor.core.editor_module import asset_module
 from luna import imgui
 
 
-class MainToolBar(object):
+class SideTabBar(object):
     _instance = None
 
     @staticmethod
-    def instance() -> 'MainToolBar':
-        if MainToolBar._instance is not None:
-            return MainToolBar._instance
-        MainToolBar._instance = MainToolBar()
-        return MainToolBar._instance
+    def instance() -> 'SideTabBar':
+        if SideTabBar._instance is not None:
+            return SideTabBar._instance
+        SideTabBar._instance = SideTabBar()
+        return SideTabBar._instance
 
     def __init__(self) -> None:
         super().__init__()

@@ -1,7 +1,10 @@
+import os
+import tkinter
 import typing
 from typing import T
 
 import luna
+from editor.core.editor_module import platform_module
 from luna import LunaCore
 from luna import imgui
 
@@ -18,9 +21,6 @@ class WindowBase(object):
         self.title = "###Luna Editor"
         self.id = WindowBase.id
         WindowBase.id = WindowBase.id + 1
-
-        from editor.ui.tool_bar import MainToolBar
-        self.toolbar = MainToolBar.instance()
 
         if self.id == 1:
             self.view_port = imgui.get_main_viewport_id()
@@ -88,9 +88,6 @@ class WindowBase(object):
     def on_title(self):
         self.title = self.title
 
-    def setup_color(self):
-        imgui.set_color(imgui.ImGuiCol_FrameBgActive, 0x4296FA59)
-
     def handle_window_move(self):
         window_module = luna.get_module(luna.PlatformModule)
         main_window = window_module.main_window
@@ -115,34 +112,32 @@ class WindowBase(object):
         if imgui.is_mouse_released(0):
             if self.press_titlebar:
                 self.press_titlebar = None
-    def on_toolbar(self):
-        pass
+
+    def on_toolbar_menu(self):
+        if imgui.begin_menu("文件", True):
+            if imgui.menu_item("打开项目"):
+                name = tkinter.filedialog.askdirectory(initialdir=platform_module.engine_dir)
+                if name:
+                    platform_module.set_project_dir(name)
+
+            if imgui.menu_item("导入资源"):
+                name = tkinter.filedialog.askopenfilename(
+                    filetypes=(("obj files", "*.obj"), ("fbx files", "*.fbx"), ("gltf files", "*.gltf"),),
+                    initialdir=platform_module.project_dir + "/assets")
+                file_with_extension = os.path.basename(name)
+                (file_without_extension, file_extension) = os.path.splitext(file_with_extension)
+                luna.editor.import_mesh(name, platform_module.project_dir + "/assets", file_without_extension,
+                                        file_extension)
+
+            imgui.end_menu()
+
+        if imgui.begin_menu("工具", True):
+            if imgui.menu_item("关于"):
+                self.show_message_box("Luna Editor 0.1", "made by Isak Wong, Pancy Star")
+            imgui.end_menu()
 
     def do_imgui(self, delta_time):
-        self.setup_color()
         self.on_title()
-        main_view_offset = imgui.get_viewport_pos(self.view_port);
-        window_module = luna.get_module(luna.PlatformModule)
-        main_window = window_module.main_window
-        size = luna.LVector2f(main_window.width, main_window.height)
-        toolbar_color = imgui.get_style_color(imgui.ImGuiCol_TitleBg)
-        imgui.push_style_color(imgui.ImGuiCol_WindowBg, toolbar_color)
-        imgui.set_next_window_viewport(self.view_port)
-        imgui.set_next_window_pos(main_view_offset + luna.LVector2f(0, 70))
-        imgui.set_next_window_size(luna.LVector2f(50, main_window.height))
-        imgui.push_style_vec2(imgui.ImGuiStyleVar_FramePadding, luna.LVector2f(0.0, 0))
-        imgui.push_style_vec2(imgui.ImGuiStyleVar_WindowPadding, luna.LVector2f(0.0, 0))
-        imgui.push_style_vec2(imgui.ImGuiStyleVar_ItemSpacing, luna.LVector2f(0,))
-        imgui.push_style_color(imgui.ImGuiCol_Button, luna.LVector4f(0,0,0,0))
-        imgui.begin("Toolbar", imgui.ImGuiWindowFlags_NoSavedSettings |
-                    imgui.ImGuiWindowFlags_NoResize | imgui.ImGuiWindowFlags_NoMove
-                    | imgui.ImGuiWindowFlags_NoCollapse | imgui.ImGuiWindowFlags_NoTitleBar)
-        self.toolbar.do_imgui(delta_time)
-        imgui.pop_style_var(3)
-        imgui.pop_style_color(2)
-        imgui.end()
-
-        imgui.set_next_window_size(size, 0)
 
         exiting = False
 
@@ -151,7 +146,6 @@ class WindowBase(object):
                 | imgui.ImGuiWindowFlags_NoMove \
                 | imgui.ImGuiWindowFlags_NoBringToFrontOnFocus | luna.imgui.ImGuiWindowFlags_MenuBar
         imgui.set_next_window_viewport(self.view_port)
-        imgui.set_next_window_pos(main_view_offset, 0, luna.LVector2f(0, 0))
 
         dock_id = imgui.get_id(self.__class__.window_name)
 
@@ -177,6 +171,10 @@ class WindowBase(object):
         vmin = imgui.get_window_content_min()
         self.width = imgui.get_window_size().x
         self.height = imgui.get_window_size().y
+
+        if imgui.begin_menu_bar():
+            self.on_toolbar_menu()
+            imgui.end_menu_bar()
 
         if self._status_open:
             self._status_time += delta_time

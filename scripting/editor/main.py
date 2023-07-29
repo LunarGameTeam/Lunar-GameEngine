@@ -13,6 +13,8 @@ def init_editor():
     sys.path.append(editor_dir)
     sys.path.append(packages_dir)
 
+    os.sep = '/'
+
     from editor.core.hot_patch import watch_scripts
     watch_scripts(editor_dir)
 

@@ -16,8 +16,8 @@ class LibraryPanel(PanelBase):
     def __init__(self) -> None:
         super().__init__()
         self.title = "资源库"
-        self.engine_asset_path = os.path.join(luna.get_module(luna.PlatformModule).engine_dir, "assets")
-        self.project_asset_path = os.path.join(luna.get_module(luna.PlatformModule).project_dir, "assets")
+        self.engine_asset_path = luna.get_module(luna.PlatformModule).engine_dir + os.sep + "assets"
+        self.project_asset_path = luna.get_module(luna.PlatformModule).project_dir + os.sep + "assets"
         self.engine_root = FolderInfo(self.engine_asset_path)
         self.proj_root = FolderInfo(self.project_asset_path)
 

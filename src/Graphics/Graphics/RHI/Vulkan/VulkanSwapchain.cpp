@@ -83,7 +83,7 @@ bool VulkanSwapChain::Init()
 	mBackBuffers.resize(imageCount);
 	
 	mImageAvailable.resize(imageCount);
-	mSwapchainRelease.resize(imageCount);
+	mRenderFinish.resize(imageCount);
 	mFence.resize(imageCount);
 	mViews.resize(imageCount);
 
@@ -92,15 +92,15 @@ bool VulkanSwapChain::Init()
 		TRHIPtr<VulkanResource> backBufferTexture = CreateRHIObject<VulkanResource>(i, this);
 		mBackBuffers[i] = backBufferTexture.get();
 		
-		vk::SemaphoreCreateInfo createInfo = {};
+		vk::SemaphoreCreateInfo createInfo = {};		
 		
 		vk::FenceCreateInfo fenceInfo{};	
 
 		if(!mImageAvailable[i])
 			VULKAN_ASSERT(device.createSemaphore(&createInfo, nullptr, &mImageAvailable[i]));
 
-		if (!mSwapchainRelease[i])
-			VULKAN_ASSERT(device.createSemaphore(&createInfo, nullptr, &mSwapchainRelease[i]));
+		if (!mRenderFinish[i])
+			VULKAN_ASSERT(device.createSemaphore(&createInfo, nullptr, &mRenderFinish[i]));
 
 		if (!mFence[i])
 			VULKAN_ASSERT(device.createFence(&fenceInfo, nullptr, &mFence[i]));
@@ -193,21 +193,15 @@ void VulkanSwapChain::PresentFrame(RHIFence* fence, uint64_t waitValue)
 	auto renderQueue = sRenderModule->GetCmdQueueCore()->As<VulkanRenderQueue>();
 
 	uint64_t tmp = std::numeric_limits<uint64_t>::max();
-
-	vk::TimelineSemaphoreSubmitInfo timeline_info = {};
-	timeline_info.waitSemaphoreValueCount = 1;
-	timeline_info.pWaitSemaphoreValues = &waitValue;	
-	timeline_info.signalSemaphoreValueCount = 1;
-	timeline_info.pSignalSemaphoreValues = &tmp;
+	
 
 	vk::SubmitInfo signal_submit_info = {};
-	signal_submit_info.pNext = &timeline_info;
 	signal_submit_info.waitSemaphoreCount = 1;
-	signal_submit_info.pWaitSemaphores = &fence->As<VulkanFence>()->mSempahore;
+	signal_submit_info.pWaitSemaphores = &mImageAvailable[mPrevFrameIdx];
 	vk::PipelineStageFlags waitDstStageMask = vk::PipelineStageFlagBits::eColorAttachmentOutput;
 	signal_submit_info.pWaitDstStageMask = &waitDstStageMask;
 	signal_submit_info.signalSemaphoreCount = 1;
-	signal_submit_info.pSignalSemaphores = &mSwapchainRelease[mFrameIndex];
+	signal_submit_info.pSignalSemaphores = &mRenderFinish[mFrameIndex];
 
 	VULKAN_ASSERT(renderQueue->mQueue.submit(1, &signal_submit_info, {}));
 
@@ -216,7 +210,7 @@ void VulkanSwapChain::PresentFrame(RHIFence* fence, uint64_t waitValue)
 	present_info.pSwapchains = &mSwapChain;
 	present_info.pImageIndices = &mFrameIndex;
 	present_info.waitSemaphoreCount = 1;
-	present_info.pWaitSemaphores = &mSwapchainRelease[mFrameIndex];
+	present_info.pWaitSemaphores = &mRenderFinish[mFrameIndex];
 	VULKAN_ASSERT(renderQueue->mQueue.presentKHR(&present_info));	
 }
 

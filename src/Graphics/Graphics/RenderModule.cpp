@@ -46,7 +46,7 @@
 #include "Graphics/FrameGraph/FrameGraph.h"
 
 
-#include "imgui_impl_sdl.h"
+#include "imgui_impl_sdl2.h"
 #include "imgui_impl_dx12.h"
 #include "imgui_impl_vulkan.h"
 
@@ -114,7 +114,7 @@ void RenderModule::SetupIMGUI()
 		icon_ranges);
 	//ImGui::PushFont(font);
 	io.ConfigFlags = io.ConfigFlags | ImGuiConfigFlags_DockingEnable;
-	io.ConfigFlags = io.ConfigFlags | ImGuiConfigFlags_ViewportsEnable;
+	//io.ConfigFlags = io.ConfigFlags | ImGuiConfigFlags_ViewportsEnable;
 	(void)io;
 
 	io.IniFilename = nullptr;
@@ -377,7 +377,7 @@ void RenderModule::RenderTick(float delta_time)
 	{
 		ZoneScopedN("Present");
 		mRenderContext->mGraphicQueue->Wait(mRenderContext->mFence, mRenderContext->mFenceValue);
-		mRenderContext->mGraphicQueue->Present(mMainSwapchain);
+		mMainSwapchain->PresentFrame(mRenderContext->mFence, mRenderContext->mFenceValue);
 	}
 	
 

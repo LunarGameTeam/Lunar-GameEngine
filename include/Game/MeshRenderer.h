@@ -36,17 +36,18 @@ public:
 	void SetCastShadow(bool val);
 	void OnCreate() override;
 
-	virtual MeshAsset* GetMeshAsset() { return nullptr; };
 
 	void OnActivate() override;
+
+	virtual MeshAsset* GetMeshAsset() { return nullptr; };
 protected:
 	virtual void CreateRenderObject() {};
-protected:
-	bool mCastShadow = true;
-	uint64_t mRO = uint64_t(-1);
-	SharedPtr<graphics::MaterialTemplateAsset> mMaterialAsset;
-	TPPtr<graphics::MaterialInstance> mMaterialInstance;
 
+protected:
+	bool                             mCastShadow = true;
+	uint64_t                         mRO         = uint64_t(-1);
+	SharedPtr<MaterialTemplateAsset> mMaterialAsset;
+	TPPtr<MaterialInstance>          mMaterialInstance;
 };
 
 class GAME_API StaticMeshRenderer : public MeshRenderer

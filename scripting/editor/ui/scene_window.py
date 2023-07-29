@@ -1,12 +1,12 @@
 import inspect
 import os
-import tkinter.filedialog
+import tkinter
 import types
 
 import luna
-from editor.core.editor_module import platform_module, EditorModule, asset_module, game_module
-from luna import imgui
+from editor.core.editor_module import EditorModule, game_module, asset_module, platform_module
 from editor.ui.panel import WindowBase
+from luna import imgui
 
 
 def generate_class_doc(cls: 'type'):
@@ -50,7 +50,7 @@ def generate_doc_for_module(target: 'types.ModuleType') -> object:
     return
 
 
-class MainWindow(WindowBase):
+class SceneWindow(WindowBase):
     main_scene: 'luna.Scene' = None
     window_name = "Scene Window"
 
@@ -91,16 +91,13 @@ class MainWindow(WindowBase):
         if old_scn:
             old_scn.destroy()
 
-    def on_file_menu(self):
+    def on_toolbar_menu(self):
+        super().on_toolbar_menu()
         if imgui.begin_menu("文件", True):
-            if imgui.menu_item("打开项目"):
-                name = tkinter.filedialog.askdirectory(initialdir=platform_module.engine_dir)
-                if name:
-                    platform_module.set_project_dir(name)
             if imgui.menu_item("新建场景"):
                 name = tkinter.filedialog.asksaveasfilename(filetypes=(("scene files", "*.scn"),),
                                                             initialfile="Scene.scn",
-                                                          initialdir=platform_module.project_dir + "/assets")
+                                                            initialdir=platform_module.project_dir + "/assets")
                 if name and name.startswith(platform_module.project_dir):
                     engine_path = os.path.relpath(name, platform_module.project_dir)
                     new_scn = asset_module.new_asset(engine_path, luna.Scene)
@@ -114,40 +111,13 @@ class MainWindow(WindowBase):
                     engine_path = os.path.relpath(name, platform_module.project_dir)
                     scn = asset_module.load_asset(engine_path, luna.Scene)
                     self.set_main_scene(scn)
-            if imgui.menu_item("导入资源"):
-                name = tkinter.filedialog.askopenfilename(filetypes=(("obj files", "*.obj"),("fbx files", "*.fbx"),("gltf files", "*.gltf"),),
-                                                          initialdir=platform_module.project_dir + "/assets")
-                file_with_extension = os.path.basename(name)
-                (file_without_extension,file_extension) = os.path.splitext(file_with_extension)
-                luna.editor.import_mesh(name,platform_module.project_dir + "/assets",file_without_extension,file_extension)
-                
+            if imgui.menu_item("保存场景"):
+                asset_module.save_asset(self.main_scene, self.main_scene.path)
+
             if imgui.menu_item("生成 Python API"):
                 self.show_status("生成PythonAPI中")
                 generate_doc_for_module(luna)
-            if imgui.menu_item("保存场景"):
-                asset_module.save_asset(self.main_scene, self.main_scene.path)
-            if imgui.menu_item("退出"):
-                EditorModule.instance().open_asset(None)
-
-            imgui.end_menu()
-
-    def on_help_menu(self):
-        if imgui.begin_menu("帮助", True):
-            if imgui.menu_item("关于"):
-                self.show_message_box("Luna Editor 0.1", "made by Isak Wong, Pancy Star")
-            imgui.end_menu()
-
-    def on_tool_menu(self):
-        if imgui.begin_menu("工具", True):
-            if imgui.menu_item("关于"):
-                self.show_message_box("Luna Editor 0.1", "made by Isak Wong, Pancy Star")
             imgui.end_menu()
 
     def on_imgui(self, delta_time) -> None:
         super().on_imgui(delta_time)
-        if imgui.begin_menu_bar():
-            self.on_file_menu()
-            self.on_tool_menu()
-            self.on_help_menu()
-            imgui.end_menu_bar()
-

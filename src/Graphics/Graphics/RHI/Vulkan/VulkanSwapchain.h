@@ -40,7 +40,7 @@ private:
 	vk::Extent2D     mSwapChainExtent;
 	uint32_t mFrameIndex = 0;
 	std::vector<vk::Semaphore> mImageAvailable;
-	std::vector<vk::Semaphore> mSwapchainRelease;
+	std::vector<vk::Semaphore> mRenderFinish;
 	std::vector<vk::Fence> mFence;
 	uint32_t mPrevFrameIdx = 0;
 	VkSurfaceKHR mSurface = nullptr;
