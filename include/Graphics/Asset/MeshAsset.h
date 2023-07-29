@@ -37,7 +37,7 @@ class RHIResource;
 		}
 	};
 
-	enum SubMeshType
+	enum class SubMeshType
 	{
 		SubMeshStatic,
 		SubMeshSkined

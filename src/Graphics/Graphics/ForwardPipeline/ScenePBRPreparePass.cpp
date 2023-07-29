@@ -59,7 +59,7 @@ void PBRPreparePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* r
 	node.ExcuteFunc([view, renderScene, sceneView](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
 	{
 		lutMatInstance->SetShaderInput(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer->mView);
-	device->DrawMesh(&sRenderModule->mFullscreenMesh, lutMatInstance, nullptr);
+		device->DrawMesh(&sRenderModule->mFullscreenMesh, lutMatInstance);
 	});
 
 	
@@ -149,7 +149,7 @@ void PBRPreparePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* r
 				auto cube = (MaterialParamTextureCube*)(param.Get());
 				iradMatInstance[idx]->SetShaderInput(ParamID_ViewBuffer, sViewBuffers[idx]->mView);
 				iradMatInstance[idx]->SetShaderInput(ParamID__EnvTex, envView->mRHIView);
-				device->DrawMesh(cubeRenderMesh, iradMatInstance[idx], nullptr);
+				device->DrawMesh(cubeRenderMesh, iradMatInstance[idx]);
 				break;
 			}
 		}

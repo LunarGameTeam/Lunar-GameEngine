@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Graphics/RHI/RHIResource.h"
 #include "Graphics/RHI/RHIDescriptor.h"
@@ -26,14 +26,14 @@ struct RENDER_API Light : public RenderData
 
 struct RENDER_API PointLight : Light
 {
-	LVector3f mPosition;
-	float     mFov    = (float)std::numbers::pi / 2.0f;
-	float     mAspect = 1;
-	float     mNear   = 0.1;
-	float     mFar    = 50;
-	LArray<LMatrix4f> mViewMatrix;
-	LMatrix4f mProjMatrix;
-	LArray<ShaderCBuffer*>			mParamBuffer;
+	LVector3f              mPosition;
+	float                  mFov    = (float)std::numbers::pi / 2.0f;
+	float                  mAspect = 1;
+	float                  mNear   = 0.1;
+	float                  mFar    = 50;
+	LArray<LMatrix4f>      mViewMatrix;
+	LMatrix4f              mProjMatrix;
+	LArray<ShaderCBuffer*> mParamBuffer;
 
 	void PerViewUpdate(RenderView* renderScene) override;
 
@@ -43,7 +43,7 @@ struct RENDER_API PointLight : Light
 struct RENDER_API DirectionLight : Light
 {
 
-	LVector3f      mDirection;
+	LVector3f mDirection;
 	LMatrix4f mViewMatrix;
 
 	void Update(RenderView* view);

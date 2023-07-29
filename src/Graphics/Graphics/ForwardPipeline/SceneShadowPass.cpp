@@ -68,9 +68,7 @@ void DirectionalLightShadowPass(FrameGraphBuilder* builder, RenderView* view, Re
 
 	node.ExcuteFunc([view, renderScene](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
 	{
-		std::unordered_map<luna::graphics::ShaderParamID, luna::graphics::RHIView*> shaderBindingParam;
-		(renderScene->mMainDirLight->mParamBuffer->mView.get(), shaderBindingParam);
-
+		ShaderParamInputs shaderBindingParam;
 		view->RequireData<RenderObjectDrawData>()->DrawRenderObjects(MeshRenderPass::DirectLightShadowDepthPass, shaderBindingParam, renderScene->mMainDirLight->mParamBuffer->mView.get());
 	});
 }
@@ -142,7 +140,7 @@ void PointShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* 
 			{
 				if (!it->mCastShadow)
 					continue;
-				std::unordered_map<luna::graphics::ShaderParamID, luna::graphics::RHIView*> shaderBindingParam;
+				std::unordered_map<ShaderParamID, RHIView*> shaderBindingParam;
 				view->RequireData<RenderObjectDrawData>()->DrawRenderObjects(MeshRenderPass::PointLightShadowDepthPass, shaderBindingParam, it->mParamBuffer[idx]->mView);
 			}
 		});

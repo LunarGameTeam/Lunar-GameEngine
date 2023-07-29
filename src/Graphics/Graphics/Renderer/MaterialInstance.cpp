@@ -1,4 +1,4 @@
-#include "Graphics/Renderer/MaterialInstance.h"
+ï»¿#include "Graphics/Renderer/MaterialInstance.h"
 
 
 #include "Graphics/RenderModule.h"
@@ -17,7 +17,7 @@
 namespace luna::graphics
 {
 
-//ÓÅ»¯ ÔöÁ¿¸üĞÂ
+//ä¼˜åŒ– å¢é‡æ›´æ–°
 PARAM_ID(MaterialBuffer);
 
 

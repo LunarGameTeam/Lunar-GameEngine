@@ -1,6 +1,6 @@
-#include "Core/Platform/PlatformModule.h"
+﻿#include "Core/Platform/PlatformModule.h"
 
-#include "imgui_impl_sdl.h"
+#include "imgui_impl_sdl2.h"
 
 #include "Core/CoreMin.h"
 #include "Core/Platform/Window.h"

@@ -12,8 +12,11 @@
 namespace luna::graphics
 {
 
-// Shader Buffer的封装，根据CBuffer的Desc创建，内部封装了RHIResource和RHIView
-// 提供快捷设置数据和Commit接口
+
+using ShaderParamInputs = std::unordered_map<ShaderParamID, RHIView*>;
+
+// Shader Buffer的封装，根据 CBuffer 的 Desc 创建，内部封装了RHIResource 和 RHIView
+// 提供根据Offset，以及根据 ShaderParamID 快捷设置数据和 Commit 接口
 struct RENDER_API ShaderCBuffer : NoCopy
 {
 	ShaderCBuffer(const RHICBufferDesc& cbDesc);
@@ -60,11 +63,5 @@ struct RENDER_API ShaderCBuffer : NoCopy
 	RHIViewPtr               mView;
 };
 
-//把ShaderParam打包，Param名字 + Texture View，或者是放ShaderParamBuffer
-struct RENDER_API PackedParams : NoCopy
-{
-	void PushShaderParam(RHIBindPoint id, RHIViewPtr view);
-	LArray<std::pair<RHIBindPoint, RHIViewPtr>> mParams;
-};
 
 }

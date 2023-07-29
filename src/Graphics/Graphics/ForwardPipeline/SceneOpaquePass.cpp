@@ -113,7 +113,7 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 			MaterialInstance* mat = renderScene->mSkyboxMaterial;
 			mat->SetShaderInput(ParamID_SceneBuffer, renderScene->mSceneParamsBuffer->mView);
 			mat->SetShaderInput(ParamID_ViewBuffer, view->mViewBuffer->mView);
-			device->DrawMesh(sSkyboxRenderMesh, mat, nullptr);
+			device->DrawMesh(sSkyboxRenderMesh, mat);
 		}
 
 		RHIResource* instancingBuffer = renderScene->mROIDInstancingBuffer->mRes;

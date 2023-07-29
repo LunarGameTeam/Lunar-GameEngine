@@ -612,15 +612,14 @@ RHIPipelineStatePtr RenderContext::CreatePipeline(graphics::MaterialInstance* ma
 	return CreatePipelineState(mat, mCurRenderPass, layout);
 }
 
-void RenderContext::DrawMesh(graphics::RenderMeshBase* mesh, graphics::MaterialInstance* mat, PackedParams* params)
+void RenderContext::DrawMesh(graphics::RenderMeshBase* mesh, graphics::MaterialInstance* mat)
 {
 	ZoneScoped;
-	DrawMeshInstanced(mesh, mat, params, nullptr, 0, 1);
+	DrawMeshInstanced(mesh, mat, nullptr, 0, 1);
 }
 
 
-void RenderContext::DrawMeshInstanced(graphics::RenderMeshBase* mesh, graphics::MaterialInstance* mat, PackedParams* params,
-	graphics::RHIResource* vertexInputInstanceRes /*= nullptr*/,
+void RenderContext::DrawMeshInstanced(graphics::RenderMeshBase* mesh, graphics::MaterialInstance* mat, graphics::RHIResource* vertexInputInstanceRes /*= nullptr*/,
 	int32_t startInstanceIdx /*= 1*/, int32_t instancingSize /*= 1*/)
 {
 	ZoneScoped;

@@ -25,7 +25,10 @@ namespace luna::graphics
 PARAM_ID(SceneBuffer);
 PARAM_ID(ViewBuffer);
 
-void RenderObjectDrawData::DrawRenderObjects(MeshRenderPass pass, const std::unordered_map<luna::graphics::ShaderParamID, luna::graphics::RHIView*>& shaderBindingParam, RHIView* temp)
+void RenderObjectDrawData::DrawRenderObjects(
+	MeshRenderPass pass, 
+	const std::unordered_map<ShaderParamID, RHIView*>& shaderBindingParam, 
+	RHIView* overrideRenderViewBuffer)
 {
 	for (int32_t visibleRoIndex = 0; visibleRoIndex < mVisibleROs[pass].size(); ++visibleRoIndex)
 	{
@@ -36,18 +39,23 @@ void RenderObjectDrawData::DrawRenderObjects(MeshRenderPass pass, const std::uno
 			matInstance = drawRenderObject->mMaterial;
 		RenderMeshBase* renderMeshData = drawRenderObject->mMeshIndex;
 		RHIResource* instancingBuffer = mScene->mROIDInstancingBuffer->mRes;
-		if (temp == nullptr)
-			temp = mView->mViewBuffer->mView;
-		if (temp)
+
+		// 不覆盖的化使用mView的Buffer
+		if (overrideRenderViewBuffer == nullptr)
+			overrideRenderViewBuffer = mView->mViewBuffer->mView;
+
+		if (overrideRenderViewBuffer)
 		{
 			matInstance->SetShaderInput(ParamID_SceneBuffer, mScene->mSceneParamsBuffer->mView);
-			matInstance->SetShaderInput(ParamID_ViewBuffer, temp);
+			matInstance->SetShaderInput(ParamID_ViewBuffer, overrideRenderViewBuffer);
 		}
+
 		for (auto& eachShaderParam : shaderBindingParam)
 		{
 			matInstance->SetShaderInput(eachShaderParam.first, eachShaderParam.second);
 		}
-		sRenderModule->mRenderContext->DrawMeshInstanced(renderMeshData, matInstance, nullptr, instancingBuffer, drawRenderObject->mID, 1);		
+
+		sRenderModule->mRenderContext->DrawMeshInstanced(renderMeshData, matInstance, instancingBuffer, drawRenderObject->mID, 1);		
 	}
 }
 

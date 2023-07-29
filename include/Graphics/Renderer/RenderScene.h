@@ -41,7 +41,7 @@ public:
 	RenderScene*          mScene                                        = nullptr;
 	RenderView*           mView                                         = nullptr;
 
-	void DrawRenderObjects(MeshRenderPass pass, const std::unordered_map<luna::graphics::ShaderParamID, luna::graphics::RHIView*>& shaderBindingParam, RHIView* temp);
+	void DrawRenderObjects(MeshRenderPass pass, const std::unordered_map<luna::graphics::ShaderParamID, luna::graphics::RHIView*>& shaderBindingParam, RHIView* overrideRenderViewBuffer);
 
 	void SetROFilter(MeshRenderPass pass, ROFilterFunc func)
 	{

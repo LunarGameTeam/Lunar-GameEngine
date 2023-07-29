@@ -1,4 +1,4 @@
-#include "Graphics/Renderer/MaterialInstance.h"
+﻿#include "Graphics/Renderer/MaterialInstance.h"
 #include "Graphics/Asset/MeshAsset.h"
 #include "Graphics/Asset/MaterialTemplate.h"
 
@@ -58,9 +58,9 @@ void OverlayPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rend
 		debugMat->SetShaderInput(ParamID_ViewBuffer, view->mViewBuffer->mView);
 		RHIResource* instancingBuffer = renderScene->mROIDInstancingBuffer->mRes;
 		if(renderScene->mDebugMeshLineData.GetVertexSize() != 0)
-			device->DrawMesh(&renderScene->mDebugMeshLineData, debugMat, nullptr);
+			device->DrawMesh(&renderScene->mDebugMeshLineData, debugMat);
 		if (renderScene->mDebugMeshData.GetVertexSize() != 0)
-			device->DrawMesh(&renderScene->mDebugMeshData, debugMat, nullptr);
+			device->DrawMesh(&renderScene->mDebugMeshData, debugMat);
 	});
 }
 

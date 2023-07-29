@@ -177,7 +177,6 @@ public:
 	size_t GetPipelineId(const RHIPipelineState* pipeline);
 	RHICmdSignaturePtr CreateCmdSignature(RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc);
 	size_t GetCmdSignatureId(const RHICmdSignature* pipeline);
-	RHIBindingSetPtr GetBindingSet(RHIPipelineState* pipeline, PackedParams* packparams);
 	//----Resource Graph API End----
 
 	RHIBindingSetPtr CreateBindingset(RHIBindingSetLayoutPtr layout);
@@ -187,8 +186,15 @@ public:
 	void BeginRenderPass(const RenderPassDesc&);
 	void EndRenderPass();
 
-	void DrawMesh(graphics::RenderMeshBase*, graphics::MaterialInstance* mat, PackedParams* params);
-	void DrawMeshInstanced(graphics::RenderMeshBase*, graphics::MaterialInstance* mat, PackedParams* params, graphics::RHIResource* vertexInputInstanceRes = nullptr, int32_t startInstanceIdx = 1, int32_t instancingSize = 1);
+	void DrawMesh(graphics::RenderMeshBase*, graphics::MaterialInstance* mat);
+
+	void DrawMeshInstanced(
+		RenderMeshBase*, 
+		MaterialInstance* mat,
+		RHIResource* vertexInputInstanceRes = nullptr, 
+		int32_t startInstanceIdx = 1,
+		int32_t instancingSize = 1);
+
 private:
 	using PipelineCacheKey = std::pair < MaterialInstance*, size_t>;
 	RenderPassDesc                              mCurRenderPass;
