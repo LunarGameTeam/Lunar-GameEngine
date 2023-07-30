@@ -245,6 +245,8 @@ private:
 
 	RHIDescriptorPoolPtr                        mDefaultPool;
 
+	size_t                                   emptyInstanceBufferSize;
+	RHIResourcePtr                           emptyInstanceBuffer;
 public:
 	//Samplers
 	StaticSampler mClamp;

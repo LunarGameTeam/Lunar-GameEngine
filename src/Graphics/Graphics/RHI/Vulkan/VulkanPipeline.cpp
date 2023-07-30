@@ -182,7 +182,7 @@ void VulkanPipelineState::Init()
 	for (auto& vertexElement : mPSODesc.mGraphicDesc.mInputLayout.mElements)
 	{
 		auto& attr = inputAttributes.emplace_back();
-		attr.location = inputLocationIndex;
+		attr.location = static_cast<uint32_t>(vertexElement.mUsage);
 		attr.binding = vertexElement.mBufferSlot;
 		attr.offset = 0;
 		if (vertexElement.mElementType == VertexElementType::Float)
@@ -207,7 +207,7 @@ void VulkanPipelineState::Init()
 			else if (vertexElement.mElementCount == 4)
 				attr.format = vk::Format::eR32G32B32A32Uint;
 		}
-		inputLocationIndex++;
+		//inputLocationIndex++;
 		//����vertex buffer�ĸ�ʽ��Ϣ
 		if (attr.binding + 1 > inputVertexBufferNum)
 		{

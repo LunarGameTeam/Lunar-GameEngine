@@ -347,6 +347,14 @@ void RenderContext::Init()
 	LArray<RHIBindPoint> bindingpoints;
 	bindingpoints.push_back(bindpoint);
 	mViewBindingSet = mDevice->CreateBindingSetLayout(bindingpoints);
+
+
+	RHIBufferDesc desc;
+	emptyInstanceBufferSize = sizeof(uint32_t) * 4 * 128;
+	desc.mBufferUsage = RHIBufferUsage::VertexBufferBit;
+	desc.mSize = emptyInstanceBufferSize;
+	emptyInstanceBuffer = CreateBuffer(desc);
+
 }
 
 void RenderContext::OnFrameBegin()
@@ -624,9 +632,7 @@ void RenderContext::DrawMeshInstanced(graphics::RenderMeshBase* mesh, graphics::
 {
 	ZoneScoped;
 	RHIVertexLayout layout = mesh->GetVertexLayout();
-	//todo:这里vulkan发现vertexinput和shader定义不一样长会报错，dx会直接crash
-	if(vertexInputInstanceRes)
-		layout.AddVertexElement(VertexElementType::Int, VertexElementUsage::UsageInstanceMessage, 4, 1, VertexElementInstanceType::PerInstance);
+	layout.AddVertexElement(VertexElementType::Int, VertexElementUsage::UsageInstanceMessage, 4, 1, VertexElementInstanceType::PerInstance);
 
 	auto pipeline = mat->GetPipeline(&layout, mCurRenderPass);
 	auto matBindingset = mat->GetBindingSet();
@@ -654,6 +660,14 @@ void RenderContext::DrawMeshInstanced(graphics::RenderMeshBase* mesh, graphics::
 		vbInstancingDesc.mBufferSize = vertexInputInstanceRes->GetMemoryRequirements().size;
 		vbInstancingDesc.mVertexStride = layout.GetSize()[1];
 		vbInstancingDesc.mVertexRes = vertexInputInstanceRes;
+	}
+	else
+	{
+		RHIVertexBufferDesc& vbInstancingDesc = descs.emplace_back();
+		vbInstancingDesc.mOffset = 0;
+		vbInstancingDesc.mBufferSize = emptyInstanceBufferSize;
+		vbInstancingDesc.mVertexStride = layout.GetSize()[1];
+		vbInstancingDesc.mVertexRes = emptyInstanceBuffer.get();
 	}
 
 	mGraphicCmd->SetVertexBuffer(descs, 0);
