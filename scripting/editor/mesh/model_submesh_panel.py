@@ -1,10 +1,9 @@
 import luna
 from luna import imgui
-from editor.ui.panel import PanelBase
-
-class ModelSubmeshPanel(PanelBase):
+from editor.custom_widget.custom_child_panel import CustomChildPanelBase
+class ModelSubmeshPanel(CustomChildPanelBase):
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(self)
         self.scene = None
         self.title = "submesh"
         self.selected_entity = None

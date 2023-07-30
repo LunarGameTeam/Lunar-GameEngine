@@ -147,15 +147,14 @@ class WindowBase(object):
 
     def do_imgui(self, delta_time):
         self.on_title()
-
+        main_view_offset = imgui.get_viewport_pos(self.view_port);
         exiting = False
-        imgui.set_next_window_pos(luna.LVector2f(0, 0), imgui.ImGuiCond_Always)
+        imgui.set_next_window_pos(main_view_offset + luna.LVector2f(0, 0), imgui.ImGuiCond_Always)
         imgui.push_style_vec2(imgui.ImGuiStyleVar_FramePadding, luna.LVector2f(16, 8))
         flags = imgui.ImGuiWindowFlags_NoCollapse \
                 | imgui.ImGuiWindowFlags_NoMove \
                 | imgui.ImGuiWindowFlags_NoBringToFrontOnFocus | luna.imgui.ImGuiWindowFlags_MenuBar
         imgui.set_next_window_viewport(self.view_port)
-
         dock_id = imgui.get_id(self.__class__.window_name)
 
         exiting = not imgui.begin("MainWindow", flags, True)

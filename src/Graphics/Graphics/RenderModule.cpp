@@ -114,7 +114,7 @@ void RenderModule::SetupIMGUI()
 		icon_ranges);
 	//ImGui::PushFont(font);
 	io.ConfigFlags = io.ConfigFlags | ImGuiConfigFlags_DockingEnable;
-	//io.ConfigFlags = io.ConfigFlags | ImGuiConfigFlags_ViewportsEnable;
+	io.ConfigFlags = io.ConfigFlags | ImGuiConfigFlags_ViewportsEnable;
 	(void)io;
 
 	io.IniFilename = nullptr;

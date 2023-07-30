@@ -1,8 +1,7 @@
 import luna
 from luna import imgui
-from editor.ui.panel import PanelBase
 from editor.core.inspector_base import InspectorBase
-
+from editor.custom_widget.custom_child_panel import CustomChildPanelBase
 
 class PropertyInspector(InspectorBase):
     def __init__(self, target):
@@ -19,14 +18,14 @@ class PropertyInspector(InspectorBase):
             imgui.tree_pop()
         imgui.separator()
 
-class ModelPropertyPanel(PanelBase):
+class ModelPropertyPanel(CustomChildPanelBase):
     editor_list: list[InspectorBase]
     editor: InspectorBase
     selected_entity: luna.Entity
     world_sys: luna.GameModule
 
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(self)
         self.title = "property"
         self.selected_entity = None
         self.editor = PropertyInspector(None)

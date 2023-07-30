@@ -2,12 +2,11 @@ import math
 
 import luna
 from luna import imgui
-from editor.ui.panel import PanelBase
 asset_module: 'luna.AssetModule' = luna.get_module(luna.AssetModule)
-
-class CustomSceneViewPanel(PanelBase):
+from editor.custom_widget.custom_child_panel import CustomChildPanelBase
+class CustomSceneViewPanel(CustomChildPanelBase):
     def __init__(self) -> None:
-        super().__init__()
+        super().__init__(self)
         self.title = "Scene"
         self.scene = None
         self.scene_texture = None
@@ -17,8 +16,8 @@ class CustomSceneViewPanel(PanelBase):
         self.dragging = False
         self.need_update_texture = False
         global asset_module
-        #scn = asset_module.load_asset("/assets/built-in/TemplateScene/EmptyView.scn", luna.Scene)
-        #self.set_scene(scn)
+        scn = asset_module.load_asset("/assets/built-in/TemplateScene/EmptyView.scn", luna.Scene)
+        self.set_scene(scn)
 
     def create_editor_camera(self, scene: 'luna.Scene'):
         e: 'luna.Entity' = scene.create_entity("_EditorCamera", None)
@@ -133,10 +132,6 @@ class CustomSceneViewPanel(PanelBase):
 
         if imgui.is_mouse_dragging(0, -1.0):
             pass
-            #if vmin != self.last_min or vmax != self.last_max:
-            #    self.dragging = True
-            #self.last_min = imgui.get_window_content_min()
-           # self.last_max = imgui.get_window_content_max()
 
         if self.need_update_texture:
             if content.x > 0 and content.y > 0:

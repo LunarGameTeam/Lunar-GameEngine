@@ -40,6 +40,7 @@ def init_editor():
 
     from editor.material import material_asset
     from editor.scene import scene_asset
+    from editor.mesh import mesh_asset
 
     app.main_loop()
 

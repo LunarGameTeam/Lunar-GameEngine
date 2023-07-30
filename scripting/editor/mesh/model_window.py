@@ -6,17 +6,17 @@ import types
 import luna
 from editor.core.editor_module import platform_module, EditorModule, asset_module, game_module
 from luna import imgui
-from editor.ui.custom_window_panel import CustomWindowPanel
+from editor.custom_widget.custom_window_panel import CustomWindowPanel
 
 class ModelEditWindow(CustomWindowPanel):
-    def __init__(self,initwidth,initheight) -> None:
-        super().__init__("ModelEditWindow",initwidth,initheight)
+    def __init__(self) -> None:
+        super().__init__("ModelEditWindow",1366,768)
         #添加view窗口
-        from editor.ui.custom_scene_view_pannel import CustomSceneViewPanel
+        from editor.custom_widget.custom_scene_view_pannel import CustomSceneViewPanel
         self.add_panel(CustomSceneViewPanel)
-        from editor.ui.model_submesh_panel import ModelSubmeshPanel
+        from editor.mesh.model_submesh_panel import ModelSubmeshPanel
         self.add_panel(ModelSubmeshPanel)
-        from editor.ui.model_property_panel import ModelPropertyPanel
+        from editor.mesh.model_property_panel import ModelPropertyPanel
         self.add_panel(ModelPropertyPanel)
 
     def on_title(self):

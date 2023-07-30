@@ -562,6 +562,7 @@ STATIC_INIT(imgui)
 	AddIMGUIConstant(ImGuiCond_FirstUseEver);
 	AddIMGUIConstant(ImGuiCond_Once);
 
+	AddIMGUIConstant(ImGuiDockNodeFlags_KeepAliveOnly);
 	AddIMGUIConstant(ImGuiDockNodeFlags_PassthruCentralNode);
 	AddIMGUIConstant(ImGuiDockNodeFlags_AutoHideTabBar);
 	//Window Flags
