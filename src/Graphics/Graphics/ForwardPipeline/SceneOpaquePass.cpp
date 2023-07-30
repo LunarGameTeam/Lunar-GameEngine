@@ -90,8 +90,8 @@ void OpaquePass(FrameGraphBuilder* builder, RenderView* view, RenderScene* rende
 		directionalShadowmapView = node.AddSRV(white, RHIViewDimension::TextureView2D, 0, 1);
 	}
 
-	node.SetColorAttachment(colorView);
-	node.SetDepthStencilAttachment(depthView);
+	node.SetColorAttachment(colorView, LoadOp::kClear);
+	node.SetDepthStencilAttachment(depthView, LoadOp::kClear);
 
 	static auto sSkyboxMesh = sAssetModule->LoadAsset<MeshAsset>("/assets/built-in/Geometry/Sphere.lmesh");		
 	static RenderMeshBase* sSkyboxRenderMesh = sSkyboxMesh->GetSubMeshAt(0)->GetRenderMeshBase();

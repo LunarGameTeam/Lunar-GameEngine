@@ -59,17 +59,19 @@ class SceneWindow(WindowBase):
 
         self.main_scene = None
 
-        from editor.ui.hierarchy_panel import HierarchyPanel
+
         from editor.ui.inspector_panel import InspectorPanel
-        from editor.ui.scene_panel import ScenePanel
+
         from editor.ui.library_panel import LibraryPanel
         from editor.ui.imgui_demo import DemoPanel
-        self.hierarchy_panel = self.add_panel(HierarchyPanel)
-        self.demo_panel = self.add_panel(DemoPanel)
-        self.scene_panel = self.add_panel(ScenePanel)
+        from editor.scene.scene_hierarchy_panel import HierarchyPanel
+        self.hierarchy_panel = self.create_panel(HierarchyPanel)
+        self.demo_panel = self.create_panel(DemoPanel)
+        from editor.scene.scene_view_panel import ScenePanel
+        self.scene_panel = self.create_panel(ScenePanel)
 
-        self.library_panel = self.add_panel(LibraryPanel)
-        self.inspector = self.add_panel(InspectorPanel)
+        self.library_panel = self.add_panel(LibraryPanel.get_singleton())
+        self.inspector = self.create_panel(InspectorPanel)
 
     def on_title(self):
         proj_dir = EditorModule.instance().project_dir
@@ -90,6 +92,14 @@ class SceneWindow(WindowBase):
             game_module.add_scene(self.main_scene)
         if old_scn:
             old_scn.destroy()
+
+    def on_activate(self):
+        if self.main_scene:
+            self.main_scene.renderable = True
+
+    def on_deactivate(self):
+        if self.main_scene:
+            self.main_scene.renderable = False
 
     def on_toolbar_menu(self):
         super().on_toolbar_menu()

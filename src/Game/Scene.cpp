@@ -19,6 +19,10 @@ RegisterTypeEmbedd_Imp(Scene)
 
 	cls->Property<&Self::mEntites>("entities")
 		.Serialize();
+	cls->VirtualProperty("renderable")
+		.Getter<&Scene::GetRenderable>()
+		.Setter<&Scene::SetRenderable>()
+		.Binding<Scene, bool>();
 
 	cls->BindingMethod<&Scene::CreateEntity>("create_entity");
 	cls->BindingMethod<&Scene::FindEntity>("find_entity");

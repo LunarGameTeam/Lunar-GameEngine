@@ -36,27 +36,6 @@ def get_asset_type(name) -> type[AssetType]:
 
 
 @register_asset_type
-class MaterialAssetType(AssetType):
-    suffix = [".mat"]
-    icon = imgui.ICON_FA_CIRCLE
-
-    @staticmethod
-    def on_double_click(cur_item):
-        from editor.ui.inspector_panel import InspectorPanel
-        from editor.core.editor_module import asset_module
-        from editor.core.inspector_base import create_inspector
-        from editor.core.editor_module import EditorModule
-        import luna
-        material = asset_module.load_asset(cur_item.path, luna.MaterialTemplateAsset)
-        editor = create_inspector(material)
-        from editor.ui.material_window import MaterialWindow
-
-        material_window = EditorModule.instance().get_window(MaterialWindow)
-        EditorModule.instance().set_window(material_window)
-        material_window.get_panel(InspectorPanel).set_editor(editor)
-
-
-@register_asset_type
 class TextureAssetType(AssetType):
     suffix = [".png", ".dds"]
     icon = imgui.ICON_FA_FILE_IMAGE
@@ -70,25 +49,6 @@ class TextureAssetType(AssetType):
             from editor.core.editor_module import EditorModule
             EditorModule.instance().main_scene_window.show_status("没有应用程序关联此类型的文件")
 
-
-@register_asset_type
-class SceneAssetType(AssetType):
-    suffix = ".scn"
-    icon = imgui.ICON_FA_TREE
-
-    @staticmethod
-    def on_double_click(cur_item):
-        from editor.core.editor_module import platform_module
-        import luna
-        from editor.core.editor_module import asset_module
-        scn = asset_module.load_asset(cur_item.path, luna.Scene)
-        from editor.core.editor_module import EditorModule
-        from editor.ui.scene_window import SceneWindow
-
-        scn_window = EditorModule.instance().get_window(SceneWindow)
-        EditorModule.instance().set_window(scn_window)
-        if scn:
-            scn_window.set_main_scene(scn)
 
 class FileInfo(object):
     asset_type: Type[AssetType]

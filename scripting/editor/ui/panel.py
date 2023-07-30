@@ -20,7 +20,6 @@ class WindowBase(object):
         self.height = 1
         self.title = "###Luna Editor"
         self.id = WindowBase.id
-        WindowBase.id = WindowBase.id + 1
 
         if self.id == 1:
             self.view_port = imgui.get_main_viewport_id()
@@ -45,8 +44,13 @@ class WindowBase(object):
         self.press_pos = None
         self.press_titlebar = None
 
-    def add_panel(self, panel_type: 'typing.Type[T]') -> 'T':
+    def create_panel(self, panel_type: 'typing.Type[T]') -> 'T':
         panel = panel_type()
+        self.panel_list.append(panel)
+        panel.parent_window = self
+        return panel
+
+    def add_panel(self, panel):
         self.panel_list.append(panel)
         panel.parent_window = self
         return panel
@@ -56,6 +60,11 @@ class WindowBase(object):
             if isinstance(editor, panel_tye):
                 return editor
         return None
+    def on_activate(self):
+        pass
+
+    def on_deactivate(self):
+        pass
 
     def show_box(self, title, callback):
         pass
@@ -140,7 +149,7 @@ class WindowBase(object):
         self.on_title()
 
         exiting = False
-
+        imgui.set_next_window_pos(luna.LVector2f(0, 0), imgui.ImGuiCond_Always)
         imgui.push_style_vec2(imgui.ImGuiStyleVar_FramePadding, luna.LVector2f(16, 8))
         flags = imgui.ImGuiWindowFlags_NoCollapse \
                 | imgui.ImGuiWindowFlags_NoMove \
@@ -149,7 +158,7 @@ class WindowBase(object):
 
         dock_id = imgui.get_id(self.__class__.window_name)
 
-        exiting = not imgui.begin(self.title + "###" + self.__class__.window_name, flags, True)
+        exiting = not imgui.begin("MainWindow", flags, True)
 
         imgui.set_cursor_pos(luna.LVector2f(50, 70))
         imgui.dock_space(dock_id, luna.LVector2f(0, 0), imgui.ImGuiDockNodeFlags_PassthruCentralNode)
@@ -201,6 +210,14 @@ class WindowBase(object):
 
 class PanelBase(object):
     parent_window: 'WindowBase'
+
+    _instance = None
+
+    @classmethod
+    def get_singleton(cls):
+        if cls._instance is None:
+            cls._instance = cls()
+        return cls._instance
 
     def __init__(self):
         self.title = "Panel"

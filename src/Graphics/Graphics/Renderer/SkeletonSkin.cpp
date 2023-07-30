@@ -111,6 +111,8 @@ void SkeletonSkinData::PerSceneUpdate(RenderScene* renderScene)
 	AnimationInstanceMatrix* animationMatrixBuffer = mAnimationInstanceMatrixBuffer.GetData(0);
 	MeshSkeletonLinkClusterBase* beginbuffer = mMeshSkeletonLinkClusterBuffer.GetData(0);
 	LArray<LMatrix4f> skinMatrixResult;
+	if (!beginbuffer)
+		return;
 	for (int32_t i = 0; i < beginbuffer->mBindposeMatrix.size(); ++i)
 	{
 		LMatrix4f skinRefMatrix = beginbuffer->mBindposeMatrix[i];

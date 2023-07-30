@@ -104,10 +104,13 @@ FGNode& FGNode::SetColorAttachment(FGResourceView* rt, LoadOp load /*= LoadOp::k
 	return *this;
 }
 
-FGNode& FGNode::SetDepthStencilAttachment(FGResourceView* ds)
+FGNode& FGNode::SetDepthStencilAttachment(FGResourceView* ds, LoadOp load /*= LoadOp::kLoad*/, StoreOp store /*= StoreOp::kStore*/, float clearDepth /*= LVector4f(0,0,0,1)*/)
 {
 	mPassDesc.mDepths.resize(1);	
 	mPassDesc.mDepthStencilView = ds->mRHIView;
+	mPassDesc.mDepths[0].mDepthLoadOp = load;
+	mPassDesc.mDepths[0].mDepthStoreOp = store;
+	mPassDesc.mDepths[0].mClearDepth = clearDepth;
 	mDS = ds;
 	return *this;
 }

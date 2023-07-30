@@ -11,7 +11,7 @@ game_module: 'luna.GameModule' = luna.get_module(luna.GameModule)
 platform_module: 'luna.PlatformModule' = luna.get_module(luna.PlatformModule)
 
 if not __import__:
-    from editor.ui.scene_window import SceneWindow
+    from editor.scene.scene_window import SceneWindow
 
 
 def update_asset(path, asset_type):
@@ -50,9 +50,16 @@ class EditorModule(luna.LModule):
 
     def set_window(self, cls):
         if isinstance(cls, type):
+            self.get_window(cls)
+            if self.current_window:
+                self.current_window.on_deactivate()
             self.current_window = self.windows[cls]
+            self.current_window.on_activate()
         else:
+            if self.current_window:
+                self.current_window.on_deactivate()
             self.current_window = self.windows[cls.__class__]
+            self.current_window.on_activate()
 
     def on_shutdown(self):
         luna.set_config("DefaultProject", self.project_dir)
@@ -61,12 +68,11 @@ class EditorModule(luna.LModule):
 
     def on_init(self):
 
-        from editor.ui.scene_window import SceneWindow
-        from editor.ui.scene_window import generate_doc_for_module
+        from editor.scene.scene_window import SceneWindow
+        from editor.scene.scene_window import generate_doc_for_module
 
         global asset_module, game_module, render_module, platform_module
-
-        from editor.ui.tool_bar import SideTabBar
+        from editor.ui.main_side_bar import SideTabBar
         self.main_side_bar = SideTabBar.instance()
         self.main_scene_window = self.get_window(SceneWindow)
         self.set_window(SceneWindow)

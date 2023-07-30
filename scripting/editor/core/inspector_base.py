@@ -229,8 +229,7 @@ class MaterialAssetInspector(InspectorBase):
         return indent
 
     def on_imgui(self):
-        if self.on_category():
-            params = self.target.params
-            for it in params:
-                pass
-            imgui.tree_pop()
+        self.imgui_obj_property(self.target, "path", str)
+        params = self.target.params
+        for it in params:
+            imgui.text(it.name)

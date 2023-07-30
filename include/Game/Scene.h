@@ -5,6 +5,7 @@
 #include "Core/Framework/Module.h"
 #include "Core/Asset/JsonAsset.h"
 #include "Graphics/RenderTypes.h"
+#include "Graphics/Renderer/RenderScene.h"
 
 
 namespace luna
@@ -29,6 +30,12 @@ public:
 	{
 		return (uint32_t)mEntites.Size();
 	}
+
+	void SetRenderable(bool val)
+	{
+		mRenderScene->mRenderable = val;
+	}
+	bool GetRenderable() const { return mRenderScene->mRenderable; }
 
 	Entity* GetEntityAt(uint32_t idx) 
 	{

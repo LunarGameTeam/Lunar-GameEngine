@@ -37,6 +37,10 @@ def init_editor():
         if name:
             EditorModule.instance().project_dir = name
             platform_module.set_project_dir(name)
+
+    from editor.material import material_asset
+    from editor.scene import scene_asset
+
     app.main_loop()
 
 
