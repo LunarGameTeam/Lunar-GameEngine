@@ -46,8 +46,27 @@ namespace luna::asset
 		return dataOutPut;
 	}
 
-	void LGltfImporterBase::ParsingData(const LGltfDataBase* gltfDataInput, const LGltfNodeBase& gltfNodeInput, asset::LImportScene& outputScene)
+	LGltfContextComponent* LGltfImportContext::GetComponent(asset::LImportNodeDataType compType)
 	{
-		ParsingDataImpl(gltfDataInput, gltfNodeInput,outputScene);
+		auto value = mComponents.find(compType);
+		if (value != mComponents.end())
+		{
+			return value->second.get();
+		}
+		return nullptr;
+	}
+
+	void LGltfImportContext::AddComponent(LSharedPtr<LGltfContextComponent> compData)
+	{
+		mComponents.insert({ compData->GetType() ,compData });
+	}
+
+	void LGltfImporterBase::ParsingData(
+		const LGltfDataBase* gltfDataInput,
+		const LArray<size_t>& gltfNodesInput,
+		LGltfImportContext& dataContext,
+		asset::LImportScene& outputScene)
+	{
+		ParsingDataImpl(gltfDataInput, gltfNodesInput, dataContext,outputScene);
 	}
 }

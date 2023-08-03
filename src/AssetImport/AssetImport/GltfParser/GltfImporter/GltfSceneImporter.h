@@ -13,7 +13,8 @@ namespace luna::asset
 		void ParseSceneData(
 			asset::LImportNodeDataType type,
 			const LGltfDataBase* gltfDataInput,
-			const LGltfNodeBase& gltfNodeInput,
+			const LArray<size_t>& gltfNodesInput,
+			LGltfImportContext &dataContext,
 			asset::LImportScene& outputScene
 		);
 		asset::LImportNodeDataType GetTypeByGltfType(LGltfDataType inType);

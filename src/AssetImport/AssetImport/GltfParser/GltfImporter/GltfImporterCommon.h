@@ -20,13 +20,43 @@ LQuaternion GetQuaternionFromGltfQuaternion(Microsoft::glTF::Quaternion dataInpu
 
 LMatrix4f GetMatrix4FromGltfMatrix4(Microsoft::glTF::Matrix4 dataInput);
 
+class LGltfContextComponent
+{
+	asset::LImportNodeDataType mType;
+public:
+
+	LGltfContextComponent(asset::LImportNodeDataType type) :mType(type) {}
+
+	asset::LImportNodeDataType GetType() { return mType; }
+};
+
+class LGltfImportContext
+{
+	LUnorderedMap<asset::LImportNodeDataType, LSharedPtr<LGltfContextComponent>> mComponents;
+public:
+
+	LGltfContextComponent* GetComponent(asset::LImportNodeDataType compType);
+
+	void AddComponent(LSharedPtr<LGltfContextComponent> compData);
+};
+
 class ASSET_IMPORT_API LGltfImporterBase
 {
 public:
 	LGltfImporterBase() {};
-	void ParsingData(const LGltfDataBase* gltfDataInput, const LGltfNodeBase& gltfNodeInput, asset::LImportScene& outputScene);
+	void ParsingData(
+		const LGltfDataBase* gltfDataInput,
+		const LArray<size_t>& gltfNodesInput,
+		LGltfImportContext& dataContext,
+		asset::LImportScene& outputScene
+	);
 private:
-	virtual void ParsingDataImpl(const LGltfDataBase* gltfDataInput, const LGltfNodeBase& gltfNodeInput, asset::LImportScene& outputScene) = 0;
+	virtual void ParsingDataImpl(
+		const LGltfDataBase* gltfDataInput,
+		const LArray<size_t>& gltfNodesInput,
+		LGltfImportContext& dataContext,
+		asset::LImportScene& outputScene
+	) = 0;
 };
 
 }

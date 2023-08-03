@@ -175,12 +175,17 @@ namespace luna::asset
                 {
                     gltfMeshDataToCommonData[gltfMeshIndex] = dataResIndex;
                     std::shared_ptr<LGltfDataBase> meshData = singleLoaderInterface->LoadGltfData(doc, resourceReader,LGltfDataType::GltfMeshData, gltfMeshIndex);
-                    meshData->SetNodeIndex(nodeIndex);
+                    if (meshData->GetName() == "")
+                    {
+                        meshData->SetName(newNode.mName);
+                    }
+                    meshData->AddNodeIndex(nodeIndex);
                     sceneOut.mDatas.push_back(meshData);
                 }
                 else
                 {
                     dataResIndex = gltfMeshExist->second;
+                    sceneOut.mDatas[dataResIndex]->AddNodeIndex(nodeIndex);
                 }
                 newNode.mNodeData.insert(std::pair<LGltfDataType, size_t>(LGltfDataType::GltfMeshData, dataResIndex));
             }

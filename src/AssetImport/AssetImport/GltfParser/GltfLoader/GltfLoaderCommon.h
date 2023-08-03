@@ -32,12 +32,22 @@ namespace luna::asset
 
 	class ASSET_IMPORT_API LGltfDataBase
 	{
+		LString mName;
+
 		LGltfDataType mType;
-		size_t mNodeIndex;
+
+		LArray<size_t> mNodeIndses;
 	public:
 		LGltfDataBase(LGltfDataType type) { mType = type; };
-		void SetNodeIndex(size_t nodeIndex) { mNodeIndex = nodeIndex; }
-		size_t GetNodeIndex() const{ return mNodeIndex; };
+
+		void SetName(const LString& name) { mName = name; };
+
+		const LString& GetName() const{ return mName; };
+		
+		void AddNodeIndex(size_t nodeIndex) { mNodeIndses.push_back(nodeIndex); }
+		
+		const LArray<size_t>& GetNodeIndses() const{ return mNodeIndses; };
+		
 		LGltfDataType GetType() const { return mType; };
 	};
 

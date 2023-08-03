@@ -43,18 +43,20 @@ void LGltfSceneImportHelper::ParseScene(const LGltfSceneData* gltfDataInput, ass
 		}
 		outputScene.AddNodeData(node_value);
 	}
+	LGltfImportContext dataContext;
 	for (auto& eachData : gltfDataInput->mDatas)
 	{
 		LGltfDataType dataType = eachData->GetType();
-		size_t nodeIdex = eachData->GetNodeIndex();
-		ParseSceneData(GetTypeByGltfType(dataType), eachData.get(), gltfDataInput->mNodes[nodeIdex], outputScene);
+		const LArray<size_t>& nodeIdeses = eachData->GetNodeIndses();
+		ParseSceneData(GetTypeByGltfType(dataType), eachData.get(), nodeIdeses, dataContext, outputScene);
 	}
 }
 
 void LGltfSceneImportHelper::ParseSceneData(
 	asset::LImportNodeDataType type,
 	const LGltfDataBase* gltfDataInput,
-	const LGltfNodeBase& gltfNodeInput,
+	const LArray<size_t>& gltfNodeInput,
+	LGltfImportContext& dataContext,
 	asset::LImportScene& outputScene
 )
 {
@@ -63,7 +65,7 @@ void LGltfSceneImportHelper::ParseSceneData(
 	{
 		return;
 	}
-	return needImporter->second->ParsingData(gltfDataInput, gltfNodeInput, outputScene);
+	return needImporter->second->ParsingData(gltfDataInput, gltfNodeInput, dataContext, outputScene);
 }
 
 asset::LImportNodeDataType LGltfSceneImportHelper::GetTypeByGltfType(LGltfDataType inType)

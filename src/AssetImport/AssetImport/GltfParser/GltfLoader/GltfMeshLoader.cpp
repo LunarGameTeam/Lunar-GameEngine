@@ -13,8 +13,8 @@ namespace luna::asset
 	std::shared_ptr<LGltfDataBase> LGltfLoaderMesh::ParsingDataImpl(const Microsoft::glTF::Document& doc, const Microsoft::glTF::GLTFResourceReader& reader, size_t gltfDataId)
 	{
 		std::shared_ptr<LGltfDataMesh> newMesh = std::make_shared<LGltfDataMesh>();
-
 		const Microsoft::glTF::Mesh &mesh = doc.meshes[gltfDataId];
+		newMesh->SetName(mesh.name);
 		for(size_t primIndex = 0; primIndex < mesh.primitives.size(); ++primIndex)
 		{
 			const Microsoft::glTF::MeshPrimitive& primitive = mesh.primitives[primIndex];
