@@ -2,11 +2,11 @@ import math
 
 import luna
 from editor.scene.scene_hierarchy_panel import HierarchyPanel
+from editor.ui.view_panel import SceneViewPanel
 from luna import imgui
-from editor.ui.panel import PanelBase
 
 
-class ScenePanel(PanelBase):
+class SceneAssetViewPanel(SceneViewPanel):
     main_light: luna.DirectionLightComponent
     camera: luna.CameraComponent
     scene: luna.Scene
@@ -15,21 +15,16 @@ class ScenePanel(PanelBase):
         super().__init__()
         self.title = "Scene"
         self.scene = None
-
         self.main_light = None
         self.point_light = None
-        self.last_min = None
-        self.last_max = None
-        self.dragging = False
-        self.need_update_texture = False
         self.rad = 0
         self.has_menu = False
         self.operation = imgui.gizmos.Operation_TRANSLATE
         self.loaded_scenes = {}
-        self.current_scene_view = None
 
     def create_editor_camera(self, scene: 'luna.Scene'):
         e: 'luna.Entity' = scene.create_entity("_EditorCamera", None)
+        e.serializable = False
         camera = e.add_component(luna.CameraComponent)
 
     def set_scene(self, scene):
@@ -94,7 +89,8 @@ class ScenePanel(PanelBase):
         vmin.y += imgui.get_window_pos().y
         vmax.x += imgui.get_window_pos().x
         vmax.y += imgui.get_window_pos().y
-        if imgui.is_mouse_hovering_rect(vmin, vmax, True) and self.current_scene_view.camera and imgui.is_mouse_dragging(1, -1):
+        if imgui.is_mouse_hovering_rect(vmin, vmax,
+                                        True) and self.current_scene_view.camera and imgui.is_mouse_dragging(1, -1):
             delta = imgui.get_mouse_drag_delta(1, -1.0)
             transform = self.current_scene_view.camera.transform
             delta_y = delta.y / 500.0
@@ -105,7 +101,6 @@ class ScenePanel(PanelBase):
             rotation = h * rotation * v
             transform.local_rotation = rotation
             imgui.reset_mouse_drag_delta(1)
-
 
     def on_menu(self):
         pass
@@ -155,29 +150,12 @@ class ScenePanel(PanelBase):
 
         content = luna.imgui.get_content_region_avail()
 
-        vmin = imgui.get_window_content_min()
-        vmax = imgui.get_window_content_max()
-
         self.scene_pos = luna.imgui.get_cursor_pos()
         self.scene_content = content
         if self.current_scene_view:
             luna.imgui.image(self.current_scene_view.scene_texture, content, luna.LVector2f(0, 0), luna.LVector2f(1, 1))
 
-        if imgui.is_mouse_dragging(0, -1.0):
-            if vmin != self.last_min or vmax != self.last_max:
-                self.dragging = True
-            self.last_min = imgui.get_window_content_min()
-            self.last_max = imgui.get_window_content_max()
-
-        if self.need_update_texture:
-            if content.x > 0 and content.y > 0:
-                self.current_scene_view.resize_scene_texture(content.x, content.y)
-                self.need_update_texture = False
-
-        if self.dragging and self.current_scene_view:
-            if imgui.is_mouse_released(0):
-                self.current_scene_view.resize_scene_texture(vmax.x - vmin.x, vmax.y - vmin.y)
-                self.dragging = False
+        self.on_view_imgui(content)
 
         self.on_menu()
 

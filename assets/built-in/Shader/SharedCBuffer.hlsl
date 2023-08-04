@@ -90,6 +90,7 @@ cbuffer SceneBuffer : register(b0, SCENE_SPACE0)
 	//Direction Light
 	float4 cDirectionLightColor;	
     float3 cLightDirection;
+	float  cDirectionLightIndensity;
 	//Cacsde Direction Light Matrix
 	matrix cDirectionLightViewMatrix[4];
 	matrix cDirectionLightProjMatrix[4];

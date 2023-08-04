@@ -43,7 +43,8 @@ bool JsonSerializer::Serialize(LObject *root)
 		mFileIDMap.Set(fid, top);
 		top->ForEachSubObject([&](size_t idx, LObject* subobject)
 		{
-			toSerializeObjects.push(subobject);
+			if(subobject->IsSerializable())
+				toSerializeObjects.push(subobject);
 		});
 		LArray<LProperty*> properties;
 		LType* type = top->GetClass();

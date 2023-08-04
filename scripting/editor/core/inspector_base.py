@@ -44,12 +44,14 @@ class InspectorBase(object):
 
     def __init__(self, target):
         super().__init__()
-        self.child_editor_list = self.create_child_editor()
         self.reset_target(target)
+        self.child_editor_list = self.create_child_editor()
+
     def reset_target(self, target_in):
         self.target = target_in
         if self.target:
             self.indent = self.get_indent()
+
     def get_indent(self):
         indent = 0
         target_type = self.target.__class__

@@ -67,8 +67,8 @@ class SceneWindow(WindowBase):
         from editor.scene.scene_hierarchy_panel import HierarchyPanel
         self.hierarchy_panel = self.create_panel(HierarchyPanel)
         self.demo_panel = self.create_panel(DemoPanel)
-        from editor.scene.scene_view_panel import ScenePanel
-        self.scene_panel = self.create_panel(ScenePanel)
+        from editor.scene.scene_view_panel import SceneAssetViewPanel
+        self.scene_panel = self.create_panel(SceneAssetViewPanel)
 
         self.library_panel = self.add_panel(LibraryPanel.get_singleton())
         self.inspector = self.create_panel(InspectorPanel)

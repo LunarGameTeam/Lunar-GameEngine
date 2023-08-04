@@ -105,6 +105,8 @@ void Scene::Destroy()
 
 void Scene::OnLoad()
 {
+	mEntites.Erase(nullptr);
+
 	for (auto& entity : mEntites)
 	{
 		entity->mScene = this;

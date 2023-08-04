@@ -9,13 +9,9 @@
 namespace luna::graphics
 {
 
-
-void DirectionLight::Update(RenderView* view)
-{
-}
-
 void DirectionLight::PerViewUpdate(RenderView* view)
 {
+	
 	if (!mParamBuffer)
 		mParamBuffer = new ShaderCBuffer(sRenderModule->GetRenderContext()->GetDefaultShaderConstantBufferDesc(LString("ViewBuffer").Hash()));
 	LTransform transform = LTransform::Identity();
@@ -74,12 +70,6 @@ void PointLight::PerViewUpdate(RenderView* view)
 			mParamBuffer[idx]->Commit();
 		}
 	}
-}
-
-void PointLight::Update(RenderView* view)
-{
-	
-	
 }
 
 }

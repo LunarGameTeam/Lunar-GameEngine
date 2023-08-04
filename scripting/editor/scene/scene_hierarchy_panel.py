@@ -75,10 +75,11 @@ class HierarchyPanel(PanelBase):
 
             clicked, expand, double_click = imgui.tree_node_callback(id(entity), luna.LVector2f(-1, 32), flag)
             imgui.text("{} {}".format(imgui.ICON_FA_CUBE, entity.name))
-            if expand:
-                imgui.tree_pop()
             if clicked:
                 self.on_entity_clicked(entity)
+
+            if expand:
+                imgui.tree_pop()
 
             luna.imgui.push_id(id(entity))
             if imgui.begin_popup_context_item(0, imgui.ImGuiPopupFlags_MouseButtonRight):

@@ -37,6 +37,7 @@ RegisterTypeEmbedd_Imp(LObject)
 	cls->BindingMethod<&GetPropertiese, MethodType::ClassFunction>("get_properties");
 
 	cls->BindingProperty<&LObject::mName>("name");
+	cls->BindingProperty<&LObject::mSerializable>("serializable");
 
 	BindingModule::Get("luna")->AddType(cls);
 };

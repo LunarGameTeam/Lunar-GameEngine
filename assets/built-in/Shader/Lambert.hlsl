@@ -27,7 +27,7 @@ float4 PSMain(BaseFragment input) : SV_TARGET
 	{
 		float3 L = -cLightDirection;
 		float3 lightColor = cDirectionLightColor;		
-		float attenuation  = 1.0;
+		float attenuation = cDirectionLightIndensity;
 		LambertLighting(V, N, L, lightColor, textureColor.rgb, attenuation, outColor);    
 	}
 

@@ -36,8 +36,7 @@ struct RENDER_API PointLight : Light
 	LArray<ShaderCBuffer*> mParamBuffer;
 
 	void PerViewUpdate(RenderView* renderScene) override;
-
-	void Update(RenderView* view);
+	
 };
 
 struct RENDER_API DirectionLight : Light
@@ -45,8 +44,7 @@ struct RENDER_API DirectionLight : Light
 
 	LVector3f mDirection;
 	LMatrix4f mViewMatrix;
-
-	void Update(RenderView* view);
+	
 	void PerViewUpdate(RenderView* renderScene) override;
 
 	ShaderCBuffer* mParamBuffer;

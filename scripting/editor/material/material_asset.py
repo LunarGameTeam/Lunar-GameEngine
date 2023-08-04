@@ -20,7 +20,7 @@ class MaterialAssetType(AssetType):
 
         material_window = EditorModule.instance().get_window(MaterialWindow)
         EditorModule.instance().set_window(material_window)
-        from editor.material.material_window import MaterialViewPanel
-        view_panel = material_window.get_panel(MaterialViewPanel)
+        from editor.material.material_window import MaterialAssetViewPanel
+        view_panel = material_window.get_panel(MaterialAssetViewPanel)
         view_panel.set_material(material)
 

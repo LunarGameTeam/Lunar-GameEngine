@@ -1,30 +1,38 @@
 import luna
 from editor.core.editor_module import EditorModule, asset_module
 from editor.core.template_scene import TemplateSceneView
-from editor.ui.panel import WindowBase, PanelBase
+from editor.ui.panel import WindowBase
+from editor.ui.view_panel import SceneViewPanel
 from luna import imgui
 
 
-class MaterialViewPanel(PanelBase):
+class MaterialAssetViewPanel(SceneViewPanel):
     def __init__(self) -> None:
         super().__init__()
-        self.current_material_view = None
-        self.loaded_materials = {}
-        self.template_scene = asset_module.load_asset("/assets/built-in/Templates/MaterialScene.scn", luna.Scene)
+        self.loaded_materials = {}  # type: dict[luna.MaterialTemplateAsset, TemplateSceneView]
+        self.template_scene = asset_module.load_asset("/assets/built-in/TemplateScene/MaterialScene.scn", luna.Scene)
+        self.need_update_texture = True
+        self.dragging = False
 
     def set_material(self, material):
         material_view = self.loaded_materials.get(material, None)
         if not material_view:
             self.loaded_materials[material] = TemplateSceneView(self.template_scene)
-        self.current_material_view = self.loaded_materials[material]
+        self.current_scene_view = self.loaded_materials[material]
+        if material:
+            self.current_scene_view.camera.transform.local_position = luna.LVector3f(0, 0, -5)
+            material_entity = self.current_scene_view.find_entity("Material")
+            material_entity.get_component(luna.StaticMeshRenderer).material = material
 
     def on_imgui(self, delta_time):
         super().on_imgui(delta_time)
 
         content = luna.imgui.get_content_region_avail()
 
-        if self.current_material_view:
-            luna.imgui.image(self.current_material_view.scene_texture, content, luna.LVector2f(0, 0), luna.LVector2f(1, 1))
+        if self.current_scene_view:
+            luna.imgui.image(self.current_scene_view.scene_texture, content, luna.LVector2f(0, 0),
+                             luna.LVector2f(1, 1))
+        self.on_view_imgui(content)
 
 
 class MaterialWindow(WindowBase):
@@ -39,7 +47,7 @@ class MaterialWindow(WindowBase):
 
         self.library_panel = self.create_panel(LibraryPanel)
         self.inspector = self.create_panel(InspectorPanel)
-        self.material_view = self.create_panel(MaterialViewPanel)
+        self.material_view = self.create_panel(MaterialAssetViewPanel)
 
     def on_title(self):
         proj_dir = EditorModule.instance().project_dir
@@ -54,7 +62,6 @@ class MaterialWindow(WindowBase):
 
     def on_imgui(self, delta_time) -> None:
         super().on_imgui(delta_time)
-
 
     def on_activate(self):
         if self.material_view.template_scene:

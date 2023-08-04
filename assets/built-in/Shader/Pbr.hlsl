@@ -251,9 +251,9 @@ float4 PSMain(BaseFragment input) : SV_TARGET
 	// Direction Light
 	{
 		float3 L = normalize(-cLightDirection);
-		float3 lightColor = cDirectionLightColor.xyz;
+		float3 lightColor = cDirectionLightColor.xyz * cDirectionLightIndensity;
 		// CalcRadiance
-		// Lo+= BRDF(L, V,  N, lightColor, metallic, roughness);
+		Lo+= BRDF(L, V,  N, lightColor, metallic, roughness);
 	}
 
 	// Point Lights

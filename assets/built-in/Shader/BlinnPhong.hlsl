@@ -29,7 +29,7 @@ float4 PSMain(BaseFragment input) : SV_TARGET
 	// Invert the light direction.
 	float3 Lo = normalize(cCamPos - input.worldPosition.xyz);
 	float3 rad = float3(0,0,0);
-	CalcRadiance(input, Lo,  input.normal, -cLightDirection, cDirectionLightColor, 1.0, rad);    
+	CalcRadiance(input, Lo,  input.normal, -cLightDirection, cDirectionLightColor, cDirectionLightIndensity, rad);    
 	// Sample the pixel color from the texture using the sampler at this texture coordinate location.
 	float4 textureColor = _MainTex.Sample(_ClampSampler, input.uv);
 

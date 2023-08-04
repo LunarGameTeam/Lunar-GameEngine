@@ -105,7 +105,7 @@ void RenderScene::PrepareScene()
 
 	if (!mBufferDirty)
 		return;
-
+	
 	uint32_t shadowmapIdx = 0;
 	//todo:这里dx会出现变量被优化的情况
 	if (mSceneParamsBuffer == nullptr)
@@ -113,10 +113,13 @@ void RenderScene::PrepareScene()
 	if (mROIDInstancingBuffer == nullptr)
 		mROIDInstancingBuffer = new ShaderCBuffer(RHIBufferUsage::VertexBufferBit, sizeof(uint32_t) * 4 * 128);
 
+	mSceneParamsBuffer->Set("cAmbientColor", LMath::sRGB2LinearColor(mAmbientColor));
+
 	if (mMainDirLight)
 	{
 		mSceneParamsBuffer->Set("cDirectionLightColor", LMath::sRGB2LinearColor(mMainDirLight->mColor));
 		mSceneParamsBuffer->Set("cLightDirection", mMainDirLight->mDirection);
+		mSceneParamsBuffer->Set("cDirectionLightIndensity", mMainDirLight->mIntensity);
 	}
 	else
 	{
@@ -135,13 +138,14 @@ void RenderScene::PrepareScene()
 		mSceneParamsBuffer->Set("cPointLights", LMath::sRGB2LinearColor(light->mColor), i, 16);
 		mSceneParamsBuffer->Set("cPointLights", light->mIntensity, i, 32);
 	}
-	mSceneParamsBuffer->Set("cAmbientColor", LMath::sRGB2LinearColor(mAmbientColor));
+
 	for (auto& ro : mRenderObjects)
 	{
 		uint32_t idx = ro->mID;
 		mSceneParamsBuffer->Set("cRoWorldMatrix", *ro->mWorldMat, idx);
 		mROIDInstancingBuffer->Set(idx * sizeof(uint32_t) * 4, idx);
 	}
+	mBufferDirty = false;
 }
 
 void RenderScene::Init()
@@ -174,15 +178,36 @@ RenderView* RenderScene::CreateRenderView()
 
 void RenderScene::Render(FrameGraphBuilder* FG)
 {
+	if (mMainDirLight)
+	{
+		if (mMainDirLight->mDirty)
+			mBufferDirty = true;
+		mMainDirLight->PerSceneUpdate(this);
+	}
+	for (int i = 0; i < mPointLights.size(); i++)
+	{
+		PointLight* light = mPointLights[i];
+		if (light->mDirty)
+			mBufferDirty = true;
+		light->PerSceneUpdate(this);
+	}
+
 	for (auto data : mDatas)
 	{
 		data->PerSceneUpdate(this);
 	}
 
 	PrepareScene();
-
+	
 	for (RenderView* renderView : mViews)
 	{
+		for (int i = 0; i < mPointLights.size(); i++)
+		{
+			PointLight* light = mPointLights[i];
+			light->PerViewUpdate(renderView);
+		}
+		if(mMainDirLight)
+			mMainDirLight->PerViewUpdate(renderView);
 		renderView->PrepareView();
 	}
 

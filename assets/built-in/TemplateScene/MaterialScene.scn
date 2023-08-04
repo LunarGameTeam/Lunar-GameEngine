@@ -1,0 +1,109 @@
+{
+   "objects" : [
+      {
+         "__class__" : "Scene",
+         "__fid__" : 1,
+         "__index__" : 0,
+         "__parent__" : 0,
+         "entities" : [ 2, 5, 8, 0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 2,
+         "__index__" : 2,
+         "__parent__" : 1,
+         "active" : false,
+         "component_list" : [ 4, 3 ],
+         "name" : "SceneEnv"
+      },
+      {
+         "__class__" : "SceneEnvComponent",
+         "__fid__" : 3,
+         "__index__" : 1,
+         "__parent__" : 2,
+         "ambient_color" : [ 0.23809522390365601, 0.23696142435073853, 0.23696142435073853, 1.0 ],
+         "draw_gizmos" : true,
+         "fog_color" : [ 0.10000000149011612, 0.10000000149011612, 0.10000000149011612, 1.0 ],
+         "skybox_material" : "/assets/built-in/Skybox/Skybox.mat",
+         "skybox_mesh" : ""
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 4,
+         "__index__" : 0,
+         "__parent__" : 2,
+         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 5,
+         "__index__" : 1,
+         "__parent__" : 1,
+         "active" : false,
+         "component_list" : [ 6, 7 ],
+         "name" : "Material"
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 6,
+         "__index__" : 1,
+         "__parent__" : 5,
+         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "StaticMeshRenderer",
+         "__fid__" : 7,
+         "__index__" : 0,
+         "__parent__" : 5,
+         "cast_shadow" : true,
+         "material" : "/assets/built-in/Lambert.mat",
+         "mesh" : "/assets/built-in/Geometry/Sphere.lmesh",
+         "receive_shadow" : true
+      },
+      {
+         "__class__" : "Entity",
+         "__fid__" : 8,
+         "__index__" : 0,
+         "__parent__" : 1,
+         "active" : false,
+         "component_list" : [ 9, 10, 11 ],
+         "name" : "Main Directional Light"
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 9,
+         "__index__" : 2,
+         "__parent__" : 8,
+         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "local_rotation" : [
+            0.27479293942451477,
+            0.63804692029953003,
+            -0.26167872548103333,
+            0.67000687122344971
+         ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "Transform",
+         "__fid__" : 10,
+         "__index__" : 1,
+         "__parent__" : 8,
+         "local_position" : [ 0.0, 0.0, 0.0 ],
+         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
+         "local_scale" : [ 1.0, 1.0, 1.0 ]
+      },
+      {
+         "__class__" : "DirectionLightComponent",
+         "__fid__" : 11,
+         "__index__" : 0,
+         "__parent__" : 8,
+         "cast_shadow" : false,
+         "color" : [ 1.0, 1.0, 1.0, 1.0 ],
+         "intensity" : 0.5
+      }
+   ]
+}
