@@ -36,7 +36,6 @@ public:
 	void SetCastShadow(bool val);
 	void OnCreate() override;
 
-
 	void OnActivate() override;
 
 	virtual MeshAsset* GetMeshAsset() { return nullptr; };

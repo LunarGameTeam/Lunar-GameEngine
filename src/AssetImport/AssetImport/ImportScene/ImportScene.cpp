@@ -142,7 +142,7 @@ namespace luna::asset
 		}
 	}
 
-	LArray<size_t> LImportScene::FilterDataByType(LImportNodeDataType type)
+	LArray<size_t> LImportScene::FilterDataByType(LImportNodeDataType type)const
 	{
 		LArray<size_t> out;
 		for (int32_t i = 0; i < mDatas.size(); ++i)

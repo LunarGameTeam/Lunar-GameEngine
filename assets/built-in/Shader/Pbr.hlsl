@@ -101,12 +101,12 @@ void TransformSkinVertex(inout float4 position,inout float3 normal,inout float3 
 BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
 {
     BaseFragment output;
-    uint instanceID = input.instancemessage.x;
+    uint instanceID = inst;
 	// Change the position vector to be 4 units for proper matrix calculations.
     float4 position = float4(input.position, 1.0);
 	float3 normal = input.normal;
 	float3 tangent = input.tangent;
-	matrix worldMatrix = cRoWorldMatrix[instanceID];
+	matrix worldMatrix = RoWorldMatrixBuffer[instanceID];
 #if USE_SKIN_VERTEX
 	uint4 blendIndexA,blendIndexB;
 	float4 blendweightA,blendweightB;

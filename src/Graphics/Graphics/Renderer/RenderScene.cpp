@@ -108,10 +108,23 @@ void RenderScene::PrepareScene()
 	
 	uint32_t shadowmapIdx = 0;
 	//todo:这里dx会出现变量被优化的情况
+	if (mRoDataBuffer == nullptr)
+	{
+		RHIBufferDesc desc;
+		desc.mBufferUsage = RHIBufferUsage::StructureBuffer;
+		desc.mSize = sizeof(LMatrix4f) * 1024;
+		mRoDataBuffer = sRenderModule->mRenderContext->CreateBuffer(desc);
+		ViewDesc viewDesc;
+		viewDesc.mViewType = RHIViewType::kStructuredBuffer;
+		viewDesc.mViewDimension = RHIViewDimension::BufferView;
+		viewDesc.mStructureStride = sizeof(LMatrix4f);
+		mRoDataBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
+		mRoDataBufferView->BindResource(mRoDataBuffer);
+	}
 	if (mSceneParamsBuffer == nullptr)
 		mSceneParamsBuffer = new ShaderCBuffer(sRenderModule->GetRenderContext()->GetDefaultShaderConstantBufferDesc(LString("SceneBuffer").Hash()));
 	if (mROIDInstancingBuffer == nullptr)
-		mROIDInstancingBuffer = new ShaderCBuffer(RHIBufferUsage::VertexBufferBit, sizeof(uint32_t) * 4 * 128);
+		mROIDInstancingBuffer = new ShaderCBuffer(RHIBufferUsage::VertexBufferBit, sizeof(uint32_t) * 4 * 1048);
 
 	mSceneParamsBuffer->Set("cAmbientColor", LMath::sRGB2LinearColor(mAmbientColor));
 
@@ -139,14 +152,28 @@ void RenderScene::PrepareScene()
 		mSceneParamsBuffer->Set("cPointLights", light->mIntensity, i, 32);
 	}
 
+	int32_t maxRoSize = 0;
+	for (auto& ro : mRenderObjects)
+	{
+		if (maxRoSize < ro->mID)
+		{
+			maxRoSize = ro->mID;
+		}
+	}
+	LArray<LMatrix4f> roMatrixArray;
+	roMatrixArray.resize(maxRoSize + 1);
+	for (int32_t i = 0; i < maxRoSize;++i)
+	{
+		roMatrixArray[i] = LMatrix4f::Identity();
+	}
+	
 	for (auto& ro : mRenderObjects)
 	{
 		uint32_t idx = ro->mID;
-		mSceneParamsBuffer->Set("cRoWorldMatrix", *ro->mWorldMat, idx);
-		mROIDInstancingBuffer->Set(idx * sizeof(uint32_t) * 4, idx);
+		roMatrixArray[idx] = *ro->mWorldMat;
 	}
 	mBufferDirty = false;
-}
+	sRenderModule->GetRenderContext()->UpdateConstantBuffer(mRoDataBuffer, roMatrixArray.data(), roMatrixArray.size() * sizeof(LMatrix4f));}
 
 void RenderScene::Init()
 {

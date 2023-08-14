@@ -26,6 +26,7 @@ namespace luna::graphics
 PARAM_ID(SceneBuffer);
 PARAM_ID(ViewBuffer);
 PARAM_ID(SkinMatrixBuffer);
+PARAM_ID(RoWorldMatrixBuffer);
 
 void RenderObjectDrawData::DrawRenderObjects(
 	MeshRenderPass pass, 
@@ -55,6 +56,7 @@ void RenderObjectDrawData::DrawRenderObjects(
 		{
 			matInstance->SetShaderInput(ParamID_SkinMatrixBuffer, mScene->RequireData<SkeletonSkinData>()->GetSkinMatrixBuffer());
 		}
+		matInstance->SetShaderInput(ParamID_RoWorldMatrixBuffer, mScene->mRoDataBufferView);
 		for (auto& eachShaderParam : shaderBindingParam)
 		{
 			matInstance->SetShaderInput(eachShaderParam.first, eachShaderParam.second);

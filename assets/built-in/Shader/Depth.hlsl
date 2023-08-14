@@ -13,7 +13,7 @@ BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
     uint instanceID = input.instancemessage.x;
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
-    output.position = mul(float4(input.position, 1.0f), cRoWorldMatrix[instanceID]);
+    output.position = mul(float4(input.position, 1.0f), RoWorldMatrixBuffer[instanceID]);
     output.position = mul(output.position, cViewMatrix);
     output.position = mul(output.position, cProjectionMatrix);
 

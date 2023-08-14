@@ -34,7 +34,10 @@ void MeshRenderer::OnCreate()
 		mMaterialInstance = mMaterialAsset->GetDefaultInstance();
 		mMaterialInstance->Ready();
 	}
-	CreateRenderObject();
+	if (GetMeshAsset())
+	{
+		CreateRenderObject();
+	}
 }
 
 void MeshRenderer::OnActivate()

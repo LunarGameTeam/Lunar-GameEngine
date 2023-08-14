@@ -5,7 +5,12 @@
 #include"Animation/Asset/AnimationClipAsset.h"
 namespace luna::asset
 {
-	void LSingleMeshAndAnimationAssetImport::ParsingImportSceneImpl(const asset::LImportScene& importSceneData, LAssetPack& outAssetPack)
+	void LSingleMeshAndAnimationAssetImport::ParsingImportSceneImpl(
+		const LString& resSavePath,
+		const asset::LImportScene& importSceneData,
+		LAssetPack& outAssetPack,
+		asset::LSceneAssetNodeMessage* nodeMessage
+	)
 	{
 		//mesh 导出器会把所有的mesh node进行合并，因此只需要创建两个总的mesh asset
 		graphics::MeshAsset* meshValuePtr = nullptr;

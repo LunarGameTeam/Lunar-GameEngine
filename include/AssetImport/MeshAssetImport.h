@@ -13,7 +13,12 @@ namespace luna::asset
 class ASSET_IMPORT_API LSingleMeshAndAnimationAssetImport :public LAssetImportBase
 {
 private:
-	void ParsingImportSceneImpl(const asset::LImportScene& importSceneData, LAssetPack& outAssetPack) override;
+	void ParsingImportSceneImpl(
+		const LString& resSavePath, 
+		const asset::LImportScene& importSceneData,
+		LAssetPack& outAssetPack,
+		asset::LSceneAssetNodeMessage* nodeMessage = nullptr
+	) override;
 
 	void AddSceneNodeToStaticMesh(const asset::LImportNodeDataMesh* dataValue, graphics::MeshAsset* meshValuePtr);
 

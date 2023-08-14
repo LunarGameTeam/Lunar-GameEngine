@@ -36,6 +36,9 @@ RegisterTypeEmbedd_Imp(Entity)
 
 	cls->BindingMethod<&Entity::Destroy>("destroy");
 
+	cls->BindingMethod<&Entity::AddComponentWithoutCreate>("add_component_without_create");
+	
+
 
 	cls->Binding<Entity>();
 	BindingModule::Get("luna")->AddType(cls);
@@ -96,6 +99,16 @@ Component* Entity::AddComponent(LType* type)
 	comp->mOnCreateCalled = true;
 	comp->OnCreate();
 	comp->OnActivate();
+	return comp;
+}
+
+Component* Entity::AddComponentWithoutCreate(LType* type)
+{
+	Component* comp = type->NewInstance<Component>();
+	comp->SetParent(this);
+	comp->mOwnerEntity = this;
+	mComponents.PushBack(comp);
+	comp->mOnCreateCalled = true;
 	return comp;
 }
 

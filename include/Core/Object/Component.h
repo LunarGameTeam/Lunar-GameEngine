@@ -26,6 +26,8 @@ public:
 	void   Destroy();
 	Scene* GetScene();
 
+	void ForceCreate();
+
 	virtual void OnDeactivate();
 	virtual void OnActivate();
 	virtual void OnCreate();

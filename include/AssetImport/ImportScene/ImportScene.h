@@ -81,7 +81,7 @@ namespace luna::asset
 			return dataFind;
 		};
 
-		LArray<size_t> FilterDataByType(LImportNodeDataType type);
+		LArray<size_t> FilterDataByType(LImportNodeDataType type) const;
 
 		size_t GetAnimationDataSize()const
 		{

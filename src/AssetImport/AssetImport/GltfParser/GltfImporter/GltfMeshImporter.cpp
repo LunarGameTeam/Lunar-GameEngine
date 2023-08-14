@@ -165,6 +165,10 @@ namespace luna::asset
 		//生成新的模型数据
 		asset::LImportNodeDataMesh* nowOutData = outputScene.AddNewData<asset::LImportNodeDataMesh>();
 		meshContextComponent->Insert(meshHash, nowOutData->GetId());
+		for (int32_t nodeIndex = 0; nodeIndex < gltfNodesInput.size(); ++nodeIndex)
+		{
+			outputScene.ResetNodeData(gltfNodesInput[nodeIndex], asset::LImportNodeDataType::ImportDataMesh, nowOutData->GetId());
+		}
 		size_t subMeshSize = gltfMeshData->GetSubMeshSize();
 		for (size_t subMeshIndex = 0; subMeshIndex < subMeshSize; ++subMeshIndex)
 		{

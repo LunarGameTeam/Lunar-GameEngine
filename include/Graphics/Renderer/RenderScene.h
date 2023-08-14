@@ -120,6 +120,8 @@ public:
 	ShaderCBuffer* mSceneParamsBuffer    = nullptr;
 	ShaderCBuffer* mROIDInstancingBuffer = nullptr;
 
+	RHIResourcePtr           mRoDataBuffer;
+	RHIViewPtr               mRoDataBufferView;
 	//Gizmos Mesh
 	//SubMesh*            mDebugMeshLine        = nullptr;
 	//SubMesh*            mDebugMesh            = nullptr;

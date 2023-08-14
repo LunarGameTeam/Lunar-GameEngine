@@ -10,7 +10,7 @@ BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
     uint instanceID = input.instancemessage.x;
 	// Change the position vector to be 4 units for proper matrix calculations.
     float4 position = float4(input.position, 1.0);
-	matrix worldMatrix = cRoWorldMatrix[instanceID];
+	matrix worldMatrix = RoWorldMatrixBuffer[instanceID];
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
     output.position = mul(position, worldMatrix);

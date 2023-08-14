@@ -114,6 +114,35 @@ class SceneWindow(WindowBase):
                     self.set_main_scene(None)
                     self.set_main_scene(new_scn)
 
+            if imgui.menu_item("导入到当前场景"):
+                scene_nodes_asset = luna.LSceneAssetNodeMessage()
+                name = tkinter.filedialog.askopenfilename(
+                    filetypes=(("obj files", "*.obj"), ("fbx files", "*.fbx"), ("gltf files", "*.gltf"),),
+                    initialdir=platform_module.project_dir + "/assets")
+                file_with_extension = os.path.basename(name)
+                (file_without_extension, file_extension) = os.path.splitext(file_with_extension)
+                luna.editor.import_scene_res(name, "/assets/demoSceneAsset", file_without_extension,
+                                        file_extension,scene_nodes_asset)
+                import_node_count = scene_nodes_asset.get_asset_node_count()
+                for idx in range(0, import_node_count):
+                    node_name = scene_nodes_asset.get_node_name(idx)
+                    node_mesh_name = scene_nodes_asset.get_node_mesh_asset_name(idx)
+                    node_mat_name = scene_nodes_asset.get_node_mat_asset_name(idx)
+                    node_translation = scene_nodes_asset.get_node_translation(idx)
+                    node_rotation = scene_nodes_asset.get_node_rotation(idx)
+                    node_scale = scene_nodes_asset.get_node_scale(idx)
+                    new_entity = self.main_scene.create_entity(node_name)
+                    transform = new_entity.get_component(luna.Transform)
+                    transform.local_position = node_translation
+                    transform.local_rotation = node_rotation
+                    transform.local_scale = node_scale
+                    renderer = new_entity.add_component_without_create(luna.StaticMeshRenderer)
+                    renderer.mesh = asset_module.load_asset(node_mesh_name, luna.MeshAsset)
+                    renderer.material = asset_module.load_asset(node_mat_name, luna.MaterialTemplateAsset)
+                    renderer.force_create()
+
+
+
             if imgui.menu_item("打开场景"):
                 name = tkinter.filedialog.askopenfilename(filetypes=(("scene files", "*.scn"),),
                                                           initialdir=platform_module.project_dir + "/assets")

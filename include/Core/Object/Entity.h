@@ -87,6 +87,8 @@ public:
 
 	Component* AddComponent(LType* type);
 
+	Component* AddComponentWithoutCreate(LType* type);
+
 	TPPtrArray<Component> &GetAllComponents()
 	{
 		return mComponents;

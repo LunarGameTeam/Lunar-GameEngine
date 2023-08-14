@@ -11,6 +11,7 @@ RegisterTypeEmbedd_Imp(Component)
 	cls->Binding<Component>();
 	cls->BindingProperty<&Component::mOwnerEntity>("entity");
 	cls->BindingMethod<&Component::Destroy>("destroy");	
+	cls->BindingMethod<&Component::ForceCreate>("force_create");
 	BindingModule::Get("luna")->AddType(cls);
 }
 
@@ -36,6 +37,13 @@ void Component::OnDeactivate()
 void Component::OnCreate()
 {
 	mTransform = GetEntity()->GetTransform();
+	mOnCreateCalled = true;
+}
+
+void Component::ForceCreate()
+{
+	OnCreate();
+	OnActivate();
 }
 
 void Component::OnDestroy()
