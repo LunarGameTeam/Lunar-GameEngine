@@ -31,6 +31,91 @@
 namespace luna::graphics
 {
 
+VulkanMemoryManagerPool::VulkanMemoryManagerPool()
+{
+}
+
+VulkanMemoryManagerPool::~VulkanMemoryManagerPool()
+{
+	vmaDestroyAllocator(mAllocator);
+}
+
+bool VulkanMemoryManagerPool::Create(const VmaAllocatorCreateInfo& allocatorInfo)
+{
+	VkResult createResult = vmaCreateAllocator(&allocatorInfo, &mAllocator);
+	if (createResult != VK_SUCCESS)
+	{
+		return false;
+	}
+	return true;
+}
+
+VkResult VulkanMemoryManagerPool::BindMemoryByRequirement(RHIHeapType type, const vk::MemoryRequirements& memoryRequire, VmaAllocation &alloc)
+{
+	VkMemoryRequirements memoryRequireResult = memoryRequire;
+	VmaAllocationCreateInfo allocInfo = {};
+	if (type == RHIHeapType::Default)
+	{
+		allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+	}
+	else if (type == RHIHeapType::Upload)
+	{
+		allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+	}
+	else
+	{
+		assert(false);
+	}
+	VkResult res = vmaAllocateMemory(mAllocator, &memoryRequireResult, &allocInfo, &alloc, nullptr);
+	return res;
+}
+
+VkResult VulkanMemoryManagerPool::BindBufferMemory(RHIHeapType type, const vk::MemoryRequirements& memoryRequire, vk::Buffer& buffer, VmaAllocation& alloc)
+{
+	VkResult succeed = VkResult::VK_SUCCESS;
+	succeed = BindMemoryByRequirement(type, memoryRequire, alloc);
+	if (succeed != VkResult::VK_SUCCESS)
+	{
+		return succeed;
+	}
+	succeed = vmaBindBufferMemory(mAllocator, alloc, buffer);
+	return succeed;
+}
+
+VkResult VulkanMemoryManagerPool::BindTextureMemory(RHIHeapType type, const vk::MemoryRequirements& memoryRequire, vk::Image& Image, VmaAllocation& alloc)
+{
+	VkResult succeed = VkResult::VK_SUCCESS;
+	succeed = BindMemoryByRequirement(type, memoryRequire, alloc);
+	if (succeed != VkResult::VK_SUCCESS)
+	{
+		return succeed;
+	}
+	succeed = vmaBindImageMemory(mAllocator, alloc, Image);
+	return succeed;
+}
+
+VkResult VulkanMemoryManagerPool::FreeBufferMemory(vk::Buffer& buffer, VmaAllocation& alloc)
+{
+	vmaDestroyBuffer(mAllocator, buffer, alloc);
+	return VkResult::VK_SUCCESS;
+}
+
+VkResult VulkanMemoryManagerPool::FreeTextureMemory(vk::Image& Image, VmaAllocation& alloc)
+{
+	vmaDestroyImage(mAllocator, Image, alloc);
+	return VkResult::VK_SUCCESS;
+}
+
+VkResult VulkanMemoryManagerPool::MapMemory(VmaAllocation& alloc, void** ppData)
+{
+	return vmaMapMemory(mAllocator, alloc, ppData);
+}
+
+VkResult VulkanMemoryManagerPool::UnmapMemory(VmaAllocation& alloc)
+{
+	vmaUnmapMemory(mAllocator, alloc);
+	return VkResult::VK_SUCCESS;
+}
 
 uint32_t findMemoryType(uint32_t typeBits, vk::MemoryPropertyFlags properties)
 {
@@ -241,7 +326,14 @@ bool VulkanDevice::InitDeviceData()
 
 	pickPhysicalDevice();
 	createLogicalDevice();
-	
+
+	VmaAllocatorCreateInfo allocatorInfo = {};
+	allocatorInfo.vulkanApiVersion = VK_API_VERSION_1_2;
+	allocatorInfo.physicalDevice = mPhysicalDevice;
+	allocatorInfo.device = mDevice;
+	allocatorInfo.instance = mInstance;
+
+	mDefaultVmaMemoryAllocator.Create(allocatorInfo);
 	return true;
 }
 

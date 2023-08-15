@@ -22,7 +22,7 @@ add_dependencies(Graphics Core)
 target_link_libraries(Graphics debug shaderc_combinedd glslangd)
 target_link_libraries(Graphics optimized shaderc_combined glslang)
 
-target_link_libraries(Graphics Core ${Vulkan_LIBRARY} unofficial::spirv-reflect::spirv-reflect  d3d12 dxgi dxguid dxcompiler d3dcompiler Microsoft::DirectXTK12 Microsoft::DirectXTex WinPixEventRuntime)
+target_link_libraries(Graphics Core ${Vulkan_LIBRARY} unofficial::spirv-reflect::spirv-reflect  d3d12 dxgi dxguid dxcompiler d3dcompiler Microsoft::DirectXTK12 d3d12-memory-allocator Microsoft::DirectXTex WinPixEventRuntime)
 
 add_custom_command(TARGET Graphics POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different 

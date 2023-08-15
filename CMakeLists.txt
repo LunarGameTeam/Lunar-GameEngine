@@ -56,6 +56,7 @@ find_package(unofficial-spirv-reflect REQUIRED)
 find_package(GTest REQUIRED)
 find_package(Vulkan REQUIRED glslang glslangValidator glslc SPIRV-Tools shaderc_combined)
 find_package(murmurhash REQUIRED)
+find_package(d3d12-memory-allocator REQUIRED)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -118,6 +119,7 @@ include_directories(
 link_directories(
 	${Python3_LIBRARY_DIRS}
 	$ENV{VULKAN_SDK}/Lib
+	${SDK_PATH}vcpkg/installed/x64-windows/lib
 )
 function(auto_header_group project src_files dst_files root_path)
     foreach(_source IN ITEMS ${src_files})

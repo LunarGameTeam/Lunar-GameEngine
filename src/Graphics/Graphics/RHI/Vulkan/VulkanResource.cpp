@@ -183,6 +183,32 @@ VulkanResource::VulkanResource(const SamplerDesc& desc)
 	VULKAN_ASSERT(device.createSampler(&samplerInfo, nullptr, &mSampler));
 }
 
+VulkanResource::~VulkanResource()
+{
+	if (AllocByVma)
+	{
+		VulkanMemoryManagerPool& vmaPool = sRenderModule->GetDevice<VulkanDevice>()->GetVulkanVmaPool();
+		if (mResDesc.mType == ResourceType::kBuffer)
+		{
+			vmaPool.FreeBufferMemory(mBuffer, mAllocation);
+		}
+		else if (mResDesc.mType == ResourceType::kTexture)
+		{
+			vmaPool.FreeTextureMemory(mImage, mAllocation);
+		}
+		return;
+	}
+
+	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	if (mImage)
+		device.destroyImage(mImage);
+	if (mBuffer)
+		device.destroy(mBuffer);
+	if (mSampler)
+		device.destroy(mSampler);
+
+}
+
 void VulkanResource::BindMemory(RHIMemory* memory, uint64_t offset)
 {
 	mOffset = offset;
@@ -196,6 +222,24 @@ void VulkanResource::BindMemory(RHIMemory* memory, uint64_t offset)
 	{
 		device.bindImageMemory(mImage, memory->As<VulkanMemory>()->mMemory, offset);
 	}
+}
+
+void VulkanResource::BindMemory(RHIHeapType type)
+{
+	vk::MemoryRequirements memRequirements = {};
+	memRequirements.memoryTypeBits = mMemoryLayout.memory_type_bits;
+	memRequirements.size = mMemoryLayout.size;
+	memRequirements.alignment = mMemoryLayout.alignment;
+	VulkanMemoryManagerPool& vmaPool = sRenderModule->GetDevice<VulkanDevice>()->GetVulkanVmaPool();
+	if (mResDesc.mType == ResourceType::kBuffer)
+	{
+		vmaPool.BindBufferMemory(type,memRequirements, mBuffer, mAllocation);
+	}
+	else if (mResDesc.mType == ResourceType::kTexture)
+	{
+		vmaPool.BindTextureMemory(type,memRequirements, mImage, mAllocation);
+	}
+	AllocByVma = true;
 }
 
 void VulkanResource::RefreshMemoryRequirements()
@@ -221,14 +265,26 @@ void VulkanResource::RefreshMemoryRequirements()
 
 void* VulkanResource::Map()
 {
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
 	void* dst_data;
+	if (AllocByVma)
+	{
+		VulkanMemoryManagerPool& vmaPool = sRenderModule->GetDevice<VulkanDevice>()->GetVulkanVmaPool();
+		vmaPool.MapMemory(mAllocation, &dst_data);
+		return dst_data;
+	}
+	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
 	VULKAN_ASSERT(device.mapMemory(mBindMemory->As<VulkanMemory>()->mMemory, mOffset, mMemoryLayout.size, {}, &dst_data));
 	return dst_data;
 }
 
 void VulkanResource::Unmap()
 {
+	if (AllocByVma)
+	{
+		VulkanMemoryManagerPool& vmaPool = sRenderModule->GetDevice<VulkanDevice>()->GetVulkanVmaPool();
+		vmaPool.UnmapMemory(mAllocation);
+		return;
+	}
 	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
 	device.unmapMemory(mBindMemory->As<VulkanMemory>()->mMemory);
 }

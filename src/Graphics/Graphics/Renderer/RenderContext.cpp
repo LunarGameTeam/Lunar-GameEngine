@@ -402,15 +402,14 @@ RHIResourcePtr RenderContext::_CreateBuffer(const RHIBufferDesc& desc, void* ini
 
 	if (targetMemory == nullptr)
 	{
-		targetMemory = mDevice->AllocMemory(memoryDesc, memoryReq.memory_type_bits);
-		memoryOffset = 0;
+		dstBuffer->BindMemory(RHIHeapType::Upload);
 	}
 	else
 	{
 		memoryOffset = GetOffset(memoryOffset, memoryReq.alignment);
+		dstBuffer->BindMemory(targetMemory, memoryOffset);
+		memoryOffset += memoryReq.size;
 	}
-	dstBuffer->BindMemory(targetMemory, memoryOffset);
-	memoryOffset += memoryReq.size;
 
 	if (initData != nullptr)
 	{

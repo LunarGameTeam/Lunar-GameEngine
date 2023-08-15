@@ -4,6 +4,7 @@
 
 #include "Graphics/RHI/RHIDevice.h"
 
+#include "vk_mem_alloc.h"
 
 namespace luna::graphics
 {
@@ -28,6 +29,23 @@ void CmdEndDebugUtilsLabelEXT(VkCommandBuffer commandBuffer);
 
 uint32_t           findMemoryType(uint32_t typeFilter, vk::MemoryPropertyFlags properties);
 QueueFamilyIndices findQueueFamilies();
+
+class RENDER_API VulkanMemoryManagerPool
+{
+	VmaAllocator mAllocator;
+public:
+	VulkanMemoryManagerPool();
+	~VulkanMemoryManagerPool();
+	bool Create(const VmaAllocatorCreateInfo& allocatorInfo);
+	VkResult BindBufferMemory(RHIHeapType type,const vk::MemoryRequirements& memoryRequire,vk::Buffer& buffer, VmaAllocation& alloc);
+	VkResult BindTextureMemory(RHIHeapType type, const vk::MemoryRequirements& memoryRequire, vk::Image& Image, VmaAllocation& alloc);
+	VkResult FreeBufferMemory(vk::Buffer& buffer, VmaAllocation& alloc);
+	VkResult FreeTextureMemory(vk::Image& Image, VmaAllocation& alloc);
+	VkResult MapMemory(VmaAllocation& alloc, void** ppData);
+	VkResult UnmapMemory(VmaAllocation& alloc);
+private:
+	VkResult BindMemoryByRequirement(RHIHeapType type, const vk::MemoryRequirements& memoryRequire, VmaAllocation& alloc);
+};
 
 class RENDER_API VulkanDevice : public RHIDevice
 {
@@ -80,6 +98,8 @@ public:
 		return mDldi; 
 	}
 
+	VulkanMemoryManagerPool& GetVulkanVmaPool() { return mDefaultVmaMemoryAllocator; }
+
 	bool mEnableValidation = true;
 private:
 
@@ -95,6 +115,7 @@ private:
 	bool checkDeviceExtensionSupport();
 
 private:
+	VulkanMemoryManagerPool  mDefaultVmaMemoryAllocator;
 	vk::DispatchLoaderDynamic mDldi;
 	vk::Instance			 mInstance;
 	vk::Device                 mDevice;
@@ -106,4 +127,5 @@ private:
 	const                    std::vector< const char*> deviceExtensions = { VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME };
 
 };
+
 }
