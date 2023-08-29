@@ -19,5 +19,7 @@ public:
 	virtual size_t IncSignal(RHIRenderQueue* queue) = 0;
 	virtual uint64_t GetCompletedValue() = 0;
 	virtual void Wait(size_t fence_value_check) = 0;
+
+	size_t GetNextSignalValue() { return mValue; };
 };
 }

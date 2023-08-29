@@ -26,32 +26,11 @@ VulkanCmdSignature::VulkanCmdSignature(
 {
 }
 
-VulkanGraphicCmdList::VulkanGraphicCmdList(RHICmdListType type) : 
-	RHIGraphicCmdList(type)
+VulkanGraphicCmdList::VulkanGraphicCmdList(const vk::CommandPool& commandPool, vk::CommandBuffer commandBuffer, RHICmdListType listType = RHICmdListType::Graphic3D) :
+	RHICmdList(listType)
 {
+	mCommandBuffer = commandBuffer;
 	mClosed = true;
-	QueueFamilyIndices queueFamilyIndices = findQueueFamilies();
-	vk::CommandPoolCreateInfo poolInfo{};
-	poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
-	if (type == RHICmdListType::Graphic3D)
-	{
-		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
-	}
-	else if (type == RHICmdListType::Copy)
-	{
-		poolInfo.queueFamilyIndex = queueFamilyIndices.transferFamily.value();
-	}
-
-
-	VULKAN_ASSERT(sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().createCommandPool(&
-		poolInfo, nullptr, &mCommandPool));
-	vk::CommandBufferAllocateInfo allocInfo{};
-	allocInfo.commandPool = mCommandPool;
-	allocInfo.level = vk::CommandBufferLevel::ePrimary;
-	allocInfo.commandBufferCount = 1;
-	
-	VULKAN_ASSERT(sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().allocateCommandBuffers(&allocInfo, &mCommandBuffer));
-
 }
 
 void VulkanGraphicCmdList::BeginEvent(const LString& event_str)
@@ -472,7 +451,7 @@ void VulkanGraphicCmdList::EndRenderPass()
 	vkCmdEndRenderPass(mCommandBuffer);	
 }
 
-void VulkanGraphicCmdList::Reset()
+void VulkanGraphicCmdList::ResetAndPrepare()
 {
 	if (mClosed)
 	{
@@ -581,6 +560,106 @@ void VulkanGraphicCmdList::BeginRender(const RenderPassDesc& passDesc)
 void VulkanGraphicCmdList::EndRender()
 {
 	mCommandBuffer.endRendering();
+}
+
+void GenerateVulkanCommandPool(RHICmdListType listType, vk::CommandPool *mCommandPool)
+{
+	QueueFamilyIndices queueFamilyIndices = findQueueFamilies();
+	vk::CommandPoolCreateInfo poolInfo{};
+	poolInfo.flags = vk::CommandPoolCreateFlagBits::eResetCommandBuffer;
+	if (listType == RHICmdListType::Graphic3D)
+	{
+		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+	}
+	else if (listType == RHICmdListType::Copy)
+	{
+		poolInfo.queueFamilyIndex = queueFamilyIndices.transferFamily.value();
+	}
+	VULKAN_ASSERT(sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().createCommandPool(&
+		poolInfo, nullptr, mCommandPool));
+}
+
+VulkanSinglePoolSingleCmdList::VulkanSinglePoolSingleCmdList(RHICmdListType listType) :
+	RHISinglePoolSingleCmdList(listType)
+{
+	GenerateVulkanCommandPool(listType,&mCommandPool);
+	vk::CommandBufferAllocateInfo allocInfo{};
+	allocInfo.commandPool = mCommandPool;
+	allocInfo.level = vk::CommandBufferLevel::ePrimary;
+	allocInfo.commandBufferCount = 1;
+	vk::CommandBuffer commandBuffer;
+	VULKAN_ASSERT(sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().allocateCommandBuffers(&allocInfo, &commandBuffer));
+	mCmdListInstance = CreateRHIObject<VulkanGraphicCmdList>(mCommandPool, commandBuffer, listType);
+}
+
+void VulkanSinglePoolSingleCmdList::Reset()
+{
+	mCmdListInstance->ResetAndPrepare();
+}
+
+VulkanSinglePoolMultiCmdList::VulkanSinglePoolMultiCmdList(RHICmdListType listType) :
+	RHISinglePoolMultiCmdList(listType)
+{
+	GenerateVulkanCommandPool(listType, &mCommandPool);
+}
+
+RHICmdList* VulkanSinglePoolMultiCmdList::GetNewCmdList()
+{
+	if (!mCommandListEmpty.empty())
+	{
+		RHICmdListPtr frontList = mCommandListEmpty.front();
+		mCommandListEmpty.pop();
+		mCommandListUsing.push(frontList);
+		frontList->ResetAndPrepare();
+		return frontList.get();
+	}
+	vk::CommandBufferAllocateInfo allocInfo{};
+	allocInfo.commandPool = mCommandPool;
+	allocInfo.level = vk::CommandBufferLevel::ePrimary;
+	allocInfo.commandBufferCount = 1;
+	vk::CommandBuffer commandBuffer;
+	VULKAN_ASSERT(sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().allocateCommandBuffers(&allocInfo, &commandBuffer));
+	RHICmdListPtr newCmdList = CreateRHIObject<VulkanGraphicCmdList>(mCommandPool, commandBuffer, mCmdListType);
+	mCommandListUsing.push(newCmdList);
+	newCmdList->ResetAndPrepare();
+	return newCmdList.get();
+}
+
+void VulkanSinglePoolMultiCmdList::Reset()
+{
+	while (!mCommandListUsing.empty())
+	{
+		RHICmdListPtr frontList = mCommandListUsing.front();
+		mCommandListUsing.pop();
+		mCommandListEmpty.push(frontList);
+	}
+}
+
+VulkanMultiFrameCmdList::VulkanMultiFrameCmdList(size_t frameCount, RHICmdListType listType = RHICmdListType::Graphic3D) :
+	RHIMultiFrameCmdList(frameCount,listType)
+{
+	GenerateVulkanCommandPool(listType, &mCommandPool);
+	vk::CommandBufferAllocateInfo allocInfo{};
+	allocInfo.commandPool = mCommandPool;
+	allocInfo.level = vk::CommandBufferLevel::ePrimary;
+	allocInfo.commandBufferCount = frameCount;
+	vk::CommandBuffer *commandBuffer = new vk::CommandBuffer[frameCount];
+	VULKAN_ASSERT(sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().allocateCommandBuffers(&allocInfo, commandBuffer));
+	mCommandLists.resize(frameCount);
+	for (int32_t i = 0; i < frameCount; ++i)
+	{
+		mCommandLists[i] = CreateRHIObject<VulkanGraphicCmdList>(mCommandPool, commandBuffer, listType);
+	}
+}
+
+RHICmdList* VulkanMultiFrameCmdList::GetCmdListByFrame(size_t frameIndex)
+{
+	return mCommandLists[frameIndex].get() ;
+}
+
+void VulkanMultiFrameCmdList::Reset(size_t frameIndex)
+{
+	mCommandLists[frameIndex]->ResetAndPrepare();
 }
 
 }

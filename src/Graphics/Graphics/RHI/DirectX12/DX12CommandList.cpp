@@ -124,21 +124,18 @@ void DX12CmdArgBuffer::UpdateArgDataImpl(const LArray<RHICmdArgBufferDataDesc>& 
 	//todo:生成arg buffer数据
 }
 
-DX12GraphicCmdList::DX12GraphicCmdList(RHICmdListType cmdListType)
-	:RHIGraphicCmdList(cmdListType)
+DX12GraphicCmdList::DX12GraphicCmdList(ID3D12CommandAllocator* dxCmdAllocator, RHICmdListType cmdListType):
+	mDxCmdAllocator(dxCmdAllocator),
+	RHICmdList(cmdListType)
 {
 
 	//获取directx设备
 	ID3D12Device* dxDevice = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
-
 	//创建并解锁alloctor
 	D3D12_COMMAND_LIST_TYPE dxCmdListType;
 	GetDirectXCommondlistType(cmdListType, dxCmdListType);
-	//创建commondlist
 	HRESULT hr;
-	hr = dxDevice->CreateCommandAllocator(dxCmdListType, IID_PPV_ARGS(&mDxCmdAllocator));
-	assert(SUCCEEDED(hr));
-	hr = dxDevice->CreateCommandList(0, dxCmdListType, mDxCmdAllocator.Get(), nullptr, IID_PPV_ARGS(&mDxCmdList));
+	hr = dxDevice->CreateCommandList(0, dxCmdListType, mDxCmdAllocator, nullptr, IID_PPV_ARGS(&mDxCmdList));
 	assert(SUCCEEDED(hr));
 }
 void DX12GraphicCmdList::DrawIndexedInstanced(
@@ -565,12 +562,12 @@ void DX12GraphicCmdList::EndRenderPass()
 
 }
 
-void DX12GraphicCmdList::Reset()
+void DX12GraphicCmdList::ResetAndPrepare()
 {
 	if (mClosed)
 	{
-		LUNA_ASSERT(SUCCEEDED(mDxCmdAllocator->Reset()));
-		LUNA_ASSERT(SUCCEEDED(mDxCmdList->Reset(mDxCmdAllocator.Get(), nullptr)));
+		//LUNA_ASSERT(SUCCEEDED(mDxCmdAllocator->Reset()));
+		LUNA_ASSERT(SUCCEEDED(mDxCmdList->Reset(mDxCmdAllocator, nullptr)));
 	}
 	mClosed = false;
 }
@@ -648,5 +645,81 @@ void DX12GraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier)
 	mDxCmdList->ResourceBarrier((UINT)dxBarriers.size(), dxBarriers.data());
 	dxRes->SetLastState(dx_state_after);
 }
+
+
+void GenerateDX12CommandPool(RHICmdListType listType, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>& ppCommandAllocator)
+{
+	//获取directx设备
+	ID3D12Device* dxDevice = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
+
+	//创建并解锁alloctor
+	D3D12_COMMAND_LIST_TYPE dxCmdListType;
+	GetDirectXCommondlistType(listType, dxCmdListType);
+	HRESULT hr;
+	hr = dxDevice->CreateCommandAllocator(dxCmdListType, IID_PPV_ARGS(&ppCommandAllocator));
+	assert(SUCCEEDED(hr));
+
+}
+
+DX12SinglePoolSingleCmdList::DX12SinglePoolSingleCmdList(RHICmdListType listType) :
+	RHISinglePoolSingleCmdList(listType)
+{	
+	GenerateDX12CommandPool(listType, mCommandAllocator);
+	mCmdListInstance = CreateRHIObject<DX12GraphicCmdList>(mCommandAllocator.Get(), mCmdListType);
+}
+
+void DX12SinglePoolSingleCmdList::Reset()
+{
+	mCmdListInstance->ResetAndPrepare();
+	mCommandAllocator->Reset();
+}
+
+DX12SinglePoolMultiCmdList::DX12SinglePoolMultiCmdList(RHICmdListType listType) :
+	RHISinglePoolMultiCmdList(listType)
+{
+	GenerateDX12CommandPool(listType, mCommandAllocator);
+}
+
+RHICmdList* DX12SinglePoolMultiCmdList::GetNewCmdList()
+{
+	if (mCommandList == nullptr)
+	{
+		mCommandList = CreateRHIObject<DX12GraphicCmdList>(mCommandAllocator.Get(), mCmdListType);
+	}
+	else
+	{
+		mCommandList->ResetAndPrepare();
+	}
+	return mCommandList.get();
+}
+
+void DX12SinglePoolMultiCmdList::Reset()
+{
+	mCommandAllocator->Reset();
+}
+
+DX12MultiFrameCmdList::DX12MultiFrameCmdList(size_t frameCount, RHICmdListType listType = RHICmdListType::Graphic3D) :
+	RHIMultiFrameCmdList(frameCount, listType)
+{
+	mCommandAllocators.resize(frameCount);
+	mCommandLists.resize(frameCount);
+	for (int32_t i = 0; i < frameCount; ++i)
+	{
+		GenerateDX12CommandPool(listType, mCommandAllocators[i]);
+		mCommandLists[i] = CreateRHIObject<DX12GraphicCmdList>(mCommandAllocators[i].Get(), mCmdListType);
+	}
+}
+
+RHICmdList* DX12MultiFrameCmdList::GetCmdListByFrame(size_t frameIndex)
+{
+	return mCommandLists[frameIndex].get();
+}
+
+void DX12MultiFrameCmdList::Reset(size_t frameIndex)
+{
+	mCommandLists[frameIndex]->ResetAndPrepare();
+	mCommandAllocators[frameIndex]->Reset();
+}
+
 
 }

@@ -1,3 +1,4 @@
+#define VMA_IMPLEMENTATION 
 #include "Graphics/RHI/Vulkan/VulkanDevice.h"
 #include "Graphics/RenderModule.h"
 

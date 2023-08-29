@@ -9,6 +9,31 @@
 
 namespace luna::graphics
 {
+
+struct RHIStagingBuffer 
+{
+	size_t mResourceId;
+	RHIResourcePtr mBufferData;
+	size_t mBufferSize;
+};
+
+class RENDER_API RHIStagingBufferPool
+{
+	RHIDevice* mDevice;
+	LMap<size_t, RHIStagingBuffer> mResourceWaitingCopy;
+	LMap<size_t, LArray<RHIStagingBuffer>> mResourceCopying;
+	RHIFencePtr mCopyFence;
+	RHIRenderQueuePtr mRenderQueue;
+	RHISinglePoolMultiCmdListPtr mCopyCommandList;
+	size_t mResourcePoolCount;
+	LQueue<size_t> mUnusedResourceId;
+	bool isPoolWorking;
+public:
+	RHIStagingBufferPool(RHIDevice* device);
+	RHIStagingBuffer* CreateUploadBuffer(size_t dataLength,void* initData);
+	void UploadToDstBuffer(RHIStagingBuffer* srcBuffer, size_t offset_src, RHIResource* dstBuffer,size_t offset_dst);
+	void TickPoolRefresh();
+};
 //图形设备单例，用于处理图形资源的分配和管理
 class RENDER_API RHIDevice : public RHIObject
 {
@@ -24,6 +49,13 @@ public:
 	virtual RHIRenderPassPtr CreateRenderPass(const RenderPassDesc& desc) = 0;
 	virtual RHIResourcePtr CreateSamplerExt(const SamplerDesc& desc)             = 0;
 	virtual RHIDescriptorPoolPtr CreateDescriptorPool(const DescriptorPoolDesc& desc) = 0;
+
+	virtual RHIGraphicCmdListPtr CreateCommondList(RHICmdListType type) = 0;
+	virtual RHIGraphicCmdListPtr CreateCommondList(RHICmdListType type) = 0;
+	virtual RHIGraphicCmdListPtr CreateCommondList(RHICmdListType type) = 0;
+
+
+
 	virtual RHIGraphicCmdListPtr CreateCommondList(RHICmdListType type)          = 0;
 	virtual RHIViewPtr CreateView(const ViewDesc&)                               = 0;
 	virtual RHIFencePtr CreateFence()                                            = 0;
@@ -88,4 +120,6 @@ private:
 	friend class RenderModule;
 	friend class RenderContext;
 };
+
+RHIRenderQueuePtr GenerateRenderQueue(RHIQueueType queueType);
 }

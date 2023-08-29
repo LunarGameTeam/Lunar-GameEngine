@@ -96,26 +96,22 @@ public:
 
 
 //commond list, 用于录制渲染命令
-class RENDER_API RHIGraphicCmdList : public RHIObject
+class RENDER_API RHICmdList : public RHIObject
 {
 protected:
-	RHICmdListState mCmdListState;
 	RHICmdListType mCmdListType;
-
+	RHICmdListState mCmdListState;
 public:
-	RHIGraphicCmdList(RHICmdListType listType = RHICmdListType::Graphic3D) : 
-		mCmdListState(RHICmdListState::State_Null),
-		mCmdListType(listType)
+	RHICmdList(RHICmdListType listType = RHICmdListType::Graphic3D) :
+		mCmdListType(listType),
+		mCmdListState(RHICmdListState::State_Null)
 	{	}
 
 
 	virtual void BeginEvent(const LString& event_str) = 0;
 	virtual void EndEvent() = 0;
 	
-	virtual void Reset() = 0;
 	virtual void CloseCommondList() = 0;
-
-	inline RHICmdListType GetPipelineType() const {	return mCmdListType; }
 	
 
 	virtual void SetVertexBuffer(const std::vector<RHIVertexBufferDesc>& vb, int32_t slot = 0) = 0;
@@ -181,10 +177,58 @@ public:
 		float depth,
 		uint8_t stencil
 	) = 0;
-
+	virtual void ResetAndPrepare() = 0;
 
 protected:
 	bool mClosed = false;
 
+};
+//每个cmdlist独享一个cmd pool的指令记录模式
+class RENDER_API RHISinglePoolSingleCmdList : public RHIObject
+{
+protected:
+	RHICmdListPtr mCmdListInstance;
+	RHICmdListType mCmdListType;
+public:
+	RHISinglePoolSingleCmdList(RHICmdListType listType = RHICmdListType::Graphic3D) :
+		mCmdListType(listType)
+	{	}
+	inline RHICmdListType GetPipelineType() const { return mCmdListType; }
+	RHICmdList* GetCmdList() { return mCmdListInstance.get(); };
+	virtual void Reset() = 0;
+};
+
+//每个cmd pool可以不断的开辟command list的记录模式
+class RENDER_API RHISinglePoolMultiCmdList
+{
+protected:
+	RHICmdListType mCmdListType;
+public:
+	RHISinglePoolMultiCmdList(RHICmdListType listType = RHICmdListType::Graphic3D) :
+		mCmdListType(listType)
+	{
+	}
+	inline RHICmdListType GetPipelineType() const { return mCmdListType; }
+	//不要连续调用这个接口，调用之前要保证前一个通过这个接口制作的command list已经提交了
+	virtual RHICmdList* GetNewCmdList() { assert(false); };
+	virtual void Reset() = 0;
+};
+
+//适用于多帧并行运行的cmd list记录模式
+class RENDER_API RHIMultiFrameCmdList
+{
+protected:
+	size_t mFrameCount;
+	RHICmdListType mCmdListType;
+public:
+	RHIMultiFrameCmdList(size_t frameCount,RHICmdListType listType = RHICmdListType::Graphic3D) :
+		mFrameCount(frameCount),
+		mCmdListType(listType)
+	{
+
+	}
+	inline RHICmdListType GetPipelineType() const { return mCmdListType; }
+	virtual RHICmdList* GetCmdListByFrame(size_t frameIndex) { assert(false); };
+	virtual void Reset(size_t frameIndex) = 0;
 };
 }

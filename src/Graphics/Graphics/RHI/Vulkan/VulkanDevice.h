@@ -1,5 +1,4 @@
 #pragma once
-
 #include "Graphics/RHI/Vulkan/VulkanPch.h"
 
 #include "Graphics/RHI/RHIDevice.h"
