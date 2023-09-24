@@ -50,7 +50,7 @@ public:
 	template <typename T>
 	T* GetDevice()
 	{
-		return static_cast<T*>(mRenderContext->mDevice);
+		return static_cast<T*>(mRenderContext->mDevice.get());
 	};
 
 	RHIDevice* GetRHIDevice()

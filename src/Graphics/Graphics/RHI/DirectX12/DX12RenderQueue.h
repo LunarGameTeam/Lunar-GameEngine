@@ -16,7 +16,7 @@ public:
 
 	DX12RenderQueue(RHIQueueType type = RHIQueueType::eGraphic);
 	~DX12RenderQueue();
-	void ExecuteCommandLists(RHIGraphicCmdList* commond_list_array) override;
+	void ExecuteCommandLists(RHICmdList* commond_list_array) override;
 
 	RHISwapChainPtr CreateSwapChain(LWindow* window,const RHISwapchainDesc& windowDesc) override;
 

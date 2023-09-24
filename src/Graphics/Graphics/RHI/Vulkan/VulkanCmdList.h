@@ -7,22 +7,21 @@
 
 namespace luna::graphics
 {
-	class RENDER_API VulkanCmdSignature : public RHICmdSignature
-	{
-	public:
-		VulkanCmdSignature(
-			RHIPipelineState* pipeline,
-			const LArray<CommandArgDesc>& allCommondDesc
-		);
-	};
 
-class VulkanGraphicCmdList : public RHIGraphicCmdList
+class RENDER_API VulkanCmdSignature : public RHICmdSignature
 {
 public:
-	vk::CommandPool mCommandPool;
-	vk::CommandBuffer mCommandBuffer;
+	VulkanCmdSignature(
+		RHIPipelineState* pipeline,
+		const LArray<CommandArgDesc>& allCommondDesc
+	);
+};
 
-	VulkanGraphicCmdList(RHICmdListType commond_list_type);
+class VulkanGraphicCmdList : public RHICmdList
+{
+public:
+	vk::CommandBuffer mCommandBuffer;
+	VulkanGraphicCmdList(const vk::CommandPool &commandPool, vk::CommandBuffer commandBuffer, RHICmdListType listType = RHICmdListType::Graphic3D);
 
 	void DrawIndexedInstanced(
 		uint32_t IndexCountPerInstance,
@@ -110,7 +109,7 @@ public:
 	void EndRenderPass() override;
 
 
-	void Reset() override;
+	void ResetAndPrepare() override;
 	void CloseCommondList() override;
 
 	void BindDesriptorSetExt(RHIBindingSetPtr bindingSet) override;
@@ -126,4 +125,35 @@ public:
 private:
 
 };
+
+class RENDER_API VulkanSinglePoolSingleCmdList: public RHISinglePoolSingleCmdList
+{
+	vk::CommandPool mCommandPool;
+public:
+	VulkanSinglePoolSingleCmdList(RHICmdListType listType = RHICmdListType::Graphic3D);
+	void Reset() override;
+};
+
+class RENDER_API VulkanSinglePoolMultiCmdList : public RHISinglePoolMultiCmdList
+{
+	vk::CommandPool mCommandPool;
+	LQueue<RHICmdListPtr> mCommandListEmpty;
+	LQueue<RHICmdListPtr> mCommandListUsing;
+public:
+	VulkanSinglePoolMultiCmdList(RHICmdListType listType = RHICmdListType::Graphic3D);
+	~VulkanSinglePoolMultiCmdList();
+	RHICmdList* GetNewCmdList() override;
+	void Reset() override;
+};
+
+class RENDER_API VulkanMultiFrameCmdList : public RHIMultiFrameCmdList
+{
+	vk::CommandPool mCommandPool;
+	LArray<RHICmdListPtr> mCommandLists;
+public:
+	VulkanMultiFrameCmdList(size_t frameCount, RHICmdListType listType = RHICmdListType::Graphic3D);
+	RHICmdList* GetCmdListByFrame(size_t frameIndex) override;
+	void Reset(size_t frameIndex) override;
+};
+
 }

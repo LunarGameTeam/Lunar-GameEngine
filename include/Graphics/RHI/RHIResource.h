@@ -54,7 +54,7 @@ struct RHIBufferDesc
 struct RHIResDesc
 {
 	RHIHeapType ResHeapType;
-
+	bool                  mUseVma = true;
 	ResourceType          mType = ResourceType::kUnknown;
 	RHIResDimension       Dimension = RHIResDimension::Texture2D;
 	uint32_t              Alignment = 0;
@@ -91,6 +91,8 @@ public:
 	};
 
 	virtual void BindMemory(RHIMemory* memory, uint64_t offset) {};
+
+	virtual void BindMemory(RHIHeapType type) {};
 
 	void SetInitialState(ResourceState state) 
 	{

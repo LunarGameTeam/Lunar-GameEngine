@@ -2,7 +2,7 @@
 #include "Graphics/RenderConfig.h"
 #include "Graphics/RHI/RHIMemory.h"
 #include "DX12Pch.h"
-
+#include "D3D12MemAlloc.h"
 
 namespace luna::graphics
 {

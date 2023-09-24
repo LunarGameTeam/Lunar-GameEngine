@@ -11,7 +11,7 @@ SkeletonSkinData::SkeletonSkinData()
 	RHIBufferDesc desc;
 	desc.mBufferUsage = RHIBufferUsage::StructureBuffer;
 	desc.mSize = sizeof(LMatrix4f) * 128;
-	mSkeletonResultBuffer = sRenderModule->mRenderContext->CreateBuffer(desc);
+	mSkeletonResultBuffer = sRenderModule->mRenderContext->CreateBuffer(RHIHeapType::Upload, desc);
 	ViewDesc viewDesc;
 	viewDesc.mViewType = RHIViewType::kStructuredBuffer;
 	viewDesc.mViewDimension = RHIViewDimension::BufferView;

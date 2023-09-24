@@ -65,10 +65,24 @@ using RHIRenderPassPtr     = TRHIPtr<RHIRenderPass> ;
 class RHICmdAllocator;
 using RHICmdAllocatorPtr   = TRHIPtr<RHICmdAllocator> ;
 
-class RHIGraphicCmdList;
-using RHIGraphicCmdListPtr = TRHIPtr<RHIGraphicCmdList> ;
+class RHICmdList;
+using RHICmdListPtr = TRHIPtr<RHICmdList>;
+
+class RHISinglePoolSingleCmdList;
+using RHISinglePoolSingleCmdListPtr = TRHIPtr<RHISinglePoolSingleCmdList>;
+
+class RHISinglePoolMultiCmdList;
+using RHISinglePoolMultiCmdListPtr = TRHIPtr<RHISinglePoolMultiCmdList>;
+
+class RHIMultiFrameCmdList;
+using RHIMultiFrameCmdListPtr = TRHIPtr<RHIMultiFrameCmdList>;
+
+
 
 class RHIRenderQueue;
 using RHIRenderQueuePtr = TRHIPtr<RHIRenderQueue>;
+
+class RHIDevice;
+using RHIDevicePtr = TRHIPtr<RHIDevice>;
 
 }

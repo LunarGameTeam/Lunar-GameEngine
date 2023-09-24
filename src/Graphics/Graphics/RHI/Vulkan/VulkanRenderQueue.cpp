@@ -25,7 +25,7 @@ VulkanRenderQueue::VulkanRenderQueue(RHIQueueType type /*= RenderQueueType::eGra
 	}
 }
 
-void VulkanRenderQueue::ExecuteCommandLists(RHIGraphicCmdList* commond_list_array)
+void VulkanRenderQueue::ExecuteCommandLists(RHICmdList* commond_list_array)
 {
 	VulkanGraphicCmdList* vkList = commond_list_array->As<VulkanGraphicCmdList>();
 

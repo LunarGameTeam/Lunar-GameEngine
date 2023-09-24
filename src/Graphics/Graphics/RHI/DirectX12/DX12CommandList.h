@@ -33,10 +33,10 @@ public:
 
 };
 
-class RENDER_API DX12GraphicCmdList : public RHIGraphicCmdList
+class RENDER_API DX12GraphicCmdList : public RHICmdList
 {
 public:
-	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mDxCmdAllocator;
+	ID3D12CommandAllocator* mDxCmdAllocator;
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList1> mDxCmdList;
 
 	void BindDesriptorSetExt(RHIBindingSetPtr bindingSet) override;
@@ -53,8 +53,7 @@ public:
 	void BindDescriptorHeap() override;
 
 public:
-	DX12GraphicCmdList(RHICmdListType commond_list_type);
-
+	DX12GraphicCmdList(ID3D12CommandAllocator* dxCmdAllocator,RHICmdListType commond_list_type = RHICmdListType::Graphic3D);
 	inline ID3D12GraphicsCommandList1* GetCommondList() const
 	{
 		return mDxCmdList.Get();
@@ -132,10 +131,38 @@ public:
 	void EndRenderPass() override;
 	void BeginRender(const RenderPassDesc&) override;
 
-	void Reset() override;
+	void ResetAndPrepare() override;
 	void CloseCommondList() override;
 private:
 	D3D12_PRIMITIVE_TOPOLOGY GetDirectXPrimitiveTopology(const RHIPrimitiveTopology& primitive_topology);
 	void BindAndClearView(bool ifClearColor,bool ifClearDepth,RHIView* descriptor_rtv, RHIView* descriptor_dsv);
+};
+
+class RENDER_API DX12SinglePoolSingleCmdList : public RHISinglePoolSingleCmdList
+{
+	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mCommandAllocator;
+public:
+	DX12SinglePoolSingleCmdList(RHICmdListType listType = RHICmdListType::Graphic3D);
+	void Reset() override;
+};
+
+class RENDER_API DX12SinglePoolMultiCmdList : public RHISinglePoolMultiCmdList
+{
+	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mCommandAllocator;
+	RHICmdListPtr mCommandList;
+public:
+	DX12SinglePoolMultiCmdList(RHICmdListType listType = RHICmdListType::Graphic3D);
+	RHICmdList* GetNewCmdList() override;
+	void Reset() override;
+};
+
+class RENDER_API DX12MultiFrameCmdList : public RHIMultiFrameCmdList
+{
+	LArray<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>> mCommandAllocators;
+	LArray<RHICmdListPtr> mCommandLists;
+public:
+	DX12MultiFrameCmdList(size_t frameCount, RHICmdListType listType = RHICmdListType::Graphic3D);
+	RHICmdList* GetCmdListByFrame(size_t frameIndex) override;
+	void Reset(size_t frameIndex) override;
 };
 }

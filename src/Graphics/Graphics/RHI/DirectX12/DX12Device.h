@@ -76,7 +76,11 @@ public:
 
 	RHIDescriptorPoolPtr CreateDescriptorPool(const DescriptorPoolDesc& desc) override;
 
-	RHIGraphicCmdListPtr CreateCommondList(RHICmdListType pipeline_type) override;
+	RHISinglePoolSingleCmdListPtr CreateSinglePoolSingleCommondList(RHICmdListType type) override;
+	
+	RHISinglePoolMultiCmdListPtr CreateSinglePoolMultiCommondList(RHICmdListType type) override;
+	
+	RHIMultiFrameCmdListPtr CreateMultiFrameCommondList(size_t frameCount, RHICmdListType type) override;
 
 	size_t CountResourceSizeByDesc(const RHIResDesc& res_desc) override;
 
