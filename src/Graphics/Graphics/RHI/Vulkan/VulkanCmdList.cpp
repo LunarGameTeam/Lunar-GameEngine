@@ -26,7 +26,7 @@ VulkanCmdSignature::VulkanCmdSignature(
 {
 }
 
-VulkanGraphicCmdList::VulkanGraphicCmdList(const vk::CommandPool& commandPool, vk::CommandBuffer commandBuffer, RHICmdListType listType = RHICmdListType::Graphic3D) :
+VulkanGraphicCmdList::VulkanGraphicCmdList(const vk::CommandPool& commandPool, vk::CommandBuffer commandBuffer, RHICmdListType listType) :
 	RHICmdList(listType)
 {
 	mCommandBuffer = commandBuffer;
@@ -602,6 +602,10 @@ VulkanSinglePoolMultiCmdList::VulkanSinglePoolMultiCmdList(RHICmdListType listTy
 {
 	GenerateVulkanCommandPool(listType, &mCommandPool);
 }
+VulkanSinglePoolMultiCmdList::~VulkanSinglePoolMultiCmdList()
+{
+	int a = 0;
+}
 
 RHICmdList* VulkanSinglePoolMultiCmdList::GetNewCmdList()
 {
@@ -635,7 +639,7 @@ void VulkanSinglePoolMultiCmdList::Reset()
 	}
 }
 
-VulkanMultiFrameCmdList::VulkanMultiFrameCmdList(size_t frameCount, RHICmdListType listType = RHICmdListType::Graphic3D) :
+VulkanMultiFrameCmdList::VulkanMultiFrameCmdList(size_t frameCount, RHICmdListType listType) :
 	RHIMultiFrameCmdList(frameCount,listType)
 {
 	GenerateVulkanCommandPool(listType, &mCommandPool);
@@ -648,7 +652,7 @@ VulkanMultiFrameCmdList::VulkanMultiFrameCmdList(size_t frameCount, RHICmdListTy
 	mCommandLists.resize(frameCount);
 	for (int32_t i = 0; i < frameCount; ++i)
 	{
-		mCommandLists[i] = CreateRHIObject<VulkanGraphicCmdList>(mCommandPool, commandBuffer, listType);
+		mCommandLists[i] = CreateRHIObject<VulkanGraphicCmdList>(mCommandPool, *commandBuffer, listType);
 	}
 }
 

@@ -6,6 +6,7 @@
 #include "RHIBindingSetLayout.h"
 #include "Core/Platform/Window.h"
 #include "Graphics/RHI/RHICmdList.h"
+#include "Graphics/RHI/RHIFence.h"
 
 namespace luna::graphics
 {
@@ -20,19 +21,34 @@ struct RHIStagingBuffer
 class RENDER_API RHIStagingBufferPool
 {
 	RHIDevice* mDevice;
+
 	LMap<size_t, RHIStagingBuffer> mResourceWaitingCopy;
+
 	LMap<size_t, LArray<RHIStagingBuffer>> mResourceCopying;
+
 	RHIFencePtr mCopyFence;
+
 	RHIRenderQueuePtr mRenderQueue;
+
 	RHISinglePoolMultiCmdListPtr mCopyCommandList;
+
 	size_t mResourcePoolCount;
+
 	LQueue<size_t> mUnusedResourceId;
+
 	bool isPoolWorking;
 public:
 	RHIStagingBufferPool(RHIDevice* device);
-	RHIStagingBuffer* CreateUploadBuffer(size_t dataLength,void* initData);
-	void UploadToDstBuffer(RHIStagingBuffer* srcBuffer, size_t offset_src, RHIResource* dstBuffer,size_t offset_dst);
+
+	void UploadToDstBuffer(size_t dataLength, void* initData, RHIResource* dstBuffer,size_t offset_dst);
+
+	void UploadToDstTexture(size_t dataLength, void* initData, RHIResource* dstTexture, size_t offset_dst);
+
 	void TickPoolRefresh();
+private:
+	RHIStagingBuffer* CreateUploadBuffer(size_t dataLength, void* initData);
+
+	void UploadToDstResource(size_t dataLength, void* initData, RHIResource* dstTexture, size_t offset_dst, std::function<void(RHICmdList* curCmdList, RHIStagingBuffer* srcBuffer)> copyCommand);
 };
 //图形设备单例，用于处理图形资源的分配和管理
 class RENDER_API RHIDevice : public RHIObject
@@ -50,13 +66,9 @@ public:
 	virtual RHIResourcePtr CreateSamplerExt(const SamplerDesc& desc)             = 0;
 	virtual RHIDescriptorPoolPtr CreateDescriptorPool(const DescriptorPoolDesc& desc) = 0;
 
-	virtual RHIGraphicCmdListPtr CreateCommondList(RHICmdListType type) = 0;
-	virtual RHIGraphicCmdListPtr CreateCommondList(RHICmdListType type) = 0;
-	virtual RHIGraphicCmdListPtr CreateCommondList(RHICmdListType type) = 0;
-
-
-
-	virtual RHIGraphicCmdListPtr CreateCommondList(RHICmdListType type)          = 0;
+	virtual RHISinglePoolSingleCmdListPtr CreateSinglePoolSingleCommondList(RHICmdListType type) = 0;
+	virtual RHISinglePoolMultiCmdListPtr CreateSinglePoolMultiCommondList(RHICmdListType type) = 0;
+	virtual RHIMultiFrameCmdListPtr CreateMultiFrameCommondList(size_t frameCount, RHICmdListType type) = 0;
 	virtual RHIViewPtr CreateView(const ViewDesc&)                               = 0;
 	virtual RHIFencePtr CreateFence()                                            = 0;
 	virtual RHIFrameBufferPtr CreateFrameBuffer(const FrameBufferDesc& desc)     = 0;
@@ -90,7 +102,6 @@ public:
 protected:
 
 	LUnorderedMap<LString, RHIStaticSamplerDesc> common_static_sampler;
-
 	friend class RenderModule;
 	friend class RenderContext;
 };
@@ -109,7 +120,7 @@ protected:
 	virtual ~RHIRenderQueue() = default;
 
 public:
-	virtual void ExecuteCommandLists(RHIGraphicCmdList* commond_list_array) = 0;
+	virtual void ExecuteCommandLists(RHICmdList* commond_list_array) = 0;
 	virtual RHISwapChainPtr CreateSwapChain(LWindow* window, const RHISwapchainDesc& desc) = 0;
 	virtual void Present(RHISwapChain* swapchain) {};
 	virtual void Wait(RHIFence* fence, uint64_t value) {};
@@ -121,5 +132,8 @@ private:
 	friend class RenderContext;
 };
 
-RHIRenderQueuePtr GenerateRenderQueue(RHIQueueType queueType);
+RHIRenderQueuePtr RENDER_API GenerateRenderQueue(RHIQueueType queueType = RHIQueueType::eGraphic);
+
+RHIDevicePtr RENDER_API GenerateRenderDevice();
+
 }

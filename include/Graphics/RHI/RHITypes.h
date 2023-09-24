@@ -82,4 +82,7 @@ using RHIMultiFrameCmdListPtr = TRHIPtr<RHIMultiFrameCmdList>;
 class RHIRenderQueue;
 using RHIRenderQueuePtr = TRHIPtr<RHIRenderQueue>;
 
+class RHIDevice;
+using RHIDevicePtr = TRHIPtr<RHIDevice>;
+
 }

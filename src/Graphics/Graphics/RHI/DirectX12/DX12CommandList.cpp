@@ -698,7 +698,7 @@ void DX12SinglePoolMultiCmdList::Reset()
 	mCommandAllocator->Reset();
 }
 
-DX12MultiFrameCmdList::DX12MultiFrameCmdList(size_t frameCount, RHICmdListType listType = RHICmdListType::Graphic3D) :
+DX12MultiFrameCmdList::DX12MultiFrameCmdList(size_t frameCount, RHICmdListType listType) :
 	RHIMultiFrameCmdList(frameCount, listType)
 {
 	mCommandAllocators.resize(frameCount);

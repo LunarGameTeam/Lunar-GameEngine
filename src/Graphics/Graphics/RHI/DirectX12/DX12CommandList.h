@@ -138,7 +138,7 @@ private:
 	void BindAndClearView(bool ifClearColor,bool ifClearDepth,RHIView* descriptor_rtv, RHIView* descriptor_dsv);
 };
 
-class RENDER_API DX12SinglePoolSingleCmdList : RHISinglePoolSingleCmdList
+class RENDER_API DX12SinglePoolSingleCmdList : public RHISinglePoolSingleCmdList
 {
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mCommandAllocator;
 public:
@@ -146,7 +146,7 @@ public:
 	void Reset() override;
 };
 
-class RENDER_API DX12SinglePoolMultiCmdList : RHISinglePoolMultiCmdList
+class RENDER_API DX12SinglePoolMultiCmdList : public RHISinglePoolMultiCmdList
 {
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> mCommandAllocator;
 	RHICmdListPtr mCommandList;
@@ -156,7 +156,7 @@ public:
 	void Reset() override;
 };
 
-class RENDER_API DX12MultiFrameCmdList : RHIMultiFrameCmdList
+class RENDER_API DX12MultiFrameCmdList : public RHIMultiFrameCmdList
 {
 	LArray<Microsoft::WRL::ComPtr<ID3D12CommandAllocator>> mCommandAllocators;
 	LArray<RHICmdListPtr> mCommandLists;

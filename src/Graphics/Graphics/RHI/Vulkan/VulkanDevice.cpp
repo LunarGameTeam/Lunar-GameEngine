@@ -421,9 +421,19 @@ RHIDescriptorPoolPtr VulkanDevice::CreateDescriptorPool(const DescriptorPoolDesc
 	return CreateRHIObject<VulkanDescriptorPool>(desc);
 }
 
-RHIGraphicCmdListPtr VulkanDevice::CreateCommondList(RHICmdListType pipeline_type)
+RHISinglePoolSingleCmdListPtr VulkanDevice::CreateSinglePoolSingleCommondList(RHICmdListType type)
 {
-	return CreateRHIObject<VulkanGraphicCmdList>(pipeline_type);
+	return CreateRHIObject<VulkanSinglePoolSingleCmdList>(type);
+}
+
+RHISinglePoolMultiCmdListPtr VulkanDevice::CreateSinglePoolMultiCommondList(RHICmdListType type)
+{
+	return CreateRHIObject<VulkanSinglePoolMultiCmdList>(type);
+}
+
+RHIMultiFrameCmdListPtr VulkanDevice::CreateMultiFrameCommondList(size_t frameCount, RHICmdListType type)
+{
+	return CreateRHIObject<VulkanMultiFrameCmdList>(frameCount,type);
 }
 
 RHIResourcePtr VulkanDevice::CreateTextureExt(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc)

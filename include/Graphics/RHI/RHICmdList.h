@@ -199,7 +199,7 @@ public:
 };
 
 //每个cmd pool可以不断的开辟command list的记录模式
-class RENDER_API RHISinglePoolMultiCmdList
+class RENDER_API RHISinglePoolMultiCmdList : public RHIObject
 {
 protected:
 	RHICmdListType mCmdListType;
@@ -210,12 +210,12 @@ public:
 	}
 	inline RHICmdListType GetPipelineType() const { return mCmdListType; }
 	//不要连续调用这个接口，调用之前要保证前一个通过这个接口制作的command list已经提交了
-	virtual RHICmdList* GetNewCmdList() { assert(false); };
+	virtual RHICmdList* GetNewCmdList() { assert(false);return nullptr; };
 	virtual void Reset() = 0;
 };
 
 //适用于多帧并行运行的cmd list记录模式
-class RENDER_API RHIMultiFrameCmdList
+class RENDER_API RHIMultiFrameCmdList : public RHIObject
 {
 protected:
 	size_t mFrameCount;
@@ -228,7 +228,7 @@ public:
 
 	}
 	inline RHICmdListType GetPipelineType() const { return mCmdListType; }
-	virtual RHICmdList* GetCmdListByFrame(size_t frameIndex) { assert(false); };
+	virtual RHICmdList* GetCmdListByFrame(size_t frameIndex) { assert(false); return nullptr; };
 	virtual void Reset(size_t frameIndex) = 0;
 };
 }

@@ -134,7 +134,7 @@ void MaterialInstance::Init()
 			RHIBufferDesc desc;
 			desc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
 			desc.mSize = materialBufferDesc.mSize;
-			mCBuffer = sRenderModule->GetRenderContext()->CreateBuffer(desc);
+			mCBuffer = sRenderModule->GetRenderContext()->CreateBuffer(RHIHeapType::Upload,desc);
 
 			ViewDesc viewDesc;
 			viewDesc.mViewType = RHIViewType::kConstantBuffer;

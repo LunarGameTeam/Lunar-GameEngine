@@ -27,7 +27,7 @@ ShaderCBuffer::ShaderCBuffer(const RHICBufferDesc& cbDesc) :
 	ViewDesc viewDesc;
 	viewDesc.mViewType = RHIViewType::kConstantBuffer;
 	viewDesc.mViewDimension = RHIViewDimension::BufferView;
-	mRes = sRenderModule->GetRenderContext()->CreateBuffer(desc);
+	mRes = sRenderModule->GetRenderContext()->CreateBuffer(RHIHeapType::Upload,desc);
 	mView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
 	mView->BindResource(mRes);
 }
@@ -38,7 +38,7 @@ ShaderCBuffer::ShaderCBuffer(RHIBufferUsage usage, uint32_t size)
 	mData.resize(size);
 	desc.mBufferUsage = usage;
 	desc.mSize = size;
-	mRes = sRenderModule->GetRenderContext()->CreateBuffer(desc);
+	mRes = sRenderModule->GetRenderContext()->CreateBuffer(RHIHeapType::Upload, desc);
 }
 
 void ShaderCBuffer::Commit()

@@ -113,7 +113,7 @@ void RenderScene::PrepareScene()
 		RHIBufferDesc desc;
 		desc.mBufferUsage = RHIBufferUsage::StructureBuffer;
 		desc.mSize = sizeof(LMatrix4f) * 1024;
-		mRoDataBuffer = sRenderModule->mRenderContext->CreateBuffer(desc);
+		mRoDataBuffer = sRenderModule->mRenderContext->CreateBuffer(RHIHeapType::Upload,desc);
 		ViewDesc viewDesc;
 		viewDesc.mViewType = RHIViewType::kStructuredBuffer;
 		viewDesc.mViewDimension = RHIViewDimension::BufferView;

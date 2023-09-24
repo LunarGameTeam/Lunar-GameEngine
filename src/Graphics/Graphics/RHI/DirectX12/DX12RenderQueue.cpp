@@ -40,7 +40,7 @@ DX12RenderQueue::~DX12RenderQueue()
 {
 }
 
-void DX12RenderQueue::ExecuteCommandLists(RHIGraphicCmdList* cmdList)
+void DX12RenderQueue::ExecuteCommandLists(RHICmdList* cmdList)
 {
 	ID3D12CommandList* d12CmdList = cmdList->As<DX12GraphicCmdList>()->mDxCmdList.Get();
 	mDirectQueue->ExecuteCommandLists(1, &d12CmdList);

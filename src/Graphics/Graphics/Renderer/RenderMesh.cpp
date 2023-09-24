@@ -40,17 +40,17 @@ void RenderMeshBase::Init(SubMesh* meshData)
 			combineData.back().mSkinValue = meshSkeletalData->mSkinData[vertId];
 		}
 		desc.mSize = sizeof(SkinRenderVertex) * mVertexSize;
-		mVB = sRenderModule->mRenderContext->CreateBuffer(desc, combineData.data());
+		mVB = sRenderModule->mRenderContext->CreateBuffer(RHIHeapType::Default,desc, combineData.data(), desc.mSize);
 	}
 	else
 	{
 		desc.mSize = sizeof(BaseVertex) * mVertexSize;
-		mVB = sRenderModule->mRenderContext->CreateBuffer(desc, meshData->mVertexData.data());
+		mVB = sRenderModule->mRenderContext->CreateBuffer(RHIHeapType::Default, desc, meshData->mVertexData.data(), desc.mSize);
 	}
 	mIndexSize = meshData->mIndexData.size();
 	desc.mSize = sizeof(uint32_t) * mIndexSize;
 	desc.mBufferUsage = RHIBufferUsage::IndexBufferBit;
-	mIB = sRenderModule->mRenderContext->CreateBuffer(desc, meshData->mIndexData.data());
+	mIB = sRenderModule->mRenderContext->CreateBuffer(RHIHeapType::Default, desc, meshData->mIndexData.data(), desc.mSize);
 }
 
 }

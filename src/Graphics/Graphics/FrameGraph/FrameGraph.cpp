@@ -121,7 +121,7 @@ void FrameGraphBuilder::Flush()
 
 	ZoneScoped;
 	RenderContext* renderDevice = sRenderModule->GetRenderContext();
-	RHIGraphicCmdList* cmdlist = renderDevice->mGraphicCmd;
+	RHISinglePoolSingleCmdList* cmdlist = renderDevice->mGraphicCmd.get();
 
 	mFence3D->Wait(mFenceValue3D);
 	for (auto& it : mVirtualRes)
@@ -157,7 +157,7 @@ void FrameGraphBuilder::Flush()
 				mFence3D->Wait(mFenceValue3D);
 			}			
 			cmdlist->Reset();
-			cmdlist->BeginEvent(node->GetName());
+			cmdlist->GetCmdList()->BeginEvent(node->GetName());
 			if (node->mRT.empty())
 				continue;
 			{
@@ -190,13 +190,13 @@ void FrameGraphBuilder::Flush()
 						assert(false);
 						break;
 					}
-					cmdlist->ResourceBarrierExt(barrier);
+					cmdlist->GetCmdList()->ResourceBarrierExt(barrier);
 				}
 			}
 			
 
 			FGResourceView& dsView = *node->mDS;
-			cmdlist->BindDescriptorHeap();
+			cmdlist->GetCmdList()->BindDescriptorHeap();
 			uint32_t width;
 			uint32_t height;
 			node->mPassDesc.mColorView.clear();
@@ -218,15 +218,15 @@ void FrameGraphBuilder::Flush()
 			
 			
 			renderDevice->BeginRenderPass(node->mPassDesc);
-			cmdlist->SetViewPort(0, 0, width, height);
-			cmdlist->SetScissorRects(0, 0, width, width);
+			cmdlist->GetCmdList()->SetViewPort(0, 0, width, height);
+			cmdlist->GetCmdList()->SetScissorRects(0, 0, width, width);
 
 			node->Execute(this);
 			renderDevice->EndRenderPass();
 
-			cmdlist->EndEvent();
-			cmdlist->CloseCommondList();
-			renderDevice->mGraphicQueue->ExecuteCommandLists(cmdlist);
+			cmdlist->GetCmdList()->EndEvent();
+			cmdlist->GetCmdList()->CloseCommondList();
+			renderDevice->mGraphicQueue->ExecuteCommandLists(cmdlist->GetCmdList());
 			renderDevice->mGraphicQueue->Signal(mFence3D, ++mFenceValue3D);
 		}
 	}

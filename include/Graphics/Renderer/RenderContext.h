@@ -96,21 +96,21 @@ enum class RenderDeviceType : uint8_t
 
 size_t GetOffset(size_t offset, uint16_t aliment);
 
-class RENDER_API RHIDynamicMemory
-{
-	RHIDevice*             mDevice;
-	RHIBufferUsage         mBufferUsage;
-	RHIMemoryPtr           mFullMemory;
-	LArray<RHIResourcePtr> mhistoryBuffer;
-	size_t                 mBufferOffset = 0;
-	size_t                 mMaxSize      = 0;
- public:
-	RHIDynamicMemory(size_t maxSize, RHIBufferUsage bufferUsage) : mMaxSize(maxSize), mBufferUsage(bufferUsage) { };
-
-	void         Init(RHIDevice* device, const RHIHeapType memoryHeapType, const int32_t memoryType);
-	RHIResource* AllocateNewBuffer(void* initData, size_t dataSize, size_t bufferResSize);
-	void         Reset();
-};
+//class RENDER_API RHIDynamicMemory
+//{
+//	RHIDevice*             mDevice;
+//	RHIBufferUsage         mBufferUsage;
+//	RHIMemoryPtr           mFullMemory;
+//	LArray<RHIResourcePtr> mhistoryBuffer;
+//	size_t                 mBufferOffset = 0;
+//	size_t                 mMaxSize      = 0;
+// public:
+//	RHIDynamicMemory(size_t maxSize, RHIBufferUsage bufferUsage) : mMaxSize(maxSize), mBufferUsage(bufferUsage) { };
+//
+//	void         Init(RHIDevice* device, const RHIHeapType memoryHeapType, const int32_t memoryType);
+//	RHIResource* AllocateNewBuffer(void* initData, size_t dataSize, size_t bufferResSize);
+//	void         Reset();
+//};
 
 struct StaticSampler
 {
@@ -140,23 +140,21 @@ public:
 	RenderContext();
 	~RenderContext() = default;
 	void Init();
-
-	RHIGraphicCmdListPtr mGraphicCmd;
+	
+	RHISinglePoolSingleCmdListPtr mGraphicCmd;
 	RHIRenderQueuePtr    mGraphicQueue;
-	RHIGraphicCmdListPtr mTransferCmd;
+	RHISinglePoolSingleCmdListPtr mTransferCmd;
 	RHIRenderQueuePtr    mTransferQueue;
-	RHIGraphicCmdListPtr mBarrierCmd;
-
-	RHIDevice*           mDevice;
+	RHISinglePoolSingleCmdListPtr mBarrierCmd;
+	RHIDevicePtr          mDevice;
 	RenderDeviceType     mDeviceType = RenderDeviceType::DirectX12;
-
 	uint64_t             mFenceValue = 0;
 	RHIFencePtr          mFence;
 
 	//----Frame Graph API Begin----
 public:	
-	RHIResourcePtr FGCreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData = nullptr, size_t dataSize = 0);
-	RHIResourcePtr FGCreateBuffer(const RHIBufferDesc& resDesc, void* initData);
+	RHIResourcePtr FGCreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc);
+	RHIResourcePtr FGCreateBuffer(const RHIBufferDesc& resDesc);
 private:
 	RHIMemoryPtr				mFGMemory;
 	size_t						mFGOffset = 0;
@@ -164,7 +162,7 @@ private:
 
 public:
 	//----Resource Graph API Begin----
-	RHIResourcePtr CreateBuffer(const RHIBufferDesc& resDesc, void* initData = nullptr);
+	RHIResourcePtr CreateBuffer(RHIHeapType memoryType, const RHIBufferDesc& resDesc, void* initData = nullptr, size_t initDataSize = 0);
 	RHIResourcePtr CreateTexture2D(uint32_t width, uint32_t height, RHITextureFormat format = RHITextureFormat::R8G8B8A8_UNORM,void* initData = nullptr, size_t dataSize = 0);
 	RHIResourcePtr CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData = nullptr, size_t dataSize = 0);
 	RHIResource* CreateInstancingBufferByRenderObjects(const LArray<RenderObject*>& RenderObjects);
@@ -231,22 +229,21 @@ private:
 	using PipelineCacheKey = std::pair<MaterialInstance*, size_t>;
 
 private:
-	
-	void FlushFrameInstancingBuffer() { mInstancingIdMemory.Reset(); };
 
-	RHIResourcePtr _CreateBuffer(const RHIBufferDesc& resDesc, 
-		void* initData, RHIMemoryPtr targetMemory, size_t& memoryOffset);
-	RHIResourcePtr _CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, 
-		void* initData , size_t dataSize, RHIMemoryPtr targetMemory, size_t& memoryOffset);
+	RHIResourcePtr _CreateBuffer(RHIHeapType memoryType, const RHIBufferDesc& resDesc, void* initData, size_t initDataSize);
+	RHIResourcePtr _CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData , size_t dataSize);
+
+	RHIResourcePtr _CreateBufferByMemory(const RHIBufferDesc& desc, RHIMemoryPtr targetMemory, size_t& memoryOffset);
+	RHIResourcePtr _CreateTextureByMemory(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, RHIMemoryPtr targetMemory, size_t& memoryOffset);
 
 private:
-	RHIDynamicMemory                         mStagingMemory;
-	RHIDynamicMemory                         mInstancingIdMemory;
+	std::shared_ptr<RHIStagingBufferPool> mStagingBufferPool;
 
 	RHIDescriptorPoolPtr                        mDefaultPool;
 
 	size_t                                   emptyInstanceBufferSize;
 	RHIResourcePtr                           emptyInstanceBuffer;
+	RHIResourcePtr                           renderObjectInstancingBuffer;
 public:
 	//Samplers
 	StaticSampler mClamp;

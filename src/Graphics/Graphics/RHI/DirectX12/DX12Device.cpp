@@ -179,10 +179,20 @@ luna::graphics::RHIDescriptorPoolPtr DX12Device::CreateDescriptorPool(const Desc
 	return CreateRHIObject<DX12DescriptorPool>(desc);
 }
 
-RHIGraphicCmdListPtr DX12Device::CreateCommondList(RHICmdListType pipeline_type)
+RHISinglePoolSingleCmdListPtr DX12Device::CreateSinglePoolSingleCommondList(RHICmdListType type)
 {
-	return CreateRHIObject<DX12GraphicCmdList>(pipeline_type);
-};
+	return CreateRHIObject<DX12SinglePoolSingleCmdList>(type);
+}
+
+RHISinglePoolMultiCmdListPtr DX12Device::CreateSinglePoolMultiCommondList(RHICmdListType type)
+{
+	return CreateRHIObject<DX12SinglePoolMultiCmdList>(type);
+}
+
+RHIMultiFrameCmdListPtr DX12Device::CreateMultiFrameCommondList(size_t frameCount, RHICmdListType type)
+{
+	return CreateRHIObject<DX12MultiFrameCmdList>(frameCount,type);
+}
 
 RHIViewPtr DX12Device::CreateDescriptor(
 	const RHIViewType& descriptor_type,

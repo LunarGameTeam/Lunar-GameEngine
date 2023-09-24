@@ -126,7 +126,7 @@ private:
 
 };
 
-class RENDER_API VulkanSinglePoolSingleCmdList: RHISinglePoolSingleCmdList
+class RENDER_API VulkanSinglePoolSingleCmdList: public RHISinglePoolSingleCmdList
 {
 	vk::CommandPool mCommandPool;
 public:
@@ -134,18 +134,19 @@ public:
 	void Reset() override;
 };
 
-class RENDER_API VulkanSinglePoolMultiCmdList : RHISinglePoolMultiCmdList
+class RENDER_API VulkanSinglePoolMultiCmdList : public RHISinglePoolMultiCmdList
 {
 	vk::CommandPool mCommandPool;
 	LQueue<RHICmdListPtr> mCommandListEmpty;
 	LQueue<RHICmdListPtr> mCommandListUsing;
 public:
 	VulkanSinglePoolMultiCmdList(RHICmdListType listType = RHICmdListType::Graphic3D);
+	~VulkanSinglePoolMultiCmdList();
 	RHICmdList* GetNewCmdList() override;
 	void Reset() override;
 };
 
-class RENDER_API VulkanMultiFrameCmdList : RHIMultiFrameCmdList
+class RENDER_API VulkanMultiFrameCmdList : public RHIMultiFrameCmdList
 {
 	vk::CommandPool mCommandPool;
 	LArray<RHICmdListPtr> mCommandLists;

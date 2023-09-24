@@ -23,8 +23,6 @@
 namespace luna::graphics 
 {
 
-RENDER_API CONFIG_IMPLEMENT(LString, Render, RenderDeviceType, "Vulkan");
-
 size_t RhiObjectCache::GetDataGlobelId(const RHIObject* customData)
 {
 	auto dataExist = mDataGlobelId.find(customData);
@@ -200,43 +198,6 @@ size_t GetOffset(size_t offset, size_t aligment)
 	return offset  + (aligment - offset) % aligment;
 }
 
-void RHIDynamicMemory::Init(RHIDevice* device, const RHIHeapType memoryHeapType,const int32_t memoryType)
-{
-	mDevice = device;
-	RHIMemoryDesc memoryDesc;
-	memoryDesc.Type = memoryHeapType;
-	memoryDesc.SizeInBytes = mMaxSize;
-	mFullMemory = mDevice->AllocMemory(memoryDesc, memoryType);
-	
-}
-
-RHIResource* RHIDynamicMemory::AllocateNewBuffer(void* initData, size_t dataSize, size_t bufferResSize)
-{
-	RHIBufferDesc newBufferDesc;
-	newBufferDesc.mSize = bufferResSize;
-	newBufferDesc.mBufferUsage = mBufferUsage;
-	RHIResourcePtr newBuffer = mDevice->CreateBufferExt(newBufferDesc);
-	const MemoryRequirements& reqDst = newBuffer->GetMemoryRequirements();
-	mBufferOffset = GetOffset(mBufferOffset, reqDst.alignment);
-	if (mBufferOffset > sStagingBufferMaxSize)
-	{
-		return nullptr;
-	}
-	newBuffer->BindMemory(mFullMemory, mBufferOffset);
-	char* dst = (char*)newBuffer->Map();
-	memcpy(dst, initData, dataSize);
-	newBuffer->Unmap();
-	mBufferOffset = mBufferOffset + reqDst.size;
-	mhistoryBuffer.push_back(newBuffer);
-	return newBuffer;
-}
-
-void RHIDynamicMemory::Reset()
-{ 
-	mBufferOffset = 0;
-	mhistoryBuffer.clear();
-}
-
 void StaticSampler::Init(SamplerDesc& desc, ViewDesc& view)
 {
 	mSampler = sRenderModule->GetRHIDevice()->CreateSamplerExt(desc);
@@ -244,7 +205,7 @@ void StaticSampler::Init(SamplerDesc& desc, ViewDesc& view)
 	mView->BindResource(mSampler);
 };
 
-RenderContext::RenderContext() : mStagingMemory(sStagingBufferMaxSize, RHIBufferUsage::TransferSrcBit), mInstancingIdMemory(sInstancingBufferMaxSize, RHIBufferUsage::VertexBufferBit)
+RenderContext::RenderContext()
 {
 };
 
@@ -254,28 +215,17 @@ void RenderContext::Init()
 		mDeviceType = RenderDeviceType::DirectX12;
 	else
 		mDeviceType = RenderDeviceType::Vulkan;
-
-	switch (mDeviceType)
-	{
-	case RenderDeviceType::DirectX12:
-		mDevice = new DX12Device();		
-		mDevice->InitDeviceData();
-		mGraphicQueue = CreateRHIObject<DX12RenderQueue>();	
-		mTransferQueue = CreateRHIObject<DX12RenderQueue>(RHIQueueType::eTransfer);
-		break;
-	case RenderDeviceType::Vulkan:
-	default:
-		mDevice = new VulkanDevice();
-		mDevice->InitDeviceData();
-		mGraphicQueue = CreateRHIObject<VulkanRenderQueue>();
-		mTransferQueue = CreateRHIObject<VulkanRenderQueue>(RHIQueueType::eTransfer);
-		break;
-	}
+	mDevice = GenerateRenderDevice();
+	mDevice->InitDeviceData();
+	mGraphicQueue = GenerateRenderQueue();
+	mTransferQueue = GenerateRenderQueue(RHIQueueType::eTransfer);
 	mFence = mDevice->CreateFence();
-	mGraphicCmd = mDevice->CreateCommondList(RHICmdListType::Graphic3D);
-	mTransferCmd = mDevice->CreateCommondList(RHICmdListType::Copy);
-	mBarrierCmd = mDevice->CreateCommondList(RHICmdListType::Graphic3D);
 
+	mGraphicCmd = mDevice->CreateSinglePoolSingleCommondList(RHICmdListType::Graphic3D);
+	mTransferCmd = mDevice->CreateSinglePoolSingleCommondList(RHICmdListType::Copy);
+	mBarrierCmd = mDevice->CreateSinglePoolSingleCommondList(RHICmdListType::Graphic3D);
+
+	mStagingBufferPool = std::make_shared<RHIStagingBufferPool>(mDevice);
 	//Default
 	{
 		SamplerDesc desc;
@@ -305,9 +255,6 @@ void RenderContext::Init()
 		mDefaultPool = mDevice->CreateDescriptorPool(poolDesc);
 
 	}
-
-	mStagingMemory.Init(mDevice, RHIHeapType::Upload, 31);
-	mInstancingIdMemory.Init(mDevice, RHIHeapType::Upload, 31);
 
 	//Frame Graph
 	{
@@ -353,8 +300,12 @@ void RenderContext::Init()
 	emptyInstanceBufferSize = sizeof(uint32_t) * 4 * 128;
 	desc.mBufferUsage = RHIBufferUsage::VertexBufferBit;
 	desc.mSize = emptyInstanceBufferSize;
-	emptyInstanceBuffer = CreateBuffer(desc);
+	emptyInstanceBuffer = CreateBuffer(RHIHeapType::Upload, desc);
 
+	RHIBufferDesc instancingDesc;
+	instancingDesc.mBufferUsage = RHIBufferUsage::VertexBufferBit;
+	instancingDesc.mSize = sizeof(uint32_t) * 4 * 2048;
+	renderObjectInstancingBuffer = CreateBuffer(RHIHeapType::Upload,instancingDesc);
 }
 
 void RenderContext::OnFrameBegin()
@@ -363,7 +314,7 @@ void RenderContext::OnFrameBegin()
 	mFGOffset = 0;
 
 	FlushStaging();
-	FlushFrameInstancingBuffer();
+	mStagingBufferPool->TickPoolRefresh();
 }
 
 void RenderContext::OnFrameEnd()
@@ -378,55 +329,75 @@ void RenderContext::UpdateConstantBuffer(RHIResourcePtr target, void* data, size
 	target->Unmap();
 }
 
-RHIResourcePtr RenderContext::FGCreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData /*= nullptr*/, size_t dataSize /*= 0*/)
+RHIResourcePtr RenderContext::FGCreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc)
 {
-	return _CreateTexture(textureDesc, resDesc, initData, dataSize, mFGMemory, mFGOffset);
+	RHIResourcePtr res = _CreateTextureByMemory(textureDesc, resDesc, mFGMemory, mFGOffset);
+	const MemoryRequirements& memoryReq = res->GetMemoryRequirements();
+	mFGOffset += memoryReq.size;
+	return res;
 }
 
-RHIResourcePtr RenderContext::FGCreateBuffer(const RHIBufferDesc& resDesc, void* initData)
+RHIResourcePtr RenderContext::FGCreateBuffer(const RHIBufferDesc& resDesc)
 {
-	return _CreateBuffer(resDesc, initData, mFGMemory, mFGOffset);
+	RHIResourcePtr res = _CreateBufferByMemory(resDesc, mFGMemory, mFGOffset);
+	const MemoryRequirements& memoryReq = res->GetMemoryRequirements();
+	mFGOffset += memoryReq.size;
+	return res;
 }
 
-RHIResourcePtr RenderContext::_CreateBuffer(const RHIBufferDesc& desc, void* initData, RHIMemoryPtr targetMemory, size_t& memoryOffset)
+RHIResourcePtr RenderContext::_CreateBufferByMemory(const RHIBufferDesc& desc, RHIMemoryPtr targetMemory, size_t& memoryOffset)
 {
 	assert(desc.mSize != 0);
 	RHIBufferDesc resDesc = desc;
 	resDesc.mBufferUsage = resDesc.mBufferUsage | RHIBufferUsage::TransferDstBit;
 	RHIResourcePtr dstBuffer = mDevice->CreateBufferExt(resDesc);
+	dstBuffer->BindMemory(targetMemory, memoryOffset);
+	return dstBuffer;
+}
 
-	RHIMemoryDesc memoryDesc;
-	const MemoryRequirements& memoryReq = dstBuffer->GetMemoryRequirements();
-	memoryDesc.SizeInBytes = memoryReq.size;
-	memoryDesc.Type = RHIHeapType::Upload;
+RHIResourcePtr RenderContext::_CreateTextureByMemory(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, RHIMemoryPtr targetMemory, size_t& memoryOffset)
+{
+	RHIResDesc newResDesc = resDesc;
+	newResDesc.mImageUsage = newResDesc.mImageUsage | RHIImageUsage::TransferDstBit;
+	RHIResourcePtr textureRes = mDevice->CreateTextureExt(textureDesc, newResDesc);
+	const MemoryRequirements& memoryReq = textureRes->GetMemoryRequirements();
+	textureRes->BindMemory(targetMemory, memoryOffset);
+	
+	return textureRes;
+}
 
-	if (targetMemory == nullptr)
+RHIResourcePtr RenderContext::_CreateBuffer(RHIHeapType memoryType, const RHIBufferDesc& desc, void* initData,size_t initDataSize)
+{
+	assert(desc.mSize != 0);
+	RHIBufferDesc resDesc = desc;
+	resDesc.mBufferUsage = resDesc.mBufferUsage | RHIBufferUsage::TransferDstBit;
+	RHIResourcePtr dstBuffer = mDevice->CreateBufferExt(resDesc);
+	dstBuffer->BindMemory(memoryType);
+	if (initData == nullptr)
 	{
-		dstBuffer->BindMemory(RHIHeapType::Upload);
+		return dstBuffer;
+	}
+	assert(initDataSize != 0);
+	if (memoryType == RHIHeapType::Upload)
+	{
+		void* dataPointer = dstBuffer->Map();
+		memcpy(dataPointer, initData, resDesc.mSize);
+		dstBuffer->Unmap();
 	}
 	else
 	{
-		memoryOffset = GetOffset(memoryOffset, memoryReq.alignment);
-		dstBuffer->BindMemory(targetMemory, memoryOffset);
-		memoryOffset += memoryReq.size;
-	}
-
-	if (initData != nullptr)
-	{
-		void* map_pointer = dstBuffer->Map();
-		memcpy(map_pointer, initData, desc.mSize);
-		dstBuffer->Unmap();
+		mStagingBufferPool->UploadToDstBuffer(desc.mSize, initData, dstBuffer, 0);
 	}
 	return dstBuffer;
 }
 
-RHIResourcePtr RenderContext::CreateBuffer(const RHIBufferDesc& resDesc, void* initData)
+RHIResourcePtr RenderContext::CreateBuffer(RHIHeapType memoryType, const RHIBufferDesc& resDesc, void* initData, size_t initDataSize)
 {
 	size_t offset = 0;
-	return _CreateBuffer(resDesc, initData, nullptr, offset);
+	return _CreateBuffer(memoryType,resDesc, initData, initDataSize);
 }
 
-RHIResourcePtr RenderContext::_CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData, size_t dataSize, RHIMemoryPtr targetMemory, size_t& memoryOffset)
+RHIResourcePtr RenderContext::_CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData, size_t dataSize)
 {
 
 	bool usingStaging = false;
@@ -438,33 +409,13 @@ RHIResourcePtr RenderContext::_CreateTexture(const RHITextureDesc& textureDesc, 
 	newResDesc.mImageUsage = newResDesc.mImageUsage | RHIImageUsage::TransferDstBit;
 	RHIResourcePtr textureRes = mDevice->CreateTextureExt(textureDesc, newResDesc);
 	const MemoryRequirements& memoryReq = textureRes->GetMemoryRequirements();
-
-	RHIMemoryDesc memoryDesc;
-	memoryDesc.SizeInBytes = memoryReq.size;
-	memoryDesc.Type = RHIHeapType::Default;
-	if (targetMemory == nullptr)
+	textureRes->BindMemory(RHIHeapType::Default);
+	if (initData == nullptr) 
 	{
-		targetMemory = mDevice->AllocMemory(memoryDesc, memoryReq.memory_type_bits);
-		memoryOffset = 0;
+		return textureRes;
 	}
-	else
-	{
-		memoryOffset = GetOffset(memoryOffset, memoryReq.alignment);
-	}
-	textureRes->BindMemory(targetMemory, memoryOffset);
-	memoryOffset += memoryReq.size;
-
-	if (initData != nullptr)
-	{
-		size_t fullResSize = textureRes->GetMemoryRequirements().size;
-		stagingBuffer = mStagingMemory.AllocateNewBuffer(initData, dataSize, fullResSize);
-		if (stagingBuffer == nullptr)
-		{
-			FlushStaging();
-			stagingBuffer = mStagingMemory.AllocateNewBuffer(initData, dataSize, fullResSize);
-		}
-	}
-
+	assert(dataSize != 0);
+	mStagingBufferPool->UploadToDstTexture(dataSize, initData, textureRes, 0);
 
 	ResourceBarrierDesc dstBarrier;
 	dstBarrier.mBarrierRes = textureRes;
@@ -472,34 +423,25 @@ RHIResourcePtr RenderContext::_CreateTexture(const RHITextureDesc& textureDesc, 
 	dstBarrier.mMipLevels = resDesc.MipLevels;
 	dstBarrier.mBaseDepth = 0;
 	dstBarrier.mDepth = resDesc.DepthOrArraySize;
-	if (usingStaging)
+	if (Has(resDesc.mImageUsage, RHIImageUsage::SampledBit))
 	{
-		dstBarrier.mStateBefore = kUndefined;
-		dstBarrier.mStateAfter = kCopyDest;
-		mTransferCmd->ResourceBarrierExt(dstBarrier);
-		mTransferCmd->CopyBufferToTexture(textureRes, 0, stagingBuffer, 0);
-		if (Has(resDesc.mImageUsage, RHIImageUsage::SampledBit))
-		{
-			dstBarrier.mStateBefore = kCopyDest;
-			dstBarrier.mStateAfter = kShaderReadOnly;
-			mBarrierCmd->ResourceBarrierExt(dstBarrier);
-		}
-		else if (Has(resDesc.mImageUsage, RHIImageUsage::ColorAttachmentBit))
-		{
-			dstBarrier.mStateBefore = kCopyDest;
-			dstBarrier.mStateAfter = kRenderTarget;
-			mBarrierCmd->ResourceBarrierExt(dstBarrier);
-		}		
+		dstBarrier.mStateBefore = kCommon;
+		dstBarrier.mStateAfter = kShaderReadOnly;
+		mBarrierCmd->GetCmdList()->ResourceBarrierExt(dstBarrier);
 	}
-
-
+	else if (Has(resDesc.mImageUsage, RHIImageUsage::ColorAttachmentBit))
+	{
+		dstBarrier.mStateBefore = kCopyDest;
+		dstBarrier.mStateAfter = kRenderTarget;
+		mBarrierCmd->GetCmdList()->ResourceBarrierExt(dstBarrier);
+	}
 	return textureRes;
 }
 
 RHIResourcePtr RenderContext::CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData, size_t dataSize)
 {
 	size_t offset = 0;
-	return _CreateTexture(textureDesc, resDesc, initData, dataSize, nullptr, offset);
+	return _CreateTexture(textureDesc, resDesc, initData, dataSize);
 }
 
 RHIResource* RenderContext::CreateInstancingBufferByRenderObjects(const LArray<RenderObject*>& RenderObjects)
@@ -513,7 +455,10 @@ RHIResource* RenderContext::CreateInstancingBufferByRenderObjects(const LArray<R
 		ids.push_back(0);
 		ids.push_back(0);
 	}
-	return mInstancingIdMemory.AllocateNewBuffer(ids.data(), ids.size() * sizeof(int32_t), ids.size() * sizeof(int32_t));
+	void* pointer = renderObjectInstancingBuffer->Map();
+	memcpy(pointer, ids.data(), ids.size() * sizeof(int32_t));
+	renderObjectInstancingBuffer->Unmap();
+	return renderObjectInstancingBuffer;
 }
 
 RHIShaderBlobPtr RenderContext::CreateShader(const RHIShaderDesc& desc)
@@ -584,28 +529,27 @@ RHICBufferDesc RenderContext::GetDefaultShaderConstantBufferDesc(ShaderParamID n
 void RenderContext::FlushStaging()
 {
 	mFence->Wait(mFenceValue);
-	mTransferCmd->CloseCommondList();
-	mTransferQueue->ExecuteCommandLists(mTransferCmd);
+	mTransferCmd->GetCmdList()->CloseCommondList();
+	mTransferQueue->ExecuteCommandLists(mTransferCmd->GetCmdList());
 	mTransferQueue->Signal(mFence, ++mFenceValue);
 	mFence->Wait(mFenceValue);
-	mBarrierCmd->CloseCommondList();
-	mGraphicQueue->ExecuteCommandLists(mBarrierCmd);
+	mBarrierCmd->GetCmdList()->CloseCommondList();
+	mGraphicQueue->ExecuteCommandLists(mBarrierCmd->GetCmdList());
 	mGraphicQueue->Signal(mFence, ++mFenceValue);
 	mFence->Wait(mFenceValue);
 	mTransferCmd->Reset();
 	mBarrierCmd->Reset();
-	mStagingMemory.Reset();
 }
 
 void RenderContext::BeginRenderPass(const RenderPassDesc& desc)
 {
-	mGraphicCmd->BeginRender(desc);
+	mGraphicCmd->GetCmdList()->BeginRender(desc);
 	mCurRenderPass = desc;
 }
 
 void RenderContext::EndRenderPass()
 {
-	mGraphicCmd->EndRender();	
+	mGraphicCmd->GetCmdList()->EndRender();
 }
 
 RHIBindingSetPtr RenderContext::CreateBindingset(RHIBindingSetLayoutPtr layout)
@@ -636,8 +580,8 @@ void RenderContext::DrawMeshInstanced(graphics::RenderMeshBase* mesh, graphics::
 	auto pipeline = mat->GetPipeline(&layout, mCurRenderPass);
 	auto matBindingset = mat->GetBindingSet();
 
-	mGraphicCmd->SetPipelineState(pipeline);
-	mGraphicCmd->BindDesriptorSetExt(matBindingset);
+	mGraphicCmd->GetCmdList()->SetPipelineState(pipeline);
+	mGraphicCmd->GetCmdList()->BindDesriptorSetExt(matBindingset);
 
 	size_t vertexCount = mesh->GetVertexSize();
 
@@ -669,20 +613,20 @@ void RenderContext::DrawMeshInstanced(graphics::RenderMeshBase* mesh, graphics::
 		vbInstancingDesc.mVertexRes = emptyInstanceBuffer.get();
 	}
 
-	mGraphicCmd->SetVertexBuffer(descs, 0);
-	mGraphicCmd->SetIndexBuffer(ib);
+	mGraphicCmd->GetCmdList()->SetVertexBuffer(descs, 0);
+	mGraphicCmd->GetCmdList()->SetIndexBuffer(ib);
 	switch (mat->mMaterialTemplate->GetPrimitiveType())
 	{
 	case RHIPrimitiveTopologyType::Triangle:
-		mGraphicCmd->SetDrawPrimitiveTopology(RHIPrimitiveTopology::TriangleList);
+		mGraphicCmd->GetCmdList()->SetDrawPrimitiveTopology(RHIPrimitiveTopology::TriangleList);
 		break;
 	case RHIPrimitiveTopologyType::Line:
-		mGraphicCmd->SetDrawPrimitiveTopology(RHIPrimitiveTopology::LineList);
+		mGraphicCmd->GetCmdList()->SetDrawPrimitiveTopology(RHIPrimitiveTopology::LineList);
 		break;
 	default:
 		break;
 	}
-	mGraphicCmd->DrawIndexedInstanced((uint32_t)indexCount, instancingSize, 0, 0, startInstanceIdx);
+	mGraphicCmd->GetCmdList()->DrawIndexedInstanced((uint32_t)indexCount, instancingSize, 0, 0, startInstanceIdx);
 }
 
 }

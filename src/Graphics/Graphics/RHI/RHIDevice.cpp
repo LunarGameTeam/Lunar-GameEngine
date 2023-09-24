@@ -13,7 +13,7 @@ namespace luna::graphics
 	RHIStagingBufferPool::RHIStagingBufferPool(RHIDevice* device) :mDevice(device), mResourcePoolCount(0), isPoolWorking(false)
 	{
 		mCopyFence = mDevice->CreateFence();
-		mCopyCommandList = mDevice->CreateCommondList(RHICmdListType::Copy);
+		mCopyCommandList = mDevice->CreateSinglePoolMultiCommondList(RHICmdListType::Copy);
 		mRenderQueue = GenerateRenderQueue(RHIQueueType::eTransfer);
 	}
 
@@ -48,27 +48,27 @@ namespace luna::graphics
 		return &mResourceWaitingCopy[dstBuffer.mResourceId];
 	}
 
-	void RHIStagingBufferPool::UploadToDstBuffer(RHIStagingBuffer* srcBuffer, size_t offset_src, RHIResource* dstBuffer, size_t offset_dst)
+	void RHIStagingBufferPool::UploadToDstResource(size_t dataLength, void* initData, RHIResource* dstResource, size_t offset_dst, std::function<void(RHICmdList* curCmdList, RHIStagingBuffer* srcBuffer)> copyCommand)
 	{
-		mCopyCommandList->Reset();
-		if (dstBuffer->GetInitialState() != kCopyDest)
+		RHIStagingBuffer* srcBuffer;
+		srcBuffer = CreateUploadBuffer(dataLength, initData);
+		RHICmdList* curCmdList = mCopyCommandList->GetNewCmdList();
+		if (dstResource->GetInitialState() != kCopyDest)
 		{
 			ResourceBarrierDesc dstBarrier;
-			dstBarrier.mBarrierRes = dstBuffer;
-			dstBarrier.mStateBefore = dstBuffer->GetInitialState();
+			dstBarrier.mBarrierRes = dstResource;
+			dstBarrier.mStateBefore = dstResource->GetInitialState();
 			dstBarrier.mStateAfter = kCopyDest;
-			mCopyCommandList->ResourceBarrierExt(dstBarrier);
+			curCmdList->ResourceBarrierExt(dstBarrier);
 		}
-		
-		mCopyCommandList->CopyBufferToBuffer(dstBuffer, 0, srcBuffer->mBufferData.get(), 0, srcBuffer->mBufferSize);
-
+		copyCommand(curCmdList, srcBuffer);
 		ResourceBarrierDesc undoBarrier;
-		undoBarrier.mBarrierRes = dstBuffer;
+		undoBarrier.mBarrierRes = dstResource;
 		undoBarrier.mStateBefore = kCopyDest;
 		undoBarrier.mStateAfter = kCommon;
-		mCopyCommandList->ResourceBarrierExt(undoBarrier);
-		mCopyCommandList->CloseCommondList();
-		mRenderQueue->ExecuteCommandLists(mCopyCommandList.get());
+		curCmdList->ResourceBarrierExt(undoBarrier);
+		curCmdList->CloseCommondList();
+		mRenderQueue->ExecuteCommandLists(curCmdList);
 		//记录当前buffer需要监控的拷贝指令fence
 		size_t nextSignalValue = mCopyFence->GetNextSignalValue();
 		mResourceCopying[nextSignalValue].push_back(mResourceWaitingCopy[srcBuffer->mResourceId]);
@@ -77,6 +77,24 @@ namespace luna::graphics
 		//插入一个桩
 		mCopyFence->IncSignal(mRenderQueue);
 		isPoolWorking = true;
+	}
+
+	void RHIStagingBufferPool::UploadToDstBuffer(size_t dataLength, void* initData, RHIResource* dstBuffer, size_t offset_dst)
+	{
+		auto bufferUploadCommand = [&](RHICmdList* curCmdList, RHIStagingBuffer* srcBuffer)
+		{
+			curCmdList->CopyBufferToBuffer(dstBuffer, 0, srcBuffer->mBufferData.get(), offset_dst, srcBuffer->mBufferSize);
+		};
+		UploadToDstResource(dataLength, initData, dstBuffer, offset_dst, bufferUploadCommand);
+	}
+
+	void RHIStagingBufferPool::UploadToDstTexture(size_t dataLength, void* initData, RHIResource* dstTexture, size_t offset_dst)
+	{
+		auto textureUploadCommand = [&](RHICmdList* curCmdList, RHIStagingBuffer* srcBuffer)
+		{
+			curCmdList->CopyBufferToTexture(dstTexture, 0, srcBuffer->mBufferData.get(), offset_dst);
+		};
+		UploadToDstResource(dataLength, initData, dstTexture, offset_dst, textureUploadCommand);
 	}
 
 	void RHIStagingBufferPool::TickPoolRefresh()
@@ -103,5 +121,16 @@ namespace luna::graphics
 			curRenderQueue = CreateRHIObject<DX12RenderQueue>(queueType);
 		else
 			curRenderQueue = CreateRHIObject<VulkanRenderQueue>(queueType);
+		return curRenderQueue;
+	}
+
+	RHIDevicePtr GenerateRenderDevice()
+	{
+		RHIDevicePtr curDevice;
+		if (Config_RenderDeviceType.GetValue() == "DirectX12")
+			curDevice = CreateRHIObject<DX12Device>();
+		else
+			curDevice = CreateRHIObject<VulkanDevice>();
+		return curDevice;
 	}
 }
