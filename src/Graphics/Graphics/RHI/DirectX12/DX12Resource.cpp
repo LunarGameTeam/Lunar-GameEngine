@@ -1,7 +1,6 @@
 #include "Graphics/RHI/DirectX12/DX12Resource.h"
 #include "Graphics/RHI/DirectX12/DX12Memory.h"
 #include "Graphics/RHI/DirectX12/DX12Swapchain.h"
-#include "Graphics/RHI/DirectX12/DX12Device.h"
 #include "Graphics/RenderModule.h"
 
 using Microsoft::WRL::ComPtr;
@@ -156,6 +155,32 @@ namespace luna::graphics
 		RefreshMemoryRequirements();
 	}
 
+	DX12Resource::~DX12Resource()
+	{
+		mAllocation->Release();
+		mAllocation = nullptr;
+	}
+
+	void DX12Resource::BindMemory(RHIHeapType type)
+	{
+		DX12MemoryManagerPool& dmaPool = sRenderModule->GetDevice<DX12Device>()->GetDirectXDmaPool();
+		dmaPool.BindResourceMemory(type, mDxDesc, mDxRes, mAllocation);
+		if (type == RHIHeapType::Upload)
+		{
+			CD3DX12_RANGE readRange(0, 0);
+			HRESULT hr = mDxRes->Map(0, &readRange, reinterpret_cast<void**>(&mMapPointer));
+			if (FAILED(hr))
+			{
+				LogError("Device", "map dynamic buffer to cpu error");
+			}
+		}
+		else
+		{
+			mMapPointer = NULL;
+		}
+		AllocByDma = true;
+	}
+
 	void DX12Resource::BindMemory(RHIMemory* memory, uint64_t offset)
 	{
 		ID3D12Device* device = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
@@ -172,8 +197,7 @@ namespace luna::graphics
 			SetInitialState(ResourceState::kCommon);
 			mLastState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
 		}
-			
-		//��ʼ��
+
 		D3D12_CLEAR_VALUE default_clear;
 		default_clear.Format = mDxDesc.Format;
 		D3D12_CLEAR_VALUE* clear_data = &default_clear;
@@ -225,7 +249,7 @@ namespace luna::graphics
 		{
 			mMapPointer = NULL;
 		}
-
+		AllocByDma = false;
 
 	}
 

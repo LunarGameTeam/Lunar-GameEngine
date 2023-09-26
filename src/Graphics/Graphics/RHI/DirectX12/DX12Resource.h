@@ -3,6 +3,7 @@
 #include "DX12Pch.h"
 #include <DirectXTex.h>
 #include <wincodec.h>
+#include "Graphics/RHI/DirectX12/DX12Device.h"
 //#include <LoaderHelpers.h>
 
 namespace luna::graphics
@@ -30,9 +31,13 @@ public:
 
 	DX12Resource(uint32_t backBufferId, DX12SwapChain* swapchain);
 
+	~DX12Resource();
+
 	void UpdateUploadBuffer(size_t offset, const void* copy_data, size_t data_size) override {};
 
 	void BindMemory(RHIMemory* memory, uint64_t offset) override;
+
+	void BindMemory(RHIHeapType type) override;
 
 	void RefreshMemoryRequirements();
 
@@ -48,11 +53,20 @@ public:
 
 	void SetLastState(const D3D12_RESOURCE_STATES& newDesc) { mLastState = newDesc; };
 
+	D3D12MA::Allocation* mAllocation = nullptr;
+
+	bool AllocByDma = false;
+
 	Microsoft::WRL::ComPtr<ID3D12Resource> mDxRes;
+
 	void* mMapPointer = nullptr;
+
 	D3D12_RESOURCE_DESC mDxDesc = {};
+
 	D3D12_SAMPLER_DESC mDxSamplerDesc = {};
+
 	DxResourceCopyLayout mLayout;
+
 	D3D12_RESOURCE_STATES mLastState;
 };
 }

@@ -23,6 +23,63 @@ namespace luna::graphics
 {
 
 
+DX12MemoryManagerPool::DX12MemoryManagerPool()
+{
+
+}
+
+DX12MemoryManagerPool::~DX12MemoryManagerPool()
+{
+	mAllocator->Release();
+}
+
+bool DX12MemoryManagerPool::Create(const D3D12MA::ALLOCATOR_DESC& allocatorDesc)
+{
+	HRESULT hr = D3D12MA::CreateAllocator(&allocatorDesc, &mAllocator);
+	if (FAILED(hr))
+	{
+		return false;
+	}
+	return true;
+}
+
+bool DX12MemoryManagerPool::BindResourceMemory(RHIHeapType type, const D3D12_RESOURCE_DESC& memoryRequire, Microsoft::WRL::ComPtr<ID3D12Resource>& resource, D3D12MA::Allocation*& allocation)
+{
+	D3D12MA::ALLOCATION_DESC allocationDesc = {};
+	if (type == RHIHeapType::Default)
+	{
+		allocationDesc.HeapType = D3D12_HEAP_TYPE_DEFAULT;
+	}
+	else if (type == RHIHeapType::Upload)
+	{
+		allocationDesc.HeapType = D3D12_HEAP_TYPE_UPLOAD;
+	}
+	else
+	{
+		assert(false);
+	}
+	HRESULT hr = mAllocator->CreateResource(
+		&allocationDesc,
+		&memoryRequire,
+		D3D12_RESOURCE_STATE_COMMON,
+		NULL,
+		&allocation,
+		IID_PPV_ARGS(&resource));
+	if (FAILED(hr))
+	{
+		return false;
+	}
+	return true;
+}
+
+bool DX12MemoryManagerPool::FreeResourceMemory(D3D12MA::Allocation*& allocation)
+{
+	if (allocation != nullptr) 
+	{
+		allocation->Release();
+	}
+	return true;
+};
 
 DX12Device::DX12Device()
 {
@@ -33,7 +90,7 @@ void DX12Device::InitDescriptorHeap()
 {
 	TRHIPtr<Dx12GpuDescriptorHeap> srv_gpu_descriptor = CreateRHIObject<Dx12GpuDescriptorHeap>(
 		D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
-		4096
+		8192
 		);
 	srv_gpu_descriptor->Init();
 	TRHIPtr<Dx12GpuDescriptorHeap> sampler_gpu_descriptor = CreateRHIObject<Dx12GpuDescriptorHeap>(
@@ -105,9 +162,8 @@ bool DX12Device::InitDeviceData()
 		return false;
 
 	}
-	ComPtr<IDXGIAdapter1> hardwareAdapter;
-	GetHardwareAdapter(m_dxgi_factory.Get(), &hardwareAdapter);
-	hr = D3D12CreateDevice(hardwareAdapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&m_device));
+	GetHardwareAdapter(m_dxgi_factory.Get(), &mHardwareAdapter);
+	hr = D3D12CreateDevice(mHardwareAdapter.Get(), D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&m_device));
 	if (FAILED(hr))
 	{
 
@@ -119,6 +175,10 @@ bool DX12Device::InitDeviceData()
 	m_device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &m_feature_desc, sizeof(m_feature_desc));
 
 	InitDescriptorHeap();
+	D3D12MA::ALLOCATOR_DESC allocatorDesc = {};
+	allocatorDesc.pDevice = m_device.Get();
+	allocatorDesc.pAdapter = mHardwareAdapter.Get();
+	mDefaultDmaMemoryAllocator.Create(allocatorDesc);
 	return  true;
 }
 

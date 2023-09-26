@@ -248,7 +248,7 @@ void RenderContext::Init()
 	}
 	{
 		DescriptorPoolDesc poolDesc;
-		poolDesc.mPoolAllocateSizes[DescriptorHeapType::CBV_SRV_UAV] = 4096;
+		poolDesc.mPoolAllocateSizes[DescriptorHeapType::CBV_SRV_UAV] = 7192;
 		poolDesc.mPoolAllocateSizes[DescriptorHeapType::SAMPLER] = 1024;
 		poolDesc.mPoolAllocateSizes[DescriptorHeapType::DSV] = 100;
 		poolDesc.mPoolAllocateSizes[DescriptorHeapType::RTV] = 100;

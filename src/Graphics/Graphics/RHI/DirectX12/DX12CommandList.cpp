@@ -670,8 +670,9 @@ DX12SinglePoolSingleCmdList::DX12SinglePoolSingleCmdList(RHICmdListType listType
 
 void DX12SinglePoolSingleCmdList::Reset()
 {
-	mCmdListInstance->ResetAndPrepare();
+	mCmdListInstance->CloseCommondList();
 	mCommandAllocator->Reset();
+	mCmdListInstance->ResetAndPrepare();
 }
 
 DX12SinglePoolMultiCmdList::DX12SinglePoolMultiCmdList(RHICmdListType listType) :
