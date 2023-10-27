@@ -29,8 +29,6 @@ option(LUNA_USING_DEBUG_PYTHON "使用Debug版本的Python" OFF)
 
 find_package (Python3 3.11 EXACT COMPONENTS Interpreter Development)
 
-add_subdirectory(sdk/tracy) # target: TracyClient or alias Tracy :: TracyClient
-
 set(TRACY_ENABLE OFF CACHE BOOL "" FORCE)
 set(TRACY_STATIC OFF CACHE BOOL "" FORCE)
 set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -57,6 +55,8 @@ find_package(GTest REQUIRED)
 find_package(Vulkan REQUIRED glslang glslangValidator glslc SPIRV-Tools shaderc_combined)
 find_package(murmurhash REQUIRED)
 find_package(d3d12-memory-allocator REQUIRED)
+find_package(imgui REQUIRED)
+find_package(tracy REQUIRED)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -109,9 +109,7 @@ message(STATUS "vulkan: ${Vulkan_SPIRV-Tools_LIBRARY}")
 
 include_directories(
 	include
-	${SDK_PATH}imgui
 	${SDK_PATH}vcpkg/installed/x64-windows/include
-	${SDK_PATH}imgui/backends
 	${Python3_INCLUDE_DIRS}
 	${Vulkan_INCLUDE_DIRS}
 )
@@ -160,7 +158,6 @@ SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 add_subdirectory(src/Core)
 add_subdirectory(src/Graphics)
 add_subdirectory(src/Animation)
-add_subdirectory(sdk/imgui)
 add_subdirectory(src/Game)
 add_subdirectory(src/Luna)
 
@@ -168,7 +165,6 @@ add_subdirectory(src/ImGuiScript)
 SET_PROPERTY(TARGET Core PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET Graphics PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET Animation PROPERTY FOLDER "Runtime")
-SET_PROPERTY(TARGET imgui PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET Game PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET Luna PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET ImGuiScript PROPERTY FOLDER "Runtime")

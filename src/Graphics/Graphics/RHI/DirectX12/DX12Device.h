@@ -4,7 +4,7 @@
 #include "Graphics/RHI/RHIFrameBuffer.h"
 #include "Graphics/RHI/DirectX12/DX12Device.h"
 #include "Graphics/RHI/DirectX12/DX12DescriptorImpl.h"
-
+#include "D3D12MemAlloc.h"
 namespace luna::graphics
 {
 class LDirectx12DynamicRingBuffer;
@@ -25,10 +25,22 @@ public:
 	RHIViewPtr mDsv;
 };
 
+class RENDER_API DX12MemoryManagerPool
+{
+	D3D12MA::Allocator* mAllocator;
+public:
+	DX12MemoryManagerPool();
+	~DX12MemoryManagerPool();
+	bool Create(const D3D12MA::ALLOCATOR_DESC& allocatorInfo);
+	bool BindResourceMemory(RHIHeapType type, const D3D12_RESOURCE_DESC& memoryRequire, Microsoft::WRL::ComPtr<ID3D12Resource>& resource, D3D12MA::Allocation* &allocation);
+	bool FreeResourceMemory(D3D12MA::Allocation*& allocation);
+};
+
 class RENDER_API DX12Device : public RHIDevice
 {
 	Microsoft::WRL::ComPtr<LDirectXGIFactory> m_dxgi_factory;
 	Microsoft::WRL::ComPtr<ID3D12Device> m_device;
+	Microsoft::WRL::ComPtr<IDXGIAdapter1> mHardwareAdapter;
 	D3D12_FEATURE_DATA_D3D12_OPTIONS m_feature_desc;
 	std::unordered_map<D3D12_DESCRIPTOR_HEAP_TYPE, TRHIPtr<Dx12GpuDescriptorHeap>> gpu_descriptor_heap;
 	std::unordered_map<D3D12_DESCRIPTOR_HEAP_TYPE, TRHIPtr<Dx12CpuDescriptorHeap>> cpu_descriptor_heap;
@@ -88,12 +100,17 @@ public:
 
 	RHIRenderPassPtr CreateRenderPass(const RenderPassDesc& desc) override;
 
+	DX12MemoryManagerPool& GetDirectXDmaPool() { return mDefaultDmaMemoryAllocator; }
 
 private:
+	DX12MemoryManagerPool mDefaultDmaMemoryAllocator;
+
 	bool InitDeviceData() override;
+
 	void GetHardwareAdapter(IDXGIFactory2* pFactory, IDXGIAdapter1** ppAdapter);
 	//全局反射信息注册
 	void AddDirectXEnumVariable();
+
 	RHIShaderBlobPtr CreateShader(const RHIShaderDesc& desc) override;
 	
 	RHIPipelineStatePtr CreatePipeline(const RHIPipelineStateDesc& desc) override;

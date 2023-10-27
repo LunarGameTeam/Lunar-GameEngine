@@ -16,7 +16,7 @@ DX12DescriptorPool::DX12DescriptorPool(const DescriptorPoolDesc& poolDesc)
 	{
 		mSrvSegment = m_device->GetGpuDescriptorHeapByType(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)->AllocPool(srv_pool_size->second);
 	}
-	auto sampler_pool_size = poolDesc.mPoolAllocateSizes.find(DescriptorHeapType::CBV_SRV_UAV);
+	auto sampler_pool_size = poolDesc.mPoolAllocateSizes.find(DescriptorHeapType::SAMPLER);
 	if (sampler_pool_size->second != 0)
 	{
 		mSamplerSegment = m_device->GetGpuDescriptorHeapByType(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER)->AllocPool(sampler_pool_size->second);
