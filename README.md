@@ -33,9 +33,6 @@ PyCharm：自选
 拉取Git Submodule，执行build.bat
 
 建议使用 vs2022 进行编译
-注意：如果出现下述文件无法找的报错，可以在compile_help_file目录下查找解决方案
-ms-gltfConfig.cmake
-ms-gltf-config.cmake
 
 ## Visual Studio 启动
 C++ VS启动项目：app_editor

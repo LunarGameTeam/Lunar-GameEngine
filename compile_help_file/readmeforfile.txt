@@ -1,1 +1,0 @@
-通过vcpkg拉取gltf库可能会出现没有ms-gltfConfig.cmake的问题，如果编译报错，可以将ms-gltfConfig.cmake放入sdk/vcpkg/installed/x64-windows/share/ms-gltf

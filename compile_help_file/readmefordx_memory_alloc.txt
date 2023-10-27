@@ -1,3 +1,0 @@
-directx_memory_alloc库目前可能会生成不正确的lib路径导致debug下链接到release的库
-可以在cmake结束后，sln里打开graph工程的配置，手动修改directx_memory_alloc的链接信息，链接到正确的库位置
-https://github.com/microsoft/vcpkg/issues/34007
