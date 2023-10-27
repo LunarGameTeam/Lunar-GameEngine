@@ -1,15 +1,4 @@
-[submodule "sdk/googletest"]
-	path = sdk/googletest
-	url = https://github.com/google/googletest.git
-	branch = main
-[submodule "sdk/imgui"]
-	path = sdk/imgui
-	url = git@github.com:LunarGameTeam/imgui.git
-	branch = docking
 [submodule "sdk/vcpkg"]
 	path = sdk/vcpkg
 	url = git@github.com:LunarGameTeam/vcpkg.git
 	branch = main
-[submodule "sdk/tracy"]
-	path = sdk/tracy
-	url = git@github.com:wolfpld/tracy.git
