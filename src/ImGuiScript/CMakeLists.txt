@@ -8,4 +8,4 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX Private FILES ${PROJECT_C
 
 add_library(ImGuiScript SHARED ${PROJECT_CPPS})
 
-target_link_libraries(ImGuiScript Core imgui Graphics)
+target_link_libraries(ImGuiScript Core imgui::imgui Graphics)

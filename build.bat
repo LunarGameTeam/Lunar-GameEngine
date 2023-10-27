@@ -17,6 +17,7 @@ call sdk\vcpkg\bootstrap-vcpkg.bat
 .\sdk\vcpkg\vcpkg.exe install murmurhash:x64-windows
 .\sdk\vcpkg\vcpkg.exe install vulkan-memory-allocator:x64-windows
 .\sdk\vcpkg\vcpkg.exe install d3d12-memory-allocator:x64-windows
+.\sdk\vcpkg\vcpkg.exe install imgui[docking-experimental,dx12-binding,win32-binding,vulkan-binding,sdl2-binding]:x64-windows
 pause
 call CMakeGenerate.bat
 pause
