@@ -50,52 +50,16 @@ void FrameGraphBuilder::Clear()
 
 }
 
-FGTexture* FrameGraphBuilder::CreateTexture(const RHIResDesc& desc, const LString& name)
+LSharedPtr<FGTexture> FrameGraphBuilder::CreateCommon2DTexture(
+	const LString& name,
+	uint32_t width,
+	uint32_t height,
+	RHITextureFormat format
+)
 {
-	FGTexture* virtualRes = nullptr;
-	auto it = mVirtualRes.find(name);
-	if (it == mVirtualRes.end())
-	{
-		virtualRes = new FGTexture(name, desc);
-		mVirtualRes[name] = virtualRes;
-	}
-	else
-		virtualRes = (FGTexture*)it->second;
-
-	return virtualRes;
-}
-
-FGTexture* FrameGraphBuilder::CreateTexture(
-	uint32_t width, uint32_t height, uint16_t depth, uint16_t miplevels, 
-	RHITextureFormat format, RHIImageUsage usage, const LString& name, RHIResDimension dimension)
-{
-	RHIResDesc desc;	
-	desc.mType = ResourceType::kTexture;
-	desc.Width = width;
-	desc.Height = height;
-	desc.Format = format;
-	desc.mImageUsage = usage;
-	desc.DepthOrArraySize = depth;
-	desc.MipLevels = miplevels;
-	desc.Dimension = dimension;
-	return CreateTexture(desc, name);
-}
-
-FGTexture* FrameGraphBuilder::BindExternalTexture(const RHIResourcePtr& rhiTexture, const LString& name)
-{
-	FGTexture* texture = nullptr;
-	auto it = mVirtualRes.find(name);
-	if (it == mVirtualRes.end())
-	{
-		texture = new FGTexture(name, rhiTexture);			
-		mVirtualRes[name] = texture;
-	}
-	else
-	{
-		texture = static_cast<FGTexture*>(it->second);
-		texture->SetRHIResource(rhiTexture);
-	}
-	return texture;
+	size_t curNewId = GenerateVirtualResourceId();
+	LSharedPtr<FGTexture> newTexture = MakeShared<FGTexture>(curNewId, width, height, format,this);
+	return newTexture;
 }
 
 void FrameGraphBuilder::Compile()
@@ -234,13 +198,38 @@ void FrameGraphBuilder::Flush()
 }
 
 
-FGTexture* FrameGraphBuilder::GetTexture(const LString& name)
+//FGTexture* FrameGraphBuilder::GetTexture(const LString& name)
+//{
+//	auto it = mVirtualRes.find(name);
+//	if (it == mVirtualRes.end())
+//		return nullptr;
+//	FGTexture* texture = static_cast<FGTexture*>(it->second);
+//	return texture;
+//}
+
+size_t FrameGraphBuilder::GenerateVirtualResourceId()
 {
-	auto it = mVirtualRes.find(name);
-	if (it == mVirtualRes.end())
-		return nullptr;
-	FGTexture* texture = static_cast<FGTexture*>(it->second);
-	return texture;
+	size_t curIndex;
+	if (!mUnusedVirtualResourceId.empty())
+	{
+		curIndex = *mUnusedVirtualResourceId.begin();
+		mUnusedVirtualResourceId.erase(curIndex);
+		return curIndex;
+	}
+	curIndex = mMaxVirtualResourceId;
+	return curIndex;
+}
+
+void FrameGraphBuilder::RemoveVirtualResourceId(size_t virtualResourceId)
+{
+	if (mUnusedVirtualResourceId.find(virtualResourceId) == mUnusedVirtualResourceId.end())
+	{
+		mUnusedVirtualResourceId.insert(virtualResourceId);
+	}
+	else
+	{
+		assert(false);
+	}
 }
 
 }

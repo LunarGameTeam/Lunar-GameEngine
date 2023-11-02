@@ -11,8 +11,15 @@ namespace luna::graphics
 class FrameGraphBuilder;
 struct FGResourceView;
 
+class RENDER_API FGAbstractNode
+{
+	LArray<FGResource*> mInputResource;
+	LArray<FGResource*> mOutputResource;
+public:
+	FGAbstractNode();
+};
 
-class RENDER_API FGNode
+class RENDER_API FGNode : public FGAbstractNode
 {
 public:
 	using ExcuteFuncType = std::function<void(FrameGraphBuilder*, FGNode&, RenderContext*)>;
@@ -23,14 +30,14 @@ public:
 	FGNode(FGNode&&) = delete;
 	~FGNode();
 	
-	FGResourceView* AddSRV(FGTexture*, RHIViewDimension dimension, uint32_t BaseLayer = 0, uint32_t layerCount = 1);
-	FGResourceView* AddSRV(FGTexture*, const ViewDesc& desc);
+	void AddSRV(FGTexture*, RHIViewDimension dimension, uint32_t BaseLayer = 0, uint32_t layerCount = 1);
+	void AddSRV(FGTexture*, const ViewDesc& desc);
 
-	FGResourceView* AddRTV(FGTexture*, RHIViewDimension dimension, uint32_t BaseLayer = 0, uint32_t layerCount = 1);
-	FGResourceView* AddRTV(FGTexture*, const ViewDesc& desc);
+	void AddRTV(FGTexture*, RHIViewDimension dimension, uint32_t BaseLayer = 0, uint32_t layerCount = 1);
+	void AddRTV(FGTexture*, const ViewDesc& desc);
 
-	FGResourceView* AddDSV(FGTexture*, const ViewDesc& desc);
-	FGResourceView* AddDSV(FGTexture*);
+	void AddDSV(FGTexture*, const ViewDesc& desc);
+	void AddDSV(FGTexture*);
 
 	FGNode& SetDepthClear(const PassDepthStencilDesc &desc);
 

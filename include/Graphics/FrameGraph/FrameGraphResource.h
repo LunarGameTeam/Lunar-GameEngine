@@ -12,34 +12,34 @@
 namespace luna::graphics
 {
 
+class FrameGraphBuilder;
 
-struct FGResource
+class FGResource
 {
 public:
+	size_t         mUniqueId;
 
 	LString        mName;
+
 	RHIResDesc     mDesc;
-	bool mExternal = false;
-	RHIResourcePtr mRes;
+
+	RHIResource*   mExternalRes;
+
+	FrameGraphBuilder* mBuilder;
 
 	FGResource() = delete;
-	FGResource(const LString& name, RHIResDesc desc) :
+
+	FGResource(size_t uniqueId,const LString& name, RHIResDesc desc, FrameGraphBuilder* builder) :
+		mUniqueId(mUniqueId),
 		mName(name),
 		mDesc(desc),
-		mExternal(false)
+		mBuilder(builder),
+		mExternalRes(nullptr)
 	{
 
 	}
 
-	FGResource(const LString& name, RHIResource* res) :
-		mName(name),
-		mRes(res),
-		mExternal(true)
-	{
-
-	}
-
-	~FGResource() = default;
+	~FGResource();
 
 	const LString& GetName() const
 	{
@@ -52,35 +52,63 @@ public:
 	}
 
 	inline const RHIResDesc& GetDesc() const
-	{	
+	{
 		return mDesc;
 	}
 
-	RHIResourcePtr GetRHIResource()
+	RHIResource* GetExternalResource()
 	{
-		return mRes;
+		return mExternalRes;
 	}
 
-	void SetRHIResource(RHIResource* val)
+	bool CheckIsExternal()
 	{
-		mRes = val;
+		return mExternalRes != nullptr;
 	}
+
+	void BindExternalResource(RHIResource* val)
+	{
+		mExternalRes = val;
+	}
+private:
 };
 
-struct FGTexture : FGResource
+RHIResDesc GenerateTexture2DRhiDesc(
+	uint32_t width,
+	uint32_t height,
+	RHITextureFormat format
+)
 {
-	FGTexture(const LString& name, RHIResDesc desc):
-		FGResource(name, desc)
-	{
-
-	}
-
-	FGTexture(const LString& name, RHIResource* res):
-		FGResource(name, res)
-	{
-
-	}
+	RHIResDesc newDesc = {};
+	newDesc.ResHeapType = RHIHeapType::Default;
+	newDesc.mUseVma = false;
+	newDesc.Dimension = RHIResDimension::Texture2D;
+	newDesc.Width = width;
+	newDesc.Height = height;
+	newDesc.Format = format;
+	return newDesc;
+}
+class FGTexture : public FGResource
+{
 	RHITextureDesc mTextureDesc;
+public:
+	//2D Texture
+	FGTexture(
+		size_t uniqueId,
+		const LString& name,
+		uint32_t width,
+		uint32_t height,
+		RHITextureFormat format,
+		FrameGraphBuilder* builder
+	):
+		FGResource(uniqueId, name, GenerateTexture2DRhiDesc(width, height, format), builder),
+		mTextureDesc(RHITextureDesc{})
+	{
+
+	}
+private:
+	RHITextureDesc& GetTextureDesc() { return mTextureDesc; }
+	
 
 };
 

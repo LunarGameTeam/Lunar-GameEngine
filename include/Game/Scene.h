@@ -59,4 +59,5 @@ private:
 
 	friend class GameModule;
 };
+
 }

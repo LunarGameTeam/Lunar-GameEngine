@@ -40,9 +40,9 @@ enum class TextureCompressType
 
 struct RHITextureDesc
 {
-	bool        if_gen_mipmap; //是否为无mipmap的纹理创建mipmap
-	bool        if_force_srgb; //是否强制转换为线性空间纹理
-	int         max_size; //纹理最大大小
+	bool        if_gen_mipmap = false; //是否为无mipmap的纹理创建mipmap
+	bool        if_force_srgb = false; //是否强制转换为线性空间纹理
+	int         max_size = 0; //纹理最大大小
 };
 
 struct RHIBufferDesc

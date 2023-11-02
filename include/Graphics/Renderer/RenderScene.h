@@ -152,4 +152,7 @@ private:
 
 	LSet<RenderObject*>   mDirtyROs;
 };
+
+
+
 }

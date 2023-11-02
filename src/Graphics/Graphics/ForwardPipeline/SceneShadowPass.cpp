@@ -7,6 +7,7 @@
 #include "Graphics/FrameGraph/FrameGraph.h"
 #include "Graphics/FrameGraph/FrameGraphNode.h"
 #include "Graphics/FrameGraph/FrameGraphResource.h"
+#include "Graphics/FrameGraph/FrameGraphPassGenerator.h"
 
 #include "Graphics/Renderer/RenderScene.h"
 #include "Graphics/Renderer/RenderView.h"
@@ -22,6 +23,35 @@ namespace luna::graphics
 PARAM_ID(SceneBuffer);
 PARAM_ID(ViewBuffer);
 PARAM_ID(MaterialBuffer);
+
+class DirectionalLightShadowPassGenerator : public FrameGraphPassGenerator
+{
+	MeshRenderPass mPassType;
+public:
+	DirectionalLightShadowPassGenerator(MeshRenderPass passType, const LString passName) :
+		mPassType(passType),
+		FrameGraphPassGenerator(passName) {};
+
+	FGNode* AddPassNode(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene) override;
+private:
+	virtual bool FilterRenderObject() = 0;
+
+	virtual FGNode* AddMeshPassNode(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene) = 0;
+};
+
+FGNode* DirectionalLightShadowPassGenerator::AddPassNode(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene)
+{
+	RenderObjectDrawData* meshCmds = view->RequireData<RenderObjectDrawData>();
+	meshCmds->mVisibleROs[mPassType];
+	FGNode* meshPass = AddMeshPassNode(builder, view, renderScene);
+};
+
+FGNode* DirectionalLightShadowPassGenerator::AddPassNode(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene)
+{
+	if (!renderScene->mMainDirLight || !renderScene->mMainDirLight->mCastShadow)
+		return;
+
+}
 
 void DirectionalLightShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene)
 {
