@@ -16,9 +16,7 @@ class ShaderAsset;
 class RenderScene;
 class RenderView;
 
-struct Light;
-struct PointLight;
-struct DirectionLight;
+struct PointBasedLight;
 
 class FrameGraphBuilder;
 class FGNode;

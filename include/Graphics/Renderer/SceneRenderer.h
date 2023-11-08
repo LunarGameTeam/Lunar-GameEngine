@@ -88,7 +88,6 @@ namespace luna::graphics
 			//	mMainDirLight->PerViewUpdate(renderView);
 			curView->PrepareView();
 		}
-
 		//Debug();
 
 		//mSceneParamsBuffer->Commit();
