@@ -8,6 +8,42 @@
 namespace luna
 {
 
+void GameCameraRenderDataUpdater::UpdateRenderThreadImpl(graphics::GameRenderBridgeData* curData, graphics::RenderScene* curScene)
+{
+	GameRenderBridgeDataCamera* realPointer = static_cast<GameRenderBridgeDataCamera*>(curData);
+	if (realPointer->mIntrinsicsDirty)
+	{
+		if (mRenderView == nullptr)
+		{
+			mRenderView = curScene->CreateRenderView();
+			mRenderView->mViewType = graphics::RenderViewType::SceneView;
+		}
+		LMatrix4f newProjMatrix;
+		float curAspect = (float)realPointer->mIntrinsicsParameter.mRtWidth / (float)realPointer->mIntrinsicsParameter.mRtHeight;
+		LMath::GenPerspectiveFovLHMatrix(newProjMatrix, realPointer->mIntrinsicsParameter.mFovY, curAspect, realPointer->mIntrinsicsParameter.mNear, realPointer->mIntrinsicsParameter.mFar);
+		mRenderView->SetProjectionMatrix(newProjMatrix);
+	}
+	if (realPointer->mExtrinsicsDirty)
+	{
+		mRenderView->SetViewMatrix(realPointer->mExtrinsicsParameter.mViewMatrix);
+		mRenderView->SetViewPosition(realPointer->mExtrinsicsParameter.mPosition);
+	}
+}
+
+GameCameraRenderDataUpdater::~GameCameraRenderDataUpdater()
+{
+	if (mRenderView)
+	{
+		mRenderView->mOwnerScene->DestroyRenderView(mRenderView);
+	}
+};
+
+void GameCameraRenderDataUpdater::ClearData(graphics::GameRenderBridgeData* curData)
+{
+	GameRenderBridgeDataCamera* realPointer = static_cast<GameRenderBridgeDataCamera*>(curData);
+	realPointer->mIntrinsicsDirty = false;
+	realPointer->mExtrinsicsDirty = false;
+}
 
 RegisterTypeEmbedd_Imp(CameraSystem)
 {
@@ -94,28 +130,30 @@ float CameraComponent::GetNear()const
 
 void CameraComponent::SetFar(float val)
 {
+	mNeedUpdateIntrinsics = true;
 	mFar = val;
 }
 
 void CameraComponent::SetNear(float val)
 {
+	mNeedUpdateIntrinsics = true;
 	mNear = val;
 }
 
 graphics::RenderTarget* CameraComponent::GetRenderViewTarget()
 {
-	if (mRenderView)
-	{
-		if(mRenderView->GetRenderTarget())
-			return mRenderView->GetRenderTarget();
-		return sRenderModule->mMainRT.Get();
-	}
+	//if (mRenderView)
+	//{
+	//	if(mRenderView->GetRenderTarget())
+	//		return mRenderView->GetRenderTarget();
+	//	return sRenderModule->mMainRT.Get();
+	//}
 	return nullptr;
 }
 
 void CameraComponent::SetRenderViewTarget(graphics::RenderTarget* target)
 {
-	mRenderView->SetRenderTarget(target);
+	mTarget = target;
 }
 
 void CameraComponent::SetAspectRatio(float val)
@@ -126,42 +164,26 @@ void CameraComponent::SetAspectRatio(float val)
 CameraComponent::~CameraComponent()
 {
 }
+void CameraComponent::OnTransformDirty(Transform* transform)
+{
+	mNeedUpdateExtrinsics = true;
 
+}
 void CameraComponent::OnCreate()
 {
-	mNeedTick = true;
-	mTransform = GetEntity()->RequireComponent<Transform>();
+	mNeedUpdateIntrinsics = true;
+	mNeedUpdateExtrinsics = true;
+	Transform* newTransform = GetEntity()->RequireComponent<Transform>();
+	mTransformDirtyAction = newTransform->OnTransformDirty.Bind(AutoBind(&CameraComponent::OnTransformDirty, this));
 }
 
 void CameraComponent::OnActivate()
 {
-	if (mRenderView == nullptr)
-	{
-		mRenderView = GetScene()->GetRenderScene()->CreateRenderView();
-	}	
 }
 
 void CameraComponent::OnDeactivate()
 {
-	if (GetScene() && GetScene()->GetRenderScene())
-	{
-		GetScene()->GetRenderScene()->DestroyRenderView(mRenderView);
-		mRenderView = nullptr;
-	}
 
-}
-
-void CameraComponent::OnTick(float delta_time)
-{
-	auto pos = mTransform->GetPosition();
-	if (mSpeed > 0.01)
-	{		
-		pos = pos + mDirection * mSpeed * delta_time;
-		mTransform->SetPosition(pos);
-	}
-	mRenderView->SetViewPosition(pos);
-	mRenderView->SetViewMatrix(GetViewMatrix());
-	mRenderView->SetProjectionMatrix(GetProjectionMatrix());
 }
 
 LVector3f CameraComponent::ViewportToWorldPosition(const LVector2f& viewport)
@@ -177,6 +199,29 @@ LVector2f CameraComponent::WorldPositionToViewport(const LVector3f& worldpos)
 const luna::LMatrix4f CameraComponent::GetWorldMatrix()const
 {
 	return mTransform->GetLocalToWorldMatrix();
+}
+
+LSharedPtr<graphics::GameRenderDataUpdater> CameraComponent::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
+{
+	GameRenderBridgeDataCamera* realPointer = static_cast<GameRenderBridgeDataCamera*>(curRenderData);
+
+	if (mNeedUpdateIntrinsics)
+	{
+		realPointer->mIntrinsicsDirty = true;
+		realPointer->mIntrinsicsParameter.mFar = mFar;
+		realPointer->mIntrinsicsParameter.mFovY = mFovY;
+		realPointer->mIntrinsicsParameter.mNear = mNear;
+		realPointer->mIntrinsicsParameter.mRtHeight = mTarget->GetHeight();
+		realPointer->mIntrinsicsParameter.mRtWidth = mTarget->GetWidth();
+	}
+
+	if (mNeedUpdateIntrinsics)
+	{
+		realPointer->mExtrinsicsDirty = true;
+		auto pos = mTransform->GetPosition();
+		realPointer->mExtrinsicsParameter.mPosition = pos;
+		realPointer->mExtrinsicsParameter.mViewMatrix = GetViewMatrix();
+	}
 }
 
 }

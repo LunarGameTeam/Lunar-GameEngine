@@ -58,7 +58,7 @@ namespace luna
 
 	class GAME_API LightComponent : public graphics::RendererComponent
 	{
-		RegisterTypeEmbedd(LightComponent, Component)
+		RegisterTypeEmbedd(LightComponent, graphics::RendererComponent)
 	public:
 		virtual ~LightComponent();
 

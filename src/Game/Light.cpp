@@ -176,6 +176,7 @@ namespace luna
 
 	void DirectionLightComponent::OnCreate()
 	{
+		mNeedUpdate = true;
 		LightComponent::OnCreate();
 		mTransformDirtyAction = mOwnerEntity->GetComponent<Transform>()->OnTransformDirty.Bind(AutoBind(&DirectionLightComponent::OnTransformDirty, this));
 		OnTransformDirty(mOwnerEntity->GetComponent<Transform>());
