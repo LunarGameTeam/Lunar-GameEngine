@@ -23,46 +23,40 @@ RenderScene::RenderScene()
 	RequireData<SkeletonSkinData>();
 }
 
-uint64_t RenderScene::CreateRenderObject(MaterialInstance* mat, SubMesh* meshData, bool castShadow, LMatrix4f* worldMat)
+RenderObject* RenderScene::CreateRenderObject()
 {
-	RenderObject* ro = new RenderObject();
+	
+	size_t newRoIndex = -1;
 	if (mRoIndex.empty())
 	{
-		ro->mID = mRenderObjects.size();
+		newRoIndex = mRenderObjects.size();
 	}
 	else
 	{
-		ro->mID = mRoIndex.front();
+		newRoIndex = mRoIndex.front();
 		mRoIndex.pop();
 	}
-	ro->mOwnerScene = this;
-	ro->mID = mRenderObjects.size();
-	ro->mMeshIndex = meshData->GetRenderMeshBase();
-	ro->mMaterial = mat;
-	ro->mWorldMat = worldMat;
-	ro->mCastShadow = castShadow;
-	mRenderObjects.resize(ro->mID + 1);
-	mRenderObjects[ro->mID] = ro;
-	mDirtyROs.insert(ro);
-	return ro->mID;
+	RenderObject* ro = new RenderObject(newRoIndex,this);
+	mRenderObjects.push_back(ro);
+	return ro;
 }
 
-uint64_t RenderScene::CreateRenderObjectDynamic(
-	MaterialInstance* mat,
-	SubMesh* meshData,
-	const LUnorderedMap<LString, int32_t>& skeletonId,
-	const LString& skeletonUniqueName,
-	const LString& animaInstanceUniqueName,
-	const LArray<LMatrix4f>& allBoneMatrix,
-	bool castShadow,
-	LMatrix4f* worldMat
-)
-{
-	uint64_t newRoId = CreateRenderObject(mat, meshData, castShadow, worldMat);
-	SetRenderObjectMeshSkletonCluster(newRoId, meshData, skeletonId, skeletonUniqueName);
-	SetRenderObjectAnimInstance(newRoId, animaInstanceUniqueName, allBoneMatrix);
-	return newRoId;
-}
+//uint64_t RenderScene::CreateRenderObjectDynamic(
+//	MaterialInstance* mat,
+//	SubMesh* meshData,
+//	const LUnorderedMap<LString, int32_t>& skeletonId,
+//	const LString& skeletonUniqueName,
+//	const LString& animaInstanceUniqueName,
+//	const LArray<LMatrix4f>& allBoneMatrix,
+//	bool castShadow,
+//	LMatrix4f* worldMat
+//)
+//{
+//	uint64_t newRoId = CreateRenderObject(mat, meshData, castShadow, worldMat);
+//	SetRenderObjectMeshSkletonCluster(newRoId, meshData, skeletonId, skeletonUniqueName);
+//	SetRenderObjectAnimInstance(newRoId, animaInstanceUniqueName, allBoneMatrix);
+//	return newRoId;
+//}
 
 void RenderScene::SetRenderObjectMesh(uint64_t roId, SubMesh* meshData)
 {

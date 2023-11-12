@@ -20,73 +20,200 @@
 namespace luna::graphics
 {
 
-class GAME_API MeshRenderer : public RendererComponent
+struct GameRenderBridgeDataStaticMesh :public graphics::GameRenderBridgeData
 {
-	RegisterTypeEmbedd(MeshRenderer, RendererComponent)
+	//资源文件在render使用的时候一定保证是加载好的状态了，因此可以放在这里
+	bool mNeedIniteMesh = false;
+	LArray<SubMesh*> mInitSubmesh;
+	bool mNeedIniteMaterial = false;
+	LArray<size_t> mMaterialInitIndex;           //哪些材质需要重载
+	LArray<MaterialTemplateAsset*> mInitMaterial;//需要重载的材质数据
+
+	//这些是需要实时更新的数据
+	bool              NeedUpdateStaticMessage = false;
+	bool              mCastShadow = true;
+	bool              mReceiveLight = true;
+	bool              mReceiveShadow = true;
+};
+
+class GameStaticMeshRenderDataUpdater :public graphics::GameRenderDataUpdater
+{
+protected:
+	LArray<graphics::RenderObject*> mRenderObjects;
+	LArray<RenderMeshBase*> mRenderMesh;
 public:
-	MeshRenderer() :
-		mMaterialInstance(this)
+	virtual ~GameStaticMeshRenderDataUpdater() {};
+protected:
+	virtual void UpdateRenderThreadImpl(graphics::GameRenderBridgeData* curData, graphics::RenderScene* curScene) override;
+
+	virtual void ClearData(graphics::GameRenderBridgeData* curData) override;
+
+	virtual LSharedPtr<graphics::GameRenderBridgeData> GenarateData() override { return MakeShared<GameRenderBridgeDataStaticMesh>(); };
+};
+
+
+struct SkeletonBindPoseMatrix
+{
+	LUnorderedMap<LString, int32_t> mSkeletonId;
+};
+
+struct GameRenderBridgeDataSkeletalMesh :public GameRenderBridgeDataStaticMesh
+{
+	bool                            mNeedInitSkinMessage = false;
+	LString                         mSkeletonUniqueName;
+	LArray<SkeletonBindPoseMatrix>  mBindCluster;
+};
+
+class GameSkeletalMeshRenderDataUpdater :public graphics::GameStaticMeshRenderDataUpdater
+{
+	LArray<SkeletonSkinData*> mSkinData;
+public:
+	~GameSkeletalMeshRenderDataUpdater() {};
+private:
+	void UpdateRenderThreadImpl(graphics::GameRenderBridgeData* curData, graphics::RenderScene* curScene) override;
+
+	void ClearData(graphics::GameRenderBridgeData* curData) override;
+
+	virtual LSharedPtr<graphics::GameRenderBridgeData> GenarateData() override { return MakeShared<GameRenderBridgeDataSkeletalMesh>(); };
+};
+
+class GAME_API StaticMeshRenderer : public RendererComponent
+{
+	RegisterTypeEmbedd(StaticMeshRenderer, RendererComponent)
+public:
+	StaticMeshRenderer() :
+		mMaterialAsset(this)
 	{
 
 	}
 
-	virtual ~MeshRenderer();
+	virtual ~StaticMeshRenderer();
 
-	void SetMaterial(MaterialTemplateAsset* mat);
+	void SetMeshAsset(MeshAsset* obj);
+
+	void SetMaterialAsset(int32_t matIndex, const LString& assetPath);
+
 	void SetCastShadow(bool val);
+
 	void OnCreate() override;
 
 	void OnActivate() override;
 
-	virtual MeshAsset* GetMeshAsset() { return nullptr; };
-protected:
-	virtual void CreateRenderObject() {};
+	MeshAsset* GetMeshAsset() { return mMeshAsset.get(); };
 
 protected:
-	bool                             mCastShadow = true;
-	uint64_t                         mRO         = uint64_t(-1);
-	SharedPtr<MaterialTemplateAsset> mMaterialAsset;
-	TPPtr<MaterialInstance>          mMaterialInstance;
+	bool                              mRenderParamDirty = false;
+
+	bool                              mCastShadow = true;
+
+	bool                              mMeshDirty = false;
+
+	bool                              mMaterialDirty = true;
+
+	LArray<size_t>                    mAllDirtyMaterial;
+
+	SharedPtr<MeshAsset>              mMeshAsset;
+
+	TPPtrArray<MaterialTemplateAsset> mMaterialAsset;
+
+	//render相关
+	virtual LSharedPtr<graphics::GameRenderDataUpdater> GenarateRenderUpdater() override { return MakeShared<GameStaticMeshRenderDataUpdater>(); }
+
+	virtual LSharedPtr<graphics::GameRenderDataUpdater> OnTickImpl(graphics::GameRenderBridgeData* curRenderData) override;
 };
 
-class GAME_API StaticMeshRenderer : public MeshRenderer
+//class GAME_API StaticMeshRenderer2 : public MeshRenderer
+//{
+//	RegisterTypeEmbedd(StaticMeshRenderer,MeshRenderer)
+//public:
+//	void SetMeshAsset(MeshAsset* obj);
+//	MeshAsset* GetMeshAsset() override { return mMeshAsset.get(); }
+//private:
+//	void CreateRenderObject() override;
+//	SharedPtr<MeshAsset> mMeshAsset;
+//	//render相关
+//	LSharedPtr<graphics::GameRenderDataUpdater> GenarateRenderUpdater() override { return MakeShared<GameStaticMeshRenderDataUpdater>(); }
+//
+//	LSharedPtr<graphics::GameRenderDataUpdater> OnTickImpl(graphics::GameRenderBridgeData* curRenderData);
+//};
+LSharedPtr<graphics::GameRenderDataUpdater> StaticMeshRenderer::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
 {
-	RegisterTypeEmbedd(StaticMeshRenderer,MeshRenderer)
-public:
-	void SetMeshAsset(MeshAsset* obj);
-	MeshAsset* GetMeshAsset() override { return mMeshAsset.get(); }
-private:
-	void CreateRenderObject() override;
-	SharedPtr<MeshAsset> mMeshAsset;
-};
+	GameRenderBridgeDataStaticMesh* realPointer = static_cast<GameRenderBridgeDataStaticMesh*>(curRenderData);
+	if (mMeshDirty && mMeshAsset != nullptr && mMaterialAsset.Size() != 0)
+	{
+		//模型需要初始化
+		realPointer->mNeedIniteMesh = true;
+		realPointer->mNeedIniteMaterial = true;
+		for (int32_t subIndex = 0; subIndex < mMeshAsset->mSubMesh.size(); ++subIndex)
+		{
+			realPointer->mInitSubmesh.push_back(mMeshAsset->mSubMesh[subIndex]);
+			realPointer->mMaterialInitIndex.push_back(subIndex);
+			realPointer->mInitMaterial.push_back(mMaterialAsset[subIndex]);
+			
+		}
+		mMeshDirty = false;
+		mMaterialDirty = false;
+	}
+	if (mMaterialDirty)
+	{
+		//模型材质被改动
+		realPointer->mNeedIniteMaterial = true;
+		for (size_t refreshIndex = 0; refreshIndex < mAllDirtyMaterial.size(); ++refreshIndex)
+		{
+			size_t materialIndex = mAllDirtyMaterial[refreshIndex];
+			realPointer->mMaterialInitIndex.push_back(materialIndex);
+			realPointer->mInitMaterial.push_back(mMaterialAsset[materialIndex]);
+		}
+		mMaterialDirty = false;
+	}
+	if (mRenderParamDirty)
+	{
+		//模型参数被改动
+		realPointer->NeedUpdateStaticMessage = true;
+		realPointer->mCastShadow = mCastShadow;
+		mRenderParamDirty = false;
+	}
+}
 
-
-class GAME_API SkeletonMeshRenderer : public MeshRenderer
+class GAME_API SkeletonMeshRenderer : public StaticMeshRenderer
 {
-	RegisterTypeEmbedd(SkeletonMeshRenderer, MeshRenderer)
+	RegisterTypeEmbedd(SkeletonMeshRenderer, StaticMeshRenderer)
 public:
-	MeshAsset* GetMeshAsset() override { return mSkeletalMeshAsset.get(); }
-	
-	void SetMeshAsset(SkeletalMeshAsset* obj);
-	
 	void SetSkeletonAsset(animation::SkeletonAsset* obj);
 
 	void SetSkelAnimationAsset(animation::AnimationClipAsset* obj);
 private:
-	
+	bool mSkinDirty = false;
+
 	SharedPtr<animation::SkeletonAsset> mSkeletonAsset;
 
 	SharedPtr<animation::AnimationClipAsset> mSkelAnimAsset;
-	
-	SharedPtr<SkeletalMeshAsset> mSkeletalMeshAsset;
 
 	animation::SkeletalAnimInstanceBase* mAnimationInstance;
 
-	void CreateRenderObject() override;
-
 	void GetSkeletonPoseMatrix(LArray<LMatrix4f>& poseMatrix);
+	//render相关
+	LSharedPtr<graphics::GameRenderDataUpdater> GenarateRenderUpdater() override { return MakeShared<GameSkeletalMeshRenderDataUpdater>(); }
 
-	void UpdateAnimationInstanceRo();
+	LSharedPtr<graphics::GameRenderDataUpdater> OnTickImpl(graphics::GameRenderBridgeData* curRenderData) override;
 };
+
+LSharedPtr<graphics::GameRenderDataUpdater> SkeletonMeshRenderer::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
+{
+	StaticMeshRenderer::OnTickImpl(curRenderData);
+	GameRenderBridgeDataSkeletalMesh* realPointer = static_cast<GameRenderBridgeDataSkeletalMesh*>(curRenderData);
+	if (mSkinDirty)
+	{
+		LString skeletonUniqueName = mSkeletonAsset->GetAssetPath();
+		realPointer->mSkeletonUniqueName = skeletonUniqueName;
+		LArray<LMatrix4f> allBoneMatrix;
+		for (int32_t subIndex = 0; subIndex < mMeshAsset->mSubMesh.size(); ++subIndex)
+		{
+			realPointer->mBindCluster[subIndex].mSkeletonId = mSkeletonAsset->GetSearchIndex();
+		}
+		mSkinDirty = false;
+	}
+
+}
 
 }

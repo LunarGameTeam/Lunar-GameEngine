@@ -12,6 +12,8 @@ struct RENDER_API RenderData
 	
 	virtual void PerViewUpdate(RenderView* renderView){};
 
+	virtual void PerObjectUpdate(RenderObject* renderObject) {};
+
 	virtual ~RenderData() {};
 };
 

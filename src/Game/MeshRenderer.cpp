@@ -4,81 +4,104 @@
 
 #include "Core/Memory/PtrBinding.h"
 #include "Animation/AnimationModule.h"
-
+#include "Core/Asset/AssetModule.h"
 namespace luna
 {
 namespace graphics
 {
 
-RegisterTypeEmbedd_Imp(MeshRenderer)
+void GameStaticMeshRenderDataUpdater::UpdateRenderThreadImpl(graphics::GameRenderBridgeData* curData, graphics::RenderScene* curScene) 
 {
-	cls->Ctor<MeshRenderer>();
-	cls->Binding<Self>();
-
-	cls->BindingProperty<&Self::mMaterialAsset>("material")
-		.Setter<&MeshRenderer::SetMaterial>()
-		.Serialize();
-
-	cls->BindingProperty<&MeshRenderer::mCastShadow>("cast_shadow")
-		.Setter<&MeshRenderer::SetCastShadow>()
-		.Serialize();
-
-	BindingModule::Luna()->AddType(cls);
-}
-
-void MeshRenderer::OnCreate()
-{
-	Super::OnCreate();
-	if (mMaterialAsset)
+	GameRenderBridgeDataStaticMesh* realPointer = static_cast<GameRenderBridgeDataStaticMesh*>(curData);
+	if (realPointer->mNeedIniteMesh)
 	{
-		mMaterialInstance = mMaterialAsset->GetDefaultInstance();
-		mMaterialInstance->Ready();
+		assert(mRenderMesh.size() == 0);
+		for (int32_t subMeshIndex = 0; subMeshIndex < realPointer->mInitSubmesh.size(); ++subMeshIndex)
+		{
+			graphics::RenderObject* newObject = curScene->CreateRenderObject();
+			RenderMeshBase* meshData = newObject->RequireData<RenderMeshBase>();
+			meshData->Init(realPointer->mInitSubmesh[subMeshIndex]);
+			mRenderMesh.push_back(meshData);
+			mRenderObjects.push_back(newObject);
+		}
 	}
-	if (GetMeshAsset())
+	if (realPointer->mNeedIniteMaterial)
 	{
-		CreateRenderObject();
+		for (int32_t refreshId = 0; refreshId < realPointer->mMaterialInitIndex.size(); ++refreshId)
+		{
+			size_t roIndex = realPointer->mMaterialInitIndex[refreshId];
+			mRenderMesh[roIndex]->mMaterial = realPointer->mInitMaterial[roIndex]->CreateInstance();
+			mRenderMesh[roIndex]->mMaterial->Ready();
+		}
 	}
-}
-
-void MeshRenderer::OnActivate()
-{
-}
-
-MeshRenderer::~MeshRenderer()
-{
-	if (mRO && GetScene() && GetScene()->GetRenderScene())
-		GetScene()->GetRenderScene()->DestroyRenderObject(mRO);
-}
-
-void MeshRenderer::SetMaterial(MaterialTemplateAsset* mat)
-{
-	mMaterialAsset = ToSharedPtr(mat);
-	mMaterialInstance = mat->CreateInstance();
-	if (mMaterialInstance)
-		mMaterialInstance->Ready();
-	if (mRO == uint64_t(-1))
+	if (realPointer->NeedUpdateStaticMessage)
 	{
-		return;
+		for (int32_t subMeshIndex = 0; subMeshIndex < mRenderMesh.size(); ++subMeshIndex)
+		{
+			mRenderMesh[subMeshIndex]->mCastShadow = realPointer->mCastShadow;
+			mRenderMesh[subMeshIndex]->mReceiveLight = realPointer->mReceiveLight;
+			mRenderMesh[subMeshIndex]->mReceiveShadow = realPointer->mReceiveShadow;
+		}
 	}
-	GetScene()->GetRenderScene()->SetRenderObjectMaterial(mRO, mMaterialInstance.Get());
 }
 
-
-
-void MeshRenderer::SetCastShadow(bool val)
+void GameStaticMeshRenderDataUpdater::ClearData(graphics::GameRenderBridgeData* curData)
 {
-	if (mRO == uint64_t(-1))
+	GameRenderBridgeDataStaticMesh* realPointer = static_cast<GameRenderBridgeDataStaticMesh*>(curData);
+	if (realPointer->mNeedIniteMesh)
 	{
-		return;
+		realPointer->mInitSubmesh.clear();
 	}
-	mCastShadow = val;
-	GetScene()->GetRenderScene()->SetRenderObjectCastShadow(mRO, mCastShadow);
+	realPointer->mNeedIniteMesh = false;
+	if (realPointer->mNeedIniteMaterial)
+	{
+		realPointer->mMaterialInitIndex.clear();
+		realPointer->mInitMaterial.clear();
+	}
+	realPointer->mNeedIniteMaterial = false;
+	realPointer->NeedUpdateStaticMessage = false;
 }
+
+void GameSkeletalMeshRenderDataUpdater::UpdateRenderThreadImpl(graphics::GameRenderBridgeData* curData, graphics::RenderScene* curScene)
+{
+	GameStaticMeshRenderDataUpdater::UpdateRenderThreadImpl(curData, curScene);
+	GameRenderBridgeDataSkeletalMesh* realPointer = static_cast<GameRenderBridgeDataSkeletalMesh*>(curData);
+	if (realPointer->mNeedInitSkinMessage)
+	{
+		for (int32_t subMeshIndex = 0; subMeshIndex < mRenderObjects.size(); ++subMeshIndex)
+		{
+			SkeletonSkinData* skinData = mRenderObjects[subMeshIndex]->RequireData<SkeletonSkinData>();
+			SubMeshSkeletal* skeletalMeshPointer = static_cast<SubMeshSkeletal*>(realPointer->mInitSubmesh[subMeshIndex]);
+			skinData->Create(realPointer->mSkeletonUniqueName, skeletalMeshPointer, realPointer->mBindCluster[subMeshIndex].mSkeletonId);
+			mSkinData.push_back(skinData);
+		}
+	}
+}
+
+void GameSkeletalMeshRenderDataUpdater::ClearData(graphics::GameRenderBridgeData* curData)
+{
+	GameStaticMeshRenderDataUpdater::ClearData(curData);
+	GameRenderBridgeDataSkeletalMesh* realPointer = static_cast<GameRenderBridgeDataSkeletalMesh*>(curData);
+	if (realPointer->mNeedInitSkinMessage)
+	{
+		realPointer->mBindCluster.clear();
+	}
+	realPointer->mNeedInitSkinMessage = false;
+};
+
+
 
 RegisterTypeEmbedd_Imp(StaticMeshRenderer)
 {
 	cls->Ctor<StaticMeshRenderer>();
 	cls->Binding<Self>();
+
+	cls->BindingProperty<&Self::mMaterialAsset>("material")
+		.Serialize();
+
+	cls->BindingProperty<&StaticMeshRenderer::mCastShadow>("cast_shadow")
+		.Setter<&StaticMeshRenderer::SetCastShadow>()
+		.Serialize();
 
 	cls->BindingProperty<&Self::mMeshAsset>("mesh")
 		.Setter<&StaticMeshRenderer::SetMeshAsset>()
@@ -87,39 +110,48 @@ RegisterTypeEmbedd_Imp(StaticMeshRenderer)
 	BindingModule::Luna()->AddType(cls);
 }
 
-void StaticMeshRenderer::SetMeshAsset(MeshAsset* obj)
+void StaticMeshRenderer::OnCreate()
 {
-	mMeshAsset = ToSharedPtr(obj);
-	if (mRO == uint64_t(-1))
-	{
-		return;
-	}
-	GetScene()->GetRenderScene()->SetRenderObjectMesh(mRO, mMeshAsset->GetSubMeshAt(0));
+	Super::OnCreate();
+	mMeshDirty = true;
+	mMaterialDirty = true;
+
 }
 
-void StaticMeshRenderer::CreateRenderObject()
+void StaticMeshRenderer::OnActivate()
 {
-	if (mRO != uint64_t(-1) || !GetScene())
-	{
-		return;
-	}
-	mRO = GetScene()->GetRenderScene()->CreateRenderObject(
-		mMaterialInstance.Get(),
-		GetMeshAsset()->GetSubMeshAt(0),
-		mCastShadow,
-		&mTransform->GetLocalToWorldMatrix()
-	);
+}
 
+void StaticMeshRenderer::SetMeshAsset(MeshAsset* obj)
+{
+	mMeshDirty = true;
+}
+
+StaticMeshRenderer::~StaticMeshRenderer()
+{
+
+}
+
+void StaticMeshRenderer::SetMaterialAsset(int32_t matIndex, const LString& assetPath)
+{
+	mMaterialDirty = true;
+	luna::LType* createType = LType::Get<MaterialTemplateAsset>();
+	mMaterialAsset.GetPtr(matIndex) = (MaterialTemplateAsset*)sAssetModule->NewAsset(assetPath, createType);
+	mAllDirtyMaterial.push_back(matIndex);
+}
+
+
+
+void StaticMeshRenderer::SetCastShadow(bool val)
+{
+	mRenderParamDirty = true;
+	mCastShadow = val;
 }
 
 RegisterTypeEmbedd_Imp(SkeletonMeshRenderer)
 {
 	cls->Ctor<SkeletonMeshRenderer>();
 	cls->Binding<Self>();
-
-	cls->BindingProperty<&Self::mSkeletalMeshAsset>("mesh")
-		.Setter<&SkeletonMeshRenderer::SetMeshAsset>()
-		.Serialize();
 
 	cls->BindingProperty<&Self::mSkeletonAsset>("skeleton")
 		.Setter<&SkeletonMeshRenderer::SetSkeletonAsset>()
@@ -129,16 +161,6 @@ RegisterTypeEmbedd_Imp(SkeletonMeshRenderer)
 		.Setter<&SkeletonMeshRenderer::SetSkelAnimationAsset>()
 		.Serialize();
 	BindingModule::Luna()->AddType(cls);
-}
-
-void SkeletonMeshRenderer::SetMeshAsset(SkeletalMeshAsset* obj)
-{
-	mSkeletalMeshAsset = ToSharedPtr(obj);
-	if (mRO == uint64_t(-1))
-	{
-		return;
-	}
-	GetScene()->GetRenderScene()->SetRenderObjectMesh(mRO, mSkeletalMeshAsset->GetSubMeshAt(0));
 }
 
 void SkeletonMeshRenderer::GetSkeletonPoseMatrix(LArray<LMatrix4f>& poseMatrix)
@@ -155,20 +177,9 @@ void SkeletonMeshRenderer::GetSkeletonPoseMatrix(LArray<LMatrix4f>& poseMatrix)
 	}
 }
 
-void SkeletonMeshRenderer::UpdateAnimationInstanceRo()
-{
-	if (mAnimationInstance != nullptr && mRO != uint64_t(-1))
-	{
-		auto onAnimationUpdateFinish = [&](const LArray<LMatrix4f>& allBoneMatrix)
-		{
-			GetScene()->GetRenderScene()->UpdateRenderObjectAnimInstance(mRO, allBoneMatrix);
-		}; 
-		mAnimationInstance->SetOnUpdateFinishMethod(onAnimationUpdateFinish);
-	}
-}
-
 void SkeletonMeshRenderer::SetSkeletonAsset(animation::SkeletonAsset* obj)
 {
+	mSkinDirty = true;
 	mSkeletonAsset = ToSharedPtr(obj);
 
 	if (mSkelAnimAsset != nullptr)
@@ -180,18 +191,6 @@ void SkeletonMeshRenderer::SetSkeletonAsset(animation::SkeletonAsset* obj)
 		}
 		mAnimationInstance = animModule->CreateAnimationInstanceClip(mSkelAnimAsset.get(), mSkeletonAsset.get());
 	}
-	if (mRO == uint64_t(-1))
-	{
-		return;
-	}
-	UpdateAnimationInstanceRo();
-	LString skeletonUniqueName = mSkeletonAsset->GetAssetPath();
-	GetScene()->GetRenderScene()->SetRenderObjectMeshSkletonCluster(mRO, mSkeletalMeshAsset->GetSubMeshAt(0), mSkeletonAsset->GetSearchIndex(), skeletonUniqueName);
-	LArray<LMatrix4f> allBoneMatrix;
-	GetSkeletonPoseMatrix(allBoneMatrix);
-	GetScene()->GetRenderScene()->SetRenderObjectAnimInstance(mRO, skeletonUniqueName, allBoneMatrix);
-
-
 }
 
 void SkeletonMeshRenderer::SetSkelAnimationAsset(animation::AnimationClipAsset* obj)
@@ -202,30 +201,6 @@ void SkeletonMeshRenderer::SetSkelAnimationAsset(animation::AnimationClipAsset* 
 		animation::AnimationModule* animModule = gEngine->GetTModule<animation::AnimationModule>();
 		mAnimationInstance = animModule->CreateAnimationInstanceClip(mSkelAnimAsset.get(), mSkeletonAsset.get());
 	}
-	UpdateAnimationInstanceRo();
-}
-
-void SkeletonMeshRenderer::CreateRenderObject()
-{
-	if (mRO != uint64_t(-1) || !GetScene())
-	{
-		return;
-	}
-	LString skeletonUniqueName = mSkeletonAsset->GetAssetPath();
-	LString animationUniqueName = mAnimationInstance->GetAnimInstanceUniqueName();
-	LArray<LMatrix4f> allBoneMatrix;
-	GetSkeletonPoseMatrix(allBoneMatrix);
-	mRO = GetScene()->GetRenderScene()->CreateRenderObjectDynamic(
-		mMaterialInstance.Get(),
-		GetMeshAsset()->GetSubMeshAt(0),
-		mSkeletonAsset->GetSearchIndex(),
-		skeletonUniqueName,
-		animationUniqueName,
-		allBoneMatrix,
-		mCastShadow, 
-		&mTransform->GetLocalToWorldMatrix()
-	);
-	UpdateAnimationInstanceRo();
 }
 
 }

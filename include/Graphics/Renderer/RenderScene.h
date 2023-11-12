@@ -8,6 +8,7 @@
 #include "Graphics/RHI/RHIPipeline.h"
 #include "Core/Foundation/Misc.h"
 #include "Graphics/Renderer/RenderData.h"
+#include "Graphics/Renderer/SkeletonSkin.h"
 
 #include <functional>
 
@@ -15,20 +16,37 @@
 namespace luna::graphics
 {
 
-struct RENDER_API RenderObject
+//struct RENDER_API RenderObject
+//{
+//	RenderMeshBase*   mMeshIndex         = nullptr;
+//	int32_t           mSkinClusterIndex  = -1;
+//	int32_t           mAnimInstanceIndex = -1;
+//	LMatrix4f*        mWorldMat          = nullptr;
+//	bool              mCastShadow        = true;
+//	bool              mReceiveLight      = true;
+//	bool              mReceiveShadow     = true;
+//	uint64_t          mID                = -1;
+//	MaterialInstance* mMaterial          = nullptr;
+//	RenderScene*      mOwnerScene        = nullptr;
+//};
+
+class RENDER_API RenderObject : public RenderDataContainer
 {
-	RenderMeshBase*   mMeshIndex         = nullptr;
-	int32_t           mSkinClusterIndex  = -1;
-	int32_t           mAnimInstanceIndex = -1;
-	LMatrix4f*        mWorldMat          = nullptr;
-	bool              mCastShadow        = true;
-	bool              mReceiveLight      = true;
-	bool              mReceiveShadow     = true;
-	uint64_t          mID                = -1;
-	MaterialInstance* mMaterial          = nullptr;
-	RenderScene*      mOwnerScene        = nullptr;
+	uint64_t     mID = -1;
+	LMatrix4f    mWorldMat;
+	RenderScene* mOwnerScene = nullptr;
+public:
+	RenderObject(uint64_t id, RenderScene* ownerScene);
+
+	void UpdateWorldMatrix(const LMatrix4f &worldMat) { mWorldMat = worldMat; }
+
+	const LMatrix4f& GetWorldMatrix() { return mWorldMat; }
 };
 
+RenderObject::RenderObject(uint64_t id, RenderScene* ownerScene) :mID(id), mOwnerScene(ownerScene)
+{
+	mWorldMat.setIdentity();
+}
 
 class RenderObjectDrawData : public RenderData
 {
@@ -70,18 +88,7 @@ public:
 	void DestroyMainDirLight(DirectionLight* val);
 	PointLight* CreatePointLight();
 
-	uint64_t CreateRenderObject(MaterialInstance* mat, SubMesh* meshData, bool castShadow, LMatrix4f* worldMat);
-
-	uint64_t CreateRenderObjectDynamic(
-		MaterialInstance* mat,
-		SubMesh* meshData,
-		const LUnorderedMap<LString, int32_t>& skeletonId,
-		const LString& skeletonUniqueName,
-		const LString& animaInstanceUniqueName,
-		const LArray<LMatrix4f>& allBoneMatrix,
-		bool castShadow,
-		LMatrix4f* worldMat
-	);
+	RenderObject* CreateRenderObject();
 	
 	void SetRenderObjectMesh(uint64_t roId,SubMesh* meshData);
 
@@ -150,7 +157,7 @@ private:
 	LArray<RenderObject*> mRenderObjects;
 	ViewArray             mViews;
 
-	LSet<RenderObject*>   mDirtyROs;
+	//LSet<RenderObject*>   mDirtyROs;
 };
 
 

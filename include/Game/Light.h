@@ -106,7 +106,7 @@ namespace luna
 		//render相关
 		LSharedPtr<graphics::GameRenderDataUpdater> GenarateRenderUpdater() override { return MakeShared<GameLightRenderDataUpdater>(); }
 
-		LSharedPtr<graphics::GameRenderDataUpdater> OnTickImpl(graphics::GameRenderBridgeData* curRenderData);
+		LSharedPtr<graphics::GameRenderDataUpdater> OnTickImpl(graphics::GameRenderBridgeData* curRenderData) override;
 	};
 	
 	class GAME_API DirectionLightComponent : public LightComponent
@@ -159,7 +159,7 @@ namespace luna
 		//render相关
 		LSharedPtr<graphics::GameRenderDataUpdater> GenarateRenderUpdater() override { return MakeShared<GameDirLightRenderDataUpdater>(); }
 
-		LSharedPtr<graphics::GameRenderDataUpdater> OnTickImpl(graphics::GameRenderBridgeData* curRenderData);
+		LSharedPtr<graphics::GameRenderDataUpdater> OnTickImpl(graphics::GameRenderBridgeData* curRenderData) override;
 
 
 	};

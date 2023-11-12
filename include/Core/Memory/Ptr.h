@@ -199,6 +199,8 @@ public:
 		return mArray[index].Get();
 	}
 
+	TPPtr<T>& GetPtr(size_t i) { return mArray[i]; }
+
 };
 
 }
