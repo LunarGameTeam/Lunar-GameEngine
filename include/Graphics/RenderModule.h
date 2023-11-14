@@ -25,6 +25,7 @@
 
 #include "Graphics/Renderer/ImGuiTexture.h"
 #include "Graphics/Renderer/RenderContext.h"
+#include "Graphics/Renderer/SceneRenderer.h"
 
 #include "Graphics/RHI/RHITypes.h"
 
@@ -95,6 +96,7 @@ public:
 	LSharedPtr<Texture2D>              mDefaultWhiteTexture;
 	LSharedPtr<Texture2D>              mDefaultNormalTexture;
 private:
+	SceneRenderer mRenderer;
 	LArray<RenderScene*>               mRenderScenes;
 	LMap<RHIResourcePtr, ImguiTexture> mImguiTextures;
 
@@ -103,8 +105,6 @@ private:
 	graphics::RHISwapchainDesc           mSwapchainDesc;
 
 	RHISwapChainPtr                    mMainSwapchain;
-	//framegraph
-	FrameGraphBuilder*                 mFrameGraph          = nullptr;
 
 	bool                               mNeedResizeSwapchain = false;
 

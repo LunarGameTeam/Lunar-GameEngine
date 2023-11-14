@@ -18,6 +18,11 @@
 namespace luna::graphics
 {
 
+RenderObject::RenderObject(RenderScene* ownerScene) : mOwnerScene(ownerScene)
+{
+	mWorldMat.setIdentity();
+}
+
 RenderScene::RenderScene()
 {
 	RequireData<SkeletonSkinData>();
@@ -25,354 +30,93 @@ RenderScene::RenderScene()
 
 RenderObject* RenderScene::CreateRenderObject()
 {
-	
-	size_t newRoIndex = -1;
-	if (mRoIndex.empty())
-	{
-		newRoIndex = mRenderObjects.size();
-	}
-	else
-	{
-		newRoIndex = mRoIndex.front();
-		mRoIndex.pop();
-	}
-	RenderObject* ro = new RenderObject(newRoIndex,this);
-	mRenderObjects.push_back(ro);
-	return ro;
+	return mRenderObjects.AddNewValue();
 }
 
-//uint64_t RenderScene::CreateRenderObjectDynamic(
-//	MaterialInstance* mat,
-//	SubMesh* meshData,
-//	const LUnorderedMap<LString, int32_t>& skeletonId,
-//	const LString& skeletonUniqueName,
-//	const LString& animaInstanceUniqueName,
-//	const LArray<LMatrix4f>& allBoneMatrix,
-//	bool castShadow,
-//	LMatrix4f* worldMat
-//)
-//{
-//	uint64_t newRoId = CreateRenderObject(mat, meshData, castShadow, worldMat);
-//	SetRenderObjectMeshSkletonCluster(newRoId, meshData, skeletonId, skeletonUniqueName);
-//	SetRenderObjectAnimInstance(newRoId, animaInstanceUniqueName, allBoneMatrix);
-//	return newRoId;
-//}
-
-void RenderScene::SetRenderObjectMesh(uint64_t roId, SubMesh* meshData)
+void RenderScene::DestroyRenderObject(RenderObject* ro)
 {
-	mRenderObjects[roId]->mMeshIndex = meshData->GetRenderMeshBase();
+	mRenderObjects.DestroyValue(ro);
 }
 
-void RenderScene::SetRenderObjectMeshSkletonCluster(uint64_t roId, SubMesh* meshData, const LUnorderedMap<LString, int32_t>& skeletonId, const LString& skeletonUniqueName)
+void RenderScene::GetRenderObjects(LArray<RenderObject*>& valueOut) const
 {
-	mRenderObjects[roId]->mSkinClusterIndex = GetData<SkeletonSkinData>()->AddMeshSkeletonLinkClusterData(meshData, skeletonId, skeletonUniqueName);
-}
-
-void RenderScene::SetRenderObjectAnimInstance(uint64_t roId, const LString& animaInstanceUniqueName, const LArray<LMatrix4f>& allBoneMatrix)
-{
-	mRenderObjects[roId]->mAnimInstanceIndex = GetData<SkeletonSkinData>()->AddAnimationInstanceMatrixData(animaInstanceUniqueName, allBoneMatrix);
-}
-
-void RenderScene::UpdateRenderObjectAnimInstance(uint64_t roId, const LArray<LMatrix4f>& allBoneMatrix)
-{
-	GetData<SkeletonSkinData>()->UpdateAnimationInstanceMatrixData(mRenderObjects[roId]->mAnimInstanceIndex, allBoneMatrix);
-}
-
-void RenderScene::SetRenderObjectCastShadow(uint64_t roId, bool castShadow)
-{
-	mRenderObjects[roId]->mCastShadow = castShadow;
-}
-
-void RenderScene::SetRenderObjectTransformRef(uint64_t roId, LMatrix4f* worldMat)
-{
-	mRenderObjects[roId]->mWorldMat = worldMat;
-}
-
-void RenderScene::SetRenderObjectMaterial(uint64_t roId, MaterialInstance* mat)
-{
-	mRenderObjects[roId]->mMaterial = mat;
-	mDirtyROs.insert(mRenderObjects[roId]);
-}
-
-void RenderScene::PrepareScene()
-{
-
-	if (!mBufferDirty)
-		return;
-	
-	uint32_t shadowmapIdx = 0;
-	//todo:这里dx会出现变量被优化的情况
-	if (mRoDataBuffer == nullptr)
-	{
-		RHIBufferDesc desc;
-		desc.mBufferUsage = RHIBufferUsage::StructureBuffer;
-		desc.mSize = sizeof(LMatrix4f) * 1024;
-		mRoDataBuffer = sRenderModule->mRenderContext->CreateBuffer(RHIHeapType::Upload,desc);
-		ViewDesc viewDesc;
-		viewDesc.mViewType = RHIViewType::kStructuredBuffer;
-		viewDesc.mViewDimension = RHIViewDimension::BufferView;
-		viewDesc.mStructureStride = sizeof(LMatrix4f);
-		mRoDataBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
-		mRoDataBufferView->BindResource(mRoDataBuffer);
-	}
-	if (mSceneParamsBuffer == nullptr)
-		mSceneParamsBuffer = new ShaderCBuffer(sRenderModule->GetRenderContext()->GetDefaultShaderConstantBufferDesc(LString("SceneBuffer").Hash()));
-	if (mROIDInstancingBuffer == nullptr)
-		mROIDInstancingBuffer = new ShaderCBuffer(RHIBufferUsage::VertexBufferBit, sizeof(uint32_t) * 4 * 1048);
-
-	mSceneParamsBuffer->Set("cAmbientColor", LMath::sRGB2LinearColor(mAmbientColor));
-
-	if (mMainDirLight)
-	{
-		mSceneParamsBuffer->Set("cDirectionLightColor", LMath::sRGB2LinearColor(mMainDirLight->mColor));
-		mSceneParamsBuffer->Set("cLightDirection", mMainDirLight->mDirection);
-		mSceneParamsBuffer->Set("cDirectionLightIndensity", mMainDirLight->mIntensity);
-	}
-	else
-	{
-		mSceneParamsBuffer->Set("cDirectionLightColor", LVector4f(0, 0, 0, 0));
-	}
-
-	mSceneParamsBuffer->Set("cPointLightsCount", mPointLights.size());
-	mSceneParamsBuffer->Set("cShadowmapCount", 0);
-	for (int i = 0; i < mPointLights.size(); i++)
-	{
-		PointLight* light = mPointLights[i];
-		if (light->mCastShadow)
-			mSceneParamsBuffer->Set("cShadowmapCount", 6);
-
-		mSceneParamsBuffer->Set("cPointLights", light->mPosition, i, 0);
-		mSceneParamsBuffer->Set("cPointLights", LMath::sRGB2LinearColor(light->mColor), i, 16);
-		mSceneParamsBuffer->Set("cPointLights", light->mIntensity, i, 32);
-	}
-
-	int32_t maxRoSize = 0;
-	for (auto& ro : mRenderObjects)
-	{
-		if (maxRoSize < ro->mID)
-		{
-			maxRoSize = ro->mID;
-		}
-	}
-	LArray<LMatrix4f> roMatrixArray;
-	roMatrixArray.resize(maxRoSize + 1);
-	for (int32_t i = 0; i < maxRoSize;++i)
-	{
-		roMatrixArray[i] = LMatrix4f::Identity();
-	}
-	
-	for (auto& ro : mRenderObjects)
-	{
-		uint32_t idx = ro->mID;
-		roMatrixArray[idx] = *ro->mWorldMat;
-	}
-	mBufferDirty = false;
-	sRenderModule->GetRenderContext()->UpdateConstantBuffer(mRoDataBuffer, roMatrixArray.data(), roMatrixArray.size() * sizeof(LMatrix4f));}
-
-void RenderScene::Init()
-{
-
-}
-
-DirectionLight* RenderScene::CreateMainDirLight()
-{
-	mMainDirLight = new DirectionLight();
-	mMainDirLight->mOwnerScene = this;
-	return mMainDirLight;
-}
-
-PointLight* RenderScene::CreatePointLight()
-{
-	auto light = new PointLight();
-	light->mOwnerScene = this;
-	mPointLights.push_back(light);
-	return light;
+	mRenderObjects.GetAllValueList(valueOut);
 }
 
 RenderView* RenderScene::CreateRenderView()
 {
-	RenderView* newView = new RenderView();
-	newView->mOwnerScene = this;
-	mViews.push_back(newView);
-	return newView;
+	return mViews.AddNewValue();
 }
 
-void RenderScene::Render(FrameGraphBuilder* FG)
+void RenderScene::GetAllView(LArray<RenderView*>& valueOut) const
 {
-	if (mMainDirLight)
-	{
-		if (mMainDirLight->mDirty)
-			mBufferDirty = true;
-		mMainDirLight->PerSceneUpdate(this);
-	}
-	for (int i = 0; i < mPointLights.size(); i++)
-	{
-		PointLight* light = mPointLights[i];
-		if (light->mDirty)
-			mBufferDirty = true;
-		light->PerSceneUpdate(this);
-	}
-
-	for (auto data : mDatas)
-	{
-		data->PerSceneUpdate(this);
-	}
-
-	PrepareScene();
-	
-	for (RenderView* renderView : mViews)
-	{
-		for (int i = 0; i < mPointLights.size(); i++)
-		{
-			PointLight* light = mPointLights[i];
-			light->PerViewUpdate(renderView);
-		}
-		if(mMainDirLight)
-			mMainDirLight->PerViewUpdate(renderView);
-		renderView->PrepareView();
-	}
-
-	Debug();
-
-	mSceneParamsBuffer->Commit();
-	mROIDInstancingBuffer->Commit();
-
-	for (RenderView* renderView : mViews)
-	{
-		renderView->Render(this, FG);
-	}
-}
-
-void RenderScene::DestroyMainDirLight(DirectionLight* val)
-{
-	if (mMainDirLight == val)
-	{
-		delete mMainDirLight;
-		mMainDirLight = nullptr;
-	}
+	mViews.GetAllValueList(valueOut);
 }
 
 void RenderScene::DestroyRenderView(RenderView* renderView)
 {
-	for (auto it = mViews.begin(); it != mViews.end(); ++it)
-	{
-		if (renderView == *it)
-		{
-			mViews.erase(it);
-			delete renderView;
-			return;
-		}
-	}
-}
-
-void RenderScene::DestroyLight(Light* ro)
-{
-	for (auto it = mPointLights.begin(); it != mPointLights.end(); ++it)
-	{
-		if (ro == *it)
-		{
-			mPointLights.erase(it);
-			delete ro;
-			break;
-		}
-	}
-	mBufferDirty = true;
-}
-
-void RenderScene::DestroyRenderObject(uint64_t ro)
-{
-	if (ro >= mRenderObjects.size())
-		return;
-	auto check = mRenderObjects.at(ro);
-	mRoIndex.push(check->mID);	
-	delete check;
-	mRenderObjects[ro] = nullptr;	
-	mBufferDirty = true;
+	mViews.DestroyValue(renderView);
 }
 
 RenderScene::~RenderScene()
 {
-	for (RenderView* it : mViews)
-	{
-		delete it;
-	}
-	if (mROIDInstancingBuffer)
-	{
-		delete mROIDInstancingBuffer;
-		mROIDInstancingBuffer = nullptr;
-	}
-	for (PointLight* it : mPointLights)
-	{
-		delete it;
-	}
-	if (mSceneParamsBuffer)
-	{
-		delete mSceneParamsBuffer;
-		mSceneParamsBuffer = nullptr;
-	}
-	mViews.clear();
-	for (auto it : mRenderObjects)
-	{
-		delete it;
-	}
-	mRenderObjects.clear();
 }
 
-void RenderScene::Debug()
-{
-	if (!mDrawGizmos)
-		return;
-
-	SubMesh            mDebugMeshLine;
-	SubMesh            mDebugMesh;
-	if (mMainDirLight && mMainDirLight->mCastShadow)
-	{
-		LFrustum f = LFrustum::FromOrth(0.01, 50, 30, 30);
-		f.Multiple(mMainDirLight->mViewMatrix.inverse());
-		AddLineToSubMesh(f.mNearPlane[0], f.mNearPlane[1], mDebugMeshLine);
-		AddLineToSubMesh(f.mNearPlane[1], f.mNearPlane[2], mDebugMeshLine);
-		AddLineToSubMesh(f.mNearPlane[2], f.mNearPlane[3], mDebugMeshLine);
-		AddLineToSubMesh(f.mNearPlane[3], f.mNearPlane[0], mDebugMeshLine);
-		AddLineToSubMesh(f.mNearPlane[0], f.mFarPlane[0], mDebugMeshLine);
-		AddLineToSubMesh(f.mNearPlane[1], f.mFarPlane[1], mDebugMeshLine);
-		AddLineToSubMesh(f.mNearPlane[2], f.mFarPlane[2], mDebugMeshLine);
-		AddLineToSubMesh(f.mNearPlane[3], f.mFarPlane[3], mDebugMeshLine);
-		AddLineToSubMesh(f.mFarPlane[0], f.mFarPlane[1], mDebugMeshLine);
-		AddLineToSubMesh(f.mFarPlane[1], f.mFarPlane[2], mDebugMeshLine);
-		AddLineToSubMesh(f.mFarPlane[2], f.mFarPlane[3], mDebugMeshLine);
-		AddLineToSubMesh(f.mFarPlane[3], f.mFarPlane[0], mDebugMeshLine);
-	}
-
-	for (int i = 0; i < mPointLights.size(); i++)
-	{
-		PointLight* light = mPointLights[i];
-		if (light->mCastShadow)
-		{
-			for (int faceIdx = 0; faceIdx < 6; faceIdx++)
-			{
-				LFrustum f = LFrustum::MakeFrustrum(light->mFov, light->mNear, light->mFar, light->mAspect);
-				f.Multiple(light->mViewMatrix[faceIdx].inverse());
-
-				AddLineToSubMesh(f.mNearPlane[0], f.mNearPlane[1], mDebugMeshLine);
-				AddLineToSubMesh(f.mNearPlane[1], f.mNearPlane[2], mDebugMeshLine);
-				AddLineToSubMesh(f.mNearPlane[2], f.mNearPlane[3], mDebugMeshLine);
-				AddLineToSubMesh(f.mNearPlane[3], f.mNearPlane[0], mDebugMeshLine);
-				AddLineToSubMesh(f.mNearPlane[0], f.mFarPlane[0], mDebugMeshLine);
-				AddLineToSubMesh(f.mNearPlane[1], f.mFarPlane[1], mDebugMeshLine);
-				AddLineToSubMesh(f.mNearPlane[2], f.mFarPlane[2], mDebugMeshLine);
-				AddLineToSubMesh(f.mNearPlane[3], f.mFarPlane[3], mDebugMeshLine);
-				AddLineToSubMesh(f.mFarPlane[0], f.mFarPlane[1], mDebugMeshLine);
-				AddLineToSubMesh(f.mFarPlane[1], f.mFarPlane[2], mDebugMeshLine);
-				AddLineToSubMesh(f.mFarPlane[2], f.mFarPlane[3], mDebugMeshLine);
-				AddLineToSubMesh(f.mFarPlane[3], f.mFarPlane[0], mDebugMeshLine);
-			}
-
-		}
-		AddCubeWiredToSubMesh(mDebugMeshLine, light->mPosition, LVector3f(1, 1, 1), light->mColor);
-	}
-
-	mDebugMeshData.Init(&mDebugMesh);
-	mDebugMeshLineData.Init(&mDebugMeshLine);
-}
+//void RenderScene::Debug()
+//{
+//	if (!mDrawGizmos)
+//		return;
+//
+//	SubMesh            mDebugMeshLine;
+//	SubMesh            mDebugMesh;
+//	if (mMainDirLight && mMainDirLight->mCastShadow)
+//	{
+//		LFrustum f = LFrustum::FromOrth(0.01, 50, 30, 30);
+//		f.Multiple(mMainDirLight->mViewMatrix.inverse());
+//		AddLineToSubMesh(f.mNearPlane[0], f.mNearPlane[1], mDebugMeshLine);
+//		AddLineToSubMesh(f.mNearPlane[1], f.mNearPlane[2], mDebugMeshLine);
+//		AddLineToSubMesh(f.mNearPlane[2], f.mNearPlane[3], mDebugMeshLine);
+//		AddLineToSubMesh(f.mNearPlane[3], f.mNearPlane[0], mDebugMeshLine);
+//		AddLineToSubMesh(f.mNearPlane[0], f.mFarPlane[0], mDebugMeshLine);
+//		AddLineToSubMesh(f.mNearPlane[1], f.mFarPlane[1], mDebugMeshLine);
+//		AddLineToSubMesh(f.mNearPlane[2], f.mFarPlane[2], mDebugMeshLine);
+//		AddLineToSubMesh(f.mNearPlane[3], f.mFarPlane[3], mDebugMeshLine);
+//		AddLineToSubMesh(f.mFarPlane[0], f.mFarPlane[1], mDebugMeshLine);
+//		AddLineToSubMesh(f.mFarPlane[1], f.mFarPlane[2], mDebugMeshLine);
+//		AddLineToSubMesh(f.mFarPlane[2], f.mFarPlane[3], mDebugMeshLine);
+//		AddLineToSubMesh(f.mFarPlane[3], f.mFarPlane[0], mDebugMeshLine);
+//	}
+//
+//	for (int i = 0; i < mPointLights.size(); i++)
+//	{
+//		PointLight* light = mPointLights[i];
+//		if (light->mCastShadow)
+//		{
+//			for (int faceIdx = 0; faceIdx < 6; faceIdx++)
+//			{
+//				LFrustum f = LFrustum::MakeFrustrum(light->mFov, light->mNear, light->mFar, light->mAspect);
+//				f.Multiple(light->mViewMatrix[faceIdx].inverse());
+//
+//				AddLineToSubMesh(f.mNearPlane[0], f.mNearPlane[1], mDebugMeshLine);
+//				AddLineToSubMesh(f.mNearPlane[1], f.mNearPlane[2], mDebugMeshLine);
+//				AddLineToSubMesh(f.mNearPlane[2], f.mNearPlane[3], mDebugMeshLine);
+//				AddLineToSubMesh(f.mNearPlane[3], f.mNearPlane[0], mDebugMeshLine);
+//				AddLineToSubMesh(f.mNearPlane[0], f.mFarPlane[0], mDebugMeshLine);
+//				AddLineToSubMesh(f.mNearPlane[1], f.mFarPlane[1], mDebugMeshLine);
+//				AddLineToSubMesh(f.mNearPlane[2], f.mFarPlane[2], mDebugMeshLine);
+//				AddLineToSubMesh(f.mNearPlane[3], f.mFarPlane[3], mDebugMeshLine);
+//				AddLineToSubMesh(f.mFarPlane[0], f.mFarPlane[1], mDebugMeshLine);
+//				AddLineToSubMesh(f.mFarPlane[1], f.mFarPlane[2], mDebugMeshLine);
+//				AddLineToSubMesh(f.mFarPlane[2], f.mFarPlane[3], mDebugMeshLine);
+//				AddLineToSubMesh(f.mFarPlane[3], f.mFarPlane[0], mDebugMeshLine);
+//			}
+//
+//		}
+//		AddCubeWiredToSubMesh(mDebugMeshLine, light->mPosition, LVector3f(1, 1, 1), light->mColor);
+//	}
+//
+//	mDebugMeshData.Init(&mDebugMesh);
+//	mDebugMeshLineData.Init(&mDebugMeshLine);
+//}
 
 }

@@ -25,7 +25,7 @@ enum class RenderViewType
 	ShadowMapView
 };
 
-class RENDER_API RenderView : public RenderDataContainer
+class RENDER_API RenderView : public RenderDataContainer, public HoldIdItem
 {
 public:
 	RenderView();

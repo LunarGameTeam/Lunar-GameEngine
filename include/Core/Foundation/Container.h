@@ -147,5 +147,57 @@ public:
 
 };
 
+struct HoldIdItem
+{
+	uint64_t mID = -1;
+};
 
+template<typename Value>
+class LHoldIdArray
+{
+	LQueue<size_t> mEmptyIndex;
+	LUnorderedMap<size_t, LSharedPtr<Value>> mItems;
+public:
+	LHoldIdArray()
+	{
+
+	}
+
+	Value* AddNewValue()
+	{
+		size_t newIndex = mItems.size();
+		if (!mEmptyIndex.empty())
+		{
+			newIndex = mEmptyIndex.front();
+			mEmptyIndex.pop();
+		}
+		LSharedPtr<Value> newValue = MakeShared<Value>();
+		HoldIdItem* pointer = newValue.get();
+		pointer->mID = newIndex;
+		mItems.insert({ newIndex ,newValue });
+	};
+
+	bool DestroyValue(Value* valueData)
+	{
+		HoldIdItem* pointer = valueData;
+		size_t index = pointer->mID;
+		auto itor = mItems.find(index);
+		if (itor == mItems.end())
+		{
+			return false;
+		}
+		mEmptyIndex.push(index);
+		mItems.erase(index);
+	}
+
+	void GetAllValueList(LArray<Value*> &valueOut) const
+	{
+		valueOut.clear();
+		for (auto& eachItemData : mItems)
+		{
+			valueOut.push_back(eachItemData.second.get());
+		}
+	}
+
+};
 }

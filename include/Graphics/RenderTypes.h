@@ -37,7 +37,4 @@ class RenderContext;
 struct RenderLight;
 struct RenderObject;
 
-using ROArray = LArray<RenderObject*>;
-using ViewArray = LArray<RenderView*>;
-
 }

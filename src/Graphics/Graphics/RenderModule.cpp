@@ -87,8 +87,6 @@ void RenderModule::OnIMGUI()
 
 bool RenderModule::OnShutdown()
 {
-	if (mFrameGraph)
-		delete mFrameGraph;
 	ImGui::SaveIniSettingsToDisk("layout.ini");
 	return true;
 }
@@ -234,8 +232,6 @@ bool RenderModule::OnInit()
 
 	mRenderContext->mFence->Wait(mRenderContext->mFenceValue);	
 
-	mFrameGraph = new FrameGraphBuilder("MainFG");	
-
 	mDefaultWhiteTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/White.png"));
 	mDefaultNormalTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/Normal.png"));
 	SubMesh mFullscreenMeshAsset;
@@ -350,8 +346,7 @@ void RenderModule::RenderTick(float delta_time)
 	mRenderContext->mTransferCmd->GetCmdList()->BeginEvent("Frame Graph Prepare");
 	for (RenderScene* it : mRenderScenes)
 	{
-		if(it->mRenderable)
-			it->Render(mFrameGraph);
+		mRenderer.Render(it);
 	}
 	mRenderContext->mTransferCmd->GetCmdList()->EndEvent();
 
@@ -372,7 +367,6 @@ void RenderModule::RenderTick(float delta_time)
 			ImGui::RenderPlatformWindowsDefault();
 		}
 	}
-	mFrameGraph->Clear();
 	mRenderContext->OnFrameEnd();
 	{
 		ZoneScopedN("Present");
@@ -436,7 +430,6 @@ void RenderModule::Render()
 {
 	ZoneScoped;
 	mRenderContext->FlushStaging();
-	mFrameGraph->Flush();
 }
 
 void RenderModule::RenderIMGUI()

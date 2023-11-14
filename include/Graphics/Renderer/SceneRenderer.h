@@ -28,112 +28,61 @@ namespace luna::graphics
 
 	class RENDER_API SceneRenderer
 	{
-		RenderScene* mRenderScene = nullptr;
-
 		FrameGraphBuilder mFrameGraphBuilder;
 
 		SceneRenderPipeline mRenderPipeline;
 
+		LArray<RenderView*> mAllViews;
 	public:
-		SceneRenderer(RenderScene* ownerScene) :
-			mRenderScene(ownerScene),
+		SceneRenderer() :
 			mFrameGraphBuilder("SceneRenderer") {};
 
-		void Render();
+		void Render(RenderScene* renderScene);
 	private:
 
-		void PrepareSceneRender();
+		void PrepareSceneRender(RenderScene* renderScene);
 
-		void GeneratePassByView(RenderView* curView);
+		void GeneratePassByView(RenderScene* renderScene,RenderView* curView);
 
 	};
 
-	void SceneRenderer::PrepareSceneRender()
+	void SceneRenderer::PrepareSceneRender(RenderScene* renderScene)
 	{
-		//if (mMainDirLight)
-		//{
-		//	if (mMainDirLight->mDirty)
-		//		mBufferDirty = true;
-		//	mMainDirLight->PerSceneUpdate(this);
-		//}
-		//for (int i = 0; i < mPointLights.size(); i++)
-		//{
-		//	PointLight* light = mPointLights[i];
-		//	if (light->mDirty)
-		//		mBufferDirty = true;
-		//	light->PerSceneUpdate(this);
-		//}
-
-		for (auto data : mRenderScene->mDatas)
+		for (auto data : renderScene->mDatas)
 		{
-			data->PerSceneUpdate(mRenderScene);
+			data->PerSceneUpdate(renderScene);
 		}
 
-		//PrepareScene();
-
-		size_t viewNum = mRenderScene->GetRenderViewNum();
-		for (size_t viewIndex = 0; viewIndex < viewNum; ++viewIndex)
+		for (RenderView* curView : mAllViews)
 		{
-			RenderView* curView = mRenderScene->GetRenderView(viewIndex);
 			for (auto data : curView->mDatas)
 			{
 				data->PerViewUpdate(curView);
 			}
-			//for (int i = 0; i < mPointLights.size(); i++)
-			//{
-			//	PointLight* light = mPointLights[i];
-			//	light->PerViewUpdate(renderView);
-			//}
-			//if (mMainDirLight)
-			//	mMainDirLight->PerViewUpdate(renderView);
 			curView->PrepareView();
 		}
-		//Debug();
-
-		//mSceneParamsBuffer->Commit();
-		//mROIDInstancingBuffer->Commit();
-
-		//for (RenderView* renderView : mViews)
-		//{
-		//	renderView->Culling(mRenderScene);
-		//	switch (mViewType)
-		//	{
-		//	case RenderViewType::SceneView:
-		//	{
 		//		PBRPreparePass(FG, this, scene);
 		//		DirectionalLightShadowPass(FG, this, scene);
 		//		PointShadowPass(FG, this, scene);
 		//		OpaquePass(FG, this, scene);
 		//		PostProcessPass(FG, this, scene);
 		//		OverlayPass(FG, this, scene);
-		//		break;
-		//	}
-		//	case RenderViewType::ShadowMapView:
-		//	{
-		//		break;
-		//	}
-		//	default:
-		//		break;
-		//	}
-		//	renderView->Render(this, FG);
-		//}
 	}
 
-	void SceneRenderer::GeneratePassByView(RenderView* curView)
+	void SceneRenderer::GeneratePassByView(RenderScene* renderScene,RenderView* curView)
 	{
-		curView->Culling(mRenderScene);
-		mRenderPipeline.GeneratePass(&mFrameGraphBuilder, mRenderScene, curView);
+		curView->Culling(renderScene);
+		mRenderPipeline.GeneratePass(&mFrameGraphBuilder, renderScene, curView);
 	}
 
-	void SceneRenderer::Render()
+	void SceneRenderer::Render(RenderScene* renderScene)
 	{
+		renderScene->GetAllView(mAllViews);
 		mFrameGraphBuilder.Clear();
-		PrepareSceneRender();
-		size_t viewNum = mRenderScene->GetRenderViewNum();
-		for (size_t viewIndex = 0; viewIndex < viewNum; ++viewIndex)
+		PrepareSceneRender(renderScene);
+		for (RenderView* curView : mAllViews)
 		{
-			RenderView* curView = mRenderScene->GetRenderView(viewIndex);
-			GeneratePassByView(curView);
+			GeneratePassByView(renderScene,curView);
 		}
 		mFrameGraphBuilder.Flush();
 	}
