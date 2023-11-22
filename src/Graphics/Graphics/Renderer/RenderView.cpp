@@ -13,6 +13,7 @@
 
 namespace luna::graphics
 {
+PARAM_ID(ViewBuffer);
 
 RenderView::RenderView() :
 	mRT(nullptr)
@@ -21,13 +22,17 @@ RenderView::RenderView() :
 	mViewBuffer = new ShaderCBuffer(device->GetDefaultShaderConstantBufferDesc(LString("ViewBuffer").Hash()));
 }
 
+void RenderView::SetMaterialViewParameter(MaterialInstance* matInstance)
+{
+	matInstance->SetShaderInput(ParamID_ViewBuffer, mViewBuffer->mView);
+}
+
 void RenderView::PrepareView()
 {
-	for (auto data : mDatas)
+	if (!mDirty)
 	{
-		data->PerViewUpdate(this);
+		return;
 	}
-
 	mViewBuffer->Set("cViewMatrix", mViewMatrix);
 	mViewBuffer->Set("cProjectionMatrix", mProjMatrix);
 	LVector2f cNearFar(mNear, mFar);
@@ -38,36 +43,7 @@ void RenderView::PrepareView()
 
 void RenderView::Culling(RenderScene* scene)
 {
-
-	//mViewVisibleROs.clear();
-	//mViewVisibleROs = scene->GetRenderObjects();
-}
-
-void RenderView::Render(RenderScene* scene, FrameGraphBuilder* FG)
-{
-	Culling(scene);
-
-	switch (mViewType)
-	{
-	case RenderViewType::SceneView:
-	{
-		PBRPreparePass(FG, this, scene);
-		DirectionalLightShadowPass(FG, this, scene);
-		PointShadowPass(FG, this, scene);
-		OpaquePass(FG, this, scene);
-		PostProcessPass(FG, this, scene);
-		OverlayPass(FG, this, scene);
-		break;
-	}	
-	case RenderViewType::ShadowMapView:
-	{
-		break;
-	}
-	default:
-		break;
-	}
-
-
+	scene->GetRenderObjects(mViewVisibleROs);
 }
 
 }

@@ -18,14 +18,28 @@
 namespace luna::graphics
 {
 
-RenderObject::RenderObject(RenderScene* ownerScene) : mOwnerScene(ownerScene)
-{
-	mWorldMat.setIdentity();
-}
-
+PARAM_ID(RoWorldMatrixBuffer);
 RenderScene::RenderScene()
 {
 	RequireData<SkeletonSkinData>();
+	if (mRoDataBuffer == nullptr)
+	{
+		RHIBufferDesc desc;
+		desc.mBufferUsage = RHIBufferUsage::StructureBuffer;
+		desc.mSize = sizeof(LMatrix4f) * 1024;
+		mRoDataBuffer = sRenderModule->mRenderContext->CreateBuffer(RHIHeapType::Upload, desc);
+		ViewDesc viewDesc;
+		viewDesc.mViewType = RHIViewType::kStructuredBuffer;
+		viewDesc.mViewDimension = RHIViewDimension::BufferView;
+		viewDesc.mStructureStride = sizeof(LMatrix4f);
+		mRoDataBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
+		mRoDataBufferView->BindResource(mRoDataBuffer);
+	}
+}
+
+void RenderScene::SetMaterialSceneParameter(MaterialInstance* matInstance)
+{
+	matInstance->SetShaderInput(ParamID_RoWorldMatrixBuffer, mRoDataBufferView);
 }
 
 RenderObject* RenderScene::CreateRenderObject()

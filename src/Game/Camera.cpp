@@ -21,12 +21,15 @@ void GameCameraRenderDataUpdater::UpdateRenderThreadImpl(graphics::GameRenderBri
 		LMatrix4f newProjMatrix;
 		float curAspect = (float)realPointer->mIntrinsicsParameter.mRtWidth / (float)realPointer->mIntrinsicsParameter.mRtHeight;
 		LMath::GenPerspectiveFovLHMatrix(newProjMatrix, realPointer->mIntrinsicsParameter.mFovY, curAspect, realPointer->mIntrinsicsParameter.mNear, realPointer->mIntrinsicsParameter.mFar);
+		mRenderView->SetNearFar(realPointer->mIntrinsicsParameter.mNear, realPointer->mIntrinsicsParameter.mFar);
 		mRenderView->SetProjectionMatrix(newProjMatrix);
+		mRenderView->SetDirty();
 	}
 	if (realPointer->mExtrinsicsDirty)
 	{
 		mRenderView->SetViewMatrix(realPointer->mExtrinsicsParameter.mViewMatrix);
 		mRenderView->SetViewPosition(realPointer->mExtrinsicsParameter.mPosition);
+		mRenderView->SetDirty();
 	}
 }
 

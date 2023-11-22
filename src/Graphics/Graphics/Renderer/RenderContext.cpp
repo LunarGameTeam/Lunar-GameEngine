@@ -569,6 +569,10 @@ void RenderContext::DrawMesh(graphics::RenderMeshBase* mesh, graphics::MaterialI
 	DrawMeshInstanced(mesh, mat, nullptr, 0, 1);
 }
 
+void RenderContext::Dispatch(MaterialInstance* mat, LVector4i dispatchSize)
+{
+	LUNA_ASSERT(false);
+}
 
 void RenderContext::DrawMeshInstanced(graphics::RenderMeshBase* mesh, graphics::MaterialInstance* mat, graphics::RHIResource* vertexInputInstanceRes /*= nullptr*/,
 	int32_t startInstanceIdx /*= 1*/, int32_t instancingSize /*= 1*/)

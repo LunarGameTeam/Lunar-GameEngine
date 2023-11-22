@@ -100,7 +100,7 @@ public:
 private:
 	ActionHandle   mTransformDirtyAction;
 
-	float mFar = 200.f, mNear = 0.1f;
+	float mFar = 1000.f, mNear = 0.1f;
 	mutable LMatrix4f mViewMat = LMatrix4f::Identity();
 	mutable LMatrix4f mProjMat = LMatrix4f::Identity();
 

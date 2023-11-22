@@ -17,13 +17,14 @@ public:
 
 	void Clear();
 
-	FGNode& AddPass(const LString& name);
+	FGGraphDrawNode* AddGraphDrawPass(const LString& name);
 
 	LSharedPtr<FGTexture> CreateCommon2DTexture(
 		const LString& name,
 		uint32_t width,
 		uint32_t height,
-		RHITextureFormat format
+		RHITextureFormat format,
+		RHIImageUsage usage
 	);
 	
 	void Compile();

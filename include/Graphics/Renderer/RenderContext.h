@@ -193,6 +193,8 @@ public:
 		int32_t startInstanceIdx = 1,
 		int32_t instancingSize = 1);
 
+	void Dispatch(MaterialInstance* mat,LVector4i dispatchSize);
+
 private:
 	using PipelineCacheKey = std::pair < MaterialInstance*, size_t>;
 	RenderPassDesc                              mCurRenderPass;

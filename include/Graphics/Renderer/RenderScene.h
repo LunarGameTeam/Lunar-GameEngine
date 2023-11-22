@@ -9,24 +9,12 @@
 #include "Core/Foundation/Misc.h"
 #include "Graphics/Renderer/RenderData.h"
 #include "Graphics/Renderer/SkeletonSkin.h"
-
+#include "Graphics/Renderer/RenderObject.h"
 #include <functional>
 
 
 namespace luna::graphics
 {
-
-class RENDER_API RenderObject : public RenderDataContainer, public HoldIdItem
-{
-	LMatrix4f    mWorldMat;
-	RenderScene* mOwnerScene = nullptr;
-public:
-	RenderObject(RenderScene* ownerScene);
-
-	void UpdateWorldMatrix(const LMatrix4f &worldMat) { mWorldMat = worldMat; }
-
-	const LMatrix4f& GetWorldMatrix() { return mWorldMat; }
-};
 
 class RenderObjectDrawData : public RenderData
 {
@@ -84,6 +72,8 @@ public:
 	void DestroyRenderView(RenderView* renderView);
 
 	void GetAllView(LArray<RenderView*>& valueOut) const;
+
+	void SetMaterialSceneParameter(MaterialInstance* matInstance);
 	//void Debug();
 private:
 	//bool                  mBufferDirty = true;
@@ -91,7 +81,13 @@ private:
 
 	LHoldIdArray<RenderObject> mRenderObjects;
 
+	RHIResourcePtr           mRoDataBuffer;
+
+	RHIViewPtr               mRoDataBufferView;
+
 	LHoldIdArray<RenderView> mViews;
+
+	GpuRenderScene           mGpuScene;
 };
 
 

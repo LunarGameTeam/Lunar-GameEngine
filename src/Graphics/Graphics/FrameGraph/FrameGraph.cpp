@@ -29,12 +29,12 @@ FrameGraphBuilder::~FrameGraphBuilder()
 {
 }
 
-FGNode& FrameGraphBuilder::AddPass(const LString& name)
+FGGraphDrawNode* FrameGraphBuilder::AddGraphDrawPass(const LString& name)
 {
-	FGNode* node = new FGNode();
-	node->mName = name;
+	FGGraphDrawNode* node = new FGGraphDrawNode();
+	node->SetName(name);
 	mNodes.push_back(node);
-	return *node;
+	return node;
 }
 
 
@@ -54,11 +54,12 @@ LSharedPtr<FGTexture> FrameGraphBuilder::CreateCommon2DTexture(
 	const LString& name,
 	uint32_t width,
 	uint32_t height,
-	RHITextureFormat format
+	RHITextureFormat format,
+	RHIImageUsage usage
 )
 {
 	size_t curNewId = GenerateVirtualResourceId();
-	LSharedPtr<FGTexture> newTexture = MakeShared<FGTexture>(curNewId, width, height, format,this);
+	LSharedPtr<FGTexture> newTexture = MakeShared<FGTexture>(curNewId, width, height, format, usage,this);
 	return newTexture;
 }
 

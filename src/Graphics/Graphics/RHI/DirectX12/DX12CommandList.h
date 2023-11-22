@@ -44,6 +44,8 @@ public:
 
 	void ResourceBarrierExt(const ResourceBarrierDesc& desc) override;
 
+	void ResourceBarrierExt(const LArray<ResourceBarrierDesc>& desc) override;
+
 	void SetDrawPrimitiveTopology(RHIPrimitiveTopology primitive_topology) override;
 
 	void SetBiningSetLayoutExt(

@@ -148,6 +148,8 @@ public:
 
 	virtual void ResourceBarrierExt(const ResourceBarrierDesc& desc) {};
 
+	virtual void ResourceBarrierExt(const LArray<ResourceBarrierDesc>& desc) {};
+
 	virtual void BeginRender(const RenderPassDesc&) {};
 	virtual void EndRender() {};
 	virtual void BeginRenderPass(RHIRenderPass* pass, RHIFrameBuffer* buffer) = 0;

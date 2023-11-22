@@ -15,9 +15,21 @@ namespace luna::graphics
 
 	void SceneRenderPipeline::GeneratePass(FrameGraphBuilder* frameGraph, RenderScene* curScene, RenderView* curView)
 	{
+		LArray<RenderObject*>& allObjects = curView->GetViewVisibleROs();
+		for (RenderObject* eachRo : allObjects)
+		{
+			for (FrameGraphPassGenerator* eachGenerator : mAllPassGenerator)
+			{
+				eachGenerator->FilterRenderObject(eachRo);
+			}
+		}
 		for (FrameGraphPassGenerator* eachGenerator : mAllPassGenerator)
 		{
 			eachGenerator->AddPassNode(frameGraph, curView, curScene);
+		}
+		for (FrameGraphPassGenerator* eachGenerator : mAllPassGenerator)
+		{
+			eachGenerator->ClearRoQueue();
 		}
 	}
 

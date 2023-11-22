@@ -44,6 +44,18 @@ public:
 		return nullptr;
 	}
 
+	template<typename T>
+	const T* GetReadOnlyData() const
+	{
+		for (auto it : mDatas)
+		{
+			auto p = dynamic_cast<T*>(it);
+			if (p)
+				return p;
+		}
+		return nullptr;
+	}
+
 	LArray<RenderData*> mDatas;
 };
 

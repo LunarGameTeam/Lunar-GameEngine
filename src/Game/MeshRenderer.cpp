@@ -20,7 +20,7 @@ void GameStaticMeshRenderDataUpdater::UpdateRenderThreadImpl(graphics::GameRende
 		{
 			graphics::RenderObject* newObject = curScene->CreateRenderObject();
 			RenderMeshBase* meshData = newObject->RequireData<RenderMeshBase>();
-			meshData->Init(realPointer->mInitSubmesh[subMeshIndex]);
+			meshData->mMeshData = realPointer->mInitSubmesh[subMeshIndex]->GetRenderMeshData();
 			mRenderMesh.push_back(meshData);
 			mRenderObjects.push_back(newObject);
 		}

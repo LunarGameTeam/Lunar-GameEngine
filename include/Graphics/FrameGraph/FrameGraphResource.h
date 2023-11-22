@@ -76,7 +76,8 @@ private:
 RHIResDesc GenerateTexture2DRhiDesc(
 	uint32_t width,
 	uint32_t height,
-	RHITextureFormat format
+	RHITextureFormat format,
+	RHIImageUsage usage
 )
 {
 	RHIResDesc newDesc = {};
@@ -86,6 +87,7 @@ RHIResDesc GenerateTexture2DRhiDesc(
 	newDesc.Width = width;
 	newDesc.Height = height;
 	newDesc.Format = format;
+	newDesc.mImageUsage = usage;
 	return newDesc;
 }
 class FGTexture : public FGResource
@@ -99,9 +101,10 @@ public:
 		uint32_t width,
 		uint32_t height,
 		RHITextureFormat format,
+		RHIImageUsage usage,
 		FrameGraphBuilder* builder
 	):
-		FGResource(uniqueId, name, GenerateTexture2DRhiDesc(width, height, format), builder),
+		FGResource(uniqueId, name, GenerateTexture2DRhiDesc(width, height, format, usage), builder),
 		mTextureDesc(RHITextureDesc{})
 	{
 

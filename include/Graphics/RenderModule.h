@@ -28,10 +28,12 @@
 #include "Graphics/Renderer/SceneRenderer.h"
 
 #include "Graphics/RHI/RHITypes.h"
-
+#include "Graphics/RenderAssetManager/RenderAssetManager.h"
 
 namespace luna::graphics
 {
+
+
 
 class RENDER_API RenderModule : public LModule
 {
@@ -71,6 +73,7 @@ public:
 
 	RenderDeviceType GetDeviceType() { return mRenderContext->mDeviceType; }
 
+	RenderAssetDataManager* GetAssetManager() { return &mRenderAssetManager; };
 public:
 	
 	bool OnLoad() override;	
@@ -109,5 +112,7 @@ private:
 	bool                               mNeedResizeSwapchain = false;
 
 	std::atomic_bool                   mLogicUpdated = false;
+
+	RenderAssetDataManager             mRenderAssetManager;
 };
 }

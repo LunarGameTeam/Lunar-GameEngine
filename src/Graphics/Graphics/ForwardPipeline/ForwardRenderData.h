@@ -9,14 +9,8 @@ namespace  luna::graphics
 
 struct ViewShadowData : public RenderData
 {
-	size_t pointShadowWidth;
-	size_t pointShadowHeight;
-	LSharedPtr<FGTexture> mPointShadowmap = nullptr;
-
-	size_t pointShadowWidth;
-	size_t pointShadowHeight;
-	LSharedPtr<FGTexture> mDirectionLightShadowmap = nullptr;
-
+	LSharedPtr<FGTexture> mLightShadowmap = nullptr;
+	LSharedPtr<FGTexture> mLightShadowDepth = nullptr;
 };
 
 struct SceneRenderData : public RenderData

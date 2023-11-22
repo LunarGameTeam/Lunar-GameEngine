@@ -646,6 +646,52 @@ void DX12GraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier)
 	dxRes->SetLastState(dx_state_after);
 }
 
+void DX12GraphicCmdList::ResourceBarrierExt(const LArray<ResourceBarrierDesc>& desc)
+{
+	std::vector<D3D12_RESOURCE_BARRIER> dxBarriers;
+	for (auto &barrier : desc)
+	{
+		if (!barrier.mBarrierRes)
+		{
+			LUNA_ASSERT(false);
+			return;
+		}
+		if (barrier.mStateBefore == ResourceState::kRaytracingAccelerationStructure)
+			return;
+
+		DX12Resource* dxRes = barrier.mBarrierRes->As<DX12Resource>();
+		D3D12_RESOURCE_STATES dx_state_before = DxConvertState(barrier.mStateBefore);
+		D3D12_RESOURCE_STATES dx_state_after = DxConvertState(barrier.mStateAfter);
+		if (dx_state_before != dxRes->mLastState)
+		{
+			dx_state_before = dxRes->mLastState;
+		}
+		if (dx_state_before == dx_state_after)
+			return;
+
+		LUNA_ASSERT(barrier.mBaseMipLevel + barrier.mMipLevels <= dxRes->mDxDesc.MipLevels);
+		LUNA_ASSERT(barrier.mBaseDepth + barrier.mDepth <= dxRes->mDxDesc.DepthOrArraySize);
+
+		if (barrier.mBaseMipLevel == 0 && barrier.mMipLevels == dxRes->mDxDesc.MipLevels &&
+			barrier.mBaseDepth == 0 && barrier.mDepth == dxRes->mDxDesc.DepthOrArraySize)
+		{
+			dxBarriers.emplace_back(CD3DX12_RESOURCE_BARRIER::Transition(dxRes->mDxRes.Get(), dx_state_before, dx_state_after));
+		}
+		else
+		{
+			for (uint32_t i = barrier.mBaseMipLevel; i < barrier.mBaseMipLevel + barrier.mMipLevels; ++i)
+			{
+				for (uint32_t j = barrier.mBaseDepth; j < barrier.mBaseDepth + barrier.mDepth; ++j)
+				{
+					uint32_t subresource = i + j * dxRes->GetDesc().MipLevels;
+					dxBarriers.emplace_back(CD3DX12_RESOURCE_BARRIER::Transition(dxRes->mDxRes.Get(), dx_state_before, dx_state_after, subresource));
+				}
+			}
+		}
+		dxRes->SetLastState(dx_state_after);
+	}
+	mDxCmdList->ResourceBarrier((UINT)dxBarriers.size(), dxBarriers.data());
+}
 
 void GenerateDX12CommandPool(RHICmdListType listType, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>& ppCommandAllocator)
 {
