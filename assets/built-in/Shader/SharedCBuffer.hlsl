@@ -73,23 +73,9 @@ StructuredBuffer<float4x4> RoWorldMatrixBuffer : register(t3, VIEW_SPACE0);
 cbuffer PointBasedLightParameter : register(b0, SCENE_SPACE0)
 {
 	uint4 PointBasedLightNum;
-
-	//float4 cAmbientColor;
-	//Direction Light
-	//float4 cDirectionLightColor;	
-    //float3 cLightDirection;
-	//float  cDirectionLightIndensity;
-	//Cacsde Direction Light Matrix
-	//matrix cDirectionLightViewMatrix[4];
-	//matrix cDirectionLightProjMatrix[4];
-	
-	//Point Light Matrix
-	//PointLight cPointLights[4];
-	//int cPointLightsCount;
-	//matrix cLightViewMatrix[6];
-	//matrix cLightProjMatrix[6];
-	//int cShadowmapCount;
-	
+	uint cPointLightIndex[256];
+    uint cDirectionLightIndex[16];
+	uint cSpotLightIndex[256];
 };
 StructuredBuffer<float4> PointBasedLightDataBUffer : register(t4, VIEW_SPACE0);
 

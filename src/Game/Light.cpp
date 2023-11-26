@@ -26,8 +26,11 @@ namespace luna
 		}
 		mRenderLight->mColor = realPointer->mColor;
 		mRenderLight->mIntensity = realPointer->mIntensity;
+		mRenderLight->mPosition = realPointer->mPosition;
 		mRenderLight->mType = graphics::PointBasedLightType::POINT_BASED_LIGHT_POINT;
 
+		graphics::PointBasedRenderLightData* lightData = curScene->GetData<graphics::PointBasedRenderLightData>();
+		lightData->MarkLightDirty(mRenderLight);
 		LightUpdateRenderThreadImpl(realPointer, mRenderLight, curScene);
 	}
 
@@ -35,7 +38,7 @@ namespace luna
 	{
 		if (mRenderLight)
 		{
-			mRenderLight->mOwnerScene->RequireData<graphics::PointBasedRenderLightData>()->DestroyLight(mRenderLight->mIndex);
+			mRenderLight->mOwnerScene->RequireData<graphics::PointBasedRenderLightData>()->DestroyLight(mRenderLight);
 		}
 	};
 
@@ -134,6 +137,7 @@ namespace luna
 			curData->mCastShadow = mCastShadow;
 			curData->mColor = mColor;
 			curData->mIntensity = mIntensity;
+			curData->mPosition = GetPosition();
 			mNeedUpdate = false;
 		}
 	}

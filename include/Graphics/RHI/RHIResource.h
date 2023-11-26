@@ -73,58 +73,47 @@ struct RHIResDesc
 class RENDER_API RHIResource : public RHIObject
 {	
 public:
-	RHIResDesc mResDesc;
-	RHIMemoryPtr     mBindMemory;
-	ResourceState    mState = ResourceState::kUndefined;
+	RHIResource();
 
+	RHIResource(const RHIResDesc& desc);
 
-	RHIResource() = default;
-	RHIResource(const RHIResDesc& desc) :
-		mResDesc(desc)
-	{
+	RHIResource(const RHIBufferDesc& desc);
 
-	}
+	~RHIResource() override;
 
-	~RHIResource() override
-	{
+	void ResetResourceBufferSize(size_t newSize);
 
-	};
+	virtual void BindMemory(RHIMemory* memory, uint64_t offset) = 0;
 
-	virtual void BindMemory(RHIMemory* memory, uint64_t offset) {};
+	virtual void BindMemory(RHIHeapType type) = 0;
 
-	virtual void BindMemory(RHIHeapType type) {};
+	void SetInitialState(ResourceState state);
 
-	void SetInitialState(ResourceState state) 
-	{
-		mState = state;
-	};
-
-	ResourceState GetInitialState() const 
-	{
-		return mState;
-	};
+	ResourceState GetInitialState() const;
 
 	virtual void UpdateUploadBuffer(size_t offset, const void* src, size_t size) = 0;		
 
 	virtual  void* Map() = 0;
-	
 
 	virtual void Unmap() = 0;
+
+	const RHIResDesc& GetDesc() const;
+
+	const MemoryRequirements& GetMemoryRequirements() const;
 	
-
-	const RHIResDesc& GetDesc() const
-	{
-		return mResDesc;
-	}
-
-	const MemoryRequirements& GetMemoryRequirements() const
-	{
-		return mMemoryLayout;
-	}
-
+	ResourceState    mState = ResourceState::kUndefined;
 protected:
-	MemoryRequirements mMemoryLayout;
+	RHIResDesc mResDesc;
 
+	RHIMemoryPtr     mBindMemory;
+
+	mutable bool mSizeDirty = true;
+
+	mutable MemoryRequirements mMemoryLayout;
+
+	virtual void ResetResourceBufferSizeDeviceData(size_t newSize) = 0;
+
+	virtual void RefreshMemoryRequirements() const = 0;
 };
 
 class RHIResource;

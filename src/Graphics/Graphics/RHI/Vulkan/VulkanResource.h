@@ -23,6 +23,8 @@ public:
 
 	~VulkanResource();
 
+	void ResetResourceBufferSizeDeviceData(size_t newSize) override;
+
 	void UpdateUploadBuffer(size_t offset, const void* copy_data, size_t data_size) override;
 
 	void BindMemory(RHIMemory* memory, uint64_t offset) override;
@@ -33,7 +35,7 @@ public:
 
 	virtual void Unmap() override;
 
-	void RefreshMemoryRequirements();
+	void RefreshMemoryRequirements()const override;
 public:		
 	size_t mOffset = 0;
 	vk::Image mImage = nullptr;
@@ -43,5 +45,6 @@ public:
 private:
 	bool AllocByVma = false;
 	VmaAllocation mAllocation;
+	vk::BufferCreateInfo mBufferInfo = {};
 };
 }

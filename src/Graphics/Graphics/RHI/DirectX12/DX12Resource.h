@@ -33,13 +33,15 @@ public:
 
 	~DX12Resource();
 
+	void ResetResourceBufferSizeDeviceData(size_t newSize) override;
+
 	void UpdateUploadBuffer(size_t offset, const void* copy_data, size_t data_size) override {};
 
 	void BindMemory(RHIMemory* memory, uint64_t offset) override;
 
 	void BindMemory(RHIHeapType type) override;
 
-	void RefreshMemoryRequirements();
+	void RefreshMemoryRequirements() const override;
 
 	void* Map() override 
 	{
@@ -61,11 +63,11 @@ public:
 
 	void* mMapPointer = nullptr;
 
-	D3D12_RESOURCE_DESC mDxDesc = {};
+	mutable D3D12_RESOURCE_DESC mDxDesc = {};
 
 	D3D12_SAMPLER_DESC mDxSamplerDesc = {};
 
-	DxResourceCopyLayout mLayout;
+	mutable DxResourceCopyLayout mLayout;
 
 	D3D12_RESOURCE_STATES mLastState;
 };

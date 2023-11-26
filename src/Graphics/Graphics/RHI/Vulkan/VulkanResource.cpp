@@ -93,41 +93,32 @@ VulkanResource::VulkanResource(const RHITextureDesc& textureDesc, const RHIResDe
 	RefreshMemoryRequirements();
 }
 
-VulkanResource::VulkanResource(const RHIBufferDesc& desc)
+VulkanResource::VulkanResource(const RHIBufferDesc& desc) : RHIResource(desc)
 {
-	mResDesc.mType = ResourceType::kBuffer;
-	mResDesc.Dimension = RHIResDimension::Buffer;
-
 	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
-	
-
-	vk::BufferCreateInfo bufferInfo{};
-	
-	bufferInfo.size = desc.mSize;
+	mBufferInfo.size = mResDesc.Width;
 	
 	
 	if (Has(desc.mBufferUsage, RHIBufferUsage::TransferSrcBit))
-		bufferInfo.usage |= vk::BufferUsageFlagBits::eTransferSrc;
+		mBufferInfo.usage |= vk::BufferUsageFlagBits::eTransferSrc;
 	if (Has(desc.mBufferUsage, RHIBufferUsage::TransferDstBit))
-		bufferInfo.usage |= vk::BufferUsageFlagBits::eTransferDst;
+		mBufferInfo.usage |= vk::BufferUsageFlagBits::eTransferDst;
 	if (Has(desc.mBufferUsage, RHIBufferUsage::UniformBufferBit))
-		bufferInfo.usage |= vk::BufferUsageFlagBits::eUniformBuffer;
+		mBufferInfo.usage |= vk::BufferUsageFlagBits::eUniformBuffer;
 	if (Has(desc.mBufferUsage, RHIBufferUsage::IndexBufferBit))
-		bufferInfo.usage |= vk::BufferUsageFlagBits::eIndexBuffer;
+		mBufferInfo.usage |= vk::BufferUsageFlagBits::eIndexBuffer;
 	if (Has(desc.mBufferUsage, RHIBufferUsage::VertexBufferBit))
-		bufferInfo.usage |= vk::BufferUsageFlagBits::eVertexBuffer;
+		mBufferInfo.usage |= vk::BufferUsageFlagBits::eVertexBuffer;
 	if (Has(desc.mBufferUsage, RHIBufferUsage::StructureBuffer))
-		bufferInfo.usage |= vk::BufferUsageFlagBits::eStorageBuffer;
+		mBufferInfo.usage |= vk::BufferUsageFlagBits::eStorageBuffer;
 	
-	bufferInfo.sharingMode = vk::SharingMode::eExclusive;
+	mBufferInfo.sharingMode = vk::SharingMode::eExclusive;
 	
-	if (device.createBuffer(&bufferInfo, nullptr, &mBuffer) != vk::Result::eSuccess)
+	if (device.createBuffer(&mBufferInfo, nullptr, &mBuffer) != vk::Result::eSuccess)
 	{
 		throw std::runtime_error("failed to create Vulkan gpu buffer!");
 	}
 	SetInitialState(ResourceState::kCommon);
-
-	RefreshMemoryRequirements();
 }
 
 VulkanResource::VulkanResource(const SamplerDesc& desc)
@@ -181,6 +172,22 @@ VulkanResource::VulkanResource(const SamplerDesc& desc)
 		break;
 	}
 	VULKAN_ASSERT(device.createSampler(&samplerInfo, nullptr, &mSampler));
+}
+
+void VulkanResource::ResetResourceBufferSizeDeviceData(size_t newSize)
+{
+	if (mResDesc.mType != ResourceType::kBuffer)
+	{
+		assert(false);
+		return;
+	}
+	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	device.destroyBuffer(mBuffer);
+	mBufferInfo.size = newSize;
+	if (device.createBuffer(&mBufferInfo, nullptr, &mBuffer) != vk::Result::eSuccess)
+	{
+		throw std::runtime_error("failed to create Vulkan gpu buffer!");
+	}
 }
 
 VulkanResource::~VulkanResource()
@@ -242,7 +249,7 @@ void VulkanResource::BindMemory(RHIHeapType type)
 	AllocByVma = true;
 }
 
-void VulkanResource::RefreshMemoryRequirements()
+void VulkanResource::RefreshMemoryRequirements()const
 {
 	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
 	if (mResDesc.mType == ResourceType::kBuffer)

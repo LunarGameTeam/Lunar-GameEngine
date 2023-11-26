@@ -20,30 +20,7 @@ PARAM_ID(MaterialBuffer);
 ShaderCBuffer::ShaderCBuffer(const RHICBufferDesc& cbDesc) :
 	mVars(cbDesc.mVars)
 {
-	RHIBufferDesc desc;
 	mData.resize(cbDesc.mSize);
-	desc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
-	desc.mSize = cbDesc.mSize;
-	ViewDesc viewDesc;
-	viewDesc.mViewType = RHIViewType::kConstantBuffer;
-	viewDesc.mViewDimension = RHIViewDimension::BufferView;
-	mRes = sRenderModule->GetRenderContext()->CreateBuffer(RHIHeapType::Upload,desc);
-	mView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
-	mView->BindResource(mRes);
-}
-
-ShaderCBuffer::ShaderCBuffer(RHIBufferUsage usage, uint32_t size)
-{
-	RHIBufferDesc desc;
-	mData.resize(size);
-	desc.mBufferUsage = usage;
-	desc.mSize = size;
-	mRes = sRenderModule->GetRenderContext()->CreateBuffer(RHIHeapType::Upload, desc);
-}
-
-void ShaderCBuffer::Commit()
-{
-	sRenderModule->mRenderContext->UpdateConstantBuffer(mRes, mData.data(), mData.size() * sizeof(byte));
 }
 
 }

@@ -18,7 +18,6 @@ namespace luna::graphics
 		  该数据可能会同时被game和render线程使用，因此尽量不要存储指针类的数据，除非能保证这个指针指向的数据不会每帧变化
 		*/
 	};
-	
 	/*
 	  这个类是为了沟通game层和render层，父类会解决数据的跨线程访问的问题。
 	  子类只需要补充实现如何使用game层制作好的GameRenderBridgeData去更新renderscene里的renderdata
@@ -31,7 +30,11 @@ namespace luna::graphics
 		int mGameLocation;
 
 		LArray<LSharedPtr<GameRenderBridgeData>> mRenderBridgeData;
-
+		/*
+		这里可以持有renderdata里面的数据的指针，方便制作刷新这些数据的command，因为renderdata的数据永远只有一份。
+		除此之外，这里不要持有任何rhi的数据，如果你制作command需要借助一些辅助的staging buffer，请在UpdateRenderThreadImpl的时候，使用RenderScene上面
+		的RenderSceneUploadBufferPool临时去申请cbuffer或者structure buffer即可。
+		*/
 	public:
 		virtual ~GameRenderDataUpdater() {};
 		

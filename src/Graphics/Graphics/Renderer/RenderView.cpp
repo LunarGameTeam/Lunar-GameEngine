@@ -14,31 +14,31 @@
 namespace luna::graphics
 {
 PARAM_ID(ViewBuffer);
+void RenderViewParameterData::SetMaterialViewParameter(MaterialInstance* matInstance)
+{
+	matInstance->SetShaderInput(ParamID_ViewBuffer, mViewParamCbufferView);
+}
+
+void RenderViewParameterData::Init()
+{
+	auto device = sRenderModule->GetRenderContext();
+	mCbufferDesc = device->GetDefaultShaderConstantBufferDesc(LString("ViewBuffer").Hash());
+
+	RHIBufferDesc desc;
+	desc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
+	desc.mSize = SizeAligned2Pow(mCbufferDesc.mSize, CommonSize64K);
+	ViewDesc viewDesc;
+	viewDesc.mViewType = RHIViewType::kConstantBuffer;
+	viewDesc.mViewDimension = RHIViewDimension::BufferView;
+	mViewParamRes = sRenderModule->GetRenderContext()->CreateBuffer(RHIHeapType::Default, desc);
+	mViewParamCbufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
+	mViewParamCbufferView->BindResource(mViewParamRes);
+}
 
 RenderView::RenderView() :
 	mRT(nullptr)
 {	
-	auto device = sRenderModule->GetRenderContext();
-	mViewBuffer = new ShaderCBuffer(device->GetDefaultShaderConstantBufferDesc(LString("ViewBuffer").Hash()));
-}
 
-void RenderView::SetMaterialViewParameter(MaterialInstance* matInstance)
-{
-	matInstance->SetShaderInput(ParamID_ViewBuffer, mViewBuffer->mView);
-}
-
-void RenderView::PrepareView()
-{
-	if (!mDirty)
-	{
-		return;
-	}
-	mViewBuffer->Set("cViewMatrix", mViewMatrix);
-	mViewBuffer->Set("cProjectionMatrix", mProjMatrix);
-	LVector2f cNearFar(mNear, mFar);
-	mViewBuffer->Set("cNearFar", cNearFar);
-	mViewBuffer->Set("cCamPos", LMath::GetMatrixTranslaton(mViewMatrix.inverse()));	
-	mViewBuffer->Commit();
 }
 
 void RenderView::Culling(RenderScene* scene)

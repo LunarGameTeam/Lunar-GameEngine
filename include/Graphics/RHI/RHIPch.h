@@ -314,7 +314,7 @@ ENABLE_BITMASK_OPERATORS(ResourceState);
 
 struct ResourceBarrierDesc
 {
-	RHIResourcePtr mBarrierRes;
+	RHIResource*   mBarrierRes;
 	ResourceState  mStateBefore  = ResourceState::kUndefined;
 	ResourceState  mStateAfter   = ResourceState::kUndefined;
 	uint32_t       mBaseMipLevel = 0;

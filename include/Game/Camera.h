@@ -48,7 +48,13 @@ struct GameRenderBridgeDataCamera :public graphics::GameRenderBridgeData
 
 class GameCameraRenderDataUpdater :public graphics::GameRenderDataUpdater
 {
+	LSharedPtr<graphics::ShaderCBuffer> mViewCbuffer = nullptr;
+
 	graphics::RenderView* mRenderView = nullptr;
+
+	graphics::ShaderCBuffer* mConstantBuffer = nullptr;
+	
+	LMatrix4f mProjMatrix;
 public:
 	virtual ~GameCameraRenderDataUpdater();
 private:

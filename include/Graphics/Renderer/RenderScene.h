@@ -54,6 +54,65 @@ class RenderSceneDebugData : public RenderData
 	RenderMeshBase  mDebugMeshData;
 };
 
+struct GpuSceneUploadComputeCommand
+{
+	LArray<RHIResource*> mStorageBufferInput;
+	LArray<RHIResource*> mStorageBufferOutput;
+	MaterialInstance* mComputeMaterial;
+	LVector4i mDispatchSize;
+};
+
+struct GpuSceneUploadCopyCommand
+{
+	RHIResource* mUniformBufferInput;
+	RHIResource* mStorageBufferOutput;
+	size_t mSrcOffset;
+	size_t mDstOffset;
+	size_t mCopyLength;
+};
+
+class RenderSceneStagingMemory
+{
+	size_t mPerStageSize;
+	LArray<RHIMemoryPtr> mMemoryData;
+	LArray<size_t> mMemoryDataSize;
+	size_t mMemoryOffset;
+	//stage buffer池
+	LArray<RHIResourcePtr> mStageBufferPool;
+	size_t mPoolUsedSize;
+public:
+	RenderSceneStagingMemory(size_t perStageSize = 0x800000);
+
+	RHIResource* AllocStructStageBuffer(size_t curBufferSize);
+
+	RHIResource* AllocUniformStageBuffer(ShaderCBuffer* cbufferData);
+
+	void Clear()
+	{
+		ClearMemory();
+	};
+private:
+	void AddNewMemory(size_t memorySize);
+
+	bool BindMemory(RHIResource* targetResource);
+
+	void ClearMemory();
+};
+
+class RenderSceneUploadBufferPool
+{
+	size_t mFrameIndex;
+	LArray<RenderSceneStagingMemory> mMemoryArray;
+public:
+	RenderSceneUploadBufferPool();
+
+	RHIResource* AllocStructStageBuffer(size_t curBufferSize);
+
+	RHIResource* AllocUniformStageBuffer(ShaderCBuffer* cbufferData);
+
+	void Present();
+};
+
 class RENDER_API RenderScene final : public RenderDataContainer
 {
 public:
@@ -73,7 +132,13 @@ public:
 
 	void GetAllView(LArray<RenderView*>& valueOut) const;
 
-	void SetMaterialSceneParameter(MaterialInstance* matInstance);
+	GpuSceneUploadComputeCommand* AddComputeCommand();
+
+	GpuSceneUploadCopyCommand* AddCopyCommand();
+
+	RenderSceneUploadBufferPool* GetStageBufferPool();
+
+	void ExcuteCopy();
 	//void Debug();
 private:
 	//bool                  mBufferDirty = true;
@@ -81,13 +146,13 @@ private:
 
 	LHoldIdArray<RenderObject> mRenderObjects;
 
-	RHIResourcePtr           mRoDataBuffer;
+	LArray<GpuSceneUploadComputeCommand> mAllComputeCommand;
 
-	RHIViewPtr               mRoDataBufferView;
+	LArray<GpuSceneUploadCopyCommand> mAllCopyCommand;
 
 	LHoldIdArray<RenderView> mViews;
 
-	GpuRenderScene           mGpuScene;
+	RenderSceneUploadBufferPool mStageBufferPool;
 };
 
 

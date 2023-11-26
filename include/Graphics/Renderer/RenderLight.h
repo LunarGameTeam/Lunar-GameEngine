@@ -21,30 +21,24 @@ enum class PointBasedLightType
 	POINT_BASEDLIGHT_SPOT
 };
 
-struct RENDER_API PointBasedLight : public RenderData
+struct RENDER_API PointBasedLight
 {
 	size_t              mIndex;
+
 	PointBasedLightType mType = PointBasedLightType::POINT_BASED_LIGHT_POINT;
+
 	LVector4f           mColor      = LVector4f(1, 1, 1, 1);
+
 	float               mIntensity  = 1.0;
+
+	LVector4f           mRangeParam = LVector4f(0, 0, 0, 0);
+	//position
+	LVector3f           mPosition;
 	//direction
 	LVector3f           mDirection;
 	//spot
+	
 	RenderScene* mOwnerScene = nullptr;
-};
-
-struct RenderLightGpuDataBuffer : public RenderData
-{
-	//这个数据是GPUscene的光源组件，持有所有的光源信息
-	LSharedPtr<ShaderCBuffer> mLightParameter;
-
-	size_t mMaxLightNum;
-
-	RHIResourcePtr mExistLightDataBuffer;
-
-	RHIViewPtr mExistLightDataBufferView;
-
-	void SetMaterialParameter(MaterialInstance* matInstance);
 };
 
 class PointBasedRenderLightData : RenderData
@@ -52,15 +46,27 @@ class PointBasedRenderLightData : RenderData
 	//这个数据是render scene的光源组件，持有dirty的光源信息
 	size_t mMaxLightNum;
 
-	size_t mCurDirtyLightNum;
-
 	LHoldIdArray<PointBasedLight> mAllLights;
 
-	LSharedPtr<ShaderCBuffer> mLightBufferGlobelMessage;
+	RHIResourcePtr mLightParameterBuffer;
+
+	RHIViewPtr     mLightParameterBufferView;
 
 	RHIResourcePtr mExistLightDataBuffer;
 
 	RHIViewPtr     mExistLightDataBufferView;
+
+	LArray<PointBasedLight*> mDirtyList;
+
+	LSharedPtr<ShaderCBuffer> mLightBufferGlobelMessage = nullptr;
+
+	bool LightNumDirty = true;
+
+	LArray<uint32_t> mPointLightIndex;
+
+	LArray<uint32_t> mDirectionLightIndex;
+
+	LArray<uint32_t> mSpotLightIndex;
 public:
 	PointBasedRenderLightData();
 
@@ -68,6 +74,10 @@ public:
 
 	void DestroyLight(PointBasedLight* light);
 
-	void PerSceneUpdate(RenderScene* renderScene) override;
+	void SetMaterialParameter(MaterialInstance* matInstance);
+
+	void PerSceneUpdate(RenderScene* renderScene);
+
+	void MarkLightDirty(PointBasedLight* light) { mDirtyList.push_back(light); };
 };
 }

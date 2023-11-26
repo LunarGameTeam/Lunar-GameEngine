@@ -17,13 +17,14 @@ namespace luna
 	{
 		bool           mDirty = false;
 		LVector4f      mColor = LVector4f(0.0f, 0.0f, 0.0f, 1.0f);
+		LVector3f      mPosition = LVector3f(0.0f, 0.0f, 0.0f, 1.0f);
 		bool           mCastShadow = false;
 		float          mIntensity = 1.0f;
 	};
 
 	class GameLightRenderDataUpdater :public graphics::GameRenderDataUpdater
 	{
-		graphics::PointBasedLight* mRenderLight;
+		graphics::PointBasedLight*           mRenderLight = nullptr;
 	public:
 		virtual ~GameLightRenderDataUpdater();
 	private:
@@ -68,6 +69,12 @@ namespace luna
 		{
 			return mColor;
 		}
+
+		LVector3f GetPosition() const
+		{
+			return mTransform->GetPosition();
+		}
+
 		void SetColor(const LVector4f& val);
 
 		void SetIndensity(float val);
@@ -96,11 +103,6 @@ namespace luna
 	public:
 		void OnCreate() override;
 		void OnTransformDirty(Transform* transform);
-
-		LVector3f GetPosition() const
-		{
-			return mTransform->GetPosition();
-		}
 
 	private:
 		//renderœ‡πÿ

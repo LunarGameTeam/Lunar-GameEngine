@@ -11,25 +11,37 @@ namespace luna
 void GameCameraRenderDataUpdater::UpdateRenderThreadImpl(graphics::GameRenderBridgeData* curData, graphics::RenderScene* curScene)
 {
 	GameRenderBridgeDataCamera* realPointer = static_cast<GameRenderBridgeDataCamera*>(curData);
+
 	if (realPointer->mIntrinsicsDirty)
 	{
 		if (mRenderView == nullptr)
 		{
 			mRenderView = curScene->CreateRenderView();
 			mRenderView->mViewType = graphics::RenderViewType::SceneView;
+			graphics::RenderViewParameterData* viewParamData = curScene->RequireData<graphics::RenderViewParameterData>();
+			viewParamData->Init();
+			mViewCbuffer = MakeShared<graphics::ShaderCBuffer>(viewParamData->GetParamDesc());
 		}
-		LMatrix4f newProjMatrix;
 		float curAspect = (float)realPointer->mIntrinsicsParameter.mRtWidth / (float)realPointer->mIntrinsicsParameter.mRtHeight;
-		LMath::GenPerspectiveFovLHMatrix(newProjMatrix, realPointer->mIntrinsicsParameter.mFovY, curAspect, realPointer->mIntrinsicsParameter.mNear, realPointer->mIntrinsicsParameter.mFar);
-		mRenderView->SetNearFar(realPointer->mIntrinsicsParameter.mNear, realPointer->mIntrinsicsParameter.mFar);
-		mRenderView->SetProjectionMatrix(newProjMatrix);
-		mRenderView->SetDirty();
+		LMath::GenPerspectiveFovLHMatrix(mProjMatrix, realPointer->mIntrinsicsParameter.mFovY, curAspect, realPointer->mIntrinsicsParameter.mNear, realPointer->mIntrinsicsParameter.mFar);
 	}
-	if (realPointer->mExtrinsicsDirty)
+
+	if (realPointer->mIntrinsicsDirty || realPointer->mExtrinsicsDirty)
 	{
-		mRenderView->SetViewMatrix(realPointer->mExtrinsicsParameter.mViewMatrix);
-		mRenderView->SetViewPosition(realPointer->mExtrinsicsParameter.mPosition);
-		mRenderView->SetDirty();
+		LVector2f cNearFar(realPointer->mIntrinsicsParameter.mNear, realPointer->mIntrinsicsParameter.mFar);
+		mViewCbuffer->Set("cNearFar", cNearFar);
+		mViewCbuffer->Set("cProjectionMatrix", mProjMatrix);
+		mViewCbuffer->Set("cViewMatrix", realPointer->mExtrinsicsParameter.mViewMatrix);
+		mViewCbuffer->Set("cCamPos", realPointer->mExtrinsicsParameter.mPosition);
+
+		graphics::RenderViewParameterData* viewParamData = curScene->GetData<graphics::RenderViewParameterData>();
+		graphics::RHIResource* viewBufferStage = curScene->GetStageBufferPool()->AllocUniformStageBuffer(mViewCbuffer.get());
+		graphics::GpuSceneUploadCopyCommand* copyCommand = curScene->AddCopyCommand();
+		copyCommand->mSrcOffset = 0;
+		copyCommand->mDstOffset = 0;
+		copyCommand->mCopyLength = SizeAligned2Pow(mViewCbuffer->mData.size(),256);
+		copyCommand->mUniformBufferInput = viewBufferStage;
+		copyCommand->mStorageBufferOutput = viewParamData->GetResource();
 	}
 }
 

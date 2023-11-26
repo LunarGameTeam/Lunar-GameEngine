@@ -519,8 +519,8 @@ void VulkanGraphicCmdList::BeginRender(const RenderPassDesc& passDesc)
 		auto& attach = attachments.emplace_back();
 		
 		attach.imageView = passDesc.mColorView[idx]->As<VulkanView>()->mImageView;
-		width = passDesc.mColorView[idx]->mBindResource->mResDesc.Width;
-		height = passDesc.mColorView[idx]->mBindResource->mResDesc.Height;
+		width = passDesc.mColorView[idx]->mBindResource->GetDesc().Width;
+		height = passDesc.mColorView[idx]->mBindResource->GetDesc().Height;
 		attach.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
 		attach.loadOp = convertLoad(it.mLoadOp);
 		attach.storeOp = convertStore(it.mStoreOp);
