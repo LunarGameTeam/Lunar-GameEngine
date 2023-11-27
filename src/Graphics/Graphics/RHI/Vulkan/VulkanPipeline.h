@@ -7,14 +7,37 @@
 namespace luna::graphics
 {
 
-class RENDER_API VulkanPipelineState : public RHIPipelineState
+class RENDER_API VulkanPipelineStateGraphic : public RHIPipelineStateGraphic
 {
 public:
-	VulkanPipelineState(const RHIPipelineStateDesc& pso_desc);
-	void Init();
+	VulkanPipelineStateGraphic(
+		LSharedPtr<RHIPipelineStateDescBase> psoDesc,
+		const RHIVertexLayout& inputLayout,
+		const RenderPassDesc& renderPassDesc
+	);
 
+private:
+	void CreateGraphDrawPipelineImpl(
+		RHIPipelineStateGraphDrawDesc* graphPipelineDesc,
+		RHIVertexLayout& inputLayout,
+		RenderPassDesc& renderPassDesc
+	) override;
 
 	vk::Pipeline mPipeline;	
 
+};
+
+class RENDER_API VulkanPipelineStateCompute : public RHIPipelineStateCompute
+{
+	vk::Pipeline mPipeline;
+public:
+	VulkanPipelineStateCompute(
+		LSharedPtr<RHIPipelineStateDescBase> psoDesc
+	);
+
+private:
+	void CreateComputePipelineImpl(
+		RHIPipelineStateComputeDesc* computePipelineDesc
+	) override;
 };
 }

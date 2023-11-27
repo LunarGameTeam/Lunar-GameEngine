@@ -85,6 +85,33 @@ RegisterTypeEmbedd_Imp(MaterialParamTextureCube)
 	BindingModule::Luna()->AddType(cls);
 }
 
+RegisterTypeEmbedd_Imp(MaterialInstanceBase)
+{
+	cls->Ctor<MaterialInstanceBase>();
+
+	cls->BindingProperty< &Self::mAsset>("material_asset")
+		.Serialize();
+
+	cls->Binding<MaterialInstanceBase>();
+	BindingModule::Get("luna")->AddType(cls);
+}
+
+RegisterTypeEmbedd_Imp(MaterialInstanceGraphBase)
+{
+	cls->Ctor<MaterialInstanceGraphBase>();
+
+	cls->Binding<MaterialInstanceGraphBase>();
+	BindingModule::Get("luna")->AddType(cls);
+}
+
+RegisterTypeEmbedd_Imp(MaterialInstanceComputeBase)
+{
+	cls->Ctor<MaterialInstanceComputeBase>();
+
+	cls->Binding<MaterialInstanceComputeBase>();
+	BindingModule::Get("luna")->AddType(cls);
+}
+
 RegisterTypeEmbedd_Imp(MaterialInstance)
 {
 	cls->Ctor<MaterialInstance>();
@@ -92,13 +119,173 @@ RegisterTypeEmbedd_Imp(MaterialInstance)
 	cls->BindingProperty< &Self::mOverrideParams>("params")
 		.Serialize();
 
-	cls->BindingProperty< &Self::mMaterialTemplate>("material_asset")
-		.Serialize();
-
 	cls->Binding<MaterialInstance>();
 	BindingModule::Get("luna")->AddType(cls);
 }
 
+//基础材质实例
+MaterialInstanceBase::MaterialInstanceBase()
+{
+
+};
+
+MaterialInstanceBase::~MaterialInstanceBase()
+{
+
+};
+
+void MaterialInstanceBase::SetShaderInput(ShaderParamID id, RHIView* view)
+{
+	if (mInputs[id] == view)
+		return;
+	mInputs[id] = view;
+	mBindingDirty = true;
+}
+
+ShaderAsset* MaterialInstanceBase::GetShaderAsset()
+{
+	return mAsset->GetShaderAsset();
+}
+
+RHIBindingSetPtr MaterialInstanceBase::GetBindingSet()
+{
+	if (mBindingDirty)
+	{
+		UpdateBindingSet();
+		mBindingDirty = false;
+	}
+	return mBindingSet;
+}
+
+void MaterialInstanceBase::UpdateBindingSet()
+{
+	auto shader = mAsset->GetShaderAsset();
+	std::vector<BindingDesc> bindingDescs;
+	for (auto& it : mInputs)
+	{
+		if (HasBindPoint(it.first))
+		{
+			bindingDescs.emplace_back(GetBindPoint(it.first), it.second);
+		}
+	}
+	UpdateBindingSetImpl(bindingDescs);
+	mBindingSet->WriteBindings(bindingDescs);
+}
+
+void MaterialInstanceBase::SetAsset(MaterialBaseTemplateAsset* asset)
+{
+	mAsset = asset;
+}
+
+RHIBindPoint MaterialInstanceBase::GetBindPoint(ShaderParamID id) const
+{
+	const LUnorderedMap<RHIShaderType, SharedPtr<LShaderInstance>>& allShader = mAsset->GetAllShader();
+	for (auto& eachShader : allShader)
+	{
+		if (eachShader.second->HasBindPoint(id))
+		{
+			return eachShader.second->GetBindPoint(id);
+		}
+	}
+	return RHIBindPoint();
+};
+
+bool MaterialInstanceBase::HasBindPoint(ShaderParamID id) const
+{
+	const LUnorderedMap<RHIShaderType, SharedPtr<LShaderInstance>> &allShader = mAsset->GetAllShader();
+	for (auto& eachShader : allShader)
+	{
+		if(eachShader.second->HasBindPoint(id))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+RHICBufferDesc MaterialInstanceBase::GetConstantBufferDesc(ShaderParamID name)
+{
+	const LUnorderedMap<RHIShaderType, SharedPtr<LShaderInstance>>& allShader = mAsset->GetAllShader();
+	for (auto& eachShader : allShader)
+	{
+		if (eachShader.second->GetRhiShader()->HasUniformBuffer(name))
+		{
+			return eachShader.second->GetRhiShader()->GetUniformBuffer(name);
+		}
+	}
+	RHICBufferDesc empty;
+	return empty;
+}
+
+//计算材质实例
+MaterialInstanceComputeBase::MaterialInstanceComputeBase()
+{
+	mPipelineType = MaterialPipelineType::Compute;
+};
+
+MaterialInstanceComputeBase::~MaterialInstanceComputeBase()
+{
+
+};
+
+RHIShaderBlob* MaterialInstanceComputeBase::GetShaderCS()
+{
+	return mAsset->GetShaderByType(RHIShaderType::Compute)->GetRhiShader().get();
+}
+
+RHIPipelineState* MaterialInstanceComputeBase::GetPipeline()
+{
+	RHIPipelineStateComputeDesc desc = {};
+	for (auto& itor : mAsset->GetAllShader())
+	{
+		desc.mShaders.insert({ itor.first,itor.second->GetRhiShader().get() });
+	}
+	return sRenderModule->mRenderContext->CreatePipelineCompute(desc);
+}
+
+
+//渲染材质实例
+MaterialInstanceGraphBase::MaterialInstanceGraphBase()
+{
+	mPipelineType = MaterialPipelineType::GraphDraw;
+};
+
+MaterialInstanceGraphBase::~MaterialInstanceGraphBase()
+{
+
+};
+
+RHIShaderBlob* MaterialInstanceGraphBase::GetShaderVS()
+{
+	return mAsset->GetShaderByType(RHIShaderType::Vertex)->GetRhiShader().get();
+}
+
+RHIShaderBlob* MaterialInstanceGraphBase::GetShaderPS()
+{
+	return mAsset->GetShaderByType(RHIShaderType::Pixel)->GetRhiShader().get();
+}
+
+RHIPipelineState* MaterialInstanceGraphBase::GetPipeline(RHIVertexLayout* layout, const RenderPassDesc& passDesc)
+{
+	MaterialGraphAsset* mMaterialTemplate = dynamic_cast<MaterialGraphAsset*>(mAsset);
+	RHIPipelineStateGraphDrawDesc desc = {};
+
+	desc.DepthStencilState.DepthEnable = mMaterialTemplate->IsDepthTestEnable();
+	desc.DepthStencilState.DepthWrite = mMaterialTemplate->IsDepthWriteEnable();
+	desc.RasterizerState.CullMode = mMaterialTemplate->GetCullMode();
+	desc.PrimitiveTopologyType = (RHIPrimitiveTopologyType)mMaterialTemplate->GetPrimitiveType();
+	for (auto& itor : mAsset->GetAllShader())
+	{
+		desc.mShaders.insert({ itor.first,itor.second->GetRhiShader().get() });
+	}
+	RHIBlendStateTargetDesc blend = {};
+	desc.BlendState.RenderTarget.push_back(blend);
+
+	return sRenderModule->mRenderContext->CreatePipelineGraphic(desc, *layout, passDesc);
+}
+
+
+//标准材质实例
 MaterialInstance::MaterialInstance() :
 	mOverrideParams(this),
 	mTemplateParams(this)
@@ -106,23 +293,9 @@ MaterialInstance::MaterialInstance() :
 
 }
 
-RHIShaderBlob* MaterialInstance::GetShaderVS()
-{
-	return mMaterialTemplate->GetShaderVertexInstance()->GetRhiShader().get();
-}
-
-RHIShaderBlob* MaterialInstance::GetShaderPS()
-{
-	return mMaterialTemplate->GetShaderPixelInstance()->GetRhiShader().get();
-}
-
-ShaderAsset* MaterialInstance::GetShaderAsset()
-{
-	return mMaterialTemplate->GetShaderAsset();
-}
-
 void MaterialInstance::Init()
 {
+	MaterialTemplateAsset* mMaterialTemplate = dynamic_cast<MaterialTemplateAsset*>(mAsset);
 	if (mMaterialTemplate)
 	{
 		mTemplateParams = mMaterialTemplate->GetTemplateParams();
@@ -141,7 +314,6 @@ void MaterialInstance::Init()
 			viewDesc.mViewDimension = RHIViewDimension::BufferView;
 			mCBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
 			mCBufferView->BindResource(mCBuffer);
-
 		}
 		UpdateParamsToBuffer();
 
@@ -155,40 +327,21 @@ void MaterialInstance::Init()
 	}
 }
 
-
-void MaterialInstance::SetShaderInput(ShaderParamID id, RHIView* view)
-{
-	if (mInputs[id] == view)
-		return;
-	mInputs[id] = view;
-	mBindingDirty = true;
-}
-
 const TPPtrArray<MaterialParam>& MaterialInstance::GeTemplateParams()
 {
 	return mTemplateParams;
 }
 
-void MaterialInstance::UpdateBindingSet()
+void MaterialInstance::UpdateBindingSetImpl(std::vector<BindingDesc>& bindingDescs)
 {
-	auto shader = mMaterialTemplate->GetShaderAsset();
-	std::vector<BindingDesc> bindingDescs;
 	if (mCBufferView)
 		bindingDescs.emplace_back(GetBindPoint(ParamID_MaterialBuffer), mCBufferView);
-	for(auto& it : mInputs)
-	{
-		if (HasBindPoint(it.first))
-		{
-			bindingDescs.emplace_back(GetBindPoint(it.first), it.second);
-		}
-	}
-	mBindingSet->WriteBindings(bindingDescs);
 }
 
 void MaterialInstance::UpdateParamsToBuffer()
 {
 	auto& params = mTemplateParams;
-	auto shader = mMaterialTemplate->GetShaderAsset();
+	auto shader = mAsset->GetShaderAsset();
 	const RHICBufferDesc& matBufferDesc = GetConstantBufferDesc(ParamID_MaterialBuffer);
 
 	std::vector<byte> data;
@@ -262,72 +415,6 @@ void MaterialInstance::UpdateParamsToBuffer()
 	if (HasBindPoint(ParamID_MaterialBuffer))
 		sRenderModule->GetRenderContext()->UpdateConstantBuffer(mCBuffer, data.data(), data.size());
 
-}
-
-
-RHIBindingSetPtr MaterialInstance::GetBindingSet()
-{
-	if (mBindingDirty)
-	{
-		UpdateBindingSet();
-		mBindingDirty = false;
-	}
-	return mBindingSet;
-}
-
-RHIPipelineState* MaterialInstance::GetPipeline(RHIVertexLayout* layout, const RenderPassDesc& passDesc)
-{
-	RHIPipelineStateDesc desc = {};
-	RenderPipelineStateDescGraphic& graphicDesc = desc.mGraphicDesc;
-	desc.mType = RHICmdListType::Graphic3D;
-
-	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthEnable = mMaterialTemplate->IsDepthTestEnable();
-	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthWrite = mMaterialTemplate->IsDepthWriteEnable();
-	graphicDesc.mPipelineStateDesc.RasterizerState.CullMode = mMaterialTemplate->GetCullMode();
-	graphicDesc.mPipelineStateDesc.PrimitiveTopologyType = (RHIPrimitiveTopologyType)mMaterialTemplate->GetPrimitiveType();
-	graphicDesc.mInputLayout = *layout;
-	graphicDesc.mPipelineStateDesc.mVertexShader = GetShaderVS();
-	graphicDesc.mPipelineStateDesc.mPixelShader = GetShaderPS();
-
-	graphicDesc.mRenderPassDesc = passDesc;
-
-	RHIBlendStateTargetDesc blend = {};
-	desc.mGraphicDesc.mPipelineStateDesc.BlendState.RenderTarget.push_back(blend);
-	return sRenderModule->mRenderContext->CreatePipeline(desc);
-}
-
-RHIBindPoint MaterialInstance::GetBindPoint(ShaderParamID id) const
-{
-	LShaderInstance* curVertexShader = mMaterialTemplate->GetShaderVertexInstance();
-	LShaderInstance* curPixelShader = mMaterialTemplate->GetShaderPixelInstance();
-	if (curVertexShader->GetRhiShader()->HasBindPoint(id))
-		return curVertexShader->GetRhiShader()->GetBindPoint(id)->second;
-	return curPixelShader->GetRhiShader()->GetBindPoint(id)->second;
-};
-
-RHICBufferDesc MaterialInstance::GetConstantBufferDesc(ShaderParamID name)
-{
-	LShaderInstance* curVertexShader = mMaterialTemplate->GetShaderVertexInstance();
-	LShaderInstance* curPixelShader = mMaterialTemplate->GetShaderPixelInstance();
-	if (curVertexShader->GetRhiShader()->HasUniformBuffer(name))
-	{
-		return curVertexShader->GetRhiShader()->GetUniformBuffer(name);
-	}
-	else if (curPixelShader->GetRhiShader()->HasUniformBuffer(name))
-	{
-		return curPixelShader->GetRhiShader()->GetUniformBuffer(name);
-	}
-	RHICBufferDesc empty;
-	return empty;
-}
-
-bool MaterialInstance::HasBindPoint(ShaderParamID id) const
-{
-	LShaderInstance* curVertexShader = mMaterialTemplate->GetShaderVertexInstance();
-	LShaderInstance* curPixelShader = mMaterialTemplate->GetShaderPixelInstance();
-	if (curVertexShader->GetRhiShader()->HasBindPoint(id))
-		return true;
-	return curPixelShader->GetRhiShader()->HasBindPoint(id);
 }
 
 }

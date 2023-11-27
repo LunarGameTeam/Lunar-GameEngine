@@ -466,9 +466,26 @@ RHIShaderBlobPtr VulkanDevice::CreateShader(const RHIShaderDesc& desc)
 	return CreateRHIObject<VulkanShaderBlob>(desc);
 }
 
-RHIPipelineStatePtr VulkanDevice::CreatePipeline(const RHIPipelineStateDesc& desc)
+RHIPipelineStatePtr VulkanDevice::CreatePipelineGraphic(
+	const RHIPipelineStateGraphDrawDesc& desc,
+	const RHIVertexLayout& inputLayout,
+	const RenderPassDesc& renderPassDesc
+)
 {
-	return CreateRHIObject<VulkanPipelineState>(desc);
+	LSharedPtr<RHIPipelineStateDescBase> curDesc = MakeShared<RHIPipelineStateGraphDrawDesc>();
+	*curDesc = desc;
+	luna::graphics::RHIPipelineStatePtr vulkanPipeline = CreateRHIObject<VulkanPipelineStateGraphic>(curDesc, inputLayout, renderPassDesc);
+	vulkanPipeline->Create(this);
+	return vulkanPipeline;
+}
+
+RHIPipelineStatePtr VulkanDevice::CreatePipelineCompute(const RHIPipelineStateComputeDesc& desc)
+{
+	LSharedPtr<RHIPipelineStateDescBase> curDesc = MakeShared<RHIPipelineStateComputeDesc>();
+	*curDesc = desc;
+	luna::graphics::RHIPipelineStatePtr vulkanPipeline = CreateRHIObject<VulkanPipelineStateCompute>(curDesc);
+	vulkanPipeline->Create(this);
+	return vulkanPipeline;
 }
 
 RHICmdSignaturePtr VulkanDevice::CreateCmdSignature(RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc)

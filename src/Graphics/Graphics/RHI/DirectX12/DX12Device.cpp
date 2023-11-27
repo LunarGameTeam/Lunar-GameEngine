@@ -214,10 +214,28 @@ luna::graphics::RHIShaderBlobPtr DX12Device::CreateShader(const RHIShaderDesc& d
 	return CreateRHIObject<DX12ShaderBlob>(desc);
 }
 
-luna::graphics::RHIPipelineStatePtr DX12Device::CreatePipeline(const RHIPipelineStateDesc& desc)
+RHIPipelineStatePtr DX12Device::CreatePipelineGraphic(
+	const RHIPipelineStateGraphDrawDesc& desc,
+	const RHIVertexLayout& inputLayout,
+	const RenderPassDesc& renderPassDesc
+)
 {
-	return CreateRHIObject<DX12PipelineState>(desc);
-};
+	LSharedPtr<RHIPipelineStateDescBase> curDesc = MakeShared<RHIPipelineStateGraphDrawDesc>();
+	*curDesc = desc;
+	luna::graphics::RHIPipelineStatePtr dx12Pipeline = CreateRHIObject<DX12PipelineStateGraphic>(curDesc, inputLayout, renderPassDesc);
+	dx12Pipeline->Create(this);
+	return dx12Pipeline;
+}
+
+RHIPipelineStatePtr DX12Device::CreatePipelineCompute(const RHIPipelineStateComputeDesc& desc)
+{
+	LSharedPtr<RHIPipelineStateDescBase> curDesc = MakeShared<RHIPipelineStateComputeDesc>();
+	*curDesc = desc;
+	luna::graphics::RHIPipelineStatePtr dx12Pipeline = CreateRHIObject<DX12PipelineStateCompute>(curDesc);
+	dx12Pipeline->Create(this);
+	return dx12Pipeline;
+}
+
 
 RHICmdSignaturePtr DX12Device::CreateCmdSignature(RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc)
 {

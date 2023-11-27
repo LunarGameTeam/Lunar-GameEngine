@@ -66,6 +66,11 @@ void LShaderInstance::Init(
 				shaderDesc.mEntryPoint = "PSMain";
 			}
 			break;
+			case luna::graphics::RHIShaderType::Compute:
+			{
+				shaderDesc.mEntryPoint = "CSMain";
+			}
+			break;
 			default:
 			break;
 		}

@@ -72,7 +72,17 @@ public:
 class PipelineStateCache :public RhiObjectCache
 {
 public:
-	RHIPipelineStatePtr CreatePipeline(RenderContext* mDevice, const RHIPipelineStateDesc& desc);
+	RHIPipelineStatePtr CreatePipelineGraphic(
+		RenderContext* mDevice,
+		const RHIPipelineStateGraphDrawDesc& desc,
+		const RHIVertexLayout& inputLayout,
+		const RenderPassDesc& renderPassDesc
+	);
+
+	RHIPipelineStatePtr CreatePipelineCompute(
+		RenderContext* mDevice,
+		const RHIPipelineStateComputeDesc& desc
+	);
 private:
 	void PackShaderToMemory(RenderContext* mDevice, luna::LMemoryHash& newHash, const RHIShaderBlob* shaderData);
 };
@@ -170,8 +180,15 @@ public:
 	
 	RHIShaderBlobPtr CreateShader(const RHIShaderDesc& desc);
 	size_t GetShaderId(const RHIShaderBlob* shader);
-	RHIPipelineStatePtr CreatePipeline(const RHIPipelineStateDesc& desc);
-	RHIPipelineStatePtr CreatePipeline(MaterialInstance* mat, RHIVertexLayout* layout);
+
+	RHIPipelineStatePtr CreatePipelineGraphic(
+		const RHIPipelineStateGraphDrawDesc& desc,
+		const RHIVertexLayout& inputLayout,
+		const RenderPassDesc& renderPassDesc
+	);
+
+	RHIPipelineStatePtr CreatePipelineCompute(const RHIPipelineStateComputeDesc& desc);
+
 	size_t GetPipelineId(const RHIPipelineState* pipeline);
 	RHICmdSignaturePtr CreateCmdSignature(RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc);
 	size_t GetCmdSignatureId(const RHICmdSignature* pipeline);
@@ -223,12 +240,6 @@ public:
 	SharedPtr<ShaderAsset> mDefaultShaderPbr;
 	SharedPtr<LShaderInstance> mDefaultShaderVertexPbrInstance;
 	SharedPtr<LShaderInstance> mDefaultShaderFragmentPbrInstance;
-private:
-	RHIPipelineStatePtr CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& desc, RHIVertexLayout* layout);
-
-	
-
-	using PipelineCacheKey = std::pair<MaterialInstance*, size_t>;
 
 private:
 

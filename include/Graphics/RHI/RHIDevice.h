@@ -60,7 +60,12 @@ public:
 	//device的RHI资源创建接口
 	
 	virtual RHIShaderBlobPtr CreateShader(const RHIShaderDesc& desc)             = 0;
-	virtual RHIPipelineStatePtr CreatePipeline(const RHIPipelineStateDesc& desc) = 0;
+	virtual RHIPipelineStatePtr CreatePipelineGraphic(
+		const RHIPipelineStateGraphDrawDesc& desc, 
+		const RHIVertexLayout& inputLayout,
+		const RenderPassDesc& renderPassDesc
+	) = 0;
+	virtual RHIPipelineStatePtr CreatePipelineCompute(const RHIPipelineStateComputeDesc& desc) = 0;
 	virtual RHICmdSignaturePtr CreateCmdSignature(RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc) = 0;
 	virtual RHIRenderPassPtr CreateRenderPass(const RenderPassDesc& desc) = 0;
 	virtual RHIResourcePtr CreateSamplerExt(const SamplerDesc& desc)             = 0;

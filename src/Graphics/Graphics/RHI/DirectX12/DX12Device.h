@@ -113,7 +113,13 @@ private:
 
 	RHIShaderBlobPtr CreateShader(const RHIShaderDesc& desc) override;
 	
-	RHIPipelineStatePtr CreatePipeline(const RHIPipelineStateDesc& desc) override;
+	RHIPipelineStatePtr CreatePipelineGraphic(
+		const RHIPipelineStateGraphDrawDesc& desc,
+		const RHIVertexLayout& inputLayout,
+		const RenderPassDesc& renderPassDesc
+	) override;
+
+	RHIPipelineStatePtr CreatePipelineCompute(const RHIPipelineStateComputeDesc& desc) override;
 
 	RHICmdSignaturePtr CreateCmdSignature(RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc) override;
 

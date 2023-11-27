@@ -91,75 +91,127 @@ void PipelineStateCache::PackShaderToMemory(RenderContext* mDevice, luna::LMemor
 	newHash.Combine((uint8_t*)&shader_id, sizeof(size_t));
 }
 
-RHIPipelineStatePtr PipelineStateCache::CreatePipeline(RenderContext* mDevice, const RHIPipelineStateDesc& desc)
+RHIPipelineStatePtr PipelineStateCache::CreatePipelineGraphic(
+	RenderContext* mDevice,
+	const RHIPipelineStateGraphDrawDesc& desc,
+	const RHIVertexLayout& inputLayout,
+	const RenderPassDesc& renderPassDesc
+)
 {
-	std::function<void(luna::LMemoryHash&, const luna::graphics::RHIPipelineStateDesc&)> dataHashFunc = [&](luna::LMemoryHash& newHash, const luna::graphics::RHIPipelineStateDesc& desc)
+	std::function<void(luna::LMemoryHash&, const RHIPipelineStateGraphDrawDesc&,
+		const RHIVertexLayout&,
+		const RenderPassDesc&)> dataHashFunc = [&](
+			luna::LMemoryHash& newHash,
+			const RHIPipelineStateGraphDrawDesc& desc,
+			const RHIVertexLayout& inputLayout,
+			const RenderPassDesc& renderPassDesc
+			)
 	{
-		newHash.Combine((uint8_t*)&desc.mType, sizeof(desc.mType));
-		if (desc.mType == RHICmdListType::Graphic3D)
-		{	
-			//graph desc shader信息
-			const RHIPipelineStateObjectDesc& pipelineGraphDesc = desc.mGraphicDesc.mPipelineStateDesc;
-			PackShaderToMemory(mDevice, newHash, pipelineGraphDesc.mVertexShader.get());
-			PackShaderToMemory(mDevice, newHash, pipelineGraphDesc.mPixelShader.get());
-			PackShaderToMemory(mDevice, newHash, pipelineGraphDesc.mGeometryShader.get());
-			PackShaderToMemory(mDevice, newHash, pipelineGraphDesc.mDominShader.get());
-			PackShaderToMemory(mDevice, newHash, pipelineGraphDesc.mHullShader.get());
-			//input element信息
-			for (auto& element : desc.mGraphicDesc.mInputLayout.mElements)
-			{
-				newHash.Combine((uint8_t*)&element.mElementType, sizeof(element.mElementType));
-				newHash.Combine((uint8_t*)&element.mElementCount, sizeof(element.mElementCount));
-				newHash.Combine((uint8_t*)&element.mUsage, sizeof(element.mUsage));
-				newHash.Combine((uint8_t*)&element.mOffset, sizeof(element.mOffset));
-				newHash.Combine((uint8_t*)&element.mBufferSlot, sizeof(element.mBufferSlot));
-				newHash.Combine((uint8_t*)&element.mInstanceUsage, sizeof(element.mInstanceUsage));
-			}
-			//pass信息
-			for (auto& view : desc.mGraphicDesc.mRenderPassDesc.mColorView)
-			{
-				RHITextureFormat& srv_desc = view->mBindResource->mResDesc.Format;
-				newHash.Combine((uint8_t*)&srv_desc, sizeof(srv_desc));
-			}
-			if (desc.mGraphicDesc.mRenderPassDesc.mDepths.size() > 0)
-			{
-				RHITextureFormat& dsv_desc = desc.mGraphicDesc.mRenderPassDesc.mDepthStencilView->mBindResource->mResDesc.Format;
-				newHash.Combine((uint8_t*)&dsv_desc, sizeof(dsv_desc));
-			}
-			else
-			{
-				RHITextureFormat dsv_desc = RHITextureFormat::FORMAT_UNKNOWN;
-				newHash.Combine((uint8_t*)&dsv_desc, sizeof(dsv_desc));
-			}
-			//graph desc state信息
-			newHash.Combine((uint8_t*)&pipelineGraphDesc.BlendState.AlphaToCoverageEnable, sizeof(pipelineGraphDesc.BlendState.AlphaToCoverageEnable));
-			newHash.Combine((uint8_t*)&pipelineGraphDesc.BlendState.IndependentBlendEnable, sizeof(pipelineGraphDesc.BlendState.IndependentBlendEnable));
-			newHash.Combine((uint8_t*)pipelineGraphDesc.BlendState.RenderTarget.data(), pipelineGraphDesc.BlendState.RenderTarget.size() * sizeof(RHIBlendStateTargetDesc));
-			newHash.Combine((uint8_t*)&pipelineGraphDesc.SampleMask, sizeof(pipelineGraphDesc.SampleMask));
-			newHash.Combine((uint8_t*)&pipelineGraphDesc.RasterizerState, sizeof(pipelineGraphDesc.RasterizerState));
-			newHash.Combine((uint8_t*)&pipelineGraphDesc.DepthStencilState, sizeof(pipelineGraphDesc.DepthStencilState));
-			newHash.Combine((uint8_t*)&pipelineGraphDesc.IBStripCutValue, sizeof(pipelineGraphDesc.IBStripCutValue));
-			newHash.Combine((uint8_t*)&pipelineGraphDesc.PrimitiveTopologyType, sizeof(pipelineGraphDesc.PrimitiveTopologyType));
-			newHash.Combine((uint8_t*)&pipelineGraphDesc.NumRenderTargets, sizeof(pipelineGraphDesc.NumRenderTargets));
-			newHash.Combine((uint8_t*)&pipelineGraphDesc.SampleDesc, sizeof(pipelineGraphDesc.SampleDesc));
-			newHash.Combine((uint8_t*)&pipelineGraphDesc.NodeMask, sizeof(pipelineGraphDesc.NodeMask));
+		//graph desc shader信息
+		for (auto& eachShader : desc.mShaders)
+		{
+			PackShaderToMemory(mDevice, newHash, eachShader.second.get());
+		}
+		//input element信息
+		for (auto& element : inputLayout.mElements)
+		{
+			newHash.Combine((uint8_t*)&element.mElementType, sizeof(element.mElementType));
+			newHash.Combine((uint8_t*)&element.mElementCount, sizeof(element.mElementCount));
+			newHash.Combine((uint8_t*)&element.mUsage, sizeof(element.mUsage));
+			newHash.Combine((uint8_t*)&element.mOffset, sizeof(element.mOffset));
+			newHash.Combine((uint8_t*)&element.mBufferSlot, sizeof(element.mBufferSlot));
+			newHash.Combine((uint8_t*)&element.mInstanceUsage, sizeof(element.mInstanceUsage));
+		}
+		//pass信息
+		for (auto& view : renderPassDesc.mColorView)
+		{
+			const RHITextureFormat& srv_desc = view->mBindResource->GetDesc().Format;
+			newHash.Combine((const uint8_t*)&srv_desc, sizeof(srv_desc));
+		}
+		if (renderPassDesc.mDepths.size() > 0)
+		{
+			const RHITextureFormat& dsv_desc = renderPassDesc.mDepthStencilView->mBindResource->GetDesc().Format;
+			newHash.Combine((const uint8_t*)&dsv_desc, sizeof(dsv_desc));
+		}
+		else
+		{
+			RHITextureFormat dsv_desc = RHITextureFormat::FORMAT_UNKNOWN;
+			newHash.Combine((uint8_t*)&dsv_desc, sizeof(dsv_desc));
+		}
+		//graph desc state信息
+		newHash.Combine((uint8_t*)&desc.BlendState.AlphaToCoverageEnable, sizeof(desc.BlendState.AlphaToCoverageEnable));
+		newHash.Combine((uint8_t*)&desc.BlendState.IndependentBlendEnable, sizeof(desc.BlendState.IndependentBlendEnable));
+		newHash.Combine((uint8_t*)desc.BlendState.RenderTarget.data(), desc.BlendState.RenderTarget.size() * sizeof(RHIBlendStateTargetDesc));
+		newHash.Combine((uint8_t*)&desc.SampleMask, sizeof(desc.SampleMask));
+		newHash.Combine((uint8_t*)&desc.RasterizerState, sizeof(desc.RasterizerState));
+		newHash.Combine((uint8_t*)&desc.DepthStencilState, sizeof(desc.DepthStencilState));
+		newHash.Combine((uint8_t*)&desc.IBStripCutValue, sizeof(desc.IBStripCutValue));
+		newHash.Combine((uint8_t*)&desc.PrimitiveTopologyType, sizeof(desc.PrimitiveTopologyType));
+		newHash.Combine((uint8_t*)&desc.NumRenderTargets, sizeof(desc.NumRenderTargets));
+		newHash.Combine((uint8_t*)&desc.SampleDesc, sizeof(desc.SampleDesc));
+		newHash.Combine((uint8_t*)&desc.NodeMask, sizeof(desc.NodeMask));
+		newHash.GenerateHash();
+	};
+
+	std::function<RHIPipelineStatePtr(
+		RenderContext* device, 
+		const RHIPipelineStateGraphDrawDesc& desc,
+		const RHIVertexLayout& inputLayout,
+		const RenderPassDesc& renderPassDesc)> dataCreateFunc = [&](
+			RenderContext* device, 
+			const RHIPipelineStateGraphDrawDesc& desc,
+			const RHIVertexLayout& inputLayout,
+			const RenderPassDesc& renderPassDesc)->RHIPipelineStatePtr
+	{
+		auto vsItor = desc.mShaders.find(RHIShaderType::Vertex);
+		if (vsItor != desc.mShaders.end())
+		{
+			Log("Graphics", "Create pipeline for shader:{}", vsItor->second->mDesc.mName);
+		}
+		return device->mDevice->CreatePipelineGraphic(desc, inputLayout, renderPassDesc);
+	};
+
+	return CreateRHIObject<RHIPipelineState,
+		const RHIPipelineStateGraphDrawDesc&,
+		const RHIVertexLayout&,
+		const RenderPassDesc&>(
+		mDevice,
+		desc,
+		inputLayout,
+		renderPassDesc,
+		dataHashFunc,
+		dataCreateFunc
+	);
+}
+
+RHIPipelineStatePtr PipelineStateCache::CreatePipelineCompute(
+	RenderContext* mDevice,
+	const RHIPipelineStateComputeDesc& desc
+)
+{
+	std::function<void(luna::LMemoryHash&, const luna::graphics::RHIPipelineStateComputeDesc&)> dataHashFunc = [&](luna::LMemoryHash& newHash, const luna::graphics::RHIPipelineStateComputeDesc& desc)
+	{	
+		for (auto& eachShader : desc.mShaders)
+		{
+			PackShaderToMemory(mDevice, newHash, eachShader.second.get());
 		}
 		newHash.GenerateHash();
 	};
-	std::function<RHIPipelineStatePtr(RenderContext* device, const RHIPipelineStateDesc& desc)> dataCreateFunc = [&](RenderContext* device, const RHIPipelineStateDesc& desc)->RHIPipelineStatePtr
+	std::function<RHIPipelineStatePtr(RenderContext* device, const RHIPipelineStateComputeDesc& desc)> dataCreateFunc = [&](RenderContext* device, const RHIPipelineStateComputeDesc& desc)->RHIPipelineStatePtr
 	{
-		if (desc.mGraphicDesc.mPipelineStateDesc.mVertexShader != nullptr)
+		auto vsItor = desc.mShaders.find(RHIShaderType::Compute);
+		if (vsItor != desc.mShaders.end())
 		{
-			Log("Graphics", "Create pipeline for shader:{}", desc.mGraphicDesc.mPipelineStateDesc.mVertexShader->mDesc.mName);
+			Log("Graphics", "Create pipeline for shader:{}", vsItor->second->mDesc.mName);
 		}
-		return device->mDevice->CreatePipeline(desc);
+		return device->mDevice->CreatePipelineCompute(desc);
 	};
-	return CreateRHIObject<RHIPipelineState, const luna::graphics::RHIPipelineStateDesc&>(
+	return CreateRHIObject<RHIPipelineState, const luna::graphics::RHIPipelineStateComputeDesc&>(
 		mDevice,
 		desc,
 		dataHashFunc,
 		dataCreateFunc
-		);
+	);
 }
 
 RHICmdSignaturePtr CmdSignatureCache::CreateCmdSignature(
@@ -471,9 +523,18 @@ size_t RenderContext::GetShaderId(const RHIShaderBlob* shader)
 	return mShaderBlobCache.GetDataGlobelId(shader);
 }
 
-RHIPipelineStatePtr RenderContext::CreatePipeline(const RHIPipelineStateDesc& desc)
+RHIPipelineStatePtr RenderContext::CreatePipelineGraphic(
+	const RHIPipelineStateGraphDrawDesc& desc,
+	const RHIVertexLayout& inputLayout,
+	const RenderPassDesc& renderPassDesc
+)
 {
-	return mPipelineCache.CreatePipeline(this, desc);
+	return mPipelineCache.CreatePipelineGraphic(this, desc, inputLayout, renderPassDesc);
+}
+
+RHIPipelineStatePtr RenderContext::CreatePipelineCompute(const RHIPipelineStateComputeDesc& desc)
+{
+	return mPipelineCache.CreatePipelineCompute(this, desc);
 }
 
 size_t RenderContext::GetPipelineId(const RHIPipelineState* pipeline)
@@ -489,27 +550,6 @@ RHICmdSignaturePtr RenderContext::CreateCmdSignature(RHIPipelineState* pipeline,
 size_t RenderContext::GetCmdSignatureId(const RHICmdSignature* pipeline)
 {
 	return mCmdSignatureCache.GetDataGlobelId(pipeline);
-}
-
-RHIPipelineStatePtr RenderContext::CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& passDesc, RHIVertexLayout* layout)
-{
-	RHIPipelineStateDesc desc = {};
-	RenderPipelineStateDescGraphic& graphicDesc = desc.mGraphicDesc;
-	desc.mType = RHICmdListType::Graphic3D;
-
-	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthEnable = mat->mMaterialTemplate->IsDepthTestEnable();
-	graphicDesc.mPipelineStateDesc.DepthStencilState.DepthWrite = mat->mMaterialTemplate->IsDepthWriteEnable();
-	graphicDesc.mPipelineStateDesc.PrimitiveTopologyType = (RHIPrimitiveTopologyType)mat->mMaterialTemplate->GetPrimitiveType();
-	graphicDesc.mInputLayout = *layout;
-	graphicDesc.mPipelineStateDesc.mVertexShader = mat->GetShaderVS();
-	graphicDesc.mPipelineStateDesc.mPixelShader = mat->GetShaderPS();
-
-	graphicDesc.mRenderPassDesc = mCurRenderPass;
-
-	RHIBlendStateTargetDesc blend = {};
-	desc.mGraphicDesc.mPipelineStateDesc.BlendState.RenderTarget.push_back(blend);
-	Log("Graphics", "Create pipeline for:{}", mat->GetShaderAsset()->GetAssetPath());
-	return mPipelineCache.CreatePipeline(this,desc);
 }
 
 RHICBufferDesc RenderContext::GetDefaultShaderConstantBufferDesc(ShaderParamID name)
@@ -556,11 +596,6 @@ RHIBindingSetPtr RenderContext::CreateBindingset(RHIBindingSetLayoutPtr layout)
 {
 	RHIBindingSetPtr bindingset = mDevice->CreateBindingSet(mDefaultPool, layout);
 	return bindingset;
-}
-
-RHIPipelineStatePtr RenderContext::CreatePipeline(graphics::MaterialInstance* mat, RHIVertexLayout* layout)
-{
-	return CreatePipelineState(mat, mCurRenderPass, layout);
 }
 
 void RenderContext::DrawMesh(graphics::RenderMeshBase* mesh, graphics::MaterialInstance* mat)
