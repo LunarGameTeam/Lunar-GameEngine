@@ -5,6 +5,7 @@
 #include "Graphics/Renderer/RenderView.h"
 #include "Graphics/Renderer/RenderScene.h"
 #include "Graphics/Asset/MeshAsset.h"
+#include "Core/Asset/AssetModule.h"
 
 namespace luna::graphics
 {
@@ -16,7 +17,7 @@ namespace luna::graphics
 		matInstance->SetShaderInput(ParamID_PointBasedLightDataBUffer, mExistLightDataBufferView);
 	}
 
-	PointBasedRenderLightData::PointBasedRenderLightData()
+	PointBasedRenderLightData::PointBasedRenderLightData():mMaterial(nullptr)
 	{
 		mPointLightIndex.resize(256);
 
@@ -49,6 +50,9 @@ namespace luna::graphics
 		viewDesc.mStructureStride = sizeof(LVector4f);
 		mExistLightDataBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
 		mExistLightDataBufferView->BindResource(mExistLightDataBuffer);
+
+		mMaterial = sAssetModule->LoadAsset<MaterialComputeAsset>("/assets/built-in/LightDataCopy.mat");
+		mMaterialInstance = LSharedPtr<MaterialInstanceComputeBase>(dynamic_cast<MaterialInstanceComputeBase*>(mMaterial->CreateInstance()));
 	}
 
 	PointBasedLight* PointBasedRenderLightData::CreatePointBasedLight()
@@ -62,77 +66,97 @@ namespace luna::graphics
 		LightNumDirty = true;
 		mAllLights.DestroyValue(light);
 	}
-
-	void PointBasedRenderLightData::PerSceneUpdate(RenderScene* renderScene)
+	PARAM_ID(PointBasedLightUploadBUffer);
+	PARAM_ID(PointBasedLightIndexBUffer);
+	
+	void PointBasedRenderLightData::UpdateLightNumParameter(RenderScene* renderScene)
 	{
-		if (LightNumDirty)
+		if (!LightNumDirty)
 		{
-			//如果光源数量发生变化，需要更新一下cbuffer里的参数
-			LArray<PointBasedLight*> allLightData;
-			mAllLights.GetAllValueList(allLightData);
-			int32_t pointLightSize = 0;
-			int32_t directionLightSize = 0;
-			int32_t spotLightSize = 0;
-			for (auto eachLight : allLightData)
-			{
-				switch (eachLight->mType)
-				{
-				case PointBasedLightType::POINT_BASED_LIGHT_POINT:
-				{
-					mPointLightIndex[pointLightSize] = eachLight->mIndex;
-					pointLightSize += 1;
-					break;
-				}
-				case PointBasedLightType::POINT_BASEDLIGHT_DIRECTION:
-				{
-					mDirectionLightIndex[directionLightSize] = eachLight->mIndex;
-					directionLightSize += 1;
-					break;
-				}
-				case PointBasedLightType::POINT_BASEDLIGHT_SPOT:
-				{
-					mSpotLightIndex[spotLightSize] = eachLight->mIndex;
-					spotLightSize += 1;
-					break;
-				}
-				default:
-					break;
-				}
-			}
-			LVector4i lightNum;
-			lightNum.x() = pointLightSize;
-			lightNum.y() = directionLightSize;
-			lightNum.z() = spotLightSize;
-			lightNum.w() = 0;
-			mLightBufferGlobelMessage->Set("pointBasedLightNum", lightNum);
-			mLightBufferGlobelMessage->SetData("cPointLightIndex", mPointLightIndex.data(),256 * sizeof(int32_t));
-			mLightBufferGlobelMessage->SetData("cDirectionLightIndex", mDirectionLightIndex.data(), 16 * sizeof(int32_t));
-			mLightBufferGlobelMessage->SetData("cSpotLightIndex", mSpotLightIndex.data(), 256 * sizeof(int32_t));
-			RHIResource* lightParamBuffer = renderScene->GetStageBufferPool()->AllocUniformStageBuffer(mLightBufferGlobelMessage.get());
-
-			graphics::GpuSceneUploadCopyCommand* copyCommand = renderScene->AddCopyCommand();
-			copyCommand->mSrcOffset = 0;
-			copyCommand->mDstOffset = 0;
-			copyCommand->mCopyLength = SizeAligned2Pow(mLightBufferGlobelMessage->mData.size(), 256);
-			copyCommand->mUniformBufferInput = lightParamBuffer;
-			copyCommand->mStorageBufferOutput = mLightParameterBuffer.get();
-
-			LightNumDirty = false;
+			return;
 		}
+		//如果光源数量发生变化，需要更新一下cbuffer里的参数
+		LArray<PointBasedLight*> allLightData;
+		mAllLights.GetAllValueList(allLightData);
+		int32_t pointLightSize = 0;
+		int32_t directionLightSize = 0;
+		int32_t spotLightSize = 0;
+		for (auto eachLight : allLightData)
+		{
+			switch (eachLight->mType)
+			{
+			case PointBasedLightType::POINT_BASED_LIGHT_POINT:
+			{
+				mPointLightIndex[pointLightSize] = eachLight->mIndex;
+				pointLightSize += 1;
+				break;
+			}
+			case PointBasedLightType::POINT_BASEDLIGHT_DIRECTION:
+			{
+				mDirectionLightIndex[directionLightSize] = eachLight->mIndex;
+				directionLightSize += 1;
+				break;
+			}
+			case PointBasedLightType::POINT_BASEDLIGHT_SPOT:
+			{
+				mSpotLightIndex[spotLightSize] = eachLight->mIndex;
+				spotLightSize += 1;
+				break;
+			}
+			default:
+				break;
+			}
+		}
+		LVector4i lightNum;
+		lightNum.x() = pointLightSize;
+		lightNum.y() = directionLightSize;
+		lightNum.z() = spotLightSize;
+		lightNum.w() = 0;
+		mLightBufferGlobelMessage->Set("pointBasedLightNum", lightNum);
+		mLightBufferGlobelMessage->SetData("cPointLightIndex", mPointLightIndex.data(), 256 * sizeof(int32_t));
+		mLightBufferGlobelMessage->SetData("cDirectionLightIndex", mDirectionLightIndex.data(), 16 * sizeof(int32_t));
+		mLightBufferGlobelMessage->SetData("cSpotLightIndex", mSpotLightIndex.data(), 256 * sizeof(int32_t));
+		//cbuffer的更新只需要制作一个copy的指令
+		renderScene->AddCbufferCopyCommand(mLightBufferGlobelMessage.get(), mLightParameterBuffer.get());
+		LightNumDirty = false;
+	}
+
+	void PointBasedRenderLightData::UpdateDirtyLightData(RenderScene* renderScene)
+	{
 		if (mDirtyList.size() == 0)
 		{
 			return;
 		}
-		LArray<LVector4f> lightUpdateData;
-		LArray<uint32_t> lightUpdateIndex;
+		//如果有部分光源的数据发生了变化，将dirty的光源数据，通过制作cs拷贝指令，更新场景里的光源buffer
+		RHIView* lightDataBuffer = renderScene->GetStageBufferPool()->AllocStructStageBuffer(
+			mDirtyList.size() * sizeof(LVector4f) * 4,
+			RHIViewType::kStructuredBuffer,
+			sizeof(LVector4f),
+			std::bind(&PointBasedRenderLightData::GenerateDirtyLightDataBuffer, this, std::placeholders::_1)
+		);
 
-		RHIResource* lightDataBuffer = renderScene->GetStageBufferPool()->AllocStructStageBuffer(mDirtyList.size() * sizeof(LVector4f) * 4);
-		LVector4f* currentLightDataPointer = (LVector4f*)lightDataBuffer->Map();
-		RHIResource* lightIndexBuffer = renderScene->GetStageBufferPool()->AllocStructStageBuffer(mDirtyList.size() * sizeof(uint32_t));
-		uint32_t* currentLightIndexPointer = (uint32_t*)lightIndexBuffer->Map();
-		//index的最前面存储尺寸
-		*currentLightIndexPointer = (uint32_t)mDirtyList.size();
-		currentLightIndexPointer += 1;
+		RHIView* lightIndexBuffer = renderScene->GetStageBufferPool()->AllocStructStageBuffer(
+			mDirtyList.size() * sizeof(uint32_t),
+			RHIViewType::kStructuredBuffer,
+			sizeof(uint32_t),
+			std::bind(&PointBasedRenderLightData::GenerateDirtyLightIndexBuffer, this, std::placeholders::_1)
+		);
+
+		graphics::GpuSceneUploadComputeCommand* computeCommand = renderScene->AddComputeCommand();
+		size_t fullThreadSize = SizeAligned2Pow(mDirtyList.size(), 64);
+		computeCommand->mDispatchSize.x() = fullThreadSize / 64;
+		computeCommand->mDispatchSize.y() = 1;
+		computeCommand->mDispatchSize.z() = 1;
+		computeCommand->mStorageBufferInput.insert({ ParamID_PointBasedLightUploadBUffer, lightDataBuffer });
+		computeCommand->mStorageBufferInput.insert({ ParamID_PointBasedLightIndexBUffer, lightIndexBuffer });
+		computeCommand->mStorageBufferOutput.insert({ ParamID_PointBasedLightDataBUffer,mExistLightDataBufferView.get() });
+		computeCommand->mComputeMaterial = mMaterialInstance.get();
+		mDirtyList.clear();
+	}
+
+	void PointBasedRenderLightData::GenerateDirtyLightDataBuffer(void* pointer)
+	{
+		LVector4f* currentLightDataPointer = (LVector4f*)pointer;
 		for (auto eachDirtyLight : mDirtyList)
 		{
 			//光源颜色
@@ -153,83 +177,28 @@ namespace luna::graphics
 			directionParam.y() = eachDirtyLight->mDirection.y();
 			directionParam.z() = eachDirtyLight->mDirection.z();
 			directionParam.w() = 0;
-
 			currentLightDataPointer += 4;
+		}
+	}
+
+	void PointBasedRenderLightData::GenerateDirtyLightIndexBuffer(void* pointer)
+	{
+		uint32_t* currentLightIndexPointer = (uint32_t*)pointer;
+		//index的最前面存储尺寸
+		*currentLightIndexPointer = (uint32_t)mDirtyList.size();
+		currentLightIndexPointer += 1;
+		for (auto eachDirtyLight : mDirtyList)
+		{
 			//光源ID
 			*currentLightIndexPointer = (uint32_t)eachDirtyLight->mIndex;
 			currentLightIndexPointer += 1;
 		}
-		lightDataBuffer->Unmap();
-		lightIndexBuffer->Unmap();
-		graphics::GpuSceneUploadComputeCommand* computeCommand = renderScene->AddComputeCommand();
-		size_t fullThreadSize = SizeAligned2Pow(mDirtyList.size(), 64);
-		computeCommand->mDispatchSize.x() = fullThreadSize / 64;
-		computeCommand->mDispatchSize.y() = 1;
-		computeCommand->mDispatchSize.z() = 1;
-		computeCommand->mStorageBufferInput.push_back(lightDataBuffer);
-		computeCommand->mStorageBufferInput.push_back(lightIndexBuffer);
 	}
-//void DirectionLight::PerViewUpdate(RenderView* view)
-//{
-//	
-//	if (!mParamBuffer)
-//		mParamBuffer = new ShaderCBuffer(sRenderModule->GetRenderContext()->GetDefaultShaderConstantBufferDesc(LString("ViewBuffer").Hash()));
-//	LTransform transform = LTransform::Identity();
-//	auto rota = LQuaternion::FromTwoVectors(LVector3f(0, 0, 1), mDirection);
-//	transform.rotate(rota);
-//	mViewMatrix = transform.matrix().inverse();
-//	LMatrix4f proj;
-//	LMath::GenOrthoLHMatrix(proj, 30, 30, 0.01, 50);
-//	mParamBuffer->Set("cViewMatrix", mViewMatrix);
-//	mParamBuffer->Set("cProjectionMatrix", proj);
-//	view->mOwnerScene->mSceneParamsBuffer->Set("cDirectionLightViewMatrix", mViewMatrix, 0);
-//	view->mOwnerScene->mSceneParamsBuffer->Set("cDirectionLightProjMatrix", proj, 0);
-//	mParamBuffer->Commit();
-//}
-//
-//void PointLight::PerViewUpdate(RenderView* view)
-//{
-//	if (mCastShadow)
-//	{
-//		if (mParamBuffer.size() == 0)
-//		{
-//			const auto& desc = sRenderModule->GetRenderContext()->GetDefaultShaderConstantBufferDesc(LString("ViewBuffer").Hash());
-//			mParamBuffer.push_back(new ShaderCBuffer(desc));
-//			mParamBuffer.push_back(new ShaderCBuffer(desc));
-//			mParamBuffer.push_back(new ShaderCBuffer(desc));
-//			mParamBuffer.push_back(new ShaderCBuffer(desc));
-//			mParamBuffer.push_back(new ShaderCBuffer(desc));
-//			mParamBuffer.push_back(new ShaderCBuffer(desc));
-//			mViewMatrix.resize(6);
-//		}
-//		LQuaternion rotation[] =
-//		{
-//			LMath::FromEuler(LVector3f(0,0,0)),
-//			LMath::FromEuler(LVector3f(0,90,0)),
-//			LMath::FromEuler(LVector3f(0,180,0)),
-//			LMath::FromEuler(LVector3f(0,270,0)),
-//			LMath::FromEuler(LVector3f(90,0,0)),
-//			LMath::FromEuler(LVector3f(-90,0,0)),
-//		};
-//
-//		LMath::GenPerspectiveFovLHMatrix(mProjMatrix, mFov, mAspect, mNear, mFar);
-//
-//		for (uint32_t idx = 0; idx < 6; idx++)
-//		{
-//			LTransform transform = LTransform::Identity();
-//			transform.translate(mPosition);
-//			transform.rotate(rotation[idx]);
-//			mViewMatrix[idx] = transform.matrix().inverse();
-//			mParamBuffer[idx]->Set("cViewMatrix", mViewMatrix[idx]);
-//			mParamBuffer[idx]->Set("cProjectionMatrix", mProjMatrix);
-//			view->mOwnerScene->mSceneParamsBuffer->Set("cLightViewMatrix", mViewMatrix[idx], idx);
-//			view->mOwnerScene->mSceneParamsBuffer->Set("cLightProjMatrix", mProjMatrix, idx);
-//		}
-//		for (uint32_t idx = 0; idx < 6; idx++)
-//		{
-//			mParamBuffer[idx]->Commit();
-//		}
-//	}
-//}
 
+	void PointBasedRenderLightData::PerSceneUpdate(RenderScene* renderScene)
+	{
+		UpdateLightNumParameter(renderScene);
+
+		UpdateDirtyLightData(renderScene);
+	}
 }

@@ -6,6 +6,7 @@
 #include "Graphics/RHI/RHIShader.h"
 
 #include "Graphics/Renderer/MaterialParam.h"
+#include "Graphics/Asset/MaterialTemplate.h"
 
 #include "Graphics/RenderTypes.h"
 #include "Core/Object/SharedObject.h"
@@ -142,7 +143,7 @@ public:
 
 	ShaderAsset* GetShaderAsset();
 
-	RHIBindingSetPtr GetBindingSet();
+	void BindToPipeline(RHICmdList* cmdList);
 
 	RHICBufferDesc GetConstantBufferDesc(ShaderParamID name);
 
@@ -153,12 +154,14 @@ protected:
 	MaterialPipelineType mPipelineType;
 
 	LMap<ShaderParamID, RHIViewPtr> mInputs;
-
-	RHIBindingSetPtr mBindingSet;
+	
+	int32_t mFramIndex = 0;
+	
+	LArray<RHIBindingSetPtr> mBindingSets;
 
 	MaterialBaseTemplateAsset* mAsset;
 
-	bool mBindingDirty = true;
+	LArray<bool> mBindingDirty;
 
 	bool HasBindPoint(ShaderParamID id) const;
 

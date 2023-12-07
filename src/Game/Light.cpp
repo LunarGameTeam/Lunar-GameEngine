@@ -197,7 +197,7 @@ namespace luna
 		mCSMSplit = val;
 	}
 
-	LSharedPtr<graphics::GameRenderDataUpdater> DirectionLightComponent::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
+	void DirectionLightComponent::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
 	{
 		if (mNeedUpdate)
 		{

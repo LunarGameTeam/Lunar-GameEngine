@@ -149,6 +149,11 @@ void DX12GraphicCmdList::DrawIndexedInstanced(
 		BaseVertexLocation, StartInstanceLocation);
 };
 
+void DX12GraphicCmdList::Dispatch(int32_t x, int32_t y, int32_t z)
+{
+	mDxCmdList->Dispatch(x,y,z);
+}
+
 void DX12GraphicCmdList::DrawIndirectCommands(const RHICmdArgBuffer* DrawBuffer)
 {
 	//todo:使用mDxCmdList->ExecuteIndirect()
@@ -581,7 +586,7 @@ void DX12GraphicCmdList::CloseCommondList()
 	}
 }
 
-void DX12GraphicCmdList::BindDesriptorSetExt(RHIBindingSetPtr bindingSet)
+void DX12GraphicCmdList::BindDesriptorSetExt(RHIBindingSet* bindingSet)
 {
 	DX12BindingSet* dx12BindingSet = bindingSet->As<DX12BindingSet>();
 	for (auto& it : dx12BindingSet->m_layout->GetLayout())

@@ -7,36 +7,34 @@ namespace luna::graphics
 {
 	class RENDER_API SceneRenderPipeline
 	{
-		LArray<FrameGraphPassGenerator*> mAllPassGenerator;
+		LHoldIdArray<FrameGraphPassGeneratorPerView> mAllPassGeneratorPerView;
 	public:
-		void GeneratePass(FrameGraphBuilder* frameGraph, RenderScene* curScene, RenderView* curView);
-		void InitNewFrameGraphGeneratorInstance(FrameGraphPassGenerator* newGenerator);
+		void GeneratePerViwewPass(FrameGraphBuilder* frameGraph, RenderView* curView);
+		void InitNewPerViewFrameGraphGeneratorInstance(FrameGraphPassGeneratorPerView* newGenerator);
 	};
 
-	void SceneRenderPipeline::GeneratePass(FrameGraphBuilder* frameGraph, RenderScene* curScene, RenderView* curView)
+	void SceneRenderPipeline::GeneratePerViwewPass(FrameGraphBuilder* frameGraph, RenderView* curView)
 	{
-		LArray<RenderObject*>& allObjects = curView->GetViewVisibleROs();
-		for (RenderObject* eachRo : allObjects)
+		LArray<FrameGraphPassGeneratorPerView*> valueOut;
+		mAllPassGeneratorPerView.GetAllValueList(valueOut);
+		for (FrameGraphPassGeneratorPerView* eachGenerator : valueOut)
 		{
-			for (FrameGraphPassGenerator* eachGenerator : mAllPassGenerator)
-			{
-				eachGenerator->FilterRenderObject(eachRo);
-			}
+			eachGenerator->FilterRenderObject(curView);
 		}
-		for (FrameGraphPassGenerator* eachGenerator : mAllPassGenerator)
+		for (FrameGraphPassGeneratorPerView* eachGenerator : valueOut)
 		{
-			eachGenerator->AddPassNode(frameGraph, curView, curScene);
+			eachGenerator->AddPassNode(frameGraph, curView);
 		}
-		for (FrameGraphPassGenerator* eachGenerator : mAllPassGenerator)
+		for (FrameGraphPassGeneratorPerView* eachGenerator : valueOut)
 		{
 			eachGenerator->ClearRoQueue();
 		}
 	}
 
-	void SceneRenderPipeline::InitNewFrameGraphGeneratorInstance(FrameGraphPassGenerator* newGenerator)
+	void SceneRenderPipeline::InitNewPerViewFrameGraphGeneratorInstance(FrameGraphPassGeneratorPerView* newGenerator)
 	{
-		mAllPassGenerator.push_back(newGenerator);
-	}
+		mAllPassGeneratorPerView.AddNewValue(newGenerator);
+	}l
 
 	class RENDER_API SceneRenderer
 	{

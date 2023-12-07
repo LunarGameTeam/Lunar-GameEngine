@@ -125,6 +125,8 @@ public:
 		int32_t StartInstanceLocation) = 0;
 	virtual void DrawIndirectCommands(const RHICmdArgBuffer* DrawBuffer) = 0;
 
+	virtual void Dispatch(int32_t x, int32_t y, int32_t z) = 0;
+
 	virtual void SetDrawPrimitiveTopology(RHIPrimitiveTopology primitive_topology) = 0;
 
 	virtual void CopyBufferToBuffer(
@@ -142,7 +144,7 @@ public:
 		uint32_t srcSubRes
 	) = 0;
 
-	virtual void BindDesriptorSetExt(RHIBindingSetPtr bindingSet) = 0;
+	virtual void BindDesriptorSetExt(RHIBindingSet* bindingSet) = 0;
 	virtual void SetBiningSetLayoutExt(RHIBindingSetLayout* root_signature) = 0;
 	virtual void BindDescriptorHeap() = 0;
 

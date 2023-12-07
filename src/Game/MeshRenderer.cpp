@@ -13,9 +13,11 @@ namespace graphics
 void GameStaticMeshRenderDataUpdater::UpdateRenderThreadImpl(graphics::GameRenderBridgeData* curData, graphics::RenderScene* curScene) 
 {
 	GameRenderBridgeDataStaticMesh* realPointer = static_cast<GameRenderBridgeDataStaticMesh*>(curData);
+	
 	if (realPointer->mNeedIniteMesh)
 	{
 		assert(mRenderMesh.size() == 0);
+		RenderObjectDrawData* RoDrawData = curScene->RequireData<RenderObjectDrawData>();
 		for (int32_t subMeshIndex = 0; subMeshIndex < realPointer->mInitSubmesh.size(); ++subMeshIndex)
 		{
 			graphics::RenderObject* newObject = curScene->CreateRenderObject();
@@ -23,6 +25,7 @@ void GameStaticMeshRenderDataUpdater::UpdateRenderThreadImpl(graphics::GameRende
 			meshData->mMeshData = realPointer->mInitSubmesh[subMeshIndex]->GetRenderMeshData();
 			mRenderMesh.push_back(meshData);
 			mRenderObjects.push_back(newObject);
+			RoDrawData->AddDirtyRo(newObject);
 		}
 	}
 	if (realPointer->mNeedIniteMaterial)
@@ -30,7 +33,7 @@ void GameStaticMeshRenderDataUpdater::UpdateRenderThreadImpl(graphics::GameRende
 		for (int32_t refreshId = 0; refreshId < realPointer->mMaterialInitIndex.size(); ++refreshId)
 		{
 			size_t roIndex = realPointer->mMaterialInitIndex[refreshId];
-			mRenderMesh[roIndex]->mMaterial = realPointer->mInitMaterial[roIndex]->CreateInstance();
+			mRenderMesh[roIndex]->mMaterial = dynamic_cast<MaterialInstance*>(realPointer->mInitMaterial[roIndex]->CreateInstance());
 			mRenderMesh[roIndex]->mMaterial->Ready();
 		}
 	}
@@ -41,6 +44,15 @@ void GameStaticMeshRenderDataUpdater::UpdateRenderThreadImpl(graphics::GameRende
 			mRenderMesh[subMeshIndex]->mCastShadow = realPointer->mCastShadow;
 			mRenderMesh[subMeshIndex]->mReceiveLight = realPointer->mReceiveLight;
 			mRenderMesh[subMeshIndex]->mReceiveShadow = realPointer->mReceiveShadow;
+		}
+	}
+	if (realPointer->mNeedUpdateTransfrom)
+	{
+		RenderObjectDrawData* RoDrawData = curScene->RequireData<RenderObjectDrawData>();
+		for (graphics::RenderObject* roData : mRenderObjects)
+		{
+			roData->UpdateWorldMatrix(realPointer->mRoTransform);
+			RoDrawData->AddDirtyRo(roData);
 		}
 	}
 }
@@ -60,6 +72,7 @@ void GameStaticMeshRenderDataUpdater::ClearData(graphics::GameRenderBridgeData* 
 	}
 	realPointer->mNeedIniteMaterial = false;
 	realPointer->NeedUpdateStaticMessage = false;
+	realPointer->mNeedUpdateTransfrom = false;
 }
 
 void GameSkeletalMeshRenderDataUpdater::UpdateRenderThreadImpl(graphics::GameRenderBridgeData* curData, graphics::RenderScene* curScene)
@@ -110,9 +123,16 @@ RegisterTypeEmbedd_Imp(StaticMeshRenderer)
 	BindingModule::Luna()->AddType(cls);
 }
 
+void StaticMeshRenderer::OnTransformDirty(Transform* transform)
+{
+	mTransformDirty = true;
+}
+
 void StaticMeshRenderer::OnCreate()
 {
 	Super::OnCreate();
+	mTransformDirtyAction = mOwnerEntity->GetComponent<Transform>()->OnTransformDirty.Bind(AutoBind(&StaticMeshRenderer::OnTransformDirty, this));
+	OnTransformDirty(mOwnerEntity->GetComponent<Transform>());
 	mMeshDirty = true;
 	mMaterialDirty = true;
 
@@ -138,6 +158,51 @@ void StaticMeshRenderer::SetMaterialAsset(int32_t matIndex, const LString& asset
 	luna::LType* createType = LType::Get<MaterialTemplateAsset>();
 	mMaterialAsset.GetPtr(matIndex) = (MaterialTemplateAsset*)sAssetModule->NewAsset(assetPath, createType);
 	mAllDirtyMaterial.push_back(matIndex);
+}
+
+void StaticMeshRenderer::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
+{
+	GameRenderBridgeDataStaticMesh* realPointer = static_cast<GameRenderBridgeDataStaticMesh*>(curRenderData);
+	if (mMeshDirty && mMeshAsset != nullptr && mMaterialAsset.Size() != 0)
+	{
+		//模型需要初始化
+		realPointer->mNeedIniteMesh = true;
+		realPointer->mNeedIniteMaterial = true;
+		for (int32_t subIndex = 0; subIndex < mMeshAsset->mSubMesh.size(); ++subIndex)
+		{
+			realPointer->mInitSubmesh.push_back(mMeshAsset->mSubMesh[subIndex]);
+			realPointer->mMaterialInitIndex.push_back(subIndex);
+			realPointer->mInitMaterial.push_back(mMaterialAsset[subIndex]);
+		}
+		mMeshDirty = false;
+		mMaterialDirty = false;
+	}
+	if (mMaterialDirty)
+	{
+		//模型材质被改动
+		realPointer->mNeedIniteMaterial = true;
+		for (size_t refreshIndex = 0; refreshIndex < mAllDirtyMaterial.size(); ++refreshIndex)
+		{
+			size_t materialIndex = mAllDirtyMaterial[refreshIndex];
+			realPointer->mMaterialInitIndex.push_back(materialIndex);
+			realPointer->mInitMaterial.push_back(mMaterialAsset[materialIndex]);
+		}
+		mMaterialDirty = false;
+	}
+	if (mRenderParamDirty)
+	{
+		//模型参数被改动
+		realPointer->NeedUpdateStaticMessage = true;
+		realPointer->mCastShadow = mCastShadow;
+		mRenderParamDirty = false;
+	}
+	if (mTransformDirty)
+	{
+		//模型位置被改动
+		realPointer->mNeedUpdateTransfrom = true;
+		realPointer->mRoTransform = mTransform->GetLocalToWorldMatrix();
+		mTransformDirty = false;
+	}
 }
 
 

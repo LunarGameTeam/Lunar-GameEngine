@@ -604,16 +604,19 @@ void RenderContext::DrawMesh(graphics::RenderMeshBase* mesh, graphics::MaterialI
 	DrawMeshInstanced(mesh, mat, nullptr, 0, 1);
 }
 
-void RenderContext::Dispatch(MaterialInstance* mat, LVector4i dispatchSize)
+void RenderContext::Dispatch(MaterialInstanceComputeBase* mat, LVector4i dispatchSize)
 {
-	LUNA_ASSERT(false);
+	auto pipeline = mat->GetPipeline();
+	mGraphicCmd->GetCmdList()->SetPipelineState(pipeline);
+	mat->BindToPipeline(mGraphicCmd->GetCmdList());
+	mGraphicCmd->GetCmdList()->Dispatch(dispatchSize.x(), dispatchSize.y(), dispatchSize.z());
 }
 
 void RenderContext::DrawMeshInstanced(graphics::RenderMeshBase* mesh, graphics::MaterialInstance* mat, graphics::RHIResource* vertexInputInstanceRes /*= nullptr*/,
 	int32_t startInstanceIdx /*= 1*/, int32_t instancingSize /*= 1*/)
 {
 	ZoneScoped;
-	RHIVertexLayout layout = mesh->GetVertexLayout();
+	RHIVertexLayout layout = mesh->mMeshData->GetVertexLayout();
 	layout.AddVertexElement(VertexElementType::Int, VertexElementUsage::UsageInstanceMessage, 4, 1, VertexElementInstanceType::PerInstance);
 
 	auto pipeline = mat->GetPipeline(&layout, mCurRenderPass);
@@ -622,17 +625,17 @@ void RenderContext::DrawMeshInstanced(graphics::RenderMeshBase* mesh, graphics::
 	mGraphicCmd->GetCmdList()->SetPipelineState(pipeline);
 	mGraphicCmd->GetCmdList()->BindDesriptorSetExt(matBindingset);
 
-	size_t vertexCount = mesh->GetVertexSize();
+	size_t vertexCount = mesh->mMeshData->GetVertexSize();
 
-	RHIResource* vb = mesh->GetVertexBuffer();
-	size_t indexCount = mesh->GetIndexSize();
-	RHIResource* ib = mesh->GetIndexBuffer();
+	RHIResource* vb = mesh->mMeshData->GetVertexBuffer();
+	size_t indexCount = mesh->mMeshData->GetIndexSize();
+	RHIResource* ib = mesh->mMeshData->GetIndexBuffer();
 
 	LArray<RHIVertexBufferDesc> descs;
 	RHIVertexBufferDesc& vbDesc = descs.emplace_back();
 	vbDesc.mOffset = 0;
-	vbDesc.mBufferSize = vertexCount * mesh->GetStridePerVertex();
-	vbDesc.mVertexStride = mesh->GetStridePerVertex();
+	vbDesc.mBufferSize = vertexCount * mesh->mMeshData->GetStridePerVertex();
+	vbDesc.mVertexStride = mesh->mMeshData->GetStridePerVertex();
 	vbDesc.mVertexRes = vb;
 
 	if (vertexInputInstanceRes != nullptr)

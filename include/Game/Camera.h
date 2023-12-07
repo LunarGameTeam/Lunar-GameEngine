@@ -123,7 +123,7 @@ private:
 	//renderœ‡πÿ
 	LSharedPtr<graphics::GameRenderDataUpdater> GenarateRenderUpdater() override { return MakeShared<GameCameraRenderDataUpdater>(); }
 
-	LSharedPtr<graphics::GameRenderDataUpdater> OnTickImpl(graphics::GameRenderBridgeData* curRenderData) override;
+	void OnTickImpl(graphics::GameRenderBridgeData* curRenderData) override;
 };
 
 }

@@ -5,27 +5,6 @@
 #include "Graphics/RHI/RHITypes.h"
 namespace luna::graphics
 {
-	struct RenderObjectGpuSceneDataBuffer : public RenderData
-	{
-		size_t                   mMaxRoObjectSize;
-
-		RHIResourcePtr           mRoDataBuffer;
-
-		RHIViewPtr               mRoDataBufferView;
-
-		void SetMaterialParameter(MaterialInstance* matInstance);
-	};
-
-	struct RenderObjectRenderSceneDataBuffer : public RenderData
-	{
-		size_t                   mCurRoObjectSize;
-
-		size_t                   mMaxRoObjectSize;
-
-		RHIResourcePtr           mRoDataBuffer;
-
-		RHIViewPtr               mRoDataBufferView;
-	};
 
 	class RENDER_API RenderObject : public RenderDataContainer, public HoldIdItem
 	{
@@ -39,4 +18,28 @@ namespace luna::graphics
 		const LMatrix4f& GetWorldMatrix() { return mWorldMat; }
 	};
 
+	class RenderObjectDrawData : public RenderData
+	{
+		RHIResourcePtr mRoMessagePtr;
+
+		RHIViewPtr mRoMessageView;
+
+		LArray<RenderObject*> dirtyRo;
+
+		LSharedPtr<MaterialComputeAsset> mMaterial;
+
+		LSharedPtr<MaterialInstanceComputeBase> mMaterialInstance;
+	public:
+		RenderObjectDrawData();
+
+		void AddDirtyRo(RenderObject* roData);
+
+		void SetMaterialParameter(MaterialInstanceBase* matInstance);
+
+		void PerSceneUpdate(RenderScene* renderScene) override;
+	private:
+		void GenerateRoMatrixBuffer(void* pointer);
+
+		void GenerateRoIndexBuffer(void* pointer);
+	};
 }

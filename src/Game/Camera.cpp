@@ -34,14 +34,9 @@ void GameCameraRenderDataUpdater::UpdateRenderThreadImpl(graphics::GameRenderBri
 		mViewCbuffer->Set("cViewMatrix", realPointer->mExtrinsicsParameter.mViewMatrix);
 		mViewCbuffer->Set("cCamPos", realPointer->mExtrinsicsParameter.mPosition);
 
-		graphics::RenderViewParameterData* viewParamData = curScene->GetData<graphics::RenderViewParameterData>();
-		graphics::RHIResource* viewBufferStage = curScene->GetStageBufferPool()->AllocUniformStageBuffer(mViewCbuffer.get());
-		graphics::GpuSceneUploadCopyCommand* copyCommand = curScene->AddCopyCommand();
-		copyCommand->mSrcOffset = 0;
-		copyCommand->mDstOffset = 0;
-		copyCommand->mCopyLength = SizeAligned2Pow(mViewCbuffer->mData.size(),256);
-		copyCommand->mUniformBufferInput = viewBufferStage;
-		copyCommand->mStorageBufferOutput = viewParamData->GetResource();
+		graphics::RenderViewParameterData* viewParamData = mRenderView->GetData<graphics::RenderViewParameterData>();
+
+		curScene->AddCbufferCopyCommand(mViewCbuffer.get(), viewParamData->GetResource());
 	}
 }
 
@@ -216,7 +211,7 @@ const luna::LMatrix4f CameraComponent::GetWorldMatrix()const
 	return mTransform->GetLocalToWorldMatrix();
 }
 
-LSharedPtr<graphics::GameRenderDataUpdater> CameraComponent::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
+void CameraComponent::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
 {
 	GameRenderBridgeDataCamera* realPointer = static_cast<GameRenderBridgeDataCamera*>(curRenderData);
 

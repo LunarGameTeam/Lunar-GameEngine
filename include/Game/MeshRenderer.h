@@ -28,7 +28,8 @@ struct GameRenderBridgeDataStaticMesh :public graphics::GameRenderBridgeData
 	bool mNeedIniteMaterial = false;
 	LArray<size_t> mMaterialInitIndex;           //哪些材质需要重载
 	LArray<MaterialTemplateAsset*> mInitMaterial;//需要重载的材质数据
-
+	bool mNeedUpdateTransfrom = false;
+	LMatrix4f mRoTransform;
 	//这些是需要实时更新的数据
 	bool              NeedUpdateStaticMessage = false;
 	bool              mCastShadow = true;
@@ -104,6 +105,10 @@ public:
 protected:
 	bool                              mRenderParamDirty = false;
 
+	ActionHandle                      mTransformDirtyAction;
+
+	bool                              mTransformDirty = true;
+
 	bool                              mCastShadow = true;
 
 	bool                              mMeshDirty = false;
@@ -116,10 +121,11 @@ protected:
 
 	TPPtrArray<MaterialTemplateAsset> mMaterialAsset;
 
+	void                              OnTransformDirty(Transform* transform);
 	//render相关
 	virtual LSharedPtr<graphics::GameRenderDataUpdater> GenarateRenderUpdater() override { return MakeShared<GameStaticMeshRenderDataUpdater>(); }
 
-	virtual LSharedPtr<graphics::GameRenderDataUpdater> OnTickImpl(graphics::GameRenderBridgeData* curRenderData) override;
+	virtual void OnTickImpl(graphics::GameRenderBridgeData* curRenderData) override;
 };
 
 //class GAME_API StaticMeshRenderer2 : public MeshRenderer
@@ -136,44 +142,7 @@ protected:
 //
 //	LSharedPtr<graphics::GameRenderDataUpdater> OnTickImpl(graphics::GameRenderBridgeData* curRenderData);
 //};
-LSharedPtr<graphics::GameRenderDataUpdater> StaticMeshRenderer::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
-{
-	GameRenderBridgeDataStaticMesh* realPointer = static_cast<GameRenderBridgeDataStaticMesh*>(curRenderData);
-	if (mMeshDirty && mMeshAsset != nullptr && mMaterialAsset.Size() != 0)
-	{
-		//模型需要初始化
-		realPointer->mNeedIniteMesh = true;
-		realPointer->mNeedIniteMaterial = true;
-		for (int32_t subIndex = 0; subIndex < mMeshAsset->mSubMesh.size(); ++subIndex)
-		{
-			realPointer->mInitSubmesh.push_back(mMeshAsset->mSubMesh[subIndex]);
-			realPointer->mMaterialInitIndex.push_back(subIndex);
-			realPointer->mInitMaterial.push_back(mMaterialAsset[subIndex]);
-			
-		}
-		mMeshDirty = false;
-		mMaterialDirty = false;
-	}
-	if (mMaterialDirty)
-	{
-		//模型材质被改动
-		realPointer->mNeedIniteMaterial = true;
-		for (size_t refreshIndex = 0; refreshIndex < mAllDirtyMaterial.size(); ++refreshIndex)
-		{
-			size_t materialIndex = mAllDirtyMaterial[refreshIndex];
-			realPointer->mMaterialInitIndex.push_back(materialIndex);
-			realPointer->mInitMaterial.push_back(mMaterialAsset[materialIndex]);
-		}
-		mMaterialDirty = false;
-	}
-	if (mRenderParamDirty)
-	{
-		//模型参数被改动
-		realPointer->NeedUpdateStaticMessage = true;
-		realPointer->mCastShadow = mCastShadow;
-		mRenderParamDirty = false;
-	}
-}
+
 
 class GAME_API SkeletonMeshRenderer : public StaticMeshRenderer
 {
@@ -195,10 +164,10 @@ private:
 	//render相关
 	LSharedPtr<graphics::GameRenderDataUpdater> GenarateRenderUpdater() override { return MakeShared<GameSkeletalMeshRenderDataUpdater>(); }
 
-	LSharedPtr<graphics::GameRenderDataUpdater> OnTickImpl(graphics::GameRenderBridgeData* curRenderData) override;
+	void OnTickImpl(graphics::GameRenderBridgeData* curRenderData) override;
 };
 
-LSharedPtr<graphics::GameRenderDataUpdater> SkeletonMeshRenderer::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
+void SkeletonMeshRenderer::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
 {
 	StaticMeshRenderer::OnTickImpl(curRenderData);
 	GameRenderBridgeDataSkeletalMesh* realPointer = static_cast<GameRenderBridgeDataSkeletalMesh*>(curRenderData);

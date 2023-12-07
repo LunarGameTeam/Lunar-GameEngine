@@ -16,30 +16,6 @@
 namespace luna::graphics
 {
 
-class RenderObjectDrawData : public RenderData
-{
-public:
-	using ROFilterFunc = std::function<bool(RenderObject*)>;
-
-	LArray<RenderObject*> mVisibleROs[MeshRenderPass::AllNum];
-	MaterialInstance*     mOverrideMaterialInst[MeshRenderPass::AllNum] = { nullptr };
-	ROFilterFunc          mFilters[MeshRenderPass::AllNum];
-	RenderScene*          mScene                                        = nullptr;
-	RenderView*           mView                                         = nullptr;
-
-	void DrawRenderObjects(MeshRenderPass pass, const std::unordered_map<luna::graphics::ShaderParamID, luna::graphics::RHIView*>& shaderBindingParam, RHIView* overrideRenderViewBuffer);
-
-	void SetROFilter(MeshRenderPass pass, ROFilterFunc func)
-	{
-		mFilters[pass] = func;
-	}
-	void SetOverrideMaterialInstance(MeshRenderPass pass, MaterialInstance* mat)
-	{
-		mOverrideMaterialInst[pass] = mat;
-	}
-	void PerViewUpdate(RenderView* renderView) override;
-};
-
 class AmbientAtmosphereData : public RenderData
 {
 	//环境光
@@ -56,9 +32,9 @@ class RenderSceneDebugData : public RenderData
 
 struct GpuSceneUploadComputeCommand
 {
-	LArray<RHIResource*> mStorageBufferInput;
-	LArray<RHIResource*> mStorageBufferOutput;
-	MaterialInstance* mComputeMaterial;
+	LUnorderedMap<ShaderParamID, RHIView*> mStorageBufferInput;
+	LUnorderedMap<ShaderParamID, RHIView*> mStorageBufferOutput;
+	MaterialInstanceComputeBase* mComputeMaterial;
 	LVector4i mDispatchSize;
 };
 
@@ -79,13 +55,16 @@ class RenderSceneStagingMemory
 	size_t mMemoryOffset;
 	//stage buffer池
 	LArray<RHIResourcePtr> mStageBufferPool;
+	LArray<RHIViewPtr> mStageBufferViewPool;
 	size_t mPoolUsedSize;
 public:
 	RenderSceneStagingMemory(size_t perStageSize = 0x800000);
 
-	RHIResource* AllocStructStageBuffer(size_t curBufferSize);
+	RHIView* AllocStructStageBuffer(size_t curBufferSize, RHIViewType useType, size_t strideSize);
 
-	RHIResource* AllocUniformStageBuffer(ShaderCBuffer* cbufferData);
+	RHIView* AllocStructStageBuffer(size_t curBufferSize, RHIViewType useType, size_t strideSize, std::function<void(void*)> memoryFunc);
+
+	RHIView* AllocUniformStageBuffer(ShaderCBuffer* cbufferData);
 
 	void Clear()
 	{
@@ -106,9 +85,11 @@ class RenderSceneUploadBufferPool
 public:
 	RenderSceneUploadBufferPool();
 
-	RHIResource* AllocStructStageBuffer(size_t curBufferSize);
+	RHIView* AllocStructStageBuffer(size_t curBufferSize, RHIViewType useType, size_t strideSize);
 
-	RHIResource* AllocUniformStageBuffer(ShaderCBuffer* cbufferData);
+	RHIView* AllocStructStageBuffer(size_t curBufferSize, RHIViewType useType, size_t strideSize, std::function<void(void*)> memoryFunc);
+
+	RHIView* AllocUniformStageBuffer(ShaderCBuffer* cbufferData);
 
 	void Present();
 };
@@ -136,6 +117,8 @@ public:
 
 	GpuSceneUploadCopyCommand* AddCopyCommand();
 
+	void AddCbufferCopyCommand(ShaderCBuffer* cbufferDataIn, RHIResource* bufferOutput);
+
 	RenderSceneUploadBufferPool* GetStageBufferPool();
 
 	void ExcuteCopy();
@@ -154,7 +137,5 @@ private:
 
 	RenderSceneUploadBufferPool mStageBufferPool;
 };
-
-
 
 }

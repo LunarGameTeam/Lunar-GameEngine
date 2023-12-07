@@ -92,7 +92,7 @@ public:
 
 	MaterialInstanceBase* GetDefaultInstance() {
 		if (!mDefaultInstance)
-			mDefaultInstance = dynamic_cast<MaterialInstance*>(CreateInstance());
+			mDefaultInstance = dynamic_cast<MaterialInstanceGraphBase*>(CreateInstance());
 		return mDefaultInstance.Get();
 	}
 
@@ -121,7 +121,7 @@ private:
 
 	RHIPrimitiveTopologyType mPrimitiveType = RHIPrimitiveTopologyType::Triangle;
 
-	TPPtr<MaterialInstance> mDefaultInstance;
+	TPPtr<MaterialInstanceGraphBase> mDefaultInstance;
 
 	void CompileShaderAsset(ShaderAsset* curShader, const LArray<ShaderMacro*>& shaderMacros) override;
 };

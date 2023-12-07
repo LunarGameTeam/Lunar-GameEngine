@@ -67,6 +67,10 @@ class PointBasedRenderLightData : RenderData
 	LArray<uint32_t> mDirectionLightIndex;
 
 	LArray<uint32_t> mSpotLightIndex;
+
+	LSharedPtr<MaterialComputeAsset> mMaterial;
+
+	LSharedPtr<MaterialInstanceComputeBase> mMaterialInstance;
 public:
 	PointBasedRenderLightData();
 
@@ -76,8 +80,16 @@ public:
 
 	void SetMaterialParameter(MaterialInstance* matInstance);
 
-	void PerSceneUpdate(RenderScene* renderScene);
+	void PerSceneUpdate(RenderScene* renderScene) override;
+
+	void UpdateLightNumParameter(RenderScene* renderScene);
+
+	void UpdateDirtyLightData(RenderScene* renderScene);
 
 	void MarkLightDirty(PointBasedLight* light) { mDirtyList.push_back(light); };
+private:
+	void GenerateDirtyLightDataBuffer(void* pointer);
+
+	void GenerateDirtyLightIndexBuffer(void* pointer);
 };
 }

@@ -73,7 +73,7 @@ namespace luna::graphics
 	private:
 		virtual LSharedPtr<GameRenderDataUpdater> GenarateRenderUpdater() = 0;
 
-		virtual LSharedPtr<GameRenderDataUpdater> OnTickImpl(GameRenderBridgeData* curRenderData) = 0;
+		virtual void OnTickImpl(GameRenderBridgeData* curRenderData) = 0;
 	};
 
 }

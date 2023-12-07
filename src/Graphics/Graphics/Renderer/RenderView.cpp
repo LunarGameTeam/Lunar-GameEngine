@@ -14,7 +14,7 @@
 namespace luna::graphics
 {
 PARAM_ID(ViewBuffer);
-void RenderViewParameterData::SetMaterialViewParameter(MaterialInstance* matInstance)
+void RenderViewParameterData::SetMaterialParameter(MaterialInstanceBase* matInstance)
 {
 	matInstance->SetShaderInput(ParamID_ViewBuffer, mViewParamCbufferView);
 }

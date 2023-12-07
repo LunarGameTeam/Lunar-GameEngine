@@ -24,10 +24,9 @@ RenderSceneStagingMemory::RenderSceneStagingMemory(size_t perStageSize = 0x80000
 	mPoolUsedSize = 0;
 }
 
-RHIResource* RenderSceneStagingMemory::AllocStructStageBuffer(size_t curBufferSize)
+RHIView* RenderSceneStagingMemory::AllocStructStageBuffer(size_t curBufferSize, RHIViewType useType, size_t strideSize)
 {
 	//目前不考虑多线程访问的问题，默认render只有一个线程
-	RHIResource* curResourceItm = nullptr;
 	if (mPoolUsedSize < mStageBufferPool.size())
 	{
 		RHIBufferDesc newBufferDesc;
@@ -35,19 +34,42 @@ RHIResource* RenderSceneStagingMemory::AllocStructStageBuffer(size_t curBufferSi
 		newBufferDesc.mSize = SizeAligned2Pow(curBufferSize, CommonSize64K);
 		RHIResourcePtr newBuffer = sRenderModule->GetRenderContext()->mDevice->CreateBufferExt(newBufferDesc);
 		mStageBufferPool.push_back(newBuffer);
+
+		ViewDesc viewDesc;
+		viewDesc.mViewType = useType;
+		viewDesc.mViewDimension = RHIViewDimension::BufferView;
+		viewDesc.mStructureStride = strideSize;
+		RHIViewPtr newBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
+		mStageBufferViewPool.push_back(newBufferView);
+		newBufferView->BindResource(newBuffer);
+
+		mStageBufferViewPool;
 	}
+	RHIResource* curResourceItm = nullptr;
 	curResourceItm = mStageBufferPool[mPoolUsedSize].get();
+	RHIView* newBufferView = nullptr;
+	newBufferView = mStageBufferViewPool[mPoolUsedSize].get();
 	BindMemory(curResourceItm);
+	newBufferView->BindResource(curResourceItm);
 	mPoolUsedSize += 1;
-	return curResourceItm;
+	return newBufferView;
 };
 
-RHIResource* RenderSceneStagingMemory::AllocUniformStageBuffer(ShaderCBuffer* cbufferData)
+RHIView* RenderSceneStagingMemory::AllocStructStageBuffer(size_t curBufferSize, RHIViewType useType, size_t strideSize, std::function<void(void*)> memoryFunc)
 {
-	RHIResource* newRes = AllocStructStageBuffer(cbufferData->mData.size());
-	void* cpuPointer = newRes->Map();
+	RHIView* curView = AllocStructStageBuffer(curBufferSize, useType, strideSize);
+	void* curPointer = curView->mBindResource->Map();
+	memoryFunc(curPointer);
+	curView->mBindResource->Unmap();
+}
+
+RHIView* RenderSceneStagingMemory::AllocUniformStageBuffer(ShaderCBuffer* cbufferData)
+{
+	//这里需要后期处理下cbuffer的分配，目前每个cbuffer分配64k会造成巨大的浪费
+	RHIView* newRes = AllocStructStageBuffer(cbufferData->mData.size(), RHIViewType::kConstantBuffer,0);
+	void* cpuPointer = newRes->mBindResource->Map();
 	memcpy(cpuPointer, cbufferData->mData.data(), cbufferData->mData.size());
-	newRes->Unmap();
+	newRes->mBindResource->Unmap();
 	return newRes;
 }
 
@@ -115,12 +137,17 @@ RenderSceneUploadBufferPool::RenderSceneUploadBufferPool()
 
 }
 
-RHIResource* RenderSceneUploadBufferPool::AllocStructStageBuffer(size_t curBufferSize)
+RHIView* RenderSceneUploadBufferPool::AllocStructStageBuffer(size_t curBufferSize, RHIViewType useType, size_t strideSize)
 {
-	return mMemoryArray[mFrameIndex].AllocStructStageBuffer(curBufferSize);
+	return mMemoryArray[mFrameIndex].AllocStructStageBuffer(curBufferSize, useType, strideSize);
 }
 
-RHIResource* RenderSceneUploadBufferPool::AllocUniformStageBuffer(ShaderCBuffer* cbufferData)
+RHIView* RenderSceneUploadBufferPool::AllocStructStageBuffer(size_t curBufferSize, RHIViewType useType, size_t strideSize, std::function<void(void*)> memoryFunc)
+{
+	return mMemoryArray[mFrameIndex].AllocStructStageBuffer(curBufferSize, useType, strideSize, memoryFunc);
+}
+
+RHIView* RenderSceneUploadBufferPool::AllocUniformStageBuffer(ShaderCBuffer* cbufferData)
 {
 	return mMemoryArray[mFrameIndex].AllocUniformStageBuffer(cbufferData);
 }
@@ -196,6 +223,18 @@ GpuSceneUploadCopyCommand* RenderScene::AddCopyCommand()
 	return &mAllCopyCommand.back();
 }
 
+void RenderScene::AddCbufferCopyCommand(ShaderCBuffer* cbufferData, RHIResource* bufferOutput)
+{
+	GpuSceneUploadCopyCommand* curCommand = AddCopyCommand();
+	RHIResource* lightParamBuffer = mStageBufferPool.AllocUniformStageBuffer(cbufferData)->mBindResource;
+	//cbuffer的更新只需要制作一个copy的指令
+	curCommand->mSrcOffset = 0;
+	curCommand->mDstOffset = 0;
+	curCommand->mCopyLength = SizeAligned2Pow(cbufferData->mData.size(), 256);
+	curCommand->mUniformBufferInput = lightParamBuffer;
+	curCommand->mStorageBufferOutput = bufferOutput;
+}
+
 RenderSceneUploadBufferPool* RenderScene::GetStageBufferPool()
 {
 	return &mStageBufferPool;
@@ -210,7 +249,7 @@ void RenderScene::ExcuteCopy()
 		for (auto& eachInput : eachCommand.mStorageBufferInput)
 		{
 			ResourceBarrierDesc newBarrierDesc;
-			newBarrierDesc.mBarrierRes = eachInput;
+			newBarrierDesc.mBarrierRes = eachInput.second;
 			newBarrierDesc.mStateBefore = ResourceState::kGenericRead;
 			newBarrierDesc.mStateAfter = ResourceState::kNonPixelShaderResource;
 			curResourceBarrier.push_back(newBarrierDesc);
@@ -218,7 +257,7 @@ void RenderScene::ExcuteCopy()
 		for (auto& eachOut : eachCommand.mStorageBufferInput)
 		{
 			ResourceBarrierDesc newBarrierDesc;
-			newBarrierDesc.mBarrierRes = eachOut;
+			newBarrierDesc.mBarrierRes = eachOut.second;
 			newBarrierDesc.mStateBefore = ResourceState::kNonPixelShaderResource;
 			newBarrierDesc.mStateAfter = ResourceState::kUnorderedAccess;
 			curResourceBarrier.push_back(newBarrierDesc);
@@ -242,6 +281,15 @@ void RenderScene::ExcuteCopy()
 	//执行GPUscene的更新指令
 	for (auto& eachCommand : mAllComputeCommand)
 	{
+		for (auto eachStorageBuffer : eachCommand.mStorageBufferInput)
+		{
+			eachCommand.mComputeMaterial->SetShaderInput(eachStorageBuffer.first, eachStorageBuffer.second);
+		}
+		for (auto eachStorageBuffer : eachCommand.mStorageBufferOutput)
+		{
+			eachCommand.mComputeMaterial->SetShaderInput(eachStorageBuffer.first, eachStorageBuffer.second);
+		}
+		eachCommand.mComputeMaterial->UpdateBindingSet();
 		sRenderModule->mRenderContext->Dispatch(eachCommand.mComputeMaterial, eachCommand.mDispatchSize);
 	}
 	for (auto& eachCommand : mAllCopyCommand)
@@ -255,7 +303,7 @@ void RenderScene::ExcuteCopy()
 		for (auto& eachInput : eachCommand.mStorageBufferInput)
 		{
 			ResourceBarrierDesc newBarrierDesc;
-			newBarrierDesc.mBarrierRes = eachInput;
+			newBarrierDesc.mBarrierRes = eachInput.second->mBindResource;
 			newBarrierDesc.mStateBefore = ResourceState::kNonPixelShaderResource;
 			newBarrierDesc.mStateAfter = ResourceState::kGenericRead;
 			curResourceBarrier.push_back(newBarrierDesc);
@@ -263,7 +311,7 @@ void RenderScene::ExcuteCopy()
 		for (auto& eachOut : eachCommand.mStorageBufferInput)
 		{
 			ResourceBarrierDesc newBarrierDesc;
-			newBarrierDesc.mBarrierRes = eachOut;
+			newBarrierDesc.mBarrierRes = eachOut.second->mBindResource;
 			newBarrierDesc.mStateBefore = ResourceState::kUnorderedAccess;
 			newBarrierDesc.mStateAfter = ResourceState::kNonPixelShaderResource;
 			curResourceBarrier.push_back(newBarrierDesc);

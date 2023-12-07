@@ -5,8 +5,8 @@
 //有时间再造轮子，没时间就用boost的容器了
 
 #include <unordered_set>
-template<typename T>
-using LUnorderedSet = std::unordered_set<T>;
+template<typename T, class _Hasher = std::hash<T>>
+using LUnorderedSet = std::unordered_set<T, _Hasher>;
 
 #include <vector>
 template<typename T>
@@ -17,8 +17,8 @@ template<typename T1, typename T2>
 using LPair = std::pair<T1,T2>;
 
 #include <unordered_map>
-template<typename K, typename Value>
-using LUnorderedMap = std::unordered_map<K, Value>;
+template<typename K, typename Value, class _Hasher = std::hash<K>>
+using LUnorderedMap = std::unordered_map<K, Value, _Hasher>;
 
 #include <map>
 #include <mutex>
@@ -176,6 +176,22 @@ public:
 		pointer->mID = newIndex;
 		mItems.insert({ newIndex ,newValue });
 	};
+	
+	template<typename TempValue>
+	Value* AddNewValueTemplate()
+	{
+		size_t newIndex = mItems.size();
+		if (!mEmptyIndex.empty())
+		{
+			newIndex = mEmptyIndex.front();
+			mEmptyIndex.pop();
+		}
+		LSharedPtr<Value> newValue = MakeShared<TempValue>();
+		HoldIdItem* pointer = newValue.get();
+		pointer->mID = newIndex;
+		mItems.insert({ newIndex ,newValue });
+	};
+
 
 	bool DestroyValue(Value* valueData)
 	{

@@ -37,7 +37,7 @@ public:
 
 	const RHICBufferDesc& GetParamDesc() { return mCbufferDesc; };
 
-	void SetMaterialViewParameter(MaterialInstance* matInstance);
+	void SetMaterialParameter(MaterialInstanceBase* matInstance);
 
 	RHIResource* GetResource() { return mViewParamRes; };
 };

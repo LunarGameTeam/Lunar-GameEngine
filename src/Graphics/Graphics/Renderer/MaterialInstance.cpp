@@ -2,8 +2,6 @@
 
 
 #include "Graphics/RenderModule.h"
-
-#include "Graphics/Asset/MaterialTemplate.h"
 #include "Graphics/Asset/ShaderAsset.h"
 #include "Graphics/Asset/TextureAsset.h"
 
@@ -139,7 +137,10 @@ void MaterialInstanceBase::SetShaderInput(ShaderParamID id, RHIView* view)
 	if (mInputs[id] == view)
 		return;
 	mInputs[id] = view;
-	mBindingDirty = true;
+	for (int32_t frameId = 0; frameId < 2; ++frameId)
+	{
+		mBindingDirty[frameId] = true;
+	}
 }
 
 ShaderAsset* MaterialInstanceBase::GetShaderAsset()
@@ -147,34 +148,44 @@ ShaderAsset* MaterialInstanceBase::GetShaderAsset()
 	return mAsset->GetShaderAsset();
 }
 
-RHIBindingSetPtr MaterialInstanceBase::GetBindingSet()
+void MaterialInstanceBase::BindToPipeline(RHICmdList* cmdList)
 {
-	if (mBindingDirty)
-	{
-		UpdateBindingSet();
-		mBindingDirty = false;
-	}
-	return mBindingSet;
+	int32_t lastFramIndex = (mFramIndex + 1) % 2;
+	cmdList->BindDesriptorSetExt(mBindingSets[lastFramIndex].get());
 }
 
 void MaterialInstanceBase::UpdateBindingSet()
 {
-	auto shader = mAsset->GetShaderAsset();
-	std::vector<BindingDesc> bindingDescs;
-	for (auto& it : mInputs)
+	//这个update一旦更新了descriptor set，在drawcall期间是不能随便修改的，设计上应该还有再改进的地方，目前还只能靠上层保证每帧每个matinstance只更新一次
+	if (mBindingDirty[mFramIndex])
 	{
-		if (HasBindPoint(it.first))
+		auto shader = mAsset->GetShaderAsset();
+		std::vector<BindingDesc> bindingDescs;
+		for (auto& it : mInputs)
 		{
-			bindingDescs.emplace_back(GetBindPoint(it.first), it.second);
+			if (HasBindPoint(it.first))
+			{
+				bindingDescs.emplace_back(GetBindPoint(it.first), it.second);
+			}
 		}
+		UpdateBindingSetImpl(bindingDescs);
+		mBindingSets[mFramIndex]->WriteBindings(bindingDescs);
+		mBindingDirty[mFramIndex] = false;
 	}
-	UpdateBindingSetImpl(bindingDescs);
-	mBindingSet->WriteBindings(bindingDescs);
+	mFramIndex = (mFramIndex + 1) % 2;
 }
 
 void MaterialInstanceBase::SetAsset(MaterialBaseTemplateAsset* asset)
 {
 	mAsset = asset;
+	mBindingSets.clear();
+	mBindingDirty.clear();
+	for (int32_t frameId = 0; frameId < 2; ++frameId)
+	{
+		RHIBindingSetPtr newBindingSet = sRenderModule->GetRenderContext()->CreateBindingset(mAsset->GetBindingSetLayout());
+		mBindingSets.push_back(newBindingSet);
+		mBindingDirty.push_back(true);
+	}
 }
 
 RHIBindPoint MaterialInstanceBase::GetBindPoint(ShaderParamID id) const
@@ -295,10 +306,10 @@ MaterialInstance::MaterialInstance() :
 
 void MaterialInstance::Init()
 {
-	MaterialTemplateAsset* mMaterialTemplate = dynamic_cast<MaterialTemplateAsset*>(mAsset);
-	if (mMaterialTemplate)
+	MaterialTemplateAsset* materialTemplate = dynamic_cast<MaterialTemplateAsset*>(mAsset);
+	if (materialTemplate)
 	{
-		mTemplateParams = mMaterialTemplate->GetTemplateParams();
+		mTemplateParams = materialTemplate->GetTemplateParams();
 		PARAM_ID(MaterialBuffer);
 		if (HasBindPoint(ParamID_MaterialBuffer))
 		{
@@ -316,9 +327,6 @@ void MaterialInstance::Init()
 			mCBufferView->BindResource(mCBuffer);
 		}
 		UpdateParamsToBuffer();
-
-		mBindingSet = sRenderModule->GetRenderContext()->CreateBindingset(mMaterialTemplate->GetBindingSetLayout());
-
 		PARAM_ID(_ClampSampler);
 		PARAM_ID(_RepeatSampler);
 	

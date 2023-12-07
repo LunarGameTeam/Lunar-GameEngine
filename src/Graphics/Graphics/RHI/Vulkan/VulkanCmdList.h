@@ -29,7 +29,9 @@ public:
 		uint32_t StartIndexLocation,
 		int32_t BaseVertexLocation,
 		int32_t StartInstanceLocation) override;
-	
+
+	void Dispatch(int32_t x, int32_t y, int32_t z) override;
+
 	void DrawIndirectCommands(const RHICmdArgBuffer* DrawBuffer) override;
 
 	void SetDrawPrimitiveTopology(RHIPrimitiveTopology primitive_topology) override;
@@ -112,7 +114,7 @@ public:
 	void ResetAndPrepare() override;
 	void CloseCommondList() override;
 
-	void BindDesriptorSetExt(RHIBindingSetPtr bindingSet) override;
+	void BindDesriptorSetExt(RHIBindingSet* bindingSet) override;
 
 
 

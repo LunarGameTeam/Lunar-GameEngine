@@ -110,6 +110,11 @@ void VulkanGraphicCmdList::DrawIndexedInstanced(uint32_t IndexCountPerInstance, 
 	mCommandBuffer.drawIndexed(IndexCountPerInstance, 1, 0, 0, StartInstanceLocation);
 }
 
+void VulkanGraphicCmdList::Dispatch(int32_t x, int32_t y, int32_t z)
+{
+	mCommandBuffer.dispatch(x,y,z);
+}
+
 void VulkanGraphicCmdList::DrawIndirectCommands(const RHICmdArgBuffer* DrawBuffer)
 {
 	size_t perDrawCommand = DrawBuffer->GetCmdSignature()->GetDesc().size();
@@ -461,7 +466,7 @@ void VulkanGraphicCmdList::ResetAndPrepare()
 	mClosed = false;
 }
 
-void VulkanGraphicCmdList::BindDesriptorSetExt(RHIBindingSetPtr bindingSet)
+void VulkanGraphicCmdList::BindDesriptorSetExt(RHIBindingSet* bindingSet)
 {
 	if (bindingSet)
 	{

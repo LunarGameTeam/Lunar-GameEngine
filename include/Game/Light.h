@@ -161,7 +161,7 @@ namespace luna
 		//renderœ‡πÿ
 		LSharedPtr<graphics::GameRenderDataUpdater> GenarateRenderUpdater() override { return MakeShared<GameDirLightRenderDataUpdater>(); }
 
-		LSharedPtr<graphics::GameRenderDataUpdater> OnTickImpl(graphics::GameRenderBridgeData* curRenderData) override;
+		void OnTickImpl(graphics::GameRenderBridgeData* curRenderData) override;
 
 
 	};
