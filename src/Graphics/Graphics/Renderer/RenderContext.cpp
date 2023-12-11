@@ -381,9 +381,9 @@ void RenderContext::UpdateConstantBuffer(RHIResourcePtr target, void* data, size
 	target->Unmap();
 }
 
-RHIResourcePtr RenderContext::FGCreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc)
+RHIResourcePtr RenderContext::FGCreateTexture(const RHIResDesc& resDesc)
 {
-	RHIResourcePtr res = _CreateTextureByMemory(textureDesc, resDesc, mFGMemory, mFGOffset);
+	RHIResourcePtr res = _CreateTextureByMemory(resDesc, mFGMemory, mFGOffset);
 	const MemoryRequirements& memoryReq = res->GetMemoryRequirements();
 	mFGOffset += memoryReq.size;
 	return res;
@@ -407,11 +407,11 @@ RHIResourcePtr RenderContext::_CreateBufferByMemory(const RHIBufferDesc& desc, R
 	return dstBuffer;
 }
 
-RHIResourcePtr RenderContext::_CreateTextureByMemory(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, RHIMemoryPtr targetMemory, size_t& memoryOffset)
+RHIResourcePtr RenderContext::_CreateTextureByMemory(const RHIResDesc& resDesc, RHIMemoryPtr targetMemory, size_t& memoryOffset)
 {
 	RHIResDesc newResDesc = resDesc;
 	newResDesc.mImageUsage = newResDesc.mImageUsage | RHIImageUsage::TransferDstBit;
-	RHIResourcePtr textureRes = mDevice->CreateTextureExt(textureDesc, newResDesc);
+	RHIResourcePtr textureRes = mDevice->CreateTextureExt(newResDesc);
 	const MemoryRequirements& memoryReq = textureRes->GetMemoryRequirements();
 	textureRes->BindMemory(targetMemory, memoryOffset);
 	
@@ -449,7 +449,7 @@ RHIResourcePtr RenderContext::CreateBuffer(RHIHeapType memoryType, const RHIBuff
 	return _CreateBuffer(memoryType,resDesc, initData, initDataSize);
 }
 
-RHIResourcePtr RenderContext::_CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData, size_t dataSize)
+RHIResourcePtr RenderContext::_CreateTexture(const RHIResDesc& resDesc, void* initData, size_t dataSize)
 {
 
 	bool usingStaging = false;
@@ -459,7 +459,7 @@ RHIResourcePtr RenderContext::_CreateTexture(const RHITextureDesc& textureDesc, 
 
 	RHIResDesc newResDesc = resDesc;
 	newResDesc.mImageUsage = newResDesc.mImageUsage | RHIImageUsage::TransferDstBit;
-	RHIResourcePtr textureRes = mDevice->CreateTextureExt(textureDesc, newResDesc);
+	RHIResourcePtr textureRes = mDevice->CreateTextureExt(newResDesc);
 	const MemoryRequirements& memoryReq = textureRes->GetMemoryRequirements();
 	textureRes->BindMemory(RHIHeapType::Default);
 	if (initData == nullptr) 
@@ -490,10 +490,10 @@ RHIResourcePtr RenderContext::_CreateTexture(const RHITextureDesc& textureDesc, 
 	return textureRes;
 }
 
-RHIResourcePtr RenderContext::CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData, size_t dataSize)
+RHIResourcePtr RenderContext::CreateTexture(const RHIResDesc& resDesc, void* initData, size_t dataSize)
 {
 	size_t offset = 0;
-	return _CreateTexture(textureDesc, resDesc, initData, dataSize);
+	return _CreateTexture(resDesc, initData, dataSize);
 }
 
 RHIResource* RenderContext::CreateInstancingBufferByRenderObjects(const LArray<RenderObject*>& RenderObjects)
@@ -598,7 +598,7 @@ RHIBindingSetPtr RenderContext::CreateBindingset(RHIBindingSetLayoutPtr layout)
 	return bindingset;
 }
 
-void RenderContext::DrawMesh(graphics::RenderMeshBase* mesh, graphics::MaterialInstance* mat)
+void RenderContext::DrawMesh(graphics::RenderAssetDataMesh* mesh, graphics::MaterialInstanceGraphBase* mat)
 {
 	ZoneScoped;
 	DrawMeshInstanced(mesh, mat, nullptr, 0, 1);
@@ -612,30 +612,57 @@ void RenderContext::Dispatch(MaterialInstanceComputeBase* mat, LVector4i dispatc
 	mGraphicCmd->GetCmdList()->Dispatch(dispatchSize.x(), dispatchSize.y(), dispatchSize.z());
 }
 
-void RenderContext::DrawMeshInstanced(graphics::RenderMeshBase* mesh, graphics::MaterialInstance* mat, graphics::RHIResource* vertexInputInstanceRes /*= nullptr*/,
-	int32_t startInstanceIdx /*= 1*/, int32_t instancingSize /*= 1*/)
+void RenderContext::DrawMeshBatch(const MeshDrawCommandBatch& meshDrawCommand)
+{
+	RHIVertexLayout layout = meshDrawCommand.mDrawParameter.mRenderMeshs->GetVertexLayout();
+	auto pipeline = meshDrawCommand.mDrawParameter.mMtl->GetPipeline(&layout, mCurRenderPass);
+	mGraphicCmd->GetCmdList()->SetPipelineState(pipeline);
+	meshDrawCommand.mDrawParameter.mMtl->BindToPipeline(mGraphicCmd->GetCmdList());
+	size_t vertexCount = meshDrawCommand.mDrawParameter.mRenderMeshs->GetVertexSize();
+	RHIResource* vb = meshDrawCommand.mDrawParameter.mRenderMeshs->GetVertexBuffer();
+	size_t indexCount = meshDrawCommand.mDrawParameter.mRenderMeshs->GetIndexSize();
+	RHIResource* ib = meshDrawCommand.mDrawParameter.mRenderMeshs->GetIndexBuffer();
+	LArray<RHIVertexBufferDesc> descs;
+	RHIVertexBufferDesc& vbDesc = descs.emplace_back();
+	vbDesc.mOffset = 0;
+	vbDesc.mBufferSize = vertexCount * meshDrawCommand.mDrawParameter.mRenderMeshs->GetStridePerVertex();
+	vbDesc.mVertexStride = meshDrawCommand.mDrawParameter.mRenderMeshs->GetStridePerVertex();
+	vbDesc.mVertexRes = vb;
+	mGraphicCmd->GetCmdList()->SetVertexBuffer(descs, 0);
+	mGraphicCmd->GetCmdList()->SetIndexBuffer(ib);
+	mGraphicCmd->GetCmdList()->SetDrawPrimitiveTopology(RHIPrimitiveTopology::TriangleList);
+	mGraphicCmd->GetCmdList()->PushInt32Constant(meshDrawCommand.mRoOffset,0, meshDrawCommand.mDrawParameter.mMtl->GetAsset()->GetBindingSetLayout());
+	mGraphicCmd->GetCmdList()->DrawIndexedInstanced((uint32_t)indexCount, meshDrawCommand.mDrawCount, 0, 0, 0);
+}
+
+void RenderContext::DrawMeshInstanced(
+	RenderAssetDataMesh* mesh,
+	MaterialInstanceGraphBase* mat,
+	graphics::RHIResource* vertexInputInstanceRes /*= nullptr*/,
+	int32_t startInstanceIdx /*= 1*/,
+	int32_t instancingSize /*= 1*/
+)
 {
 	ZoneScoped;
-	RHIVertexLayout layout = mesh->mMeshData->GetVertexLayout();
+	RHIVertexLayout layout = mesh->GetVertexLayout();
 	layout.AddVertexElement(VertexElementType::Int, VertexElementUsage::UsageInstanceMessage, 4, 1, VertexElementInstanceType::PerInstance);
 
 	auto pipeline = mat->GetPipeline(&layout, mCurRenderPass);
-	auto matBindingset = mat->GetBindingSet();
 
 	mGraphicCmd->GetCmdList()->SetPipelineState(pipeline);
-	mGraphicCmd->GetCmdList()->BindDesriptorSetExt(matBindingset);
+	mat->BindToPipeline(mGraphicCmd->GetCmdList());
 
-	size_t vertexCount = mesh->mMeshData->GetVertexSize();
+	size_t vertexCount = mesh->GetVertexSize();
 
-	RHIResource* vb = mesh->mMeshData->GetVertexBuffer();
-	size_t indexCount = mesh->mMeshData->GetIndexSize();
-	RHIResource* ib = mesh->mMeshData->GetIndexBuffer();
+	RHIResource* vb = mesh->GetVertexBuffer();
+	size_t indexCount = mesh->GetIndexSize();
+	RHIResource* ib = mesh->GetIndexBuffer();
 
 	LArray<RHIVertexBufferDesc> descs;
 	RHIVertexBufferDesc& vbDesc = descs.emplace_back();
 	vbDesc.mOffset = 0;
-	vbDesc.mBufferSize = vertexCount * mesh->mMeshData->GetStridePerVertex();
-	vbDesc.mVertexStride = mesh->mMeshData->GetStridePerVertex();
+	vbDesc.mBufferSize = vertexCount * mesh->GetStridePerVertex();
+	vbDesc.mVertexStride = mesh->GetStridePerVertex();
 	vbDesc.mVertexRes = vb;
 
 	if (vertexInputInstanceRes != nullptr)
@@ -657,7 +684,7 @@ void RenderContext::DrawMeshInstanced(graphics::RenderMeshBase* mesh, graphics::
 
 	mGraphicCmd->GetCmdList()->SetVertexBuffer(descs, 0);
 	mGraphicCmd->GetCmdList()->SetIndexBuffer(ib);
-	switch (mat->mMaterialTemplate->GetPrimitiveType())
+	switch (((MaterialGraphAsset*)mat->GetAsset())->GetPrimitiveType())
 	{
 	case RHIPrimitiveTopologyType::Triangle:
 		mGraphicCmd->GetCmdList()->SetDrawPrimitiveTopology(RHIPrimitiveTopology::TriangleList);

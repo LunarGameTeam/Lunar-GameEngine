@@ -31,10 +31,6 @@ RenderTarget::RenderTarget()
 
 void RenderTarget::Update()
 {
-	RHITextureDesc textureDesc;
-	textureDesc.if_force_srgb = false;
-	textureDesc.if_gen_mipmap = false;
-	textureDesc.max_size = 0;
 	RHIResDesc resDesc;
 	resDesc.mType = ResourceType::kTexture;
 	resDesc.Dimension = RHIResDimension::Texture2D;
@@ -49,14 +45,14 @@ void RenderTarget::Update()
 	resDesc.SampleDesc.Count = 1;
 	resDesc.SampleDesc.Quality = 0;
 	resDesc.mImageUsage = RHIImageUsage::ColorAttachmentBit | RHIImageUsage::SampledBit;
-	mColorTexture = sRenderModule->mRenderContext->CreateTexture(textureDesc, resDesc);
+	mColorTexture = sRenderModule->mRenderContext->CreateTexture(resDesc);
 
 	RHIResDesc depthResDesc = resDesc;
 	depthResDesc.Format = RHITextureFormat::D24_UNORM_S8_UINT;
 	depthResDesc.SampleDesc.Count = 1;
 	depthResDesc.SampleDesc.Quality = 0;
 	depthResDesc.mImageUsage = RHIImageUsage::DepthStencilBit;
-	mDepthTexture = sRenderModule->mRenderContext->CreateTexture(textureDesc, depthResDesc);
+	mDepthTexture = sRenderModule->mRenderContext->CreateTexture(depthResDesc);
 
 }
 

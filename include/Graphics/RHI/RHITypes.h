@@ -15,7 +15,6 @@ struct DescriptorPoolDesc;
 struct ViewDesc;
 struct FrameBufferDesc;
 struct RHIBufferDesc;
-struct RHITextureDesc;
 struct RHIMemoryDesc;
 struct PassColorDesc;
 struct PassDepthStencilDesc;

@@ -76,7 +76,7 @@ namespace luna::graphics
 		mDxSamplerDesc.MaxAnisotropy = 1;
 	}
 
-	DX12Resource::DX12Resource(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc) : RHIResource(resDesc)
+	DX12Resource::DX12Resource(const RHIResDesc& resDesc) : RHIResource(resDesc)
 	{
 		mDxDesc.Width = resDesc.Width;
 		mDxDesc.Height = resDesc.Height;

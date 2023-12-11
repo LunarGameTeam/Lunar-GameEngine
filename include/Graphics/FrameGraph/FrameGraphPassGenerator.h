@@ -1,31 +1,14 @@
 #pragma once
 #include "Graphics/FrameGraph/FrameGraphNode.h"
+#include "Graphics/Renderer/RenderMesh.h"
+#include "Graphics/Renderer/MaterialInstance.h"
+#include "Graphics/RenderAssetManager/RenderAssetManager.h"
+#include "Graphics/Renderer/RenderData.h"
+#include "Graphics/Renderer/RenderView.h"
+#include "Graphics/Renderer/RenderScene.h"
+#include "Graphics/Renderer/RenderContext.h"
 namespace luna::graphics
 {
-	struct MeshDrawCommandHashKey
-	{
-		RenderAssetDataMesh* mRenderMeshs = nullptr;
-		MaterialInstanceGraphBase* mMtl = nullptr;
-		bool operator==(MeshDrawCommandHashKey& key2) {
-			if (mRenderMeshs->mID != key2.mRenderMeshs->mID)
-			{
-				return false;
-			}
-			if (mMtl != key2.mMtl)
-			{
-				return false;
-			}
-			return true;
-		}
-	};
-
-	struct MeshDrawCommandBatch
-	{
-		MeshDrawCommandHashKey mDrawParameter;
-		size_t mRoOffset = 0;
-		size_t mDrawCount = 0;
-	};
-
 	class MeshDrawCommandHash
 	{
 	public:
@@ -50,28 +33,12 @@ namespace luna::graphics
 		virtual void FilterRenderObject(RenderView* curView);
 
 		void ClearRoQueue();
-	private:
+	protected:
 		virtual bool CheckRenderObject(const RenderObject* curRo) const = 0;
+
+		void GenerateNodeRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node, RenderView* curView);
 	};
 	
-	void FrameGraphPassGeneratorPerView::FilterRenderObject(RenderView* curView)
-	{
-		LArray<RenderObject*>& allObjects = curView->GetViewVisibleROs();
-		for (RenderObject* eachRo : allObjects)
-		{
-			if (CheckRenderObject(eachRo))
-			{
-				mRoQueue.push_back(eachRo);
-			}
-		}
-	}
-
-	void FrameGraphPassGeneratorPerView::ClearRoQueue()
-	{
-		mRoQueue.clear();
-	}
-
-
 	struct PerViewMeshDrawDataMember
 	{
 		RHIResourcePtr mRoIndexBuffer;
@@ -82,88 +49,24 @@ namespace luna::graphics
 	{
 		LUnorderedMap<size_t, PerViewMeshDrawDataMember> passData;
 	public:
-		RHIView* GetDataByPass(size_t passIndex);
+		RHIView* GetRoIndexBufferViewByPass(size_t passIndex);
 	};
 	
-	RHIView* PerViewMeshDrawPassData::GetDataByPass(size_t passIndex)
-	{
-		auto itor = passData.find(passIndex);
-		if (itor == passData.end())
-		{
-			passData.insert({ passIndex ,PerViewMeshDrawDataMember()});
-			itor = passData.find(passIndex);
-			size_t elementSize = sizeof(uint32_t);
-			RHIBufferDesc desc;
-			desc.mBufferUsage = RHIBufferUsage::StructureBuffer;
-			desc.mSize = CommonSize128K;
-			itor->second.mRoIndexBuffer = sRenderModule->GetRenderContext()->CreateBuffer(RHIHeapType::Default, desc);
-
-			ViewDesc viewDesc;
-			viewDesc.mViewType = RHIViewType::kStructuredBuffer;
-			viewDesc.mViewDimension = RHIViewDimension::BufferView;
-			viewDesc.mStructureStride = sizeof(uint32_t);
-			itor->second.mRoIndexBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
-			itor->second.mRoIndexBufferView->BindResource(itor->second.mRoIndexBuffer);
-		}
-		return itor->second.mRoIndexBufferView;
-	}
-
 	class FrameGraphMeshPassGenerator : public FrameGraphPassGeneratorPerView
 	{
-		LUnorderedMap<MeshDrawCommandHashKey,MeshDrawCommandBatch, MeshDrawCommandHash> mAllCommandsPool;
-
-
+	protected:
+		LUnorderedMap<MeshDrawCommandHashKey, MeshDrawCommandBatch, MeshDrawCommandHash> mAllCommandsPool;
+		LUnorderedMap<MeshDrawCommandHashKey, LArray<size_t>, MeshDrawCommandHash> mAllRoIndexPool;
 	public:
 		FrameGraphMeshPassGenerator();
 		void FilterRenderObject(RenderView* curView) override;
-	private:
-		virtual MaterialInstanceGraphBase* SetMaterialByRenderObject(const RenderObject* curRo) const = 0;
-	};
-	FrameGraphMeshPassGenerator::FrameGraphMeshPassGenerator()
-	{
+	protected:
 
+		virtual MaterialInstanceGraphBase* SetMaterialByRenderObject(const RenderObject* curRo) const = 0;
+
+		void GenerateRenderObjectIndexBuffer(void* pointer);
+
+		void DrawCommandBatch();
 	};
-	void FrameGraphMeshPassGenerator::FilterRenderObject(RenderView* curView)
-	{
-		FrameGraphPassGeneratorPerView::FilterRenderObject(curView);
-		curView->RequireData<>();
-		for (auto& eachCommand : mAllCommandsPool)
-		{
-			eachCommand.second.mDrawCount = 0;
-		}
-		for (auto eachDrawObj : mRoQueue)
-		{
-			MeshDrawCommandHashKey newKey;
-			newKey.mMtl = SetMaterialByRenderObject(eachDrawObj);
-			const RenderMeshBase* meshDataPointer = eachDrawObj->GetReadOnlyData<RenderMeshBase>();
-			newKey.mRenderMeshs = meshDataPointer->mMeshData;
-			auto itor = mAllCommandsPool.find(newKey);
-			if (itor == mAllCommandsPool.end())
-			{
-				MeshDrawCommandBatch newBatch;
-				newBatch.mDrawParameter = newKey;
-				newBatch.mDrawCount = 1;
-				mAllCommandsPool.insert({ newKey ,newBatch });
-			}
-			else
-			{
-				itor->second.mDrawCount += 1;
-			}
-		}
-		RHIView* lightDataBuffer = renderScene->GetStageBufferPool()->AllocStructStageBuffer(
-			mDirtyList.size() * sizeof(LVector4f) * 4,
-			RHIViewType::kStructuredBuffer,
-			sizeof(LVector4f),
-			std::bind(&PointBasedRenderLightData::GenerateDirtyLightDataBuffer, this, std::placeholders::_1)
-		);
-		for (auto& eachCommand : mAllCommandsPool)
-		{
-			if (eachCommand.second.mDrawCount == 0)
-			{
-				continue;
-			}
-			eachCommand.second.mDrawCount = 0;
-		}
-	}
 }
 

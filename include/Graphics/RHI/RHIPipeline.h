@@ -128,6 +128,10 @@ public:
 	virtual ~RHIPipelineState() override
 	{
 	};
+
+	RHIBindingSetLayout* GetLayout() { return mBindingSetLayout.get(); }
+
+	RHICmdListType GetType() { return mType; }
 private:
 	virtual void CreateImpl() = 0;
 };

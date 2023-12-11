@@ -79,19 +79,20 @@ public:
 
 public:
 	void Init();
+
 	void OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> file) override;
-	const byte* GetData();
-	size_t GetDataSize();
+
 	void Release();
+
 	RHIView* GetView() {	return mResView; 	}
 	RHIResource* GetRHIResource() { return mRHIRes; }
 
 private:
+	const byte*               mData = nullptr;
 	RHIResDesc                mDesc;
 	RHIResourcePtr            mRHIRes;
 	RHIViewPtr                mResView;
 	TextureMemoryType         mDataType;
-	TAssetPtrArray<Texture2D> mTextures;
 	size_t                    mDataSize;
 };
 }

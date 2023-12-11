@@ -1,12 +1,11 @@
 {
    "objects" : [
       {
-         "__class__" : "MaterialTemplateAsset",
+         "__class__" : "MaterialGraphAsset",
          "__fid__" : 1,
          "__index__" : 0,
          "__parent__" : 0,
          "name" : "",
-         "params" : [],
          "primitive_type" : 2,
          "shader" : "/assets/built-in/Shader/Debug.hlsl"
       },

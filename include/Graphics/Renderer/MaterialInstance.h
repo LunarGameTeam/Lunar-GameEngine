@@ -150,6 +150,8 @@ public:
 	void UpdateBindingSet();
 
 	void SetAsset(MaterialBaseTemplateAsset* asset);
+
+	MaterialBaseTemplateAsset* GetAsset() { return mAsset; };
 protected:
 	MaterialPipelineType mPipelineType;
 

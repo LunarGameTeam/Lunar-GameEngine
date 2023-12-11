@@ -7,20 +7,29 @@
 namespace  luna::graphics
 {
 
-struct ViewShadowData : public RenderData
+struct ViewTargetData : public RenderData
 {
-	LSharedPtr<FGTexture> mLightShadowmap = nullptr;
-	LSharedPtr<FGTexture> mLightShadowDepth = nullptr;
+	LSharedPtr<FGTexture> mRenderTarget = nullptr;
+	LSharedPtr<FGTexture> mDepthStencil = nullptr;
 };
 
+PARAM_ID(_LUTTex);
+PARAM_ID(_EnvTex);
+PARAM_ID(_IrradianceTex);
 struct SceneRenderData : public RenderData
 {
-	FGTexture* mSceneColor = nullptr;
-	FGTexture* mSceneDepth = nullptr;
-	FGTexture* mLUTTex = nullptr;
-	FGTexture* mEnvTex = nullptr;
-	FGTexture* mIrradianceTex = nullptr;
-
+	LSharedPtr<TextureCube> mEnvTex;
+	LSharedPtr<TextureCube> mIrradianceTex;
+	LSharedPtr<Texture2D>   mLUTTex;
+public:
+	void SetMaterialParameter(MaterialInstanceBase* matInstance);
 };
+void SceneRenderData::SetMaterialParameter(MaterialInstanceBase* matInstance)
+{
+	matInstance->SetShaderInput(ParamID__EnvTex, mEnvTex->GetView());
+	matInstance->SetShaderInput(ParamID__IrradianceTex, mIrradianceTex->GetView());
+	matInstance->SetShaderInput(ParamID__LUTTex, mLUTTex->GetView());
+}
+
 
 }

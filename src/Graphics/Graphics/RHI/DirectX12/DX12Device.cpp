@@ -319,7 +319,7 @@ RHIBindingSetPtr DX12Device::CreateBindingSet(RHIDescriptorPool* pool, RHIBindin
 	return CreateRHIObject<DX12BindingSet>(pool, layout);
 }
 
-luna::graphics::RHIResourcePtr DX12Device::CreateTextureExt(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc)
+luna::graphics::RHIResourcePtr DX12Device::CreateTextureExt(const RHIResDesc& resDesc)
 {
 	return CreateRHIObject<DX12Resource>(textureDesc, resDesc);
 }

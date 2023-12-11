@@ -25,6 +25,7 @@ public:
 
 	GET_SET_VALUE(uint32_t, mWidth, Width);
 	GET_SET_VALUE(uint32_t, mHeight, Height);
+	GET_SET_VALUE(RHITextureFormat, mFormat, Format);
 
 	RHIResource* GetColor() { return mColorTexture.get(); }
 	RHIResource* GetDepth() { return mDepthTexture.get(); }

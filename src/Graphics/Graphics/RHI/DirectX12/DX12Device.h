@@ -62,7 +62,7 @@ public:
 
 	RHIBindingSetPtr CreateBindingSet(RHIDescriptorPool* pool, RHIBindingSetLayoutPtr layout) override;
 
-	RHIResourcePtr CreateTextureExt(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc) override;
+	RHIResourcePtr CreateTextureExt(const RHIResDesc& resDesc) override;
 
 	RHIResourcePtr CreateBufferExt(const RHIBufferDesc& buffer_desc) override;
 

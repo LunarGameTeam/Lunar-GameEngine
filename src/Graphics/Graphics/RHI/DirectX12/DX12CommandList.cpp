@@ -264,11 +264,26 @@ void DX12GraphicCmdList::SetPipelineState(
 	ID3D12PipelineState* dx_pipeline = nullptr;
 	if (pipeline != nullptr)
 	{
-		//获取pipeline
-		DX12PipelineState* pipeline_data = dynamic_cast<DX12PipelineState*>(pipeline);
-		dx_pipeline = pipeline_data->GetPipeLine();
-		mDxCmdList->SetPipelineState(dx_pipeline);		
-		mDxCmdList->SetGraphicsRootSignature(pipeline_data->mBindingSetLayout->As<DX12BindingSetLayout>()->GetRootSignature());
+		switch (pipeline->GetType())
+		{
+		case RHICmdListType::Compute:
+		{
+			DX12PipelineStateCompute* pipeline_data = dynamic_cast<DX12PipelineStateCompute*>(pipeline);
+			dx_pipeline = pipeline_data->GetPipeLine();
+			mDxCmdList->SetPipelineState(dx_pipeline);
+			break;
+		}
+		case RHICmdListType::Graphic3D:
+		{
+			DX12PipelineStateGraphic* pipeline_data = dynamic_cast<DX12PipelineStateGraphic*>(pipeline);
+			dx_pipeline = pipeline_data->GetPipeLine();
+			mDxCmdList->SetPipelineState(dx_pipeline);
+			mDxCmdList->SetGraphicsRootSignature(pipeline_data->GetLayout()->As<DX12BindingSetLayout>()->GetRootSignature());
+			break;
+		}
+		default:
+			assert(false);
+		}
 	}
 }
 
@@ -584,6 +599,11 @@ void DX12GraphicCmdList::CloseCommondList()
 		LUNA_ASSERT(SUCCEEDED(mDxCmdList->Close()));
 		mClosed = true;
 	}
+}
+
+void DX12GraphicCmdList::PushInt32Constant(int32_t value, int32_t slot, RHIBindingSetLayout* layout)
+{
+	mDxCmdList->SetGraphicsRoot32BitConstants(0,1,&value, slot);
 }
 
 void DX12GraphicCmdList::BindDesriptorSetExt(RHIBindingSet* bindingSet)

@@ -14,7 +14,7 @@
 #include "stb_image.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
-
+#include"Graphics/Asset/tinyddsloader.h"
 
 namespace luna::graphics
 {
@@ -30,9 +30,6 @@ RegisterTypeEmbedd_Imp(Texture2D)
 RegisterTypeEmbedd_Imp(TextureCube)
 {
 	cls->Ctor<TextureCube>();
-	
-	cls->Property<&Self::mTextures>("textures")
-		.Serialize();
 
 	cls->Binding<TextureCube>();
 	BindingModule::Luna()->AddType(cls);
@@ -86,11 +83,10 @@ void Texture2D::Release()
 
 void Texture2D::Init()
 {
-	RHITextureDesc desc;
 	if (mRHIRes)
 		return;	
 	mDesc.mImageUsage = RHIImageUsage::SampledBit;
-	mRHIRes = sRenderModule->mRenderContext->CreateTexture(desc, mDesc, (byte*)mData, mDataSize);
+	mRHIRes = sRenderModule->mRenderContext->CreateTexture(mDesc, (byte*)mData, mDataSize);
 
 	ViewDesc viewDesc;
 	viewDesc.mViewType = RHIViewType::kTexture;
@@ -114,46 +110,73 @@ void TextureCube::Init()
 {
 	if (mRHIRes)
 		return;
-
-	size_t dataSize = 0;
-
-	RHITextureDesc mTexDesc;
-	LArray<byte> datas;
-
-	for (auto& texture : mTextures)
+	LArray<byte> image_data;
+	switch(mDataType)
 	{
-		auto file = texture->GetFileData();
-		int w, h, n;
-		auto data = (const byte*)stbi_load_from_memory(file->GetData().data(), (int)file->GetData().size(), &w, &h, &n, 4);
-		auto stride = w * h * 4;
-		datas.resize(dataSize + stride);
-		mDesc.Width = w;
-		mDesc.Height = h;		
-		memcpy(datas.data() + dataSize, data, stride);
-		dataSize += stride;
-		stbi_image_free((void*)data);
+	case TextureMemoryType::DDS:
+	{
+		tinyddsloader::DDSFile newfile;
+		newfile.Load(mData, mDataSize);
+		switch (newfile.GetFormat())
+		{
+		case tinyddsloader::DDSFile::DXGIFormat::R8G8B8A8_UNorm:
+			mDesc.Format = RHITextureFormat::R8G8B8A8_UNORM;
+			break;
+		case tinyddsloader::DDSFile::DXGIFormat::D24_UNorm_S8_UInt:
+			mDesc.Format = RHITextureFormat::D24_UNORM_S8_UINT;
+			break;
+		case tinyddsloader::DDSFile::DXGIFormat::R16G16B16A16_Float:
+			mDesc.Format = RHITextureFormat::R16G16B16A16_FLOAT;
+			break;
+		case tinyddsloader::DDSFile::DXGIFormat::R16G16B16A16_UNorm:
+			mDesc.Format = RHITextureFormat::R16G16B16A16_UNORM;
+			break;
+		case tinyddsloader::DDSFile::DXGIFormat::R8G8B8A8_UNorm_SRGB:
+			mDesc.Format = RHITextureFormat::R8G8B8A8_UNORM_SRGB;
+			break;
+		default:
+			mDesc.Format = RHITextureFormat::FORMAT_UNKNOWN;
+			assert(0);
+			break;
+		}
+		mDesc.Width = newfile.GetWidth();
+		mDesc.Height = newfile.GetHeight();
+		mDesc.MipLevels = newfile.GetMipCount();
+		size_t allSize = 0;
+		for (int16_t eachArrayIndex = 0; eachArrayIndex < mDesc.DepthOrArraySize; ++eachArrayIndex)
+		{
+			for (int16_t eachMipIndex = 0; eachMipIndex < mDesc.MipLevels; ++eachMipIndex)
+			{
+				const tinyddsloader::DDSFile::ImageData* curData = newfile.GetImageData(eachArrayIndex, eachMipIndex);
+				allSize += curData->m_memSlicePitch;
+			}
+		}
+		image_data.resize(allSize);
+		size_t copyOffset = 0;
+		for (int16_t eachArrayIndex = 0; eachArrayIndex < mDesc.DepthOrArraySize; ++eachArrayIndex)
+		{
+			for (int16_t eachMipIndex = 0; eachMipIndex < mDesc.MipLevels; ++eachMipIndex)
+			{
+				const tinyddsloader::DDSFile::ImageData* curData = newfile.GetImageData(eachArrayIndex, eachMipIndex);
+				memcpy(image_data.data() + copyOffset, curData->m_mem, curData->m_memSlicePitch);
+				copyOffset += curData->m_memSlicePitch;
+			}
+		}
+		break;
 	}
-
-	mDesc.Format = RHITextureFormat::R8G8B8A8_UNORM_SRGB;
-	mDataType = TextureMemoryType::WIC;
-
-	mDesc.ResHeapType = RHIHeapType::Default;
-	mDesc.mType = ResourceType::kTexture;
-	mDesc.Layout = RHITextureLayout::LayoutUnknown;
-	mDesc.Width = mDesc.Width;
-	mDesc.Height = mDesc.Height;
-	mDesc.Format = mDesc.Format;
-	mDesc.Dimension = RHIResDimension::Texture2D;
-	mDesc.DepthOrArraySize = 6;
-	mDesc.mImageUsage = RHIImageUsage::SampledBit;
-	
-	mRHIRes = sRenderModule->GetRenderContext()->CreateTexture(mTexDesc, mDesc, datas.data(), datas.size());
+	case TextureMemoryType::WIC:
+	{
+		assert(false);
+	}
+	}
+	mRHIRes = sRenderModule->GetRenderContext()->CreateTexture(mDesc, image_data.data(), image_data.size());
 
 	ViewDesc desc;
 	desc.mViewType = RHIViewType::kTexture;
 	desc.mViewDimension = RHIViewDimension::TextureViewCube;
 	desc.mBaseMipLevel = 0;
-	desc.mLayerCount = 6;	
+	desc.mLevelCount = mDesc.MipLevels;
+	desc.mLayerCount = 6;
 	mResView = sRenderModule->GetRHIDevice()->CreateView(desc);
 	mResView->BindResource(mRHIRes.get());
 
@@ -162,12 +185,28 @@ void TextureCube::Init()
 void TextureCube::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> file)
 {
 	JsonAsset::OnAssetFileRead(meta, file);
-	Init();
-}
+	mDesc.Dimension = RHIResDimension::Texture2D;
+	mDesc.DepthOrArraySize = 6;
+	mDesc.mType = ResourceType::kTexture;
+	mDesc.mImageUsage = RHIImageUsage::SampledBit;
+	mDesc.ResHeapType = RHIHeapType::Default;
+	mDesc.Layout = RHITextureLayout::LayoutUnknown;
+	auto dds_type_test = file->GetPath().Find(".dds");
+	if (dds_type_test != std::string::npos)
+	{
 
-const byte* TextureCube::GetData()
-{
-	return nullptr;
+		mData = new byte[file->GetData().size()];
+		memcpy(const_cast<byte*>(mData), file->GetData().data(),
+			file->GetData().size() * sizeof(file->GetData()[0]));
+		mDataType = TextureMemoryType::DDS;
+		mDesc.Format = RHITextureFormat::FORMAT_UNKNOWN;
+		mDataSize = file->GetData().size() * sizeof(file->GetData()[0]);
+	}
+	else
+	{
+		assert(false);
+	}
+	Init();
 }
 
 void TextureCube::Release()

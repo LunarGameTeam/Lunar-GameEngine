@@ -80,7 +80,7 @@ public:
 	virtual RHIResourcePtr CreateBufferExt(const RHIBufferDesc& bufDesc)       = 0;
 
 
-	virtual RHIResourcePtr CreateTextureExt(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc) = 0;
+	virtual RHIResourcePtr CreateTextureExt(const RHIResDesc& resDesc) = 0;
 
 	virtual RHIBindingSetPtr CreateBindingSet(RHIDescriptorPool* pool, RHIBindingSetLayoutPtr layout) = 0;
 

@@ -4,12 +4,12 @@
 #include "Graphics/RenderConfig.h"
 #include "Graphics/Asset/ShaderAsset.h"
 #include "Graphics/Asset/TextureAsset.h"
-#include "Graphics/Renderer/MaterialInstance.h"
 
 
 
 namespace luna::graphics
 {
+class MaterialInstanceBase;
 /*
 这里的material base指代一个封装了device pipeline以及相关的资源绑定的功能。引擎里所有的device pipeline(渲染或计算等)都需要创建一个对应的材质才能发起指令
 后面可以看要不要进行改名
@@ -27,7 +27,7 @@ public:
 
 	void OnLoad() override;
 
-	RHIBindingSetLayoutPtr GetBindingSetLayout() { return mLayout; }
+	RHIBindingSetLayout* GetBindingSetLayout() { return mLayout.get(); }
 
 	LShaderInstance* GetShaderByType(RHIShaderType type);
 

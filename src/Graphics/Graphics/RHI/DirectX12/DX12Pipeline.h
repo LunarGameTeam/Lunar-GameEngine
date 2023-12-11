@@ -45,7 +45,10 @@ public:
 	DX12PipelineStateCompute(
 		LSharedPtr<RHIPipelineStateDescBase> psoDesc
 	);
-
+	ID3D12PipelineState* GetPipeLine()
+	{
+		return m_pipeline_data.Get();
+	}
 private:
 	void CreateComputePipelineImpl(
 		RHIPipelineStateComputeDesc* computePipelineDesc

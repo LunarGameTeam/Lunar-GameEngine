@@ -96,8 +96,7 @@ void FrameGraphBuilder::Flush()
 			if (it.second->GetDesc().mType == ResourceType::kTexture)
 			{
 				FGTexture* virtualRes = static_cast<FGTexture*>(it.second);
-				RHITextureDesc textureDesc;
-				RHIResourcePtr rhiRes = renderDevice->FGCreateTexture(textureDesc, virtualRes->GetDesc());
+				RHIResourcePtr rhiRes = renderDevice->FGCreateTexture(virtualRes->GetDesc());
 				virtualRes->SetRHIResource(rhiRes);
 			}
 			else 

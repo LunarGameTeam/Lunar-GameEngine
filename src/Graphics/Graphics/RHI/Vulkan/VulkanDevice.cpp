@@ -436,9 +436,9 @@ RHIMultiFrameCmdListPtr VulkanDevice::CreateMultiFrameCommondList(size_t frameCo
 	return CreateRHIObject<VulkanMultiFrameCmdList>(frameCount,type);
 }
 
-RHIResourcePtr VulkanDevice::CreateTextureExt(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc)
+RHIResourcePtr VulkanDevice::CreateTextureExt(const RHIResDesc& resDesc)
 {
-	return CreateRHIObject<VulkanResource>(textureDesc, resDesc);
+	return CreateRHIObject<VulkanResource>(resDesc);
 }
 
 RHIResourcePtr VulkanDevice::CreateBufferExt(const RHIBufferDesc& desc)

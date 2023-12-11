@@ -10,7 +10,8 @@ namespace luna::graphics
 		LHoldIdArray<FrameGraphPassGeneratorPerView> mAllPassGeneratorPerView;
 	public:
 		void GeneratePerViwewPass(FrameGraphBuilder* frameGraph, RenderView* curView);
-		void InitNewPerViewFrameGraphGeneratorInstance(FrameGraphPassGeneratorPerView* newGenerator);
+		template<typename FrameGraphPassGeneratorType>
+		void InitNewPerViewFrameGraphGeneratorInstance();
 	};
 
 	void SceneRenderPipeline::GeneratePerViwewPass(FrameGraphBuilder* frameGraph, RenderView* curView)
@@ -31,10 +32,11 @@ namespace luna::graphics
 		}
 	}
 
-	void SceneRenderPipeline::InitNewPerViewFrameGraphGeneratorInstance(FrameGraphPassGeneratorPerView* newGenerator)
+	template<typename FrameGraphPassGeneratorType>
+	void SceneRenderPipeline::InitNewPerViewFrameGraphGeneratorInstance()
 	{
-		mAllPassGeneratorPerView.AddNewValue(newGenerator);
-	}l
+		mAllPassGeneratorPerView.AddNewValueTemplate<FrameGraphPassGeneratorType>();
+	}
 
 	class RENDER_API SceneRenderer
 	{
@@ -82,7 +84,7 @@ namespace luna::graphics
 	void SceneRenderer::GeneratePassByView(RenderScene* renderScene,RenderView* curView)
 	{
 		curView->Culling(renderScene);
-		mRenderPipeline.GeneratePass(&mFrameGraphBuilder, renderScene, curView);
+		mRenderPipeline.GeneratePerViwewPass(&mFrameGraphBuilder, curView);
 	}
 
 	void SceneRenderer::Render(RenderScene* renderScene)

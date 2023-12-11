@@ -27,7 +27,7 @@ public:
 
 	DX12Resource(const SamplerDesc& desc);
 
-	DX12Resource(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc);
+	DX12Resource(const RHIResDesc& resDesc);
 
 	DX12Resource(uint32_t backBufferId, DX12SwapChain* swapchain);
 

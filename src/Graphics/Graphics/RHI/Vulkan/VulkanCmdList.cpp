@@ -405,7 +405,21 @@ void VulkanGraphicCmdList::CopyBufferToTexture(RHIResource* dst, uint32_t target
 
 void VulkanGraphicCmdList::SetPipelineState(RHIPipelineState* pipeline)
 {
-	vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->As<VulkanPipelineState>()->mPipeline);
+	switch (pipeline->GetType())
+	{
+	case RHICmdListType::Compute:
+	{
+		vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->As<VulkanPipelineStateCompute>()->mPipeline);
+		break;
+	}
+	case RHICmdListType::Graphic3D:
+	{
+		vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->As<VulkanPipelineStateGraphic>()->mPipeline);
+		break;
+	}
+	default:
+		assert(false);
+	}
 }
 
 void VulkanGraphicCmdList::SetViewPort(size_t x, size_t y, size_t width, size_t height)
@@ -482,6 +496,19 @@ void VulkanGraphicCmdList::BindDesriptorSetExt(RHIBindingSet* bindingSet)
 			0,
 			nullptr);
 	} 
+}
+
+void VulkanGraphicCmdList::PushInt32Constant(int32_t value, int32_t slot, RHIBindingSetLayout* layout)
+{
+	vk::ShaderStageFlags newFlag(VK_SHADER_STAGE_VERTEX_BIT);
+	VulkanBindingSetLayout* vkBindingSetLayout = layout->As<VulkanBindingSetLayout>();
+	mCommandBuffer.pushConstants(
+		vkBindingSetLayout->mPipelineLayout,
+		newFlag,
+		slot,
+		sizeof(int32_t),
+		&value
+	);
 }
 
 void VulkanGraphicCmdList::BeginRender(const RenderPassDesc& passDesc)

@@ -36,7 +36,7 @@ VulkanResource::VulkanResource()
 }
 
 
-VulkanResource::VulkanResource(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc) :
+VulkanResource::VulkanResource(const RHIResDesc& resDesc) :
 	RHIResource(resDesc)
 {
 	assert(resDesc.mType == ResourceType::kTexture);

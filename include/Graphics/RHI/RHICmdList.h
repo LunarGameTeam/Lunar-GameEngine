@@ -145,6 +145,9 @@ public:
 	) = 0;
 
 	virtual void BindDesriptorSetExt(RHIBindingSet* bindingSet) = 0;
+
+	virtual void PushInt32Constant(int32_t value, int32_t slot, RHIBindingSetLayout* layout) = 0;
+
 	virtual void SetBiningSetLayoutExt(RHIBindingSetLayout* root_signature) = 0;
 	virtual void BindDescriptorHeap() = 0;
 

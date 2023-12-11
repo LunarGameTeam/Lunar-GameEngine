@@ -10,6 +10,7 @@ namespace luna::graphics
 class RENDER_API VulkanPipelineStateGraphic : public RHIPipelineStateGraphic
 {
 public:
+	vk::Pipeline mPipeline;
 	VulkanPipelineStateGraphic(
 		LSharedPtr<RHIPipelineStateDescBase> psoDesc,
 		const RHIVertexLayout& inputLayout,
@@ -23,14 +24,12 @@ private:
 		RenderPassDesc& renderPassDesc
 	) override;
 
-	vk::Pipeline mPipeline;	
-
 };
 
 class RENDER_API VulkanPipelineStateCompute : public RHIPipelineStateCompute
 {
-	vk::Pipeline mPipeline;
 public:
+	vk::Pipeline mPipeline;
 	VulkanPipelineStateCompute(
 		LSharedPtr<RHIPipelineStateDescBase> psoDesc
 	);

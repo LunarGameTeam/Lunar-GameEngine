@@ -18,7 +18,7 @@ public:
 	VulkanResource(uint32_t backBufferId, VulkanSwapChain* swapchain);
 	VulkanResource(const RHIBufferDesc& buffer_desc);
 	VulkanResource(const SamplerDesc& desc);
-	VulkanResource(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc);
+	VulkanResource(const RHIResDesc& resDesc);
 	VulkanResource();
 
 	~VulkanResource();

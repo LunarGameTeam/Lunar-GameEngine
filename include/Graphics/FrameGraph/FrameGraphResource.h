@@ -92,7 +92,6 @@ RHIResDesc GenerateTexture2DRhiDesc(
 }
 class FGTexture : public FGResource
 {
-	RHITextureDesc mTextureDesc;
 public:
 	//2D Texture
 	FGTexture(
@@ -104,13 +103,10 @@ public:
 		RHIImageUsage usage,
 		FrameGraphBuilder* builder
 	):
-		FGResource(uniqueId, name, GenerateTexture2DRhiDesc(width, height, format, usage), builder),
-		mTextureDesc(RHITextureDesc{})
+		FGResource(uniqueId, name, GenerateTexture2DRhiDesc(width, height, format, usage), builder)
 	{
 
 	}
-private:
-	RHITextureDesc& GetTextureDesc() { return mTextureDesc; }
 	
 
 };
