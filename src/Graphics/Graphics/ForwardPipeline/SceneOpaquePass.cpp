@@ -36,13 +36,8 @@ void OpaquePassGenerator::AddPassNode(FrameGraphBuilder* builder, RenderView* vi
 	}
 	RenderScene* renderScene = view->mOwnerScene;
 	FGGraphDrawNode* node = builder->AddGraphDrawPass("Opaque");
+	//绑定需要的输入数据
 	SceneRenderData* sceneRenderData = renderScene->RequireData<SceneRenderData>();
-	if (sceneRenderData->mEnvTex == nullptr)
-	{
-		sceneRenderData->mEnvTex = LSharedPtr<TextureCube>(sAssetModule->LoadAsset<TextureCube>("/assets/built-in/Textures/Cubemap.dds"));
-		sceneRenderData->mIrradianceTex = LSharedPtr<TextureCube>(sAssetModule->LoadAsset<TextureCube>("/assets/built-in/Textures/IrradianceMap.dds"));
-		sceneRenderData->mLUTTex = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/brdf.dds"));
-	}
 	graphics::RenderViewParameterData* viewParamData = view->GetData<graphics::RenderViewParameterData>();
 	graphics::RenderObjectDrawData* roParamData = renderScene->GetData<graphics::RenderObjectDrawData>();
 	for (auto& eachCommand : mAllCommandsPool)
@@ -51,9 +46,11 @@ void OpaquePassGenerator::AddPassNode(FrameGraphBuilder* builder, RenderView* vi
 		viewParamData->SetMaterialParameter(eachCommand.second.mDrawParameter.mMtl);
 		roParamData->SetMaterialParameter(eachCommand.second.mDrawParameter.mMtl);
 	}
-	GenerateNodeRenderTarget(builder, node, view);
+	//绑定rt输出
+	ViewTargetData* viewRtData = view->RequireData<ViewTargetData>();
+	viewRtData->GenerateOpaqueResultRenderTarget(builder, node);
 
-	node->ExcuteFunc([this, renderScene](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
+	node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
 		{
 			this->DrawCommandBatch();
 		});

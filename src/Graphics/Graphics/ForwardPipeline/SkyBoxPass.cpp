@@ -36,9 +36,10 @@ namespace luna::graphics
 		graphics::RenderViewParameterData* viewParamData = view->GetData<graphics::RenderViewParameterData>();
 		sceneRenderData->SetMaterialParameter(mSkyBoxDefaultMtlInstance);
 		viewParamData->SetMaterialParameter(mSkyBoxDefaultMtlInstance);
-		GenerateNodeRenderTarget(builder, node, view);
+		ViewTargetData* viewRtData = view->RequireData<ViewTargetData>();
+		viewRtData->GenerateOpaqueResultRenderTarget(builder, node);
 
-		node->ExcuteFunc([this, renderScene](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
+		node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
 			{
 				device->DrawMesh(this->mSkyboxRenderMesh, this->mSkyBoxDefaultMtlInstance);
 			});

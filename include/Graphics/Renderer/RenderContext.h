@@ -171,7 +171,7 @@ class RENDER_API RenderContext final : NoCopy
 {
 public:
 	RenderContext();
-	~RenderContext() = default;
+	virtual ~RenderContext() = default;
 	void Init();
 	
 	RHISinglePoolSingleCmdListPtr mGraphicCmd;
@@ -226,6 +226,8 @@ public:
 
 	void DrawMesh(graphics::RenderAssetDataMesh* mesh, graphics::MaterialInstanceGraphBase* mat);
 
+	void DrawFullScreen(graphics::MaterialInstanceGraphBase* mat);
+
 	void DrawMeshInstanced(
 		RenderAssetDataMesh* mesh,
 		MaterialInstanceGraphBase* mat,
@@ -246,7 +248,7 @@ private:
 	PipelineStateCache mPipelineCache;
 	CmdSignatureCache mCmdSignatureCache;
 	//----Draw Graph API End----
-
+	RenderAssetDataMesh* mFullScreenRenderMesh = nullptr;
 public:
 	void OnFrameBegin();
 	void OnFrameEnd();

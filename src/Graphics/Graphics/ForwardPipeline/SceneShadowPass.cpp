@@ -51,9 +51,11 @@ void DirectionalLightShadowPassGenerator::AddPassNode(FrameGraphBuilder* builder
 
 	roParamData->SetMaterialParameter(mShadowDefaultMtlInstance);
 
-	GenerateNodeRenderTarget(builder,node, view);
+	ShadowViewTargetData* viewRtData = view->RequireData<ShadowViewTargetData>();
 
-	node->ExcuteFunc([this, renderScene](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
+	viewRtData->GenerateShadowRenderTarget(builder, node);
+
+	node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
 		{
 			this->DrawCommandBatch();
 		});

@@ -5,8 +5,12 @@
 #include <typeinfo>
 namespace luna::graphics
 {
+
+class RenderDataContainer;
 struct RENDER_API RenderData
 {
+	RenderDataContainer* mContainter = nullptr;
+
 	virtual void PerSceneUpdate(RenderScene* renderScene){};
 	
 	virtual void PerViewUpdate(RenderView* renderView){};
@@ -27,6 +31,7 @@ public:
 		{
 			const type_info& nInfo = typeid(T);
 			LSharedPtr<T> newData = MakeShared<T>();
+			newData->mContainter = this;
 			mDatas.insert({ nInfo.hash_code(),newData});
 			t = newData.get();
 		}

@@ -40,10 +40,24 @@ namespace luna::graphics
 	class RenderAssetDataManager
 	{
 		LHoldIdArray<RenderAssetDataMesh> mAllRenderMesh;
+
+		RenderAssetDataMesh* mFullScreenRenderMesh = nullptr;
+
+		RenderAssetDataMesh* mDebugMeshLineData = nullptr;
+
+		RenderAssetDataMesh* mDebugMeshData = nullptr;
 	public:
 		RenderAssetDataManager() {};
+
 		RenderAssetDataMesh* GenerateRenderMesh(SubMesh* meshData);
+
 		void DestroyRenderMesh(RenderAssetDataMesh* newData);
+
+		RenderAssetDataMesh* GetFullScreenMesh();
+
+		RenderAssetDataMesh* GetDebugMeshLineMesh();
+
+		RenderAssetDataMesh* GetDebugMesh();
 	};
 
 }

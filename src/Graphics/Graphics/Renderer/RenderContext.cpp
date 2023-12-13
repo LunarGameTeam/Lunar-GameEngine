@@ -19,7 +19,6 @@
 #include "Core/Asset/AssetModule.h"
 #include "Graphics/Renderer/RenderView.h"
 
-
 namespace luna::graphics 
 {
 
@@ -259,6 +258,7 @@ void StaticSampler::Init(SamplerDesc& desc, ViewDesc& view)
 
 RenderContext::RenderContext()
 {
+	mFullScreenRenderMesh = luna::sRenderModule->GetAssetManager()->GetFullScreenMesh();
 };
 
 void RenderContext::Init()
@@ -598,6 +598,11 @@ RHIBindingSetPtr RenderContext::CreateBindingset(RHIBindingSetLayoutPtr layout)
 	return bindingset;
 }
 
+void RenderContext::DrawFullScreen(graphics::MaterialInstanceGraphBase* mat)
+{
+	DrawMesh(mFullScreenRenderMesh, mat);
+}
+
 void RenderContext::DrawMesh(graphics::RenderAssetDataMesh* mesh, graphics::MaterialInstanceGraphBase* mat)
 {
 	ZoneScoped;
@@ -697,7 +702,6 @@ void RenderContext::DrawMeshInstanced(
 	}
 	mGraphicCmd->GetCmdList()->DrawIndexedInstanced((uint32_t)indexCount, instancingSize, 0, 0, startInstanceIdx);
 }
-
 }
 
 

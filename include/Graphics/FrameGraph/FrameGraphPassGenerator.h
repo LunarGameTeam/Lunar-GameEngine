@@ -27,6 +27,7 @@ namespace luna::graphics
 
 	public:
 		FrameGraphPassGeneratorPerView() {}
+		virtual ~FrameGraphPassGeneratorPerView() {}
 
 		virtual void AddPassNode(FrameGraphBuilder* builder, RenderView* view) = 0;
 
@@ -35,8 +36,6 @@ namespace luna::graphics
 		void ClearRoQueue();
 	protected:
 		virtual bool CheckRenderObject(const RenderObject* curRo) const = 0;
-
-		void GenerateNodeRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node, RenderView* curView);
 	};
 	
 	struct PerViewMeshDrawDataMember

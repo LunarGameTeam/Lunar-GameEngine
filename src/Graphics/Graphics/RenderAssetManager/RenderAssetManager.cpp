@@ -7,6 +7,7 @@
 #include "Graphics/Asset/MeshAsset.h"
 #include "Graphics/Asset/SkeletalMeshAsset.h"
 #include "Graphics/RenderModule.h"
+#include "Graphics/Asset/MeshAssetUtils.h"
 namespace luna::graphics
 {
 	void RenderAssetDataMesh::Init(SubMesh* meshData)
@@ -48,7 +49,85 @@ namespace luna::graphics
 		RenderAssetDataMesh* newData = mAllRenderMesh.AddNewValue();
 		newData->Init(meshData);
 	}
+	
+	RenderAssetDataManager::RenderAssetDataManager()
+	{
 
+	};
+	
+	RenderAssetDataMesh* RenderAssetDataManager::GetFullScreenMesh()
+	{
+		if (mFullScreenRenderMesh == nullptr)
+		{
+			SubMesh fullscreenMeshAsset;
+			BaseVertex v1, v2, v3;
+			v1.pos = LVector3f(-1, -1, 0);
+			v1.uv[0] = LVector2f(0, 1);
+			v2.pos = LVector3f(-1, 1, 0);
+			v2.uv[0] = LVector2f(0, 0);
+			v3.pos = LVector3f(1, 1, 0);
+			v3.uv[0] = LVector2f(1, 0);
+			AddTriangleToSubMesh(v1, v2, v3, fullscreenMeshAsset);
+			v1.pos = LVector3f(1, 1, 0);
+			v1.uv[0] = LVector2f(1, 0);
+			v2.pos = LVector3f(1, -1, 0);
+			v2.uv[0] = LVector2f(1, 1);
+			v3.pos = LVector3f(-1, -1, 0);
+			v3.uv[0] = LVector2f(0, 1);
+			AddTriangleToSubMesh(v1, v2, v3, fullscreenMeshAsset);
+			mFullScreenRenderMesh = GenerateRenderMesh(&fullscreenMeshAsset);
+		}
+		return mFullScreenRenderMesh;
+	}
+
+	RenderAssetDataMesh* RenderAssetDataManager::GetDebugMeshLineMesh()
+	{
+		if (mDebugMeshLineData == nullptr)
+		{
+			SubMesh            debugMeshLine;
+			LFrustum f = LFrustum::FromOrth(0.01, 50, 30, 30);
+			f.Multiple(LMatrix4f::Identity());
+			AddLineToSubMesh(f.mNearPlane[0], f.mNearPlane[1], debugMeshLine);
+			AddLineToSubMesh(f.mNearPlane[1], f.mNearPlane[2], debugMeshLine);
+			AddLineToSubMesh(f.mNearPlane[2], f.mNearPlane[3], debugMeshLine);
+			AddLineToSubMesh(f.mNearPlane[3], f.mNearPlane[0], debugMeshLine);
+			AddLineToSubMesh(f.mNearPlane[0], f.mFarPlane[0], debugMeshLine);
+			AddLineToSubMesh(f.mNearPlane[1], f.mFarPlane[1], debugMeshLine);
+			AddLineToSubMesh(f.mNearPlane[2], f.mFarPlane[2], debugMeshLine);
+			AddLineToSubMesh(f.mNearPlane[3], f.mFarPlane[3], debugMeshLine);
+			AddLineToSubMesh(f.mFarPlane[0], f.mFarPlane[1], debugMeshLine);
+			AddLineToSubMesh(f.mFarPlane[1], f.mFarPlane[2], debugMeshLine);
+			AddLineToSubMesh(f.mFarPlane[2], f.mFarPlane[3], debugMeshLine);
+			AddLineToSubMesh(f.mFarPlane[3], f.mFarPlane[0], debugMeshLine);
+			mDebugMeshLineData = GenerateRenderMesh(&debugMeshLine);
+		}
+		return mDebugMeshLineData;
+	}
+
+	RenderAssetDataMesh* RenderAssetDataManager::GetDebugMesh()
+	{
+		if (mDebugMeshData == nullptr)
+		{
+			SubMesh            debugMeshLine;
+			LFrustum f = LFrustum::FromOrth(0.01, 50, 30, 30);
+			f.Multiple(LMatrix4f::Identity());
+			AddLineToSubMesh(f.mNearPlane[0], f.mNearPlane[1], debugMeshLine);
+			AddLineToSubMesh(f.mNearPlane[1], f.mNearPlane[2], debugMeshLine);
+			AddLineToSubMesh(f.mNearPlane[2], f.mNearPlane[3], debugMeshLine);
+			AddLineToSubMesh(f.mNearPlane[3], f.mNearPlane[0], debugMeshLine);
+			AddLineToSubMesh(f.mNearPlane[0], f.mFarPlane[0], debugMeshLine);
+			AddLineToSubMesh(f.mNearPlane[1], f.mFarPlane[1], debugMeshLine);
+			AddLineToSubMesh(f.mNearPlane[2], f.mFarPlane[2], debugMeshLine);
+			AddLineToSubMesh(f.mNearPlane[3], f.mFarPlane[3], debugMeshLine);
+			AddLineToSubMesh(f.mFarPlane[0], f.mFarPlane[1], debugMeshLine);
+			AddLineToSubMesh(f.mFarPlane[1], f.mFarPlane[2], debugMeshLine);
+			AddLineToSubMesh(f.mFarPlane[2], f.mFarPlane[3], debugMeshLine);
+			AddLineToSubMesh(f.mFarPlane[3], f.mFarPlane[0], debugMeshLine);
+			mDebugMeshData = GenerateRenderMesh(&debugMeshLine);
+		}
+		return mDebugMeshLineData;
+	}
+	
 	void RenderAssetDataManager::DestroyRenderMesh(RenderAssetDataMesh* newData)
 	{
 		mAllRenderMesh.DestroyValue(newData);

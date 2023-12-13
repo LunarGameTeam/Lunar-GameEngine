@@ -150,6 +150,7 @@ public:
 struct HoldIdItem
 {
 	uint64_t mID = -1;
+	virtual~HoldIdItem() {};
 };
 
 template<typename Value>
