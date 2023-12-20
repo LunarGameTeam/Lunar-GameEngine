@@ -2,10 +2,6 @@
 
 namespace luna::graphics
 {
-
-PARAM_ID(SceneBuffer);
-PARAM_ID(ViewBuffer);
-PARAM_ID(MaterialBuffer);
 class OpaquePassGenerator : public FrameGraphMeshPassGenerator
 {
 public:

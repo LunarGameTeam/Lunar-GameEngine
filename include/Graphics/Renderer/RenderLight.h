@@ -21,7 +21,7 @@ enum class PointBasedLightType
 	POINT_BASEDLIGHT_SPOT
 };
 
-struct RENDER_API PointBasedLight
+struct RENDER_API PointBasedLight : public luna::HoldIdItem
 {
 	size_t              mIndex;
 
@@ -41,7 +41,7 @@ struct RENDER_API PointBasedLight
 	RenderScene* mOwnerScene = nullptr;
 };
 
-class PointBasedRenderLightData : RenderData
+class RENDER_API PointBasedRenderLightData : public RenderData
 {
 	//这个数据是render scene的光源组件，持有dirty的光源信息
 	size_t mMaxLightNum;

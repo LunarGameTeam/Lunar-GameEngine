@@ -59,7 +59,7 @@ LSharedPtr<FGTexture> FrameGraphBuilder::CreateCommon2DTexture(
 )
 {
 	size_t curNewId = GenerateVirtualResourceId();
-	LSharedPtr<FGTexture> newTexture = MakeShared<FGTexture>(curNewId, width, height, format, usage,this);
+	LSharedPtr<FGTexture> newTexture = MakeShared<FGTexture>(curNewId, name,width, height, format, usage,this);
 	return newTexture;
 }
 
@@ -72,11 +72,11 @@ void FrameGraphBuilder::_Prepare()
 	ZoneScoped;
 	for (FGNode* it : mNodes)
 	{
-		for (FGResourceView* view : it->mVirtureResView)
+		for (auto& view : it->mVirtureResView)
 		{
 			RHIViewPtr rhiView = sRenderModule->GetRHIDevice()->CreateView(view->mRHIViewDesc);
 			view->mRHIView = rhiView;
-			rhiView->BindResource(view->mVirtualRes->mRes);
+			rhiView->BindResource(view->mVirtualRes->mExternalRes);
 		}
 	}
 }
@@ -89,30 +89,33 @@ void FrameGraphBuilder::Flush()
 	RHISinglePoolSingleCmdList* cmdlist = renderDevice->mGraphicCmd.get();
 
 	mFence3D->Wait(mFenceValue3D);
-	for (auto& it : mVirtualRes)
+	for (FGNode* it : mNodes)
 	{
-		if (it.second->GetRHIResource() == nullptr)
+		for (auto& view : it->mVirtureResView)
 		{
-			if (it.second->GetDesc().mType == ResourceType::kTexture)
+			if (view->mVirtualRes->mExternalRes == nullptr)
 			{
-				FGTexture* virtualRes = static_cast<FGTexture*>(it.second);
-				RHIResourcePtr rhiRes = renderDevice->FGCreateTexture(virtualRes->GetDesc());
-				virtualRes->SetRHIResource(rhiRes);
-			}
-			else 
-			{
-				assert(false);
+				if (view->mVirtualRes->GetDesc().mType == ResourceType::kTexture)
+				{
+					FGTexture* virtualRes = static_cast<FGTexture*>(view->mVirtualRes);
+					RHIResourcePtr rhiRes = renderDevice->FGCreateTexture(virtualRes->GetDesc());
+					virtualRes->BindExternalResource(rhiRes);
+				}
+				else
+				{
+					assert(false);
+				}
 			}
 		}
-
 	}
 
 	_Prepare();
 
 	{
 		ZoneScopedN("Node Execute");
-		for (FGNode* node : mNodes)
+		for (FGNode* baseNode : mNodes)
 		{
+			FGGraphDrawNode* node = static_cast<FGGraphDrawNode*>(baseNode);
 			ZoneScoped;
 			const char* name = node->GetName().c_str();
 			ZoneName(name, node->GetName().Length());
@@ -126,7 +129,7 @@ void FrameGraphBuilder::Flush()
 				continue;
 			{
 				ZoneScopedN("Resource Barrier");
-				for (FGResourceView* view : node->mVirtureResView)
+				for (auto& view : node->mVirtureResView)
 				{
 					ResourceBarrierDesc barrier;
 					barrier.mBaseMipLevel = 0;
@@ -135,7 +138,7 @@ void FrameGraphBuilder::Flush()
 					//理论上应该View使用了Res的某个Layer，只对这个Layer进行Barrier
 					//但是RHIResource里只记录了一个State，因此这里对整个Res进行Barrier
 					barrier.mDepth = view->mVirtualRes->mDesc.DepthOrArraySize;
-					barrier.mBarrierRes = view->mVirtualRes->GetRHIResource();
+					barrier.mBarrierRes = view->mVirtualRes->mExternalRes;
 					switch (view->mRHIViewDesc.mViewType)
 					{
 					case RHIViewType::kTexture:
@@ -168,8 +171,8 @@ void FrameGraphBuilder::Flush()
 			for (FGResourceView* it : node->mRT)
 			{
 				FGResourceView& rtView = *it;
-				width = rtView.mVirtualRes->GetRHIResource()->mResDesc.Width;
-				height = rtView.mVirtualRes->GetRHIResource()->mResDesc.Height;
+				width = rtView.mVirtualRes->mExternalRes->GetDesc().Width;
+				height = rtView.mVirtualRes->mExternalRes->GetDesc().Height;
 				assert(rtView.mRHIView);
 				node->mPassDesc.mColorView.emplace_back(rtView.mRHIView);
 			}
@@ -177,7 +180,7 @@ void FrameGraphBuilder::Flush()
 			if(node->mPassDesc.mDepths.size() > 0)
 			{
 				node->mPassDesc.mDepthStencilView = dsView.mRHIView;
-				node->mPassDesc.mDepths[0].mDepthStencilFormat = dsView.mRHIView->mBindResource->mResDesc.Format;
+				node->mPassDesc.mDepths[0].mDepthStencilFormat = dsView.mRHIView->mBindResource->GetDesc().Format;
 			}
 			
 			

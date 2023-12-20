@@ -4,6 +4,7 @@
 #include "Graphics/RenderConfig.h"
 #include "Graphics/Asset/ShaderAsset.h"
 #include "Graphics/Asset/TextureAsset.h"
+#include "Graphics/Renderer/MaterialInstance.h"
 
 
 
@@ -43,7 +44,7 @@ protected:
 
 	RHIBindingSetLayoutPtr mLayout;
 
-	virtual void CompileShaderAsset(ShaderAsset* curShader, const LArray<ShaderMacro*> &shaderMacros) = 0;
+	virtual void CompileShaderAsset(ShaderAsset* curShader, const LArray<ShaderMacro*>& shaderMacros) {};
 
 	void CompileShaderByType(
 		ShaderAsset* curShader,

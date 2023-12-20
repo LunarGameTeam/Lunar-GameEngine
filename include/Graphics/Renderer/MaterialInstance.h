@@ -6,7 +6,6 @@
 #include "Graphics/RHI/RHIShader.h"
 
 #include "Graphics/Renderer/MaterialParam.h"
-#include "Graphics/Asset/MaterialTemplate.h"
 
 #include "Graphics/RenderTypes.h"
 #include "Core/Object/SharedObject.h"
@@ -14,6 +13,8 @@
 
 namespace luna::graphics
 {
+
+class MaterialBaseTemplateAsset;
 
 enum class MaterialParamType : uint8_t
 {

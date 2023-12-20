@@ -197,8 +197,8 @@ void RenderModule::UpdateFrameBuffer()
 		desc.mPass = mIMGUIRenderPass;
 		desc.mColor.push_back(sRenderModule->GetSwapChain()->mViews[i]);
 		desc.mDepthStencil = nullptr;
-		desc.mWidth = sRenderModule->GetSwapChain()->mBackBuffers[i]->mResDesc.Width;
-		desc.mHeight = sRenderModule->GetSwapChain()->mBackBuffers[i]->mResDesc.Height;
+		desc.mWidth = sRenderModule->GetSwapChain()->mBackBuffers[i]->GetDesc().Width;
+		desc.mHeight = sRenderModule->GetSwapChain()->mBackBuffers[i]->GetDesc().Height;
 		mFrameBuffer[i] = rhiDevice->CreateFrameBuffer(desc);
 	}
 

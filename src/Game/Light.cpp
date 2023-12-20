@@ -160,7 +160,7 @@ namespace luna
 
 	}
 
-	LSharedPtr<graphics::GameRenderDataUpdater> PointLightComponent::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
+	void PointLightComponent::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
 	{
 		if (mNeedUpdate)
 		{

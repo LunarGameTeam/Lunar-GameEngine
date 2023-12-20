@@ -75,7 +75,7 @@ public:
 		const LVector4f& clearColor = LVector4f(0, 0, 0, 1), uint32_t rtIndex = 0);
 
 	FGNode& SetDepthStencilAttachment(FGResourceView* ds, LoadOp load = LoadOp::kLoad, StoreOp store = StoreOp::kStore, float clearDepth = 1.0);
-private:
+
 	LArray<FGResourceView*> mRT;
 
 	FGResourceView* mDS;

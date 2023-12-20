@@ -4,10 +4,6 @@
 #include "Graphics/FrameGraph/FrameGraphResource.h"
 namespace luna::graphics
 {
-
-PARAM_ID(SceneBuffer);
-PARAM_ID(ViewBuffer);
-PARAM_ID(MaterialBuffer);
 bool OpaquePassGenerator::CheckRenderObject(const RenderObject* curRo) const
 {
 	const RenderMeshBase* meshDataPointer = curRo->GetReadOnlyData<RenderMeshBase>();

@@ -27,6 +27,7 @@ namespace luna::graphics
 
 	public:
 		FrameGraphPassGeneratorPerView() {}
+
 		virtual ~FrameGraphPassGeneratorPerView() {}
 
 		virtual void AddPassNode(FrameGraphBuilder* builder, RenderView* view) = 0;
@@ -55,9 +56,13 @@ namespace luna::graphics
 	{
 	protected:
 		LUnorderedMap<MeshDrawCommandHashKey, MeshDrawCommandBatch, MeshDrawCommandHash> mAllCommandsPool;
+
 		LUnorderedMap<MeshDrawCommandHashKey, LArray<size_t>, MeshDrawCommandHash> mAllRoIndexPool;
 	public:
 		FrameGraphMeshPassGenerator();
+
+		virtual ~FrameGraphMeshPassGenerator() {};
+
 		void FilterRenderObject(RenderView* curView) override;
 	protected:
 

@@ -21,38 +21,6 @@ namespace luna::graphics
 		mRoQueue.clear();
 	}
 
-	void FrameGraphPassGeneratorPerView::GenerateNodeRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node, RenderView* curView)
-	{
-		RHIResource* colorTexture = curView->GetRenderTarget()->mColorTexture.get();
-		RHIResource* depthTexture = curView->GetRenderTarget()->mDepthTexture.get();
-		ViewTargetData* viewRtData = curView->RequireData<ViewTargetData>();
-		if (viewRtData->mRenderTarget == nullptr)
-		{
-			viewRtData->mRenderTarget = builder->CreateCommon2DTexture(
-				"OpaqueColor",
-				curView->GetRenderTarget()->GetWidth(),
-				curView->GetRenderTarget()->GetHeight(),
-				curView->GetRenderTarget()->GetFormat(),
-				RHIImageUsage::ColorAttachmentBit | RHIImageUsage::SampledBit
-			);
-			viewRtData->mRenderTarget->BindExternalResource(colorTexture);
-			viewRtData->mDepthStencil = builder->CreateCommon2DTexture(
-				"OpaqueDepth",
-				curView->GetRenderTarget()->GetWidth(),
-				curView->GetRenderTarget()->GetHeight(),
-				curView->GetRenderTarget()->GetDepthFormat(),
-				RHIImageUsage::DepthStencilBit
-			);
-			viewRtData->mDepthStencil->BindExternalResource(depthTexture);
-		}
-
-		FGResourceView* colorView = node->AddRTV(viewRtData->mRenderTarget.get(), RHIViewDimension::TextureView2D);
-		FGResourceView* depthView = node->AddDSV(viewRtData->mDepthStencil.get());
-		node->SetColorAttachment(colorView, LoadOp::kClear);
-		node->SetDepthStencilAttachment(depthView);
-
-	}
-
 	RHIView* PerViewMeshDrawPassData::GetRoIndexBufferViewByPass(size_t passIndex)
 	{
 		auto itor = passData.find(passIndex);

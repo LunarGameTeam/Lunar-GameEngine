@@ -18,7 +18,7 @@
 namespace luna::graphics
 {
 
-RenderSceneStagingMemory::RenderSceneStagingMemory(size_t perStageSize = 0x800000) : mPerStageSize(perStageSize)
+RenderSceneStagingMemory::RenderSceneStagingMemory(size_t perStageSize) : mPerStageSize(perStageSize)
 {
 	AddNewMemory(perStageSize);
 	mPoolUsedSize = 0;
@@ -61,6 +61,7 @@ RHIView* RenderSceneStagingMemory::AllocStructStageBuffer(size_t curBufferSize, 
 	void* curPointer = curView->mBindResource->Map();
 	memoryFunc(curPointer);
 	curView->mBindResource->Unmap();
+	return curView;
 }
 
 RHIView* RenderSceneStagingMemory::AllocUniformStageBuffer(ShaderCBuffer* cbufferData)
@@ -183,7 +184,9 @@ RenderScene::RenderScene()
 
 RenderObject* RenderScene::CreateRenderObject()
 {
-	return mRenderObjects.AddNewValue();
+	RenderObject* newObject = mRenderObjects.AddNewValue();
+	newObject->SetScene(this);
+	return newObject;
 }
 
 void RenderScene::DestroyRenderObject(RenderObject* ro)
@@ -249,7 +252,7 @@ void RenderScene::ExcuteCopy()
 		for (auto& eachInput : eachCommand.mStorageBufferInput)
 		{
 			ResourceBarrierDesc newBarrierDesc;
-			newBarrierDesc.mBarrierRes = eachInput.second;
+			newBarrierDesc.mBarrierRes = eachInput.second->mBindResource;
 			newBarrierDesc.mStateBefore = ResourceState::kGenericRead;
 			newBarrierDesc.mStateAfter = ResourceState::kNonPixelShaderResource;
 			curResourceBarrier.push_back(newBarrierDesc);
@@ -257,7 +260,7 @@ void RenderScene::ExcuteCopy()
 		for (auto& eachOut : eachCommand.mStorageBufferInput)
 		{
 			ResourceBarrierDesc newBarrierDesc;
-			newBarrierDesc.mBarrierRes = eachOut.second;
+			newBarrierDesc.mBarrierRes = eachOut.second->mBindResource;
 			newBarrierDesc.mStateBefore = ResourceState::kNonPixelShaderResource;
 			newBarrierDesc.mStateAfter = ResourceState::kUnorderedAccess;
 			curResourceBarrier.push_back(newBarrierDesc);
@@ -331,7 +334,7 @@ void RenderScene::ExcuteCopy()
 		newOutputBarrierDesc.mStateAfter = ResourceState::kVertexAndConstantBuffer;
 		curResourceBarrier.push_back(newInputBarrierDesc);
 	}
-	//情况G所有puScene的更新指令
+	//清空所有GpuScene的更新指令
 	mAllComputeCommand.clear();
 	mAllCopyCommand.clear();
 	//将上传缓冲池切换到下一帧

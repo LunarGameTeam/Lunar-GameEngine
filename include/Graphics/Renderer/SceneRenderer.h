@@ -11,32 +11,11 @@ namespace luna::graphics
 	public:
 		void GeneratePerViwewPass(FrameGraphBuilder* frameGraph, RenderView* curView);
 		template<typename FrameGraphPassGeneratorType>
-		void InitNewPerViewFrameGraphGeneratorInstance();
+		void InitNewPerViewFrameGraphGeneratorInstance()
+		{
+			mAllPassGeneratorPerView.AddNewValueTemplate<FrameGraphPassGeneratorType>();
+		};
 	};
-
-	void SceneRenderPipeline::GeneratePerViwewPass(FrameGraphBuilder* frameGraph, RenderView* curView)
-	{
-		LArray<FrameGraphPassGeneratorPerView*> valueOut;
-		mAllPassGeneratorPerView.GetAllValueList(valueOut);
-		for (FrameGraphPassGeneratorPerView* eachGenerator : valueOut)
-		{
-			eachGenerator->FilterRenderObject(curView);
-		}
-		for (FrameGraphPassGeneratorPerView* eachGenerator : valueOut)
-		{
-			eachGenerator->AddPassNode(frameGraph, curView);
-		}
-		for (FrameGraphPassGeneratorPerView* eachGenerator : valueOut)
-		{
-			eachGenerator->ClearRoQueue();
-		}
-	}
-
-	template<typename FrameGraphPassGeneratorType>
-	void SceneRenderPipeline::InitNewPerViewFrameGraphGeneratorInstance()
-	{
-		mAllPassGeneratorPerView.AddNewValueTemplate<FrameGraphPassGeneratorType>();
-	}
 
 	class RENDER_API SceneRenderer
 	{
@@ -57,45 +36,4 @@ namespace luna::graphics
 		void GeneratePassByView(RenderScene* renderScene,RenderView* curView);
 
 	};
-
-	void SceneRenderer::PrepareSceneRender(RenderScene* renderScene)
-	{
-		for (auto data : renderScene->mDatas)
-		{
-			data->PerSceneUpdate(renderScene);
-		}
-
-		for (RenderView* curView : mAllViews)
-		{
-			for (auto data : curView->mDatas)
-			{
-				data->PerViewUpdate(curView);
-			}
-			curView->PrepareView();
-		}
-		//		PBRPreparePass(FG, this, scene);
-		//		DirectionalLightShadowPass(FG, this, scene);
-		//		PointShadowPass(FG, this, scene);
-		//		OpaquePass(FG, this, scene);
-		//		PostProcessPass(FG, this, scene);
-		//		OverlayPass(FG, this, scene);
-	}
-
-	void SceneRenderer::GeneratePassByView(RenderScene* renderScene,RenderView* curView)
-	{
-		curView->Culling(renderScene);
-		mRenderPipeline.GeneratePerViwewPass(&mFrameGraphBuilder, curView);
-	}
-
-	void SceneRenderer::Render(RenderScene* renderScene)
-	{
-		renderScene->GetAllView(mAllViews);
-		mFrameGraphBuilder.Clear();
-		PrepareSceneRender(renderScene);
-		for (RenderView* curView : mAllViews)
-		{
-			GeneratePassByView(renderScene,curView);
-		}
-		mFrameGraphBuilder.Flush();
-	}
 }

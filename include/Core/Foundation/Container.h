@@ -150,7 +150,6 @@ public:
 struct HoldIdItem
 {
 	uint64_t mID = -1;
-	virtual~HoldIdItem() {};
 };
 
 template<typename Value>
@@ -176,6 +175,7 @@ public:
 		HoldIdItem* pointer = newValue.get();
 		pointer->mID = newIndex;
 		mItems.insert({ newIndex ,newValue });
+		return newValue.get();
 	};
 	
 	template<typename TempValue>
@@ -205,6 +205,7 @@ public:
 		}
 		mEmptyIndex.push(index);
 		mItems.erase(index);
+		return true;
 	}
 
 	void GetAllValueList(LArray<Value*> &valueOut) const

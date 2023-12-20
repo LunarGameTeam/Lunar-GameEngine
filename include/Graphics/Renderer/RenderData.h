@@ -64,7 +64,6 @@ public:
 		return dynamic_cast<T*>(itor->second.get());
 	}
 	LUnorderedMap<size_t, LSharedPtr<RenderData>> mDatas;
-	LArray<LSharedPtr<RenderData>> mDatas;
 };
 
 }

@@ -48,6 +48,7 @@ namespace luna::graphics
 		pathStr + ":_*sub*_:" + std::to_string(meshData->GetIndexCount());
 		RenderAssetDataMesh* newData = mAllRenderMesh.AddNewValue();
 		newData->Init(meshData);
+		return newData;
 	}
 	
 	RenderAssetDataManager::RenderAssetDataManager()

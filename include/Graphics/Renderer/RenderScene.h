@@ -122,18 +122,18 @@ public:
 	RenderSceneUploadBufferPool* GetStageBufferPool();
 
 	void ExcuteCopy();
-	//void Debug();
+
+	bool mRenderable = true;
 private:
-	//bool                  mBufferDirty = true;
-	//bool                  mInit        = false;
 
 	LHoldIdArray<RenderObject> mRenderObjects;
+
+	LHoldIdArray<RenderView> mViews;
+private:
 
 	LArray<GpuSceneUploadComputeCommand> mAllComputeCommand;
 
 	LArray<GpuSceneUploadCopyCommand> mAllCopyCommand;
-
-	LHoldIdArray<RenderView> mViews;
 
 	RenderSceneUploadBufferPool mStageBufferPool;
 };

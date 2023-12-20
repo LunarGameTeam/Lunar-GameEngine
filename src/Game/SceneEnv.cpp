@@ -40,28 +40,28 @@ RegisterTypeEmbedd_Imp(SceneEnvComponent)
 
 void SceneEnvComponent::SetSkyboxMaterial(graphics::MaterialTemplateAsset* val)
 {
-	if (GetScene() && val)
-	{
-		auto renderScene = GetScene()->GetRenderScene();
-		renderScene->mSkyboxMaterial = val->GetDefaultInstance();
-	}	
-	mSkyboxMaterial = ToSharedPtr(val);
+	//if (GetScene() && val)
+	//{
+	//	auto renderScene = GetScene()->GetRenderScene();
+	//	renderScene->mSkyboxMaterial = val->GetDefaultInstance();
+	//}	
+	//mSkyboxMaterial = ToSharedPtr(val);
 }
 
 void SceneEnvComponent::SetAmbientColor(const LVector4f& ambient)
 {
-	mAmbientColor = ambient;
-	auto renderScene = GetScene()->GetRenderScene();
-	renderScene->mAmbientColor = ambient;
-	renderScene->SetSceneBufferDirty();
+	//mAmbientColor = ambient;
+	//auto renderScene = GetScene()->GetRenderScene();
+	//renderScene->mAmbientColor = ambient;
+	//renderScene->SetSceneBufferDirty();
 }
 
 void SceneEnvComponent::SetGizmosEnable(bool val)
 {
-	mDrawGizmos = val;
-	auto renderScene = GetScene()->GetRenderScene();
-	renderScene->mDrawGizmos = mDrawGizmos;
-	renderScene->SetSceneBufferDirty();
+	//mDrawGizmos = val;
+	//auto renderScene = GetScene()->GetRenderScene();
+	//renderScene->mDrawGizmos = mDrawGizmos;
+	//renderScene->SetSceneBufferDirty();
 }
 
 void SceneEnvComponent::SetFogColor(const LVector4f& ambient)

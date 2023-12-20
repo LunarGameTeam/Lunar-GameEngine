@@ -5,7 +5,7 @@
 #include "Core/Asset/AssetModule.h"
 namespace luna::graphics
 {
-	RenderObject::RenderObject(RenderScene* ownerScene) : mOwnerScene(ownerScene)
+	RenderObject::RenderObject()
 	{
 		mWorldMat.setIdentity();
 	}

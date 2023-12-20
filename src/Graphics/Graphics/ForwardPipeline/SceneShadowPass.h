@@ -1,11 +1,6 @@
 ﻿#include "Graphics/FrameGraph/FrameGraphPassGenerator.h"
 namespace luna::graphics
 {
-
-PARAM_ID(SceneBuffer);
-PARAM_ID(ViewBuffer);
-PARAM_ID(MaterialBuffer);
-
 class DirectionalLightShadowPassGenerator : public FrameGraphMeshPassGenerator
 {
 	SharedPtr<MaterialGraphAsset> mShadowMtlAsset = nullptr;

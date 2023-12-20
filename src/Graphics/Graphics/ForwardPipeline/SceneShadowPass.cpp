@@ -3,11 +3,6 @@
 #include "Core/Asset/AssetModule.h"
 namespace luna::graphics
 {
-
-PARAM_ID(SceneBuffer);
-PARAM_ID(ViewBuffer);
-PARAM_ID(MaterialBuffer);
-
 bool DirectionalLightShadowPassGenerator::CheckRenderObject(const RenderObject* curRo) const
 {
 	const RenderMeshBase* meshDataPointer = curRo->GetReadOnlyData<RenderMeshBase>();

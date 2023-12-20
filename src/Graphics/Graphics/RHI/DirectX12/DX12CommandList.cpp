@@ -92,7 +92,7 @@ DX12CmdSignature::DX12CmdSignature(
 	newSignatureDesc.NodeMask = 0;
 	newSignatureDesc.NumArgumentDescs = allIndirectDesc.size();
 	newSignatureDesc.pArgumentDescs = allIndirectDesc.data();
-	DX12BindingSetLayout* dx12BindingSetLayout = pipeline->GetBindingSetLayout()->As<DX12BindingSetLayout>();
+	DX12BindingSetLayout* dx12BindingSetLayout = pipeline->GetLayout()->As<DX12BindingSetLayout>();
 	HRESULT hr;
 	ID3D12Device* dxDevice = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
 	hr = dxDevice->CreateCommandSignature(&newSignatureDesc, dx12BindingSetLayout->GetRootSignature(), IID_PPV_ARGS(&mDxCmdSignature));

@@ -47,7 +47,7 @@ namespace luna::graphics
 
 		RenderAssetDataMesh* mDebugMeshData = nullptr;
 	public:
-		RenderAssetDataManager() {};
+		RenderAssetDataManager();
 
 		RenderAssetDataMesh* GenerateRenderMesh(SubMesh* meshData);
 

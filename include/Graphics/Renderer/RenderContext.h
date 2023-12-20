@@ -12,6 +12,8 @@
 
 #include "Graphics/Asset/ShaderAsset.h"
 #include "Graphics/Renderer/RenderMesh.h"
+#include "Graphics/RenderAssetManager/RenderAssetManager.h"
+#include "Graphics/Renderer/MaterialInstance.h"
 
 namespace luna::graphics
 {
@@ -147,7 +149,7 @@ struct MeshDrawCommandHashKey
 {
 	RenderAssetDataMesh* mRenderMeshs = nullptr;
 	MaterialInstanceGraphBase* mMtl = nullptr;
-	bool operator==(MeshDrawCommandHashKey& key2) {
+	bool operator==(const MeshDrawCommandHashKey& key2) const{
 		if (mRenderMeshs->mID != key2.mRenderMeshs->mID)
 		{
 			return false;

@@ -10,6 +10,7 @@
 namespace luna::graphics
 {
 
+class SubMeshSkeletal;
 struct MeshSkeletonLinkClusterBase
 {
 	LUnorderedMap<int32_t, int32_t> mSkinBoneIndex2SkeletonBoneIndex;
@@ -32,11 +33,9 @@ class ShaderParamSceneBuffer
 
 };
 
-class SkeletonSkinData : public RenderData
+class RENDER_API SkeletonSkinData : public RenderData
 {
 	LString mSkeletonUniqueName;
-public:
-	SkeletonSkinData();
 public:
 	SkeletonSkinData();
 

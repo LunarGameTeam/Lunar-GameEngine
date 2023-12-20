@@ -321,7 +321,7 @@ RHIBindingSetPtr DX12Device::CreateBindingSet(RHIDescriptorPool* pool, RHIBindin
 
 luna::graphics::RHIResourcePtr DX12Device::CreateTextureExt(const RHIResDesc& resDesc)
 {
-	return CreateRHIObject<DX12Resource>(textureDesc, resDesc);
+	return CreateRHIObject<DX12Resource>(resDesc);
 }
 
 RHIResourcePtr DX12Device::CreateBufferExt(const RHIBufferDesc& bufferDesc)

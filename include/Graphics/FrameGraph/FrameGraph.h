@@ -6,6 +6,7 @@
 namespace luna::graphics
 {
 
+class FGGraphDrawNode;
 class RENDER_API FrameGraphBuilder
 {
 public:
@@ -52,6 +53,7 @@ private:
 	//frame graph fence
 	RHIFencePtr mFence3D;	
 	size_t& mFenceValue3D;
+	LUnorderedMap<size_t, RHIResourcePtr> mPhysicResourceMap;
 };
 
 }

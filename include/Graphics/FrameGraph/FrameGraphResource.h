@@ -78,18 +78,8 @@ RHIResDesc GenerateTexture2DRhiDesc(
 	uint32_t height,
 	RHITextureFormat format,
 	RHIImageUsage usage
-)
-{
-	RHIResDesc newDesc = {};
-	newDesc.ResHeapType = RHIHeapType::Default;
-	newDesc.mUseVma = false;
-	newDesc.Dimension = RHIResDimension::Texture2D;
-	newDesc.Width = width;
-	newDesc.Height = height;
-	newDesc.Format = format;
-	newDesc.mImageUsage = usage;
-	return newDesc;
-}
+);
+
 class FGTexture : public FGResource
 {
 public:

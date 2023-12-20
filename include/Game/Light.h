@@ -17,7 +17,7 @@ namespace luna
 	{
 		bool           mDirty = false;
 		LVector4f      mColor = LVector4f(0.0f, 0.0f, 0.0f, 1.0f);
-		LVector3f      mPosition = LVector3f(0.0f, 0.0f, 0.0f, 1.0f);
+		LVector3f      mPosition = LVector3f(0.0f, 0.0f, 0.0f);
 		bool           mCastShadow = false;
 		float          mIntensity = 1.0f;
 	};
@@ -41,7 +41,7 @@ namespace luna
 	//方向光
 	struct GameRenderBridgeDataDirLight :public GameRenderBridgeDataLight
 	{
-		LVector3f      mDirection = LVector4f(0.0f, -1.0f, 0.0f, 1.0f);
+		LVector3f      mDirection = LVector3f(0.0f, -1.0f, 0.0f);
 		LVector3f      mCSMSplit = LVector3f(0.2f, 0.5f, 0.7f);
 	};
 
@@ -96,7 +96,7 @@ namespace luna
 		void UpdateLightBridgeDataBase(GameRenderBridgeDataLight* curData);
 		//graphics::Light* mLight      = nullptr;
 	};
-	
+
 	class GAME_API PointLightComponent : public LightComponent
 	{
 		RegisterTypeEmbedd(PointLightComponent, LightComponent)
@@ -108,7 +108,7 @@ namespace luna
 		//render相关
 		LSharedPtr<graphics::GameRenderDataUpdater> GenarateRenderUpdater() override { return MakeShared<GameLightRenderDataUpdater>(); }
 
-		LSharedPtr<graphics::GameRenderDataUpdater> OnTickImpl(graphics::GameRenderBridgeData* curRenderData) override;
+		void OnTickImpl(graphics::GameRenderBridgeData* curRenderData) override;
 	};
 	
 	class GAME_API DirectionLightComponent : public LightComponent

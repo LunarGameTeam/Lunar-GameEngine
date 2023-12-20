@@ -25,7 +25,7 @@ enum class RenderViewType
 	SceneView,
 	ShadowMapView
 };
-class RenderViewParameterData : public RenderData
+class RENDER_API RenderViewParameterData : public RenderData
 {
 	RHIResourcePtr  mViewParamRes;
 

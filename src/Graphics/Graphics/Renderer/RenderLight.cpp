@@ -28,27 +28,27 @@ namespace luna::graphics
 		auto device = sRenderModule->GetRenderContext();
 		RHICBufferDesc mCbufferDesc = device->GetDefaultShaderConstantBufferDesc(LString("PointBasedLightParameter").Hash());
 		mLightBufferGlobelMessage = MakeShared<ShaderCBuffer>(mCbufferDesc);
-		RHIBufferDesc desc;
-		desc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
-		desc.mSize = SizeAligned2Pow(mCbufferDesc.mSize,CommonSize64K);
-		ViewDesc viewDesc;
-		viewDesc.mViewType = RHIViewType::kConstantBuffer;
-		viewDesc.mViewDimension = RHIViewDimension::BufferView;
-		mLightParameterBuffer = sRenderModule->GetRenderContext()->CreateBuffer(RHIHeapType::Default, desc);
-		mLightParameterBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
+		RHIBufferDesc paramBufferDesc;
+		paramBufferDesc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
+		paramBufferDesc.mSize = SizeAligned2Pow(mCbufferDesc.mSize,CommonSize64K);
+		ViewDesc paramBufferviewDesc;
+		paramBufferviewDesc.mViewType = RHIViewType::kConstantBuffer;
+		paramBufferviewDesc.mViewDimension = RHIViewDimension::BufferView;
+		mLightParameterBuffer = sRenderModule->GetRenderContext()->CreateBuffer(RHIHeapType::Default, paramBufferDesc);
+		mLightParameterBufferView = sRenderModule->GetRHIDevice()->CreateView(paramBufferviewDesc);
 		mLightParameterBufferView->BindResource(mLightParameterBuffer);
 		//光源数据的buffer
 		size_t elementSize = 4 * sizeof(LVector4f);
-		RHIBufferDesc desc;
-		desc.mBufferUsage = RHIBufferUsage::StructureBuffer;
-		desc.mSize = elementSize * 128;
-		mExistLightDataBuffer = sRenderModule->GetRenderContext()->CreateBuffer(RHIHeapType::Default, desc);
+		RHIBufferDesc dataBufferDesc;
+		dataBufferDesc.mBufferUsage = RHIBufferUsage::StructureBuffer;
+		dataBufferDesc.mSize = elementSize * 128;
+		mExistLightDataBuffer = sRenderModule->GetRenderContext()->CreateBuffer(RHIHeapType::Default, dataBufferDesc);
 
-		ViewDesc viewDesc;
-		viewDesc.mViewType = RHIViewType::kStructuredBuffer;
-		viewDesc.mViewDimension = RHIViewDimension::BufferView;
-		viewDesc.mStructureStride = sizeof(LVector4f);
-		mExistLightDataBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
+		ViewDesc dataBufferviewDesc;
+		dataBufferviewDesc.mViewType = RHIViewType::kStructuredBuffer;
+		dataBufferviewDesc.mViewDimension = RHIViewDimension::BufferView;
+		dataBufferviewDesc.mStructureStride = sizeof(LVector4f);
+		mExistLightDataBufferView = sRenderModule->GetRHIDevice()->CreateView(dataBufferviewDesc);
 		mExistLightDataBufferView->BindResource(mExistLightDataBuffer);
 
 		mMaterial = sAssetModule->LoadAsset<MaterialComputeAsset>("/assets/built-in/LightDataCopy.mat");

@@ -3,6 +3,7 @@
 #include "Core/Foundation/Container.h"
 #include "Core/Math/Math.h"
 #include "Graphics/RHI/RHITypes.h"
+#include "Graphics/Asset/MaterialTemplate.h"
 namespace luna::graphics
 {
 
@@ -11,14 +12,16 @@ namespace luna::graphics
 		LMatrix4f    mWorldMat;
 		RenderScene* mOwnerScene = nullptr;
 	public:
-		RenderObject(RenderScene* ownerScene);
+		RenderObject();
+
+		void SetScene(RenderScene* ownerScene) { mOwnerScene = ownerScene; };
 
 		void UpdateWorldMatrix(const LMatrix4f& worldMat) { mWorldMat = worldMat; }
 
 		const LMatrix4f& GetWorldMatrix() { return mWorldMat; }
 	};
 
-	class RenderObjectDrawData : public RenderData
+	class RENDER_API RenderObjectDrawData : public RenderData
 	{
 		RHIResourcePtr mRoMessagePtr;
 

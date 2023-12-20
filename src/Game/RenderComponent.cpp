@@ -13,6 +13,7 @@ namespace luna::graphics
 		}
 		mGameLocation = 0;
 		mRenderLocation = 2;
+		return true;
 	}
 
 	GameRenderBridgeData* GameRenderDataUpdater::GetGameThreadBridgeData()
