@@ -68,9 +68,9 @@ private:
 };
 
 
-class RENDER_API TextureCube : public JsonAsset
+class RENDER_API TextureCube : public LBinaryAsset
 {
-	RegisterTypeEmbedd(TextureCube, JsonAsset)
+	RegisterTypeEmbedd(TextureCube, LBinaryAsset)
 public:
 	TextureCube();
 

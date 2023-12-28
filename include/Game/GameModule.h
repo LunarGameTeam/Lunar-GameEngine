@@ -17,7 +17,7 @@ public:
 	bool OnInit() override;
 	bool OnShutdown() override;
 	void Tick(float delta_time) override;
-
+	void RenderTick(float deltaTime) override;
 	void BindingAddScene(Scene* new_scene);
 
 	void AddScene(Scene* new_scene);

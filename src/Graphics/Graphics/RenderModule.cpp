@@ -317,6 +317,8 @@ bool RenderModule::OnInit()
 		break;
 
 	}
+	mRenderer = MakeShared<SceneRenderer>();
+	InitBasePipeline(mRenderer->GetSceneRenderPipeline());
 	return true;
 }
 
@@ -346,7 +348,7 @@ void RenderModule::RenderTick(float delta_time)
 	mRenderContext->mTransferCmd->GetCmdList()->BeginEvent("Frame Graph Prepare");
 	for (RenderScene* it : mRenderScenes)
 	{
-		mRenderer.Render(it);
+		mRenderer->Render(it);
 	}
 	mRenderContext->mTransferCmd->GetCmdList()->EndEvent();
 

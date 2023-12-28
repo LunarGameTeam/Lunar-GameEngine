@@ -258,7 +258,6 @@ void StaticSampler::Init(SamplerDesc& desc, ViewDesc& view)
 
 RenderContext::RenderContext()
 {
-	mFullScreenRenderMesh = luna::sRenderModule->GetAssetManager()->GetFullScreenMesh();
 };
 
 void RenderContext::Init()
@@ -358,6 +357,8 @@ void RenderContext::Init()
 	instancingDesc.mBufferUsage = RHIBufferUsage::VertexBufferBit;
 	instancingDesc.mSize = sizeof(uint32_t) * 4 * 2048;
 	renderObjectInstancingBuffer = CreateBuffer(RHIHeapType::Upload,instancingDesc);
+
+	mFullScreenRenderMesh = luna::sRenderModule->GetAssetManager()->GetFullScreenMesh();
 }
 
 void RenderContext::OnFrameBegin()

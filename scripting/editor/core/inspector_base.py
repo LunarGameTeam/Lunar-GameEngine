@@ -198,8 +198,8 @@ class ComponentInspector(InspectorBase):
 
 @register_type_inspector
 class MeshRendererEditor(ComponentInspector):
-    target_type = luna.MeshRenderer
-    target: 'luna.MeshRenderer' = None
+    target_type = luna.StaticMeshRenderer
+    target: 'luna.StaticMeshRenderer' = None
 
     def __init__(self, target):
         super().__init__(target)

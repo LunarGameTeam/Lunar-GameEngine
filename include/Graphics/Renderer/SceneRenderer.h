@@ -17,6 +17,8 @@ namespace luna::graphics
 		};
 	};
 
+	void RENDER_API InitBasePipeline(SceneRenderPipeline* curPipeline);
+
 	class RENDER_API SceneRenderer
 	{
 		FrameGraphBuilder mFrameGraphBuilder;
@@ -29,6 +31,8 @@ namespace luna::graphics
 			mFrameGraphBuilder("SceneRenderer") {};
 
 		void Render(RenderScene* renderScene);
+
+		SceneRenderPipeline* GetSceneRenderPipeline() { return &mRenderPipeline; };
 	private:
 
 		void PrepareSceneRender(RenderScene* renderScene);

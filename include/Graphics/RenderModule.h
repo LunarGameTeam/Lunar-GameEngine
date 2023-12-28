@@ -99,7 +99,7 @@ public:
 	LSharedPtr<Texture2D>              mDefaultWhiteTexture;
 	LSharedPtr<Texture2D>              mDefaultNormalTexture;
 private:
-	SceneRenderer mRenderer;
+	LSharedPtr<SceneRenderer> mRenderer;
 	LArray<RenderScene*>               mRenderScenes;
 	LMap<RHIResourcePtr, ImguiTexture> mImguiTextures;
 

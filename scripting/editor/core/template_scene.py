@@ -40,7 +40,7 @@ class TemplateSceneView(object):
             entity.serializable = False
             self.camera = entity.add_component(luna.CameraComponent)
 
-        self.scene_texture = self.camera.render_target.color_texture
+        #self.scene_texture = self.camera.render_target.color_texture
         self.need_update_texture = True
 
     def resize_scene_texture(self, width, height):
@@ -51,4 +51,4 @@ class TemplateSceneView(object):
         rt.update()
         if self.camera:
             self.camera.aspect = rt.width / rt.height
-        self.scene_texture = rt.color_texture
+        #self.scene_texture = rt.color_texture

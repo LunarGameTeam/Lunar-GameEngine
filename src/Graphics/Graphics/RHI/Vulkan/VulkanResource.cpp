@@ -119,6 +119,7 @@ VulkanResource::VulkanResource(const RHIBufferDesc& desc) : RHIResource(desc)
 		throw std::runtime_error("failed to create Vulkan gpu buffer!");
 	}
 	SetInitialState(ResourceState::kCommon);
+	RefreshMemoryRequirements();
 }
 
 VulkanResource::VulkanResource(const SamplerDesc& desc)

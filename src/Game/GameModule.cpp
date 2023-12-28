@@ -69,6 +69,15 @@ void GameModule::Tick(float delta_time)
 	}
 }
 
+void GameModule::RenderTick(float deltaTime)
+{
+	for (auto& it : mScenes)
+	{
+		if (it)
+			it->RenderTick(deltaTime);
+	}
+}
+
 void GameModule::OnIMGUI()
 {
 }

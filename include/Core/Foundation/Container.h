@@ -191,6 +191,7 @@ public:
 		HoldIdItem* pointer = newValue.get();
 		pointer->mID = newIndex;
 		mItems.insert({ newIndex ,newValue });
+		return newValue.get();
 	};
 
 

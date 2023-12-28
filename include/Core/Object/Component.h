@@ -33,14 +33,14 @@ public:
 	virtual void OnCreate();
 	virtual void OnDestroy();
 	virtual void OnTick(float delta_time);
-
+	bool CheckIsRenderComponent();
 	void UpdateActiveState(bool val);
 protected:
 	Component();
 	bool mNeedTick = false;
 	Transform *mTransform = nullptr;
 	Entity *mOwnerEntity = nullptr;
-
+	bool mIsRenderComponent = false;
 private:
 	bool mOnCreateCalled = false;	
 	bool mActive = true;

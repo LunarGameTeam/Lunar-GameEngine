@@ -133,7 +133,7 @@ void MaterialBaseTemplateAsset::CompileShaderAndLayoutByType(
 	{
 		shaderPack.push_back(itor.second->GetRhiShader().get());
 	}
-	GenerateAndCompileShaderLayout(sRenderModule->GetRHIDevice(), shaderPack);
+	mLayout = GenerateAndCompileShaderLayout(sRenderModule->GetRHIDevice(), shaderPack);
 }
 
 LShaderInstance* MaterialBaseTemplateAsset::GetShaderByType(RHIShaderType type)

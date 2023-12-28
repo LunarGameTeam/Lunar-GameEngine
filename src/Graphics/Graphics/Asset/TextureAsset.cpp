@@ -147,7 +147,7 @@ void TextureCube::Init()
 		{
 			for (int16_t eachMipIndex = 0; eachMipIndex < mDesc.MipLevels; ++eachMipIndex)
 			{
-				const tinyddsloader::DDSFile::ImageData* curData = newfile.GetImageData(eachArrayIndex, eachMipIndex);
+				const tinyddsloader::DDSFile::ImageData* curData = newfile.GetImageData(eachMipIndex,eachArrayIndex);
 				allSize += curData->m_memSlicePitch;
 			}
 		}
@@ -157,7 +157,7 @@ void TextureCube::Init()
 		{
 			for (int16_t eachMipIndex = 0; eachMipIndex < mDesc.MipLevels; ++eachMipIndex)
 			{
-				const tinyddsloader::DDSFile::ImageData* curData = newfile.GetImageData(eachArrayIndex, eachMipIndex);
+				const tinyddsloader::DDSFile::ImageData* curData = newfile.GetImageData(eachMipIndex,eachArrayIndex);
 				memcpy(image_data.data() + copyOffset, curData->m_mem, curData->m_memSlicePitch);
 				copyOffset += curData->m_memSlicePitch;
 			}
@@ -184,7 +184,7 @@ void TextureCube::Init()
 
 void TextureCube::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> file)
 {
-	JsonAsset::OnAssetFileRead(meta, file);
+	Super::OnAssetFileRead(meta, file);
 	mDesc.Dimension = RHIResDimension::Texture2D;
 	mDesc.DepthOrArraySize = 6;
 	mDesc.mType = ResourceType::kTexture;

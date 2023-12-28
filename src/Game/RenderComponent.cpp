@@ -45,6 +45,11 @@ namespace luna::graphics
 
 	}
 
+	void RendererComponent::OnRenderTick(RenderScene* curScene)
+	{
+		mRenderDataUpdater->UpdateRenderThread(curScene);
+	}
+
 	void RendererComponent::OnTick(float delta_time)
 	{
 		GameRenderBridgeData* curRenderData = mRenderDataUpdater->GetGameThreadBridgeData();

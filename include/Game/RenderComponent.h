@@ -67,9 +67,13 @@ namespace luna::graphics
 
 	public:
 		void OnTick(float delta_time) override;
-
+		void OnRenderTick(RenderScene* curScene);
 		virtual ~RendererComponent();
-
+	protected:
+		RendererComponent()
+		{
+			mIsRenderComponent = true;
+		}
 	private:
 		virtual LSharedPtr<GameRenderDataUpdater> GenarateRenderUpdater() { assert(false); return nullptr; };
 

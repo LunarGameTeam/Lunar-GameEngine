@@ -16,7 +16,8 @@
 #define USE_SKIN_VERTEX 0
 #endif
 // Static Samplers
-ConstantBuffer<uint> mInstanceOffset : register(b0, MATERIAL_SPACE0);
+
+uint mInstanceOffset;
 
 struct BaseVertex
 {
