@@ -44,6 +44,8 @@ struct GameRenderBridgeDataCamera :public graphics::GameRenderBridgeData
 	//相机外参数
 	bool mExtrinsicsDirty = false;
 	CameraExtrinsicsParameter mExtrinsicsParameter;
+	//相机RT
+	graphics::RenderTarget* viewRt = nullptr;
 };
 
 class GameCameraRenderDataUpdater :public graphics::GameRenderDataUpdater
@@ -67,8 +69,9 @@ private:
 
 class GAME_API CameraComponent : public graphics::RendererComponent
 {
-	RegisterTypeEmbedd(CameraComponent, Component)
+	RegisterTypeEmbedd(CameraComponent, RendererComponent)
 public:
+	CameraComponent();
 	virtual ~CameraComponent();
 	void OnCreate() override;
 
@@ -115,7 +118,7 @@ private:
 	LVector3f mDirection = LVector3f(0, 0, 0);
 	float mSpeed = 0.0f;
 
-	graphics::RenderTarget* mTarget;
+	TPPtr<graphics::RenderTarget> mTarget;
 private:
 	bool mNeedUpdateIntrinsics = false;
 	bool mNeedUpdateExtrinsics = false;

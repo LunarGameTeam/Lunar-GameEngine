@@ -122,6 +122,9 @@ void TextureCube::Init()
 		case tinyddsloader::DDSFile::DXGIFormat::R8G8B8A8_UNorm:
 			mDesc.Format = RHITextureFormat::R8G8B8A8_UNORM;
 			break;
+		case tinyddsloader::DDSFile::DXGIFormat::B8G8R8A8_UNorm:
+			mDesc.Format = RHITextureFormat::FORMAT_B8G8R8A8_UNORM;
+			break;
 		case tinyddsloader::DDSFile::DXGIFormat::D24_UNorm_S8_UInt:
 			mDesc.Format = RHITextureFormat::D24_UNORM_S8_UINT;
 			break;

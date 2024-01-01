@@ -18,7 +18,8 @@ void GameCameraRenderDataUpdater::UpdateRenderThreadImpl(graphics::GameRenderBri
 		{
 			mRenderView = curScene->CreateRenderView();
 			mRenderView->mViewType = graphics::RenderViewType::SceneView;
-			graphics::RenderViewParameterData* viewParamData = curScene->RequireData<graphics::RenderViewParameterData>();
+			mRenderView->SetRenderTarget(realPointer->viewRt);
+			graphics::RenderViewParameterData* viewParamData = mRenderView->RequireData<graphics::RenderViewParameterData>();
 			viewParamData->Init();
 			mViewCbuffer = MakeShared<graphics::ShaderCBuffer>(viewParamData->GetParamDesc());
 		}
@@ -53,6 +54,7 @@ void GameCameraRenderDataUpdater::ClearData(graphics::GameRenderBridgeData* curD
 	GameRenderBridgeDataCamera* realPointer = static_cast<GameRenderBridgeDataCamera*>(curData);
 	realPointer->mIntrinsicsDirty = false;
 	realPointer->mExtrinsicsDirty = false;
+	realPointer->viewRt = nullptr;
 }
 
 RegisterTypeEmbedd_Imp(CameraSystem)
@@ -122,7 +124,11 @@ const LFrustum CameraComponent::GetFrustum() const
 	f.Multiple(mTransform->GetLocalToWorldMatrix());
 	return f;
 }
-
+CameraComponent::CameraComponent():mTarget(this)
+{
+	mTarget.SetPtr(NewObject<graphics::RenderTarget>());
+	mTarget->Ready();
+}
 LVector3f CameraComponent::GetPosition() const
 {
 	return mTransform->GetPosition();
@@ -158,7 +164,7 @@ graphics::RenderTarget* CameraComponent::GetRenderViewTarget()
 	//		return mRenderView->GetRenderTarget();
 	//	return sRenderModule->mMainRT.Get();
 	//}
-	return nullptr;
+	return mTarget.Get();
 }
 
 void CameraComponent::SetRenderViewTarget(graphics::RenderTarget* target)
@@ -181,6 +187,7 @@ void CameraComponent::OnTransformDirty(Transform* transform)
 }
 void CameraComponent::OnCreate()
 {
+	Super::OnCreate();
 	mNeedUpdateIntrinsics = true;
 	mNeedUpdateExtrinsics = true;
 	Transform* newTransform = GetEntity()->RequireComponent<Transform>();
@@ -223,6 +230,7 @@ void CameraComponent::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
 		realPointer->mIntrinsicsParameter.mNear = mNear;
 		realPointer->mIntrinsicsParameter.mRtHeight = mTarget->GetHeight();
 		realPointer->mIntrinsicsParameter.mRtWidth = mTarget->GetWidth();
+		realPointer->viewRt = mTarget.Get();
 	}
 
 	if (mNeedUpdateIntrinsics)

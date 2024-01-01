@@ -42,6 +42,7 @@ void GameModule::RemoveScene(Scene* new_scene)
 GameModule::GameModule():mScenes(this)
 {
 	sGameModule = this;
+	mNeedRenderTick = true;
 }
 
 bool GameModule::OnLoad()

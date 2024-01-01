@@ -909,6 +909,7 @@ inline void GetFormatInfo(
 	case RHITextureFormat::R8G8B8A8_UINT:
 	case RHITextureFormat::R8G8B8A8_UNORM_SRGB:
 	case RHITextureFormat::R8G8B8A8_UNORM:
+	case RHITextureFormat::FORMAT_B8G8R8A8_UNORM:
 	case RHITextureFormat::R8G8B8A8_SINT:
 	case RHITextureFormat::R8G8B8A8_SNORM:	
 	case RHITextureFormat::D24_UNORM_S8_UINT:

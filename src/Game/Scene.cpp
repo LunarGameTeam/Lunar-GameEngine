@@ -91,9 +91,10 @@ void Scene::Tick(float deltaTime)
 	{
 		for (auto& comp : entity->mComponents)
 		{
-			if (comp->mNeedTick)
+			Component* compPointer = comp.Get();
+			if (compPointer->mNeedTick)
 			{
-				comp->OnTick(deltaTime);
+				compPointer->OnTick(deltaTime);
 			}
 		}
 	}
@@ -132,11 +133,12 @@ void Scene::OnLoad()
 
 	for (auto& entity : mEntites)
 	{
-		entity->SetParent(this);		
-		for (auto& comp : entity->mComponents)
+		entity->SetParent(this);
+		Entity* entityPointer = entity.Get();
+		for (auto& comp : entityPointer->mComponents)
 		{
-			comp->mOwnerEntity = entity.Get();
-			comp->SetParent(entity.Get());
+			comp->mOwnerEntity = entityPointer;
+			comp->SetParent(entityPointer);
 			if(comp->mOnCreateCalled == false)
 			{
 				comp->mOnCreateCalled = true;

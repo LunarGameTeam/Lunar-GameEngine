@@ -27,7 +27,7 @@ RenderSceneStagingMemory::RenderSceneStagingMemory(size_t perStageSize) : mPerSt
 RHIView* RenderSceneStagingMemory::AllocStructStageBuffer(size_t curBufferSize, RHIViewType useType, size_t strideSize)
 {
 	//目前不考虑多线程访问的问题，默认render只有一个线程
-	if (mPoolUsedSize < mStageBufferPool.size())
+	if (mPoolUsedSize <= mStageBufferPool.size())
 	{
 		RHIBufferDesc newBufferDesc;
 		newBufferDesc.mBufferUsage = RHIBufferUsage::TransferSrcBit | RHIBufferUsage::StructureBuffer;
@@ -42,8 +42,6 @@ RHIView* RenderSceneStagingMemory::AllocStructStageBuffer(size_t curBufferSize, 
 		RHIViewPtr newBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
 		mStageBufferViewPool.push_back(newBufferView);
 		newBufferView->BindResource(newBuffer);
-
-		mStageBufferViewPool;
 	}
 	RHIResource* curResourceItm = nullptr;
 	curResourceItm = mStageBufferPool[mPoolUsedSize].get();
@@ -201,7 +199,9 @@ void RenderScene::GetRenderObjects(LArray<RenderObject*>& valueOut) const
 
 RenderView* RenderScene::CreateRenderView()
 {
-	return mViews.AddNewValue();
+	RenderView* curView = mViews.AddNewValue();
+	curView->mOwnerScene = this;
+	return curView;
 }
 
 void RenderScene::GetAllView(LArray<RenderView*>& valueOut) const

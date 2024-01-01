@@ -1,6 +1,6 @@
-StructuredBuffer<float4x4> RoWorldMatrixUploadBuffer : register(t0, VIEW_SPACE0);
-StructuredBuffer<uint> RoWorldMatrixIndexBuffer : register(t1, VIEW_SPACE0);
-RWStructuredBuffer<float4> RoWorldMatrixDataBuffer : register(t2, VIEW_SPACE0);
+StructuredBuffer<float4x4> RoWorldMatrixUploadBuffer : register(t0, space0);
+StructuredBuffer<uint> RoWorldMatrixIndexBuffer : register(t1, space0);
+RWStructuredBuffer<float4x4> RoWorldMatrixDataBuffer : register(u0, space0);
 
 [numthreads(64, 1, 1)]
 void CSMain(uint threadIndex : SV_DispatchThreadID)

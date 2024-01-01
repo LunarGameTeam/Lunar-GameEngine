@@ -91,9 +91,9 @@ void SceneRenderData::SetMaterialParameter(MaterialInstanceBase* matInstance)
 
 SceneRenderData::SceneRenderData()
 {
-	mEnvTex = LSharedPtr<TextureCube>(sAssetModule->LoadAsset<TextureCube>("/assets/built-in/Textures/Cubemap.dds"));
-	mIrradianceTex = LSharedPtr<TextureCube>(sAssetModule->LoadAsset<TextureCube>("/assets/built-in/Textures/IrradianceMap.dds"));
-	mLUTTex = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/brdf.dds"));
+	mEnvTex = LSharedPtr<TextureCube>(sAssetModule->LoadAsset<TextureCube>(LPath("/assets/built-in/Skybox/Cubemap.dds")));
+	mIrradianceTex = LSharedPtr<TextureCube>(sAssetModule->LoadAsset<TextureCube>(LPath("/assets/built-in/Skybox/IrradianceMap.dds")));
+	mLUTTex = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>(LPath("/assets/built-in/Skybox/brdf.dds")));
 }
 
 

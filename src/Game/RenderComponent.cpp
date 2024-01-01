@@ -23,14 +23,14 @@ namespace luna::graphics
 
 	void GameRenderDataUpdater::OnGameDataRecordFinish()
 	{
-		mGameLocation += 1;
+		mGameLocation = (mGameLocation + 1) % 3;
 	}
 
 	void GameRenderDataUpdater::UpdateRenderThread(RenderScene* curScene)
 	{
 		UpdateRenderThreadImpl(mRenderBridgeData[mRenderLocation].get(), curScene);
 		ClearData(mRenderBridgeData[mRenderLocation].get());
-		mRenderLocation += 1;
+		mRenderLocation = (mRenderLocation + 1) % 3;
 	}
 
 	RegisterTypeEmbedd_Imp(RendererComponent)
@@ -40,9 +40,22 @@ namespace luna::graphics
 		BindingModule::Get("luna")->AddType(cls);
 	}
 
+	RendererComponent::RendererComponent()
+	{
+		mIsRenderComponent = true;
+		mNeedTick = true;
+	}
+
 	RendererComponent::~RendererComponent()
 	{
 
+	}
+
+	void RendererComponent::OnCreate()
+	{
+		Component::OnCreate();
+		mRenderDataUpdater = GenarateRenderUpdater();
+		mRenderDataUpdater->Create();
 	}
 
 	void RendererComponent::OnRenderTick(RenderScene* curScene)

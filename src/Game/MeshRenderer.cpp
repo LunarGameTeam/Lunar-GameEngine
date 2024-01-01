@@ -145,6 +145,8 @@ void StaticMeshRenderer::OnActivate()
 void StaticMeshRenderer::SetMeshAsset(MeshAsset* obj)
 {
 	mMeshDirty = true;
+	mMeshAsset = ToSharedPtr(obj);
+	//mMeshAsset = obj;
 }
 
 StaticMeshRenderer::~StaticMeshRenderer()
@@ -266,6 +268,25 @@ void SkeletonMeshRenderer::SetSkelAnimationAsset(animation::AnimationClipAsset* 
 		animation::AnimationModule* animModule = gEngine->GetTModule<animation::AnimationModule>();
 		mAnimationInstance = animModule->CreateAnimationInstanceClip(mSkelAnimAsset.get(), mSkeletonAsset.get());
 	}
+}
+
+void SkeletonMeshRenderer::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
+{
+	StaticMeshRenderer::OnTickImpl(curRenderData);
+	GameRenderBridgeDataSkeletalMesh* realPointer = static_cast<GameRenderBridgeDataSkeletalMesh*>(curRenderData);
+	if (mSkinDirty)
+	{
+		LString skeletonUniqueName = mSkeletonAsset->GetAssetPath();
+		realPointer->mSkeletonUniqueName = skeletonUniqueName;
+		LArray<LMatrix4f> allBoneMatrix;
+		realPointer->mBindCluster.resize(mMeshAsset->mSubMesh.size());
+		for (int32_t subIndex = 0; subIndex < mMeshAsset->mSubMesh.size(); ++subIndex)
+		{
+			realPointer->mBindCluster[subIndex].mSkeletonId = mSkeletonAsset->GetSearchIndex();
+		}
+		mSkinDirty = false;
+	}
+
 }
 
 }

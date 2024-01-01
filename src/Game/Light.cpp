@@ -106,7 +106,7 @@ namespace luna
 
 	void LightComponent::OnCreate()
 	{
-		Component::OnCreate();
+		Super::OnCreate();
 
 	}
 

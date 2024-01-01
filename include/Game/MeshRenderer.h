@@ -167,22 +167,4 @@ private:
 	void OnTickImpl(graphics::GameRenderBridgeData* curRenderData) override;
 };
 
-void SkeletonMeshRenderer::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
-{
-	StaticMeshRenderer::OnTickImpl(curRenderData);
-	GameRenderBridgeDataSkeletalMesh* realPointer = static_cast<GameRenderBridgeDataSkeletalMesh*>(curRenderData);
-	if (mSkinDirty)
-	{
-		LString skeletonUniqueName = mSkeletonAsset->GetAssetPath();
-		realPointer->mSkeletonUniqueName = skeletonUniqueName;
-		LArray<LMatrix4f> allBoneMatrix;
-		for (int32_t subIndex = 0; subIndex < mMeshAsset->mSubMesh.size(); ++subIndex)
-		{
-			realPointer->mBindCluster[subIndex].mSkeletonId = mSkeletonAsset->GetSearchIndex();
-		}
-		mSkinDirty = false;
-	}
-
-}
-
 }
