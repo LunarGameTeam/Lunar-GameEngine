@@ -15,6 +15,7 @@ namespace luna::graphics
 		newDesc.ResHeapType = RHIHeapType::Default;
 		newDesc.mUseVma = false;
 		newDesc.Dimension = RHIResDimension::Texture2D;
+		newDesc.mType = ResourceType::kTexture;
 		newDesc.Width = width;
 		newDesc.Height = height;
 		newDesc.Format = format;

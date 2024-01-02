@@ -82,8 +82,7 @@ class GAME_API StaticMeshRenderer : public RendererComponent
 {
 	RegisterTypeEmbedd(StaticMeshRenderer, RendererComponent)
 public:
-	StaticMeshRenderer() :
-		mMaterialAsset(this)
+	StaticMeshRenderer()
 	{
 
 	}
@@ -119,7 +118,7 @@ protected:
 
 	SharedPtr<MeshAsset>              mMeshAsset;
 
-	TPPtrArray<MaterialTemplateAsset> mMaterialAsset;
+	SharedPtr<MaterialTemplateAsset>  mMaterialAsset = nullptr;
 
 	void                              OnTransformDirty(Transform* transform);
 	//renderœ‡πÿ

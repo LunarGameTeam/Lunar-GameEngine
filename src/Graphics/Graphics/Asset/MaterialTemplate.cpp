@@ -115,7 +115,7 @@ void MaterialBaseTemplateAsset::CompileShaderByType(
 )
 {
 	SharedPtr<LShaderInstance> mShaderInstance = curShader->GenerateShaderInstance(shaderType, shaderMacros);
-	mShaderInstances.insert({ RHIShaderType::Compute ,mShaderInstance});
+	mShaderInstances.insert({ shaderType ,mShaderInstance});
 }
 
 void MaterialBaseTemplateAsset::CompileShaderAndLayoutByType(
@@ -242,6 +242,12 @@ void MaterialGraphAsset::CompileShaderAsset(ShaderAsset* curShader, const LArray
 }
 
 //±ê×¼²ÄÖÊ
+
+MaterialTemplateAsset::MaterialTemplateAsset():mTemplateParams(this)
+{
+
+}
+
 TPPtrArray<MaterialParam>& MaterialTemplateAsset::GetTemplateParams()
 { 
 	return mTemplateParams;

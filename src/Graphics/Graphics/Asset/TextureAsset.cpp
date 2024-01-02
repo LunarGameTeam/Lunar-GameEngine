@@ -44,6 +44,7 @@ void Texture2D::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> fil
 	auto dds_type_test = file->GetPath().Find(".dds");
 	if (dds_type_test != std::string::npos)
 	{
+
 		mData = new byte[file->GetData().size()];
 		memcpy(const_cast<byte*>(mData), file->GetData().data(),
 		       file->GetData().size() * sizeof(file->GetData()[0]));
@@ -85,8 +86,51 @@ void Texture2D::Init()
 {
 	if (mRHIRes)
 		return;	
+	switch (mDataType)
+	{
+	case TextureMemoryType::DDS:
+	{
+		tinyddsloader::DDSFile newfile;
+		newfile.Load(mData, mDataSize);
+		switch (newfile.GetFormat())
+		{
+		case tinyddsloader::DDSFile::DXGIFormat::R8G8B8A8_UNorm:
+			mDesc.Format = RHITextureFormat::R8G8B8A8_UNORM;
+			break;
+		case tinyddsloader::DDSFile::DXGIFormat::B8G8R8A8_UNorm:
+			mDesc.Format = RHITextureFormat::FORMAT_B8G8R8A8_UNORM;
+			break;
+		case tinyddsloader::DDSFile::DXGIFormat::D24_UNorm_S8_UInt:
+			mDesc.Format = RHITextureFormat::D24_UNORM_S8_UINT;
+			break;
+		case tinyddsloader::DDSFile::DXGIFormat::R16G16B16A16_Float:
+			mDesc.Format = RHITextureFormat::R16G16B16A16_FLOAT;
+			break;
+		case tinyddsloader::DDSFile::DXGIFormat::R16G16B16A16_UNorm:
+			mDesc.Format = RHITextureFormat::R16G16B16A16_UNORM;
+			break;
+		case tinyddsloader::DDSFile::DXGIFormat::R8G8B8A8_UNorm_SRGB:
+			mDesc.Format = RHITextureFormat::R8G8B8A8_UNORM_SRGB;
+			break;
+		default:
+			mDesc.Format = RHITextureFormat::FORMAT_UNKNOWN;
+			assert(0);
+			break;
+		}
+		mDesc.Width = newfile.GetWidth();
+		mDesc.Height = newfile.GetHeight();
+		mDesc.MipLevels = newfile.GetMipCount();
+		
+		const tinyddsloader::DDSFile::ImageData* curData = newfile.GetImageData(0, 0);
+		mRHIRes = sRenderModule->mRenderContext->CreateTexture(mDesc, (byte*)curData->m_mem, curData->m_memSlicePitch);
+	}
+	case TextureMemoryType::WIC:
+	{
+		mRHIRes = sRenderModule->mRenderContext->CreateTexture(mDesc, (byte*)mData, mDataSize);
+	}
+	}
 	mDesc.mImageUsage = RHIImageUsage::SampledBit;
-	mRHIRes = sRenderModule->mRenderContext->CreateTexture(mDesc, (byte*)mData, mDataSize);
+	
 
 	ViewDesc viewDesc;
 	viewDesc.mViewType = RHIViewType::kTexture;

@@ -99,6 +99,7 @@ void FrameGraphBuilder::Flush()
 				{
 					FGTexture* virtualRes = static_cast<FGTexture*>(view->mVirtualRes);
 					RHIResourcePtr rhiRes = renderDevice->FGCreateTexture(virtualRes->GetDesc());
+					mPhysicResourceMap.insert({ virtualRes->mUniqueId,rhiRes });
 					virtualRes->BindExternalResource(rhiRes);
 				}
 				else
@@ -219,7 +220,7 @@ size_t FrameGraphBuilder::GenerateVirtualResourceId()
 		mUnusedVirtualResourceId.erase(curIndex);
 		return curIndex;
 	}
-	curIndex = mMaxVirtualResourceId;
+	curIndex = mMaxVirtualResourceId++;
 	return curIndex;
 }
 

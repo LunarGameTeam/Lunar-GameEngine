@@ -30,7 +30,7 @@ public:
 	FGResource() = delete;
 
 	FGResource(size_t uniqueId,const LString& name, RHIResDesc desc, FrameGraphBuilder* builder) :
-		mUniqueId(mUniqueId),
+		mUniqueId(uniqueId),
 		mName(name),
 		mDesc(desc),
 		mBuilder(builder),

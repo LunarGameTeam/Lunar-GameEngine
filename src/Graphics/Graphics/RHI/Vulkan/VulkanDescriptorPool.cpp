@@ -15,7 +15,8 @@ RENDER_API VKDescriptorSetSegment* AllocateDescriptorSet(RHIDescriptorPool* pool
 	alloc_info.descriptorPool = res->pool;		
 	alloc_info.descriptorSetCount = 1;
 	alloc_info.pSetLayouts = &set_layout;
-	VULKAN_ASSERT(device.allocateDescriptorSets(&alloc_info, &res->set));
+	auto result = device.allocateDescriptorSets(&alloc_info, &res->set);
+	VULKAN_ASSERT(result);
 	return res;
 
 }

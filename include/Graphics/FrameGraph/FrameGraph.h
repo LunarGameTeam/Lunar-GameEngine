@@ -47,7 +47,7 @@ private:
 
 
 	std::unordered_set<size_t> mUnusedVirtualResourceId;
-	size_t mMaxVirtualResourceId;
+	size_t mMaxVirtualResourceId = 0;
 
 
 	//frame graph fence

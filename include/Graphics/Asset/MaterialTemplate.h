@@ -135,6 +135,8 @@ class RENDER_API MaterialTemplateAsset : public MaterialGraphAsset
 {
 	RegisterTypeEmbedd(MaterialTemplateAsset, MaterialGraphAsset)
 public:
+	MaterialTemplateAsset();
+
 	TPPtrArray<MaterialParam>& GetTemplateParams();
 
 	MaterialInstanceBase* CreateInstance() override;

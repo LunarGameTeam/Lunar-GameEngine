@@ -156,16 +156,16 @@ StaticMeshRenderer::~StaticMeshRenderer()
 
 void StaticMeshRenderer::SetMaterialAsset(int32_t matIndex, const LString& assetPath)
 {
-	mMaterialDirty = true;
-	luna::LType* createType = LType::Get<MaterialTemplateAsset>();
-	mMaterialAsset.GetPtr(matIndex) = (MaterialTemplateAsset*)sAssetModule->NewAsset(assetPath, createType);
-	mAllDirtyMaterial.push_back(matIndex);
+	//mMaterialDirty = true;
+	//luna::LType* createType = LType::Get<MaterialTemplateAsset>();
+	//mMaterialAsset.GetPtr(matIndex) = (MaterialTemplateAsset*)sAssetModule->NewAsset(assetPath, createType);
+	//mAllDirtyMaterial.push_back(matIndex);
 }
 
 void StaticMeshRenderer::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
 {
 	GameRenderBridgeDataStaticMesh* realPointer = static_cast<GameRenderBridgeDataStaticMesh*>(curRenderData);
-	if (mMeshDirty && mMeshAsset != nullptr && mMaterialAsset.Size() != 0)
+	if (mMeshDirty && mMeshAsset != nullptr && mMaterialAsset != nullptr)
 	{
 		//模型需要初始化
 		realPointer->mNeedIniteMesh = true;
@@ -174,7 +174,7 @@ void StaticMeshRenderer::OnTickImpl(graphics::GameRenderBridgeData* curRenderDat
 		{
 			realPointer->mInitSubmesh.push_back(mMeshAsset->mSubMesh[subIndex]);
 			realPointer->mMaterialInitIndex.push_back(subIndex);
-			realPointer->mInitMaterial.push_back(mMaterialAsset[subIndex]);
+			realPointer->mInitMaterial.push_back(mMaterialAsset.get());
 		}
 		mMeshDirty = false;
 		mMaterialDirty = false;
@@ -187,7 +187,7 @@ void StaticMeshRenderer::OnTickImpl(graphics::GameRenderBridgeData* curRenderDat
 		{
 			size_t materialIndex = mAllDirtyMaterial[refreshIndex];
 			realPointer->mMaterialInitIndex.push_back(materialIndex);
-			realPointer->mInitMaterial.push_back(mMaterialAsset[materialIndex]);
+			realPointer->mInitMaterial.push_back(mMaterialAsset.get());
 		}
 		mMaterialDirty = false;
 	}
