@@ -44,7 +44,7 @@ void OpaquePassGenerator::AddPassNode(FrameGraphBuilder* builder, RenderView* vi
 	}
 	//绑定rt输出
 	ViewTargetData* viewRtData = view->RequireData<ViewTargetData>();
-	viewRtData->GenerateOpaqueResultRenderTarget(builder, node);
+	viewRtData->GenerateOpaqueResultRenderTarget(builder, node,true);
 
 	node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
 		{

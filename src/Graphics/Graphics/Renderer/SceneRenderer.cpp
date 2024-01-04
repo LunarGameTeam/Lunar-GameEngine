@@ -48,12 +48,6 @@ namespace luna::graphics
 				data.second->PerViewUpdate(curView);
 			}
 		}
-		//		PBRPreparePass(FG, this, scene);
-		//		DirectionalLightShadowPass(FG, this, scene);
-		//		PointShadowPass(FG, this, scene);
-		//		OpaquePass(FG, this, scene);
-		//		PostProcessPass(FG, this, scene);
-		//		OverlayPass(FG, this, scene);
 	}
 
 	void SceneRenderer::GeneratePassByView(RenderScene* renderScene,RenderView* curView)
@@ -66,7 +60,6 @@ namespace luna::graphics
 	{
 		renderScene->GetAllView(mAllViews);
 		mFrameGraphBuilder.Clear();
-		PrepareSceneRender(renderScene);
 		for (RenderView* curView : mAllViews)
 		{
 			GeneratePassByView(renderScene,curView);

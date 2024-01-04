@@ -4,7 +4,7 @@
 #include "Core/Asset/AssetModule.h"
 namespace  luna::graphics
 {
-void ViewTargetData::GenerateViewTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node,LSharedPtr<FGTexture>& colorRt, LSharedPtr<FGTexture>& depthRt)
+void ViewTargetData::GenerateViewTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node,LSharedPtr<FGTexture>& colorRt, LSharedPtr<FGTexture>& depthRt,bool clearDepth)
 {
 	RenderView* curView = static_cast<RenderView*>(mContainter);
 	if (colorRt == nullptr)
@@ -27,12 +27,19 @@ void ViewTargetData::GenerateViewTarget(FrameGraphBuilder* builder, FGGraphDrawN
 	FGResourceView* colorView = node->AddRTV(colorRt.get(), RHIViewDimension::TextureView2D);
 	FGResourceView* depthView = node->AddDSV(depthRt.get());
 	node->SetColorAttachment(colorView, LoadOp::kClear);
-	node->SetDepthStencilAttachment(depthView);
+	if (clearDepth)
+	{
+		node->SetDepthStencilAttachment(depthView, LoadOp::kClear);
+	}
+	else
+	{
+		node->SetDepthStencilAttachment(depthView);
+	}
 }
 
-void ViewTargetData::GenerateOpaqueResultRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node)
+void ViewTargetData::GenerateOpaqueResultRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node, bool clearDepth)
 {
-	GenerateViewTarget(builder,node,mOpaqueResultRenderTarget, mOpaqueResultDepthStencil);
+	GenerateViewTarget(builder,node,mOpaqueResultRenderTarget, mOpaqueResultDepthStencil, clearDepth);
 	RenderView* curView = static_cast<RenderView*>(mContainter);
 	RHIResource* colorTexture = curView->GetRenderTarget()->mColorTexture.get();
 	RHIResource* depthTexture = curView->GetRenderTarget()->mDepthTexture.get();

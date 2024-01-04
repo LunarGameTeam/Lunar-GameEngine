@@ -26,7 +26,6 @@ void JsonAsset::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> fil
 	JsonDict dict(val);
 	JsonSerializer serializer(dict);
 	DeSerialize(serializer);
-	OnLoad();
 }
 
 void JsonAsset::OnAssetFileWrite(LSharedPtr<JsonDict> meta, LArray<byte>& data)

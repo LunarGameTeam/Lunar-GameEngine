@@ -231,14 +231,16 @@ void CameraComponent::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
 		realPointer->mIntrinsicsParameter.mRtHeight = mTarget->GetHeight();
 		realPointer->mIntrinsicsParameter.mRtWidth = mTarget->GetWidth();
 		realPointer->viewRt = mTarget.Get();
+		mNeedUpdateIntrinsics = false;
 	}
 
-	if (mNeedUpdateIntrinsics)
+	if (mNeedUpdateExtrinsics)
 	{
 		realPointer->mExtrinsicsDirty = true;
 		auto pos = mTransform->GetPosition();
 		realPointer->mExtrinsicsParameter.mPosition = pos;
 		realPointer->mExtrinsicsParameter.mViewMatrix = GetViewMatrix();
+		mNeedUpdateExtrinsics = false;
 	}
 }
 

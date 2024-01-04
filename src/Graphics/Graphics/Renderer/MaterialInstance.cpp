@@ -151,7 +151,18 @@ ShaderAsset* MaterialInstanceBase::GetShaderAsset()
 void MaterialInstanceBase::BindToPipeline(RHICmdList* cmdList)
 {
 	int32_t lastFramIndex = (mFramIndex + 1) % 2;
-	cmdList->BindDesriptorSetExt(mBindingSets[lastFramIndex].get());
+	switch (mPipelineType)
+	{
+	case luna::graphics::MaterialPipelineType::Compute:
+		cmdList->BindDesriptorSetExt(mBindingSets[lastFramIndex].get(), RHICmdListType::Compute);
+		break;
+	case luna::graphics::MaterialPipelineType::GraphDraw:
+		cmdList->BindDesriptorSetExt(mBindingSets[lastFramIndex].get(), RHICmdListType::Graphic3D);
+		break;
+	default:
+		assert(false);
+		break;
+	}
 }
 
 void MaterialInstanceBase::UpdateBindingSet()
@@ -239,6 +250,25 @@ MaterialInstanceComputeBase::~MaterialInstanceComputeBase()
 
 };
 
+void MaterialInstanceComputeBase::SetAsset(MaterialBaseTemplateAsset* asset)
+{
+	mAsset = asset;
+	RHIPipelineStateComputeDesc desc = {};
+	for (auto& itor : mAsset->GetAllShader())
+	{
+		desc.mShaders.insert({ itor.first,itor.second->GetRhiShader().get() });
+	}
+	mPipeline = sRenderModule->mRenderContext->CreatePipelineCompute(desc);
+	mBindingSets.clear();
+	mBindingDirty.clear();
+	for (int32_t frameId = 0; frameId < 2; ++frameId)
+	{
+		RHIBindingSetPtr newBindingSet = sRenderModule->GetRenderContext()->CreateBindingset(mPipeline->GetLayout());
+		mBindingSets.push_back(newBindingSet);
+		mBindingDirty.push_back(true);
+	}
+}
+
 RHIShaderBlob* MaterialInstanceComputeBase::GetShaderCS()
 {
 	return mAsset->GetShaderByType(RHIShaderType::Compute)->GetRhiShader().get();
@@ -246,12 +276,7 @@ RHIShaderBlob* MaterialInstanceComputeBase::GetShaderCS()
 
 RHIPipelineState* MaterialInstanceComputeBase::GetPipeline()
 {
-	RHIPipelineStateComputeDesc desc = {};
-	for (auto& itor : mAsset->GetAllShader())
-	{
-		desc.mShaders.insert({ itor.first,itor.second->GetRhiShader().get() });
-	}
-	return sRenderModule->mRenderContext->CreatePipelineCompute(desc);
+	return mPipeline.get();
 }
 
 

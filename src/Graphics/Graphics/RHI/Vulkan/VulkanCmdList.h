@@ -114,7 +114,7 @@ public:
 	void ResetAndPrepare() override;
 	void CloseCommondList() override;
 
-	void BindDesriptorSetExt(RHIBindingSet* bindingSet) override;
+	void BindDesriptorSetExt(RHIBindingSet* bindingSet, RHICmdListType pipelineType) override;
 
 	void PushInt32Constant(int32_t value, int32_t slot, RHIBindingSetLayout* layout) override;
 

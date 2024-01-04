@@ -606,7 +606,7 @@ void DX12GraphicCmdList::PushInt32Constant(int32_t value, int32_t slot, RHIBindi
 	mDxCmdList->SetGraphicsRoot32BitConstants(0,1,&value, slot);
 }
 
-void DX12GraphicCmdList::BindDesriptorSetExt(RHIBindingSet* bindingSet)
+void DX12GraphicCmdList::BindDesriptorSetExt(RHIBindingSet* bindingSet, RHICmdListType pipelineType)
 {
 	DX12BindingSet* dx12BindingSet = bindingSet->As<DX12BindingSet>();
 	for (auto& it : dx12BindingSet->m_layout->GetLayout())
@@ -616,13 +616,36 @@ void DX12GraphicCmdList::BindDesriptorSetExt(RHIBindingSet* bindingSet)
 		{
 			D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle;
 			gpuHandle.ptr = descriptor_set.mDescriptorLists[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV].mGPUHandle.ptr;
-			mDxCmdList->SetGraphicsRootDescriptorTable(it.second.root_table_indedx_input, gpuHandle);
+			switch (pipelineType)
+			{
+			case luna::graphics::RHICmdListType::Graphic3D:
+				mDxCmdList->SetGraphicsRootDescriptorTable(it.second.root_table_indedx_input, gpuHandle);
+				break;
+			case luna::graphics::RHICmdListType::Compute:
+				mDxCmdList->SetComputeRootDescriptorTable(it.second.root_table_indedx_input, gpuHandle);
+				break;
+			default:
+				assert(false);
+				break;
+			}
 		}
 		if (it.second.each_range_sampler.size() > 0)
 		{
 			D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle;
 			gpuHandle.ptr = descriptor_set.mDescriptorLists[D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER].mGPUHandle.ptr;
-			mDxCmdList->SetGraphicsRootDescriptorTable(it.second.root_table_indedx_sampler, gpuHandle);
+			switch (pipelineType)
+			{
+			case luna::graphics::RHICmdListType::Graphic3D:
+				mDxCmdList->SetGraphicsRootDescriptorTable(it.second.root_table_indedx_sampler, gpuHandle);
+				break;
+			case luna::graphics::RHICmdListType::Compute:
+				mDxCmdList->SetComputeRootDescriptorTable(it.second.root_table_indedx_sampler, gpuHandle);
+				break;
+			default:
+				assert(false);
+				break;
+			}
+			
 		}
 	}
 }

@@ -39,7 +39,7 @@ public:
 	ID3D12CommandAllocator* mDxCmdAllocator;
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList1> mDxCmdList;
 
-	void BindDesriptorSetExt(RHIBindingSet* bindingSet) override;
+	void BindDesriptorSetExt(RHIBindingSet* bindingSet, RHICmdListType pipelineType) override;
 
 	void PushInt32Constant(int32_t value, int32_t slot, RHIBindingSetLayout* layout) override;
 

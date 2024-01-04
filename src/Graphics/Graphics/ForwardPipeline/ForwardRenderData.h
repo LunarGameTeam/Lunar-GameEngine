@@ -26,13 +26,13 @@ struct ViewTargetData : public RenderData
 
 	LSharedPtr<FGTexture> mScreenDepthStencil = nullptr;
 public:
-	void GenerateOpaqueResultRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node);
+	void GenerateOpaqueResultRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node, bool clearDepth = false);
 
 	void GeneratePostProcessResultRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node);
 
 	void GenerateScreenRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node);
 private:
-	void GenerateViewTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node, LSharedPtr<FGTexture>& colorRt, LSharedPtr<FGTexture>& depthRt);
+	void GenerateViewTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node, LSharedPtr<FGTexture>& colorRt, LSharedPtr<FGTexture>& depthRt, bool clearDepth = false);
 };
 
 struct ShadowViewTargetData : public RenderData

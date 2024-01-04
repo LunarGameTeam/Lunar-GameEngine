@@ -480,15 +480,28 @@ void VulkanGraphicCmdList::ResetAndPrepare()
 	mClosed = false;
 }
 
-void VulkanGraphicCmdList::BindDesriptorSetExt(RHIBindingSet* bindingSet)
+void VulkanGraphicCmdList::BindDesriptorSetExt(RHIBindingSet* bindingSet, RHICmdListType pipelineType)
 {
 	if (bindingSet)
 	{
 		VulkanBindingSet* vkBindingSet = bindingSet->As<VulkanBindingSet>();
 		VulkanBindingSetLayout* vkBindingSetLayout = vkBindingSet->mLayout->As<VulkanBindingSetLayout>();
-
+		vk::PipelineBindPoint bindPointType = vk::PipelineBindPoint::eGraphics;
+		switch (pipelineType)
+		{
+		case luna::graphics::RHICmdListType::Graphic3D:
+			bindPointType = vk::PipelineBindPoint::eGraphics;
+			break;
+		case luna::graphics::RHICmdListType::Compute:
+			bindPointType = vk::PipelineBindPoint::eCompute;
+			break;
+		default:
+			assert(false);
+			break;
+		}
+		
 		mCommandBuffer.bindDescriptorSets(
-			vk::PipelineBindPoint::eGraphics,
+			bindPointType,
 			vkBindingSetLayout->mPipelineLayout,
 			0,
 			(uint32_t)vkBindingSet->mDescriptors.size(),

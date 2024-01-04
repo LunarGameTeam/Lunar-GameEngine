@@ -348,6 +348,16 @@ void RenderModule::RenderTick(float delta_time)
 	mRenderContext->mTransferCmd->GetCmdList()->BeginEvent("Frame Graph Prepare");
 	for (RenderScene* it : mRenderScenes)
 	{
+		mRenderer->PrepareSceneRender(it);
+		RenderContext* renderDevice = sRenderModule->GetRenderContext();
+		RHISinglePoolSingleCmdList* cmdlist = renderDevice->mGraphicCmd.get();
+		cmdlist->Reset();
+		cmdlist->GetCmdList()->BeginEvent("RenderSceneDataUpdateCommand");
+		cmdlist->GetCmdList()->BindDescriptorHeap();
+		it->ExcuteCopy();
+		cmdlist->GetCmdList()->EndEvent();
+		cmdlist->GetCmdList()->CloseCommondList();
+		renderDevice->mGraphicQueue->ExecuteCommandLists(cmdlist->GetCmdList());
 		mRenderer->Render(it);
 	}
 	mRenderContext->mTransferCmd->GetCmdList()->EndEvent();

@@ -53,6 +53,7 @@ void VulkanView::BindResource(RHIResource* res)
 		break;
 	}
 	case RHIViewType::kStructuredBuffer:
+	case RHIViewType::kRWStructuredBuffer:
 	{
 		mDescriptorBuffer.buffer = mRes->mBuffer;
 		mDescriptorBuffer.offset = mViewDesc.mOffset;

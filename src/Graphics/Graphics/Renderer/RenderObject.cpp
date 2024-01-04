@@ -23,7 +23,7 @@ namespace luna::graphics
 		mRoMessagePtr = sRenderModule->GetRenderContext()->CreateBuffer(RHIHeapType::Default, desc);
 
 		ViewDesc viewDesc;
-		viewDesc.mViewType = RHIViewType::kStructuredBuffer;
+		viewDesc.mViewType = RHIViewType::kRWStructuredBuffer;
 		viewDesc.mViewDimension = RHIViewDimension::BufferView;
 		viewDesc.mStructureStride = sizeof(LMatrix4f);
 		mRoMessageView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
@@ -73,7 +73,8 @@ namespace luna::graphics
 		computeCommand->mStorageBufferInput.insert({ ParamID_RoWorldMatrixIndexBuffer, RoIndexBuffer });
 		computeCommand->mStorageBufferOutput.insert({ ParamID_RoWorldMatrixDataBuffer,mRoMessageView.get() });
 		computeCommand->mComputeMaterial = mMaterialInstance.get();
-		dirtyRo.clear();
+		//临时代码，用于debug
+		//dirtyRo.clear();
 	}
 
 	void RenderObjectDrawData::GenerateRoMatrixBuffer(void* pointer)

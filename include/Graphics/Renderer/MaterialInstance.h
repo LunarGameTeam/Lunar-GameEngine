@@ -150,7 +150,7 @@ public:
 
 	void UpdateBindingSet();
 
-	void SetAsset(MaterialBaseTemplateAsset* asset);
+	virtual void SetAsset(MaterialBaseTemplateAsset* asset);
 
 	MaterialBaseTemplateAsset* GetAsset() { return mAsset; };
 protected:
@@ -184,6 +184,10 @@ public:
 	RHIShaderBlob* GetShaderCS();
 
 	RHIPipelineState* GetPipeline();
+
+	void SetAsset(MaterialBaseTemplateAsset* asset) override;
+private:
+	RHIPipelineStatePtr mPipeline;
 };
 
 class RENDER_API MaterialInstanceGraphBase : public MaterialInstanceBase

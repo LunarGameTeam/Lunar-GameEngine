@@ -59,6 +59,8 @@ namespace luna::graphics
 			dstBarrier.mBarrierRes = dstResource;
 			dstBarrier.mStateBefore = dstResource->GetInitialState();
 			dstBarrier.mStateAfter = kCopyDest;
+			dstBarrier.mMipLevels = dstResource->GetDesc().MipLevels;
+			dstBarrier.mDepth = dstResource->GetDesc().DepthOrArraySize;
 			curCmdList->ResourceBarrierExt(dstBarrier);
 		}
 		copyCommand(curCmdList, srcBuffer);
@@ -66,6 +68,8 @@ namespace luna::graphics
 		undoBarrier.mBarrierRes = dstResource;
 		undoBarrier.mStateBefore = kCopyDest;
 		undoBarrier.mStateAfter = kCommon;
+		undoBarrier.mMipLevels = dstResource->GetDesc().MipLevels;
+		undoBarrier.mDepth = dstResource->GetDesc().DepthOrArraySize;
 		curCmdList->ResourceBarrierExt(undoBarrier);
 		curCmdList->CloseCommondList();
 		mRenderQueue->ExecuteCommandLists(curCmdList);

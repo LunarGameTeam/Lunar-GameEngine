@@ -144,7 +144,7 @@ public:
 		uint32_t srcSubRes
 	) = 0;
 
-	virtual void BindDesriptorSetExt(RHIBindingSet* bindingSet) = 0;
+	virtual void BindDesriptorSetExt(RHIBindingSet* bindingSet,RHICmdListType pipelineType) = 0;
 
 	virtual void PushInt32Constant(int32_t value, int32_t slot, RHIBindingSetLayout* layout) = 0;
 
