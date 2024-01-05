@@ -10,7 +10,7 @@ BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
 {
     BaseFragment output;    
     
-    uint instanceID = input.instancemessage.x;
+    uint instanceID = mInstanceOffset.mOffset + inst;
 
 	// Calculate the position of the vertex against the world, view, and projection matrices.
     output.position = mul(float4(input.position, 1.0f), RoWorldMatrixBuffer[instanceID]);

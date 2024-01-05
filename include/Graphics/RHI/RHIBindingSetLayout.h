@@ -73,6 +73,22 @@ struct RHIBindPoint
 	}
 };
 
+struct RHIPushConstantMember
+{
+	LString mName = "";
+	size_t	mOffset = 0;
+	size_t	mSize = 0;
+};
+
+struct RHIPushConstantValue
+{
+	LString mName = "";
+	size_t	mSize = 0;
+	size_t  mOffset = 0;
+	LUnorderedMap<LString, RHIPushConstantMember> mValueMember;
+};
+
+
 using BindKeyMap = std::map<std::pair<uint32_t, uint32_t>, RHIBindPoint>;
 
 struct BindingDesc

@@ -36,6 +36,7 @@ public:
 
 	vk::ShaderModule mShaderModule;
 	std::vector<RHIBindPoint> mBindings;
+	std::vector<RHIPushConstantValue> mPushConstants;
 	
 	//Refleciton
 	vk::VertexInputBindingDescription mBindingDescription = {};
@@ -45,6 +46,7 @@ public:
 	std::vector<SpvReflectDescriptorSet*>& GetVulkanReflection() { return mDescriptorReflection; }
 private:
 	std::vector<SpvReflectDescriptorSet*> mDescriptorReflection;
+	std::vector<SpvReflectBlockVariable*> mPushConstReflection;
 	SpvReflectShaderModule mReflectModule = {};
 
 	bool InitShader(const RHIShaderDesc& desc);

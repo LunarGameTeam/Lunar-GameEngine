@@ -17,7 +17,13 @@
 #endif
 // Static Samplers
 
-uint mInstanceOffset;
+struct InstanceBufferOffset
+{
+	uint mOffset;
+};
+
+[[vk::push_constant]]
+InstanceBufferOffset mInstanceOffset;
 
 struct BaseVertex
 {
@@ -33,7 +39,6 @@ struct BaseVertex
 	[[vk::location(8)]] uint4 blendindex : BLENDINDEX;
     [[vk::location(9)]] uint4 blendweight : BLENDWEIGHT;
 #endif
-	[[vk::location(10)]] uint4 instancemessage : INSTANCEMESSAGE;	
 };
 
 struct BaseFragment
