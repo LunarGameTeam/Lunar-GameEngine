@@ -38,7 +38,7 @@ class RENDER_API DX12BindingSetLayout : public RHIBindingSetLayout
 {
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> m_root_signature_data;
 public:
-	DX12BindingSetLayout(const std::vector<RHIBindPoint>& bindKeys);
+	DX12BindingSetLayout(const std::vector<RHIBindPoint>& bindKeys, const std::unordered_map<ShaderParamID, RHIPushConstantValue>& mBindConstKeys);
 
 	inline ID3D12RootSignature* GetRootSignature()
 	{

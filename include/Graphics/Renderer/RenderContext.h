@@ -260,7 +260,7 @@ public:
 
 	RHICBufferDesc GetDefaultShaderConstantBufferDesc(ShaderParamID name);
 
-	RHIBindingSetLayoutPtr mViewBindingSet;
+	//RHIBindingSetLayoutPtr mViewBindingSet;
 	SharedPtr<ShaderAsset> mDefaultShader;
 
 	SharedPtr<LShaderInstance> mDefaultShaderVertexInstance;

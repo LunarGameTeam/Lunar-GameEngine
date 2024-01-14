@@ -508,8 +508,8 @@ RHIFrameBufferPtr VulkanDevice::CreateFrameBuffer(const FrameBufferDesc& desc)
 	return CreateRHIObject<VulkanFrameBuffer>(desc);
 }
 
-RHIBindingSetLayoutPtr VulkanDevice::CreateBindingSetLayout(const std::vector<RHIBindPoint>& bindKeys)
+RHIBindingSetLayoutPtr VulkanDevice::CreateBindingSetLayout(const std::vector<RHIBindPoint>& bindKeys, const std::unordered_map<ShaderParamID, RHIPushConstantValue>& mBindConstKeys)
 {
-	return CreateRHIObject<VulkanBindingSetLayout>(bindKeys);
+	return CreateRHIObject<VulkanBindingSetLayout>(bindKeys,mBindConstKeys);
 }
 }

@@ -146,7 +146,7 @@ public:
 
 	virtual void BindDesriptorSetExt(RHIBindingSet* bindingSet,RHICmdListType pipelineType) = 0;
 
-	virtual void PushInt32Constant(int32_t value, int32_t slot, RHIBindingSetLayout* layout) = 0;
+	virtual void PushInt32Constant(size_t offset,void* value, size_t dataSize, RHIBindingSetLayout* layout, RHICmdListType pipelineType) = 0;
 
 	virtual void SetBiningSetLayoutExt(RHIBindingSetLayout* root_signature) = 0;
 	virtual void BindDescriptorHeap() = 0;

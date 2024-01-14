@@ -88,7 +88,12 @@ void LShaderInstance::Init(
 		{
 			bindingKeys.push_back(it.second);
 		}
-		mLayout = sRenderModule->GetRHIDevice()->CreateBindingSetLayout(bindingKeys);
+
+		for (auto itor : mRhiShader->mBindConstants)
+		{
+		}
+
+		mLayout = sRenderModule->GetRHIDevice()->CreateBindingSetLayout(bindingKeys, mRhiShader->mBindConstants);
 		mInit = true;
 	}
 }

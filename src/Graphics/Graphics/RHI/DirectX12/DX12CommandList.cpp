@@ -601,9 +601,26 @@ void DX12GraphicCmdList::CloseCommondList()
 	}
 }
 
-void DX12GraphicCmdList::PushInt32Constant(int32_t value, int32_t slot, RHIBindingSetLayout* layout)
+void DX12GraphicCmdList::PushInt32Constant(size_t offset, void* value, size_t dataSize, RHIBindingSetLayout* layout, RHICmdListType pipelineType)
 {
-	mDxCmdList->SetGraphicsRoot32BitConstants(0,1,&value, slot);
+	size_t curOffset = offset / 4;
+	size_t curCount = dataSize / 4;
+	switch (pipelineType)
+	{
+	case luna::graphics::RHICmdListType::Graphic3D:
+	{
+		mDxCmdList->SetGraphicsRoot32BitConstants(0, curCount, value, curOffset);
+	}
+	break;
+	case luna::graphics::RHICmdListType::Compute: 
+	{
+		mDxCmdList->SetComputeRoot32BitConstants(0, curCount, value, curOffset);
+	}
+	break;
+	default:
+		assert(false);
+	break;
+	}
 }
 
 void DX12GraphicCmdList::BindDesriptorSetExt(RHIBindingSet* bindingSet, RHICmdListType pipelineType)

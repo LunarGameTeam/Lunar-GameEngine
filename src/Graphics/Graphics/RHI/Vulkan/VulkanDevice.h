@@ -88,7 +88,7 @@ public:
 
 	RHIResourcePtr       CreateSamplerExt(const SamplerDesc& desc) override;
 
-	RHIBindingSetLayoutPtr CreateBindingSetLayout(const std::vector<RHIBindPoint> & bindKeys) override;
+	RHIBindingSetLayoutPtr CreateBindingSetLayout(const std::vector<RHIBindPoint> & bindKeys, const std::unordered_map<ShaderParamID, RHIPushConstantValue>& mBindConstKeys) override;
 
 
 	inline vk::PhysicalDevice GetPhysicalDevice() const

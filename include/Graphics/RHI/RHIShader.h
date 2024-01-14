@@ -55,7 +55,7 @@ public:
 	
 	LMap<ShaderParamID, RHICBufferDesc> mUniformBuffers;
 	std::unordered_map<ShaderParamID, RHIBindPoint>    mBindPoints;
-
+	std::unordered_map<ShaderParamID, RHIPushConstantValue>    mBindConstants;
 	
 
 	auto GetBindPoint(ShaderParamID id)

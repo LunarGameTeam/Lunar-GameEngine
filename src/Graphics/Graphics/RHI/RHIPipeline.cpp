@@ -10,6 +10,7 @@ namespace luna::graphics
 	)
 	{
 		std::map<std::tuple<uint32_t, uint32_t>, RHIBindPoint> result;
+		std::unordered_map<ShaderParamID, RHIPushConstantValue> allBindConstants;
 		for (RHIShaderBlob* mShaderDta : shaderPack)
 		{
 			for (auto& it : mShaderDta->mBindPoints)
@@ -17,13 +18,17 @@ namespace luna::graphics
 				auto& bindKey = it.second;
 				result[std::make_tuple(bindKey.mSpace, bindKey.mSlot)] = bindKey;
 			}
+			for (auto& it : mShaderDta->mBindConstants)
+			{
+				allBindConstants[it.first] = it.second;
+			}
 		}
 		std::vector<RHIBindPoint> bindingKeys;
 		for (auto it : result)
 		{
 			bindingKeys.push_back(it.second);
 		}
-		return device->CreateBindingSetLayout(bindingKeys);
+		return device->CreateBindingSetLayout(bindingKeys, allBindConstants);
 	}
 
 

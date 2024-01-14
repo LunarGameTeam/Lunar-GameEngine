@@ -242,9 +242,9 @@ RHICmdSignaturePtr DX12Device::CreateCmdSignature(RHIPipelineState* pipeline, co
 	return CreateRHIObject<DX12CmdSignature>(pipeline, allCommondDesc);
 }
 
-RHIBindingSetLayoutPtr DX12Device::CreateBindingSetLayout(const std::vector<RHIBindPoint>& bindKeys)
+RHIBindingSetLayoutPtr DX12Device::CreateBindingSetLayout(const std::vector<RHIBindPoint>& bindKeys, const std::unordered_map<ShaderParamID, RHIPushConstantValue>& mBindConstKeys)
 {
-	return CreateRHIObject<DX12BindingSetLayout>(bindKeys);
+	return CreateRHIObject<DX12BindingSetLayout>(bindKeys, mBindConstKeys);
 }
 
 luna::graphics::TRHIPtr<luna::graphics::RHIMemory> DX12Device::AllocMemory(const RHIMemoryDesc& desc, uint32_t memoryBits /*= 0*/)

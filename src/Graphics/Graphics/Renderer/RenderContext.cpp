@@ -342,9 +342,9 @@ void RenderContext::Init()
 	}
 	
 
-	LArray<RHIBindPoint> bindingpoints;
-	bindingpoints.push_back(bindpoint);
-	mViewBindingSet = mDevice->CreateBindingSetLayout(bindingpoints);
+	//LArray<RHIBindPoint> bindingpoints;
+	//bindingpoints.push_back(bindpoint);
+	//mViewBindingSet = mDevice->CreateBindingSetLayout(bindingpoints);
 
 
 	RHIBufferDesc desc;
@@ -637,7 +637,9 @@ void RenderContext::DrawMeshBatch(const MeshDrawCommandBatch& meshDrawCommand)
 	mGraphicCmd->GetCmdList()->SetVertexBuffer(descs, 0);
 	mGraphicCmd->GetCmdList()->SetIndexBuffer(ib);
 	mGraphicCmd->GetCmdList()->SetDrawPrimitiveTopology(RHIPrimitiveTopology::TriangleList);
-	mGraphicCmd->GetCmdList()->PushInt32Constant(meshDrawCommand.mRoOffset,0, meshDrawCommand.mDrawParameter.mMtl->GetAsset()->GetBindingSetLayout());
+	LVector4i data;
+	data.x() = meshDrawCommand.mRoOffset;
+	mGraphicCmd->GetCmdList()->PushInt32Constant(0,&data,sizeof(data), meshDrawCommand.mDrawParameter.mMtl->GetAsset()->GetBindingSetLayout(), RHICmdListType::Graphic3D);
 	mGraphicCmd->GetCmdList()->DrawIndexedInstanced((uint32_t)indexCount, meshDrawCommand.mDrawCount, 0, 0, 0);
 }
 

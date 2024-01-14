@@ -7,7 +7,7 @@
 namespace luna::graphics
 {
 
-VulkanBindingSetLayout::VulkanBindingSetLayout(const std::vector<RHIBindPoint>& bindKeys)
+VulkanBindingSetLayout::VulkanBindingSetLayout(const std::vector<RHIBindPoint>& bindKeys, const std::unordered_map<ShaderParamID, RHIPushConstantValue>& mBindConstKeys)
 {
 	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
 
@@ -71,7 +71,21 @@ VulkanBindingSetLayout::VulkanBindingSetLayout(const std::vector<RHIBindPoint>& 
 	vk::PipelineLayoutCreateInfo pipelineLayoutInfo = {};
 	pipelineLayoutInfo.setLayoutCount = (uint32_t)descriptor_set_layouts.size();
 	pipelineLayoutInfo.pSetLayouts = descriptor_set_layouts.data();
-	
+	int32_t pushConstStructSize = mBindConstKeys.size();
+	LArray<vk::PushConstantRange> allConstant;
+	for (auto itor : mBindConstKeys)
+	{
+		vk::PushConstantRange push_constant;
+		push_constant.offset = itor.second.mOffset;
+		push_constant.size = itor.second.mSize;
+		push_constant.stageFlags = vk::ShaderStageFlagBits::eAll;
+		allConstant.push_back(push_constant);
+	}
+	if (allConstant.size() > 0)
+	{
+		pipelineLayoutInfo.pPushConstantRanges = allConstant.data();
+		pipelineLayoutInfo.pushConstantRangeCount = (uint32_t)allConstant.size();
+	}
 	VULKAN_ASSERT(device.createPipelineLayout(&pipelineLayoutInfo, nullptr, &mPipelineLayout));
 		
 	//std::map<uint32_t, std::vector<vk::DescriptorBindingFlags>> bindings_flags_by_set;

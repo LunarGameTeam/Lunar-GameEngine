@@ -162,10 +162,12 @@ bool VulkanShaderBlob::InitShader(const RHIShaderDesc& desc)
 	std::map<std::tuple<uint32_t, uint32_t>, RHIBindPoint> result;
 	for (RHIBindPoint& bindKey :  mBindings)
 	{
-
 		mBindPoints[bindKey.mName.Hash()] = bindKey;
 	}
-
+	for (RHIPushConstantValue& bindKey : mPushConstants)
+	{
+		mBindConstants[bindKey.mName.Hash()] = bindKey;
+	}
 	for (auto it : mDescriptorReflection)
 	{
 		const SpvReflectDescriptorSet& descriptorSet = *(it);

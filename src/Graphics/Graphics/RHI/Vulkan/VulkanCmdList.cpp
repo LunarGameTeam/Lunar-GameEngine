@@ -511,16 +511,16 @@ void VulkanGraphicCmdList::BindDesriptorSetExt(RHIBindingSet* bindingSet, RHICmd
 	} 
 }
 
-void VulkanGraphicCmdList::PushInt32Constant(int32_t value, int32_t slot, RHIBindingSetLayout* layout)
+void VulkanGraphicCmdList::PushInt32Constant(size_t offset, void* value, size_t dataSize, RHIBindingSetLayout* layout, RHICmdListType pipelineType)
 {
-	vk::ShaderStageFlags newFlag(VK_SHADER_STAGE_VERTEX_BIT);
+	vk::ShaderStageFlags newFlag(VK_SHADER_STAGE_ALL);
 	VulkanBindingSetLayout* vkBindingSetLayout = layout->As<VulkanBindingSetLayout>();
 	mCommandBuffer.pushConstants(
 		vkBindingSetLayout->mPipelineLayout,
 		newFlag,
-		slot,
-		sizeof(int32_t),
-		&value
+		offset,
+		dataSize,
+		value
 	);
 }
 

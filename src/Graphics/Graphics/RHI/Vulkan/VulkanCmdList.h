@@ -116,7 +116,7 @@ public:
 
 	void BindDesriptorSetExt(RHIBindingSet* bindingSet, RHICmdListType pipelineType) override;
 
-	void PushInt32Constant(int32_t value, int32_t slot, RHIBindingSetLayout* layout) override;
+	void PushInt32Constant(size_t offset, void* value, size_t dataSize, RHIBindingSetLayout* layout, RHICmdListType pipelineType) override;
 
 
 	void BeginRender(const RenderPassDesc&) override;

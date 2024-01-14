@@ -70,7 +70,7 @@ StructuredBuffer<float4x4> SkinMatrixBuffer : register(t0, SKIN_SPACE0);
 
 Texture2DArray _ShadowMap : register(t1, VIEW_SPACE0);
 Texture2DArray _DirectionLightShadowMap : register(t2, VIEW_SPACE0);
-StructuredBuffer<float4x4> RoWorldMatrixBuffer : register(t3, VIEW_SPACE0);
+StructuredBuffer<float4x4> RoWorldMatrixDataBuffer : register(t3, VIEW_SPACE0);
 //
 // Scene Update Frequence
 // Scene 更新的 Buffer 和贴图

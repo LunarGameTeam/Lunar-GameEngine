@@ -106,7 +106,7 @@ BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
     float4 position = float4(input.position, 1.0);
 	float3 normal = input.normal;
 	float3 tangent = input.tangent;
-	matrix worldMatrix = RoWorldMatrixBuffer[instanceID];
+	matrix worldMatrix = RoWorldMatrixDataBuffer[instanceID];
 #if USE_SKIN_VERTEX
 	uint4 blendIndexA,blendIndexB;
 	float4 blendweightA,blendweightB;
