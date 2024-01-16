@@ -42,6 +42,7 @@ void GameModule::RemoveScene(Scene* new_scene)
 GameModule::GameModule():mScenes(this)
 {
 	sGameModule = this;
+	mNeedRenderTick = true;
 }
 
 bool GameModule::OnLoad()
@@ -66,6 +67,15 @@ void GameModule::Tick(float delta_time)
 	{
 		if(it)
 			it->Tick(delta_time);
+	}
+}
+
+void GameModule::RenderTick(float deltaTime)
+{
+	for (auto& it : mScenes)
+	{
+		if (it)
+			it->RenderTick(deltaTime);
 	}
 }
 

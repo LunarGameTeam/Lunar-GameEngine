@@ -5,74 +5,83 @@
 namespace luna::graphics
 {
 
+
+FGNode::FGNode(FrameGraphNodeType type) :mType(type)
+{
+
+}
+
+FGNode::~FGNode()
+{
+
+}
+
+
 FGResourceView* FGNode::AddSRV(FGTexture* res, const ViewDesc& desc)
 {
-	mVirtureResView.emplace_back(new FGResourceView);
-	FGResourceView* view = mVirtureResView.back();
+	mInputResource.push_back(res);
+	LSharedPtr<FGResourceView> view = MakeShared<FGResourceView>();
 	view->mRHIViewDesc = desc;
 	view->mVirtualRes = res;
-	return view;
+	mVirtureResView.push_back(view);
+	return view.get();
 }
 
 FGResourceView* FGNode::AddSRV(FGTexture* res, RHIViewDimension dimension, uint32_t BaseLayer /*= 0*/, uint32_t layerCount /*= 1*/)
 {
-	mVirtureResView.emplace_back(new FGResourceView);
-	FGResourceView* view = mVirtureResView.back();
+	mInputResource.push_back(res);
+	LSharedPtr<FGResourceView> view = MakeShared<FGResourceView>();
 	view->mRHIViewDesc.mViewType = RHIViewType::kTexture;
 	view->mRHIViewDesc.mViewDimension = dimension;
 	view->mRHIViewDesc.mBaseArrayLayer = BaseLayer;
 	view->mRHIViewDesc.mLayerCount = layerCount;
 	view->mVirtualRes = res;
-	return view;
+	mVirtureResView.push_back(view);
+	return view.get();
 }
-
-FGNode::~FGNode()
-{
-	for (auto it : mVirtureResView)
-	{
-		delete it;
-	}
-}
-
 
 FGResourceView* FGNode::AddRTV(FGTexture* res, const ViewDesc& desc)
 {
-	mVirtureResView.emplace_back(new FGResourceView);
-	FGResourceView* view = mVirtureResView.back();
+	LSharedPtr<FGResourceView> view = MakeShared<FGResourceView>();
+	mOutputResource.push_back(res);
 	view->mRHIViewDesc = desc;
 	view->mVirtualRes = res;
-	return view;
+	mVirtureResView.push_back(view);
+	return view.get();
 }
 
 FGResourceView* FGNode::AddRTV(FGTexture* res, RHIViewDimension dimension, uint32_t BaseLayer /*= 0*/, uint32_t layerCount /*= 1*/)
 {
-	mVirtureResView.emplace_back(new FGResourceView);
-	FGResourceView* view = mVirtureResView.back();
+	mOutputResource.push_back(res);
+	LSharedPtr<FGResourceView> view = MakeShared<FGResourceView>();
 	view->mRHIViewDesc.mViewType = RHIViewType::kRenderTarget;
 	view->mRHIViewDesc.mViewDimension = dimension;
 	view->mRHIViewDesc.mBaseArrayLayer = BaseLayer;
 	view->mRHIViewDesc.mLayerCount = layerCount;
 	view->mVirtualRes = res;
-	return view;
+	mVirtureResView.push_back(view);
+	return view.get();
 }
 
 FGResourceView* FGNode::AddDSV(FGTexture* res, const ViewDesc& desc)
 {
-	mVirtureResView.emplace_back(new FGResourceView);
-	FGResourceView* view = mVirtureResView.back();
+	mOutputResource.push_back(res);
+	LSharedPtr<FGResourceView> view = MakeShared<FGResourceView>();
 	view->mRHIViewDesc = desc;
 	view->mVirtualRes = res;
-	return view;
+	mVirtureResView.push_back(view);
+	return view.get();
 }
 
 FGResourceView* FGNode::AddDSV(FGTexture* res)
 {
-	mVirtureResView.emplace_back(new FGResourceView);
-	FGResourceView* view = mVirtureResView.back();
+	mOutputResource.push_back(res);
+	LSharedPtr<FGResourceView> view = MakeShared<FGResourceView>();
 	view->mRHIViewDesc.mViewType = RHIViewType::kDepthStencil;
 	view->mRHIViewDesc.mViewDimension = RHIViewDimension::TextureView2D;
 	view->mVirtualRes = res;
-	return view;
+	mVirtureResView.push_back(view);
+	return view.get();
 }
 
 void FGNode::Execute(FrameGraphBuilder* m_builder)
@@ -82,14 +91,18 @@ void FGNode::Execute(FrameGraphBuilder* m_builder)
 		mExecFunc(m_builder, *this, sRenderModule->GetRenderContext());
 }
 
-FGNode& FGNode::SetDepthClear(const PassDepthStencilDesc& desc)
+FGGraphDrawNode::FGGraphDrawNode() : FGNode(FrameGraphNodeType::FrameGraphNodeGraphDraw)
+{
+
+}
+
+FGNode& FGGraphDrawNode::SetDepthClear(const PassDepthStencilDesc& desc)
 {
 	mPassDesc.mDepths.emplace_back(desc);
 	return *this;
 }
 
-
-FGNode& FGNode::SetColorAttachment(FGResourceView* rt, LoadOp load /*= LoadOp::kLoad*/, StoreOp store /*= StoreOp::kStore*/, const LVector4f& clearColor /*= LVector4f(0,0,0,1)*/, uint32_t rtIndex /*= 0*/)
+FGNode& FGGraphDrawNode::SetColorAttachment(FGResourceView* rt, LoadOp load /*= LoadOp::kLoad*/, StoreOp store /*= StoreOp::kStore*/, const LVector4f& clearColor /*= LVector4f(0,0,0,1)*/, uint32_t rtIndex /*= 0*/)
 {
 	if(rtIndex >= mPassDesc.mColors.size())
 		mPassDesc.mColors.resize(rtIndex + 1);
@@ -104,7 +117,7 @@ FGNode& FGNode::SetColorAttachment(FGResourceView* rt, LoadOp load /*= LoadOp::k
 	return *this;
 }
 
-FGNode& FGNode::SetDepthStencilAttachment(FGResourceView* ds, LoadOp load /*= LoadOp::kLoad*/, StoreOp store /*= StoreOp::kStore*/, float clearDepth /*= LVector4f(0,0,0,1)*/)
+FGNode& FGGraphDrawNode::SetDepthStencilAttachment(FGResourceView* ds, LoadOp load /*= LoadOp::kLoad*/, StoreOp store /*= StoreOp::kStore*/, float clearDepth /*= LVector4f(0,0,0,1)*/)
 {
 	mPassDesc.mDepths.resize(1);	
 	mPassDesc.mDepthStencilView = ds->mRHIView;

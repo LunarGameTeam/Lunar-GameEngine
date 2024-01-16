@@ -62,7 +62,7 @@ public:
 
 	RHIBindingSetPtr CreateBindingSet(RHIDescriptorPool* pool, RHIBindingSetLayoutPtr layout) override;
 
-	RHIResourcePtr CreateTextureExt(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc) override;
+	RHIResourcePtr CreateTextureExt(const RHIResDesc& resDesc) override;
 
 	RHIResourcePtr CreateBufferExt(const RHIBufferDesc& buffer_desc) override;
 
@@ -73,7 +73,7 @@ public:
 
 	bool CheckIfResourceHeapTire2() override;
 
-	RHIBindingSetLayoutPtr CreateBindingSetLayout(const std::vector<RHIBindPoint>& bindKeys) override;
+	RHIBindingSetLayoutPtr CreateBindingSetLayout(const std::vector<RHIBindPoint>& bindKeys, const std::unordered_map<ShaderParamID, RHIPushConstantValue>& mBindConstKeys) override;
 	
 	TRHIPtr<RHIMemory> AllocMemory(const RHIMemoryDesc& desc, uint32_t memoryBits = 0) override;
 
@@ -113,7 +113,13 @@ private:
 
 	RHIShaderBlobPtr CreateShader(const RHIShaderDesc& desc) override;
 	
-	RHIPipelineStatePtr CreatePipeline(const RHIPipelineStateDesc& desc) override;
+	RHIPipelineStatePtr CreatePipelineGraphic(
+		const RHIPipelineStateGraphDrawDesc& desc,
+		const RHIVertexLayout& inputLayout,
+		const RenderPassDesc& renderPassDesc
+	) override;
+
+	RHIPipelineStatePtr CreatePipelineCompute(const RHIPipelineStateComputeDesc& desc) override;
 
 	RHICmdSignaturePtr CreateCmdSignature(RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc) override;
 

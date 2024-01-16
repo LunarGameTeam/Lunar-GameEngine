@@ -8,13 +8,8 @@ using Microsoft::WRL::ComPtr;
 
 namespace luna::graphics
 {
-	DX12Resource::DX12Resource(const RHIBufferDesc& buffer_desc)
+	DX12Resource::DX12Resource(const RHIBufferDesc& buffer_desc) : RHIResource(buffer_desc)
 	{
-
-		mResDesc.mType = ResourceType::kBuffer;
-		mResDesc.Dimension = RHIResDimension::Buffer;
-		mResDesc.Width = buffer_desc.mSize;
-
 		mDxDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
 		mDxDesc.Alignment = 0;
 		mDxDesc.Width = mResDesc.Width;
@@ -29,7 +24,6 @@ namespace luna::graphics
 
 		SetInitialState(ResourceState::kUndefined);
 		mLastState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
-		RefreshMemoryRequirements();
 	}
 
 	DX12Resource::DX12Resource(const SamplerDesc& desc)
@@ -82,7 +76,7 @@ namespace luna::graphics
 		mDxSamplerDesc.MaxAnisotropy = 1;
 	}
 
-	DX12Resource::DX12Resource(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc) : RHIResource(resDesc)
+	DX12Resource::DX12Resource(const RHIResDesc& resDesc) : RHIResource(resDesc)
 	{
 		mDxDesc.Width = resDesc.Width;
 		mDxDesc.Height = resDesc.Height;
@@ -159,6 +153,10 @@ namespace luna::graphics
 	{
 		mAllocation->Release();
 		mAllocation = nullptr;
+	}
+	void DX12Resource::ResetResourceBufferSizeDeviceData(size_t newSize)
+	{
+		mDxDesc.Width = newSize;
 	}
 
 	void DX12Resource::BindMemory(RHIHeapType type)
@@ -253,7 +251,7 @@ namespace luna::graphics
 
 	}
 
-	void DX12Resource::RefreshMemoryRequirements()
+	void DX12Resource::RefreshMemoryRequirements() const
 	{
 		ID3D12Device* device = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
 		D3D12_RESOURCE_ALLOCATION_INFO allocation_info = device->GetResourceAllocationInfo(0, 1, &mDxDesc);

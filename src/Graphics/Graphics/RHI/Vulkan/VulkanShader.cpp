@@ -162,10 +162,12 @@ bool VulkanShaderBlob::InitShader(const RHIShaderDesc& desc)
 	std::map<std::tuple<uint32_t, uint32_t>, RHIBindPoint> result;
 	for (RHIBindPoint& bindKey :  mBindings)
 	{
-
 		mBindPoints[bindKey.mName.Hash()] = bindKey;
 	}
-
+	for (RHIPushConstantValue& bindKey : mPushConstants)
+	{
+		mBindConstants[bindKey.mName.Hash()] = bindKey;
+	}
 	for (auto it : mDescriptorReflection)
 	{
 		const SpvReflectDescriptorSet& descriptorSet = *(it);
@@ -206,6 +208,11 @@ void VulkanShaderBlob::InitDescriptor(std::vector<uint32_t>& shaderBytes)
 	result = spvReflectEnumerateDescriptorSets(&mReflectModule, &count, mDescriptorReflection.data());
 	assert(result == SPV_REFLECT_RESULT_SUCCESS);
 
+	uint32_t pushConstantCount = 0;
+	result = spvReflectEnumeratePushConstants(&mReflectModule, &pushConstantCount, NULL);
+	assert(result == SPV_REFLECT_RESULT_SUCCESS);
+	mPushConstReflection.resize(pushConstantCount);
+	result = spvReflectEnumeratePushConstants(&mReflectModule, &pushConstantCount, mPushConstReflection.data());
 	for (size_t idx = 0; idx < mDescriptorReflection.size(); ++idx)
 	{
 		const SpvReflectDescriptorSet& descriptorSet = *(mDescriptorReflection[idx]);
@@ -246,6 +253,22 @@ void VulkanShaderBlob::InitDescriptor(std::vector<uint32_t>& shaderBytes)
 			key.mShaderVisibility = RHIShaderVisibility::Visibility_All;
 		}
 	}
+	for (size_t idx = 0; idx < mPushConstReflection.size(); ++idx)
+	{
+		RHIPushConstantValue& newValue = mPushConstants.emplace_back();
+		newValue.mName = mPushConstReflection[idx]->name;
+		newValue.mSize = mPushConstReflection[idx]->size;
+		newValue.mOffset = mPushConstReflection[idx]->offset;
+		for (int32_t memberIndex = 0; memberIndex < mPushConstReflection[idx]->member_count; ++memberIndex)
+		{
+			RHIPushConstantMember newMember;
+			newMember.mName = mPushConstReflection[idx]->members[memberIndex].name;
+			newMember.mSize = mPushConstReflection[idx]->members[memberIndex].size;
+			newMember.mOffset = mPushConstReflection[idx]->members[memberIndex].offset;
+			newValue.mValueMember.insert({ newMember.mName ,newMember });
+		}
+	}
+	return;
 }
 
 

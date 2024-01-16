@@ -14,6 +14,8 @@
 namespace luna::graphics
 {
 
+class MaterialBaseTemplateAsset;
+
 enum class MaterialParamType : uint8_t
 {
 	Int,
@@ -124,18 +126,92 @@ public:
 	SharedPtr<TextureCube> mValue;
 };
 
-
-class RENDER_API MaterialInstance : public LObject
+enum class MaterialPipelineType
 {
-	RegisterTypeEmbedd(MaterialInstance, LObject)
+	Compute,
+	GraphDraw
+};
+
+class RENDER_API MaterialInstanceBase : public LObject
+{
+	RegisterTypeEmbedd(MaterialInstanceBase, LObject)
+public:
+	MaterialInstanceBase();
+
+	virtual ~MaterialInstanceBase();
+
+	void SetShaderInput(ShaderParamID id, RHIView* view);
+
+	ShaderAsset* GetShaderAsset();
+
+	void BindToPipeline(RHICmdList* cmdList);
+
+	RHICBufferDesc GetConstantBufferDesc(ShaderParamID name);
+
+	void UpdateBindingSet();
+
+	virtual void SetAsset(MaterialBaseTemplateAsset* asset);
+
+	MaterialBaseTemplateAsset* GetAsset() { return mAsset; };
+protected:
+	MaterialPipelineType mPipelineType;
+
+	LMap<ShaderParamID, RHIViewPtr> mInputs;
+	
+	int32_t mFramIndex = 0;
+	
+	LArray<RHIBindingSetPtr> mBindingSets;
+
+	MaterialBaseTemplateAsset* mAsset;
+
+	LArray<bool> mBindingDirty;
+
+	bool HasBindPoint(ShaderParamID id) const;
+
+	RHIBindPoint GetBindPoint(ShaderParamID id) const;
+
+	virtual void UpdateBindingSetImpl(std::vector<BindingDesc> &bindingDescs) {};
+};
+
+class RENDER_API MaterialInstanceComputeBase : public MaterialInstanceBase
+{
+	RegisterTypeEmbedd(MaterialInstanceComputeBase, MaterialInstanceBase)
+public:
+	MaterialInstanceComputeBase();
+
+	virtual ~MaterialInstanceComputeBase();
+
+	RHIShaderBlob* GetShaderCS();
+
+	RHIPipelineState* GetPipeline();
+
+	void SetAsset(MaterialBaseTemplateAsset* asset) override;
+private:
+	RHIPipelineStatePtr mPipeline;
+};
+
+class RENDER_API MaterialInstanceGraphBase : public MaterialInstanceBase
+{
+	RegisterTypeEmbedd(MaterialInstanceGraphBase, MaterialInstanceBase)
+public:
+	MaterialInstanceGraphBase();
+
+	virtual ~MaterialInstanceGraphBase();
+
+	RHIShaderBlob* GetShaderVS();
+
+	RHIShaderBlob* GetShaderPS();
+
+	RHIPipelineState* GetPipeline(RHIVertexLayout* layout, const RenderPassDesc& pass);
+};
+
+class RENDER_API MaterialInstance : public MaterialInstanceGraphBase
+{
+	RegisterTypeEmbedd(MaterialInstance, MaterialInstanceGraphBase)
 public:
 	MaterialInstance();
 
 public:
-	RHIShaderBlob* GetShaderVS();
-	RHIShaderBlob* GetShaderPS();
-	ShaderAsset* GetShaderAsset();
-
 	bool Ready()
 	{
 		if (!mReady)
@@ -145,45 +221,34 @@ public:
 	}
 
 	void Init();
+
 	void UpdateParamsToBuffer();
 
 	LUnorderedMap<LString, size_t> mParamIndexMap;
 
-	void SetShaderInput(ShaderParamID id, RHIView* view);
-
 	const TPPtrArray<MaterialParam>& GeTemplateParams();
-	
-	RHIBindingSetPtr GetBindingSet();
-	RHIPipelineState* GetPipeline(RHIVertexLayout* layout, const RenderPassDesc& pass);
+
 public:
-	LMap<ShaderParamID, RHIViewPtr> mInputs;
-	
 	size_t mMaterialBufferSize = 0;
 
 	RHIResourcePtr mCBuffer;
+
 	RHIViewPtr mCBufferView;
 
 	TPPtrArray<MaterialParam> mOverrideParams;
+
 	TPPtrArray<MaterialParam> mTemplateParams;
-
-	SharedPtr<MaterialTemplateAsset> mMaterialTemplate;
-
 private:
-	void UpdateBindingSet();
-
-	RHIBindingSetPtr mBindingSet;
-	bool mBindingDirty = true;
 	bool mReady = false;
 
-	RHIBindPoint GetBindPoint(ShaderParamID id) const;
-
-	RHICBufferDesc GetConstantBufferDesc(ShaderParamID name);
-
-	bool HasBindPoint(ShaderParamID id) const;
+	void UpdateBindingSetImpl(std::vector<BindingDesc>& bindingDescs) override;
 };
+
+
 }
 
 namespace luna
 {
 REGISTER_ENUM_TYPE(graphics::MaterialParamType, int)
+REGISTER_ENUM_TYPE(graphics::MaterialPipelineType, int)
 }

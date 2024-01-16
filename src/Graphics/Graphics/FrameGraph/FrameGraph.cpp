@@ -19,22 +19,20 @@ namespace luna::graphics
 {
 
 FrameGraphBuilder::FrameGraphBuilder(const LString& graph_name)
-	:mFenceValue3D(sRenderModule->GetRenderContext()->mFenceValue)
 {
 	mGraphName = graph_name;
-	mFence3D = sRenderModule->GetRenderContext()->mFence;
 }
 
 FrameGraphBuilder::~FrameGraphBuilder()
 {
 }
 
-FGNode& FrameGraphBuilder::AddPass(const LString& name)
+FGGraphDrawNode* FrameGraphBuilder::AddGraphDrawPass(const LString& name)
 {
-	FGNode* node = new FGNode();
-	node->mName = name;
+	FGGraphDrawNode* node = new FGGraphDrawNode();
+	node->SetName(name);
 	mNodes.push_back(node);
-	return *node;
+	return node;
 }
 
 
@@ -50,52 +48,17 @@ void FrameGraphBuilder::Clear()
 
 }
 
-FGTexture* FrameGraphBuilder::CreateTexture(const RHIResDesc& desc, const LString& name)
+LSharedPtr<FGTexture> FrameGraphBuilder::CreateCommon2DTexture(
+	const LString& name,
+	uint32_t width,
+	uint32_t height,
+	RHITextureFormat format,
+	RHIImageUsage usage
+)
 {
-	FGTexture* virtualRes = nullptr;
-	auto it = mVirtualRes.find(name);
-	if (it == mVirtualRes.end())
-	{
-		virtualRes = new FGTexture(name, desc);
-		mVirtualRes[name] = virtualRes;
-	}
-	else
-		virtualRes = (FGTexture*)it->second;
-
-	return virtualRes;
-}
-
-FGTexture* FrameGraphBuilder::CreateTexture(
-	uint32_t width, uint32_t height, uint16_t depth, uint16_t miplevels, 
-	RHITextureFormat format, RHIImageUsage usage, const LString& name, RHIResDimension dimension)
-{
-	RHIResDesc desc;	
-	desc.mType = ResourceType::kTexture;
-	desc.Width = width;
-	desc.Height = height;
-	desc.Format = format;
-	desc.mImageUsage = usage;
-	desc.DepthOrArraySize = depth;
-	desc.MipLevels = miplevels;
-	desc.Dimension = dimension;
-	return CreateTexture(desc, name);
-}
-
-FGTexture* FrameGraphBuilder::BindExternalTexture(const RHIResourcePtr& rhiTexture, const LString& name)
-{
-	FGTexture* texture = nullptr;
-	auto it = mVirtualRes.find(name);
-	if (it == mVirtualRes.end())
-	{
-		texture = new FGTexture(name, rhiTexture);			
-		mVirtualRes[name] = texture;
-	}
-	else
-	{
-		texture = static_cast<FGTexture*>(it->second);
-		texture->SetRHIResource(rhiTexture);
-	}
-	return texture;
+	size_t curNewId = GenerateVirtualResourceId();
+	LSharedPtr<FGTexture> newTexture = MakeShared<FGTexture>(curNewId, name,width, height, format, usage,this);
+	return newTexture;
 }
 
 void FrameGraphBuilder::Compile()
@@ -107,11 +70,11 @@ void FrameGraphBuilder::_Prepare()
 	ZoneScoped;
 	for (FGNode* it : mNodes)
 	{
-		for (FGResourceView* view : it->mVirtureResView)
+		for (auto& view : it->mVirtureResView)
 		{
 			RHIViewPtr rhiView = sRenderModule->GetRHIDevice()->CreateView(view->mRHIViewDesc);
 			view->mRHIView = rhiView;
-			rhiView->BindResource(view->mVirtualRes->mRes);
+			rhiView->BindResource(view->mVirtualRes->mExternalRes);
 		}
 	}
 }
@@ -123,38 +86,40 @@ void FrameGraphBuilder::Flush()
 	RenderContext* renderDevice = sRenderModule->GetRenderContext();
 	RHISinglePoolSingleCmdList* cmdlist = renderDevice->mGraphicCmd.get();
 
-	mFence3D->Wait(mFenceValue3D);
-	for (auto& it : mVirtualRes)
+	
+	for (FGNode* it : mNodes)
 	{
-		if (it.second->GetRHIResource() == nullptr)
+		for (auto& view : it->mVirtureResView)
 		{
-			if (it.second->GetDesc().mType == ResourceType::kTexture)
+			if (view->mVirtualRes->mExternalRes == nullptr)
 			{
-				FGTexture* virtualRes = static_cast<FGTexture*>(it.second);
-				RHITextureDesc textureDesc;
-				RHIResourcePtr rhiRes = renderDevice->FGCreateTexture(textureDesc, virtualRes->GetDesc());
-				virtualRes->SetRHIResource(rhiRes);
-			}
-			else 
-			{
-				assert(false);
+				if (view->mVirtualRes->GetDesc().mType == ResourceType::kTexture)
+				{
+					FGTexture* virtualRes = static_cast<FGTexture*>(view->mVirtualRes);
+					RHIResourcePtr rhiRes = renderDevice->FGCreateTexture(virtualRes->GetDesc());
+					mPhysicResourceMap.insert({ virtualRes->mUniqueId,rhiRes });
+					virtualRes->BindExternalResource(rhiRes);
+				}
+				else
+				{
+					assert(false);
+				}
 			}
 		}
-
 	}
 
 	_Prepare();
 
 	{
 		ZoneScopedN("Node Execute");
-		for (FGNode* node : mNodes)
+		for (FGNode* baseNode : mNodes)
 		{
+			FGGraphDrawNode* node = static_cast<FGGraphDrawNode*>(baseNode);
 			ZoneScoped;
 			const char* name = node->GetName().c_str();
 			ZoneName(name, node->GetName().Length());
 			{
 				ZoneScopedN("Device Wait");
-				mFence3D->Wait(mFenceValue3D);
 			}			
 			cmdlist->Reset();
 			cmdlist->GetCmdList()->BeginEvent(node->GetName());
@@ -162,7 +127,7 @@ void FrameGraphBuilder::Flush()
 				continue;
 			{
 				ZoneScopedN("Resource Barrier");
-				for (FGResourceView* view : node->mVirtureResView)
+				for (auto& view : node->mVirtureResView)
 				{
 					ResourceBarrierDesc barrier;
 					barrier.mBaseMipLevel = 0;
@@ -171,7 +136,7 @@ void FrameGraphBuilder::Flush()
 					//理论上应该View使用了Res的某个Layer，只对这个Layer进行Barrier
 					//但是RHIResource里只记录了一个State，因此这里对整个Res进行Barrier
 					barrier.mDepth = view->mVirtualRes->mDesc.DepthOrArraySize;
-					barrier.mBarrierRes = view->mVirtualRes->GetRHIResource();
+					barrier.mBarrierRes = view->mVirtualRes->mExternalRes;
 					switch (view->mRHIViewDesc.mViewType)
 					{
 					case RHIViewType::kTexture:
@@ -204,8 +169,8 @@ void FrameGraphBuilder::Flush()
 			for (FGResourceView* it : node->mRT)
 			{
 				FGResourceView& rtView = *it;
-				width = rtView.mVirtualRes->GetRHIResource()->mResDesc.Width;
-				height = rtView.mVirtualRes->GetRHIResource()->mResDesc.Height;
+				width = rtView.mVirtualRes->mExternalRes->GetDesc().Width;
+				height = rtView.mVirtualRes->mExternalRes->GetDesc().Height;
 				assert(rtView.mRHIView);
 				node->mPassDesc.mColorView.emplace_back(rtView.mRHIView);
 			}
@@ -213,7 +178,7 @@ void FrameGraphBuilder::Flush()
 			if(node->mPassDesc.mDepths.size() > 0)
 			{
 				node->mPassDesc.mDepthStencilView = dsView.mRHIView;
-				node->mPassDesc.mDepths[0].mDepthStencilFormat = dsView.mRHIView->mBindResource->mResDesc.Format;
+				node->mPassDesc.mDepths[0].mDepthStencilFormat = dsView.mRHIView->mBindResource->GetDesc().Format;
 			}
 			
 			
@@ -225,22 +190,44 @@ void FrameGraphBuilder::Flush()
 			renderDevice->EndRenderPass();
 
 			cmdlist->GetCmdList()->EndEvent();
-			cmdlist->GetCmdList()->CloseCommondList();
-			renderDevice->mGraphicQueue->ExecuteCommandLists(cmdlist->GetCmdList());
-			renderDevice->mGraphicQueue->Signal(mFence3D, ++mFenceValue3D);
 		}
 	}
 	
 }
 
 
-FGTexture* FrameGraphBuilder::GetTexture(const LString& name)
+//FGTexture* FrameGraphBuilder::GetTexture(const LString& name)
+//{
+//	auto it = mVirtualRes.find(name);
+//	if (it == mVirtualRes.end())
+//		return nullptr;
+//	FGTexture* texture = static_cast<FGTexture*>(it->second);
+//	return texture;
+//}
+
+size_t FrameGraphBuilder::GenerateVirtualResourceId()
 {
-	auto it = mVirtualRes.find(name);
-	if (it == mVirtualRes.end())
-		return nullptr;
-	FGTexture* texture = static_cast<FGTexture*>(it->second);
-	return texture;
+	size_t curIndex;
+	if (!mUnusedVirtualResourceId.empty())
+	{
+		curIndex = *mUnusedVirtualResourceId.begin();
+		mUnusedVirtualResourceId.erase(curIndex);
+		return curIndex;
+	}
+	curIndex = mMaxVirtualResourceId++;
+	return curIndex;
+}
+
+void FrameGraphBuilder::RemoveVirtualResourceId(size_t virtualResourceId)
+{
+	if (mUnusedVirtualResourceId.find(virtualResourceId) == mUnusedVirtualResourceId.end())
+	{
+		mUnusedVirtualResourceId.insert(virtualResourceId);
+	}
+	else
+	{
+		assert(false);
+	}
 }
 
 }

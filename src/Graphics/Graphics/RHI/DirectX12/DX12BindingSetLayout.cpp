@@ -66,7 +66,7 @@ D3D12_DESCRIPTOR_HEAP_TYPE GetHeapType(RHIViewType view_type)
 	}
 }
 
-DX12BindingSetLayout::DX12BindingSetLayout(const std::vector<RHIBindPoint>& descs)
+DX12BindingSetLayout::DX12BindingSetLayout(const std::vector<RHIBindPoint>& descs, const std::unordered_map<ShaderParamID, RHIPushConstantValue>& mBindConstKeys)
 {
 	for (const RHIBindPoint& bind_key : descs)
 	{

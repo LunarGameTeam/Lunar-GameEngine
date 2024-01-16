@@ -18,367 +18,389 @@
 namespace luna::graphics
 {
 
+RenderSceneStagingMemory::RenderSceneStagingMemory(size_t perStageSize) : mPerStageSize(perStageSize)
+{
+	AddNewMemory(perStageSize);
+	mPoolUsedSize = 0;
+}
+
+RHIView* RenderSceneStagingMemory::AllocStructStageBuffer(size_t curBufferSize, RHIViewType useType, size_t strideSize)
+{
+	//目前不考虑多线程访问的问题，默认render只有一个线程
+	if (mPoolUsedSize <= mStageBufferPool.size())
+	{
+		RHIBufferDesc newBufferDesc;
+		newBufferDesc.mBufferUsage = RHIBufferUsage::TransferSrcBit | RHIBufferUsage::StructureBuffer;
+		newBufferDesc.mSize = SizeAligned2Pow(curBufferSize, CommonSize64K);
+		RHIResourcePtr newBuffer = sRenderModule->GetRenderContext()->mDevice->CreateBufferExt(newBufferDesc);
+		mStageBufferPool.push_back(newBuffer);
+
+		ViewDesc viewDesc;
+		viewDesc.mViewType = useType;
+		viewDesc.mViewDimension = RHIViewDimension::BufferView;
+		viewDesc.mStructureStride = strideSize;
+		RHIViewPtr newBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
+		mStageBufferViewPool.push_back(newBufferView);
+		newBufferView->BindResource(newBuffer);
+	}
+	RHIResource* curResourceItm = nullptr;
+	curResourceItm = mStageBufferPool[mPoolUsedSize].get();
+	RHIView* newBufferView = nullptr;
+	newBufferView = mStageBufferViewPool[mPoolUsedSize].get();
+	BindMemory(curResourceItm);
+	newBufferView->BindResource(curResourceItm);
+	mPoolUsedSize += 1;
+	return newBufferView;
+};
+
+RHIView* RenderSceneStagingMemory::AllocStructStageBuffer(size_t curBufferSize, RHIViewType useType, size_t strideSize, std::function<void(void*)> memoryFunc)
+{
+	RHIView* curView = AllocStructStageBuffer(curBufferSize, useType, strideSize);
+	void* curPointer = curView->mBindResource->Map();
+	memoryFunc(curPointer);
+	curView->mBindResource->Unmap();
+	return curView;
+}
+
+RHIView* RenderSceneStagingMemory::AllocUniformStageBuffer(ShaderCBuffer* cbufferData)
+{
+	//这里需要后期处理下cbuffer的分配，目前每个cbuffer分配64k会造成巨大的浪费
+	RHIView* newRes = AllocStructStageBuffer(cbufferData->mData.size(), RHIViewType::kConstantBuffer,0);
+	void* cpuPointer = newRes->mBindResource->Map();
+	memcpy(cpuPointer, cbufferData->mData.data(), cbufferData->mData.size());
+	newRes->mBindResource->Unmap();
+	return newRes;
+}
+
+void RenderSceneStagingMemory::AddNewMemory(size_t memorySize)
+{
+	RHIMemoryPtr curMemoryData;
+	RHIMemoryDesc memoryDesc;
+	memoryDesc.SizeInBytes = memorySize;
+	memoryDesc.Type = RHIHeapType::Upload;
+	mMemoryOffset = 0;
+	curMemoryData = sRenderModule->GetRenderContext()->mDevice->AllocMemory(memoryDesc);
+	mMemoryData.push_back(curMemoryData);
+	mMemoryDataSize.push_back(memorySize);
+}
+
+bool RenderSceneStagingMemory::BindMemory(RHIResource* targetResource)
+{
+	size_t mMemorySize = mMemoryDataSize.back();
+	size_t reauiredSize = SizeAligned2Pow(targetResource->GetMemoryRequirements().size, CommonSize64K);
+	if ((mMemoryOffset + reauiredSize + CommonSize64K) >= mMemorySize)
+	{
+		if (reauiredSize * 4 >= mPerStageSize)
+		{
+			size_t nextBufferSize = SizeAligned2Pow(reauiredSize * 4, CommonSize64K);
+			AddNewMemory(nextBufferSize);
+		}
+		else
+		{
+			AddNewMemory(mPerStageSize);
+		}
+		mMemoryOffset = 0;
+	}
+	targetResource->BindMemory(mMemoryData.back().get(), mMemoryOffset);
+	mMemoryOffset += reauiredSize;
+	return true;
+}
+
+void RenderSceneStagingMemory::ClearMemory()
+{
+	if (mMemoryData.size() == 1)
+	{
+		mMemoryOffset = 0;
+		return;
+	}
+	size_t nextFrameSize = 0;
+	for (int32_t memoryIndex = 0; memoryIndex < mMemoryDataSize.size() - 1; ++memoryIndex)
+	{
+		nextFrameSize += mMemoryDataSize[memoryIndex];
+	}
+	nextFrameSize += mMemoryOffset;
+	nextFrameSize += 0x400000;
+	mMemoryOffset = 0;
+	mMemoryData.clear();
+	mMemoryDataSize.clear();
+	AddNewMemory(nextFrameSize);
+};
+
+RenderSceneUploadBufferPool::RenderSceneUploadBufferPool()
+{
+	mFrameIndex = 0;
+	for (int32_t i = 0; i < 2; ++i)
+	{
+		mMemoryArray.emplace_back();
+	}
+
+}
+
+RHIView* RenderSceneUploadBufferPool::AllocStructStageBuffer(size_t curBufferSize, RHIViewType useType, size_t strideSize)
+{
+	return mMemoryArray[mFrameIndex].AllocStructStageBuffer(curBufferSize, useType, strideSize);
+}
+
+RHIView* RenderSceneUploadBufferPool::AllocStructStageBuffer(size_t curBufferSize, RHIViewType useType, size_t strideSize, std::function<void(void*)> memoryFunc)
+{
+	return mMemoryArray[mFrameIndex].AllocStructStageBuffer(curBufferSize, useType, strideSize, memoryFunc);
+}
+
+RHIView* RenderSceneUploadBufferPool::AllocUniformStageBuffer(ShaderCBuffer* cbufferData)
+{
+	return mMemoryArray[mFrameIndex].AllocUniformStageBuffer(cbufferData);
+}
+
+void RenderSceneUploadBufferPool::Present()
+{
+	mFrameIndex = (mFrameIndex + 1) % 2;
+}
+
+PARAM_ID(RoWorldMatrixBuffer);
 RenderScene::RenderScene()
 {
 	RequireData<SkeletonSkinData>();
+	//if (mRoDataBuffer == nullptr)
+	//{
+	//	RHIBufferDesc desc;
+	//	desc.mBufferUsage = RHIBufferUsage::StructureBuffer;
+	//	desc.mSize = sizeof(LMatrix4f) * 1024;
+	//	mRoDataBuffer = sRenderModule->mRenderContext->CreateBuffer(RHIHeapType::Upload, desc);
+	//	ViewDesc viewDesc;
+	//	viewDesc.mViewType = RHIViewType::kStructuredBuffer;
+	//	viewDesc.mViewDimension = RHIViewDimension::BufferView;
+	//	viewDesc.mStructureStride = sizeof(LMatrix4f);
+	//	mRoDataBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
+	//	mRoDataBufferView->BindResource(mRoDataBuffer);
+	//}
 }
 
-uint64_t RenderScene::CreateRenderObject(MaterialInstance* mat, SubMesh* meshData, bool castShadow, LMatrix4f* worldMat)
+//void RenderScene::SetMaterialSceneParameter(MaterialInstance* matInstance)
+//{
+//	matInstance->SetShaderInput(ParamID_RoWorldMatrixBuffer, mRoDataBufferView);
+//}
+
+RenderObject* RenderScene::CreateRenderObject()
 {
-	RenderObject* ro = new RenderObject();
-	if (mRoIndex.empty())
-	{
-		ro->mID = mRenderObjects.size();
-	}
-	else
-	{
-		ro->mID = mRoIndex.front();
-		mRoIndex.pop();
-	}
-	ro->mOwnerScene = this;
-	ro->mID = mRenderObjects.size();
-	ro->mMeshIndex = meshData->GetRenderMeshBase();
-	ro->mMaterial = mat;
-	ro->mWorldMat = worldMat;
-	ro->mCastShadow = castShadow;
-	mRenderObjects.resize(ro->mID + 1);
-	mRenderObjects[ro->mID] = ro;
-	mDirtyROs.insert(ro);
-	return ro->mID;
+	RenderObject* newObject = mRenderObjects.AddNewValue();
+	newObject->SetScene(this);
+	return newObject;
 }
 
-uint64_t RenderScene::CreateRenderObjectDynamic(
-	MaterialInstance* mat,
-	SubMesh* meshData,
-	const LUnorderedMap<LString, int32_t>& skeletonId,
-	const LString& skeletonUniqueName,
-	const LString& animaInstanceUniqueName,
-	const LArray<LMatrix4f>& allBoneMatrix,
-	bool castShadow,
-	LMatrix4f* worldMat
-)
+void RenderScene::DestroyRenderObject(RenderObject* ro)
 {
-	uint64_t newRoId = CreateRenderObject(mat, meshData, castShadow, worldMat);
-	SetRenderObjectMeshSkletonCluster(newRoId, meshData, skeletonId, skeletonUniqueName);
-	SetRenderObjectAnimInstance(newRoId, animaInstanceUniqueName, allBoneMatrix);
-	return newRoId;
+	mRenderObjects.DestroyValue(ro);
 }
 
-void RenderScene::SetRenderObjectMesh(uint64_t roId, SubMesh* meshData)
+void RenderScene::GetRenderObjects(LArray<RenderObject*>& valueOut) const
 {
-	mRenderObjects[roId]->mMeshIndex = meshData->GetRenderMeshBase();
-}
-
-void RenderScene::SetRenderObjectMeshSkletonCluster(uint64_t roId, SubMesh* meshData, const LUnorderedMap<LString, int32_t>& skeletonId, const LString& skeletonUniqueName)
-{
-	mRenderObjects[roId]->mSkinClusterIndex = GetData<SkeletonSkinData>()->AddMeshSkeletonLinkClusterData(meshData, skeletonId, skeletonUniqueName);
-}
-
-void RenderScene::SetRenderObjectAnimInstance(uint64_t roId, const LString& animaInstanceUniqueName, const LArray<LMatrix4f>& allBoneMatrix)
-{
-	mRenderObjects[roId]->mAnimInstanceIndex = GetData<SkeletonSkinData>()->AddAnimationInstanceMatrixData(animaInstanceUniqueName, allBoneMatrix);
-}
-
-void RenderScene::UpdateRenderObjectAnimInstance(uint64_t roId, const LArray<LMatrix4f>& allBoneMatrix)
-{
-	GetData<SkeletonSkinData>()->UpdateAnimationInstanceMatrixData(mRenderObjects[roId]->mAnimInstanceIndex, allBoneMatrix);
-}
-
-void RenderScene::SetRenderObjectCastShadow(uint64_t roId, bool castShadow)
-{
-	mRenderObjects[roId]->mCastShadow = castShadow;
-}
-
-void RenderScene::SetRenderObjectTransformRef(uint64_t roId, LMatrix4f* worldMat)
-{
-	mRenderObjects[roId]->mWorldMat = worldMat;
-}
-
-void RenderScene::SetRenderObjectMaterial(uint64_t roId, MaterialInstance* mat)
-{
-	mRenderObjects[roId]->mMaterial = mat;
-	mDirtyROs.insert(mRenderObjects[roId]);
-}
-
-void RenderScene::PrepareScene()
-{
-
-	if (!mBufferDirty)
-		return;
-	
-	uint32_t shadowmapIdx = 0;
-	//todo:这里dx会出现变量被优化的情况
-	if (mRoDataBuffer == nullptr)
-	{
-		RHIBufferDesc desc;
-		desc.mBufferUsage = RHIBufferUsage::StructureBuffer;
-		desc.mSize = sizeof(LMatrix4f) * 1024;
-		mRoDataBuffer = sRenderModule->mRenderContext->CreateBuffer(RHIHeapType::Upload,desc);
-		ViewDesc viewDesc;
-		viewDesc.mViewType = RHIViewType::kStructuredBuffer;
-		viewDesc.mViewDimension = RHIViewDimension::BufferView;
-		viewDesc.mStructureStride = sizeof(LMatrix4f);
-		mRoDataBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
-		mRoDataBufferView->BindResource(mRoDataBuffer);
-	}
-	if (mSceneParamsBuffer == nullptr)
-		mSceneParamsBuffer = new ShaderCBuffer(sRenderModule->GetRenderContext()->GetDefaultShaderConstantBufferDesc(LString("SceneBuffer").Hash()));
-	if (mROIDInstancingBuffer == nullptr)
-		mROIDInstancingBuffer = new ShaderCBuffer(RHIBufferUsage::VertexBufferBit, sizeof(uint32_t) * 4 * 1048);
-
-	mSceneParamsBuffer->Set("cAmbientColor", LMath::sRGB2LinearColor(mAmbientColor));
-
-	if (mMainDirLight)
-	{
-		mSceneParamsBuffer->Set("cDirectionLightColor", LMath::sRGB2LinearColor(mMainDirLight->mColor));
-		mSceneParamsBuffer->Set("cLightDirection", mMainDirLight->mDirection);
-		mSceneParamsBuffer->Set("cDirectionLightIndensity", mMainDirLight->mIntensity);
-	}
-	else
-	{
-		mSceneParamsBuffer->Set("cDirectionLightColor", LVector4f(0, 0, 0, 0));
-	}
-
-	mSceneParamsBuffer->Set("cPointLightsCount", mPointLights.size());
-	mSceneParamsBuffer->Set("cShadowmapCount", 0);
-	for (int i = 0; i < mPointLights.size(); i++)
-	{
-		PointLight* light = mPointLights[i];
-		if (light->mCastShadow)
-			mSceneParamsBuffer->Set("cShadowmapCount", 6);
-
-		mSceneParamsBuffer->Set("cPointLights", light->mPosition, i, 0);
-		mSceneParamsBuffer->Set("cPointLights", LMath::sRGB2LinearColor(light->mColor), i, 16);
-		mSceneParamsBuffer->Set("cPointLights", light->mIntensity, i, 32);
-	}
-
-	int32_t maxRoSize = 0;
-	for (auto& ro : mRenderObjects)
-	{
-		if (maxRoSize < ro->mID)
-		{
-			maxRoSize = ro->mID;
-		}
-	}
-	LArray<LMatrix4f> roMatrixArray;
-	roMatrixArray.resize(maxRoSize + 1);
-	for (int32_t i = 0; i < maxRoSize;++i)
-	{
-		roMatrixArray[i] = LMatrix4f::Identity();
-	}
-	
-	for (auto& ro : mRenderObjects)
-	{
-		uint32_t idx = ro->mID;
-		roMatrixArray[idx] = *ro->mWorldMat;
-	}
-	mBufferDirty = false;
-	sRenderModule->GetRenderContext()->UpdateConstantBuffer(mRoDataBuffer, roMatrixArray.data(), roMatrixArray.size() * sizeof(LMatrix4f));}
-
-void RenderScene::Init()
-{
-
-}
-
-DirectionLight* RenderScene::CreateMainDirLight()
-{
-	mMainDirLight = new DirectionLight();
-	mMainDirLight->mOwnerScene = this;
-	return mMainDirLight;
-}
-
-PointLight* RenderScene::CreatePointLight()
-{
-	auto light = new PointLight();
-	light->mOwnerScene = this;
-	mPointLights.push_back(light);
-	return light;
+	mRenderObjects.GetAllValueList(valueOut);
 }
 
 RenderView* RenderScene::CreateRenderView()
 {
-	RenderView* newView = new RenderView();
-	newView->mOwnerScene = this;
-	mViews.push_back(newView);
-	return newView;
+	RenderView* curView = mViews.AddNewValue();
+	curView->mOwnerScene = this;
+	return curView;
 }
 
-void RenderScene::Render(FrameGraphBuilder* FG)
+void RenderScene::GetAllView(LArray<RenderView*>& valueOut) const
 {
-	if (mMainDirLight)
-	{
-		if (mMainDirLight->mDirty)
-			mBufferDirty = true;
-		mMainDirLight->PerSceneUpdate(this);
-	}
-	for (int i = 0; i < mPointLights.size(); i++)
-	{
-		PointLight* light = mPointLights[i];
-		if (light->mDirty)
-			mBufferDirty = true;
-		light->PerSceneUpdate(this);
-	}
-
-	for (auto data : mDatas)
-	{
-		data->PerSceneUpdate(this);
-	}
-
-	PrepareScene();
-	
-	for (RenderView* renderView : mViews)
-	{
-		for (int i = 0; i < mPointLights.size(); i++)
-		{
-			PointLight* light = mPointLights[i];
-			light->PerViewUpdate(renderView);
-		}
-		if(mMainDirLight)
-			mMainDirLight->PerViewUpdate(renderView);
-		renderView->PrepareView();
-	}
-
-	Debug();
-
-	mSceneParamsBuffer->Commit();
-	mROIDInstancingBuffer->Commit();
-
-	for (RenderView* renderView : mViews)
-	{
-		renderView->Render(this, FG);
-	}
-}
-
-void RenderScene::DestroyMainDirLight(DirectionLight* val)
-{
-	if (mMainDirLight == val)
-	{
-		delete mMainDirLight;
-		mMainDirLight = nullptr;
-	}
+	mViews.GetAllValueList(valueOut);
 }
 
 void RenderScene::DestroyRenderView(RenderView* renderView)
 {
-	for (auto it = mViews.begin(); it != mViews.end(); ++it)
-	{
-		if (renderView == *it)
-		{
-			mViews.erase(it);
-			delete renderView;
-			return;
-		}
-	}
+	mViews.DestroyValue(renderView);
 }
 
-void RenderScene::DestroyLight(Light* ro)
+GpuSceneUploadComputeCommand* RenderScene::AddComputeCommand()
 {
-	for (auto it = mPointLights.begin(); it != mPointLights.end(); ++it)
-	{
-		if (ro == *it)
-		{
-			mPointLights.erase(it);
-			delete ro;
-			break;
-		}
-	}
-	mBufferDirty = true;
+	mAllComputeCommand.emplace_back();
+	return &mAllComputeCommand.back();
 }
 
-void RenderScene::DestroyRenderObject(uint64_t ro)
+GpuSceneUploadCopyCommand* RenderScene::AddCopyCommand()
 {
-	if (ro >= mRenderObjects.size())
-		return;
-	auto check = mRenderObjects.at(ro);
-	mRoIndex.push(check->mID);	
-	delete check;
-	mRenderObjects[ro] = nullptr;	
-	mBufferDirty = true;
+	mAllCopyCommand.emplace_back();
+	return &mAllCopyCommand.back();
+}
+
+void RenderScene::AddCbufferCopyCommand(ShaderCBuffer* cbufferData, RHIResource* bufferOutput)
+{
+	GpuSceneUploadCopyCommand* curCommand = AddCopyCommand();
+	RHIResource* lightParamBuffer = mStageBufferPool.AllocUniformStageBuffer(cbufferData)->mBindResource;
+	//cbuffer的更新只需要制作一个copy的指令
+	curCommand->mSrcOffset = 0;
+	curCommand->mDstOffset = 0;
+	curCommand->mCopyLength = SizeAligned2Pow(cbufferData->mData.size(), 256);
+	curCommand->mUniformBufferInput = lightParamBuffer;
+	curCommand->mStorageBufferOutput = bufferOutput;
+}
+
+RenderSceneUploadBufferPool* RenderScene::GetStageBufferPool()
+{
+	return &mStageBufferPool;
+}
+
+void RenderScene::ExcuteCopy()
+{
+	LArray<ResourceBarrierDesc> curResourceBarrier;
+	//修改资源状态
+	for (auto& eachCommand : mAllComputeCommand)
+	{
+		for (auto& eachInput : eachCommand.mStorageBufferInput)
+		{
+			ResourceBarrierDesc newBarrierDesc;
+			newBarrierDesc.mBarrierRes = eachInput.second->mBindResource;
+			newBarrierDesc.mStateBefore = ResourceState::kGenericRead;
+			newBarrierDesc.mStateAfter = ResourceState::kNonPixelShaderResource;
+			curResourceBarrier.push_back(newBarrierDesc);
+		}
+		for (auto& eachOut : eachCommand.mStorageBufferOutput)
+		{
+			ResourceBarrierDesc newBarrierDesc;
+			newBarrierDesc.mBarrierRes = eachOut.second->mBindResource;
+			newBarrierDesc.mStateBefore = ResourceState::kNonPixelShaderResource;
+			newBarrierDesc.mStateAfter = ResourceState::kUnorderedAccess;
+			curResourceBarrier.push_back(newBarrierDesc);
+		}
+	}
+	for (auto& eachCommand : mAllCopyCommand)
+	{
+		ResourceBarrierDesc newInputBarrierDesc;
+		newInputBarrierDesc.mBarrierRes = eachCommand.mUniformBufferInput;
+		newInputBarrierDesc.mStateBefore = ResourceState::kGenericRead;
+		newInputBarrierDesc.mStateAfter = ResourceState::kCopySource;
+		curResourceBarrier.push_back(newInputBarrierDesc);
+
+		ResourceBarrierDesc newOutputBarrierDesc;
+		newOutputBarrierDesc.mBarrierRes = eachCommand.mStorageBufferOutput;
+		newOutputBarrierDesc.mStateBefore = ResourceState::kVertexAndConstantBuffer;
+		newOutputBarrierDesc.mStateAfter = ResourceState::kCopyDest;
+		curResourceBarrier.push_back(newInputBarrierDesc);
+	}
+	sRenderModule->mRenderContext->mGraphicCmd->GetCmdList()->ResourceBarrierExt(curResourceBarrier);
+	//执行GPUscene的更新指令
+	for (auto& eachCommand : mAllComputeCommand)
+	{
+		for (auto eachStorageBuffer : eachCommand.mStorageBufferInput)
+		{
+			eachCommand.mComputeMaterial->SetShaderInput(eachStorageBuffer.first, eachStorageBuffer.second);
+		}
+		for (auto eachStorageBuffer : eachCommand.mStorageBufferOutput)
+		{
+			eachCommand.mComputeMaterial->SetShaderInput(eachStorageBuffer.first, eachStorageBuffer.second);
+		}
+		eachCommand.mComputeMaterial->UpdateBindingSet();
+		sRenderModule->mRenderContext->Dispatch(eachCommand.mComputeMaterial, eachCommand.mDispatchSize);
+	}
+	for (auto& eachCommand : mAllCopyCommand)
+	{
+		sRenderModule->mRenderContext->mGraphicCmd->GetCmdList()->CopyBufferToBuffer(eachCommand.mStorageBufferOutput, eachCommand.mDstOffset, eachCommand.mUniformBufferInput, eachCommand.mSrcOffset, eachCommand.mCopyLength);
+	}
+	//恢复资源状态
+	curResourceBarrier.clear();
+	for (auto& eachCommand : mAllComputeCommand)
+	{
+		for (auto& eachInput : eachCommand.mStorageBufferInput)
+		{
+			ResourceBarrierDesc newBarrierDesc;
+			newBarrierDesc.mBarrierRes = eachInput.second->mBindResource;
+			newBarrierDesc.mStateBefore = ResourceState::kNonPixelShaderResource;
+			newBarrierDesc.mStateAfter = ResourceState::kGenericRead;
+			curResourceBarrier.push_back(newBarrierDesc);
+		}
+		for (auto& eachOut : eachCommand.mStorageBufferOutput)
+		{
+			ResourceBarrierDesc newBarrierDesc;
+			newBarrierDesc.mBarrierRes = eachOut.second->mBindResource;
+			newBarrierDesc.mStateBefore = ResourceState::kUnorderedAccess;
+			newBarrierDesc.mStateAfter = ResourceState::kNonPixelShaderResource;
+			curResourceBarrier.push_back(newBarrierDesc);
+		}
+	}
+	for (auto& eachCommand : mAllCopyCommand)
+	{
+		ResourceBarrierDesc newInputBarrierDesc;
+		newInputBarrierDesc.mBarrierRes = eachCommand.mUniformBufferInput;
+		newInputBarrierDesc.mStateBefore = ResourceState::kCopySource;
+		newInputBarrierDesc.mStateAfter = ResourceState::kGenericRead;
+		curResourceBarrier.push_back(newInputBarrierDesc);
+
+		ResourceBarrierDesc newOutputBarrierDesc;
+		newOutputBarrierDesc.mBarrierRes = eachCommand.mStorageBufferOutput;
+		newOutputBarrierDesc.mStateBefore = ResourceState::kCopyDest;
+		newOutputBarrierDesc.mStateAfter = ResourceState::kVertexAndConstantBuffer;
+		curResourceBarrier.push_back(newInputBarrierDesc);
+	}
+	sRenderModule->mRenderContext->mGraphicCmd->GetCmdList()->ResourceBarrierExt(curResourceBarrier);
+	//清空所有GpuScene的更新指令
+	mAllComputeCommand.clear();
+	mAllCopyCommand.clear();
+	//将上传缓冲池切换到下一帧
+	mStageBufferPool.Present();
 }
 
 RenderScene::~RenderScene()
 {
-	for (RenderView* it : mViews)
-	{
-		delete it;
-	}
-	if (mROIDInstancingBuffer)
-	{
-		delete mROIDInstancingBuffer;
-		mROIDInstancingBuffer = nullptr;
-	}
-	for (PointLight* it : mPointLights)
-	{
-		delete it;
-	}
-	if (mSceneParamsBuffer)
-	{
-		delete mSceneParamsBuffer;
-		mSceneParamsBuffer = nullptr;
-	}
-	mViews.clear();
-	for (auto it : mRenderObjects)
-	{
-		delete it;
-	}
-	mRenderObjects.clear();
 }
 
-void RenderScene::Debug()
-{
-	if (!mDrawGizmos)
-		return;
-
-	SubMesh            mDebugMeshLine;
-	SubMesh            mDebugMesh;
-	if (mMainDirLight && mMainDirLight->mCastShadow)
-	{
-		LFrustum f = LFrustum::FromOrth(0.01, 50, 30, 30);
-		f.Multiple(mMainDirLight->mViewMatrix.inverse());
-		AddLineToSubMesh(f.mNearPlane[0], f.mNearPlane[1], mDebugMeshLine);
-		AddLineToSubMesh(f.mNearPlane[1], f.mNearPlane[2], mDebugMeshLine);
-		AddLineToSubMesh(f.mNearPlane[2], f.mNearPlane[3], mDebugMeshLine);
-		AddLineToSubMesh(f.mNearPlane[3], f.mNearPlane[0], mDebugMeshLine);
-		AddLineToSubMesh(f.mNearPlane[0], f.mFarPlane[0], mDebugMeshLine);
-		AddLineToSubMesh(f.mNearPlane[1], f.mFarPlane[1], mDebugMeshLine);
-		AddLineToSubMesh(f.mNearPlane[2], f.mFarPlane[2], mDebugMeshLine);
-		AddLineToSubMesh(f.mNearPlane[3], f.mFarPlane[3], mDebugMeshLine);
-		AddLineToSubMesh(f.mFarPlane[0], f.mFarPlane[1], mDebugMeshLine);
-		AddLineToSubMesh(f.mFarPlane[1], f.mFarPlane[2], mDebugMeshLine);
-		AddLineToSubMesh(f.mFarPlane[2], f.mFarPlane[3], mDebugMeshLine);
-		AddLineToSubMesh(f.mFarPlane[3], f.mFarPlane[0], mDebugMeshLine);
-	}
-
-	for (int i = 0; i < mPointLights.size(); i++)
-	{
-		PointLight* light = mPointLights[i];
-		if (light->mCastShadow)
-		{
-			for (int faceIdx = 0; faceIdx < 6; faceIdx++)
-			{
-				LFrustum f = LFrustum::MakeFrustrum(light->mFov, light->mNear, light->mFar, light->mAspect);
-				f.Multiple(light->mViewMatrix[faceIdx].inverse());
-
-				AddLineToSubMesh(f.mNearPlane[0], f.mNearPlane[1], mDebugMeshLine);
-				AddLineToSubMesh(f.mNearPlane[1], f.mNearPlane[2], mDebugMeshLine);
-				AddLineToSubMesh(f.mNearPlane[2], f.mNearPlane[3], mDebugMeshLine);
-				AddLineToSubMesh(f.mNearPlane[3], f.mNearPlane[0], mDebugMeshLine);
-				AddLineToSubMesh(f.mNearPlane[0], f.mFarPlane[0], mDebugMeshLine);
-				AddLineToSubMesh(f.mNearPlane[1], f.mFarPlane[1], mDebugMeshLine);
-				AddLineToSubMesh(f.mNearPlane[2], f.mFarPlane[2], mDebugMeshLine);
-				AddLineToSubMesh(f.mNearPlane[3], f.mFarPlane[3], mDebugMeshLine);
-				AddLineToSubMesh(f.mFarPlane[0], f.mFarPlane[1], mDebugMeshLine);
-				AddLineToSubMesh(f.mFarPlane[1], f.mFarPlane[2], mDebugMeshLine);
-				AddLineToSubMesh(f.mFarPlane[2], f.mFarPlane[3], mDebugMeshLine);
-				AddLineToSubMesh(f.mFarPlane[3], f.mFarPlane[0], mDebugMeshLine);
-			}
-
-		}
-		AddCubeWiredToSubMesh(mDebugMeshLine, light->mPosition, LVector3f(1, 1, 1), light->mColor);
-	}
-
-	mDebugMeshData.Init(&mDebugMesh);
-	mDebugMeshLineData.Init(&mDebugMeshLine);
-}
+//void RenderScene::Debug()
+//{
+//	if (!mDrawGizmos)
+//		return;
+//
+//	SubMesh            mDebugMeshLine;
+//	SubMesh            mDebugMesh;
+//	if (mMainDirLight && mMainDirLight->mCastShadow)
+//	{
+//		LFrustum f = LFrustum::FromOrth(0.01, 50, 30, 30);
+//		f.Multiple(mMainDirLight->mViewMatrix.inverse());
+//		AddLineToSubMesh(f.mNearPlane[0], f.mNearPlane[1], mDebugMeshLine);
+//		AddLineToSubMesh(f.mNearPlane[1], f.mNearPlane[2], mDebugMeshLine);
+//		AddLineToSubMesh(f.mNearPlane[2], f.mNearPlane[3], mDebugMeshLine);
+//		AddLineToSubMesh(f.mNearPlane[3], f.mNearPlane[0], mDebugMeshLine);
+//		AddLineToSubMesh(f.mNearPlane[0], f.mFarPlane[0], mDebugMeshLine);
+//		AddLineToSubMesh(f.mNearPlane[1], f.mFarPlane[1], mDebugMeshLine);
+//		AddLineToSubMesh(f.mNearPlane[2], f.mFarPlane[2], mDebugMeshLine);
+//		AddLineToSubMesh(f.mNearPlane[3], f.mFarPlane[3], mDebugMeshLine);
+//		AddLineToSubMesh(f.mFarPlane[0], f.mFarPlane[1], mDebugMeshLine);
+//		AddLineToSubMesh(f.mFarPlane[1], f.mFarPlane[2], mDebugMeshLine);
+//		AddLineToSubMesh(f.mFarPlane[2], f.mFarPlane[3], mDebugMeshLine);
+//		AddLineToSubMesh(f.mFarPlane[3], f.mFarPlane[0], mDebugMeshLine);
+//	}
+//
+//	for (int i = 0; i < mPointLights.size(); i++)
+//	{
+//		PointLight* light = mPointLights[i];
+//		if (light->mCastShadow)
+//		{
+//			for (int faceIdx = 0; faceIdx < 6; faceIdx++)
+//			{
+//				LFrustum f = LFrustum::MakeFrustrum(light->mFov, light->mNear, light->mFar, light->mAspect);
+//				f.Multiple(light->mViewMatrix[faceIdx].inverse());
+//
+//				AddLineToSubMesh(f.mNearPlane[0], f.mNearPlane[1], mDebugMeshLine);
+//				AddLineToSubMesh(f.mNearPlane[1], f.mNearPlane[2], mDebugMeshLine);
+//				AddLineToSubMesh(f.mNearPlane[2], f.mNearPlane[3], mDebugMeshLine);
+//				AddLineToSubMesh(f.mNearPlane[3], f.mNearPlane[0], mDebugMeshLine);
+//				AddLineToSubMesh(f.mNearPlane[0], f.mFarPlane[0], mDebugMeshLine);
+//				AddLineToSubMesh(f.mNearPlane[1], f.mFarPlane[1], mDebugMeshLine);
+//				AddLineToSubMesh(f.mNearPlane[2], f.mFarPlane[2], mDebugMeshLine);
+//				AddLineToSubMesh(f.mNearPlane[3], f.mFarPlane[3], mDebugMeshLine);
+//				AddLineToSubMesh(f.mFarPlane[0], f.mFarPlane[1], mDebugMeshLine);
+//				AddLineToSubMesh(f.mFarPlane[1], f.mFarPlane[2], mDebugMeshLine);
+//				AddLineToSubMesh(f.mFarPlane[2], f.mFarPlane[3], mDebugMeshLine);
+//				AddLineToSubMesh(f.mFarPlane[3], f.mFarPlane[0], mDebugMeshLine);
+//			}
+//
+//		}
+//		AddCubeWiredToSubMesh(mDebugMeshLine, light->mPosition, LVector3f(1, 1, 1), light->mColor);
+//	}
+//
+//	mDebugMeshData.Init(&mDebugMesh);
+//	mDebugMeshLineData.Init(&mDebugMeshLine);
+//}
 
 }

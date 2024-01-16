@@ -56,7 +56,7 @@
          "__parent__" : 1,
          "name" : "_EnvTex",
          "param_name" : "_EnvTex",
-         "texture" : "/assets/built-in/Skybox/Skybox.cubemap",
+         "texture" : "/assets/built-in/Skybox/Cubemap.dds",
          "type" : 6
       }
    ]

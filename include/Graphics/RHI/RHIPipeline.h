@@ -10,6 +10,20 @@
 namespace luna::graphics
 {
 
+//基础的pso格式
+struct RHIPipelineStateDescBase
+{
+	LUnorderedMap<RHIShaderType, RHIShaderBlobPtr> mShaders;
+};
+//compute pipeline的pso格式
+struct RHIPipelineStateComputeDesc : public RHIPipelineStateDescBase
+{
+
+};
+RHIBindingSetLayoutPtr GenerateAndCompileShaderLayout(
+	RHIDevice* device,
+	const LArray<RHIShaderBlob*>& shaderPack
+);
 //绑定槽位的名称格式
 struct RenderBindingSlotTypeDesc
 {
@@ -38,7 +52,6 @@ struct RHIBlendStateDesc
 	LArray<RHIBlendStateTargetDesc> RenderTarget;
 };
 
-
 struct RHIRasterizerStateDesc
 {
 	RHIRasterizerFillMode         FillMode              = RHIRasterizerFillMode::FILL_MODE_SOLID;
@@ -54,7 +67,6 @@ struct RHIRasterizerStateDesc
 	RHIConservativeRasterizerMode ConservativeRaster    = RHIConservativeRasterizerMode::CONSERVATIVE_RASTERIZATION_MODE_OFF;
 };
 
-
 struct RHIDepthStencilOptionDesc
 {
 public:
@@ -63,7 +75,6 @@ public:
 	RHIStencilOption   StencilPassOp      = RHIStencilOption::STENCIL_OP_KEEP;
 	RHIComparisionFunc StencilFunc        = RHIComparisionFunc::FuncAlways;
 };
-
 
 struct RHIDepthStencilStateDesc
 {
@@ -77,14 +88,9 @@ struct RHIDepthStencilStateDesc
 	RHIDepthStencilOptionDesc BackFace;
 };
 
-
-struct RHIPipelineStateObjectDesc
+//渲染pipeline的pso格式
+struct RHIPipelineStateGraphDrawDesc : public RHIPipelineStateDescBase
 {
-	RHIShaderBlobPtr            mVertexShader;
-	RHIShaderBlobPtr            mPixelShader;
-	RHIShaderBlobPtr            mGeometryShader;
-	RHIShaderBlobPtr            mDominShader;
-	RHIShaderBlobPtr            mHullShader;
 	RHIBlendStateDesc           BlendState;
 	uint32_t                    SampleMask            = 0xFFFFFFFF;
 	RHIRasterizerStateDesc      RasterizerState;
@@ -95,61 +101,73 @@ struct RHIPipelineStateObjectDesc
 	//此处废弃
 	RHIGraphicSampleCount       SampleDesc;
 	uint32_t                    NodeMask              = 0;
-
-};
-
-struct RenderPipelineStateDescGraphic
-{
-	RHIPipelineStateObjectDesc mPipelineStateDesc = {};
-	RHIVertexLayout mInputLayout;
-	RenderPassDesc mRenderPassDesc;
-};
-
-struct RHIPipelineStateDesc
-{
-	RHICmdListType mType;
-	RenderPipelineStateDescGraphic mGraphicDesc;
 };
 
 class RENDER_API RHIPipelineState : public RHIObject
 {
+protected:
+	RHICmdListType                       mType;
+
+	LSharedPtr<RHIPipelineStateDescBase> mPSODesc;
+
+	RHIBindingSetLayoutPtr               mBindingSetLayout;
 public:
-	RHIPipelineStateDesc                                 mPSODesc;
-	LUnorderedMap<RHIShaderType, TRHIPtr<RHIShaderBlob>> mShaders;
+	RHIPipelineState(LSharedPtr<RHIPipelineStateDescBase> psoDesc, RHICmdListType type)
+	{
+		mType = type;
+		mPSODesc = psoDesc;
+	};
 
-	RHIBindingSetLayoutPtr                               mBindingSetLayout;
+	void Create(RHIDevice* device);
+
+	RHIPipelineStateDescBase* GetDesc()
+	{
+		return mPSODesc.get();
+	};
+
+	virtual ~RHIPipelineState() override
+	{
+	};
+
+	RHIBindingSetLayout* GetLayout() { return mBindingSetLayout.get(); }
+
+	RHICmdListType GetType() { return mType; }
+private:
+	virtual void CreateImpl() = 0;
+};
+
+class RENDER_API RHIPipelineStateCompute : public RHIPipelineState
+{
 public:
-	RHIPipelineState(const RHIPipelineStateDesc& pso_desc)
-	{
-		mPSODesc = pso_desc;
-	};
+	RHIPipelineStateCompute(LSharedPtr<RHIPipelineStateDescBase> psoDesc);
+private:
+	void CreateImpl() override;
 
-	RHIPipelineStateDesc GetDesc()
-	{
-		return mPSODesc;
-	};
+	virtual void CreateComputePipelineImpl(
+		RHIPipelineStateComputeDesc* computePipelineDesc
+	) = 0;
+};
 
-	RHIShaderBlob* GetVertexShader() const { return mPSODesc.mGraphicDesc.mPipelineStateDesc.mVertexShader; }
-	RHIShaderBlob* GetPixelShader() const { return mPSODesc.mGraphicDesc.mPipelineStateDesc.mPixelShader; }
+class RENDER_API RHIPipelineStateGraphic : public RHIPipelineState
+{
+	RHIVertexLayout mInputLayout;
 
-	BindPointIt GetBindPoint(ShaderParamID id) const
-	{
-		return GetVertexShader()->GetBindPoint(id);
-	};
+	RenderPassDesc mRenderPassDesc;
+public:
+	RHIPipelineStateGraphic(
+		LSharedPtr<RHIPipelineStateDescBase> psoDesc,
+		const RHIVertexLayout& inputLayout,
+		const RenderPassDesc& renderPassDesc
+	);
 
-	RHICBufferDesc& GetConstantBufferDesc(ShaderParamID name)
-	{
-		return GetVertexShader()->GetUniformBuffer(name);
-	}
+private:
+	void CreateImpl() override;
 
-	RHIBindingSetLayoutPtr& GetBindingSetLayout()
-	{
-		return mBindingSetLayout;
-	};
-
-	~RHIPipelineState() override
-	{
-	};
+	virtual void CreateGraphDrawPipelineImpl(
+		RHIPipelineStateGraphDrawDesc* graphPipelineDesc,
+		RHIVertexLayout &inputLayout,
+		RenderPassDesc &renderPassDesc
+	) = 0;
 };
 
 }

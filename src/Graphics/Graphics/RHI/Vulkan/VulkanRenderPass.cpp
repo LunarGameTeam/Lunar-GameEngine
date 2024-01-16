@@ -49,7 +49,7 @@ VulkanRenderPass::VulkanRenderPass(const RenderPassDesc& desc)
 		const PassColorDesc& it = desc.mColors[i];
 		RHIViewPtr view = desc.mColorView[i];
 		vk::AttachmentDescription& colorAttachment = descriptions.emplace_back();
-		colorAttachment.format = Convert(view->mBindResource->mResDesc.Format);
+		colorAttachment.format = Convert(view->mBindResource->GetDesc().Format);
 		colorAttachment.samples = vk::SampleCountFlagBits::e1;
 		colorAttachment.loadOp = convertLoad(it.mLoadOp);
 		colorAttachment.storeOp = convertStore(it.mStoreOp);

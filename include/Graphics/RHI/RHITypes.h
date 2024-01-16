@@ -8,7 +8,6 @@ namespace luna::graphics
 
 class VulkanDevice; 
 struct RHIShaderDesc;
-struct RHIPipelineStateDesc;
 struct RHIResDesc;
 struct RenderPassDesc;
 struct SamplerDesc;
@@ -16,7 +15,6 @@ struct DescriptorPoolDesc;
 struct ViewDesc;
 struct FrameBufferDesc;
 struct RHIBufferDesc;
-struct RHITextureDesc;
 struct RHIMemoryDesc;
 struct PassColorDesc;
 struct PassDepthStencilDesc;

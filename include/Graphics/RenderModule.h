@@ -25,12 +25,15 @@
 
 #include "Graphics/Renderer/ImGuiTexture.h"
 #include "Graphics/Renderer/RenderContext.h"
+#include "Graphics/Renderer/SceneRenderer.h"
 
 #include "Graphics/RHI/RHITypes.h"
-
+#include "Graphics/RenderAssetManager/RenderAssetManager.h"
 
 namespace luna::graphics
 {
+
+
 
 class RENDER_API RenderModule : public LModule
 {
@@ -55,7 +58,7 @@ public:
 
 	RHIDevice* GetRHIDevice()
 	{
-		return mRenderContext->mDevice;
+		return mRenderContext->mDevice.get();
 	}
 
 	RenderContext* GetRenderContext()
@@ -70,6 +73,7 @@ public:
 
 	RenderDeviceType GetDeviceType() { return mRenderContext->mDeviceType; }
 
+	RenderAssetDataManager* GetAssetManager() { return &mRenderAssetManager; };
 public:
 	
 	bool OnLoad() override;	
@@ -81,20 +85,21 @@ public:
 	void RenderTick(float delta_time) override;
 	void UpdateFrameBuffer();
 protected:
-	void Render();
+	void PrepareRender();
 	void RenderIMGUI();
 
 	void OnMainWindowResize(LWindow& window, WindowEvent& event);
 public:
 	RenderContext*      mRenderContext;
 	TPPtr<RenderTarget> mMainRT;
-	RenderMeshBase      mFullscreenMesh;
+	RenderAssetDataMesh      mFullscreenMesh;
 	ImguiTexture* GetImguiTexture(RHIResource* key);
 	ImguiTexture* AddImguiTexture(RHIResource* res);
 	bool          IsImuiTexture(RHIResource* key);
 	LSharedPtr<Texture2D>              mDefaultWhiteTexture;
 	LSharedPtr<Texture2D>              mDefaultNormalTexture;
 private:
+	LSharedPtr<SceneRenderer> mRenderer;
 	LArray<RenderScene*>               mRenderScenes;
 	LMap<RHIResourcePtr, ImguiTexture> mImguiTextures;
 
@@ -103,11 +108,11 @@ private:
 	graphics::RHISwapchainDesc           mSwapchainDesc;
 
 	RHISwapChainPtr                    mMainSwapchain;
-	//framegraph
-	FrameGraphBuilder*                 mFrameGraph          = nullptr;
 
 	bool                               mNeedResizeSwapchain = false;
 
 	std::atomic_bool                   mLogicUpdated = false;
+
+	RenderAssetDataManager             mRenderAssetManager;
 };
 }

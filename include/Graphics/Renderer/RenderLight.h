@@ -4,7 +4,8 @@
 #include "Graphics/RHI/RHIDescriptor.h"
 #include "Graphics/RenderTypes.h"
 #include "Core/Math/Math.h"
-
+#include "Graphics/RHI/RHIPipeline.h"
+#include "Graphics/Asset/MaterialTemplate.h"
 #include <memory>
 
 #include "RenderData.h"
@@ -13,41 +14,82 @@
 namespace luna::graphics
 {
 
-struct RENDER_API Light : public RenderData
+enum class PointBasedLightType
 {
-	LVector4f    mColor      = LVector4f(1, 1, 1, 1);
-	bool         mCastShadow = false;
+	POINT_BASED_LIGHT_POINT = 0,
+	POINT_BASEDLIGHT_DIRECTION,
+	POINT_BASEDLIGHT_SPOT
+};
 
-	float        mIntensity  = 1.0;
-	bool         mInit       = false;
-	bool         mDirty      = true;
+struct RENDER_API PointBasedLight : public luna::HoldIdItem
+{
+	size_t              mIndex;
+
+	PointBasedLightType mType = PointBasedLightType::POINT_BASED_LIGHT_POINT;
+
+	LVector4f           mColor      = LVector4f(1, 1, 1, 1);
+
+	float               mIntensity  = 1.0;
+
+	LVector4f           mRangeParam = LVector4f(0, 0, 0, 0);
+	//position
+	LVector3f           mPosition;
+	//direction
+	LVector3f           mDirection;
+	//spot
+	
 	RenderScene* mOwnerScene = nullptr;
 };
 
-struct RENDER_API PointLight : Light
+class RENDER_API PointBasedRenderLightData : public RenderData
 {
-	LVector3f              mPosition;
-	float                  mFov    = (float)std::numbers::pi / 2.0f;
-	float                  mAspect = 1;
-	float                  mNear   = 0.1;
-	float                  mFar    = 50;
-	LArray<LMatrix4f>      mViewMatrix;
-	LMatrix4f              mProjMatrix;
-	LArray<ShaderCBuffer*> mParamBuffer;
+	//这个数据是render scene的光源组件，持有dirty的光源信息
+	size_t mMaxLightNum;
 
-	void PerViewUpdate(RenderView* renderScene) override;
-	
+	LHoldIdArray<PointBasedLight> mAllLights;
+
+	RHIResourcePtr mLightParameterBuffer;
+
+	RHIViewPtr     mLightParameterBufferView;
+
+	RHIResourcePtr mExistLightDataBuffer;
+
+	RHIViewPtr     mExistLightDataBufferView;
+
+	LArray<PointBasedLight*> mDirtyList;
+
+	LSharedPtr<ShaderCBuffer> mLightBufferGlobelMessage = nullptr;
+
+	bool LightNumDirty = true;
+
+	LArray<uint32_t> mPointLightIndex;
+
+	LArray<uint32_t> mDirectionLightIndex;
+
+	LArray<uint32_t> mSpotLightIndex;
+
+	LSharedPtr<MaterialComputeAsset> mMaterial;
+
+	LSharedPtr<MaterialInstanceComputeBase> mMaterialInstance;
+public:
+	PointBasedRenderLightData();
+
+	PointBasedLight* CreatePointBasedLight();
+
+	void DestroyLight(PointBasedLight* light);
+
+	void SetMaterialParameter(MaterialInstance* matInstance);
+
+	void PerSceneUpdate(RenderScene* renderScene) override;
+
+	void UpdateLightNumParameter(RenderScene* renderScene);
+
+	void UpdateDirtyLightData(RenderScene* renderScene);
+
+	void MarkLightDirty(PointBasedLight* light) { mDirtyList.push_back(light); };
+private:
+	void GenerateDirtyLightDataBuffer(void* pointer);
+
+	void GenerateDirtyLightIndexBuffer(void* pointer);
 };
-
-struct RENDER_API DirectionLight : Light
-{
-
-	LVector3f mDirection;
-	LMatrix4f mViewMatrix;
-	
-	void PerViewUpdate(RenderView* renderScene) override;
-
-	ShaderCBuffer* mParamBuffer;
-};
-
 }

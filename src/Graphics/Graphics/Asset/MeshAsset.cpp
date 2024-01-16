@@ -36,15 +36,21 @@ namespace luna::graphics
 		mVeretexLayout = format;
 	}
 
-	graphics::RenderMeshBase* SubMesh::GetRenderMeshBase()
+	graphics::RenderAssetDataMesh* SubMesh::GetRenderMeshData()
 	{
 		if(!mMeshData)
 		{
-
-			mMeshData = new RenderMeshBase();
-			mMeshData->Init(this);			
+			mMeshData = luna::sRenderModule->GetAssetManager()->GenerateRenderMesh(this);	
 		}
 		return mMeshData;
+	}
+	
+	SubMesh::~SubMesh()
+	{
+		if (mMeshData)
+		{
+			luna::sRenderModule->GetAssetManager()->DestroyRenderMesh(mMeshData);
+		}
 	}
 
 	SubMesh::SubMesh()

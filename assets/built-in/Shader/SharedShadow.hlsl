@@ -37,26 +37,26 @@ float GetShadowFactor(float4 shadowCoord, float2 offset, int i)
 
 float GetShadowPCF(float3 input)
 {
-	float shadowFactor = 0.0;
-	int range = 1;
-	for(int i = 0; i < cShadowmapCount; i++)
-	{
-		float4 shadowCoord = mul(mul(float4(input, 1.0), cLightViewMatrix[i]), cLightProjMatrix[i]);
-		shadowCoord = shadowCoord / shadowCoord.w;
-		int count = 0;
-		shadowFactor = 0;
-		for (int x = -range; x <= range; x++)
-		{
-			for (int y = -range; y <= range; y++)
-			{
-				shadowFactor += GetShadowFactor(shadowCoord, float2(x, y), i);
-				count++;
-			}
-		}
-		shadowFactor = shadowFactor / count;
-		if(shadowFactor < 0.95)
-			return shadowFactor;		
-	}
+//	float shadowFactor = 0.0;
+//	int range = 1;
+//	for(int i = 0; i < cShadowmapCount; i++)
+//	{
+//		float4 shadowCoord = mul(mul(float4(input, 1.0), cLightViewMatrix[i]), cLightProjMatrix[i]);
+//		shadowCoord = shadowCoord / shadowCoord.w;
+//		int count = 0;
+//		shadowFactor = 0;
+//		for (int x = -range; x <= range; x++)
+//		{
+//			for (int y = -range; y <= range; y++)
+//			{
+//				shadowFactor += GetShadowFactor(shadowCoord, float2(x, y), i);
+//				count++;
+//			}
+//		}
+//		shadowFactor = shadowFactor / count;
+//		if(shadowFactor < 0.95)
+//			return shadowFactor;		
+//	}
 	return 1.0;
 }
 

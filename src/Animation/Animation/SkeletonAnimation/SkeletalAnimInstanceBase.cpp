@@ -34,7 +34,7 @@ namespace luna::animation
 	void SkeletalAnimInstanceBase::UpdateAnimation(float deltaTime)
 	{
 		UpdateAnimationImpl(deltaTime, poseMatrix);
-		onUpdateFinishedFunc(poseMatrix);
+		//onUpdateFinishedFunc(poseMatrix);
 	}
 
 	void SkeletalAnimInstanceBase::ApplyAnimation()

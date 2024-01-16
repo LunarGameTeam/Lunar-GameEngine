@@ -15,10 +15,10 @@ namespace luna::graphics
 class RENDER_API VulkanBindingSetLayout : public RHIBindingSetLayout
 {
 public:
-	VulkanBindingSetLayout(const std::vector<RHIBindPoint>& bindKeys);
+	VulkanBindingSetLayout(const std::vector<RHIBindPoint>& bindKeys, const std::unordered_map<ShaderParamID, RHIPushConstantValue>& mBindConstKeys);
 
 
-	vk::DescriptorSetLayout mDescriptorSetLayout;
+	vk::DescriptorSetLayout mConstantDescriptorSetLayout;
 	std::vector<vk::DescriptorSetLayout> mDescriptorSetLayouts;
 	vk::PipelineLayout mPipelineLayout;
 	std::vector<std::map<vk::DescriptorType, size_t>> mDescriptorCountBySet;

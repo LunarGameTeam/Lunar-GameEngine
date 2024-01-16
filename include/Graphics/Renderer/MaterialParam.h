@@ -20,8 +20,6 @@ using ShaderParamInputs = std::unordered_map<ShaderParamID, RHIView*>;
 struct RENDER_API ShaderCBuffer : NoCopy
 {
 	ShaderCBuffer(const RHICBufferDesc& cbDesc);
-	ShaderCBuffer(RHIBufferUsage usage, uint32_t size);
-
 
 	template<typename T>
 	void Set(const LString& name, const T& val, uint32_t arrayIdx = 0, size_t extra_offset = 0)
@@ -55,12 +53,8 @@ struct RENDER_API ShaderCBuffer : NoCopy
 		memcpy(mData.data() + offset, data, dataSize);
 	}
 
-	void Commit();
-
 	LMap<size_t, CBufferVar> mVars;
 	LArray<byte>             mData;
-	RHIResourcePtr           mRes;
-	RHIViewPtr               mView;
 };
 
 

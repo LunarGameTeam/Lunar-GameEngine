@@ -214,19 +214,37 @@ luna::graphics::RHIShaderBlobPtr DX12Device::CreateShader(const RHIShaderDesc& d
 	return CreateRHIObject<DX12ShaderBlob>(desc);
 }
 
-luna::graphics::RHIPipelineStatePtr DX12Device::CreatePipeline(const RHIPipelineStateDesc& desc)
+RHIPipelineStatePtr DX12Device::CreatePipelineGraphic(
+	const RHIPipelineStateGraphDrawDesc& desc,
+	const RHIVertexLayout& inputLayout,
+	const RenderPassDesc& renderPassDesc
+)
 {
-	return CreateRHIObject<DX12PipelineState>(desc);
-};
+	LSharedPtr<RHIPipelineStateDescBase> curDesc = MakeShared<RHIPipelineStateGraphDrawDesc>();
+	*curDesc = desc;
+	luna::graphics::RHIPipelineStatePtr dx12Pipeline = CreateRHIObject<DX12PipelineStateGraphic>(curDesc, inputLayout, renderPassDesc);
+	dx12Pipeline->Create(this);
+	return dx12Pipeline;
+}
+
+RHIPipelineStatePtr DX12Device::CreatePipelineCompute(const RHIPipelineStateComputeDesc& desc)
+{
+	LSharedPtr<RHIPipelineStateDescBase> curDesc = MakeShared<RHIPipelineStateComputeDesc>();
+	*curDesc = desc;
+	luna::graphics::RHIPipelineStatePtr dx12Pipeline = CreateRHIObject<DX12PipelineStateCompute>(curDesc);
+	dx12Pipeline->Create(this);
+	return dx12Pipeline;
+}
+
 
 RHICmdSignaturePtr DX12Device::CreateCmdSignature(RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc)
 {
 	return CreateRHIObject<DX12CmdSignature>(pipeline, allCommondDesc);
 }
 
-RHIBindingSetLayoutPtr DX12Device::CreateBindingSetLayout(const std::vector<RHIBindPoint>& bindKeys)
+RHIBindingSetLayoutPtr DX12Device::CreateBindingSetLayout(const std::vector<RHIBindPoint>& bindKeys, const std::unordered_map<ShaderParamID, RHIPushConstantValue>& mBindConstKeys)
 {
-	return CreateRHIObject<DX12BindingSetLayout>(bindKeys);
+	return CreateRHIObject<DX12BindingSetLayout>(bindKeys, mBindConstKeys);
 }
 
 luna::graphics::TRHIPtr<luna::graphics::RHIMemory> DX12Device::AllocMemory(const RHIMemoryDesc& desc, uint32_t memoryBits /*= 0*/)
@@ -301,9 +319,9 @@ RHIBindingSetPtr DX12Device::CreateBindingSet(RHIDescriptorPool* pool, RHIBindin
 	return CreateRHIObject<DX12BindingSet>(pool, layout);
 }
 
-luna::graphics::RHIResourcePtr DX12Device::CreateTextureExt(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc)
+luna::graphics::RHIResourcePtr DX12Device::CreateTextureExt(const RHIResDesc& resDesc)
 {
-	return CreateRHIObject<DX12Resource>(textureDesc, resDesc);
+	return CreateRHIObject<DX12Resource>(resDesc);
 }
 
 RHIResourcePtr DX12Device::CreateBufferExt(const RHIBufferDesc& bufferDesc)

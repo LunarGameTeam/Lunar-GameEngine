@@ -14,16 +14,20 @@ public:
 		RHIMemory(desc)
 	{
 		vk::MemoryPropertyFlags properties = {};
+		uint32_t defaultMemoryBits = -1;
 		switch (desc.Type)
 		{
 		case RHIHeapType::Default:
 			properties = vk::MemoryPropertyFlagBits::eDeviceLocal;
+			defaultMemoryBits = static_cast<uint32_t>(vk::MemoryPropertyFlagBits::eDeviceLocal);
 			break;
 		case RHIHeapType::Upload:
 			properties = vk::MemoryPropertyFlagBits::eHostVisible  | vk::MemoryPropertyFlagBits::eHostCoherent;
+			defaultMemoryBits = static_cast<uint32_t>(vk::MemoryPropertyFlagBits::eHostVisible);
 			break;
 		case RHIHeapType::Readback:
 			properties = vk::MemoryPropertyFlagBits::eHostVisible;
+			defaultMemoryBits = static_cast<uint32_t>(vk::MemoryPropertyFlagBits::eHostVisible);
 			break;
 		case RHIHeapType::Custom:
 			break;
@@ -34,7 +38,14 @@ public:
 		vk::MemoryAllocateInfo alloc_info = {};		
 		alloc_info.pNext = NULL;
 		alloc_info.allocationSize = desc.SizeInBytes;
-		alloc_info.memoryTypeIndex = findMemoryType(memoryBits, properties);
+		if(memoryBits == 0)
+		{
+			alloc_info.memoryTypeIndex = defaultMemoryBits;
+		}
+		else
+		{
+			alloc_info.memoryTypeIndex = findMemoryType(memoryBits, properties);
+		}
 		VULKAN_ASSERT(device.allocateMemory(&alloc_info, nullptr, &mMemory))
 	}
 

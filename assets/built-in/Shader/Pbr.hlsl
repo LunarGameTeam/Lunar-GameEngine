@@ -101,12 +101,12 @@ void TransformSkinVertex(inout float4 position,inout float3 normal,inout float3 
 BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
 {
     BaseFragment output;
-    uint instanceID = inst;
+    uint instanceID = mInstanceOffset.mOffset + inst;
 	// Change the position vector to be 4 units for proper matrix calculations.
     float4 position = float4(input.position, 1.0);
 	float3 normal = input.normal;
 	float3 tangent = input.tangent;
-	matrix worldMatrix = RoWorldMatrixBuffer[instanceID];
+	matrix worldMatrix = RoWorldMatrixDataBuffer[instanceID];
 #if USE_SKIN_VERTEX
 	uint4 blendIndexA,blendIndexB;
 	float4 blendweightA,blendweightB;
@@ -248,25 +248,25 @@ float4 PSMain(BaseFragment input) : SV_TARGET
 	float shadow = GetShadowPCF(input.worldPosition.xyz);
 
 	float3 Lo = float3(0, 0, 0);
-	// Direction Light
-	{
-		float3 L = normalize(-cLightDirection);
-		float3 lightColor = cDirectionLightColor.xyz * cDirectionLightIndensity;
-		// CalcRadiance
-		Lo+= BRDF(L, V,  N, lightColor, metallic, roughness);
-	}
+	//// Direction Light
+	//{
+	//	float3 L = normalize(-cLightDirection);
+	//	float3 lightColor = cDirectionLightColor.xyz * cDirectionLightIndensity;
+	//	// CalcRadiance
+	//	Lo+= BRDF(L, V,  N, lightColor, metallic, roughness);
+	//}
 
-	// Point Lights
-	for(int i = 0 ; i < cPointLightsCount; ++i)
-	{
-		float3 L = normalize(cPointLights[i].cLightPos- input.worldPosition.xyz);
-		float distance = length(input.worldPosition.xyz - cPointLights[i].cLightPos);
-		float attenuation =  cPointLights[i].cIndensity / (1.0f + 0.09f * distance + 
-    		    0.032f * (distance * distance));    
-		float3 lightColor = cPointLights[i].cLightColor.xyz * attenuation;
-		// CalcRadiance
-		Lo+= BRDF(L, V,  N, lightColor, metallic, roughness);
-	}
+	//// Point Lights
+	//for(int i = 0 ; i < PointBasedLightNum.x; ++i)
+	//{
+	//	float3 L = normalize(cPointLights[i].cLightPos- input.worldPosition.xyz);
+	//	float distance = length(input.worldPosition.xyz - cPointLights[i].cLightPos);
+	//	float attenuation =  cPointLights[i].cIndensity / (1.0f + 0.09f * distance + 
+ //   		    0.032f * (distance * distance));    
+	//	float3 lightColor = cPointLights[i].cLightColor.xyz * attenuation;
+	//	// CalcRadiance
+	//	Lo+= BRDF(L, V,  N, lightColor, metallic, roughness);
+	//}
 		
 	float2 brdf = _LUTTex.Sample(_ClampSampler, float2(max(dot(N, V), 0.0), roughness)).rg;
 	float3 reflection = prefilteredReflection(R, roughness).rgb;

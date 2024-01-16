@@ -8,148 +8,134 @@
 #include "Graphics/RHI/RHIPipeline.h"
 #include "Core/Foundation/Misc.h"
 #include "Graphics/Renderer/RenderData.h"
-
+#include "Graphics/Renderer/SkeletonSkin.h"
+#include "Graphics/Renderer/RenderObject.h"
 #include <functional>
 
 
 namespace luna::graphics
 {
 
-struct RENDER_API RenderObject
+class AmbientAtmosphereData : public RenderData
 {
-	RenderMeshBase*   mMeshIndex         = nullptr;
-	int32_t           mSkinClusterIndex  = -1;
-	int32_t           mAnimInstanceIndex = -1;
-	LMatrix4f*        mWorldMat          = nullptr;
-	bool              mCastShadow        = true;
-	bool              mReceiveLight      = true;
-	bool              mReceiveShadow     = true;
-	uint64_t          mID                = -1;
-	MaterialInstance* mMaterial          = nullptr;
-	RenderScene*      mOwnerScene        = nullptr;
+	//环境光
+	LVector4f           mAmbientColor = LVector4f(0.05, 0.05, 0.05, 1.0);
+	//Skybox
+	MaterialInstance*   mSkyboxMaterial = nullptr;
 };
 
-
-class RenderObjectDrawData : public RenderData
+class RenderSceneDebugData : public RenderData
 {
+	RenderMeshBase  mDebugMeshLineData;
+	RenderMeshBase  mDebugMeshData;
+};
+
+struct GpuSceneUploadComputeCommand
+{
+	LUnorderedMap<ShaderParamID, RHIView*> mStorageBufferInput;
+	LUnorderedMap<ShaderParamID, RHIView*> mStorageBufferOutput;
+	MaterialInstanceComputeBase* mComputeMaterial;
+	LVector4i mDispatchSize;
+};
+
+struct GpuSceneUploadCopyCommand
+{
+	RHIResource* mUniformBufferInput;
+	RHIResource* mStorageBufferOutput;
+	size_t mSrcOffset;
+	size_t mDstOffset;
+	size_t mCopyLength;
+};
+
+class RenderSceneStagingMemory
+{
+	size_t mPerStageSize;
+	LArray<RHIMemoryPtr> mMemoryData;
+	LArray<size_t> mMemoryDataSize;
+	size_t mMemoryOffset;
+	//stage buffer池
+	LArray<RHIResourcePtr> mStageBufferPool;
+	LArray<RHIViewPtr> mStageBufferViewPool;
+	size_t mPoolUsedSize;
 public:
-	using ROFilterFunc = std::function<bool(RenderObject*)>;
+	RenderSceneStagingMemory(size_t perStageSize = 0x800000);
 
-	LArray<RenderObject*> mVisibleROs[MeshRenderPass::AllNum];
-	MaterialInstance*     mOverrideMaterialInst[MeshRenderPass::AllNum] = { nullptr };
-	ROFilterFunc          mFilters[MeshRenderPass::AllNum];
-	RenderScene*          mScene                                        = nullptr;
-	RenderView*           mView                                         = nullptr;
+	RHIView* AllocStructStageBuffer(size_t curBufferSize, RHIViewType useType, size_t strideSize);
 
-	void DrawRenderObjects(MeshRenderPass pass, const std::unordered_map<luna::graphics::ShaderParamID, luna::graphics::RHIView*>& shaderBindingParam, RHIView* overrideRenderViewBuffer);
+	RHIView* AllocStructStageBuffer(size_t curBufferSize, RHIViewType useType, size_t strideSize, std::function<void(void*)> memoryFunc);
 
-	void SetROFilter(MeshRenderPass pass, ROFilterFunc func)
+	RHIView* AllocUniformStageBuffer(ShaderCBuffer* cbufferData);
+
+	void Clear()
 	{
-		mFilters[pass] = func;
-	}
-	void SetOverrideMaterialInstance(MeshRenderPass pass, MaterialInstance* mat)
-	{
-		mOverrideMaterialInst[pass] = mat;
-	}
-	void PerViewUpdate(RenderView* renderView) override;
+		ClearMemory();
+	};
+private:
+	void AddNewMemory(size_t memorySize);
+
+	bool BindMemory(RHIResource* targetResource);
+
+	void ClearMemory();
 };
 
+class RenderSceneUploadBufferPool
+{
+	size_t mFrameIndex;
+	LArray<RenderSceneStagingMemory> mMemoryArray;
+public:
+	RenderSceneUploadBufferPool();
+
+	RHIView* AllocStructStageBuffer(size_t curBufferSize, RHIViewType useType, size_t strideSize);
+
+	RHIView* AllocStructStageBuffer(size_t curBufferSize, RHIViewType useType, size_t strideSize, std::function<void(void*)> memoryFunc);
+
+	RHIView* AllocUniformStageBuffer(ShaderCBuffer* cbufferData);
+
+	void Present();
+};
 
 class RENDER_API RenderScene final : public RenderDataContainer
 {
 public:
 	RenderScene();
+
 	virtual ~RenderScene();
 
-	void Render(FrameGraphBuilder* FG);
-public:
-	
-	void Init();
+	RenderObject* CreateRenderObject();
 
-	DirectionLight* CreateMainDirLight();
-	void DestroyMainDirLight(DirectionLight* val);
-	PointLight* CreatePointLight();
+	void DestroyRenderObject(RenderObject* ro);
 
-	uint64_t CreateRenderObject(MaterialInstance* mat, SubMesh* meshData, bool castShadow, LMatrix4f* worldMat);
-
-	uint64_t CreateRenderObjectDynamic(
-		MaterialInstance* mat,
-		SubMesh* meshData,
-		const LUnorderedMap<LString, int32_t>& skeletonId,
-		const LString& skeletonUniqueName,
-		const LString& animaInstanceUniqueName,
-		const LArray<LMatrix4f>& allBoneMatrix,
-		bool castShadow,
-		LMatrix4f* worldMat
-	);
-	
-	void SetRenderObjectMesh(uint64_t roId,SubMesh* meshData);
-
-	void SetRenderObjectMeshSkletonCluster(uint64_t roId, SubMesh* meshData, const LUnorderedMap<LString, int32_t>& skeletonId, const LString& skeletonUniqueName);
-
-	void SetRenderObjectAnimInstance(uint64_t roId, const LString& animaInstanceUniqueName, const LArray<LMatrix4f>& allBoneMatrix);
-
-	void UpdateRenderObjectAnimInstance(uint64_t roId, const LArray<LMatrix4f>& allBoneMatrix);
-
-	void SetRenderObjectCastShadow(uint64_t roId, bool castShadow);
-
-	void SetRenderObjectTransformRef(uint64_t roId, LMatrix4f* worldMat);
-
-	void SetRenderObjectMaterial(uint64_t roId, MaterialInstance* mat);
+	void GetRenderObjects(LArray<RenderObject*>& valueOut) const;
 
 	RenderView* CreateRenderView();
-	void DestroyLight(Light* ro);
-	void DestroyRenderObject(uint64_t ro);
+
 	void DestroyRenderView(RenderView* renderView);
 
+	void GetAllView(LArray<RenderView*>& valueOut) const;
+
+	GpuSceneUploadComputeCommand* AddComputeCommand();
+
+	GpuSceneUploadCopyCommand* AddCopyCommand();
+
+	void AddCbufferCopyCommand(ShaderCBuffer* cbufferDataIn, RHIResource* bufferOutput);
+
+	RenderSceneUploadBufferPool* GetStageBufferPool();
+
+	void ExcuteCopy();
+
 	bool mRenderable = true;
-	bool mDrawGizmos = true;
-
-	RenderMeshBase  mDebugMeshLineData;
-	RenderMeshBase  mDebugMeshData;
-public:
-	void        SetSceneBufferDirty()             { mBufferDirty = true; }
-	RenderView* GetRenderView(uint32_t idx) const { return mViews[idx]; };
-	size_t      GetRenderObjectsCount() const     { return mRenderObjects.size(); }
-	size_t      GetRenderViewNum() const          { return mViews.size(); }
-	auto&       GetRenderObjects() const          { return mRenderObjects; };
-	auto&       GetAllView() const                { return mViews; };
-	auto&		GetDirtyRos() {return mDirtyROs;}
-
-
-	ShaderCBuffer* mSceneParamsBuffer    = nullptr;
-	ShaderCBuffer* mROIDInstancingBuffer = nullptr;
-
-	RHIResourcePtr           mRoDataBuffer;
-	RHIViewPtr               mRoDataBufferView;
-	//Gizmos Mesh
-	//SubMesh*            mDebugMeshLine        = nullptr;
-	//SubMesh*            mDebugMesh            = nullptr;
-
-	//先不做Culling，这里应该交给View进行Culling并进行ID更新
-	
-	RHIResourcePtr      mIDInstanceBuffer;
-
-	//Main方向光
-	DirectionLight*     mMainDirLight   = nullptr;
-	//Point Lights
-	LArray<PointLight*> mPointLights;
-	//环境光
-	LVector4f           mAmbientColor   = LVector4f(0.05, 0.05, 0.05, 1.0);
-	//Skybox
-	MaterialInstance*   mSkyboxMaterial = nullptr;
-	
-protected:
-	void PrepareScene();
-	void Debug();
 private:
-	bool                  mBufferDirty = true;
-	bool                  mInit        = false;
 
-	LQueue<uint64_t>      mRoIndex;
-	LArray<RenderObject*> mRenderObjects;
-	ViewArray             mViews;
+	LHoldIdArray<RenderObject> mRenderObjects;
 
-	LSet<RenderObject*>   mDirtyROs;
+	LHoldIdArray<RenderView> mViews;
+private:
+
+	LArray<GpuSceneUploadComputeCommand> mAllComputeCommand;
+
+	LArray<GpuSceneUploadCopyCommand> mAllCopyCommand;
+
+	RenderSceneUploadBufferPool mStageBufferPool;
 };
+
 }

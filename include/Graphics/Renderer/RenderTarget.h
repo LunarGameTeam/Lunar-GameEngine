@@ -6,7 +6,7 @@
 #include "Graphics/RenderConfig.h"
 #include "Graphics/Asset/TextureAsset.h"
 #include "Graphics/RHI/RHIPch.h"
-
+#include "Core/Foundation/Signal.h"
 
 namespace luna::graphics
 {
@@ -15,6 +15,8 @@ namespace luna::graphics
 class RENDER_API RenderTarget : public LObject
 {
 	RegisterTypeEmbedd(RenderTarget, LObject)
+public:
+	SIGNAL(OnRenderTargetDirty, RenderTarget*);
 public:
 	RenderTarget();
 
@@ -25,9 +27,10 @@ public:
 
 	GET_SET_VALUE(uint32_t, mWidth, Width);
 	GET_SET_VALUE(uint32_t, mHeight, Height);
+	GET_SET_VALUE(RHITextureFormat, mFormat, Format);
 
-	RHIResource* GetColor() { return mColorTexture.get(); }
-	RHIResource* GetDepth() { return mDepthTexture.get(); }
+	RHIResource* GetColor();
+	RHIResource* GetDepth();
 
 	RHIResourcePtr mColorTexture;
 	RHIResourcePtr mDepthTexture;

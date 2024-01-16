@@ -2,15 +2,21 @@
 
 #include "Graphics/RenderConfig.h"
 #include "Graphics/RenderTypes.h"
-
-
+#include <typeinfo>
 namespace luna::graphics
 {
+
+class RenderDataContainer;
 struct RENDER_API RenderData
 {
+	RenderDataContainer* mContainter = nullptr;
+
 	virtual void PerSceneUpdate(RenderScene* renderScene){};
 	
 	virtual void PerViewUpdate(RenderView* renderView){};
+
+	virtual void PerObjectUpdate(RenderObject* renderObject) {};
+
 	virtual ~RenderData() {};
 };
 
@@ -23,8 +29,11 @@ public:
 		auto t = GetData<T>();
 		if (!t)
 		{
-			t = new T;
-			mDatas.push_back(t);
+			const type_info& nInfo = typeid(T);
+			LSharedPtr<T> newData = MakeShared<T>();
+			newData->mContainter = this;
+			mDatas.insert({ nInfo.hash_code(),newData});
+			t = newData.get();
 		}
 		return t;
 	}
@@ -32,16 +41,29 @@ public:
 	template<typename T>
 	T* GetData()
 	{
-		for (auto it : mDatas)
+		const type_info& nInfo = typeid(T);
+		size_t hashCode = nInfo.hash_code();
+		auto itor = mDatas.find(hashCode);
+		if (itor == mDatas.end())
 		{
-			auto p = dynamic_cast<T*>(it);
-			if (p)
-				return p;
+			return nullptr;
 		}
-		return nullptr;
+		return dynamic_cast<T*>(itor->second.get());
 	}
 
-	LArray<RenderData*> mDatas;
+	template<typename T>
+	const T* GetReadOnlyData() const
+	{
+		const type_info& nInfo = typeid(T);
+		size_t hashCode = nInfo.hash_code();
+		auto itor = mDatas.find(hashCode);
+		if (itor == mDatas.end())
+		{
+			return nullptr;
+		}
+		return dynamic_cast<T*>(itor->second.get());
+	}
+	LUnorderedMap<size_t, LSharedPtr<RenderData>> mDatas;
 };
 
 }

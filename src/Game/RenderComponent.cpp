@@ -4,49 +4,71 @@
 
 namespace luna::graphics
 {
+	bool GameRenderDataUpdater::Create()
+	{
+		for (int32_t frameIndex = 0; frameIndex < 3; ++frameIndex)
+		{
+			LSharedPtr<GameRenderBridgeData> newData = GenarateData();
+			mRenderBridgeData.push_back(newData);
+		}
+		mGameLocation = 0;
+		mRenderLocation = 2;
+		return true;
+	}
 
-RegisterTypeEmbedd_Imp(RendererComponent)
-{
-	cls->Binding<RendererComponent>();
+	GameRenderBridgeData* GameRenderDataUpdater::GetGameThreadBridgeData()
+	{
+		return mRenderBridgeData[mGameLocation].get();
+	}
 
-	cls->BindingProperty<&RendererComponent::m_receive_shadow>("receive_shadow")
-		.Setter<&RendererComponent::SetReceiveLight>()
-		.Serialize();
+	void GameRenderDataUpdater::OnGameDataRecordFinish()
+	{
+		mGameLocation = (mGameLocation + 1) % 3;
+	}
 
-	cls->BindingProperty<&RendererComponent::m_cast_shadow>("cast_shadow")
-		.Setter<&RendererComponent::SetCastShadow>()
-		.Serialize();
+	void GameRenderDataUpdater::UpdateRenderThread(RenderScene* curScene)
+	{
+		UpdateRenderThreadImpl(mRenderBridgeData[mRenderLocation].get(), curScene);
+		ClearData(mRenderBridgeData[mRenderLocation].get());
+		mRenderLocation = (mRenderLocation + 1) % 3;
+	}
 
-	BindingModule::Get("luna")->AddType(cls);
-}
+	RegisterTypeEmbedd_Imp(RendererComponent)
+	{
+		cls->Binding<RendererComponent>();
 
-RendererComponent::~RendererComponent()
-{
+		BindingModule::Get("luna")->AddType(cls);
+	}
 
-}
+	RendererComponent::RendererComponent()
+	{
+		mIsRenderComponent = true;
+		mNeedTick = true;
+	}
 
-void RendererComponent::OnCreate()
-{
-	Component::OnCreate();
-}
+	RendererComponent::~RendererComponent()
+	{
 
-void RendererComponent::OnDestroy()
-{
-	Component::OnDestroy();
-}
+	}
 
-void RendererComponent::OnActivate()
-{
-	Component::OnActivate();
-}
+	void RendererComponent::OnCreate()
+	{
+		Component::OnCreate();
+		mRenderDataUpdater = GenarateRenderUpdater();
+		mRenderDataUpdater->Create();
+	}
 
-void RendererComponent::OnDeactivate()
-{
-	Component::OnDeactivate();
-}
+	void RendererComponent::OnRenderTick(RenderScene* curScene)
+	{
+		mRenderDataUpdater->UpdateRenderThread(curScene);
+	}
 
-void RendererComponent::OnTick(float delta_time)
-{
-}
+	void RendererComponent::OnTick(float delta_time)
+	{
+		GameRenderBridgeData* curRenderData = mRenderDataUpdater->GetGameThreadBridgeData();
+		OnTickImpl(curRenderData);
+		mRenderDataUpdater->OnGameDataRecordFinish();
+	}
+
 
 }

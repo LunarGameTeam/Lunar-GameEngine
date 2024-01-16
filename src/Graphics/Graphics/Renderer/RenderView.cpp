@@ -13,61 +13,37 @@
 
 namespace luna::graphics
 {
+PARAM_ID(ViewBuffer);
+void RenderViewParameterData::SetMaterialParameter(MaterialInstanceBase* matInstance)
+{
+	matInstance->SetShaderInput(ParamID_ViewBuffer, mViewParamCbufferView);
+}
+
+void RenderViewParameterData::Init()
+{
+	auto device = sRenderModule->GetRenderContext();
+	mCbufferDesc = device->GetDefaultShaderConstantBufferDesc(LString("ViewBuffer").Hash());
+
+	RHIBufferDesc desc;
+	desc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
+	desc.mSize = SizeAligned2Pow(mCbufferDesc.mSize, CommonSize64K);
+	ViewDesc viewDesc;
+	viewDesc.mViewType = RHIViewType::kConstantBuffer;
+	viewDesc.mViewDimension = RHIViewDimension::BufferView;
+	mViewParamRes = sRenderModule->GetRenderContext()->CreateBuffer(RHIHeapType::Default, desc);
+	mViewParamCbufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
+	mViewParamCbufferView->BindResource(mViewParamRes);
+}
 
 RenderView::RenderView() :
 	mRT(nullptr)
 {	
-	auto device = sRenderModule->GetRenderContext();
-	mViewBuffer = new ShaderCBuffer(device->GetDefaultShaderConstantBufferDesc(LString("ViewBuffer").Hash()));
-}
 
-void RenderView::PrepareView()
-{
-	for (auto data : mDatas)
-	{
-		data->PerViewUpdate(this);
-	}
-
-	mViewBuffer->Set("cViewMatrix", mViewMatrix);
-	mViewBuffer->Set("cProjectionMatrix", mProjMatrix);
-	LVector2f cNearFar(mNear, mFar);
-	mViewBuffer->Set("cNearFar", cNearFar);
-	mViewBuffer->Set("cCamPos", LMath::GetMatrixTranslaton(mViewMatrix.inverse()));	
-	mViewBuffer->Commit();
 }
 
 void RenderView::Culling(RenderScene* scene)
 {
-
-	//mViewVisibleROs.clear();
-	//mViewVisibleROs = scene->GetRenderObjects();
-}
-
-void RenderView::Render(RenderScene* scene, FrameGraphBuilder* FG)
-{
-	Culling(scene);
-
-	switch (mViewType)
-	{
-	case RenderViewType::SceneView:
-	{
-		PBRPreparePass(FG, this, scene);
-		DirectionalLightShadowPass(FG, this, scene);
-		PointShadowPass(FG, this, scene);
-		OpaquePass(FG, this, scene);
-		PostProcessPass(FG, this, scene);
-		OverlayPass(FG, this, scene);
-		break;
-	}	
-	case RenderViewType::ShadowMapView:
-	{
-		break;
-	}
-	default:
-		break;
-	}
-
-
+	scene->GetRenderObjects(mViewVisibleROs);
 }
 
 }

@@ -2,26 +2,59 @@
 
 #include "Graphics/RenderConfig.h"
 #include "Graphics/Renderer/RenderData.h"
+#include "Graphics/FrameGraph/FrameGraph.h"
+#include "Graphics/FrameGraph/FrameGraphNode.h"
+#include "Graphics/FrameGraph/FrameGraphResource.h"
+#include "Graphics/Renderer/RenderView.h"
+#include "Graphics/Renderer/MaterialInstance.h"
 
 
 namespace  luna::graphics
 {
 
-struct ViewShadowData : public RenderData
+struct ViewTargetData : public RenderData
 {
-	FGTexture* mPointShadowmap = nullptr;
-	FGTexture* mDirectionLightShadowmap = nullptr;
+	LSharedPtr<FGTexture> mOpaqueResultRenderTarget = nullptr;
 
+	LSharedPtr<FGTexture> mOpaqueResultDepthStencil = nullptr;
+
+	LSharedPtr<FGTexture> mPostProcessResultRenderTarget = nullptr;
+
+	LSharedPtr<FGTexture> mPostProcessResultDepthStencil = nullptr;
+
+	LSharedPtr<FGTexture> mScreenRenderTarget = nullptr;
+
+	LSharedPtr<FGTexture> mScreenDepthStencil = nullptr;
+public:
+	void GenerateOpaqueResultRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node, bool clearDepth = false);
+
+	void GeneratePostProcessResultRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node);
+
+	void GenerateScreenRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node);
+private:
+	void GenerateViewTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node, LSharedPtr<FGTexture>& colorRt, LSharedPtr<FGTexture>& depthRt, bool clearDepth = false);
+};
+
+struct ShadowViewTargetData : public RenderData
+{
+	LSharedPtr<FGTexture> mShadowRenderTarget = nullptr;
+
+	LSharedPtr<FGTexture> mShadowDepthStencil = nullptr;
+public:
+	void GenerateShadowRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node);
 };
 
 struct SceneRenderData : public RenderData
 {
-	FGTexture* mSceneColor = nullptr;
-	FGTexture* mSceneDepth = nullptr;
-	FGTexture* mLUTTex = nullptr;
-	FGTexture* mEnvTex = nullptr;
-	FGTexture* mIrradianceTex = nullptr;
+	LSharedPtr<TextureCube> mEnvTex;
 
+	LSharedPtr<TextureCube> mIrradianceTex;
+
+	LSharedPtr<Texture2D>   mLUTTex;
+public:
+	SceneRenderData();
+	void SetMaterialParameter(MaterialInstanceBase* matInstance);
 };
+
 
 }

@@ -6,130 +6,208 @@
 namespace luna
 {
 
-RegisterTypeEmbedd_Imp(LightComponent)
-{	
-	cls->Ctor<LightComponent>();
-	cls->Binding<Self>();
-
-	cls->BindingProperty<&LightComponent::mColor>("color")
-		.Setter<&LightComponent::SetColor>()
-		.Serialize();
-	cls->BindingProperty<&Self::mIntensity>("intensity")
-		.Setter<&LightComponent::SetIndensity>()
-		.Serialize();
-	cls->BindingProperty<&Self::mCastShadow>("cast_shadow")
-		.Setter<&LightComponent::SetCastShadow>()
-		.Serialize();
-	BindingModule::Get("luna")->AddType(cls);
-};
-
-RegisterTypeEmbedd_Imp(DirectionLightComponent)
-{
-	cls->Binding<Self>();
-	BindingModule::Get("luna")->AddType(cls);
-	cls->Ctor<DirectionLightComponent>();
-};
-
-RegisterTypeEmbedd_Imp(PointLightComponent)
-{
-	cls->Binding<Self>();
-	BindingModule::Get("luna")->AddType(cls);
-	cls->Ctor<PointLightComponent>();
-};
-
-
-LightComponent::~LightComponent()
-{
-	if(GetScene() && GetScene()->GetRenderScene())
+	void GameLightRenderDataUpdater::ClearData(graphics::GameRenderBridgeData* curData)
 	{
-		GetScene()->GetRenderScene()->DestroyLight(mLight);
-	}
-}
+		GameRenderBridgeDataLight* realPointer = static_cast<GameRenderBridgeDataLight*>(curData);
+		realPointer->mDirty = false;
+	};
 
-void LightComponent::OnCreate()
-{
-	Component::OnCreate();
-	
-}
-
-void LightComponent::SetColor(const LVector4f& val)
-{
-	if (mLight)
+	void GameLightRenderDataUpdater::UpdateRenderThreadImpl(graphics::GameRenderBridgeData* curData, graphics::RenderScene* curScene)
 	{
-		mLight->mDirty = true;
-		mLight->mColor = LVector4f(val.x(), val.y(), val.z(), 1);
-	}
-	mColor = val;
-	
-}
+		GameRenderBridgeDataLight* realPointer = static_cast<GameRenderBridgeDataLight*>(curData);
+		if (!realPointer->mDirty)
+		{
+			return;
+		}
+		if (mRenderLight == nullptr)
+		{
+			graphics::PointBasedRenderLightData* lightData = curScene->RequireData<graphics::PointBasedRenderLightData>();
+			mRenderLight = lightData->CreatePointBasedLight();
+		}
+		mRenderLight->mColor = realPointer->mColor;
+		mRenderLight->mIntensity = realPointer->mIntensity;
+		mRenderLight->mPosition = realPointer->mPosition;
+		mRenderLight->mType = graphics::PointBasedLightType::POINT_BASED_LIGHT_POINT;
 
-void LightComponent::SetIndensity(float val)
-{
-	if (mLight)
+		graphics::PointBasedRenderLightData* lightData = curScene->GetData<graphics::PointBasedRenderLightData>();
+		lightData->MarkLightDirty(mRenderLight);
+		LightUpdateRenderThreadImpl(realPointer, mRenderLight, curScene);
+	}
+
+	GameLightRenderDataUpdater::~GameLightRenderDataUpdater()
 	{
-		mLight->mDirty = true;
-		mLight->mIntensity = val;
-	}
-	mIntensity = val;
-}
+		if (mRenderLight)
+		{
+			mRenderLight->mOwnerScene->RequireData<graphics::PointBasedRenderLightData>()->DestroyLight(mRenderLight);
+		}
+	};
 
-void LightComponent::SetCastShadow(bool val)
-{
-	if (mLight)
+
+	GameDirLightRenderDataUpdater::~GameDirLightRenderDataUpdater()
 	{
-		mLight->mDirty = true;
-		mLight->mCastShadow = val;
+		if (mShadowView != nullptr)
+		{
+			mShadowView->mOwnerScene->DestroyRenderView(mShadowView);
+		}
 	}
-	mCastShadow = val;
-}
 
-void DirectionLightComponent::OnTransformDirty(Transform* transform)
-{
-	mLight->mDirty = true;
-	graphics::DirectionLight* light = (graphics::DirectionLight*)mLight;
-	light->mDirection = GetDirection();
+	void GameDirLightRenderDataUpdater::LightUpdateRenderThreadImpl(GameRenderBridgeDataLight* curData, graphics::PointBasedLight* mRenderLight, graphics::RenderScene* curScene)
+	{
+		GameRenderBridgeDataDirLight* realPointer = static_cast<GameRenderBridgeDataDirLight*>(curData);
+		mRenderLight->mDirection = realPointer->mDirection;
+		//这里需要更新下当前的光源阴影信息
+		if (mShadowView == nullptr && realPointer->mCastShadow == true)
+		{
+			mShadowView = curScene->CreateRenderView();
+			mShadowView->mViewType = graphics::RenderViewType::ShadowMapView;
+		}
+		if (mShadowView != nullptr && realPointer->mCastShadow == false)
+		{
+			curScene->DestroyRenderView(mShadowView);
+		}
+	}
 
-}
-void DirectionLightComponent::OnCreate()
-{
-	LightComponent::OnCreate();
-	mLight = GetScene()->GetRenderScene()->CreateMainDirLight();
-	mLight->mCastShadow = mCastShadow;
-	mLight->mIntensity = mIntensity;
-	mLight->mColor = LVector4f(mColor.x(), mColor.y(), mColor.z(), 1);
-	mTransformDirtyAction = mOwnerEntity->GetComponent<Transform>()->OnTransformDirty.Bind(AutoBind(&DirectionLightComponent::OnTransformDirty, this));
-	OnTransformDirty(mOwnerEntity->GetComponent<Transform>());
-}
+	RegisterTypeEmbedd_Imp(LightComponent)
+	{
+		cls->Ctor<LightComponent>();
+		cls->Binding<Self>();
+
+		cls->BindingProperty<&LightComponent::mColor>("color")
+			.Setter<&LightComponent::SetColor>()
+			.Serialize();
+		cls->BindingProperty<&Self::mIntensity>("intensity")
+			.Setter<&LightComponent::SetIndensity>()
+			.Serialize();
+		cls->BindingProperty<&Self::mCastShadow>("cast_shadow")
+			.Setter<&LightComponent::SetCastShadow>()
+			.Serialize();
+		BindingModule::Get("luna")->AddType(cls);
+	};
+
+	RegisterTypeEmbedd_Imp(DirectionLightComponent)
+	{
+		cls->Binding<Self>();
+		BindingModule::Get("luna")->AddType(cls);
+		cls->Ctor<DirectionLightComponent>();
+	};
+
+	RegisterTypeEmbedd_Imp(PointLightComponent)
+	{
+		cls->Binding<Self>();
+		BindingModule::Get("luna")->AddType(cls);
+		cls->Ctor<PointLightComponent>();
+	};
 
 
-const LVector3f DirectionLightComponent::GetCSMSplit()const
-{
-	return mCSMSplit;
-}
+	LightComponent::~LightComponent()
+	{
 
-void DirectionLightComponent::SetCSMSplits(const LVector3f& val)
-{
-	mCSMSplit = val;
-}
+	}
 
-void PointLightComponent::OnCreate()
-{
-	LightComponent::OnCreate();
-	mLight = GetScene()->GetRenderScene()->CreatePointLight();
-	mLight->mCastShadow = mCastShadow;
-	mLight->mIntensity = mIntensity;
-	mLight->mColor = LVector4f(mColor.x(), mColor.y(), mColor.z(), 1);
-	mTransformDirtyAction = mOwnerEntity->GetComponent<Transform>()->OnTransformDirty.Bind(AutoBind(&PointLightComponent::OnTransformDirty, this));
-	OnTransformDirty(mOwnerEntity->GetComponent<Transform>());
-}
+	void LightComponent::OnCreate()
+	{
+		Super::OnCreate();
 
-void PointLightComponent::OnTransformDirty(Transform* transform)
-{
-	GetScene()->GetRenderScene()->SetSceneBufferDirty();
-	mLight->mDirty = true;
-	graphics::PointLight* light = (graphics::PointLight*)mLight;
-	light->mPosition = mTransform->GetPosition();
+	}
 
-}
+	void LightComponent::SetColor(const LVector4f& val)
+	{
+		mNeedUpdate = true;
+		mColor = val;
+
+	}
+
+	void LightComponent::SetIndensity(float val)
+	{
+		mNeedUpdate = true;
+		mIntensity = val;
+	}
+
+	void LightComponent::SetCastShadow(bool val)
+	{
+		mNeedUpdate = true;
+		mCastShadow = val;
+	}
+
+	void LightComponent::UpdateLightBridgeDataBase(GameRenderBridgeDataLight* curData)
+	{
+		if (mNeedUpdate)
+		{
+			curData->mDirty = true;
+			curData->mCastShadow = mCastShadow;
+			curData->mColor = mColor;
+			curData->mIntensity = mIntensity;
+			curData->mPosition = GetPosition();
+			mNeedUpdate = false;
+		}
+	}
+
+
+	void PointLightComponent::OnCreate()
+	{
+		LightComponent::OnCreate();
+		mTransformDirtyAction = mOwnerEntity->GetComponent<Transform>()->OnTransformDirty.Bind(AutoBind(&PointLightComponent::OnTransformDirty, this));
+		OnTransformDirty(mOwnerEntity->GetComponent<Transform>());
+	}
+
+	void PointLightComponent::OnTransformDirty(Transform* transform)
+	{
+		mNeedUpdate = true;
+		//GetScene()->GetRenderScene()->SetSceneBufferDirty();
+		//mLight->mDirty = true;
+		//graphics::PointLight* light = (graphics::PointLight*)mLight;
+		//light->mPosition = mTransform->GetPosition();
+
+	}
+
+	void PointLightComponent::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
+	{
+		if (mNeedUpdate)
+		{
+			GameRenderBridgeDataLight* realPointer = static_cast<GameRenderBridgeDataLight*>(curRenderData);
+			UpdateLightBridgeDataBase(realPointer);
+		}
+	}
+
+
+	void DirectionLightComponent::OnTransformDirty(Transform* transform)
+	{
+		mNeedUpdate = true;
+		//graphics::DirectionLight* light = (graphics::DirectionLight*)mLight;
+		//light->mDirection = GetDirection();
+
+	}
+
+	void DirectionLightComponent::OnCreate()
+	{
+		mNeedUpdate = true;
+		LightComponent::OnCreate();
+		mTransformDirtyAction = mOwnerEntity->GetComponent<Transform>()->OnTransformDirty.Bind(AutoBind(&DirectionLightComponent::OnTransformDirty, this));
+		OnTransformDirty(mOwnerEntity->GetComponent<Transform>());
+	}
+
+	const LVector3f DirectionLightComponent::GetCSMSplit()const
+	{
+		return mCSMSplit;
+	}
+
+	void DirectionLightComponent::SetCSMSplits(const LVector3f& val)
+	{
+		mNeedUpdate = true;
+		mCSMSplit = val;
+	}
+
+	void DirectionLightComponent::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
+	{
+		if (mNeedUpdate)
+		{
+			GameRenderBridgeDataDirLight* realPointer = static_cast<GameRenderBridgeDataDirLight*>(curRenderData);
+			UpdateLightBridgeDataBase(realPointer);
+			realPointer->mDirection = GetDirection();
+			realPointer->mCSMSplit = mCSMSplit;
+		}
+	}
+
+
 
 }

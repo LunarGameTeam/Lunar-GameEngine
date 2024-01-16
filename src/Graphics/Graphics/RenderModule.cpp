@@ -87,8 +87,6 @@ void RenderModule::OnIMGUI()
 
 bool RenderModule::OnShutdown()
 {
-	if (mFrameGraph)
-		delete mFrameGraph;
 	ImGui::SaveIniSettingsToDisk("layout.ini");
 	return true;
 }
@@ -199,8 +197,8 @@ void RenderModule::UpdateFrameBuffer()
 		desc.mPass = mIMGUIRenderPass;
 		desc.mColor.push_back(sRenderModule->GetSwapChain()->mViews[i]);
 		desc.mDepthStencil = nullptr;
-		desc.mWidth = sRenderModule->GetSwapChain()->mBackBuffers[i]->mResDesc.Width;
-		desc.mHeight = sRenderModule->GetSwapChain()->mBackBuffers[i]->mResDesc.Height;
+		desc.mWidth = sRenderModule->GetSwapChain()->mBackBuffers[i]->GetDesc().Width;
+		desc.mHeight = sRenderModule->GetSwapChain()->mBackBuffers[i]->GetDesc().Height;
 		mFrameBuffer[i] = rhiDevice->CreateFrameBuffer(desc);
 	}
 
@@ -233,8 +231,6 @@ bool RenderModule::OnInit()
 	mMainRT->Ready();
 
 	mRenderContext->mFence->Wait(mRenderContext->mFenceValue);	
-
-	mFrameGraph = new FrameGraphBuilder("MainFG");	
 
 	mDefaultWhiteTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/White.png"));
 	mDefaultNormalTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/Normal.png"));
@@ -321,6 +317,8 @@ bool RenderModule::OnInit()
 		break;
 
 	}
+	mRenderer = MakeShared<SceneRenderer>();
+	InitBasePipeline(mRenderer->GetSceneRenderPipeline());
 	return true;
 }
 
@@ -347,15 +345,26 @@ void RenderModule::RenderTick(float delta_time)
 	ZoneScoped;
 	mRenderContext->OnFrameBegin();
 	//RenderScene发起渲染
-	mRenderContext->mTransferCmd->GetCmdList()->BeginEvent("Frame Graph Prepare");
+	sRenderModule->GetRenderContext()->mFence->Wait(sRenderModule->GetRenderContext()->mFenceValue);
+	RenderContext* renderDevice = sRenderModule->GetRenderContext();
+	RHISinglePoolSingleCmdList* cmdlist = renderDevice->mGraphicCmd.get();
+	//开始录制渲染指令
+	cmdlist->Reset();
 	for (RenderScene* it : mRenderScenes)
 	{
-		if(it->mRenderable)
-			it->Render(mFrameGraph);
+		mRenderer->PrepareSceneRender(it);
+		cmdlist->GetCmdList()->BeginEvent("RenderSceneDataUpdateCommand");
+		cmdlist->GetCmdList()->BindDescriptorHeap();
+		it->ExcuteCopy();
+		cmdlist->GetCmdList()->EndEvent();
+		mRenderer->Render(it);
 	}
-	mRenderContext->mTransferCmd->GetCmdList()->EndEvent();
-
-	Render();
+	//先把barrier相关的资源指令提交
+	PrepareRender();
+	//提交渲染指令
+	cmdlist->GetCmdList()->CloseCommondList();
+	renderDevice->mGraphicQueue->ExecuteCommandLists(cmdlist->GetCmdList());
+	renderDevice->mGraphicQueue->Signal(sRenderModule->GetRenderContext()->mFence, ++sRenderModule->GetRenderContext()->mFenceValue);
 	{
 		ZoneScopedN("IMGUI");
 		ImGui::Render();
@@ -372,7 +381,6 @@ void RenderModule::RenderTick(float delta_time)
 			ImGui::RenderPlatformWindowsDefault();
 		}
 	}
-	mFrameGraph->Clear();
 	mRenderContext->OnFrameEnd();
 	{
 		ZoneScopedN("Present");
@@ -432,11 +440,10 @@ ImguiTexture* RenderModule::AddImguiTexture(RHIResource* res)
 	return imguiTexture;
 }
 
-void RenderModule::Render()
+void RenderModule::PrepareRender()
 {
 	ZoneScoped;
 	mRenderContext->FlushStaging();
-	mFrameGraph->Flush();
 }
 
 void RenderModule::RenderIMGUI()

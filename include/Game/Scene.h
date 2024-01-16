@@ -46,6 +46,8 @@ public:
 
 	void Tick(float deltaTime);
 
+	void RenderTick(float deltaTime);
+
 	graphics::RenderScene* GetRenderScene() { return mRenderScene; };
 public:
 	void Destroy();
@@ -59,4 +61,5 @@ private:
 
 	friend class GameModule;
 };
+
 }

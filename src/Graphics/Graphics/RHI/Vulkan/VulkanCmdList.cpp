@@ -110,6 +110,11 @@ void VulkanGraphicCmdList::DrawIndexedInstanced(uint32_t IndexCountPerInstance, 
 	mCommandBuffer.drawIndexed(IndexCountPerInstance, 1, 0, 0, StartInstanceLocation);
 }
 
+void VulkanGraphicCmdList::Dispatch(int32_t x, int32_t y, int32_t z)
+{
+	mCommandBuffer.dispatch(x,y,z);
+}
+
 void VulkanGraphicCmdList::DrawIndirectCommands(const RHICmdArgBuffer* DrawBuffer)
 {
 	size_t perDrawCommand = DrawBuffer->GetCmdSignature()->GetDesc().size();
@@ -400,7 +405,21 @@ void VulkanGraphicCmdList::CopyBufferToTexture(RHIResource* dst, uint32_t target
 
 void VulkanGraphicCmdList::SetPipelineState(RHIPipelineState* pipeline)
 {
-	vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->As<VulkanPipelineState>()->mPipeline);
+	switch (pipeline->GetType())
+	{
+	case RHICmdListType::Compute:
+	{
+		vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline->As<VulkanPipelineStateCompute>()->mPipeline);
+		break;
+	}
+	case RHICmdListType::Graphic3D:
+	{
+		vkCmdBindPipeline(mCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline->As<VulkanPipelineStateGraphic>()->mPipeline);
+		break;
+	}
+	default:
+		assert(false);
+	}
 }
 
 void VulkanGraphicCmdList::SetViewPort(size_t x, size_t y, size_t width, size_t height)
@@ -461,15 +480,28 @@ void VulkanGraphicCmdList::ResetAndPrepare()
 	mClosed = false;
 }
 
-void VulkanGraphicCmdList::BindDesriptorSetExt(RHIBindingSetPtr bindingSet)
+void VulkanGraphicCmdList::BindDesriptorSetExt(RHIBindingSet* bindingSet, RHICmdListType pipelineType)
 {
 	if (bindingSet)
 	{
 		VulkanBindingSet* vkBindingSet = bindingSet->As<VulkanBindingSet>();
 		VulkanBindingSetLayout* vkBindingSetLayout = vkBindingSet->mLayout->As<VulkanBindingSetLayout>();
-
+		vk::PipelineBindPoint bindPointType = vk::PipelineBindPoint::eGraphics;
+		switch (pipelineType)
+		{
+		case luna::graphics::RHICmdListType::Graphic3D:
+			bindPointType = vk::PipelineBindPoint::eGraphics;
+			break;
+		case luna::graphics::RHICmdListType::Compute:
+			bindPointType = vk::PipelineBindPoint::eCompute;
+			break;
+		default:
+			assert(false);
+			break;
+		}
+		
 		mCommandBuffer.bindDescriptorSets(
-			vk::PipelineBindPoint::eGraphics,
+			bindPointType,
 			vkBindingSetLayout->mPipelineLayout,
 			0,
 			(uint32_t)vkBindingSet->mDescriptors.size(),
@@ -477,6 +509,19 @@ void VulkanGraphicCmdList::BindDesriptorSetExt(RHIBindingSetPtr bindingSet)
 			0,
 			nullptr);
 	} 
+}
+
+void VulkanGraphicCmdList::PushInt32Constant(size_t offset, void* value, size_t dataSize, RHIBindingSetLayout* layout, RHICmdListType pipelineType)
+{
+	vk::ShaderStageFlags newFlag(VK_SHADER_STAGE_ALL);
+	VulkanBindingSetLayout* vkBindingSetLayout = layout->As<VulkanBindingSetLayout>();
+	mCommandBuffer.pushConstants(
+		vkBindingSetLayout->mPipelineLayout,
+		newFlag,
+		offset,
+		dataSize,
+		value
+	);
 }
 
 void VulkanGraphicCmdList::BeginRender(const RenderPassDesc& passDesc)
@@ -519,8 +564,8 @@ void VulkanGraphicCmdList::BeginRender(const RenderPassDesc& passDesc)
 		auto& attach = attachments.emplace_back();
 		
 		attach.imageView = passDesc.mColorView[idx]->As<VulkanView>()->mImageView;
-		width = passDesc.mColorView[idx]->mBindResource->mResDesc.Width;
-		height = passDesc.mColorView[idx]->mBindResource->mResDesc.Height;
+		width = passDesc.mColorView[idx]->mBindResource->GetDesc().Width;
+		height = passDesc.mColorView[idx]->mBindResource->GetDesc().Height;
 		attach.imageLayout = vk::ImageLayout::eColorAttachmentOptimal;
 		attach.loadOp = convertLoad(it.mLoadOp);
 		attach.storeOp = convertStore(it.mStoreOp);

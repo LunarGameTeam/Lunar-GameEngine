@@ -1,152 +1,59 @@
-﻿#include "Graphics/Renderer/MaterialInstance.h"
-#include "Graphics/Asset/MeshAsset.h"
-#include "Graphics/Asset/MaterialTemplate.h"
-
-#include "Core/Asset/AssetModule.h"
-
-#include "Graphics/FrameGraph/FrameGraph.h"
-#include "Graphics/FrameGraph/FrameGraphNode.h"
-#include "Graphics/FrameGraph/FrameGraphResource.h"
-
-#include "Graphics/Renderer/RenderScene.h"
-#include "Graphics/Renderer/RenderView.h"
-#include "Graphics/Renderer/RenderLight.h"
-#include "Graphics/RenderModule.h"
-#include "Graphics/Renderer/RenderData.h"
-
+﻿#include "Graphics/ForwardPipeline/SceneShadowPass.h"
 #include "Graphics/ForwardPipeline/ForwardRenderData.h"
-
+#include "Core/Asset/AssetModule.h"
 namespace luna::graphics
 {
-
-PARAM_ID(SceneBuffer);
-PARAM_ID(ViewBuffer);
-PARAM_ID(MaterialBuffer);
-
-void DirectionalLightShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene)
+bool DirectionalLightShadowPassGenerator::CheckRenderObject(const RenderObject* curRo) const
 {
-	if (!renderScene->mMainDirLight || !renderScene->mMainDirLight->mCastShadow)
-		return;
-	auto meshCmds = view->RequireData<RenderObjectDrawData>();
-	meshCmds->SetROFilter(MeshRenderPass::DirectLightShadowDepthPass, [](RenderObject* renderObject)->bool
+	const RenderMeshBase* meshDataPointer = curRo->GetReadOnlyData<RenderMeshBase>();
+	if (meshDataPointer == nullptr)
 	{
-		if (renderObject->mCastShadow)
-		{
-			return true;
-		}
 		return false;
-	});
-	static auto shadowMatAsset = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/Depth.mat");
-	static auto shadowMat = shadowMatAsset->GetDefaultInstance();
-	if (shadowMat)
-		shadowMat->Ready();
-	meshCmds->SetOverrideMaterialInstance(MeshRenderPass::DirectLightShadowDepthPass, shadowMat);
-
-	auto& node = builder->AddPass("Directional LightShadowmap");
-	auto shadowData = view->RequireData<ViewShadowData>();
-
-	FGTexture* color = builder->CreateTexture(
-		1024, 1024, 1, 1,
-		RHITextureFormat::R32_FLOAT,
-		RHIImageUsage::ColorAttachmentBit | RHIImageUsage::SampledBit,
-		"DirecitonalShadowmap"
-	);
-
-	FGTexture* depth = builder->CreateTexture(
-		1024, 1024, 1, 1,
-		RHITextureFormat::D24_UNORM_S8_UINT,
-		RHIImageUsage::DepthStencilBit,
-		"DirecitonalShadowmapDepth"
-	);
-
-	shadowData->mDirectionLightShadowmap = color;
-
-	auto colorView = node.AddRTV(color, RHIViewDimension::TextureView2D);
-	auto depthView = node.AddDSV(depth);
-	node.SetColorAttachment(colorView, LoadOp::kClear);
-	node.SetDepthStencilAttachment(depthView);
-
-	node.ExcuteFunc([view, renderScene](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
+	}
+	if (!meshDataPointer->mCastShadow)
 	{
-		ShaderParamInputs shaderBindingParam;
-		view->RequireData<RenderObjectDrawData>()->DrawRenderObjects(MeshRenderPass::DirectLightShadowDepthPass, shaderBindingParam, renderScene->mMainDirLight->mParamBuffer->mView.get());
-	});
+		return false;
+	}
+	return true;
 }
 
-void PointShadowPass(FrameGraphBuilder* builder, RenderView* view, RenderScene* renderScene)
+MaterialInstanceGraphBase* DirectionalLightShadowPassGenerator::SetMaterialByRenderObject(const RenderObject* curRo) const
 {
-	if (renderScene->mPointLights.empty())
-		return;
+	return mShadowDefaultMtlInstance;
+}
 
-	bool hasShadow = false;
-	for (PointLight* it : renderScene->mPointLights)
+DirectionalLightShadowPassGenerator::DirectionalLightShadowPassGenerator()
+{
+	mShadowMtlAsset = sAssetModule->LoadAsset<MaterialGraphAsset>("/assets/built-in/Depth.mat");
+	mShadowDefaultMtlInstance = dynamic_cast<MaterialInstanceGraphBase*>(mShadowMtlAsset->GetDefaultInstance());
+};
+
+void DirectionalLightShadowPassGenerator::AddPassNode(FrameGraphBuilder* builder, RenderView* view)
+{
+	if (view->mViewType != RenderViewType::ShadowMapView)
 	{
-		if (it->mCastShadow)
-			hasShadow = true;
+		return;
 	}
+	RenderScene* renderScene = view->mOwnerScene;
 
-	static auto shadowMatAsset = sAssetModule->LoadAsset<MaterialTemplateAsset>("/assets/built-in/Depth.mat");
-	static auto shadowMat = shadowMatAsset->GetDefaultInstance();
-	if (shadowMat)
-		shadowMat->Ready();
+	FGGraphDrawNode* node = builder->AddGraphDrawPass("Directional LightShadowmap");
 
+	graphics::RenderViewParameterData* viewParamData = view->GetData<graphics::RenderViewParameterData>();
 
-	auto meshCmds = view->RequireData<RenderObjectDrawData>();
-	meshCmds->SetROFilter(MeshRenderPass::PointLightShadowDepthPass, [](RenderObject* renderObject)->bool
-	{
-		if (renderObject->mCastShadow)
+	graphics::RenderObjectDrawData*  roParamData = renderScene->GetData<graphics::RenderObjectDrawData>();
+
+	viewParamData->SetMaterialParameter(mShadowDefaultMtlInstance);
+
+	roParamData->SetMaterialParameter(mShadowDefaultMtlInstance);
+
+	ShadowViewTargetData* viewRtData = view->RequireData<ShadowViewTargetData>();
+
+	viewRtData->GenerateShadowRenderTarget(builder, node);
+
+	node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
 		{
-			return true;
-		}
-		return false;
-	});
-	meshCmds->SetOverrideMaterialInstance(MeshRenderPass::PointLightShadowDepthPass, shadowMat);
-
-	if (!hasShadow)
-		return;
-	for (uint32_t idx = 0; idx < 6; idx++)
-	{
-		auto& node = builder->AddPass(LString::Format("PointLightShadowmap{}", idx));
-
-		FGTexture* color = builder->CreateTexture(
-			512, 512, 6, 1,
-			RHITextureFormat::R32_FLOAT,
-			RHIImageUsage::ColorAttachmentBit | RHIImageUsage::SampledBit,
-			"PointShadowmap"
-		);
-
-		FGTexture* depth = builder->CreateTexture(
-			512, 512, 6, 1,
-			RHITextureFormat::D24_UNORM_S8_UINT,
-			RHIImageUsage::DepthStencilBit,
-			"PointShadowmapDepth"
-		);
-
-		assert(color);
-		assert(depth);
-
-		auto data = view->RequireData<ViewShadowData>();
-		data->mPointShadowmap = color;
-
-		auto colorView = node.AddRTV(color, RHIViewDimension::TextureView2D, idx, 1);
-		auto depthView = node.AddDSV(depth);
-
-		node.SetColorAttachment(colorView, LoadOp::kClear, StoreOp::kStore, LVector4f(1, 1, 1, 1));
-		node.SetDepthStencilAttachment(depthView);
-
-		node.ExcuteFunc([view, renderScene, idx](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
-		{
-			for (PointLight* it : renderScene->mPointLights)
-			{
-				if (!it->mCastShadow)
-					continue;
-				std::unordered_map<ShaderParamID, RHIView*> shaderBindingParam;
-				view->RequireData<RenderObjectDrawData>()->DrawRenderObjects(MeshRenderPass::PointLightShadowDepthPass, shaderBindingParam, it->mParamBuffer[idx]->mView);
-			}
+			this->DrawCommandBatch();
 		});
-	}
-
-}
-
+};
 }
 

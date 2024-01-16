@@ -12,6 +12,8 @@
 
 #include "Graphics/Asset/ShaderAsset.h"
 #include "Graphics/Renderer/RenderMesh.h"
+#include "Graphics/RenderAssetManager/RenderAssetManager.h"
+#include "Graphics/Renderer/MaterialInstance.h"
 
 namespace luna::graphics
 {
@@ -72,7 +74,17 @@ public:
 class PipelineStateCache :public RhiObjectCache
 {
 public:
-	RHIPipelineStatePtr CreatePipeline(RenderContext* mDevice, const RHIPipelineStateDesc& desc);
+	RHIPipelineStatePtr CreatePipelineGraphic(
+		RenderContext* mDevice,
+		const RHIPipelineStateGraphDrawDesc& desc,
+		const RHIVertexLayout& inputLayout,
+		const RenderPassDesc& renderPassDesc
+	);
+
+	RHIPipelineStatePtr CreatePipelineCompute(
+		RenderContext* mDevice,
+		const RHIPipelineStateComputeDesc& desc
+	);
 private:
 	void PackShaderToMemory(RenderContext* mDevice, luna::LMemoryHash& newHash, const RHIShaderBlob* shaderData);
 };
@@ -133,18 +145,39 @@ public:
 
 };
 
+struct MeshDrawCommandHashKey
+{
+	RenderAssetDataMesh* mRenderMeshs = nullptr;
+	MaterialInstanceGraphBase* mMtl = nullptr;
+	bool operator==(const MeshDrawCommandHashKey& key2) const{
+		if (mRenderMeshs->mID != key2.mRenderMeshs->mID)
+		{
+			return false;
+		}
+		if (mMtl != key2.mMtl)
+		{
+			return false;
+		}
+		return true;
+	}
+};
+
+struct MeshDrawCommandBatch
+{
+	MeshDrawCommandHashKey mDrawParameter;
+	size_t mRoOffset = 0;
+	size_t mDrawCount = 0;
+};
 
 class RENDER_API RenderContext final : NoCopy
 {
 public:
 	RenderContext();
-	~RenderContext() = default;
+	virtual ~RenderContext() = default;
 	void Init();
 	
 	RHISinglePoolSingleCmdListPtr mGraphicCmd;
 	RHIRenderQueuePtr    mGraphicQueue;
-	RHISinglePoolSingleCmdListPtr mTransferCmd;
-	RHIRenderQueuePtr    mTransferQueue;
 	RHISinglePoolSingleCmdListPtr mBarrierCmd;
 	RHIDevicePtr          mDevice;
 	RenderDeviceType     mDeviceType = RenderDeviceType::DirectX12;
@@ -153,7 +186,7 @@ public:
 
 	//----Frame Graph API Begin----
 public:	
-	RHIResourcePtr FGCreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc);
+	RHIResourcePtr FGCreateTexture(const RHIResDesc& resDesc);
 	RHIResourcePtr FGCreateBuffer(const RHIBufferDesc& resDesc);
 private:
 	RHIMemoryPtr				mFGMemory;
@@ -164,14 +197,21 @@ public:
 	//----Resource Graph API Begin----
 	RHIResourcePtr CreateBuffer(RHIHeapType memoryType, const RHIBufferDesc& resDesc, void* initData = nullptr, size_t initDataSize = 0);
 	RHIResourcePtr CreateTexture2D(uint32_t width, uint32_t height, RHITextureFormat format = RHITextureFormat::R8G8B8A8_UNORM,void* initData = nullptr, size_t dataSize = 0);
-	RHIResourcePtr CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData = nullptr, size_t dataSize = 0);
+	RHIResourcePtr CreateTexture(const RHIResDesc& resDesc, void* initData = nullptr, size_t dataSize = 0);
 	RHIResource* CreateInstancingBufferByRenderObjects(const LArray<RenderObject*>& RenderObjects);
 	void UpdateConstantBuffer(RHIResourcePtr target, void* data, size_t dataSize);
 	
 	RHIShaderBlobPtr CreateShader(const RHIShaderDesc& desc);
 	size_t GetShaderId(const RHIShaderBlob* shader);
-	RHIPipelineStatePtr CreatePipeline(const RHIPipelineStateDesc& desc);
-	RHIPipelineStatePtr CreatePipeline(MaterialInstance* mat, RHIVertexLayout* layout);
+
+	RHIPipelineStatePtr CreatePipelineGraphic(
+		const RHIPipelineStateGraphDrawDesc& desc,
+		const RHIVertexLayout& inputLayout,
+		const RenderPassDesc& renderPassDesc
+	);
+
+	RHIPipelineStatePtr CreatePipelineCompute(const RHIPipelineStateComputeDesc& desc);
+
 	size_t GetPipelineId(const RHIPipelineState* pipeline);
 	RHICmdSignaturePtr CreateCmdSignature(RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc);
 	size_t GetCmdSignatureId(const RHICmdSignature* pipeline);
@@ -184,14 +224,20 @@ public:
 	void BeginRenderPass(const RenderPassDesc&);
 	void EndRenderPass();
 
-	void DrawMesh(graphics::RenderMeshBase*, graphics::MaterialInstance* mat);
+	void DrawMesh(graphics::RenderAssetDataMesh* mesh, graphics::MaterialInstanceGraphBase* mat);
+
+	void DrawFullScreen(graphics::MaterialInstanceGraphBase* mat);
 
 	void DrawMeshInstanced(
-		RenderMeshBase*, 
-		MaterialInstance* mat,
+		RenderAssetDataMesh* mesh,
+		MaterialInstanceGraphBase* mat,
 		RHIResource* vertexInputInstanceRes = nullptr, 
 		int32_t startInstanceIdx = 1,
 		int32_t instancingSize = 1);
+
+	void DrawMeshBatch(const MeshDrawCommandBatch& meshDrawCommand);
+
+	void Dispatch(MaterialInstanceComputeBase* mat,LVector4i dispatchSize);
 
 private:
 	using PipelineCacheKey = std::pair < MaterialInstance*, size_t>;
@@ -202,7 +248,7 @@ private:
 	PipelineStateCache mPipelineCache;
 	CmdSignatureCache mCmdSignatureCache;
 	//----Draw Graph API End----
-
+	RenderAssetDataMesh* mFullScreenRenderMesh = nullptr;
 public:
 	void OnFrameBegin();
 	void OnFrameEnd();
@@ -212,7 +258,7 @@ public:
 
 	RHICBufferDesc GetDefaultShaderConstantBufferDesc(ShaderParamID name);
 
-	RHIBindingSetLayoutPtr mViewBindingSet;
+	//RHIBindingSetLayoutPtr mViewBindingSet;
 	SharedPtr<ShaderAsset> mDefaultShader;
 
 	SharedPtr<LShaderInstance> mDefaultShaderVertexInstance;
@@ -221,20 +267,14 @@ public:
 	SharedPtr<ShaderAsset> mDefaultShaderPbr;
 	SharedPtr<LShaderInstance> mDefaultShaderVertexPbrInstance;
 	SharedPtr<LShaderInstance> mDefaultShaderFragmentPbrInstance;
-private:
-	RHIPipelineStatePtr CreatePipelineState(MaterialInstance* mat, const RenderPassDesc& desc, RHIVertexLayout* layout);
-
-	
-
-	using PipelineCacheKey = std::pair<MaterialInstance*, size_t>;
 
 private:
 
 	RHIResourcePtr _CreateBuffer(RHIHeapType memoryType, const RHIBufferDesc& resDesc, void* initData, size_t initDataSize);
-	RHIResourcePtr _CreateTexture(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, void* initData , size_t dataSize);
+	RHIResourcePtr _CreateTexture(const RHIResDesc& resDesc, void* initData , size_t dataSize);
 
 	RHIResourcePtr _CreateBufferByMemory(const RHIBufferDesc& desc, RHIMemoryPtr targetMemory, size_t& memoryOffset);
-	RHIResourcePtr _CreateTextureByMemory(const RHITextureDesc& textureDesc, const RHIResDesc& resDesc, RHIMemoryPtr targetMemory, size_t& memoryOffset);
+	RHIResourcePtr _CreateTextureByMemory(const RHIResDesc& resDesc, RHIMemoryPtr targetMemory, size_t& memoryOffset);
 
 private:
 	std::shared_ptr<RHIStagingBufferPool> mStagingBufferPool;

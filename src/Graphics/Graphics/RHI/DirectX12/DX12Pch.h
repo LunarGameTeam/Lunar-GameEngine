@@ -81,7 +81,6 @@ D3D12_DSV_DIMENSION RENDER_API GetDsvDimention(RHIViewDimension dsv_dimention);
 
 D3D12_DEPTH_STENCIL_VIEW_DESC RENDER_API GetDepthStencilViewDesc(const LDepthStencilViewDesc& dsv_desc);
 
-
 D3D12_RESOURCE_STATES RENDER_API GetResourceState(const LResState& res_state);
 
 RHIShaderSlotType RENDER_API GetBindType(D3D_SHADER_INPUT_TYPE type_in);
@@ -89,4 +88,25 @@ RHIShaderSlotType RENDER_API GetBindType(D3D_SHADER_INPUT_TYPE type_in);
 D3D12_PLACED_SUBRESOURCE_FOOTPRINT RENDER_API GetFootPrint(const RHIPlacedSubResFootprint& foot_print);
 
 RHIPlacedSubResFootprint RENDER_API GetFootPrintDx(const D3D12_PLACED_SUBRESOURCE_FOOTPRINT& foot_print);
+
+D3D12_GRAPHICS_PIPELINE_STATE_DESC GetPipelineDesc(const RHIPipelineStateGraphDrawDesc& pipeline_desc, const RenderPassDesc pass_desc);
+
+D3D12_FILL_MODE GetFillMode(const RHIRasterizerFillMode& pipeline_fill_mode);
+
+D3D12_CULL_MODE GetCullMode(const RHIRasterizerCullMode& pipeline_cull_mode);
+
+D3D12_DEPTH_WRITE_MASK GetDepthMask(bool depth_mask);
+
+D3D12_STENCIL_OP GetStencilOption(const RHIStencilOption& stencil_option);
+
+D3D12_PRIMITIVE_TOPOLOGY_TYPE GetTypologyType(const RHIPrimitiveTopologyType& typology_type);
+
+D3D12_RENDER_TARGET_BLEND_DESC GetRenderTargetBlendDesc(
+	const RHIBlendStateTargetDesc& render_blend_desc);
+
+D3D12_BLEND GetRenderBlend(const RHIRenderBlend& render_blend);
+
+D3D12_BLEND_OP GetRenderBlendOption(const RHIBlendOption& render_blend_option);
+
+D3D12_LOGIC_OP GetRenderBlendLogicOption(const RHIBlendLogicOption& render_blend_logic_option);
 }

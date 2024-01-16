@@ -59,7 +59,12 @@ bool DxcCompile(
 	else
 		shaderTarget = L"";
 
-	if (stage == RHIShaderType::Vertex)
+	if (stage == RHIShaderType::Compute)
+	{
+		shaderStageName = L"cs_6_0";
+		shaderEntry = L"CSMain";
+	}
+	else if (stage == RHIShaderType::Vertex)
 	{
 		shaderStageName = L"vs_6_0";
 		shaderEntry = L"VSMain";

@@ -5,8 +5,8 @@
 //有时间再造轮子，没时间就用boost的容器了
 
 #include <unordered_set>
-template<typename T>
-using LUnorderedSet = std::unordered_set<T>;
+template<typename T, class _Hasher = std::hash<T>>
+using LUnorderedSet = std::unordered_set<T, _Hasher>;
 
 #include <vector>
 template<typename T>
@@ -17,8 +17,8 @@ template<typename T1, typename T2>
 using LPair = std::pair<T1,T2>;
 
 #include <unordered_map>
-template<typename K, typename Value>
-using LUnorderedMap = std::unordered_map<K, Value>;
+template<typename K, typename Value, class _Hasher = std::hash<K>>
+using LUnorderedMap = std::unordered_map<K, Value, _Hasher>;
 
 #include <map>
 #include <mutex>
@@ -147,5 +147,76 @@ public:
 
 };
 
+struct HoldIdItem
+{
+	uint64_t mID = -1;
+};
 
+template<typename Value>
+class LHoldIdArray
+{
+	LQueue<size_t> mEmptyIndex;
+	LUnorderedMap<size_t, LSharedPtr<Value>> mItems;
+public:
+	LHoldIdArray()
+	{
+
+	}
+
+	Value* AddNewValue()
+	{
+		size_t newIndex = mItems.size();
+		if (!mEmptyIndex.empty())
+		{
+			newIndex = mEmptyIndex.front();
+			mEmptyIndex.pop();
+		}
+		LSharedPtr<Value> newValue = MakeShared<Value>();
+		HoldIdItem* pointer = newValue.get();
+		pointer->mID = newIndex;
+		mItems.insert({ newIndex ,newValue });
+		return newValue.get();
+	};
+	
+	template<typename TempValue>
+	Value* AddNewValueTemplate()
+	{
+		size_t newIndex = mItems.size();
+		if (!mEmptyIndex.empty())
+		{
+			newIndex = mEmptyIndex.front();
+			mEmptyIndex.pop();
+		}
+		LSharedPtr<Value> newValue = MakeShared<TempValue>();
+		HoldIdItem* pointer = newValue.get();
+		pointer->mID = newIndex;
+		mItems.insert({ newIndex ,newValue });
+		return newValue.get();
+	};
+
+
+	bool DestroyValue(Value* valueData)
+	{
+		HoldIdItem* pointer = valueData;
+		size_t index = pointer->mID;
+		auto itor = mItems.find(index);
+		if (itor == mItems.end())
+		{
+			return false;
+		}
+		mEmptyIndex.push(index);
+		mItems.erase(index);
+		return true;
+	}
+
+	void GetAllValueList(LArray<Value*> &valueOut) const
+	{
+		valueOut.clear();
+		for (auto& eachItemData : mItems)
+		{
+			valueOut.push_back(eachItemData.second.get());
+		}
+	}
+
+};
 }

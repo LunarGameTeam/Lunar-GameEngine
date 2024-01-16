@@ -7,6 +7,7 @@
 #include "Graphics/RenderConfig.h"
 #include "Graphics/RHI/RHIResource.h"
 #include "Core/Scripting/BindingProxy.h"
+#include "Graphics/RenderAssetManager/RenderAssetManager.h"
 
 namespace luna::graphics
 {
@@ -48,7 +49,7 @@ class RHIResource;
 		RegisterTypeEmbedd(SubMesh, InvalidType)
 	public:
 		SubMesh();
-		~SubMesh() {}
+		~SubMesh();
 
 		void ClearVertexData();
 
@@ -58,10 +59,6 @@ class RHIResource;
 		int GetVertexCount() const { return (int)mVertexData.size(); }
 		int GetIndexCount() const { return(int)mIndexData.size(); }
 
-		graphics::RenderMeshBase* GetRenderMeshBase();
-
-
-		RenderMeshBase*    mMeshData = nullptr;
 
 		LArray<BaseVertex> mVertexData;
 		LArray<uint32_t>   mIndexData;
@@ -73,6 +70,12 @@ class RHIResource;
 		SubMeshType mType;
 		size_t GetStridePerVertex() { return mVeretexLayout.GetSize()[0]; };
 		size_t GetStridePerInstance() { return mVeretexLayout.GetSize()[1]; };
+
+		graphics::RenderAssetDataMesh* GetRenderMeshData();
+	private:
+
+		
+		RenderAssetDataMesh* mMeshData = nullptr;
 
 	};
 

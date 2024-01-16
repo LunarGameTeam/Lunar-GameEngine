@@ -17,6 +17,13 @@
 #endif
 // Static Samplers
 
+struct InstanceBufferOffset
+{
+	uint mOffset;
+};
+
+[[vk::push_constant]]
+InstanceBufferOffset mInstanceOffset;
 
 struct BaseVertex
 {
@@ -32,7 +39,6 @@ struct BaseVertex
 	[[vk::location(8)]] uint4 blendindex : BLENDINDEX;
     [[vk::location(9)]] uint4 blendweight : BLENDWEIGHT;
 #endif
-	[[vk::location(10)]] uint4 instancemessage : INSTANCEMESSAGE;	
 };
 
 struct BaseFragment
@@ -64,44 +70,20 @@ StructuredBuffer<float4x4> SkinMatrixBuffer : register(t0, SKIN_SPACE0);
 
 Texture2DArray _ShadowMap : register(t1, VIEW_SPACE0);
 Texture2DArray _DirectionLightShadowMap : register(t2, VIEW_SPACE0);
-StructuredBuffer<float4x4> RoWorldMatrixBuffer : register(t3, VIEW_SPACE0);
+StructuredBuffer<float4x4> RoWorldMatrixDataBuffer : register(t3, VIEW_SPACE0);
 //
 // Scene Update Frequence
 // Scene 更新的 Buffer 和贴图
 //
-struct PointLight
+
+cbuffer PointBasedLightParameter : register(b0, SCENE_SPACE0)
 {
-    float3 cLightPos;	
-	float4 cLightColor;
-	float cIndensity;
+	uint4 PointBasedLightNum;
+	uint cPointLightIndex[256];
+    uint cDirectionLightIndex[16];
+	uint cSpotLightIndex[256];
 };
-
-
-struct PerObjectBuffer
-{
-	matrix worldMatrix;
-};
-
-cbuffer SceneBuffer : register(b0, SCENE_SPACE0)
-{
-	float4 cAmbientColor;
-
-	//Direction Light
-	float4 cDirectionLightColor;	
-    float3 cLightDirection;
-	float  cDirectionLightIndensity;
-	//Cacsde Direction Light Matrix
-	matrix cDirectionLightViewMatrix[4];
-	matrix cDirectionLightProjMatrix[4];
-	
-	//Point Light Matrix
-	PointLight cPointLights[4];
-	int cPointLightsCount;
-	matrix cLightViewMatrix[6];
-	matrix cLightProjMatrix[6];
-	int cShadowmapCount;
-	
-};
+StructuredBuffer<float4> PointBasedLightDataBUffer : register(t4, VIEW_SPACE0);
 
 //天空盒贴图
 TextureCube _EnvTex : register(t1, SCENE_SPACE0);

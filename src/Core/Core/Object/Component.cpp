@@ -73,6 +73,11 @@ void Component::UpdateActiveState(bool val)
 				OnActivate();
 }
 
+bool Component::CheckIsRenderComponent()
+{
+	return mIsRenderComponent;
+}
+
 void Component::Destroy()
 {
 	delete this;

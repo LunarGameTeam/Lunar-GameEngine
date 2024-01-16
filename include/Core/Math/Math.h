@@ -14,6 +14,7 @@ using LVector3f = Eigen::Vector3f;
 using LVector3d = Eigen::Vector3d;
 using LVector4f = Eigen::Vector4f;
 using LVector4d = Eigen::Vector4d;
+using LVector4i = Eigen::Vector4i;
 using LQuaternion = Eigen::Quaternionf;
 using LQuaterniond = Eigen::Quaterniond;
 using LTransform = Eigen::Transform<float, 3, Eigen::Affine, Eigen::RowMajor>;

@@ -66,6 +66,11 @@ void LShaderInstance::Init(
 				shaderDesc.mEntryPoint = "PSMain";
 			}
 			break;
+			case luna::graphics::RHIShaderType::Compute:
+			{
+				shaderDesc.mEntryPoint = "CSMain";
+			}
+			break;
 			default:
 			break;
 		}
@@ -83,7 +88,12 @@ void LShaderInstance::Init(
 		{
 			bindingKeys.push_back(it.second);
 		}
-		mLayout = sRenderModule->GetRHIDevice()->CreateBindingSetLayout(bindingKeys);
+
+		for (auto itor : mRhiShader->mBindConstants)
+		{
+		}
+
+		mLayout = sRenderModule->GetRHIDevice()->CreateBindingSetLayout(bindingKeys, mRhiShader->mBindConstants);
 		mInit = true;
 	}
 }

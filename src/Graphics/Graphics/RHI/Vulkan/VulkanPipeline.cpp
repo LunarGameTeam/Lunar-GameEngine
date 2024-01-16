@@ -16,53 +16,86 @@
 
 namespace luna::graphics
 {
-
-
-VulkanPipelineState::VulkanPipelineState(const RHIPipelineStateDesc& pso_desc)
-	: RHIPipelineState(pso_desc)
+VulkanPipelineStateGraphic::VulkanPipelineStateGraphic(
+	LSharedPtr<RHIPipelineStateDescBase> psoDesc,
+	const RHIVertexLayout& inputLayout,
+	const RenderPassDesc& renderPassDesc
+): RHIPipelineStateGraphic(psoDesc, inputLayout, renderPassDesc)
 {
 
-	Init();
 }
 
-void VulkanPipelineState::Init()
+void VulkanPipelineStateGraphic::CreateGraphDrawPipelineImpl(
+	RHIPipelineStateGraphDrawDesc* graphPipelineDesc,
+	RHIVertexLayout& inputLayout,
+	RenderPassDesc& renderPassDesc
+)
 {
 	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
 
 	vk::PipelineRenderingCreateInfo renderingInfos;
 	std::vector<vk::Format> colors;
-	for (auto& it : mPSODesc.mGraphicDesc.mRenderPassDesc.mColorView)
+	for (auto& it : renderPassDesc.mColorView)
 	{
-		colors.push_back(Convert(it->mBindResource->mResDesc.Format));
+		colors.push_back(Convert(it->mBindResource->GetDesc().Format));
 	}
 	renderingInfos.pColorAttachmentFormats = colors.data();
 	renderingInfos.colorAttachmentCount = (uint32_t)colors.size();
-	if (!mPSODesc.mGraphicDesc.mRenderPassDesc.mDepths.empty())
+	if (!renderPassDesc.mDepths.empty())
 	{
-		renderingInfos.stencilAttachmentFormat = Convert(mPSODesc.mGraphicDesc.mRenderPassDesc.mDepths[0].mDepthStencilFormat);
- 		renderingInfos.depthAttachmentFormat = Convert(mPSODesc.mGraphicDesc.mRenderPassDesc.mDepths[0].mDepthStencilFormat);
+		renderingInfos.stencilAttachmentFormat = Convert(renderPassDesc.mDepths[0].mDepthStencilFormat);
+		renderingInfos.depthAttachmentFormat = Convert(renderPassDesc.mDepths[0].mDepthStencilFormat);
 	}
-	
-		
 
-	vk::PipelineShaderStageCreateInfo vertShaderStageInfo{};
-
-	vertShaderStageInfo.stage = vk::ShaderStageFlagBits::eVertex;
-	vertShaderStageInfo.module = mPSODesc.mGraphicDesc.mPipelineStateDesc.mVertexShader->As<VulkanShaderBlob>()->mShaderModule;
-
-	mShaders[RHIShaderType::Vertex] = mPSODesc.mGraphicDesc.mPipelineStateDesc.mVertexShader;
-	vertShaderStageInfo.pName = "VSMain";
-
-	vk::PipelineShaderStageCreateInfo fragShaderStageInfo{};
-	fragShaderStageInfo.stage = vk::ShaderStageFlagBits::eFragment;;
-	fragShaderStageInfo.module = mPSODesc.mGraphicDesc.mPipelineStateDesc.mPixelShader->As<VulkanShaderBlob>()->mShaderModule;;
-	fragShaderStageInfo.pName = "PSMain";
-	mShaders[RHIShaderType::Pixel] = mPSODesc.mGraphicDesc.mPipelineStateDesc.mPixelShader;
-
-	vk::PipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
+	LArray<vk::PipelineShaderStageCreateInfo> shaderStages;
+	for (auto& eachShader : graphPipelineDesc->mShaders)
+	{
+		vk::PipelineShaderStageCreateInfo curInfo = {};
+		switch (eachShader.first)
+		{
+		case RHIShaderType::Vertex:
+		{
+			curInfo.stage = vk::ShaderStageFlagBits::eVertex;
+			curInfo.module = eachShader.second->As<VulkanShaderBlob>()->mShaderModule;
+			curInfo.pName = "VSMain";
+			break;
+		}
+		case RHIShaderType::Pixel:
+		{
+			curInfo.stage = vk::ShaderStageFlagBits::eFragment;
+			curInfo.module = eachShader.second->As<VulkanShaderBlob>()->mShaderModule;
+			curInfo.pName = "PSMain";
+			break;
+		}
+		case RHIShaderType::Geomtry:
+		{
+			curInfo.stage = vk::ShaderStageFlagBits::eGeometry;
+			curInfo.module = eachShader.second->As<VulkanShaderBlob>()->mShaderModule;
+			curInfo.pName = "GSMain";
+			break;
+		case RHIShaderType::Hull:
+		{
+			curInfo.stage = vk::ShaderStageFlagBits::eTessellationControl;
+			curInfo.module = eachShader.second->As<VulkanShaderBlob>()->mShaderModule;
+			curInfo.pName = "HSMain";
+			break;
+		}
+		case RHIShaderType::Domin:
+		{
+			curInfo.stage = vk::ShaderStageFlagBits::eTessellationEvaluation;
+			curInfo.module = eachShader.second->As<VulkanShaderBlob>()->mShaderModule;
+			curInfo.pName = "DSMain";
+			break;
+		}
+		}
+		default:
+			break;
+		}
+		shaderStages.push_back(curInfo);
+	}
 
 	vk::PipelineInputAssemblyStateCreateInfo inputAssembly{};
-	switch (mPSODesc.mGraphicDesc.mPipelineStateDesc.PrimitiveTopologyType)
+	switch (graphPipelineDesc->PrimitiveTopologyType)
 	{
 	case RHIPrimitiveTopologyType::Triangle:
 		inputAssembly.topology = vk::PrimitiveTopology::eTriangleList;
@@ -80,12 +113,12 @@ void VulkanPipelineState::Init()
 	viewportState.viewportCount = 1;
 	viewportState.scissorCount = 1;
 	vk::PipelineRasterizationStateCreateInfo rasterizer{};
-	rasterizer.depthClampEnable = false;	
+	rasterizer.depthClampEnable = false;
 	rasterizer.rasterizerDiscardEnable = false;
 	rasterizer.polygonMode = vk::PolygonMode::eFill;
 	rasterizer.lineWidth = 1.0f;
 
-	switch (mPSODesc.mGraphicDesc.mPipelineStateDesc.RasterizerState.CullMode)
+	switch (graphPipelineDesc->RasterizerState.CullMode)
 	{
 	case RHIRasterizerCullMode::BackFace:
 		rasterizer.cullMode = vk::CullModeFlagBits::eBack;
@@ -127,15 +160,15 @@ void VulkanPipelineState::Init()
 
 
 	vk::PipelineDepthStencilStateCreateInfo depthCreateInfo{};
-	depthCreateInfo.depthTestEnable = mPSODesc.mGraphicDesc.mPipelineStateDesc.DepthStencilState.DepthEnable;
-	depthCreateInfo.depthWriteEnable = mPSODesc.mGraphicDesc.mPipelineStateDesc.DepthStencilState.DepthWrite;
+	depthCreateInfo.depthTestEnable = graphPipelineDesc->DepthStencilState.DepthEnable;
+	depthCreateInfo.depthWriteEnable = graphPipelineDesc->DepthStencilState.DepthWrite;
 
-	depthCreateInfo.depthCompareOp = Convert(mPSODesc.mGraphicDesc.mPipelineStateDesc.DepthStencilState.DepthFunc);
+	depthCreateInfo.depthCompareOp = Convert(graphPipelineDesc->DepthStencilState.DepthFunc);
 	depthCreateInfo.depthBoundsTestEnable = false;
 	depthCreateInfo.stencilTestEnable = false;
-	
-// 	depthCreateInfo.back = VkStencilOpState
-// 	depthCreateInfo.front = Convert(m_desc.depth_stencil_desc.front_face, m_desc.depth_stencil_desc.stencil_read_mask, m_desc.depth_stencil_desc.stencil_write_mask);
+
+	// 	depthCreateInfo.back = VkStencilOpState
+	// 	depthCreateInfo.front = Convert(m_desc.depth_stencil_desc.front_face, m_desc.depth_stencil_desc.stencil_read_mask, m_desc.depth_stencil_desc.stencil_write_mask);
 
 
 
@@ -144,34 +177,17 @@ void VulkanPipelineState::Init()
 		vk::DynamicState::eViewport,
 		vk::DynamicState::eScissor,
 		vk::DynamicState::ePrimitiveTopology
-		
+
 	};
 	vk::PipelineDynamicStateCreateInfo dynamicState{};
-	
+
 	dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
 	dynamicState.pDynamicStates = dynamicStates.data();
 
-	std::vector<RHIBindPoint> bindingKeys;
-	std::map<std::tuple<uint32_t, uint32_t>, RHIBindPoint> result;
-	for (RHIBindPoint& bindKey : mPSODesc.mGraphicDesc.mPipelineStateDesc.mVertexShader->As<VulkanShaderBlob>()->mBindings)
-	{
-		result[std::make_tuple(bindKey.mSpace, bindKey.mSlot)] = bindKey;
-	}
-	for (RHIBindPoint& bindKey : mPSODesc.mGraphicDesc.mPipelineStateDesc.mPixelShader->As<VulkanShaderBlob>()->mBindings)
-	{
-		result[std::make_tuple(bindKey.mSpace, bindKey.mSlot)] = bindKey;
-	}
-	for (auto it : result)
-	{
-		bindingKeys.push_back(it.second);
-	}
-	int idx = 0;
-	mBindingSetLayout = sRenderModule->GetRHIDevice()->CreateBindingSetLayout(bindingKeys);
-
 	vk::GraphicsPipelineCreateInfo pipelineInfo{};
-	pipelineInfo.stageCount = 2;
-	pipelineInfo.pStages = shaderStages;
-	
+	pipelineInfo.stageCount = (uint32_t)shaderStages.size();
+	pipelineInfo.pStages = shaderStages.data();
+
 
 	vk::PipelineVertexInputStateCreateInfo vertexInputInfo = {};
 	std::vector<vk::VertexInputAttributeDescription> inputAttributes;
@@ -179,7 +195,7 @@ void VulkanPipelineState::Init()
 	LArray<vk::VertexInputBindingDescription> inputBindings;
 	inputBindings.resize(16);
 	uint32_t inputVertexBufferNum = 0;
-	for (auto& vertexElement : mPSODesc.mGraphicDesc.mInputLayout.mElements)
+	for (auto& vertexElement : inputLayout.mElements)
 	{
 		auto& attr = inputAttributes.emplace_back();
 		attr.location = static_cast<uint32_t>(vertexElement.mUsage);
@@ -187,7 +203,7 @@ void VulkanPipelineState::Init()
 		attr.offset = 0;
 		if (vertexElement.mElementType == VertexElementType::Float)
 		{
-			if(vertexElement.mElementCount == 1)
+			if (vertexElement.mElementCount == 1)
 				attr.format = vk::Format::eR32Sfloat;
 			else if (vertexElement.mElementCount == 2)
 				attr.format = vk::Format::eR32G32Sfloat;
@@ -196,7 +212,7 @@ void VulkanPipelineState::Init()
 			else if (vertexElement.mElementCount == 4)
 				attr.format = vk::Format::eR32G32B32A32Sfloat;
 		}
-		else if(vertexElement.mElementType == VertexElementType::Int)
+		else if (vertexElement.mElementType == VertexElementType::Int)
 		{
 			if (vertexElement.mElementCount == 1)
 				attr.format = vk::Format::eR32Uint;
@@ -254,7 +270,24 @@ void VulkanPipelineState::Init()
 	vk::Result   res;
 
 	std::tie(res, mPipeline) = device.createGraphicsPipeline(VK_NULL_HANDLE, pipelineInfo);
-	
+
+}
+
+VulkanPipelineStateCompute::VulkanPipelineStateCompute(LSharedPtr<RHIPipelineStateDescBase> psoDesc) : RHIPipelineStateCompute(psoDesc)
+{
+
+}
+
+void VulkanPipelineStateCompute::CreateComputePipelineImpl(RHIPipelineStateComputeDesc* computePipelineDesc)
+{
+	vk::ComputePipelineCreateInfo pipelineInfo{};
+	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	pipelineInfo.stage.stage = vk::ShaderStageFlagBits::eCompute;
+	pipelineInfo.stage.module = computePipelineDesc->mShaders[RHIShaderType::Compute]->As<VulkanShaderBlob>()->mShaderModule;
+	pipelineInfo.stage.pName = "CSMain";
+	pipelineInfo.layout = mBindingSetLayout->As <VulkanBindingSetLayout>()->mPipelineLayout;
+	vk::Result   res; 
+	std::tie(res, mPipeline) = device.createComputePipeline(VK_NULL_HANDLE, pipelineInfo);
 }
 
 }

@@ -8,6 +8,7 @@
 #include <numbers>
 #include "Graphics/Renderer/RenderView.h"
 #include "Core/Object/System.h"
+#include "Game/RenderComponent.h"
 
 namespace luna
 {
@@ -19,17 +20,65 @@ public:
 	void OnTick(float deltaTime) override;
 
 };
-class GAME_API CameraComponent : public Component
+
+struct CameraIntrinsicsParameter
 {
-	RegisterTypeEmbedd(CameraComponent, Component)
+	int32_t	       mRtWidth = 0;
+	int32_t        mRtHeight = 0;
+	float          mFovY = 0.0f;
+	float          mFar = 0.0f;
+	float          mNear = 0.0f;
+};
+
+struct CameraExtrinsicsParameter
+{
+	LVector3f      mPosition;
+	LMatrix4f      mViewMatrix;
+};
+
+struct GameRenderBridgeDataCamera :public graphics::GameRenderBridgeData
+{
+	//相机内参数
+	bool mIntrinsicsDirty = false;
+	CameraIntrinsicsParameter mIntrinsicsParameter;
+	//相机外参数
+	bool mExtrinsicsDirty = false;
+	CameraExtrinsicsParameter mExtrinsicsParameter;
+	//相机RT
+	graphics::RenderTarget* viewRt = nullptr;
+};
+
+class GameCameraRenderDataUpdater :public graphics::GameRenderDataUpdater
+{
+	LSharedPtr<graphics::ShaderCBuffer> mViewCbuffer = nullptr;
+
+	graphics::RenderView* mRenderView = nullptr;
+
+	graphics::ShaderCBuffer* mConstantBuffer = nullptr;
+	
+	LMatrix4f mProjMatrix;
 public:
+	virtual ~GameCameraRenderDataUpdater();
+private:
+	void UpdateRenderThreadImpl(graphics::GameRenderBridgeData* curData, graphics::RenderScene* curScene) override;
+
+	void ClearData(graphics::GameRenderBridgeData* curData) override;
+
+	virtual LSharedPtr<graphics::GameRenderBridgeData> GenarateData() override { return MakeShared<GameRenderBridgeDataCamera>(); };
+};
+
+class GAME_API CameraComponent : public graphics::RendererComponent
+{
+	RegisterTypeEmbedd(CameraComponent, RendererComponent)
+public:
+	CameraComponent();
 	virtual ~CameraComponent();
 	void OnCreate() override;
 
 	void OnActivate() override;
 	void OnDeactivate() override;
 	
-	void OnTick(float delta_time) override;
+	//void OnTick(float delta_time) override;
 
 	LVector3f ViewportToWorldPosition(const LVector2f& viewport);
 	LVector2f WorldPositionToViewport(const LVector3f& worldpos);
@@ -58,10 +107,10 @@ public:
 	void SetAspectRatio(float val);
 
 private:
-	graphics::RenderView* mRenderView;
-	Transform* mTransform;
+	ActionHandle   mTransformDirtyAction;
+	ActionHandle   mRenderTargetDirtyAction;
 
-	float mFar = 200.f, mNear = 0.1f;
+	float mFar = 1000.f, mNear = 0.1f;
 	mutable LMatrix4f mViewMat = LMatrix4f::Identity();
 	mutable LMatrix4f mProjMat = LMatrix4f::Identity();
 
@@ -69,6 +118,17 @@ private:
 	float mFovY = (float)std::numbers::pi / 3.0f;
 	LVector3f mDirection = LVector3f(0, 0, 0);
 	float mSpeed = 0.0f;
+
+	TPPtr<graphics::RenderTarget> mTarget;
+private:
+	bool mNeedUpdateIntrinsics = false;
+	bool mNeedUpdateExtrinsics = false;
+	void OnTransformDirty(Transform* transform);
+	void OnRenderTargetDirty(graphics::RenderTarget* renderTarget);
+	//render相关
+	LSharedPtr<graphics::GameRenderDataUpdater> GenarateRenderUpdater() override { return MakeShared<GameCameraRenderDataUpdater>(); }
+
+	void OnTickImpl(graphics::GameRenderBridgeData* curRenderData) override;
 };
 
 }

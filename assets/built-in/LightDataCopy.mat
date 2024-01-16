@@ -1,0 +1,12 @@
+{
+   "objects" : [
+      {
+         "__class__" : "MaterialComputeAsset",
+         "__fid__" : 1,
+         "__index__" : 0,
+         "__parent__" : 0,
+         "name" : "",
+         "shader" : "/assets/built-in/Shader/LightDataCopy.hlsl"
+      }
+   ]
+}

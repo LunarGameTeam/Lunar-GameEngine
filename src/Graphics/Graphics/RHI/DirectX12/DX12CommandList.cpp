@@ -92,7 +92,7 @@ DX12CmdSignature::DX12CmdSignature(
 	newSignatureDesc.NodeMask = 0;
 	newSignatureDesc.NumArgumentDescs = allIndirectDesc.size();
 	newSignatureDesc.pArgumentDescs = allIndirectDesc.data();
-	DX12BindingSetLayout* dx12BindingSetLayout = pipeline->GetBindingSetLayout()->As<DX12BindingSetLayout>();
+	DX12BindingSetLayout* dx12BindingSetLayout = pipeline->GetLayout()->As<DX12BindingSetLayout>();
 	HRESULT hr;
 	ID3D12Device* dxDevice = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
 	hr = dxDevice->CreateCommandSignature(&newSignatureDesc, dx12BindingSetLayout->GetRootSignature(), IID_PPV_ARGS(&mDxCmdSignature));
@@ -148,6 +148,11 @@ void DX12GraphicCmdList::DrawIndexedInstanced(
 	mDxCmdList->DrawIndexedInstanced(IndexCountPerInstance, InstanceCount, StartIndexLocation,
 		BaseVertexLocation, StartInstanceLocation);
 };
+
+void DX12GraphicCmdList::Dispatch(int32_t x, int32_t y, int32_t z)
+{
+	mDxCmdList->Dispatch(x,y,z);
+}
 
 void DX12GraphicCmdList::DrawIndirectCommands(const RHICmdArgBuffer* DrawBuffer)
 {
@@ -259,11 +264,26 @@ void DX12GraphicCmdList::SetPipelineState(
 	ID3D12PipelineState* dx_pipeline = nullptr;
 	if (pipeline != nullptr)
 	{
-		//获取pipeline
-		DX12PipelineState* pipeline_data = dynamic_cast<DX12PipelineState*>(pipeline);
-		dx_pipeline = pipeline_data->GetPipeLine();
-		mDxCmdList->SetPipelineState(dx_pipeline);		
-		mDxCmdList->SetGraphicsRootSignature(pipeline_data->mBindingSetLayout->As<DX12BindingSetLayout>()->GetRootSignature());
+		switch (pipeline->GetType())
+		{
+		case RHICmdListType::Compute:
+		{
+			DX12PipelineStateCompute* pipeline_data = dynamic_cast<DX12PipelineStateCompute*>(pipeline);
+			dx_pipeline = pipeline_data->GetPipeLine();
+			mDxCmdList->SetPipelineState(dx_pipeline);
+			break;
+		}
+		case RHICmdListType::Graphic3D:
+		{
+			DX12PipelineStateGraphic* pipeline_data = dynamic_cast<DX12PipelineStateGraphic*>(pipeline);
+			dx_pipeline = pipeline_data->GetPipeLine();
+			mDxCmdList->SetPipelineState(dx_pipeline);
+			mDxCmdList->SetGraphicsRootSignature(pipeline_data->GetLayout()->As<DX12BindingSetLayout>()->GetRootSignature());
+			break;
+		}
+		default:
+			assert(false);
+		}
 	}
 }
 
@@ -581,7 +601,29 @@ void DX12GraphicCmdList::CloseCommondList()
 	}
 }
 
-void DX12GraphicCmdList::BindDesriptorSetExt(RHIBindingSetPtr bindingSet)
+void DX12GraphicCmdList::PushInt32Constant(size_t offset, void* value, size_t dataSize, RHIBindingSetLayout* layout, RHICmdListType pipelineType)
+{
+	size_t curOffset = offset / 4;
+	size_t curCount = dataSize / 4;
+	switch (pipelineType)
+	{
+	case luna::graphics::RHICmdListType::Graphic3D:
+	{
+		mDxCmdList->SetGraphicsRoot32BitConstants(0, curCount, value, curOffset);
+	}
+	break;
+	case luna::graphics::RHICmdListType::Compute: 
+	{
+		mDxCmdList->SetComputeRoot32BitConstants(0, curCount, value, curOffset);
+	}
+	break;
+	default:
+		assert(false);
+	break;
+	}
+}
+
+void DX12GraphicCmdList::BindDesriptorSetExt(RHIBindingSet* bindingSet, RHICmdListType pipelineType)
 {
 	DX12BindingSet* dx12BindingSet = bindingSet->As<DX12BindingSet>();
 	for (auto& it : dx12BindingSet->m_layout->GetLayout())
@@ -591,13 +633,36 @@ void DX12GraphicCmdList::BindDesriptorSetExt(RHIBindingSetPtr bindingSet)
 		{
 			D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle;
 			gpuHandle.ptr = descriptor_set.mDescriptorLists[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV].mGPUHandle.ptr;
-			mDxCmdList->SetGraphicsRootDescriptorTable(it.second.root_table_indedx_input, gpuHandle);
+			switch (pipelineType)
+			{
+			case luna::graphics::RHICmdListType::Graphic3D:
+				mDxCmdList->SetGraphicsRootDescriptorTable(it.second.root_table_indedx_input, gpuHandle);
+				break;
+			case luna::graphics::RHICmdListType::Compute:
+				mDxCmdList->SetComputeRootDescriptorTable(it.second.root_table_indedx_input, gpuHandle);
+				break;
+			default:
+				assert(false);
+				break;
+			}
 		}
 		if (it.second.each_range_sampler.size() > 0)
 		{
 			D3D12_GPU_DESCRIPTOR_HANDLE gpuHandle;
 			gpuHandle.ptr = descriptor_set.mDescriptorLists[D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER].mGPUHandle.ptr;
-			mDxCmdList->SetGraphicsRootDescriptorTable(it.second.root_table_indedx_sampler, gpuHandle);
+			switch (pipelineType)
+			{
+			case luna::graphics::RHICmdListType::Graphic3D:
+				mDxCmdList->SetGraphicsRootDescriptorTable(it.second.root_table_indedx_sampler, gpuHandle);
+				break;
+			case luna::graphics::RHICmdListType::Compute:
+				mDxCmdList->SetComputeRootDescriptorTable(it.second.root_table_indedx_sampler, gpuHandle);
+				break;
+			default:
+				assert(false);
+				break;
+			}
+			
 		}
 	}
 }
@@ -646,6 +711,52 @@ void DX12GraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier)
 	dxRes->SetLastState(dx_state_after);
 }
 
+void DX12GraphicCmdList::ResourceBarrierExt(const LArray<ResourceBarrierDesc>& desc)
+{
+	std::vector<D3D12_RESOURCE_BARRIER> dxBarriers;
+	for (auto &barrier : desc)
+	{
+		if (!barrier.mBarrierRes)
+		{
+			LUNA_ASSERT(false);
+			return;
+		}
+		if (barrier.mStateBefore == ResourceState::kRaytracingAccelerationStructure)
+			return;
+
+		DX12Resource* dxRes = barrier.mBarrierRes->As<DX12Resource>();
+		D3D12_RESOURCE_STATES dx_state_before = DxConvertState(barrier.mStateBefore);
+		D3D12_RESOURCE_STATES dx_state_after = DxConvertState(barrier.mStateAfter);
+		if (dx_state_before != dxRes->mLastState)
+		{
+			dx_state_before = dxRes->mLastState;
+		}
+		if (dx_state_before == dx_state_after)
+			return;
+
+		LUNA_ASSERT(barrier.mBaseMipLevel + barrier.mMipLevels <= dxRes->mDxDesc.MipLevels);
+		LUNA_ASSERT(barrier.mBaseDepth + barrier.mDepth <= dxRes->mDxDesc.DepthOrArraySize);
+
+		if (barrier.mBaseMipLevel == 0 && barrier.mMipLevels == dxRes->mDxDesc.MipLevels &&
+			barrier.mBaseDepth == 0 && barrier.mDepth == dxRes->mDxDesc.DepthOrArraySize)
+		{
+			dxBarriers.emplace_back(CD3DX12_RESOURCE_BARRIER::Transition(dxRes->mDxRes.Get(), dx_state_before, dx_state_after));
+		}
+		else
+		{
+			for (uint32_t i = barrier.mBaseMipLevel; i < barrier.mBaseMipLevel + barrier.mMipLevels; ++i)
+			{
+				for (uint32_t j = barrier.mBaseDepth; j < barrier.mBaseDepth + barrier.mDepth; ++j)
+				{
+					uint32_t subresource = i + j * dxRes->GetDesc().MipLevels;
+					dxBarriers.emplace_back(CD3DX12_RESOURCE_BARRIER::Transition(dxRes->mDxRes.Get(), dx_state_before, dx_state_after, subresource));
+				}
+			}
+		}
+		dxRes->SetLastState(dx_state_after);
+	}
+	mDxCmdList->ResourceBarrier((UINT)dxBarriers.size(), dxBarriers.data());
+}
 
 void GenerateDX12CommandPool(RHICmdListType listType, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>& ppCommandAllocator)
 {

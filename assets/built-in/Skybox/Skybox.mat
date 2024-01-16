@@ -1,7 +1,7 @@
 {
    "objects" : [
       {
-         "__class__" : "MaterialTemplateAsset",
+         "__class__" : "MaterialGraphAsset",
          "__fid__" : 1,
          "__index__" : 0,
          "__parent__" : 0,
@@ -18,7 +18,7 @@
          "__parent__" : 1,
          "name" : "_SkyTex",
          "param_name" : "_SkyTex",
-         "texture" : "/assets/built-in/Skybox/Skybox.cubemap",
+         "texture" : "/assets/built-in/Skybox/Cubemap.dds",
          "type" : 6
       }
    ]
