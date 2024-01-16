@@ -23,6 +23,15 @@ RegisterTypeEmbedd_Imp(RenderTarget)
 	BindingModule::Get("luna")->AddType(cls);
 };
 
+RHIResource* RenderTarget::GetColor()
+{ 
+	return mColorTexture.get();
+}
+
+RHIResource* RenderTarget::GetDepth()
+{ 
+	return mDepthTexture.get();
+}
 
 RenderTarget::RenderTarget()
 {
@@ -54,6 +63,7 @@ void RenderTarget::Update()
 	depthResDesc.mImageUsage = RHIImageUsage::DepthStencilBit;
 	mDepthTexture = sRenderModule->mRenderContext->CreateTexture(depthResDesc);
 
+	OnRenderTargetDirty.BroadCast(this);
 }
 
 bool RenderTarget::Ready()

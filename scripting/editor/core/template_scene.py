@@ -51,4 +51,4 @@ class TemplateSceneView(object):
         rt.update()
         if self.camera:
             self.camera.aspect = rt.width / rt.height
-        #self.scene_texture = rt.color_texture
+        self.scene_texture = rt.color_texture

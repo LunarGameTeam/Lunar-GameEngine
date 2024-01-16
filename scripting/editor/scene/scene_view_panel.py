@@ -37,8 +37,8 @@ class SceneAssetViewPanel(SceneViewPanel):
                 self.loaded_scenes[scene] = TemplateSceneView(scene)
                 self.current_scene_view = self.loaded_scenes[scene]
                 self.current_scene_view.find_camera()
-
-            self.current_scene_view = self.loaded_scenes[scene]
+            else:
+                self.current_scene_view = self.loaded_scenes[scene]
 
         if not self.scene:
             self.main_light = None

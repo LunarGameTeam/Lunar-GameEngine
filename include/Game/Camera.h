@@ -108,6 +108,7 @@ public:
 
 private:
 	ActionHandle   mTransformDirtyAction;
+	ActionHandle   mRenderTargetDirtyAction;
 
 	float mFar = 1000.f, mNear = 0.1f;
 	mutable LMatrix4f mViewMat = LMatrix4f::Identity();
@@ -123,6 +124,7 @@ private:
 	bool mNeedUpdateIntrinsics = false;
 	bool mNeedUpdateExtrinsics = false;
 	void OnTransformDirty(Transform* transform);
+	void OnRenderTargetDirty(graphics::RenderTarget* renderTarget);
 	//renderœ‡πÿ
 	LSharedPtr<graphics::GameRenderDataUpdater> GenarateRenderUpdater() override { return MakeShared<GameCameraRenderDataUpdater>(); }
 

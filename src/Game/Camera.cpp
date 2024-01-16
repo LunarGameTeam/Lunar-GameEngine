@@ -16,13 +16,14 @@ void GameCameraRenderDataUpdater::UpdateRenderThreadImpl(graphics::GameRenderBri
 	{
 		if (mRenderView == nullptr)
 		{
+			auto color_resource = realPointer->viewRt->GetColor();
 			mRenderView = curScene->CreateRenderView();
 			mRenderView->mViewType = graphics::RenderViewType::SceneView;
-			mRenderView->SetRenderTarget(realPointer->viewRt);
 			graphics::RenderViewParameterData* viewParamData = mRenderView->RequireData<graphics::RenderViewParameterData>();
 			viewParamData->Init();
 			mViewCbuffer = MakeShared<graphics::ShaderCBuffer>(viewParamData->GetParamDesc());
 		}
+		mRenderView->SetRenderTarget(realPointer->viewRt);
 		float curAspect = (float)realPointer->mIntrinsicsParameter.mRtWidth / (float)realPointer->mIntrinsicsParameter.mRtHeight;
 		LMath::GenPerspectiveFovLHMatrix(mProjMatrix, realPointer->mIntrinsicsParameter.mFovY, curAspect, realPointer->mIntrinsicsParameter.mNear, realPointer->mIntrinsicsParameter.mFar);
 	}
@@ -183,8 +184,12 @@ CameraComponent::~CameraComponent()
 void CameraComponent::OnTransformDirty(Transform* transform)
 {
 	mNeedUpdateExtrinsics = true;
-
 }
+void CameraComponent::OnRenderTargetDirty(graphics::RenderTarget* renderTarget)
+{
+	mNeedUpdateIntrinsics = true;
+}
+
 void CameraComponent::OnCreate()
 {
 	Super::OnCreate();
@@ -192,6 +197,7 @@ void CameraComponent::OnCreate()
 	mNeedUpdateExtrinsics = true;
 	Transform* newTransform = GetEntity()->RequireComponent<Transform>();
 	mTransformDirtyAction = newTransform->OnTransformDirty.Bind(AutoBind(&CameraComponent::OnTransformDirty, this));
+	mRenderTargetDirtyAction = mTarget->OnRenderTargetDirty.Bind(AutoBind(&CameraComponent::OnRenderTargetDirty, this));
 }
 
 void CameraComponent::OnActivate()
@@ -231,6 +237,7 @@ void CameraComponent::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
 		realPointer->mIntrinsicsParameter.mRtHeight = mTarget->GetHeight();
 		realPointer->mIntrinsicsParameter.mRtWidth = mTarget->GetWidth();
 		realPointer->viewRt = mTarget.Get();
+		auto color_resource = mTarget->GetColor();
 		mNeedUpdateIntrinsics = false;
 	}
 
