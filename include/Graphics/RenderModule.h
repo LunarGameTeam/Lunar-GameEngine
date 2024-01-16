@@ -58,7 +58,7 @@ public:
 
 	RHIDevice* GetRHIDevice()
 	{
-		return mRenderContext->mDevice;
+		return mRenderContext->mDevice.get();
 	}
 
 	RenderContext* GetRenderContext()
@@ -85,7 +85,7 @@ public:
 	void RenderTick(float delta_time) override;
 	void UpdateFrameBuffer();
 protected:
-	void Render();
+	void PrepareRender();
 	void RenderIMGUI();
 
 	void OnMainWindowResize(LWindow& window, WindowEvent& event);

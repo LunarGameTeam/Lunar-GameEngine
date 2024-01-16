@@ -345,24 +345,26 @@ void RenderModule::RenderTick(float delta_time)
 	ZoneScoped;
 	mRenderContext->OnFrameBegin();
 	//RenderScene发起渲染
-	mRenderContext->mTransferCmd->GetCmdList()->BeginEvent("Frame Graph Prepare");
+	sRenderModule->GetRenderContext()->mFence->Wait(sRenderModule->GetRenderContext()->mFenceValue);
+	RenderContext* renderDevice = sRenderModule->GetRenderContext();
+	RHISinglePoolSingleCmdList* cmdlist = renderDevice->mGraphicCmd.get();
+	//开始录制渲染指令
+	cmdlist->Reset();
 	for (RenderScene* it : mRenderScenes)
 	{
 		mRenderer->PrepareSceneRender(it);
-		RenderContext* renderDevice = sRenderModule->GetRenderContext();
-		RHISinglePoolSingleCmdList* cmdlist = renderDevice->mGraphicCmd.get();
-		cmdlist->Reset();
 		cmdlist->GetCmdList()->BeginEvent("RenderSceneDataUpdateCommand");
 		cmdlist->GetCmdList()->BindDescriptorHeap();
 		it->ExcuteCopy();
 		cmdlist->GetCmdList()->EndEvent();
-		cmdlist->GetCmdList()->CloseCommondList();
-		renderDevice->mGraphicQueue->ExecuteCommandLists(cmdlist->GetCmdList());
 		mRenderer->Render(it);
 	}
-	mRenderContext->mTransferCmd->GetCmdList()->EndEvent();
-
-	Render();
+	//先把barrier相关的资源指令提交
+	PrepareRender();
+	//提交渲染指令
+	cmdlist->GetCmdList()->CloseCommondList();
+	renderDevice->mGraphicQueue->ExecuteCommandLists(cmdlist->GetCmdList());
+	renderDevice->mGraphicQueue->Signal(sRenderModule->GetRenderContext()->mFence, ++sRenderModule->GetRenderContext()->mFenceValue);
 	{
 		ZoneScopedN("IMGUI");
 		ImGui::Render();
@@ -438,7 +440,7 @@ ImguiTexture* RenderModule::AddImguiTexture(RHIResource* res)
 	return imguiTexture;
 }
 
-void RenderModule::Render()
+void RenderModule::PrepareRender()
 {
 	ZoneScoped;
 	mRenderContext->FlushStaging();

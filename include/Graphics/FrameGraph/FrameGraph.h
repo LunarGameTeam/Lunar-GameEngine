@@ -49,10 +49,6 @@ private:
 	std::unordered_set<size_t> mUnusedVirtualResourceId;
 	size_t mMaxVirtualResourceId = 0;
 
-
-	//frame graph fence
-	RHIFencePtr mFence3D;	
-	size_t& mFenceValue3D;
 	LUnorderedMap<size_t, RHIResourcePtr> mPhysicResourceMap;
 };
 

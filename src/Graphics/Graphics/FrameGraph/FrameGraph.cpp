@@ -19,10 +19,8 @@ namespace luna::graphics
 {
 
 FrameGraphBuilder::FrameGraphBuilder(const LString& graph_name)
-	:mFenceValue3D(sRenderModule->GetRenderContext()->mFenceValue)
 {
 	mGraphName = graph_name;
-	mFence3D = sRenderModule->GetRenderContext()->mFence;
 }
 
 FrameGraphBuilder::~FrameGraphBuilder()
@@ -88,7 +86,7 @@ void FrameGraphBuilder::Flush()
 	RenderContext* renderDevice = sRenderModule->GetRenderContext();
 	RHISinglePoolSingleCmdList* cmdlist = renderDevice->mGraphicCmd.get();
 
-	mFence3D->Wait(mFenceValue3D);
+	
 	for (FGNode* it : mNodes)
 	{
 		for (auto& view : it->mVirtureResView)
@@ -122,7 +120,6 @@ void FrameGraphBuilder::Flush()
 			ZoneName(name, node->GetName().Length());
 			{
 				ZoneScopedN("Device Wait");
-				mFence3D->Wait(mFenceValue3D);
 			}			
 			cmdlist->Reset();
 			cmdlist->GetCmdList()->BeginEvent(node->GetName());
@@ -193,9 +190,6 @@ void FrameGraphBuilder::Flush()
 			renderDevice->EndRenderPass();
 
 			cmdlist->GetCmdList()->EndEvent();
-			cmdlist->GetCmdList()->CloseCommondList();
-			renderDevice->mGraphicQueue->ExecuteCommandLists(cmdlist->GetCmdList());
-			renderDevice->mGraphicQueue->Signal(mFence3D, ++mFenceValue3D);
 		}
 	}
 	

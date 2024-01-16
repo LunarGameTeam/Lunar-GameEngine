@@ -129,7 +129,7 @@ namespace luna::graphics
 		RHIView* roIndexBuffer = curData->GetRoIndexBufferViewByPass(mID);
 		GpuSceneUploadCopyCommand* copyCommand = curView->mOwnerScene->AddCopyCommand();
 		copyCommand->mStorageBufferOutput = roIndexBuffer->mBindResource;
-		copyCommand->mUniformBufferInput = roIndexBuffer->mBindResource;
+		copyCommand->mUniformBufferInput = roIndexStageBuffer->mBindResource;
 		copyCommand->mSrcOffset = 0;
 		copyCommand->mDstOffset = 0;
 		copyCommand->mCopyLength = mRoQueue.size() * sizeof(uint32_t);

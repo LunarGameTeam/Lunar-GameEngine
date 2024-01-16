@@ -178,8 +178,6 @@ public:
 	
 	RHISinglePoolSingleCmdListPtr mGraphicCmd;
 	RHIRenderQueuePtr    mGraphicQueue;
-	RHISinglePoolSingleCmdListPtr mTransferCmd;
-	RHIRenderQueuePtr    mTransferQueue;
 	RHISinglePoolSingleCmdListPtr mBarrierCmd;
 	RHIDevicePtr          mDevice;
 	RenderDeviceType     mDeviceType = RenderDeviceType::DirectX12;

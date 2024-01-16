@@ -124,6 +124,7 @@ void Texture2D::Init()
 		const tinyddsloader::DDSFile::ImageData* curData = newfile.GetImageData(0, 0);
 		mRHIRes = sRenderModule->mRenderContext->CreateTexture(mDesc, (byte*)curData->m_mem, curData->m_memSlicePitch);
 	}
+	break;
 	case TextureMemoryType::WIC:
 	{
 		mRHIRes = sRenderModule->mRenderContext->CreateTexture(mDesc, (byte*)mData, mDataSize);

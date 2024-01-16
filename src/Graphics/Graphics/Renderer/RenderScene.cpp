@@ -257,7 +257,7 @@ void RenderScene::ExcuteCopy()
 			newBarrierDesc.mStateAfter = ResourceState::kNonPixelShaderResource;
 			curResourceBarrier.push_back(newBarrierDesc);
 		}
-		for (auto& eachOut : eachCommand.mStorageBufferInput)
+		for (auto& eachOut : eachCommand.mStorageBufferOutput)
 		{
 			ResourceBarrierDesc newBarrierDesc;
 			newBarrierDesc.mBarrierRes = eachOut.second->mBindResource;
@@ -275,12 +275,12 @@ void RenderScene::ExcuteCopy()
 		curResourceBarrier.push_back(newInputBarrierDesc);
 
 		ResourceBarrierDesc newOutputBarrierDesc;
-		newOutputBarrierDesc.mBarrierRes = eachCommand.mUniformBufferInput;
+		newOutputBarrierDesc.mBarrierRes = eachCommand.mStorageBufferOutput;
 		newOutputBarrierDesc.mStateBefore = ResourceState::kVertexAndConstantBuffer;
 		newOutputBarrierDesc.mStateAfter = ResourceState::kCopyDest;
 		curResourceBarrier.push_back(newInputBarrierDesc);
 	}
-	sRenderModule->mRenderContext->mBarrierCmd->GetCmdList()->ResourceBarrierExt(curResourceBarrier);
+	sRenderModule->mRenderContext->mGraphicCmd->GetCmdList()->ResourceBarrierExt(curResourceBarrier);
 	//执行GPUscene的更新指令
 	for (auto& eachCommand : mAllComputeCommand)
 	{
@@ -311,7 +311,7 @@ void RenderScene::ExcuteCopy()
 			newBarrierDesc.mStateAfter = ResourceState::kGenericRead;
 			curResourceBarrier.push_back(newBarrierDesc);
 		}
-		for (auto& eachOut : eachCommand.mStorageBufferInput)
+		for (auto& eachOut : eachCommand.mStorageBufferOutput)
 		{
 			ResourceBarrierDesc newBarrierDesc;
 			newBarrierDesc.mBarrierRes = eachOut.second->mBindResource;
@@ -329,11 +329,12 @@ void RenderScene::ExcuteCopy()
 		curResourceBarrier.push_back(newInputBarrierDesc);
 
 		ResourceBarrierDesc newOutputBarrierDesc;
-		newOutputBarrierDesc.mBarrierRes = eachCommand.mUniformBufferInput;
+		newOutputBarrierDesc.mBarrierRes = eachCommand.mStorageBufferOutput;
 		newOutputBarrierDesc.mStateBefore = ResourceState::kCopyDest;
 		newOutputBarrierDesc.mStateAfter = ResourceState::kVertexAndConstantBuffer;
 		curResourceBarrier.push_back(newInputBarrierDesc);
 	}
+	sRenderModule->mRenderContext->mGraphicCmd->GetCmdList()->ResourceBarrierExt(curResourceBarrier);
 	//清空所有GpuScene的更新指令
 	mAllComputeCommand.clear();
 	mAllCopyCommand.clear();

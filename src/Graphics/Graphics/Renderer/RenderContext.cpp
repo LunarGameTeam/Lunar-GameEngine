@@ -269,13 +269,10 @@ void RenderContext::Init()
 	mDevice = GenerateRenderDevice();
 	mDevice->InitDeviceData();
 	mGraphicQueue = GenerateRenderQueue();
-	mTransferQueue = GenerateRenderQueue(RHIQueueType::eTransfer);
 	mFence = mDevice->CreateFence();
 
 	mGraphicCmd = mDevice->CreateSinglePoolSingleCommondList(RHICmdListType::Graphic3D);
-	mTransferCmd = mDevice->CreateSinglePoolSingleCommondList(RHICmdListType::Copy);
 	mBarrierCmd = mDevice->CreateSinglePoolSingleCommondList(RHICmdListType::Graphic3D);
-
 	mStagingBufferPool = std::make_shared<RHIStagingBufferPool>(mDevice);
 	//Default
 	{
@@ -316,9 +313,7 @@ void RenderContext::Init()
 	}
 
 	mGraphicCmd->Reset();
-	mTransferCmd->Reset();
 	mBarrierCmd->Reset();
-	
 	
 	LArray<ShaderMacro*> emptyShaderMacros;
 	mDefaultShader = sAssetModule->LoadAsset<ShaderAsset>("/assets/built-in/Shader/Debug.hlsl");
@@ -365,8 +360,6 @@ void RenderContext::OnFrameBegin()
 {
 	ZoneScoped;
 	mFGOffset = 0;
-
-	FlushStaging();
 	mStagingBufferPool->TickPoolRefresh();
 }
 
@@ -484,7 +477,7 @@ RHIResourcePtr RenderContext::_CreateTexture(const RHIResDesc& resDesc, void* in
 	}
 	else if (Has(resDesc.mImageUsage, RHIImageUsage::ColorAttachmentBit))
 	{
-		dstBarrier.mStateBefore = kCopyDest;
+		dstBarrier.mStateBefore = kCommon;
 		dstBarrier.mStateAfter = kRenderTarget;
 		mBarrierCmd->GetCmdList()->ResourceBarrierExt(dstBarrier);
 	}
@@ -566,19 +559,14 @@ RHICBufferDesc RenderContext::GetDefaultShaderConstantBufferDesc(ShaderParamID n
 	RHICBufferDesc empty;
 	return empty;
 }
-
 void RenderContext::FlushStaging()
 {
 	mFence->Wait(mFenceValue);
-	mTransferCmd->GetCmdList()->CloseCommondList();
-	mTransferQueue->ExecuteCommandLists(mTransferCmd->GetCmdList());
-	mTransferQueue->Signal(mFence, ++mFenceValue);
-	mFence->Wait(mFenceValue);
 	mBarrierCmd->GetCmdList()->CloseCommondList();
 	mGraphicQueue->ExecuteCommandLists(mBarrierCmd->GetCmdList());
+	//todo：这里SinglePoolSingleCmdList的vulkan cmdbuffer需要等待完成才能reset，后面切换multicmdlist就可以不再等待fence了
 	mGraphicQueue->Signal(mFence, ++mFenceValue);
 	mFence->Wait(mFenceValue);
-	mTransferCmd->Reset();
 	mBarrierCmd->Reset();
 }
 
@@ -653,7 +641,6 @@ void RenderContext::DrawMeshInstanced(
 {
 	ZoneScoped;
 	RHIVertexLayout layout = mesh->GetVertexLayout();
-	layout.AddVertexElement(VertexElementType::Int, VertexElementUsage::UsageInstanceMessage, 4, 1, VertexElementInstanceType::PerInstance);
 
 	auto pipeline = mat->GetPipeline(&layout, mCurRenderPass);
 
