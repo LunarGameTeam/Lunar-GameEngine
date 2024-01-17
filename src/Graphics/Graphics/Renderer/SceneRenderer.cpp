@@ -9,11 +9,12 @@ namespace luna::graphics
 {
 	void InitBasePipeline(SceneRenderPipeline* curPipeline)
 	{
+		curPipeline->InitNewPerViewFrameGraphGeneratorInstance<SkyBoxPassGenerator>();
 		curPipeline->InitNewPerViewFrameGraphGeneratorInstance<DirectionalLightShadowPassGenerator>();
 		curPipeline->InitNewPerViewFrameGraphGeneratorInstance<OpaquePassGenerator>();
 		//curPipeline->InitNewPerViewFrameGraphGeneratorInstance<SceneOverLayPassGenerator>();
 		//curPipeline->InitNewPerViewFrameGraphGeneratorInstance<PostProcessPassGenerator>(); 
-		curPipeline->InitNewPerViewFrameGraphGeneratorInstance<SkyBoxPassGenerator>();
+		
 	}
 
 	void SceneRenderPipeline::GeneratePerViwewPass(FrameGraphBuilder* frameGraph, RenderView* curView)

@@ -43,7 +43,7 @@ namespace luna::graphics
 		mSkyBoxDefaultMtlInstance->SetShaderInput(ParamID__ClampSampler, sRenderModule->GetRenderContext()->mClamp.mView);
 		viewParamData->SetMaterialParameter(mSkyBoxDefaultMtlInstance);
 		ViewTargetData* viewRtData = view->RequireData<ViewTargetData>();
-		viewRtData->GenerateOpaqueResultRenderTarget(builder, node);
+		viewRtData->GenerateOpaqueResultRenderTarget(builder, node,true,true);
 
 		node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
 			{
