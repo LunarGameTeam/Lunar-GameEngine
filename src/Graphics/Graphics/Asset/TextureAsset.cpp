@@ -84,6 +84,7 @@ void Texture2D::Release()
 
 void Texture2D::Init()
 {
+	RHISubResourceCopyDesc sourceCopyOffset;
 	if (mRHIRes)
 		return;	
 	switch (mDataType)
@@ -120,14 +121,19 @@ void Texture2D::Init()
 		mDesc.Width = newfile.GetWidth();
 		mDesc.Height = newfile.GetHeight();
 		mDesc.MipLevels = newfile.GetMipCount();
-		
 		const tinyddsloader::DDSFile::ImageData* curData = newfile.GetImageData(0, 0);
-		mRHIRes = sRenderModule->mRenderContext->CreateTexture(mDesc, (byte*)curData->m_mem, curData->m_memSlicePitch);
+		RHISubResourceCopyLayerDesc newLayer;
+		newLayer.mEachMipmapLevelSize.push_back(curData->m_memSlicePitch);
+		sourceCopyOffset.mEachArrayMember.push_back(newLayer);
+		mRHIRes = sRenderModule->mRenderContext->CreateTexture(mDesc, (byte*)curData->m_mem, curData->m_memSlicePitch, sourceCopyOffset);
 	}
 	break;
 	case TextureMemoryType::WIC:
 	{
-		mRHIRes = sRenderModule->mRenderContext->CreateTexture(mDesc, (byte*)mData, mDataSize);
+		RHISubResourceCopyLayerDesc newLayer;
+		newLayer.mEachMipmapLevelSize.push_back(mDataSize);
+		sourceCopyOffset.mEachArrayMember.push_back(newLayer);
+		mRHIRes = sRenderModule->mRenderContext->CreateTexture(mDesc, (byte*)mData, mDataSize, sourceCopyOffset);
 	}
 	}
 	mDesc.mImageUsage = RHIImageUsage::SampledBit;
@@ -156,6 +162,7 @@ void TextureCube::Init()
 	if (mRHIRes)
 		return;
 	LArray<byte> image_data;
+	RHISubResourceCopyDesc sourceCopyOffset;
 	switch(mDataType)
 	{
 	case TextureMemoryType::DDS:
@@ -200,15 +207,19 @@ void TextureCube::Init()
 			}
 		}
 		image_data.resize(allSize);
+		
 		size_t copyOffset = 0;
 		for (int16_t eachArrayIndex = 0; eachArrayIndex < mDesc.DepthOrArraySize; ++eachArrayIndex)
 		{
+			RHISubResourceCopyLayerDesc newLayer;
 			for (int16_t eachMipIndex = 0; eachMipIndex < mDesc.MipLevels; ++eachMipIndex)
 			{
 				const tinyddsloader::DDSFile::ImageData* curData = newfile.GetImageData(eachMipIndex,eachArrayIndex);
 				memcpy(image_data.data() + copyOffset, curData->m_mem, curData->m_memSlicePitch);
 				copyOffset += curData->m_memSlicePitch;
+				newLayer.mEachMipmapLevelSize.push_back(curData->m_memSlicePitch);
 			}
+			sourceCopyOffset.mEachArrayMember.push_back(newLayer);
 		}
 		break;
 	}
@@ -217,7 +228,7 @@ void TextureCube::Init()
 		assert(false);
 	}
 	}
-	mRHIRes = sRenderModule->GetRenderContext()->CreateTexture(mDesc, image_data.data(), image_data.size());
+	mRHIRes = sRenderModule->GetRenderContext()->CreateTexture(mDesc, image_data.data(), image_data.size(), sourceCopyOffset);
 
 	ViewDesc desc;
 	desc.mViewType = RHIViewType::kTexture;

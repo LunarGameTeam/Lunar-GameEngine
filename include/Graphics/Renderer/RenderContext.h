@@ -197,7 +197,7 @@ public:
 	//----Resource Graph API Begin----
 	RHIResourcePtr CreateBuffer(RHIHeapType memoryType, const RHIBufferDesc& resDesc, void* initData = nullptr, size_t initDataSize = 0);
 	RHIResourcePtr CreateTexture2D(uint32_t width, uint32_t height, RHITextureFormat format = RHITextureFormat::R8G8B8A8_UNORM,void* initData = nullptr, size_t dataSize = 0);
-	RHIResourcePtr CreateTexture(const RHIResDesc& resDesc, void* initData = nullptr, size_t dataSize = 0);
+	RHIResourcePtr CreateTexture(const RHIResDesc& resDesc, void* initData = nullptr, size_t dataSize = 0, const RHISubResourceCopyDesc sourceCopyOffset = {});
 	RHIResource* CreateInstancingBufferByRenderObjects(const LArray<RenderObject*>& RenderObjects);
 	void UpdateConstantBuffer(RHIResourcePtr target, void* data, size_t dataSize);
 	
@@ -271,7 +271,7 @@ public:
 private:
 
 	RHIResourcePtr _CreateBuffer(RHIHeapType memoryType, const RHIBufferDesc& resDesc, void* initData, size_t initDataSize);
-	RHIResourcePtr _CreateTexture(const RHIResDesc& resDesc, void* initData , size_t dataSize);
+	RHIResourcePtr _CreateTexture(const RHIResDesc& resDesc, void* initData , size_t dataSize, const RHISubResourceCopyDesc& sourceCopyOffset);
 
 	RHIResourcePtr _CreateBufferByMemory(const RHIBufferDesc& desc, RHIMemoryPtr targetMemory, size_t& memoryOffset);
 	RHIResourcePtr _CreateTextureByMemory(const RHIResDesc& resDesc, RHIMemoryPtr targetMemory, size_t& memoryOffset);

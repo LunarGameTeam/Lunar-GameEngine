@@ -42,7 +42,13 @@ public:
 
 	void UploadToDstBuffer(size_t dataLength, void* initData, RHIResource* dstBuffer,size_t offset_dst);
 
-	void UploadToDstTexture(size_t dataLength, void* initData, RHIResource* dstTexture, size_t offset_dst);
+	void UploadToDstTexture(
+		size_t dataLength,
+		void* initData,
+		const RHISubResourceCopyDesc& sourceCopyOffset,
+		RHIResource* dstTexture,
+		size_t offset_dst
+	);
 
 	void TickPoolRefresh();
 private:

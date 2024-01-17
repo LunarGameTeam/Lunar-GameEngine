@@ -89,7 +89,7 @@ public:
 		RHIResource* target_resource,
 		uint32_t target_subresource,
 		RHIResource* source_resource,
-		uint32_t source_subresource
+		const RHISubResourceCopyDesc& sourceCopyOffset
 	) override;
 
 	void SetPipelineState(

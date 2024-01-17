@@ -23,6 +23,6 @@ BaseFragment VSMain(BaseVertex input, uint inst : SV_InstanceID)
 ////////////////////////////////////////////////////////////////////////////////
 float4 PSMain(BaseFragment input) : SV_TARGET
 {
-    float3 texColor = _SkyTex.Sample(_ClampSampler, normalize(input.normal)).rgb;
+    float3 texColor = _SkyTex.SampleLevel(_ClampSampler, normalize(input.normal),0).rgb;
     return float4(texColor, 1.0f);
 }

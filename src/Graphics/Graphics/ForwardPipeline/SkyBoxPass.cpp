@@ -13,9 +13,10 @@ namespace luna::graphics
 
 	SkyBoxPassGenerator::SkyBoxPassGenerator()
 	{
-		mSkyBoxMeshAsset = sAssetModule->LoadAsset<MeshAsset>("/assets/built-in/Geometry/InsideSphere.lmesh");
+		mSkyBoxMeshAsset = sAssetModule->LoadAsset<MeshAsset>("/assets/built-in/Geometry/Sphere.lmesh");
 		mSkyboxRenderMesh = mSkyBoxMeshAsset->GetSubMeshAt(0)->GetRenderMeshData();
 		mSkyBoxMtlAsset = sAssetModule->LoadAsset<MaterialGraphAsset>("/assets/built-in/Skybox/Skybox.mat");
+		mSkyBoxMtlAsset->SetCullMode(RHIRasterizerCullMode::FrontFace);
 		mSkyBoxDefaultMtlInstance = dynamic_cast<MaterialInstanceGraphBase*>(mSkyBoxMtlAsset->GetDefaultInstance());
 	};
 

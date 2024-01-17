@@ -443,7 +443,7 @@ RHIResourcePtr RenderContext::CreateBuffer(RHIHeapType memoryType, const RHIBuff
 	return _CreateBuffer(memoryType,resDesc, initData, initDataSize);
 }
 
-RHIResourcePtr RenderContext::_CreateTexture(const RHIResDesc& resDesc, void* initData, size_t dataSize)
+RHIResourcePtr RenderContext::_CreateTexture(const RHIResDesc& resDesc, void* initData, size_t dataSize, const RHISubResourceCopyDesc& sourceCopyOffset)
 {
 
 	bool usingStaging = false;
@@ -461,7 +461,7 @@ RHIResourcePtr RenderContext::_CreateTexture(const RHIResDesc& resDesc, void* in
 		return textureRes;
 	}
 	assert(dataSize != 0);
-	mStagingBufferPool->UploadToDstTexture(dataSize, initData, textureRes, 0);
+	mStagingBufferPool->UploadToDstTexture(dataSize, initData, sourceCopyOffset,textureRes, 0);
 
 	ResourceBarrierDesc dstBarrier;
 	dstBarrier.mBarrierRes = textureRes;
@@ -484,10 +484,10 @@ RHIResourcePtr RenderContext::_CreateTexture(const RHIResDesc& resDesc, void* in
 	return textureRes;
 }
 
-RHIResourcePtr RenderContext::CreateTexture(const RHIResDesc& resDesc, void* initData, size_t dataSize)
+RHIResourcePtr RenderContext::CreateTexture(const RHIResDesc& resDesc, void* initData, size_t dataSize, const RHISubResourceCopyDesc sourceCopyOffset)
 {
 	size_t offset = 0;
-	return _CreateTexture(resDesc, initData, dataSize);
+	return _CreateTexture(resDesc, initData, dataSize, sourceCopyOffset);
 }
 
 RHIResource* RenderContext::CreateInstancingBufferByRenderObjects(const LArray<RenderObject*>& RenderObjects)

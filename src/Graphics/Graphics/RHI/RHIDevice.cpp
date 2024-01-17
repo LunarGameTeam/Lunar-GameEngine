@@ -92,11 +92,16 @@ namespace luna::graphics
 		UploadToDstResource(dataLength, initData, dstBuffer, offset_dst, bufferUploadCommand);
 	}
 
-	void RHIStagingBufferPool::UploadToDstTexture(size_t dataLength, void* initData, RHIResource* dstTexture, size_t offset_dst)
+	void RHIStagingBufferPool::UploadToDstTexture(
+		size_t dataLength,
+		void* initData,
+		const RHISubResourceCopyDesc& sourceCopyOffset,
+		RHIResource* dstTexture,
+		size_t offset_dst)
 	{
 		auto textureUploadCommand = [&](RHICmdList* curCmdList, RHIStagingBuffer* srcBuffer)
 		{
-			curCmdList->CopyBufferToTexture(dstTexture, 0, srcBuffer->mBufferData.get(), offset_dst);
+			curCmdList->CopyBufferToTexture(dstTexture, 0, srcBuffer->mBufferData.get(), sourceCopyOffset);
 		};
 		UploadToDstResource(dataLength, initData, dstTexture, offset_dst, textureUploadCommand);
 	}

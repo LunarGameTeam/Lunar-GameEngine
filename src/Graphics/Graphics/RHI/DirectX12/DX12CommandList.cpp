@@ -235,7 +235,7 @@ void DX12GraphicCmdList::CopyBufferToTexture(
 	RHIResource* target_resource,
 	uint32_t target_subresource,
 	RHIResource* source_resource,
-	uint32_t source_subresource
+	const RHISubResourceCopyDesc& sourceCopyOffset
 )
 {
 	DX12Resource* dx12DstRes = target_resource->As<DX12Resource>();

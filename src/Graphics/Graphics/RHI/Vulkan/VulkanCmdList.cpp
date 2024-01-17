@@ -362,25 +362,22 @@ void VulkanGraphicCmdList::CopyBufferToBuffer(RHIResource* dstRes, uint32_t offs
 	vkCmdCopyBuffer(mCommandBuffer, vkSrcRes->mBuffer, vkDstRes->mBuffer, 1, &vkRegions);
 }
 
-void VulkanGraphicCmdList::CopyBufferToTexture(RHIResource* dst, uint32_t target_subresource, RHIResource* src, uint32_t source_subresource)
+void VulkanGraphicCmdList::CopyBufferToTexture(
+	RHIResource* dst,
+	uint32_t target_subresource,
+	RHIResource* src,
+	const RHISubResourceCopyDesc& sourceCopyOffset
+)
 {
 	VulkanResource* vkRes = dst->As<VulkanResource>();
 	VulkanResource* vkSrcRes = src->As<VulkanResource>();
 
 	std::vector<VkBufferImageCopy> bufferCopyRegions;
-
-	size_t offset = 0;
-
-	size_t totalBytes;
-	size_t rowBytes;
-	size_t rows;
-	GetFormatInfo(vkRes->GetDesc().Width, vkRes->GetDesc().Height, dst->GetDesc().Format, totalBytes, rowBytes, rows, dst->GetMemoryRequirements().alignment);
-
+	size_t memoryOffset = 0;
 	for (uint32_t face = 0; face < vkRes->GetDesc().DepthOrArraySize; face++)
 	{
 		for (uint32_t level = 0; level < vkRes->GetDesc().MipLevels; level++)
-		{				
-			offset = face * totalBytes;
+		{
 			VkBufferImageCopy& bufferCopyRegion = bufferCopyRegions.emplace_back();
 			bufferCopyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			bufferCopyRegion.imageSubresource.mipLevel = level;
@@ -389,7 +386,8 @@ void VulkanGraphicCmdList::CopyBufferToTexture(RHIResource* dst, uint32_t target
 			bufferCopyRegion.imageExtent.width = vkRes->GetDesc().Width >> level;
 			bufferCopyRegion.imageExtent.height = vkRes->GetDesc().Height >> level;
 			bufferCopyRegion.imageExtent.depth = 1;
-			bufferCopyRegion.bufferOffset = offset;
+			bufferCopyRegion.bufferOffset = memoryOffset;
+			memoryOffset += sourceCopyOffset.mEachArrayMember[face].mEachMipmapLevelSize[level];
 		}
 	}
 

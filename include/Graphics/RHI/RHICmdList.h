@@ -138,10 +138,10 @@ public:
 	) = 0;
 
 	virtual void CopyBufferToTexture(
-		RHIResource* dstRes,
-		uint32_t dstSubRes,
-		RHIResource* srcRes,
-		uint32_t srcSubRes
+		RHIResource* target_resource,
+		uint32_t target_subresource,
+		RHIResource* source_resource,
+		const RHISubResourceCopyDesc &sourceCopyOffset
 	) = 0;
 
 	virtual void BindDesriptorSetExt(RHIBindingSet* bindingSet,RHICmdListType pipelineType) = 0;

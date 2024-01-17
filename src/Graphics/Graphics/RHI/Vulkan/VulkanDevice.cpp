@@ -472,7 +472,7 @@ RHIPipelineStatePtr VulkanDevice::CreatePipelineGraphic(
 	const RenderPassDesc& renderPassDesc
 )
 {
-	LSharedPtr<RHIPipelineStateDescBase> curDesc = MakeShared<RHIPipelineStateGraphDrawDesc>();
+	LSharedPtr<RHIPipelineStateGraphDrawDesc> curDesc = MakeShared<RHIPipelineStateGraphDrawDesc>();
 	*curDesc = desc;
 	luna::graphics::RHIPipelineStatePtr vulkanPipeline = CreateRHIObject<VulkanPipelineStateGraphic>(curDesc, inputLayout, renderPassDesc);
 	vulkanPipeline->Create(this);
@@ -481,7 +481,7 @@ RHIPipelineStatePtr VulkanDevice::CreatePipelineGraphic(
 
 RHIPipelineStatePtr VulkanDevice::CreatePipelineCompute(const RHIPipelineStateComputeDesc& desc)
 {
-	LSharedPtr<RHIPipelineStateDescBase> curDesc = MakeShared<RHIPipelineStateComputeDesc>();
+	LSharedPtr<RHIPipelineStateComputeDesc> curDesc = MakeShared<RHIPipelineStateComputeDesc>();
 	*curDesc = desc;
 	luna::graphics::RHIPipelineStatePtr vulkanPipeline = CreateRHIObject<VulkanPipelineStateCompute>(curDesc);
 	vulkanPipeline->Create(this);

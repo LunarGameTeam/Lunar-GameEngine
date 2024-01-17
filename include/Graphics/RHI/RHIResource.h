@@ -64,6 +64,15 @@ struct RHIResDesc
 	RHIImageUsage         mImageUsage;
 };
 
+struct RHISubResourceCopyLayerDesc
+{
+	LArray<size_t> mEachMipmapLevelSize;
+};
+
+struct RHISubResourceCopyDesc
+{
+	LArray<RHISubResourceCopyLayerDesc> mEachArrayMember;
+};
 class RENDER_API RHIResource : public RHIObject
 {	
 public:
