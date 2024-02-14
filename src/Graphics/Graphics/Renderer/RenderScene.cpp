@@ -156,6 +156,71 @@ void RenderSceneUploadBufferPool::Present()
 	mFrameIndex = (mFrameIndex + 1) % 2;
 }
 
+void RenderDataUpdateCommandPool::AddCommand(RenderDataUpdateCommandType commandType, const std::function<void(void)>& func)
+{
+	auto& newValue = commandPool.emplace_back();
+	newValue.mType = commandType;
+	newValue.mExcuteFunc = func;
+}
+
+void RenderDataUpdateCommandPool::ExcuteCommand()
+{
+	LArray<size_t> generateCommand;
+	LArray<size_t> updateCommand;
+	for (size_t index = 0;index < commandPool.size(); ++index)
+	{
+		switch (commandPool[index].mType)
+		{
+		case RenderDataUpdateCommandType::RENDER_DATA_GENERATE:
+		{
+			generateCommand.push_back(index);
+		}
+		break;
+		case RenderDataUpdateCommandType::RENDER_DATA_UPDATE:
+		{
+			updateCommand.push_back(index);
+		}
+		break;
+		default:
+			break;
+		}
+	}
+	for (size_t generateIndex : generateCommand)
+	{
+		commandPool[generateIndex].mExcuteFunc();
+	}
+	for (size_t updateIndex : updateCommand)
+	{
+		commandPool[updateIndex].mExcuteFunc();
+	}
+	commandPool.clear();
+}
+
+RenderDataUpdateCommandAllocator::RenderDataUpdateCommandAllocator()
+{
+	for (int32_t i = 0; i < 3; ++i)
+	{
+		mPools.emplace_back();
+	}
+}
+
+void RenderDataUpdateCommandAllocator::AddCommand(RenderDataUpdateCommandType commandType, const std::function<void(void)>& func)
+{
+	mPools[mGameLocation].AddCommand(commandType,func);
+}
+
+void RenderDataUpdateCommandAllocator::ExcuteCommand()
+{
+	mPools[mRenderLocation].ExcuteCommand();
+	mRenderLocation = (mRenderLocation + 1) % 3;
+}
+
+void RenderDataUpdateCommandAllocator::FinishRecord()
+{
+	mGameLocation = (mGameLocation + 1) % 3;
+}
+
+
 PARAM_ID(RoWorldMatrixBuffer);
 RenderScene::RenderScene()
 {

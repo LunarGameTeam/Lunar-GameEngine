@@ -12,6 +12,8 @@
 namespace luna::graphics
 {
 	class RenderAssetDataMesh;
+	class RenderObjectDrawData;
+	class SkeletonSkinData;
 	//这里标记了场景渲染器用到的所有的mesh相关的renderpass
 	//enum MeshRenderPass
 	//{
@@ -34,5 +36,50 @@ namespace luna::graphics
 		{
 		}
 	};
+
+	struct RenderMeshBridgeData
+	{
+		RenderObjectDrawData* mRoDrawData;
+		LArray<graphics::RenderObject*> mRenderObjects;
+		LArray<RenderMeshBase*> mRenderMesh;
+		LArray<SkeletonSkinData*> mSkinData;
+	};
+
+	void RENDER_API MeshRendererDataGenerateCommand(
+		graphics::RenderScene* curScene,
+		RenderMeshBridgeData& renderData,
+		const LArray<SubMesh*>& initSubmesh
+	);
+
+	void RENDER_API MeshRendererMaterialGenerateCommand(
+		graphics::RenderScene* curScene,
+		RenderMeshBridgeData& renderData,
+		size_t subIndex,
+		MaterialTemplateAsset* matAsset
+	);
+
+	void RENDER_API MeshRendererUpdateCastShadowCommand(
+		graphics::RenderScene* curScene,
+		RenderMeshBridgeData& renderData,
+		bool castShadow
+	);
+
+	void RENDER_API MeshRendererUpdateReceiveShadowCommand(
+		graphics::RenderScene* curScene,
+		RenderMeshBridgeData& renderData,
+		bool receiveShadow
+	);
+
+	void RENDER_API MeshRendererUpdateReceiveLightCommand(
+		graphics::RenderScene* curScene,
+		RenderMeshBridgeData& renderData,
+		bool receiveLight
+	);
+
+	void RENDER_API MeshRendererUpdateReceiveLightCommand(
+		graphics::RenderScene* curScene,
+		RenderMeshBridgeData& renderData,
+		const LMatrix4f& mRoTransform
+	);
 
 }

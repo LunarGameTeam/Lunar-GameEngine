@@ -89,7 +89,6 @@ class SceneWindow(WindowBase):
         self.scene_panel.set_scene(scn)
         if scn:
             self.show_status("打开场景: {}".format(scn.path))
-            game_module.add_scene(self.main_scene)
         if old_scn:
             old_scn.destroy()
 

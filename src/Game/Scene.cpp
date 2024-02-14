@@ -8,7 +8,6 @@
 
 #include "Graphics/Renderer/RenderScene.h"
 #include "Game/GameModule.h"
-#include "Game/RenderComponent.h"
 
 namespace luna
 {
@@ -100,20 +99,9 @@ void Scene::Tick(float deltaTime)
 	}
 }
 
-void Scene::RenderTick(float deltaTime)
+void Scene::RenderDataCommandFinishRecord()
 {
-	for (auto& entity : mEntites)
-	{
-		for (auto& comp : entity->mComponents)
-		{
-			if (!comp->CheckIsRenderComponent())
-			{
-				continue;
-			}
-			graphics::RendererComponent* renderPointer = static_cast<graphics::RendererComponent*>(comp.Get());
-			renderPointer->OnRenderTick(mRenderScene);
-		}
-	}
+	mRenderScene->GetRenderDataUpdater()->FinishRecord();
 }
 
 void Scene::Destroy()

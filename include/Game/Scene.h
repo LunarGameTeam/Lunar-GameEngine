@@ -46,7 +46,7 @@ public:
 
 	void Tick(float deltaTime);
 
-	void RenderTick(float deltaTime);
+	void RenderDataCommandFinishRecord();
 
 	graphics::RenderScene* GetRenderScene() { return mRenderScene; };
 public:

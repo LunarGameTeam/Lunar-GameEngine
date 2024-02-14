@@ -8,58 +8,12 @@
 #include "Graphics/Renderer/RenderLight.h"
 
 #include "Game/GameConfig.h"
-#include "Game/RenderComponent.h"
 
 namespace luna
 {
-	//点光源
-	struct GameRenderBridgeDataLight :public graphics::GameRenderBridgeData
+	class GAME_API LightComponent : public Component
 	{
-		bool           mDirty = false;
-		LVector4f      mColor = LVector4f(0.0f, 0.0f, 0.0f, 1.0f);
-		LVector3f      mPosition = LVector3f(0.0f, 0.0f, 0.0f);
-		bool           mCastShadow = false;
-		float          mIntensity = 1.0f;
-	};
-
-	class GameLightRenderDataUpdater :public graphics::GameRenderDataUpdater
-	{
-		graphics::PointBasedLight*           mRenderLight = nullptr;
-	public:
-		virtual ~GameLightRenderDataUpdater();
-	private:
-		void UpdateRenderThreadImpl(graphics::GameRenderBridgeData* curData, graphics::RenderScene* curScene) override;
-
-		void ClearData(graphics::GameRenderBridgeData* curData) override;
-
-		virtual LSharedPtr<graphics::GameRenderBridgeData> GenarateData() override {return MakeShared<GameRenderBridgeDataLight>();};
-
-		virtual void LightUpdateRenderThreadImpl(GameRenderBridgeDataLight* curData, graphics::PointBasedLight* mRenderLight, graphics::RenderScene* curScene) {};
-	};
-
-
-	//方向光
-	struct GameRenderBridgeDataDirLight :public GameRenderBridgeDataLight
-	{
-		LVector3f      mDirection = LVector3f(0.0f, -1.0f, 0.0f);
-		LVector3f      mCSMSplit = LVector3f(0.2f, 0.5f, 0.7f);
-	};
-
-	class GameDirLightRenderDataUpdater :public GameLightRenderDataUpdater
-	{
-		graphics::RenderView* mShadowView = nullptr;
-	public:
-		~GameDirLightRenderDataUpdater();
-	private:
-		LSharedPtr<graphics::GameRenderBridgeData> GenarateData() override { return MakeShared<GameRenderBridgeDataDirLight>(); };
-
-		void LightUpdateRenderThreadImpl(GameRenderBridgeDataLight* curData, graphics::PointBasedLight* mRenderLight, graphics::RenderScene* curScene) override;
-	};
-
-
-	class GAME_API LightComponent : public graphics::RendererComponent
-	{
-		RegisterTypeEmbedd(LightComponent, graphics::RendererComponent)
+		RegisterTypeEmbedd(LightComponent, Component)
 	public:
 		virtual ~LightComponent();
 
@@ -91,10 +45,7 @@ namespace luna
 		bool           mCastShadow = false;
 		float          mIntensity = 1.0f;
 
-		bool           mNeedUpdate = false;
-
-		void UpdateLightBridgeDataBase(GameRenderBridgeDataLight* curData);
-		//graphics::Light* mLight      = nullptr;
+		luna::graphics::LightRenderBridgeData mVirtualRenderData;
 	};
 
 	class GAME_API PointLightComponent : public LightComponent
@@ -105,10 +56,7 @@ namespace luna
 		void OnTransformDirty(Transform* transform);
 
 	private:
-		//render相关
-		LSharedPtr<graphics::GameRenderDataUpdater> GenarateRenderUpdater() override { return MakeShared<GameLightRenderDataUpdater>(); }
-
-		void OnTickImpl(graphics::GameRenderBridgeData* curRenderData) override;
+		LVector3f mPosition = LVector3f(0.0f, 0.0f, 0.0f);
 	};
 	
 	class GAME_API DirectionLightComponent : public LightComponent
@@ -157,13 +105,6 @@ namespace luna
 		LVector3f mCSMSplit = LVector3f(0.2f, 0.5f, 0.7f);
 		//float zFar = 100, zNear = 0.01f;
 		//float mAspect = 1024.f / 768.f;
-	private:
-		//render相关
-		LSharedPtr<graphics::GameRenderDataUpdater> GenarateRenderUpdater() override { return MakeShared<GameDirLightRenderDataUpdater>(); }
-
-		void OnTickImpl(graphics::GameRenderBridgeData* curRenderData) override;
-
-
 	};
 
 	

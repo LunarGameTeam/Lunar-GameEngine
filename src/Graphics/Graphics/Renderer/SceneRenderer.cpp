@@ -37,6 +37,8 @@ namespace luna::graphics
 
 	void SceneRenderer::PrepareSceneRender(RenderScene* renderScene)
 	{
+		renderScene->GetRenderDataUpdater()->ExcuteCommand();
+
 		for (auto data : renderScene->mDatas)
 		{
 			data.second->PerSceneUpdate(renderScene);
@@ -63,6 +65,10 @@ namespace luna::graphics
 		mFrameGraphBuilder.Clear();
 		for (RenderView* curView : mAllViews)
 		{
+			if (curView->GetRenderTarget() == nullptr)
+			{
+				continue;
+			}
 			GeneratePassByView(renderScene,curView);
 		}
 		mFrameGraphBuilder.Flush();

@@ -5,104 +5,11 @@
 #include "Core/Memory/PtrBinding.h"
 #include "Animation/AnimationModule.h"
 #include "Core/Asset/AssetModule.h"
+#include "Graphics/Renderer/SkeletonSkin.h"
 namespace luna
 {
 namespace graphics
 {
-
-void GameStaticMeshRenderDataUpdater::UpdateRenderThreadImpl(graphics::GameRenderBridgeData* curData, graphics::RenderScene* curScene) 
-{
-	GameRenderBridgeDataStaticMesh* realPointer = static_cast<GameRenderBridgeDataStaticMesh*>(curData);
-	
-	if (realPointer->mNeedIniteMesh)
-	{
-		assert(mRenderMesh.size() == 0);
-		RenderObjectDrawData* RoDrawData = curScene->RequireData<RenderObjectDrawData>();
-		for (int32_t subMeshIndex = 0; subMeshIndex < realPointer->mInitSubmesh.size(); ++subMeshIndex)
-		{
-			graphics::RenderObject* newObject = curScene->CreateRenderObject();
-			RenderMeshBase* meshData = newObject->RequireData<RenderMeshBase>();
-			meshData->mMeshData = realPointer->mInitSubmesh[subMeshIndex]->GetRenderMeshData();
-			mRenderMesh.push_back(meshData);
-			mRenderObjects.push_back(newObject);
-			RoDrawData->AddDirtyRo(newObject);
-		}
-	}
-	if (realPointer->mNeedIniteMaterial)
-	{
-		for (int32_t refreshId = 0; refreshId < realPointer->mMaterialInitIndex.size(); ++refreshId)
-		{
-			size_t roIndex = realPointer->mMaterialInitIndex[refreshId];
-			mRenderMesh[roIndex]->mMaterial = dynamic_cast<MaterialInstance*>(realPointer->mInitMaterial[roIndex]->CreateInstance());
-			mRenderMesh[roIndex]->mMaterial->Ready();
-		}
-	}
-	if (realPointer->NeedUpdateStaticMessage)
-	{
-		for (int32_t subMeshIndex = 0; subMeshIndex < mRenderMesh.size(); ++subMeshIndex)
-		{
-			mRenderMesh[subMeshIndex]->mCastShadow = realPointer->mCastShadow;
-			mRenderMesh[subMeshIndex]->mReceiveLight = realPointer->mReceiveLight;
-			mRenderMesh[subMeshIndex]->mReceiveShadow = realPointer->mReceiveShadow;
-		}
-	}
-	if (realPointer->mNeedUpdateTransfrom)
-	{
-		RenderObjectDrawData* RoDrawData = curScene->RequireData<RenderObjectDrawData>();
-		for (graphics::RenderObject* roData : mRenderObjects)
-		{
-			roData->UpdateWorldMatrix(realPointer->mRoTransform);
-			RoDrawData->AddDirtyRo(roData);
-		}
-	}
-}
-
-void GameStaticMeshRenderDataUpdater::ClearData(graphics::GameRenderBridgeData* curData)
-{
-	GameRenderBridgeDataStaticMesh* realPointer = static_cast<GameRenderBridgeDataStaticMesh*>(curData);
-	if (realPointer->mNeedIniteMesh)
-	{
-		realPointer->mInitSubmesh.clear();
-	}
-	realPointer->mNeedIniteMesh = false;
-	if (realPointer->mNeedIniteMaterial)
-	{
-		realPointer->mMaterialInitIndex.clear();
-		realPointer->mInitMaterial.clear();
-	}
-	realPointer->mNeedIniteMaterial = false;
-	realPointer->NeedUpdateStaticMessage = false;
-	realPointer->mNeedUpdateTransfrom = false;
-}
-
-void GameSkeletalMeshRenderDataUpdater::UpdateRenderThreadImpl(graphics::GameRenderBridgeData* curData, graphics::RenderScene* curScene)
-{
-	GameStaticMeshRenderDataUpdater::UpdateRenderThreadImpl(curData, curScene);
-	GameRenderBridgeDataSkeletalMesh* realPointer = static_cast<GameRenderBridgeDataSkeletalMesh*>(curData);
-	if (realPointer->mNeedInitSkinMessage)
-	{
-		for (int32_t subMeshIndex = 0; subMeshIndex < mRenderObjects.size(); ++subMeshIndex)
-		{
-			SkeletonSkinData* skinData = mRenderObjects[subMeshIndex]->RequireData<SkeletonSkinData>();
-			SubMeshSkeletal* skeletalMeshPointer = static_cast<SubMeshSkeletal*>(realPointer->mInitSubmesh[subMeshIndex]);
-			skinData->Create(realPointer->mSkeletonUniqueName, skeletalMeshPointer, realPointer->mBindCluster[subMeshIndex].mSkeletonId);
-			mSkinData.push_back(skinData);
-		}
-	}
-}
-
-void GameSkeletalMeshRenderDataUpdater::ClearData(graphics::GameRenderBridgeData* curData)
-{
-	GameStaticMeshRenderDataUpdater::ClearData(curData);
-	GameRenderBridgeDataSkeletalMesh* realPointer = static_cast<GameRenderBridgeDataSkeletalMesh*>(curData);
-	if (realPointer->mNeedInitSkinMessage)
-	{
-		realPointer->mBindCluster.clear();
-	}
-	realPointer->mNeedInitSkinMessage = false;
-};
-
-
 
 RegisterTypeEmbedd_Imp(StaticMeshRenderer)
 {
@@ -116,7 +23,7 @@ RegisterTypeEmbedd_Imp(StaticMeshRenderer)
 		.Setter<&StaticMeshRenderer::SetCastShadow>()
 		.Serialize();
 
-	cls->BindingProperty<&Self::mMeshAsset>("mesh")
+	cls->BindingProperty<&Self::mMeshAssetPath>("mesh")
 		.Setter<&StaticMeshRenderer::SetMeshAsset>()
 		.Serialize();
 
@@ -125,7 +32,9 @@ RegisterTypeEmbedd_Imp(StaticMeshRenderer)
 
 void StaticMeshRenderer::OnTransformDirty(Transform* transform)
 {
-	mTransformDirty = true;
+	graphics::MeshRendererUpdateReceiveLightCommand(
+		GetScene()->GetRenderScene(),
+		mVirtualRenderData, mTransform->GetLocalToWorldMatrix());
 }
 
 void StaticMeshRenderer::OnCreate()
@@ -133,20 +42,38 @@ void StaticMeshRenderer::OnCreate()
 	Super::OnCreate();
 	mTransformDirtyAction = mOwnerEntity->GetComponent<Transform>()->OnTransformDirty.Bind(AutoBind(&StaticMeshRenderer::OnTransformDirty, this));
 	OnTransformDirty(mOwnerEntity->GetComponent<Transform>());
-	mMeshDirty = true;
-	mMaterialDirty = true;
-
 }
 
 void StaticMeshRenderer::OnActivate()
 {
 }
 
-void StaticMeshRenderer::SetMeshAsset(MeshAsset* obj)
+void StaticMeshRenderer::GenerateMeshAsset(const LString& path)
 {
-	mMeshDirty = true;
-	mMeshAsset = ToSharedPtr(obj);
-	//mMeshAsset = obj;
+	mMeshAsset = sAssetModule->LoadAsset<MeshAsset>(path);
+}
+
+void StaticMeshRenderer::SetMeshAsset(LString meshAssetPath)
+{
+	GenerateMeshAsset(meshAssetPath);
+	if (GetScene())
+	{
+		graphics::MeshRendererDataGenerateCommand(
+			GetScene()->GetRenderScene(),
+			mVirtualRenderData, mMeshAsset->mSubMesh);
+		for (int32_t i = 0; i < mMeshAsset->mSubMesh.size(); ++i)
+		{
+			graphics::MeshRendererMaterialGenerateCommand(
+				GetScene()->GetRenderScene(),
+				mVirtualRenderData, i, mMaterialAsset.get());
+		}
+		OnMeshAssetChange();
+	}
+}
+
+void StaticMeshRenderer::OnMeshAssetChange()
+{
+
 }
 
 StaticMeshRenderer::~StaticMeshRenderer()
@@ -156,63 +83,19 @@ StaticMeshRenderer::~StaticMeshRenderer()
 
 void StaticMeshRenderer::SetMaterialAsset(int32_t matIndex, const LString& assetPath)
 {
-	//mMaterialDirty = true;
-	//luna::LType* createType = LType::Get<MaterialTemplateAsset>();
-	//mMaterialAsset.GetPtr(matIndex) = (MaterialTemplateAsset*)sAssetModule->NewAsset(assetPath, createType);
-	//mAllDirtyMaterial.push_back(matIndex);
+	graphics::MeshRendererMaterialGenerateCommand(
+		GetScene()->GetRenderScene(),
+		mVirtualRenderData, matIndex, mMaterialAsset.get());
 }
-
-void StaticMeshRenderer::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
-{
-	GameRenderBridgeDataStaticMesh* realPointer = static_cast<GameRenderBridgeDataStaticMesh*>(curRenderData);
-	if (mMeshDirty && mMeshAsset != nullptr && mMaterialAsset != nullptr)
-	{
-		//模型需要初始化
-		realPointer->mNeedIniteMesh = true;
-		realPointer->mNeedIniteMaterial = true;
-		for (int32_t subIndex = 0; subIndex < mMeshAsset->mSubMesh.size(); ++subIndex)
-		{
-			realPointer->mInitSubmesh.push_back(mMeshAsset->mSubMesh[subIndex]);
-			realPointer->mMaterialInitIndex.push_back(subIndex);
-			realPointer->mInitMaterial.push_back(mMaterialAsset.get());
-		}
-		mMeshDirty = false;
-		mMaterialDirty = false;
-	}
-	if (mMaterialDirty)
-	{
-		//模型材质被改动
-		realPointer->mNeedIniteMaterial = true;
-		for (size_t refreshIndex = 0; refreshIndex < mAllDirtyMaterial.size(); ++refreshIndex)
-		{
-			size_t materialIndex = mAllDirtyMaterial[refreshIndex];
-			realPointer->mMaterialInitIndex.push_back(materialIndex);
-			realPointer->mInitMaterial.push_back(mMaterialAsset.get());
-		}
-		mMaterialDirty = false;
-	}
-	if (mRenderParamDirty)
-	{
-		//模型参数被改动
-		realPointer->NeedUpdateStaticMessage = true;
-		realPointer->mCastShadow = mCastShadow;
-		mRenderParamDirty = false;
-	}
-	if (mTransformDirty)
-	{
-		//模型位置被改动
-		realPointer->mNeedUpdateTransfrom = true;
-		realPointer->mRoTransform = mTransform->GetLocalToWorldMatrix();
-		mTransformDirty = false;
-	}
-}
-
 
 
 void StaticMeshRenderer::SetCastShadow(bool val)
 {
-	mRenderParamDirty = true;
 	mCastShadow = val;
+	if (GetScene())
+	{
+		graphics::MeshRendererUpdateCastShadowCommand(GetScene()->GetRenderScene(), mVirtualRenderData, mCastShadow);
+	}
 }
 
 RegisterTypeEmbedd_Imp(SkeletonMeshRenderer)
@@ -246,7 +129,6 @@ void SkeletonMeshRenderer::GetSkeletonPoseMatrix(LArray<LMatrix4f>& poseMatrix)
 
 void SkeletonMeshRenderer::SetSkeletonAsset(animation::SkeletonAsset* obj)
 {
-	mSkinDirty = true;
 	mSkeletonAsset = ToSharedPtr(obj);
 
 	if (mSkelAnimAsset != nullptr)
@@ -257,6 +139,10 @@ void SkeletonMeshRenderer::SetSkeletonAsset(animation::SkeletonAsset* obj)
 			animModule->FreeAnimationInstance(mAnimationInstance->GetAnimIndex());
 		}
 		mAnimationInstance = animModule->CreateAnimationInstanceClip(mSkelAnimAsset.get(), mSkeletonAsset.get());
+		if (mMeshAsset != nullptr)
+		{
+			UpdateSkinData();
+		}
 	}
 }
 
@@ -270,23 +156,35 @@ void SkeletonMeshRenderer::SetSkelAnimationAsset(animation::AnimationClipAsset* 
 	}
 }
 
-void SkeletonMeshRenderer::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
+void SkeletonMeshRenderer::OnMeshAssetChange()
 {
-	StaticMeshRenderer::OnTickImpl(curRenderData);
-	GameRenderBridgeDataSkeletalMesh* realPointer = static_cast<GameRenderBridgeDataSkeletalMesh*>(curRenderData);
-	if (mSkinDirty)
+	if (mSkeletonAsset)
 	{
-		LString skeletonUniqueName = mSkeletonAsset->GetAssetPath();
-		realPointer->mSkeletonUniqueName = skeletonUniqueName;
-		LArray<LMatrix4f> allBoneMatrix;
-		realPointer->mBindCluster.resize(mMeshAsset->mSubMesh.size());
-		for (int32_t subIndex = 0; subIndex < mMeshAsset->mSubMesh.size(); ++subIndex)
-		{
-			realPointer->mBindCluster[subIndex].mSkeletonId = mSkeletonAsset->GetSearchIndex();
-		}
-		mSkinDirty = false;
+		UpdateSkinData();
 	}
+};
 
+void SkeletonMeshRenderer::GenerateMeshAsset(const LString& path)
+{
+	mMeshAsset = sAssetModule->LoadAsset<SkeletalMeshAsset>(path);
+}
+
+void SkeletonMeshRenderer::UpdateSkinData()
+{
+	LString skeletonUniqueName = mSkeletonAsset->GetAssetPath();
+	LArray<LMatrix4f> allBoneMatrix;
+	LArray<SkeletonBindPoseMatrix> bindCluster;
+	bindCluster.resize(mMeshAsset->mSubMesh.size());
+	for (int32_t subIndex = 0; subIndex < mMeshAsset->mSubMesh.size(); ++subIndex)
+	{
+		bindCluster[subIndex].mSkeletonId = mSkeletonAsset->GetSearchIndex();
+	}
+	graphics::MeshRendererUpdateSkinCommand(
+		GetScene()->GetRenderScene(),
+		mVirtualRenderData,
+		mMeshAsset->mSubMesh,
+		skeletonUniqueName, bindCluster
+	);
 }
 
 }

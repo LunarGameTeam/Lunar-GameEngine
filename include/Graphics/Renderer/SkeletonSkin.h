@@ -64,6 +64,19 @@ private:
 
 	RHIViewPtr     mSkeletonResultBufferView;
 };
+
+struct SkeletonBindPoseMatrix
+{
+	LUnorderedMap<LString, int32_t> mSkeletonId;
+};
+
+void RENDER_API MeshRendererUpdateSkinCommand(
+	graphics::RenderScene* curScene,
+	RenderMeshBridgeData& renderData,
+	const LArray<SubMesh*>& initSubmesh,
+	const LString& skeletonUniqueName,
+	const LArray<SkeletonBindPoseMatrix>& bindCluster
+);
 //class SkeletonSkinData : public RenderData
 //{
 //public:

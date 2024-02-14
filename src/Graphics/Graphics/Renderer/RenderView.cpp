@@ -19,11 +19,32 @@ void RenderViewParameterData::SetMaterialParameter(MaterialInstanceBase* matInst
 	matInstance->SetShaderInput(ParamID_ViewBuffer, mViewParamCbufferView);
 }
 
+void RenderViewParameterData::PerViewUpdate(RenderView* renderView)
+{
+	if ((!mIntrinsicsDirty) && (!mExtrinsicsDirty))
+	{
+		return;
+	}
+	if(mIntrinsicsDirty)
+	{
+		float curAspect = (float)mIntrinsicsParameter.mRtWidth / (float)mIntrinsicsParameter.mRtHeight;
+		LMath::GenPerspectiveFovLHMatrix(mProjMatrix,mIntrinsicsParameter.mFovY, curAspect, mIntrinsicsParameter.mNear, mIntrinsicsParameter.mFar);
+	}
+	LVector2f cNearFar(mIntrinsicsParameter.mNear, mIntrinsicsParameter.mFar);
+	mViewCbuffer->Set("cNearFar", cNearFar);
+	mViewCbuffer->Set("cProjectionMatrix", mProjMatrix);
+	mViewCbuffer->Set("cViewMatrix", mExtrinsicsParameter.mViewMatrix);
+	mViewCbuffer->Set("cCamPos", mExtrinsicsParameter.mPosition);
+	graphics::RenderViewParameterData* viewParamData = renderView->GetData<graphics::RenderViewParameterData>();
+	renderView->mOwnerScene->AddCbufferCopyCommand(mViewCbuffer.get(), viewParamData->GetResource());
+	mIntrinsicsDirty = false;
+	mExtrinsicsDirty = false;
+}
+
 void RenderViewParameterData::Init()
 {
 	auto device = sRenderModule->GetRenderContext();
 	mCbufferDesc = device->GetDefaultShaderConstantBufferDesc(LString("ViewBuffer").Hash());
-
 	RHIBufferDesc desc;
 	desc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
 	desc.mSize = SizeAligned2Pow(mCbufferDesc.mSize, CommonSize64K);
@@ -33,6 +54,7 @@ void RenderViewParameterData::Init()
 	mViewParamRes = sRenderModule->GetRenderContext()->CreateBuffer(RHIHeapType::Default, desc);
 	mViewParamCbufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
 	mViewParamCbufferView->BindResource(mViewParamRes);
+	mViewCbuffer = MakeShared<graphics::ShaderCBuffer>(GetParamDesc());
 }
 
 RenderView::RenderView() :
@@ -44,6 +66,88 @@ RenderView::RenderView() :
 void RenderView::Culling(RenderScene* scene)
 {
 	scene->GetRenderObjects(mViewVisibleROs);
+}
+
+void RenderViewDataGenerateCommand(graphics::RenderScene* curScene, ViewRenderBridgeData& renderData)
+{
+	std::function<void(void)> commandFunc = [=, &renderData]()->void {
+		renderData.mView = curScene->CreateRenderView();
+		renderData.mView->mViewType = graphics::RenderViewType::SceneView;
+		renderData.mViewParamData = renderData.mView->RequireData<graphics::RenderViewParameterData>();
+		renderData.mViewParamData->Init();
+	};
+	curScene->GetRenderDataUpdater()->AddCommand(RenderDataUpdateCommandType::RENDER_DATA_GENERATE, commandFunc);
+}
+
+void RenderViewDataRenderTargetUpdateCommand(graphics::RenderScene* curScene, ViewRenderBridgeData& renderData, graphics::RenderTarget* renderTarget)
+{
+	std::function<void(void)> commandFunc = [=, &renderData]()->void {
+		renderData.mView->SetRenderTarget(renderTarget);
+	};
+	curScene->GetRenderDataUpdater()->AddCommand(RenderDataUpdateCommandType::RENDER_DATA_UPDATE, commandFunc);
+}
+
+void RenderViewDataTargetWidthUpdateCommand(graphics::RenderScene* curScene, ViewRenderBridgeData& renderData, int32_t width)
+{
+	std::function<void(void)> commandFunc = [=, &renderData]()->void {
+		renderData.mViewParamData->mIntrinsicsParameter.mRtWidth = width;
+		renderData.mViewParamData->MarkIntrinsicsDirty();
+	};
+	curScene->GetRenderDataUpdater()->AddCommand(RenderDataUpdateCommandType::RENDER_DATA_UPDATE, commandFunc);
+}
+
+void RenderViewDataTargetHeightUpdateCommand(graphics::RenderScene* curScene, ViewRenderBridgeData& renderData, int32_t height)
+{
+	std::function<void(void)> commandFunc = [=, &renderData]()->void {
+		renderData.mViewParamData->mIntrinsicsParameter.mRtHeight = height;
+		renderData.mViewParamData->MarkIntrinsicsDirty();
+	};
+	curScene->GetRenderDataUpdater()->AddCommand(RenderDataUpdateCommandType::RENDER_DATA_UPDATE, commandFunc);
+}
+
+void RenderViewDataFovUpdateCommand(graphics::RenderScene* curScene, ViewRenderBridgeData& renderData, float fovY)
+{
+	std::function<void(void)> commandFunc = [=, &renderData]()->void {
+		renderData.mViewParamData->mIntrinsicsParameter.mFovY = fovY;
+		renderData.mViewParamData->MarkIntrinsicsDirty();
+	};
+	curScene->GetRenderDataUpdater()->AddCommand(RenderDataUpdateCommandType::RENDER_DATA_UPDATE, commandFunc);
+}
+
+void RenderViewDataNearPlaneUpdateCommand(graphics::RenderScene* curScene, ViewRenderBridgeData& renderData, float nearValue)
+{
+	std::function<void(void)> commandFunc = [=, &renderData]()->void {
+		renderData.mViewParamData->mIntrinsicsParameter.mNear = nearValue;
+		renderData.mViewParamData->MarkIntrinsicsDirty();
+	};
+	curScene->GetRenderDataUpdater()->AddCommand(RenderDataUpdateCommandType::RENDER_DATA_UPDATE, commandFunc);
+}
+
+void RenderViewDataFarPlaneUpdateCommand(graphics::RenderScene* curScene, ViewRenderBridgeData& renderData, float farValue)
+{
+	std::function<void(void)> commandFunc = [=, &renderData]()->void {
+		renderData.mViewParamData->mIntrinsicsParameter.mFar = farValue;
+		renderData.mViewParamData->MarkIntrinsicsDirty();
+	};
+	curScene->GetRenderDataUpdater()->AddCommand(RenderDataUpdateCommandType::RENDER_DATA_UPDATE, commandFunc);
+}
+
+void RenderViewDataPositionUpdateCommand(graphics::RenderScene* curScene, ViewRenderBridgeData& renderData, const LVector3f& position)
+{
+	std::function<void(void)> commandFunc = [=, &renderData]()->void {
+		renderData.mViewParamData->mExtrinsicsParameter.mPosition = position;
+		renderData.mViewParamData->MarkExtrinsicsDirty();
+	};
+	curScene->GetRenderDataUpdater()->AddCommand(RenderDataUpdateCommandType::RENDER_DATA_UPDATE, commandFunc);
+}
+
+void RenderViewDataViewMatrixUpdateCommand(graphics::RenderScene* curScene, ViewRenderBridgeData& renderData, const LMatrix4f& vieMat)
+{
+	std::function<void(void)> commandFunc = [=, &renderData]()->void {
+		renderData.mViewParamData->mExtrinsicsParameter.mViewMatrix = vieMat;
+		renderData.mViewParamData->MarkExtrinsicsDirty();
+	};
+	curScene->GetRenderDataUpdater()->AddCommand(RenderDataUpdateCommandType::RENDER_DATA_UPDATE, commandFunc);
 }
 
 }

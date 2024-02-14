@@ -7,57 +7,6 @@
 
 namespace luna
 {
-
-void GameCameraRenderDataUpdater::UpdateRenderThreadImpl(graphics::GameRenderBridgeData* curData, graphics::RenderScene* curScene)
-{
-	GameRenderBridgeDataCamera* realPointer = static_cast<GameRenderBridgeDataCamera*>(curData);
-
-	if (realPointer->mIntrinsicsDirty)
-	{
-		if (mRenderView == nullptr)
-		{
-			auto color_resource = realPointer->viewRt->GetColor();
-			mRenderView = curScene->CreateRenderView();
-			mRenderView->mViewType = graphics::RenderViewType::SceneView;
-			graphics::RenderViewParameterData* viewParamData = mRenderView->RequireData<graphics::RenderViewParameterData>();
-			viewParamData->Init();
-			mViewCbuffer = MakeShared<graphics::ShaderCBuffer>(viewParamData->GetParamDesc());
-		}
-		mRenderView->SetRenderTarget(realPointer->viewRt);
-		float curAspect = (float)realPointer->mIntrinsicsParameter.mRtWidth / (float)realPointer->mIntrinsicsParameter.mRtHeight;
-		LMath::GenPerspectiveFovLHMatrix(mProjMatrix, realPointer->mIntrinsicsParameter.mFovY, curAspect, realPointer->mIntrinsicsParameter.mNear, realPointer->mIntrinsicsParameter.mFar);
-	}
-
-	if (realPointer->mIntrinsicsDirty || realPointer->mExtrinsicsDirty)
-	{
-		LVector2f cNearFar(realPointer->mIntrinsicsParameter.mNear, realPointer->mIntrinsicsParameter.mFar);
-		mViewCbuffer->Set("cNearFar", cNearFar);
-		mViewCbuffer->Set("cProjectionMatrix", mProjMatrix);
-		mViewCbuffer->Set("cViewMatrix", realPointer->mExtrinsicsParameter.mViewMatrix);
-		mViewCbuffer->Set("cCamPos", realPointer->mExtrinsicsParameter.mPosition);
-
-		graphics::RenderViewParameterData* viewParamData = mRenderView->GetData<graphics::RenderViewParameterData>();
-
-		curScene->AddCbufferCopyCommand(mViewCbuffer.get(), viewParamData->GetResource());
-	}
-}
-
-GameCameraRenderDataUpdater::~GameCameraRenderDataUpdater()
-{
-	if (mRenderView)
-	{
-		mRenderView->mOwnerScene->DestroyRenderView(mRenderView);
-	}
-};
-
-void GameCameraRenderDataUpdater::ClearData(graphics::GameRenderBridgeData* curData)
-{
-	GameRenderBridgeDataCamera* realPointer = static_cast<GameRenderBridgeDataCamera*>(curData);
-	realPointer->mIntrinsicsDirty = false;
-	realPointer->mExtrinsicsDirty = false;
-	realPointer->viewRt = nullptr;
-}
-
 RegisterTypeEmbedd_Imp(CameraSystem)
 {
 	cls->Ctor<CameraSystem>();
@@ -147,30 +96,25 @@ float CameraComponent::GetNear()const
 
 void CameraComponent::SetFar(float val)
 {
-	mNeedUpdateIntrinsics = true;
 	mFar = val;
+	graphics::RenderViewDataFarPlaneUpdateCommand(GetScene()->GetRenderScene(), mVirtualRenderData, mFar);
 }
 
 void CameraComponent::SetNear(float val)
 {
-	mNeedUpdateIntrinsics = true;
 	mNear = val;
+	graphics::RenderViewDataNearPlaneUpdateCommand(GetScene()->GetRenderScene(), mVirtualRenderData, mNear);
 }
 
 graphics::RenderTarget* CameraComponent::GetRenderViewTarget()
 {
-	//if (mRenderView)
-	//{
-	//	if(mRenderView->GetRenderTarget())
-	//		return mRenderView->GetRenderTarget();
-	//	return sRenderModule->mMainRT.Get();
-	//}
 	return mTarget.Get();
 }
 
 void CameraComponent::SetRenderViewTarget(graphics::RenderTarget* target)
 {
 	mTarget = target;
+	graphics::RenderViewDataRenderTargetUpdateCommand(GetScene()->GetRenderScene(), mVirtualRenderData, mTarget.Get());
 }
 
 void CameraComponent::SetAspectRatio(float val)
@@ -183,21 +127,28 @@ CameraComponent::~CameraComponent()
 }
 void CameraComponent::OnTransformDirty(Transform* transform)
 {
-	mNeedUpdateExtrinsics = true;
+	graphics::RenderViewDataPositionUpdateCommand(GetScene()->GetRenderScene(), mVirtualRenderData, mTransform->GetPosition());
+	graphics::RenderViewDataViewMatrixUpdateCommand(GetScene()->GetRenderScene(), mVirtualRenderData, GetViewMatrix());
 }
 void CameraComponent::OnRenderTargetDirty(graphics::RenderTarget* renderTarget)
 {
-	mNeedUpdateIntrinsics = true;
+	mTarget = renderTarget;
+	graphics::RenderViewDataRenderTargetUpdateCommand(GetScene()->GetRenderScene(), mVirtualRenderData, mTarget.Get());
+	graphics::RenderViewDataTargetWidthUpdateCommand(GetScene()->GetRenderScene(), mVirtualRenderData, mTarget->GetWidth());
+	graphics::RenderViewDataTargetHeightUpdateCommand(GetScene()->GetRenderScene(), mVirtualRenderData, mTarget->GetHeight());
 }
 
 void CameraComponent::OnCreate()
 {
 	Super::OnCreate();
-	mNeedUpdateIntrinsics = true;
-	mNeedUpdateExtrinsics = true;
 	Transform* newTransform = GetEntity()->RequireComponent<Transform>();
 	mTransformDirtyAction = newTransform->OnTransformDirty.Bind(AutoBind(&CameraComponent::OnTransformDirty, this));
 	mRenderTargetDirtyAction = mTarget->OnRenderTargetDirty.Bind(AutoBind(&CameraComponent::OnRenderTargetDirty, this));
+	OnTransformDirty(newTransform);
+	graphics::RenderViewDataGenerateCommand(GetScene()->GetRenderScene(), mVirtualRenderData);
+	graphics::RenderViewDataFarPlaneUpdateCommand(GetScene()->GetRenderScene(), mVirtualRenderData, mFar);
+	graphics::RenderViewDataNearPlaneUpdateCommand(GetScene()->GetRenderScene(), mVirtualRenderData, mNear);
+	graphics::RenderViewDataFovUpdateCommand(GetScene()->GetRenderScene(), mVirtualRenderData, mFovY);
 }
 
 void CameraComponent::OnActivate()
@@ -222,33 +173,6 @@ LVector2f CameraComponent::WorldPositionToViewport(const LVector3f& worldpos)
 const luna::LMatrix4f CameraComponent::GetWorldMatrix()const
 {
 	return mTransform->GetLocalToWorldMatrix();
-}
-
-void CameraComponent::OnTickImpl(graphics::GameRenderBridgeData* curRenderData)
-{
-	GameRenderBridgeDataCamera* realPointer = static_cast<GameRenderBridgeDataCamera*>(curRenderData);
-
-	if (mNeedUpdateIntrinsics)
-	{
-		realPointer->mIntrinsicsDirty = true;
-		realPointer->mIntrinsicsParameter.mFar = mFar;
-		realPointer->mIntrinsicsParameter.mFovY = mFovY;
-		realPointer->mIntrinsicsParameter.mNear = mNear;
-		realPointer->mIntrinsicsParameter.mRtHeight = mTarget->GetHeight();
-		realPointer->mIntrinsicsParameter.mRtWidth = mTarget->GetWidth();
-		realPointer->viewRt = mTarget.Get();
-		auto color_resource = mTarget->GetColor();
-		mNeedUpdateIntrinsics = false;
-	}
-
-	if (mNeedUpdateExtrinsics)
-	{
-		realPointer->mExtrinsicsDirty = true;
-		auto pos = mTransform->GetPosition();
-		realPointer->mExtrinsicsParameter.mPosition = pos;
-		realPointer->mExtrinsicsParameter.mViewMatrix = GetViewMatrix();
-		mNeedUpdateExtrinsics = false;
-	}
 }
 
 }

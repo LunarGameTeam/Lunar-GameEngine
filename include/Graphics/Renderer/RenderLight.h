@@ -56,7 +56,7 @@ class RENDER_API PointBasedRenderLightData : public RenderData
 
 	RHIViewPtr     mExistLightDataBufferView;
 
-	LArray<PointBasedLight*> mDirtyList;
+	LUnorderedSet<PointBasedLight*> mDirtyList;
 
 	LSharedPtr<ShaderCBuffer> mLightBufferGlobelMessage = nullptr;
 
@@ -86,10 +86,33 @@ public:
 
 	void UpdateDirtyLightData(RenderScene* renderScene);
 
-	void MarkLightDirty(PointBasedLight* light) { mDirtyList.push_back(light); };
+	void MarkLightDirty(PointBasedLight* light);
 private:
 	void GenerateDirtyLightDataBuffer(void* pointer);
 
 	void GenerateDirtyLightIndexBuffer(void* pointer);
 };
+
+struct LightRenderBridgeData
+{
+	graphics::RenderView* mView = nullptr;
+	graphics::PointBasedRenderLightData* mRenderData = nullptr;
+	graphics::PointBasedLight* mRenderLight = nullptr;
+};
+
+void RENDER_API RenderLightDataGenerateCommand(graphics::RenderScene* curScene, LightRenderBridgeData& renderData, PointBasedLightType type);
+
+void RENDER_API GenerateRenderLightColorUpdateCommand(graphics::RenderScene* curScene, LightRenderBridgeData& renderData, const LVector4f& colorIn);
+
+void RENDER_API GenerateRenderLightIntensityUpdateCommand(graphics::RenderScene* curScene, LightRenderBridgeData& renderData, const float intensity);
+
+void RENDER_API GenerateRenderLightPositionUpdateCommand(graphics::RenderScene* curScene, LightRenderBridgeData& renderData, const LVector3f& position);
+
+void RENDER_API GenerateRenderLightDirectionUpdateCommand(graphics::RenderScene* curScene, LightRenderBridgeData& renderData, const LVector3f& dir);
+
+void RENDER_API GenerateRenderLightRangeParameterUpdateCommand(graphics::RenderScene* curScene, LightRenderBridgeData& renderData, const LVector4f& rangeParamter);
+
+void RENDER_API GenerateRenderCastShadowUpdateCommand(graphics::RenderScene* curScene, LightRenderBridgeData& renderData, const bool castShadow);
+
+
 }

@@ -94,6 +94,44 @@ public:
 	void Present();
 };
 
+enum class RenderDataUpdateCommandType
+{
+	RENDER_DATA_GENERATE,
+	RENDER_DATA_UPDATE
+};
+struct RenderDataUpdateCommand
+{
+	RenderDataUpdateCommandType mType;
+	std::function<void(void)> mExcuteFunc;
+};
+
+class RenderDataUpdateCommandPool
+{
+	LArray<RenderDataUpdateCommand> commandPool;
+public:
+
+	void AddCommand(RenderDataUpdateCommandType commandType,const std::function<void(void)>& func);
+
+	void ExcuteCommand();
+};
+
+class RENDER_API RenderDataUpdateCommandAllocator
+{
+	size_t mGameLocation = 0;
+
+	size_t mRenderLocation = 2;
+
+	LArray<RenderDataUpdateCommandPool> mPools;
+public:
+	RenderDataUpdateCommandAllocator();
+
+	void AddCommand(RenderDataUpdateCommandType commandType, const std::function<void(void)> &func);
+
+	void ExcuteCommand();
+
+	void FinishRecord();
+};
+
 class RENDER_API RenderScene final : public RenderDataContainer
 {
 public:
@@ -117,6 +155,8 @@ public:
 
 	GpuSceneUploadCopyCommand* AddCopyCommand();
 
+	RenderDataUpdateCommandAllocator* GetRenderDataUpdater() { return &mAllRenderDataUpdateCommand; };
+
 	void AddCbufferCopyCommand(ShaderCBuffer* cbufferDataIn, RHIResource* bufferOutput);
 
 	RenderSceneUploadBufferPool* GetStageBufferPool();
@@ -134,6 +174,8 @@ private:
 	LArray<GpuSceneUploadComputeCommand> mAllComputeCommand;
 
 	LArray<GpuSceneUploadCopyCommand> mAllCopyCommand;
+
+	RenderDataUpdateCommandAllocator mAllRenderDataUpdateCommand;
 
 	RenderSceneUploadBufferPool mStageBufferPool;
 };

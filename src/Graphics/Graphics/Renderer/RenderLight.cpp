@@ -154,6 +154,14 @@ namespace luna::graphics
 		mDirtyList.clear();
 	}
 
+	void PointBasedRenderLightData::MarkLightDirty(PointBasedLight* light)
+	{
+		if (mDirtyList.find(light) == mDirtyList.end())
+		{
+			mDirtyList.insert(light);
+		}
+	};
+
 	void PointBasedRenderLightData::GenerateDirtyLightDataBuffer(void* pointer)
 	{
 		LVector4f* currentLightDataPointer = (LVector4f*)pointer;
@@ -200,5 +208,78 @@ namespace luna::graphics
 		UpdateLightNumParameter(renderScene);
 
 		UpdateDirtyLightData(renderScene);
+	}
+
+	void RenderLightDataGenerateCommand(graphics::RenderScene* curScene, LightRenderBridgeData& renderData, PointBasedLightType type)
+	{
+		std::function<void(void)> commandFunc = [=, &renderData]()->void {
+			renderData.mRenderData = curScene->RequireData<graphics::PointBasedRenderLightData>();
+			renderData.mRenderLight = renderData.mRenderData->CreatePointBasedLight();
+			renderData.mRenderLight->mType = type;
+			renderData.mRenderData->MarkLightDirty(renderData.mRenderLight);
+		};
+		curScene->GetRenderDataUpdater()->AddCommand(RenderDataUpdateCommandType::RENDER_DATA_GENERATE,commandFunc);
+	}
+
+	void GenerateRenderLightColorUpdateCommand(graphics::RenderScene* curScene, LightRenderBridgeData& renderData, const LVector4f& colorIn)
+	{
+		std::function<void(void)> commandFunc = [=, &renderData]()->void {
+			renderData.mRenderLight->mColor = colorIn;
+			renderData.mRenderData->MarkLightDirty(renderData.mRenderLight);
+		};
+		curScene->GetRenderDataUpdater()->AddCommand(RenderDataUpdateCommandType::RENDER_DATA_UPDATE, commandFunc);
+	}
+
+	void GenerateRenderLightIntensityUpdateCommand(graphics::RenderScene* curScene, LightRenderBridgeData& renderData, const float intensity)
+	{
+		std::function<void(void)> commandFunc = [=, &renderData]()->void {
+			renderData.mRenderLight->mIntensity = intensity;
+			renderData.mRenderData->MarkLightDirty(renderData.mRenderLight);
+		};
+		curScene->GetRenderDataUpdater()->AddCommand(RenderDataUpdateCommandType::RENDER_DATA_UPDATE, commandFunc);
+	}
+
+	void GenerateRenderLightPositionUpdateCommand(graphics::RenderScene* curScene, LightRenderBridgeData& renderData, const LVector3f& position)
+	{
+		std::function<void(void)> commandFunc = [=, &renderData]()->void {
+			renderData.mRenderLight->mPosition = position;
+			renderData.mRenderData->MarkLightDirty(renderData.mRenderLight);
+		};
+		curScene->GetRenderDataUpdater()->AddCommand(RenderDataUpdateCommandType::RENDER_DATA_UPDATE, commandFunc);
+	}
+
+	void GenerateRenderLightDirectionUpdateCommand(graphics::RenderScene* curScene, LightRenderBridgeData& renderData, const LVector3f& dir)
+	{
+		std::function<void(void)> commandFunc = [=, &renderData]()->void {
+			renderData.mRenderLight->mDirection = dir;
+			renderData.mRenderData->MarkLightDirty(renderData.mRenderLight);
+		};
+		curScene->GetRenderDataUpdater()->AddCommand(RenderDataUpdateCommandType::RENDER_DATA_UPDATE, commandFunc);
+	}
+
+	void GenerateRenderLightRangeParameterUpdateCommand(graphics::RenderScene* curScene, LightRenderBridgeData& renderData, const LVector4f& rangeParamter)
+	{
+		std::function<void(void)> commandFunc = [=, &renderData]()->void {
+			renderData.mRenderLight->mRangeParam = rangeParamter;
+			renderData.mRenderData->MarkLightDirty(renderData.mRenderLight);
+		};
+		curScene->GetRenderDataUpdater()->AddCommand(RenderDataUpdateCommandType::RENDER_DATA_UPDATE, commandFunc);
+	}
+
+	void GenerateRenderCastShadowUpdateCommand(graphics::RenderScene* curScene, LightRenderBridgeData& renderData, const bool castShadow)
+	{
+		std::function<void(void)> commandFunc = [=, &renderData]()->void {
+			if (renderData.mView == nullptr && castShadow == true)
+			{
+				renderData.mView = curScene->CreateRenderView();
+				renderData.mView->mViewType = graphics::RenderViewType::ShadowMapView;
+			}
+			if (renderData.mView != nullptr && castShadow == false)
+			{
+				curScene->DestroyRenderView(renderData.mView);
+				renderData.mView = nullptr;
+			}
+		};
+		curScene->GetRenderDataUpdater()->AddCommand(RenderDataUpdateCommandType::RENDER_DATA_UPDATE, commandFunc);
 	}
 }

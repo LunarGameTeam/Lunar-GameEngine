@@ -8,7 +8,6 @@
 #include <numbers>
 #include "Graphics/Renderer/RenderView.h"
 #include "Core/Object/System.h"
-#include "Game/RenderComponent.h"
 
 namespace luna
 {
@@ -21,55 +20,9 @@ public:
 
 };
 
-struct CameraIntrinsicsParameter
+class GAME_API CameraComponent : public Component
 {
-	int32_t	       mRtWidth = 0;
-	int32_t        mRtHeight = 0;
-	float          mFovY = 0.0f;
-	float          mFar = 0.0f;
-	float          mNear = 0.0f;
-};
-
-struct CameraExtrinsicsParameter
-{
-	LVector3f      mPosition;
-	LMatrix4f      mViewMatrix;
-};
-
-struct GameRenderBridgeDataCamera :public graphics::GameRenderBridgeData
-{
-	//相机内参数
-	bool mIntrinsicsDirty = false;
-	CameraIntrinsicsParameter mIntrinsicsParameter;
-	//相机外参数
-	bool mExtrinsicsDirty = false;
-	CameraExtrinsicsParameter mExtrinsicsParameter;
-	//相机RT
-	graphics::RenderTarget* viewRt = nullptr;
-};
-
-class GameCameraRenderDataUpdater :public graphics::GameRenderDataUpdater
-{
-	LSharedPtr<graphics::ShaderCBuffer> mViewCbuffer = nullptr;
-
-	graphics::RenderView* mRenderView = nullptr;
-
-	graphics::ShaderCBuffer* mConstantBuffer = nullptr;
-	
-	LMatrix4f mProjMatrix;
-public:
-	virtual ~GameCameraRenderDataUpdater();
-private:
-	void UpdateRenderThreadImpl(graphics::GameRenderBridgeData* curData, graphics::RenderScene* curScene) override;
-
-	void ClearData(graphics::GameRenderBridgeData* curData) override;
-
-	virtual LSharedPtr<graphics::GameRenderBridgeData> GenarateData() override { return MakeShared<GameRenderBridgeDataCamera>(); };
-};
-
-class GAME_API CameraComponent : public graphics::RendererComponent
-{
-	RegisterTypeEmbedd(CameraComponent, RendererComponent)
+	RegisterTypeEmbedd(CameraComponent, Component)
 public:
 	CameraComponent();
 	virtual ~CameraComponent();
@@ -120,15 +73,11 @@ private:
 	float mSpeed = 0.0f;
 
 	TPPtr<graphics::RenderTarget> mTarget;
+
+	luna::graphics::ViewRenderBridgeData mVirtualRenderData;
 private:
-	bool mNeedUpdateIntrinsics = false;
-	bool mNeedUpdateExtrinsics = false;
 	void OnTransformDirty(Transform* transform);
 	void OnRenderTargetDirty(graphics::RenderTarget* renderTarget);
-	//render相关
-	LSharedPtr<graphics::GameRenderDataUpdater> GenarateRenderUpdater() override { return MakeShared<GameCameraRenderDataUpdater>(); }
-
-	void OnTickImpl(graphics::GameRenderBridgeData* curRenderData) override;
 };
 
 }

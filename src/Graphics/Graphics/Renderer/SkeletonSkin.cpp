@@ -68,5 +68,25 @@ void SkeletonSkinData::PerObjectUpdate(RenderObject* renderObject)
 	sRenderModule->GetRenderContext()->UpdateConstantBuffer(mSkeletonResultBuffer, skinMatrixResult.data(), skinMatrixResult.size() * sizeof(LMatrix4f));
 }
 
+void MeshRendererUpdateSkinCommand(
+	graphics::RenderScene* curScene,
+	RenderMeshBridgeData& renderData,
+	const LArray<SubMesh*>& initSubmesh,
+	const LString& skeletonUniqueName,
+	const LArray<SkeletonBindPoseMatrix>& bindCluster
+)
+{
+	std::function<void(void)> commandFunc = [=, &renderData]()->void {
+		RenderObjectDrawData* RoDrawData = curScene->RequireData<RenderObjectDrawData>();
+		for (int32_t subMeshIndex = 0; subMeshIndex < renderData.mRenderObjects.size(); ++subMeshIndex)
+		{
+			SkeletonSkinData* skinData = renderData.mRenderObjects[subMeshIndex]->RequireData<SkeletonSkinData>();
+			SubMeshSkeletal* skeletalMeshPointer = static_cast<SubMeshSkeletal*>(initSubmesh[subMeshIndex]);
+			skinData->Create(skeletonUniqueName, skeletalMeshPointer, bindCluster[subMeshIndex].mSkeletonId);
+			renderData.mSkinData.push_back(skinData);
+		}
+	};
+	curScene->GetRenderDataUpdater()->AddCommand(RenderDataUpdateCommandType::RENDER_DATA_GENERATE, commandFunc);
+}
 
 }

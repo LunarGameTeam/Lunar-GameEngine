@@ -76,8 +76,8 @@ namespace luna::graphics
 		//记录当前buffer需要监控的拷贝指令fence
 		size_t nextSignalValue = mCopyFence->GetNextSignalValue();
 		mResourceCopying[nextSignalValue].push_back(mResourceWaitingCopy[srcBuffer->mResourceId]);
-		mResourceWaitingCopy.erase(srcBuffer->mResourceId);
 		mUnusedResourceId.push(srcBuffer->mResourceId);
+		mResourceWaitingCopy.erase(srcBuffer->mResourceId);
 		//插入一个桩
 		mCopyFence->IncSignal(mRenderQueue);
 		isPoolWorking = true;
