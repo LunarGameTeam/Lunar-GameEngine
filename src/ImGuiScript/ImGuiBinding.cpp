@@ -314,9 +314,9 @@ STATIC_INIT(imgui)
 	imguiModule->AddLambda<[](graphics::RHIResource* texture, const LVector2f& size, const LVector2f& uv0,
 	                          const LVector2f& uv1)
 	{
-		if (!sRenderModule->IsImuiTexture(texture))
-			sRenderModule->AddImguiTexture(texture);
-		ImGui::Image((ImTextureID)sRenderModule->GetImguiTexture(texture)->mImg, ToVec2(size), ToVec2(uv0),
+		if (!sRenderModule->GetGuiRenderer()->IsImuiTexture(texture))
+			sRenderModule->GetGuiRenderer()->AddImguiTexture(texture);
+		ImGui::Image((ImTextureID)sRenderModule->GetGuiRenderer()->GetImguiTexture(texture)->mImg, ToVec2(size), ToVec2(uv0),
 		             ToVec2(uv1));
 	}>("image");
 
@@ -424,9 +424,9 @@ STATIC_INIT(imgui)
 	(const char* id, graphics::RHIResource* image, const ImVec2& size, const ImVec2& uv, const ImVec2& uv2,
 	 const ImVec4& bgCol, const ImVec4& hintCol)
 		{
-			if (!sRenderModule->IsImuiTexture(image))
-				sRenderModule->AddImguiTexture(image);
-			return ImGui::ImageButton(id, (ImTextureID)sRenderModule->GetImguiTexture(image)->mImg, size, uv, uv2,
+			if (!sRenderModule->GetGuiRenderer()->IsImuiTexture(image))
+				sRenderModule->GetGuiRenderer()->AddImguiTexture(image);
+			return ImGui::ImageButton(id, (ImTextureID)sRenderModule->GetGuiRenderer()->GetImguiTexture(image)->mImg, size, uv, uv2,
 			                          bgCol, hintCol);
 		}
 	>("image_button");

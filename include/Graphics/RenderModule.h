@@ -26,7 +26,7 @@
 #include "Graphics/Renderer/ImGuiTexture.h"
 #include "Graphics/Renderer/RenderContext.h"
 #include "Graphics/Renderer/SceneRenderer.h"
-
+#include "Graphics/Renderer/ImguiRenderer.h"
 #include "Graphics/RHI/RHITypes.h"
 #include "Graphics/RenderAssetManager/RenderAssetManager.h"
 
@@ -74,38 +74,31 @@ public:
 	RenderDeviceType GetDeviceType() { return mRenderContext->mDeviceType; }
 
 	RenderAssetDataManager* GetAssetManager() { return &mRenderAssetManager; };
+
+	ImguiRenderer* GetGuiRenderer() { return mGuiRenderer.get(); };
 public:
 	
 	bool OnLoad() override;	
 	bool OnInit() override;
-	void SetupIMGUI();
 	bool OnShutdown() override;
 
 	void Tick(float deltaTime) override;
 	void RenderTick(float delta_time) override;
-	void UpdateFrameBuffer();
 protected:
 	void PrepareRender();
-	void RenderIMGUI();
 
 	void OnMainWindowResize(LWindow& window, WindowEvent& event);
 public:
 	RenderContext*      mRenderContext;
 	TPPtr<RenderTarget> mMainRT;
-	RenderAssetDataMesh      mFullscreenMesh;
-	ImguiTexture* GetImguiTexture(RHIResource* key);
-	ImguiTexture* AddImguiTexture(RHIResource* res);
-	bool          IsImuiTexture(RHIResource* key);
 	LSharedPtr<Texture2D>              mDefaultWhiteTexture;
 	LSharedPtr<Texture2D>              mDefaultNormalTexture;
 private:
+	LSharedPtr<ImguiRenderer> mGuiRenderer;
 	LSharedPtr<SceneRenderer> mRenderer;
-	LArray<RenderScene*>               mRenderScenes;
-	LMap<RHIResourcePtr, ImguiTexture> mImguiTextures;
+	LArray<RenderScene*>      mRenderScenes;
 
-	graphics::RHIRenderPassPtr           mIMGUIRenderPass;
-	graphics::RHIFrameBufferPtr          mFrameBuffer[2];
-	graphics::RHISwapchainDesc           mSwapchainDesc;
+	graphics::RHISwapchainDesc         mSwapchainDesc;
 
 	RHISwapChainPtr                    mMainSwapchain;
 
@@ -115,4 +108,5 @@ private:
 
 	RenderAssetDataManager             mRenderAssetManager;
 };
+
 }
