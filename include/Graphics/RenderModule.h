@@ -95,7 +95,14 @@ public:
 	LSharedPtr<Texture2D>              mDefaultNormalTexture;
 private:
 	LSharedPtr<ImguiRenderer> mGuiRenderer;
+
 	LSharedPtr<SceneRenderer> mRenderer;
+
+	RHISinglePoolSingleCmdListPtr mGraphicCmd;
+	uint64_t             mFrameFenceValue = 0;
+	RHIFencePtr          mFrameFence;
+
+
 	LArray<RenderScene*>      mRenderScenes;
 
 	graphics::RHISwapchainDesc         mSwapchainDesc;

@@ -43,7 +43,7 @@ void RhiObjectCache::ReleaseData(LMemoryHash& newHash)
 	}
 }
 
-RHIShaderBlobPtr ShaderBlobCache::CreateShader(RenderContext* mDevice, const RHIShaderDesc& desc)
+RHIShaderBlobPtr ShaderBlobCache::CreateShader(RenderResourceGenerateHelper* mDevice, const RHIShaderDesc& desc)
 {
 	Log("Graphics", "Create shader:{}", desc.mName);
 	
@@ -67,7 +67,7 @@ RHIShaderBlobPtr ShaderBlobCache::CreateShader(RenderContext* mDevice, const RHI
 		}
 		newHash.GenerateHash();
 	};
-	std::function<RHIShaderBlobPtr(RenderContext* device, const RHIShaderDesc &desc)> dataCreateFunc = [&](RenderContext* device, const RHIShaderDesc& desc)->RHIShaderBlobPtr
+	std::function<RHIShaderBlobPtr(RenderResourceGenerateHelper* device, const RHIShaderDesc &desc)> dataCreateFunc = [&](RenderResourceGenerateHelper* device, const RHIShaderDesc& desc)->RHIShaderBlobPtr
 	{
 		return device->mDevice->CreateShader(desc);
 	};
@@ -79,7 +79,7 @@ RHIShaderBlobPtr ShaderBlobCache::CreateShader(RenderContext* mDevice, const RHI
 	);
 }
 
-void PipelineStateCache::PackShaderToMemory(RenderContext* mDevice, luna::LMemoryHash& newHash, const RHIShaderBlob* shaderData)
+void PipelineStateCache::PackShaderToMemory(RenderResourceGenerateHelper* mDevice, luna::LMemoryHash& newHash, const RHIShaderBlob* shaderData)
 {
 	size_t shader_id = -1;
 	if (shaderData != nullptr)
@@ -91,7 +91,7 @@ void PipelineStateCache::PackShaderToMemory(RenderContext* mDevice, luna::LMemor
 }
 
 RHIPipelineStatePtr PipelineStateCache::CreatePipelineGraphic(
-	RenderContext* mDevice,
+	RenderResourceGenerateHelper* mDevice,
 	const RHIPipelineStateGraphDrawDesc& desc,
 	const RHIVertexLayout& inputLayout,
 	const RenderPassDesc& renderPassDesc
@@ -153,11 +153,11 @@ RHIPipelineStatePtr PipelineStateCache::CreatePipelineGraphic(
 	};
 
 	std::function<RHIPipelineStatePtr(
-		RenderContext* device, 
+		RenderResourceGenerateHelper* device,
 		const RHIPipelineStateGraphDrawDesc& desc,
 		const RHIVertexLayout& inputLayout,
 		const RenderPassDesc& renderPassDesc)> dataCreateFunc = [&](
-			RenderContext* device, 
+			RenderResourceGenerateHelper* device,
 			const RHIPipelineStateGraphDrawDesc& desc,
 			const RHIVertexLayout& inputLayout,
 			const RenderPassDesc& renderPassDesc)->RHIPipelineStatePtr
@@ -184,7 +184,7 @@ RHIPipelineStatePtr PipelineStateCache::CreatePipelineGraphic(
 }
 
 RHIPipelineStatePtr PipelineStateCache::CreatePipelineCompute(
-	RenderContext* mDevice,
+	RenderResourceGenerateHelper* mDevice,
 	const RHIPipelineStateComputeDesc& desc
 )
 {
@@ -196,7 +196,7 @@ RHIPipelineStatePtr PipelineStateCache::CreatePipelineCompute(
 		}
 		newHash.GenerateHash();
 	};
-	std::function<RHIPipelineStatePtr(RenderContext* device, const RHIPipelineStateComputeDesc& desc)> dataCreateFunc = [&](RenderContext* device, const RHIPipelineStateComputeDesc& desc)->RHIPipelineStatePtr
+	std::function<RHIPipelineStatePtr(RenderResourceGenerateHelper* device, const RHIPipelineStateComputeDesc& desc)> dataCreateFunc = [&](RenderResourceGenerateHelper* device, const RHIPipelineStateComputeDesc& desc)->RHIPipelineStatePtr
 	{
 		auto vsItor = desc.mShaders.find(RHIShaderType::Compute);
 		if (vsItor != desc.mShaders.end())
@@ -214,7 +214,7 @@ RHIPipelineStatePtr PipelineStateCache::CreatePipelineCompute(
 }
 
 RHICmdSignaturePtr CmdSignatureCache::CreateCmdSignature(
-	RenderContext* mDevice,
+	RenderResourceGenerateHelper* mDevice,
 	RHIPipelineState* pipeline,
 	const LArray<CommandArgDesc>& allCommondDesc
 )
@@ -226,8 +226,8 @@ RHICmdSignaturePtr CmdSignatureCache::CreateCmdSignature(
 		newHash.Combine((uint8_t*)allCommondDesc.data(), allCommondDesc.size() * sizeof(CommandArgDesc));
 		newHash.GenerateHash();
 	};
-	std::function<RHICmdSignaturePtr(RenderContext* device, RHIPipelineState* pipeline,const LArray<CommandArgDesc>& allCommondDesc)> dataCreateFunc = [&](
-		RenderContext* device,RHIPipelineState* pipeline,const LArray<CommandArgDesc>& allCommondDesc)->RHICmdSignaturePtr
+	std::function<RHICmdSignaturePtr(RenderResourceGenerateHelper* device, RHIPipelineState* pipeline,const LArray<CommandArgDesc>& allCommondDesc)> dataCreateFunc = [&](
+		RenderResourceGenerateHelper* device,RHIPipelineState* pipeline,const LArray<CommandArgDesc>& allCommondDesc)->RHICmdSignaturePtr
 	{
 		return device->mDevice->CreateCmdSignature(pipeline, allCommondDesc);
 	};
@@ -256,11 +256,11 @@ void StaticSampler::Init(SamplerDesc& desc, ViewDesc& view)
 	mView->BindResource(mSampler);
 };
 
-RenderContext::RenderContext()
+RenderResourceGenerateHelper::RenderResourceGenerateHelper()
 {
 };
 
-void RenderContext::Init()
+void RenderResourceGenerateHelper::Init()
 {
 	if (Config_RenderDeviceType.GetValue() == "DirectX12")
 		mDeviceType = RenderDeviceType::DirectX12;
@@ -335,47 +335,21 @@ void RenderContext::Init()
 	{
 		bindpoint = mDefaultShaderFragmentInstance->GetRhiShader()->GetBindPoint(ParamID_ViewBuffer)->second;
 	}
-	
-
-	//LArray<RHIBindPoint> bindingpoints;
-	//bindingpoints.push_back(bindpoint);
-	//mViewBindingSet = mDevice->CreateBindingSetLayout(bindingpoints);
-
-
-	RHIBufferDesc desc;
-	emptyInstanceBufferSize = sizeof(uint32_t) * 4 * 128;
-	desc.mBufferUsage = RHIBufferUsage::VertexBufferBit;
-	desc.mSize = emptyInstanceBufferSize;
-	emptyInstanceBuffer = CreateBuffer(RHIHeapType::Upload, desc);
-
-	RHIBufferDesc instancingDesc;
-	instancingDesc.mBufferUsage = RHIBufferUsage::VertexBufferBit;
-	instancingDesc.mSize = sizeof(uint32_t) * 4 * 2048;
-	renderObjectInstancingBuffer = CreateBuffer(RHIHeapType::Upload,instancingDesc);
-
-	mFullScreenRenderMesh = luna::sRenderModule->GetAssetManager()->GetFullScreenMesh();
 }
 
-void RenderContext::OnFrameBegin()
+void RenderResourceGenerateHelper::OnFrameBegin()
 {
 	ZoneScoped;
 	mFGOffset = 0;
 	mStagingBufferPool->TickPoolRefresh();
 }
 
-void RenderContext::OnFrameEnd()
+void RenderResourceGenerateHelper::OnFrameEnd()
 {
 	mBindingSetCache.clear();
 }
 
-void RenderContext::UpdateConstantBuffer(RHIResourcePtr target, void* data, size_t dataSize)
-{
-	void* dst = target->Map();
-	memcpy(dst, data, dataSize);
-	target->Unmap();
-}
-
-RHIResourcePtr RenderContext::FGCreateTexture(const RHIResDesc& resDesc)
+RHIResourcePtr RenderResourceGenerateHelper::FGCreateTexture(const RHIResDesc& resDesc)
 {
 	RHIResourcePtr res = _CreateTextureByMemory(resDesc, mFGMemory, mFGOffset);
 	const MemoryRequirements& memoryReq = res->GetMemoryRequirements();
@@ -383,7 +357,7 @@ RHIResourcePtr RenderContext::FGCreateTexture(const RHIResDesc& resDesc)
 	return res;
 }
 
-RHIResourcePtr RenderContext::FGCreateBuffer(const RHIBufferDesc& resDesc)
+RHIResourcePtr RenderResourceGenerateHelper::FGCreateBuffer(const RHIBufferDesc& resDesc)
 {
 	RHIResourcePtr res = _CreateBufferByMemory(resDesc, mFGMemory, mFGOffset);
 	const MemoryRequirements& memoryReq = res->GetMemoryRequirements();
@@ -391,7 +365,7 @@ RHIResourcePtr RenderContext::FGCreateBuffer(const RHIBufferDesc& resDesc)
 	return res;
 }
 
-RHIResourcePtr RenderContext::_CreateBufferByMemory(const RHIBufferDesc& desc, RHIMemoryPtr targetMemory, size_t& memoryOffset)
+RHIResourcePtr RenderResourceGenerateHelper::_CreateBufferByMemory(const RHIBufferDesc& desc, RHIMemoryPtr targetMemory, size_t& memoryOffset)
 {
 	assert(desc.mSize != 0);
 	RHIBufferDesc resDesc = desc;
@@ -401,7 +375,7 @@ RHIResourcePtr RenderContext::_CreateBufferByMemory(const RHIBufferDesc& desc, R
 	return dstBuffer;
 }
 
-RHIResourcePtr RenderContext::_CreateTextureByMemory(const RHIResDesc& resDesc, RHIMemoryPtr targetMemory, size_t& memoryOffset)
+RHIResourcePtr RenderResourceGenerateHelper::_CreateTextureByMemory(const RHIResDesc& resDesc, RHIMemoryPtr targetMemory, size_t& memoryOffset)
 {
 	RHIResDesc newResDesc = resDesc;
 	newResDesc.mImageUsage = newResDesc.mImageUsage | RHIImageUsage::TransferDstBit;
@@ -412,7 +386,7 @@ RHIResourcePtr RenderContext::_CreateTextureByMemory(const RHIResDesc& resDesc, 
 	return textureRes;
 }
 
-RHIResourcePtr RenderContext::_CreateBuffer(RHIHeapType memoryType, const RHIBufferDesc& desc, void* initData,size_t initDataSize)
+RHIResourcePtr RenderResourceGenerateHelper::_CreateBuffer(RHIHeapType memoryType, const RHIBufferDesc& desc, void* initData,size_t initDataSize)
 {
 	assert(desc.mSize != 0);
 	RHIBufferDesc resDesc = desc;
@@ -437,13 +411,13 @@ RHIResourcePtr RenderContext::_CreateBuffer(RHIHeapType memoryType, const RHIBuf
 	return dstBuffer;
 }
 
-RHIResourcePtr RenderContext::CreateBuffer(RHIHeapType memoryType, const RHIBufferDesc& resDesc, void* initData, size_t initDataSize)
+RHIResourcePtr RenderResourceGenerateHelper::CreateBuffer(RHIHeapType memoryType, const RHIBufferDesc& resDesc, void* initData, size_t initDataSize)
 {
 	size_t offset = 0;
 	return _CreateBuffer(memoryType,resDesc, initData, initDataSize);
 }
 
-RHIResourcePtr RenderContext::_CreateTexture(const RHIResDesc& resDesc, void* initData, size_t dataSize, const RHISubResourceCopyDesc& sourceCopyOffset)
+RHIResourcePtr RenderResourceGenerateHelper::_CreateTexture(const RHIResDesc& resDesc, void* initData, size_t dataSize, const RHISubResourceCopyDesc& sourceCopyOffset)
 {
 
 	bool usingStaging = false;
@@ -484,40 +458,23 @@ RHIResourcePtr RenderContext::_CreateTexture(const RHIResDesc& resDesc, void* in
 	return textureRes;
 }
 
-RHIResourcePtr RenderContext::CreateTexture(const RHIResDesc& resDesc, void* initData, size_t dataSize, const RHISubResourceCopyDesc sourceCopyOffset)
+RHIResourcePtr RenderResourceGenerateHelper::CreateTexture(const RHIResDesc& resDesc, void* initData, size_t dataSize, const RHISubResourceCopyDesc sourceCopyOffset)
 {
 	size_t offset = 0;
 	return _CreateTexture(resDesc, initData, dataSize, sourceCopyOffset);
 }
 
-RHIResource* RenderContext::CreateInstancingBufferByRenderObjects(const LArray<RenderObject*>& RenderObjects)
-{
-	std::vector<int32_t> ids;
-	for (auto it : RenderObjects)
-	{
-		RenderObject* ro = it;
-		ids.push_back(ro->mID);
-		ids.push_back(0);
-		ids.push_back(0);
-		ids.push_back(0);
-	}
-	void* pointer = renderObjectInstancingBuffer->Map();
-	memcpy(pointer, ids.data(), ids.size() * sizeof(int32_t));
-	renderObjectInstancingBuffer->Unmap();
-	return renderObjectInstancingBuffer;
-}
-
-RHIShaderBlobPtr RenderContext::CreateShader(const RHIShaderDesc& desc)
+RHIShaderBlobPtr RenderResourceGenerateHelper::CreateShader(const RHIShaderDesc& desc)
 {
 	return mShaderBlobCache.CreateShader(this,desc);
 }
 
-size_t RenderContext::GetShaderId(const RHIShaderBlob* shader)
+size_t RenderResourceGenerateHelper::GetShaderId(const RHIShaderBlob* shader)
 {
 	return mShaderBlobCache.GetDataGlobelId(shader);
 }
 
-RHIPipelineStatePtr RenderContext::CreatePipelineGraphic(
+RHIPipelineStatePtr RenderResourceGenerateHelper::CreatePipelineGraphic(
 	const RHIPipelineStateGraphDrawDesc& desc,
 	const RHIVertexLayout& inputLayout,
 	const RenderPassDesc& renderPassDesc
@@ -526,27 +483,27 @@ RHIPipelineStatePtr RenderContext::CreatePipelineGraphic(
 	return mPipelineCache.CreatePipelineGraphic(this, desc, inputLayout, renderPassDesc);
 }
 
-RHIPipelineStatePtr RenderContext::CreatePipelineCompute(const RHIPipelineStateComputeDesc& desc)
+RHIPipelineStatePtr RenderResourceGenerateHelper::CreatePipelineCompute(const RHIPipelineStateComputeDesc& desc)
 {
 	return mPipelineCache.CreatePipelineCompute(this, desc);
 }
 
-size_t RenderContext::GetPipelineId(const RHIPipelineState* pipeline)
+size_t RenderResourceGenerateHelper::GetPipelineId(const RHIPipelineState* pipeline)
 {
 	return mPipelineCache.GetDataGlobelId(pipeline);
 }
 
-RHICmdSignaturePtr RenderContext::CreateCmdSignature(RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc)
+RHICmdSignaturePtr RenderResourceGenerateHelper::CreateCmdSignature(RHIPipelineState* pipeline, const LArray<CommandArgDesc>& allCommondDesc)
 {
 	return mCmdSignatureCache.CreateCmdSignature(this, pipeline, allCommondDesc);
 }
 
-size_t RenderContext::GetCmdSignatureId(const RHICmdSignature* pipeline)
+size_t RenderResourceGenerateHelper::GetCmdSignatureId(const RHICmdSignature* pipeline)
 {
 	return mCmdSignatureCache.GetDataGlobelId(pipeline);
 }
 
-RHICBufferDesc RenderContext::GetDefaultShaderConstantBufferDesc(ShaderParamID name)
+RHICBufferDesc RenderResourceGenerateHelper::GetDefaultShaderConstantBufferDesc(ShaderParamID name)
 {
 	if (mDefaultShaderVertexPbrInstance->GetRhiShader()->HasUniformBuffer(name))
 	{
@@ -559,7 +516,16 @@ RHICBufferDesc RenderContext::GetDefaultShaderConstantBufferDesc(ShaderParamID n
 	RHICBufferDesc empty;
 	return empty;
 }
-void RenderContext::FlushStaging()
+
+RHIBindingSetPtr RenderResourceGenerateHelper::CreateBindingset(RHIBindingSetLayoutPtr layout)
+{
+	RHIBindingSetPtr bindingset = mDevice->CreateBindingSet(mDefaultPool, layout);
+	return bindingset;
+}
+
+
+
+void RenderResourceGenerateHelper::FlushStaging()
 {
 	mFence->Wait(mFenceValue);
 	mBarrierCmd->GetCmdList()->CloseCommondList();
@@ -570,35 +536,31 @@ void RenderContext::FlushStaging()
 	mBarrierCmd->Reset();
 }
 
-void RenderContext::BeginRenderPass(const RenderPassDesc& desc)
+void RenderCommandGenerateHelper::BeginRenderPass(const RenderPassDesc& desc)
 {
 	mGraphicCmd->GetCmdList()->BeginRender(desc);
 	mCurRenderPass = desc;
 }
 
-void RenderContext::EndRenderPass()
+void RenderCommandGenerateHelper::EndRenderPass()
 {
 	mGraphicCmd->GetCmdList()->EndRender();
 }
 
-RHIBindingSetPtr RenderContext::CreateBindingset(RHIBindingSetLayoutPtr layout)
-{
-	RHIBindingSetPtr bindingset = mDevice->CreateBindingSet(mDefaultPool, layout);
-	return bindingset;
-}
 
-void RenderContext::DrawFullScreen(graphics::MaterialInstanceGraphBase* mat)
+
+void RenderCommandGenerateHelper::DrawFullScreen(graphics::MaterialInstanceGraphBase* mat)
 {
 	DrawMesh(mFullScreenRenderMesh, mat);
 }
 
-void RenderContext::DrawMesh(graphics::RenderAssetDataMesh* mesh, graphics::MaterialInstanceGraphBase* mat)
+void RenderCommandGenerateHelper::DrawMesh(graphics::RenderAssetDataMesh* mesh, graphics::MaterialInstanceGraphBase* mat)
 {
 	ZoneScoped;
 	DrawMeshInstanced(mesh, mat, nullptr, 0, 1);
 }
 
-void RenderContext::Dispatch(MaterialInstanceComputeBase* mat, LVector4i dispatchSize)
+void RenderCommandGenerateHelper::Dispatch(MaterialInstanceComputeBase* mat, LVector4i dispatchSize)
 {
 	auto pipeline = mat->GetPipeline();
 	mGraphicCmd->GetCmdList()->SetPipelineState(pipeline);
@@ -606,7 +568,7 @@ void RenderContext::Dispatch(MaterialInstanceComputeBase* mat, LVector4i dispatc
 	mGraphicCmd->GetCmdList()->Dispatch(dispatchSize.x(), dispatchSize.y(), dispatchSize.z());
 }
 
-void RenderContext::DrawMeshBatch(const MeshDrawCommandBatch& meshDrawCommand)
+void RenderCommandGenerateHelper::DrawMeshBatch(const MeshDrawCommandBatch& meshDrawCommand)
 {
 	RHIVertexLayout layout = meshDrawCommand.mDrawParameter.mRenderMeshs->GetVertexLayout();
 	auto pipeline = meshDrawCommand.mDrawParameter.mMtl->GetPipeline(&layout, mCurRenderPass);
@@ -631,7 +593,7 @@ void RenderContext::DrawMeshBatch(const MeshDrawCommandBatch& meshDrawCommand)
 	mGraphicCmd->GetCmdList()->DrawIndexedInstanced((uint32_t)indexCount, meshDrawCommand.mDrawCount, 0, 0, 0);
 }
 
-void RenderContext::DrawMeshInstanced(
+void RenderCommandGenerateHelper::DrawMeshInstanced(
 	RenderAssetDataMesh* mesh,
 	MaterialInstanceGraphBase* mat,
 	graphics::RHIResource* vertexInputInstanceRes /*= nullptr*/,

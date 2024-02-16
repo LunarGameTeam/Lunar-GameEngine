@@ -38,6 +38,8 @@ namespace luna::graphics
 
 		graphics::RHIFrameBufferPtr        mFrameBuffer[2];
 
+		RHISinglePoolSingleCmdListPtr      mGuiCmd;
+
 		void GenerateFountForImgui();
 
 		void GenerateWindowLayout();

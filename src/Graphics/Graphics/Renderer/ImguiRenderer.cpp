@@ -213,15 +213,15 @@ namespace luna::graphics
 		ZoneScoped;
 		size_t& fenceValue = mRenderContext->mFenceValue;
 
-		mRenderContext->mFence->Wait(fenceValue);
+		//mRenderContext->mFence->Wait(fenceValue);
 		mRenderContext->mGraphicCmd->Reset();
-		mMainSwapchain->NextImage();
+		//mMainSwapchain->NextImage();
 		uint32_t index = mMainSwapchain->GetNowFrameID();
 
 		RHIRenderQueue* graphQueue = mRenderContext->mGraphicQueue;
 
-		mRenderContext->mFence->Wait(fenceValue);
-		mRenderContext->mGraphicCmd->GetCmdList()->BindDescriptorHeap();
+		//mRenderContext->mFence->Wait(fenceValue);
+		//mRenderContext->mGraphicCmd->GetCmdList()->BindDescriptorHeap();
 		mRenderContext->mGraphicCmd->GetCmdList()->BeginEvent("IMGUI");
 
 		for (auto& it : mImguiTextures)

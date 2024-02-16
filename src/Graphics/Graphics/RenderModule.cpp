@@ -74,9 +74,10 @@ bool RenderModule::OnInit()
 {
 	mRenderContext = new RenderContext();	
 	mRenderContext->Init();
-
-	
-	graphics::RHIDevice* rhiDevice = GetRHIDevice();	
+	graphics::RHIDevice* rhiDevice = GetRHIDevice();
+	mGraphicCmd = rhiDevice->CreateSinglePoolSingleCommondList(RHICmdListType::Graphic3D);
+	mGuiCmd = rhiDevice->CreateSinglePoolSingleCommondList(RHICmdListType::Graphic3D);
+		
 	//此处做Render系统的Init
 
 	gEngine->GetTModule<PlatformModule>()->OnWindowResize.Bind(AutoBind(&RenderModule::OnMainWindowResize, this));
@@ -128,24 +129,23 @@ void RenderModule::RenderTick(float delta_time)
 	//RenderScene发起渲染
 	sRenderModule->GetRenderContext()->mFence->Wait(sRenderModule->GetRenderContext()->mFenceValue);
 	RenderContext* renderDevice = sRenderModule->GetRenderContext();
-	RHISinglePoolSingleCmdList* cmdlist = renderDevice->mGraphicCmd.get();
 	//开始录制渲染指令
-	cmdlist->Reset();
+	mGraphicCmd->Reset();
 	for (RenderScene* it : mRenderScenes)
 	{
 		mRenderer->PrepareSceneRender(it);
-		cmdlist->GetCmdList()->BeginEvent("RenderSceneDataUpdateCommand");
-		cmdlist->GetCmdList()->BindDescriptorHeap();
+		mGraphicCmd->GetCmdList()->BeginEvent("RenderSceneDataUpdateCommand");
+		mGraphicCmd->GetCmdList()->BindDescriptorHeap();
 		it->ExcuteCopy();
-		cmdlist->GetCmdList()->EndEvent();
+		mGraphicCmd->GetCmdList()->EndEvent();
 		mRenderer->Render(it);
 	}
 	//先把barrier相关的资源指令提交
 	PrepareRender();
 	//提交渲染指令
-	cmdlist->GetCmdList()->CloseCommondList();
-	renderDevice->mGraphicQueue->ExecuteCommandLists(cmdlist->GetCmdList());
-	renderDevice->mGraphicQueue->Signal(sRenderModule->GetRenderContext()->mFence, ++sRenderModule->GetRenderContext()->mFenceValue);
+	mGraphicCmd->GetCmdList()->CloseCommondList();
+	renderDevice->mGraphicQueue->ExecuteCommandLists(mGraphicCmd->GetCmdList());
+	renderDevice->mGraphicQueue->Signal(GetRenderContext()->mFence, ++GetRenderContext()->mFenceValue);
 	mGuiRenderer->RenderTick();	
 	if (mLogicUpdated.load())
 	{

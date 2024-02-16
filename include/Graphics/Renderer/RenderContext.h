@@ -19,7 +19,7 @@ namespace luna::graphics
 {
 
 RENDER_API CONFIG_DECLARE(LString, Render, RenderDeviceType, 2);
-class RenderContext;
+class RenderResourceGenerateHelper;
 class RhiObjectCache
 {
 	LQueue<size_t> emptyID;
@@ -35,10 +35,10 @@ protected:
 
 	template <typename T, typename... Args>
 	TRHIPtr<T> CreateRHIObject(
-		RenderContext* device,
+		RenderResourceGenerateHelper* device,
 		Args... inputDesc,
 		std::function<void(LMemoryHash&,Args...)> &dataHashFunc,
-		std::function<TRHIPtr<T>(RenderContext* device, Args...)> dataCreateFunc
+		std::function<TRHIPtr<T>(RenderResourceGenerateHelper* device, Args...)> dataCreateFunc
 	)
 	{
 		LMemoryHash newHash;
@@ -68,32 +68,32 @@ protected:
 class ShaderBlobCache:public RhiObjectCache
 {
 public:
-	RHIShaderBlobPtr CreateShader(RenderContext* mDevice, const RHIShaderDesc& desc);
+	RHIShaderBlobPtr CreateShader(RenderResourceGenerateHelper* mDevice, const RHIShaderDesc& desc);
 };
 
 class PipelineStateCache :public RhiObjectCache
 {
 public:
 	RHIPipelineStatePtr CreatePipelineGraphic(
-		RenderContext* mDevice,
+		RenderResourceGenerateHelper* mDevice,
 		const RHIPipelineStateGraphDrawDesc& desc,
 		const RHIVertexLayout& inputLayout,
 		const RenderPassDesc& renderPassDesc
 	);
 
 	RHIPipelineStatePtr CreatePipelineCompute(
-		RenderContext* mDevice,
+		RenderResourceGenerateHelper* mDevice,
 		const RHIPipelineStateComputeDesc& desc
 	);
 private:
-	void PackShaderToMemory(RenderContext* mDevice, luna::LMemoryHash& newHash, const RHIShaderBlob* shaderData);
+	void PackShaderToMemory(RenderResourceGenerateHelper* mDevice, luna::LMemoryHash& newHash, const RHIShaderBlob* shaderData);
 };
 
 class CmdSignatureCache :public RhiObjectCache
 {
 public:
 	RHICmdSignaturePtr CreateCmdSignature(
-		RenderContext* mDevice,
+		RenderResourceGenerateHelper* mDevice,
 		RHIPipelineState* pipeline,
 		const LArray<CommandArgDesc>& allCommondDesc
 	);
@@ -107,22 +107,6 @@ enum class RenderDeviceType : uint8_t
 };
 
 size_t GetOffset(size_t offset, uint16_t aliment);
-
-//class RENDER_API RHIDynamicMemory
-//{
-//	RHIDevice*             mDevice;
-//	RHIBufferUsage         mBufferUsage;
-//	RHIMemoryPtr           mFullMemory;
-//	LArray<RHIResourcePtr> mhistoryBuffer;
-//	size_t                 mBufferOffset = 0;
-//	size_t                 mMaxSize      = 0;
-// public:
-//	RHIDynamicMemory(size_t maxSize, RHIBufferUsage bufferUsage) : mMaxSize(maxSize), mBufferUsage(bufferUsage) { };
-//
-//	void         Init(RHIDevice* device, const RHIHeapType memoryHeapType, const int32_t memoryType);
-//	RHIResource* AllocateNewBuffer(void* initData, size_t dataSize, size_t bufferResSize);
-//	void         Reset();
-//};
 
 struct StaticSampler
 {
@@ -169,20 +153,15 @@ struct MeshDrawCommandBatch
 	size_t mDrawCount = 0;
 };
 
-class RENDER_API RenderContext final : NoCopy
+class RENDER_API RenderResourceGenerateHelper final : NoCopy
 {
 public:
-	RenderContext();
-	virtual ~RenderContext() = default;
+	RenderResourceGenerateHelper();
+	virtual ~RenderResourceGenerateHelper() = default;
 	void Init();
-	
-	RHISinglePoolSingleCmdListPtr mGraphicCmd;
-	RHIRenderQueuePtr    mGraphicQueue;
-	RHISinglePoolSingleCmdListPtr mBarrierCmd;
+
 	RHIDevicePtr          mDevice;
 	RenderDeviceType     mDeviceType = RenderDeviceType::DirectX12;
-	uint64_t             mFenceValue = 0;
-	RHIFencePtr          mFence;
 
 	//----Frame Graph API Begin----
 public:	
@@ -198,8 +177,6 @@ public:
 	RHIResourcePtr CreateBuffer(RHIHeapType memoryType, const RHIBufferDesc& resDesc, void* initData = nullptr, size_t initDataSize = 0);
 	RHIResourcePtr CreateTexture2D(uint32_t width, uint32_t height, RHITextureFormat format = RHITextureFormat::R8G8B8A8_UNORM,void* initData = nullptr, size_t dataSize = 0);
 	RHIResourcePtr CreateTexture(const RHIResDesc& resDesc, void* initData = nullptr, size_t dataSize = 0, const RHISubResourceCopyDesc sourceCopyOffset = {});
-	RHIResource* CreateInstancingBufferByRenderObjects(const LArray<RenderObject*>& RenderObjects);
-	void UpdateConstantBuffer(RHIResourcePtr target, void* data, size_t dataSize);
 	
 	RHIShaderBlobPtr CreateShader(const RHIShaderDesc& desc);
 	size_t GetShaderId(const RHIShaderBlob* shader);
@@ -221,34 +198,17 @@ public:
 
 	//----Draw Graph API Begin----
 public:
-	void BeginRenderPass(const RenderPassDesc&);
-	void EndRenderPass();
-
-	void DrawMesh(graphics::RenderAssetDataMesh* mesh, graphics::MaterialInstanceGraphBase* mat);
-
-	void DrawFullScreen(graphics::MaterialInstanceGraphBase* mat);
-
-	void DrawMeshInstanced(
-		RenderAssetDataMesh* mesh,
-		MaterialInstanceGraphBase* mat,
-		RHIResource* vertexInputInstanceRes = nullptr, 
-		int32_t startInstanceIdx = 1,
-		int32_t instancingSize = 1);
-
-	void DrawMeshBatch(const MeshDrawCommandBatch& meshDrawCommand);
-
-	void Dispatch(MaterialInstanceComputeBase* mat,LVector4i dispatchSize);
+	
 
 private:
 	using PipelineCacheKey = std::pair < MaterialInstance*, size_t>;
 	RenderPassDesc                              mCurRenderPass;
 	LMap<size_t, RHIBindingSetPtr>              mBindingSetCache;
-	LMap<size_t, RHICmdSignaturePtr>            mCommandSignatureCache;
 	ShaderBlobCache mShaderBlobCache;
 	PipelineStateCache mPipelineCache;
 	CmdSignatureCache mCmdSignatureCache;
 	//----Draw Graph API End----
-	RenderAssetDataMesh* mFullScreenRenderMesh = nullptr;
+
 public:
 	void OnFrameBegin();
 	void OnFrameEnd();
@@ -280,15 +240,37 @@ private:
 	std::shared_ptr<RHIStagingBufferPool> mStagingBufferPool;
 
 	RHIDescriptorPoolPtr                        mDefaultPool;
-
-	size_t                                   emptyInstanceBufferSize;
-	RHIResourcePtr                           emptyInstanceBuffer;
-	RHIResourcePtr                           renderObjectInstancingBuffer;
 public:
 	//Samplers
 	StaticSampler mClamp;
 	StaticSampler mRepeat;
 	
 };
+
+class RENDER_API RenderCommandGenerateHelper
+{
+	RHIRenderQueuePtr    mGraphicQueue;
+	RHISinglePoolSingleCmdListPtr mBarrierCmd;
+	RenderAssetDataMesh* mFullScreenRenderMesh = nullptr;
+public:
+	void BeginRenderPass(const RenderPassDesc&);
+	void EndRenderPass();
+
+	void DrawMesh(graphics::RenderAssetDataMesh* mesh, graphics::MaterialInstanceGraphBase* mat);
+
+	void DrawFullScreen(graphics::MaterialInstanceGraphBase* mat);
+
+	void DrawMeshInstanced(
+		RenderAssetDataMesh* mesh,
+		MaterialInstanceGraphBase* mat,
+		RHIResource* vertexInputInstanceRes = nullptr,
+		int32_t startInstanceIdx = 1,
+		int32_t instancingSize = 1);
+
+	void DrawMeshBatch(const MeshDrawCommandBatch& meshDrawCommand);
+
+	void Dispatch(MaterialInstanceComputeBase* mat, LVector4i dispatchSize);
+};
+
 
 }
