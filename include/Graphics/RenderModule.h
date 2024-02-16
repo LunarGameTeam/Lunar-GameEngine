@@ -61,9 +61,14 @@ public:
 		return mRenderContext->mDevice.get();
 	}
 
-	RenderContext* GetRenderContext()
+	RenderResourceGenerateHelper* GetRenderContext()
 	{
 		return mRenderContext;
+	}
+
+	RenderCommandGenerateHelper* GetRenderCommandHelper()
+	{
+		return mRenderCommandEncoder;
 	}
 
 	inline RHIRenderQueue* GetCmdQueueCore()
@@ -89,13 +94,22 @@ protected:
 
 	void OnMainWindowResize(LWindow& window, WindowEvent& event);
 public:
-	RenderContext*      mRenderContext;
+	RenderResourceGenerateHelper*      mRenderContext;
+	RenderCommandGenerateHelper*       mRenderCommandEncoder;
 	TPPtr<RenderTarget> mMainRT;
 	LSharedPtr<Texture2D>              mDefaultWhiteTexture;
 	LSharedPtr<Texture2D>              mDefaultNormalTexture;
 private:
 	LSharedPtr<ImguiRenderer> mGuiRenderer;
+
 	LSharedPtr<SceneRenderer> mRenderer;
+
+	RHISinglePoolSingleCmdListPtr mGraphicCmd;
+
+	uint64_t             mFrameFenceValue = 0;
+	RHIFencePtr          mFrameFence;
+
+
 	LArray<RenderScene*>      mRenderScenes;
 
 	graphics::RHISwapchainDesc         mSwapchainDesc;

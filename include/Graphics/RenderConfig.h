@@ -26,7 +26,8 @@ namespace luna
 namespace graphics
 {
 class RenderModule;
-class RenderContext;
+class RenderResourceGenerateHelper;
+class RenderCommandGenerateHelper;
 }
 
 

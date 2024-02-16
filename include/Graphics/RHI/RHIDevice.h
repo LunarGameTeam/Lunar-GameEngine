@@ -114,7 +114,8 @@ protected:
 
 	LUnorderedMap<LString, RHIStaticSamplerDesc> common_static_sampler;
 	friend class RenderModule;
-	friend class RenderContext;
+	friend class RenderResourceGenerateHelper;
+	friend class RenderCommandGenerateHelper;
 };
 
 enum class RHIQueueType
@@ -140,7 +141,8 @@ public:
 
 private:
 	friend class RenderModule;
-	friend class RenderContext;
+	friend class RenderResourceGenerateHelper;
+	friend class RenderCommandGenerateHelper;
 };
 
 RHIRenderQueuePtr RENDER_API GenerateRenderQueue(RHIQueueType queueType = RHIQueueType::eGraphic);

@@ -101,12 +101,13 @@ class RENDER_API RHICmdList : public RHIObject
 protected:
 	RHICmdListType mCmdListType;
 	RHICmdListState mCmdListState;
+	RenderPassDesc mCurRenderPass;
 public:
 	RHICmdList(RHICmdListType listType = RHICmdListType::Graphic3D) :
 		mCmdListType(listType),
 		mCmdListState(RHICmdListState::State_Null)
 	{	}
-
+	const RenderPassDesc& GetCurPassDesc() { return mCurRenderPass; };
 
 	virtual void BeginEvent(const LString& event_str) = 0;
 	virtual void EndEvent() = 0;
@@ -154,7 +155,12 @@ public:
 	virtual void ResourceBarrierExt(const ResourceBarrierDesc& desc) {};
 
 	virtual void ResourceBarrierExt(const LArray<ResourceBarrierDesc>& desc) {};
-
+	
+	void BindDrawCommandPassDesc(const RenderPassDesc& passDesc)
+	{
+		mCurRenderPass = passDesc;
+		BeginRender(passDesc);
+	};
 	virtual void BeginRender(const RenderPassDesc&) {};
 	virtual void EndRender() {};
 	virtual void BeginRenderPass(RHIRenderPass* pass, RHIFrameBuffer* buffer) = 0;

@@ -33,10 +33,10 @@ namespace luna::graphics
 		ViewTargetData* viewRtData = view->RequireData<ViewTargetData>();
 		viewRtData->GenerateScreenRenderTarget(builder, node);
 
-		node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
+		node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RHICmdList* cmdlist)
 			{
-				device->DrawMesh(this->mDebugMeshLineData,this->mOverlayMtlInstance);
-				device->DrawMesh(this->mDebugMeshData, this->mOverlayMtlInstance);
+				sRenderModule->GetRenderCommandHelper()->DrawMesh(cmdlist,this->mDebugMeshLineData,this->mOverlayMtlInstance);
+				sRenderModule->GetRenderCommandHelper()->DrawMesh(cmdlist, this->mDebugMeshData, this->mOverlayMtlInstance);
 			});
 	};
 

@@ -65,7 +65,9 @@ void SkeletonSkinData::PerObjectUpdate(RenderObject* renderObject)
 		skinMatrixResult.push_back(animationMatrix * skinRefMatrix);
 
 	}
-	sRenderModule->GetRenderContext()->UpdateConstantBuffer(mSkeletonResultBuffer, skinMatrixResult.data(), skinMatrixResult.size() * sizeof(LMatrix4f));
+	void* dst = mSkeletonResultBuffer->Map();
+	memcpy(dst, skinMatrixResult.data(), skinMatrixResult.size() * sizeof(LMatrix4f));
+	mSkeletonResultBuffer->Unmap();
 }
 
 void MeshRendererUpdateSkinCommand(

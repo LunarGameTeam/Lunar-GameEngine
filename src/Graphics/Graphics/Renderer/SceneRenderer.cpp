@@ -59,7 +59,7 @@ namespace luna::graphics
 		mRenderPipeline.GeneratePerViwewPass(&mFrameGraphBuilder, curView);
 	}
 
-	void SceneRenderer::Render(RenderScene* renderScene)
+	void SceneRenderer::Render(RenderScene* renderScene, RHICmdList* cmdList)
 	{
 		renderScene->GetAllView(mAllViews);
 		mFrameGraphBuilder.Clear();
@@ -71,6 +71,6 @@ namespace luna::graphics
 			}
 			GeneratePassByView(renderScene,curView);
 		}
-		mFrameGraphBuilder.Flush();
+		mFrameGraphBuilder.Flush(cmdList);
 	}
 }

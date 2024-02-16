@@ -79,14 +79,12 @@ void FrameGraphBuilder::_Prepare()
 	}
 }
 
-void FrameGraphBuilder::Flush()
+void FrameGraphBuilder::Flush(RHICmdList* cmdList)
 {
 
 	ZoneScoped;
-	RenderContext* renderDevice = sRenderModule->GetRenderContext();
-	RHISinglePoolSingleCmdList* cmdlist = renderDevice->mGraphicCmd.get();
-
-	
+	RenderResourceGenerateHelper* renderDevice = sRenderModule->GetRenderContext();
+	RenderCommandGenerateHelper* commandHelper = sRenderModule->GetRenderCommandHelper();
 	for (FGNode* it : mNodes)
 	{
 		for (auto& view : it->mVirtureResView)
@@ -121,8 +119,7 @@ void FrameGraphBuilder::Flush()
 			{
 				ZoneScopedN("Device Wait");
 			}			
-			cmdlist->Reset();
-			cmdlist->GetCmdList()->BeginEvent(node->GetName());
+			cmdList->BeginEvent(node->GetName());
 			if (node->mRT.empty())
 				continue;
 			{
@@ -155,13 +152,13 @@ void FrameGraphBuilder::Flush()
 						assert(false);
 						break;
 					}
-					cmdlist->GetCmdList()->ResourceBarrierExt(barrier);
+					cmdList->ResourceBarrierExt(barrier);
 				}
 			}
 			
 
 			FGResourceView& dsView = *node->mDS;
-			cmdlist->GetCmdList()->BindDescriptorHeap();
+			
 			uint32_t width;
 			uint32_t height;
 			node->mPassDesc.mColorView.clear();
@@ -181,15 +178,13 @@ void FrameGraphBuilder::Flush()
 				node->mPassDesc.mDepths[0].mDepthStencilFormat = dsView.mRHIView->mBindResource->GetDesc().Format;
 			}
 			
-			
-			renderDevice->BeginRenderPass(node->mPassDesc);
-			cmdlist->GetCmdList()->SetViewPort(0, 0, width, height);
-			cmdlist->GetCmdList()->SetScissorRects(0, 0, width, width);
+			commandHelper->BindDrawCommandPassDesc(cmdList,node->mPassDesc);
+			cmdList->SetViewPort(0, 0, width, height);
+			cmdList->SetScissorRects(0, 0, width, width);
+			node->Execute(this, cmdList);
+			commandHelper->EndRenderPass(cmdList);
 
-			node->Execute(this);
-			renderDevice->EndRenderPass();
-
-			cmdlist->GetCmdList()->EndEvent();
+			cmdList->EndEvent();
 		}
 	}
 	

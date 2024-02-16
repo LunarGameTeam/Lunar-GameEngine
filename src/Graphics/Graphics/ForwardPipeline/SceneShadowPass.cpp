@@ -50,9 +50,9 @@ void DirectionalLightShadowPassGenerator::AddPassNode(FrameGraphBuilder* builder
 
 	viewRtData->GenerateShadowRenderTarget(builder, node);
 
-	node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
+	node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RHICmdList* cmdlist)
 		{
-			this->DrawCommandBatch();
+			this->DrawCommandBatch(cmdlist);
 		});
 };
 }

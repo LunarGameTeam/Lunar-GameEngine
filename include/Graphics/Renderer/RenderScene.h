@@ -161,7 +161,7 @@ public:
 
 	RenderSceneUploadBufferPool* GetStageBufferPool();
 
-	void ExcuteCopy();
+	void ExcuteCopy(RHICmdList* cmdList);
 
 	bool mRenderable = true;
 private:

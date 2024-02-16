@@ -135,7 +135,7 @@ namespace luna::graphics
 		copyCommand->mCopyLength = mRoQueue.size() * sizeof(uint32_t);
 	}
 
-	void FrameGraphMeshPassGenerator::DrawCommandBatch()
+	void FrameGraphMeshPassGenerator::DrawCommandBatch(RHICmdList* cmdList)
 	{
 		LUnorderedSet<MaterialInstanceGraphBase*> materialUpdated;
 		for (auto& eachCommand : mAllCommandsPool)
@@ -145,7 +145,7 @@ namespace luna::graphics
 				eachCommand.second.mDrawParameter.mMtl->UpdateBindingSet();
 				materialUpdated.insert(eachCommand.second.mDrawParameter.mMtl);
 			}
-			sRenderModule->GetRenderContext()->DrawMeshBatch(eachCommand.second);
+			sRenderModule->GetRenderCommandHelper()->DrawMeshBatch(cmdList,eachCommand.second);
 		}
 	}
 }

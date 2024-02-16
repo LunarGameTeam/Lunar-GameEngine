@@ -28,9 +28,9 @@ void PostProcessPassGenerator::AddPassNode(FrameGraphBuilder* builder, RenderVie
 	//暂时应该没有pass依赖后处理，先把后处理的结果直接写入屏幕
 	viewRtData->GenerateScreenRenderTarget(builder, node);
 
-	node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
+	node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RHICmdList* cmdlist)
 		{
-			device->DrawFullScreen(this->mGammaCorrectionMtlInstance);
+			sRenderModule->GetRenderCommandHelper()->DrawFullScreen(cmdlist,this->mGammaCorrectionMtlInstance);
 		});
 };
 

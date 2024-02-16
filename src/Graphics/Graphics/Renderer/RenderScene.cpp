@@ -308,7 +308,7 @@ RenderSceneUploadBufferPool* RenderScene::GetStageBufferPool()
 	return &mStageBufferPool;
 }
 
-void RenderScene::ExcuteCopy()
+void RenderScene::ExcuteCopy(RHICmdList* cmdList)
 {
 	LArray<ResourceBarrierDesc> curResourceBarrier;
 	//修改资源状态
@@ -345,7 +345,7 @@ void RenderScene::ExcuteCopy()
 		newOutputBarrierDesc.mStateAfter = ResourceState::kCopyDest;
 		curResourceBarrier.push_back(newInputBarrierDesc);
 	}
-	sRenderModule->mRenderContext->mGraphicCmd->GetCmdList()->ResourceBarrierExt(curResourceBarrier);
+	cmdList->ResourceBarrierExt(curResourceBarrier);
 	//执行GPUscene的更新指令
 	for (auto& eachCommand : mAllComputeCommand)
 	{
@@ -358,11 +358,11 @@ void RenderScene::ExcuteCopy()
 			eachCommand.mComputeMaterial->SetShaderInput(eachStorageBuffer.first, eachStorageBuffer.second);
 		}
 		eachCommand.mComputeMaterial->UpdateBindingSet();
-		sRenderModule->mRenderContext->Dispatch(eachCommand.mComputeMaterial, eachCommand.mDispatchSize);
+		sRenderModule->mRenderCommandEncoder->Dispatch(cmdList,eachCommand.mComputeMaterial, eachCommand.mDispatchSize);
 	}
 	for (auto& eachCommand : mAllCopyCommand)
 	{
-		sRenderModule->mRenderContext->mGraphicCmd->GetCmdList()->CopyBufferToBuffer(eachCommand.mStorageBufferOutput, eachCommand.mDstOffset, eachCommand.mUniformBufferInput, eachCommand.mSrcOffset, eachCommand.mCopyLength);
+		cmdList->CopyBufferToBuffer(eachCommand.mStorageBufferOutput, eachCommand.mDstOffset, eachCommand.mUniformBufferInput, eachCommand.mSrcOffset, eachCommand.mCopyLength);
 	}
 	//恢复资源状态
 	curResourceBarrier.clear();
@@ -399,7 +399,7 @@ void RenderScene::ExcuteCopy()
 		newOutputBarrierDesc.mStateAfter = ResourceState::kVertexAndConstantBuffer;
 		curResourceBarrier.push_back(newInputBarrierDesc);
 	}
-	sRenderModule->mRenderContext->mGraphicCmd->GetCmdList()->ResourceBarrierExt(curResourceBarrier);
+	cmdList->ResourceBarrierExt(curResourceBarrier);
 	//清空所有GpuScene的更新指令
 	mAllComputeCommand.clear();
 	mAllCopyCommand.clear();

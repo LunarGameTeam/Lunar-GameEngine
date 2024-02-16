@@ -46,9 +46,9 @@ void OpaquePassGenerator::AddPassNode(FrameGraphBuilder* builder, RenderView* vi
 	ViewTargetData* viewRtData = view->RequireData<ViewTargetData>();
 	viewRtData->GenerateOpaqueResultRenderTarget(builder, node);
 
-	node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
+	node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RHICmdList* cmdlist)
 		{
-			this->DrawCommandBatch();
+			this->DrawCommandBatch(cmdlist);
 		});
 };
 

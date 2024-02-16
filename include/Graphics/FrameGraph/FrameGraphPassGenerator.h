@@ -70,7 +70,7 @@ namespace luna::graphics
 
 		void GenerateRenderObjectIndexBuffer(void* pointer);
 
-		void DrawCommandBatch();
+		void DrawCommandBatch(RHICmdList* cmdList);
 	};
 }
 

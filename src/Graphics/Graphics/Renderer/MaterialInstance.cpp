@@ -446,8 +446,11 @@ void MaterialInstance::UpdateParamsToBuffer()
 		}
 	}	
 	if (HasBindPoint(ParamID_MaterialBuffer))
-		sRenderModule->GetRenderContext()->UpdateConstantBuffer(mCBuffer, data.data(), data.size());
-
+	{
+		void* dst = mCBuffer->Map();
+		memcpy(dst, data.data(), data.size());
+		mCBuffer->Unmap();
+	}
 }
 
 }

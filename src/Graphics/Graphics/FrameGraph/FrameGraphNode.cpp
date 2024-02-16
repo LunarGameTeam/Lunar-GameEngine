@@ -84,11 +84,11 @@ FGResourceView* FGNode::AddDSV(FGTexture* res)
 	return view.get();
 }
 
-void FGNode::Execute(FrameGraphBuilder* m_builder)
+void FGNode::Execute(FrameGraphBuilder* m_builder, RHICmdList* cmdList)
 {
 	ZoneScoped;
 	if(mExecFunc)
-		mExecFunc(m_builder, *this, sRenderModule->GetRenderContext());
+		mExecFunc(m_builder, *this, cmdList);
 }
 
 FGGraphDrawNode::FGGraphDrawNode() : FGNode(FrameGraphNodeType::FrameGraphNodeGraphDraw)

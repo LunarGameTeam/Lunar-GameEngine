@@ -30,7 +30,7 @@ namespace luna::graphics
 		SceneRenderer() :
 			mFrameGraphBuilder("SceneRenderer") {};
 
-		void Render(RenderScene* renderScene);
+		void Render(RenderScene* renderScene,RHICmdList* cmdList);
 
 		SceneRenderPipeline* GetSceneRenderPipeline() { return &mRenderPipeline; };
 

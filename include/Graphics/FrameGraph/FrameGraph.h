@@ -32,7 +32,7 @@ public:
 
 	void _Prepare();
 
-	void Flush();
+	void Flush(RHICmdList* cmdList);
 
 	void RemoveVirtualResourceId(size_t virtualResourceId);
 private:

@@ -45,10 +45,10 @@ namespace luna::graphics
 		ViewTargetData* viewRtData = view->RequireData<ViewTargetData>();
 		viewRtData->GenerateOpaqueResultRenderTarget(builder, node,true,true);
 
-		node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RenderContext* device)
+		node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RHICmdList* cmdlist)
 			{
 				mSkyBoxDefaultMtlInstance->UpdateBindingSet();
-				device->DrawMesh(this->mSkyboxRenderMesh, this->mSkyBoxDefaultMtlInstance);
+				sRenderModule->GetRenderCommandHelper()->DrawMesh(cmdlist,this->mSkyboxRenderMesh, this->mSkyBoxDefaultMtlInstance);
 			});
 	};
 }

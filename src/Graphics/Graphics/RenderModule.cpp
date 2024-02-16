@@ -72,11 +72,14 @@ bool RenderModule::OnLoad()
 
 bool RenderModule::OnInit()
 {
-	mRenderContext = new RenderContext();	
+	mRenderContext = new RenderResourceGenerateHelper();
 	mRenderContext->Init();
+	mRenderCommandEncoder = new RenderCommandGenerateHelper();
+	mRenderCommandEncoder->Init(mRenderContext->mDevice);
 
-	
-	graphics::RHIDevice* rhiDevice = GetRHIDevice();	
+	graphics::RHIDevice* rhiDevice = GetRHIDevice();
+	mGraphicCmd = rhiDevice->CreateSinglePoolSingleCommondList(RHICmdListType::Graphic3D);
+		
 	//此处做Render系统的Init
 
 	gEngine->GetTModule<PlatformModule>()->OnWindowResize.Bind(AutoBind(&RenderModule::OnMainWindowResize, this));
@@ -91,7 +94,7 @@ bool RenderModule::OnInit()
 	mMainRT.SetPtr(NewObject<graphics::RenderTarget>());	
 	mMainRT->Ready();
 
-	mRenderContext->mFence->Wait(mRenderContext->mFenceValue);	
+	mFrameFence = rhiDevice->CreateFence();
 
 	mDefaultWhiteTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/White.png"));
 	mDefaultNormalTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/Normal.png"));
@@ -126,26 +129,24 @@ void RenderModule::RenderTick(float delta_time)
 	ZoneScoped;
 	mRenderContext->OnFrameBegin();
 	//RenderScene发起渲染
-	sRenderModule->GetRenderContext()->mFence->Wait(sRenderModule->GetRenderContext()->mFenceValue);
-	RenderContext* renderDevice = sRenderModule->GetRenderContext();
-	RHISinglePoolSingleCmdList* cmdlist = renderDevice->mGraphicCmd.get();
+	//mFrameFence->Wait(mFrameFenceValue);
+	//sRenderModule->GetRenderContext()->mFence->Wait(sRenderModule->GetRenderContext()->mFenceValue);
 	//开始录制渲染指令
-	cmdlist->Reset();
+	mGraphicCmd->Reset();
 	for (RenderScene* it : mRenderScenes)
 	{
 		mRenderer->PrepareSceneRender(it);
-		cmdlist->GetCmdList()->BeginEvent("RenderSceneDataUpdateCommand");
-		cmdlist->GetCmdList()->BindDescriptorHeap();
-		it->ExcuteCopy();
-		cmdlist->GetCmdList()->EndEvent();
-		mRenderer->Render(it);
+		mGraphicCmd->GetCmdList()->BeginEvent("RenderSceneDataUpdateCommand");
+		mGraphicCmd->GetCmdList()->BindDescriptorHeap();
+		it->ExcuteCopy(mGraphicCmd->GetCmdList());
+		mGraphicCmd->GetCmdList()->EndEvent();
+		mRenderer->Render(it,mGraphicCmd->GetCmdList());
 	}
 	//先把barrier相关的资源指令提交
 	PrepareRender();
 	//提交渲染指令
-	cmdlist->GetCmdList()->CloseCommondList();
-	renderDevice->mGraphicQueue->ExecuteCommandLists(cmdlist->GetCmdList());
-	renderDevice->mGraphicQueue->Signal(sRenderModule->GetRenderContext()->mFence, ++sRenderModule->GetRenderContext()->mFenceValue);
+	mGraphicCmd->GetCmdList()->CloseCommondList();
+	mRenderContext->mGraphicQueue->ExecuteCommandLists(mGraphicCmd->GetCmdList());
 	mGuiRenderer->RenderTick();	
 	if (mLogicUpdated.load())
 	{
@@ -153,19 +154,19 @@ void RenderModule::RenderTick(float delta_time)
 		mLogicUpdated.store(false);
 		mGuiRenderer->UpdateViewportsWindow();
 	}
+	mFrameFenceValue = mFrameFence->IncSignal(mRenderContext->mGraphicQueue.get());
 	mRenderContext->OnFrameEnd();
 	{
 		ZoneScopedN("Present");
-		mRenderContext->mGraphicQueue->Wait(mRenderContext->mFence, mRenderContext->mFenceValue);
-		mMainSwapchain->PresentFrame(mRenderContext->mFence, mRenderContext->mFenceValue);
+		mMainSwapchain->PresentFrame(mFrameFence, mFrameFenceValue);
 	}
 	
-
 	if (mNeedResizeSwapchain)
 	{
 		mMainSwapchain->Reset(mSwapchainDesc);
 		mGuiRenderer->OnSwapchainChange(mMainSwapchain);
 	}
+	
 }
 
 RenderScene* RenderModule::AddScene()

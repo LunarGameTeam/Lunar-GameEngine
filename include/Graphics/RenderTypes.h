@@ -32,7 +32,8 @@ class TextureCube;
 class RenderTarget;
 
 struct ImguiTexture;
-class RenderContext;
+class RenderResourceGenerateHelper;
+class RenderCommandGenerateHelper;
 
 struct RenderLight;
 struct RenderObject;

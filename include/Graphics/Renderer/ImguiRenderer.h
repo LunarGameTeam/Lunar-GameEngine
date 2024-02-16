@@ -13,7 +13,7 @@ namespace luna::graphics
 
 		void Init(
 			RHISwapChain* mainSwapchain,
-			RenderContext* renderContext
+			RenderResourceGenerateHelper* renderContext
 		);
 
 		void OnSwapchainChange(RHISwapChain* mainSwapchain);
@@ -34,9 +34,11 @@ namespace luna::graphics
 
 		RHISwapChain*                      mMainSwapchain;
 
-		RenderContext*                     mRenderContext;
+		RenderResourceGenerateHelper*      mRenderContext;
 
 		graphics::RHIFrameBufferPtr        mFrameBuffer[2];
+
+		RHISinglePoolSingleCmdListPtr      mGuiCmd;
 
 		void GenerateFountForImgui();
 
