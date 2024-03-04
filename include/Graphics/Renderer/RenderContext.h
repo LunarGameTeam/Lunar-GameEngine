@@ -214,7 +214,7 @@ private:
 public:
 	void OnFrameBegin();
 	void OnFrameEnd();
-	void FlushStaging();
+	RHICmdList* FlushStaging();
 
 	RHIDescriptorPoolPtr GetDefaultDescriptorPool() { return mDefaultPool; }
 

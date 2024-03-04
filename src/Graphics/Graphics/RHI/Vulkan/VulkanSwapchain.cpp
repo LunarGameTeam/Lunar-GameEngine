@@ -189,12 +189,12 @@ vk::Extent2D VulkanSwapChain::chooseSwapExtent(const vk::SurfaceCapabilitiesKHR&
 
 void VulkanSwapChain::PresentFrame(RHIFence* fence, uint64_t waitValue)
 {
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	//vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
 	auto renderQueue = sRenderModule->GetCmdQueueCore()->As<VulkanRenderQueue>();
 
 	uint64_t tmp = std::numeric_limits<uint64_t>::max();
 	
-
+	NextImage();
 	vk::SubmitInfo signal_submit_info = {};
 	signal_submit_info.waitSemaphoreCount = 1;
 	signal_submit_info.pWaitSemaphores = &mImageAvailable[mPrevFrameIdx];
@@ -204,14 +204,16 @@ void VulkanSwapChain::PresentFrame(RHIFence* fence, uint64_t waitValue)
 	signal_submit_info.pSignalSemaphores = &mRenderFinish[mFrameIndex];
 
 	VULKAN_ASSERT(renderQueue->mQueue.submit(1, &signal_submit_info, {}));
-
 	vk::PresentInfoKHR present_info = {};
 	present_info.swapchainCount = 1;
 	present_info.pSwapchains = &mSwapChain;
 	present_info.pImageIndices = &mFrameIndex;
 	present_info.waitSemaphoreCount = 1;
 	present_info.pWaitSemaphores = &mRenderFinish[mFrameIndex];
-	VULKAN_ASSERT(renderQueue->mQueue.presentKHR(&present_info));	
+	VULKAN_ASSERT(renderQueue->mQueue.presentKHR(&present_info));
+	
+	mFrameIndex = (mFrameIndex + 1) % 2;
+	fence->Wait(waitValue);
 }
 
 uint32_t VulkanSwapChain::GetNowFrameID()

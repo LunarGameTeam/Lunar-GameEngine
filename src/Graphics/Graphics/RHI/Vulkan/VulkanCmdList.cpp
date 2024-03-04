@@ -153,6 +153,13 @@ void VulkanGraphicCmdList::SetDrawPrimitiveTopology(RHIPrimitiveTopology primiti
 	mCommandBuffer.setPrimitiveTopology(Convert(primitive_topology));
 }
 
+void VulkanGraphicCmdList::ResourceBarrierExt(const LArray<ResourceBarrierDesc>& desc)
+{
+	for (auto eachBarrier : desc)
+	{
+		ResourceBarrierExt(eachBarrier);
+	}
+}
 void VulkanGraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier)
 {
 	if (!barrier.mBarrierRes)

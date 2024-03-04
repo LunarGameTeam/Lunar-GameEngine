@@ -343,16 +343,18 @@ void RenderResourceGenerateHelper::OnFrameEnd()
 	mBindingSetCache.clear();
 }
 
-void RenderResourceGenerateHelper::FlushStaging()
+RHICmdList* RenderResourceGenerateHelper::FlushStaging()
 {
 	if (mAllResGenerateBarrier.size() == 0)
 	{
-		return;
+		return nullptr;
 	}
 	mBarrierCmd->Reset();
 	mBarrierCmd->GetCmdList()->ResourceBarrierExt(mAllResGenerateBarrier);
 	mBarrierCmd->GetCmdList()->CloseCommondList();
-	sRenderModule->GetRenderContext()->mGraphicQueue->ExecuteCommandLists(mBarrierCmd->GetCmdList());
+	mAllResGenerateBarrier.clear();
+	return mBarrierCmd->GetCmdList();
+	//sRenderModule->GetRenderContext()->mGraphicQueue->ExecuteCommandLists(mBarrierCmd->GetCmdList());
 }
 
 

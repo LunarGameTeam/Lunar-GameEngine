@@ -6,12 +6,7 @@
 #include "Core/Framework/LunaCore.h"
 #include "Core/Foundation/profile.h"
 #include "Core/Event/EventModule.h"
-
-
-
-////临时先写DX11的Device
 #include "imgui.h"
-
 #include "Graphics/Renderer/RenderContext.h"
 #include "Graphics/Renderer/RenderScene.h"
 #include "Graphics/Renderer/ImGuiTexture.h"
@@ -47,16 +42,11 @@ RegisterTypeEmbedd_Imp(RenderModule)
 	BindingModule::Get("luna")->AddType(cls);
 
 }
-RenderModule::RenderModule() :
-	mMainRT(this)
+RenderModule::RenderModule()
 {
 	mNeedTick = true;
 	mNeedRenderTick = true;
 	sRenderModule = this;	
-}
-
-void RenderModule::OnIMGUI()
-{
 }
 
 bool RenderModule::OnShutdown()
@@ -90,10 +80,6 @@ bool RenderModule::OnInit()
 	mMainSwapchain = mRenderContext->mGraphicQueue->CreateSwapChain(
 		mainWindow, mSwapchainDesc);
 
-
-	mMainRT.SetPtr(NewObject<graphics::RenderTarget>());	
-	mMainRT->Ready();
-
 	mFrameFence = rhiDevice->CreateFence();
 
 	mDefaultWhiteTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/White.png"));
@@ -121,7 +107,7 @@ void RenderModule::Tick(float deltaTime)
 	ImGui::NewFrame();
 	gEngine->OnImGUI();
 	ImGui::EndFrame();
-	mLogicUpdated.store(true);
+	mGuiRenderer->UpdateViewportsWindow();
 }
 
 void RenderModule::RenderTick(float delta_time)
@@ -143,17 +129,18 @@ void RenderModule::RenderTick(float delta_time)
 		mRenderer->Render(it,mGraphicCmd->GetCmdList());
 	}
 	//先把barrier相关的资源指令提交
-	PrepareRender();
+	RHICmdList* prepareCommand = PrepareRender();
 	//提交渲染指令
 	mGraphicCmd->GetCmdList()->CloseCommondList();
-	mRenderContext->mGraphicQueue->ExecuteCommandLists(mGraphicCmd->GetCmdList());
-	mGuiRenderer->RenderTick();	
-	if (mLogicUpdated.load())
+	LArray<RHICmdList*> allCommand;
+	if (prepareCommand != nullptr)
 	{
-		//这里更新每个viewport的window需要等待前一次的ImGui::EndFrame，否则会出现帧数不匹配导致的crash
-		mLogicUpdated.store(false);
-		mGuiRenderer->UpdateViewportsWindow();
+		allCommand.push_back(prepareCommand);
 	}
+	allCommand.push_back(mGraphicCmd->GetCmdList());
+	mRenderContext->mGraphicQueue->ExecuteMultiCommandLists(allCommand);
+	mGuiRenderer->RenderTick();	
+	
 	mFrameFenceValue = mFrameFence->IncSignal(mRenderContext->mGraphicQueue.get());
 	mRenderContext->OnFrameEnd();
 	{
@@ -183,10 +170,10 @@ void RenderModule::RemoveScene(RenderScene* val)
 	std::erase(mRenderScenes, val);
 }
 
-void RenderModule::PrepareRender()
+RHICmdList* RenderModule::PrepareRender()
 {
 	ZoneScoped;
-	mRenderContext->FlushStaging();
+	return mRenderContext->FlushStaging();
 }
 
 void RenderModule::OnMainWindowResize(LWindow& window, WindowEvent&evt)

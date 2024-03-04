@@ -71,6 +71,7 @@ public:
 		waitInfo.semaphoreCount = 1;
 		waitInfo.pSemaphores = &mSempahore;
 		waitInfo.pValues = &value;
+
 		VULKAN_ASSERT(sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().waitSemaphores(&waitInfo, UINT64_MAX));		
 	}
 

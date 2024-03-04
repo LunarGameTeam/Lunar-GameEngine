@@ -38,6 +38,10 @@ void OpaquePassGenerator::AddPassNode(FrameGraphBuilder* builder, RenderView* vi
 	graphics::RenderObjectDrawData* roParamData = renderScene->GetData<graphics::RenderObjectDrawData>();
 	for (auto& eachCommand : mAllCommandsPool)
 	{
+		if (eachCommand.second.mDrawCount == 0)
+		{
+			continue;
+		}
 		sceneRenderData->SetMaterialParameter(eachCommand.second.mDrawParameter.mMtl);
 		viewParamData->SetMaterialParameter(eachCommand.second.mDrawParameter.mMtl);
 		roParamData->SetMaterialParameter(eachCommand.second.mDrawParameter.mMtl);

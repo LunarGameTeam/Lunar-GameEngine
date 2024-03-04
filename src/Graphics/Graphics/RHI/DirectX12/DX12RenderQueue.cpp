@@ -46,6 +46,16 @@ void DX12RenderQueue::ExecuteCommandLists(RHICmdList* cmdList)
 	mDirectQueue->ExecuteCommandLists(1, &d12CmdList);
 };
 
+void DX12RenderQueue::ExecuteMultiCommandLists(const LArray<RHICmdList*>& commond_list_array)
+{
+	LArray<ID3D12CommandList*> dx12CmdListArray;
+	for (auto eachValue : commond_list_array)
+	{
+		dx12CmdListArray.push_back(eachValue->As<DX12GraphicCmdList>()->mDxCmdList.Get());
+	}
+	mDirectQueue->ExecuteCommandLists(dx12CmdListArray.size(), dx12CmdListArray.data());
+};
+
 ID3D12CommandQueue* DX12RenderQueue::GetCommandQueueByPipelineType(const RHICmdListType& pipeline_type)
 {
 

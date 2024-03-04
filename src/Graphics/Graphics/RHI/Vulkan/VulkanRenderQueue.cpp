@@ -40,6 +40,24 @@ void VulkanRenderQueue::ExecuteCommandLists(RHICmdList* commond_list_array)
 	VULKAN_ASSERT(mQueue.submit(1, &submit_info, {}));
 }
 
+void VulkanRenderQueue::ExecuteMultiCommandLists(const LArray<RHICmdList*>& commond_list_array)
+{
+	LArray<vk::CommandBuffer> curAllBuffers;
+	for (auto eachValue : commond_list_array)
+	{
+		curAllBuffers.push_back(eachValue->As<VulkanGraphicCmdList>()->mCommandBuffer);
+	}
+	vk::SubmitInfo submit_info = {};
+
+	submit_info.commandBufferCount = commond_list_array.size();
+	submit_info.pCommandBuffers = curAllBuffers.data();
+
+	vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eAllCommands };
+	submit_info.pWaitDstStageMask = waitStages;
+
+	VULKAN_ASSERT(mQueue.submit(1, &submit_info, {}));
+};
+
 RHISwapChainPtr VulkanRenderQueue::CreateSwapChain(LWindow* window, const RHISwapchainDesc& desc)
 {
 	RHISwapChainPtr swapchin = CreateRHIObject<VulkanSwapChain>(window, desc);

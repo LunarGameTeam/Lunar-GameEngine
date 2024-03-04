@@ -38,6 +38,8 @@ public:
 
 	void ResourceBarrierExt(const ResourceBarrierDesc& desc) override;
 
+	void ResourceBarrierExt(const LArray<ResourceBarrierDesc>& desc) override;
+
 	void SetBiningSetLayoutExt(
 		RHIBindingSetLayout* root_signature
 	) override;

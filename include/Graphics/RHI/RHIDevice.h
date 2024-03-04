@@ -133,6 +133,7 @@ protected:
 
 public:
 	virtual void ExecuteCommandLists(RHICmdList* commond_list_array) = 0;
+	virtual void ExecuteMultiCommandLists(const LArray<RHICmdList*>& commond_list_array) = 0;
 	virtual RHISwapChainPtr CreateSwapChain(LWindow* window, const RHISwapchainDesc& desc) = 0;
 	virtual void Present(RHISwapChain* swapchain) {};
 	virtual void Wait(RHIFence* fence, uint64_t value) {};

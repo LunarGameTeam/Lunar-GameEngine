@@ -40,7 +40,6 @@ class RENDER_API RenderModule : public LModule
 	RegisterTypeEmbedd(RenderModule, LModule)
 public:
 	RenderModule();
-	void OnIMGUI() override;
 public:
 	RenderScene* AddScene();
 	void RemoveScene(RenderScene*);
@@ -90,13 +89,12 @@ public:
 	void Tick(float deltaTime) override;
 	void RenderTick(float delta_time) override;
 protected:
-	void PrepareRender();
+	RHICmdList* PrepareRender();
 
 	void OnMainWindowResize(LWindow& window, WindowEvent& event);
 public:
 	RenderResourceGenerateHelper*      mRenderContext;
 	RenderCommandGenerateHelper*       mRenderCommandEncoder;
-	TPPtr<RenderTarget> mMainRT;
 	LSharedPtr<Texture2D>              mDefaultWhiteTexture;
 	LSharedPtr<Texture2D>              mDefaultNormalTexture;
 private:
@@ -117,8 +115,6 @@ private:
 	RHISwapChainPtr                    mMainSwapchain;
 
 	bool                               mNeedResizeSwapchain = false;
-
-	std::atomic_bool                   mLogicUpdated = false;
 
 	RenderAssetDataManager             mRenderAssetManager;
 };
