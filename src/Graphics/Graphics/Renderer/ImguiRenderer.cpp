@@ -254,6 +254,14 @@ namespace luna::graphics
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 		{
 			ImGui::UpdatePlatformWindows();
+		}
+	}
+
+	void ImguiRenderer::RenderToOtherViewportsWindow()
+	{
+		auto& io = ImGui::GetIO();
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
 			ImGui::RenderPlatformWindowsDefault();
 		}
 	}

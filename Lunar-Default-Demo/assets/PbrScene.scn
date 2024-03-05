@@ -187,36 +187,6 @@
       },
       {
          "__class__" : "Entity",
-         "__fid__" : 21,
-         "__index__" : 8,
-         "__parent__" : 1,
-         "active" : false,
-         "component_list" : [ 22, 23 ],
-         "name" : "Cube"
-      },
-      {
-         "__class__" : "Transform",
-         "__fid__" : 22,
-         "__index__" : 1,
-         "__parent__" : 21,
-         "local_position" : [ -3.0, 0.0, 0.0 ],
-         "local_rotation" : [ 0.0, 0.0, 0.0, 1.0 ],
-         "local_scale" : [ 1.0, 1.0, 1.0 ]
-      },
-      {
-         "__class__" : "SkeletonMeshRenderer",
-         "__fid__" : 23,
-         "__index__" : 0,
-         "__parent__" : 21,
-         "cast_shadow" : true,
-         "material" : "/assets/Pbr/4.mat",
-         "mesh" : "/assets/lion3.lskelmesh",
-         "skeleton" : "/assets/lion3.lskeleton",
-         "skelanim" : "/assets/lion3.lskelanimclip",
-         "receive_shadow" : true
-      },
-      {
-         "__class__" : "Entity",
          "__fid__" : 24,
          "__index__" : 7,
          "__parent__" : 1,

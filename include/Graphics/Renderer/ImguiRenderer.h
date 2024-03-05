@@ -22,6 +22,8 @@ namespace luna::graphics
 
 		void UpdateViewportsWindow();
 
+		void RenderToOtherViewportsWindow();
+
 		ImguiTexture* GetImguiTexture(RHIResource* key);
 
 		ImguiTexture* AddImguiTexture(RHIResource* res);

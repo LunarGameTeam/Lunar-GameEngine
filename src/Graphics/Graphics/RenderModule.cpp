@@ -153,7 +153,7 @@ void RenderModule::RenderTick(float delta_time)
 		mMainSwapchain->Reset(mSwapchainDesc);
 		mGuiRenderer->OnSwapchainChange(mMainSwapchain);
 	}
-	
+	mGuiRenderer->RenderToOtherViewportsWindow();
 }
 
 RenderScene* RenderModule::AddScene()
