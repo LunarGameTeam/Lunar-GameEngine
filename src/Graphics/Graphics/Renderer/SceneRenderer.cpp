@@ -27,6 +27,10 @@ namespace luna::graphics
 		}
 		for (FrameGraphPassGeneratorPerView* eachGenerator : valueOut)
 		{
+			if (eachGenerator->GetRenderQueueSize() == 0)
+			{
+				continue;
+			}
 			eachGenerator->AddPassNode(frameGraph, curView);
 		}
 		for (FrameGraphPassGeneratorPerView* eachGenerator : valueOut)

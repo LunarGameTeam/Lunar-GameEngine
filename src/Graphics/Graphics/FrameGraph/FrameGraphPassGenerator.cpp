@@ -74,6 +74,10 @@ namespace luna::graphics
 	void FrameGraphMeshPassGenerator::FilterRenderObject(RenderView* curView)
 	{
 		FrameGraphPassGeneratorPerView::FilterRenderObject(curView);
+		if (mRoQueue.size() == 0)
+		{
+			return;
+		}
 		PerViewMeshDrawPassData* curData = curView->RequireData<PerViewMeshDrawPassData>();
 		for (auto& eachCommand : mAllCommandsPool)
 		{

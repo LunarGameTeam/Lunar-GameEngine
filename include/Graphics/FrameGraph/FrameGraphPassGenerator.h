@@ -35,6 +35,8 @@ namespace luna::graphics
 		virtual void FilterRenderObject(RenderView* curView);
 
 		void ClearRoQueue();
+
+		virtual const size_t GetRenderQueueSize() const { return mRoQueue.size(); };
 	protected:
 		virtual bool CheckRenderObject(const RenderObject* curRo) const = 0;
 	};
