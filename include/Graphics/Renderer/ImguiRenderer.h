@@ -2,7 +2,7 @@
 
 #include "Graphics/RenderConfig.h"
 #include "Graphics/RenderTypes.h"
-#include "Graphics/Renderer/ImGuiTexture.h"
+#include "Graphics/RHI/RhiImgui/ImGuiTexture.h"
 #include "Graphics/Renderer/RenderContext.h"
 namespace luna::graphics
 {
@@ -13,7 +13,7 @@ namespace luna::graphics
 
 		void Init(
 			RHISwapChain* mainSwapchain,
-			RenderResourceGenerateHelper* renderContext
+			RHIRenderQueue* renderQueue
 		);
 
 		void OnSwapchainChange(RHISwapChain* mainSwapchain);
@@ -36,11 +36,11 @@ namespace luna::graphics
 
 		RHISwapChain*                      mMainSwapchain;
 
-		RenderResourceGenerateHelper*      mRenderContext;
-
 		graphics::RHIFrameBufferPtr        mFrameBuffer[2];
 
 		RHISinglePoolSingleCmdListPtr      mGuiCmd;
+
+		RHIRenderQueue*                    mGraphQueue = nullptr;
 
 		void GenerateFountForImgui();
 

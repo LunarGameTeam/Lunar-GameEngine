@@ -5,7 +5,6 @@
 #include "Graphics/RHI/Vulkan/VulkanSwapchain.h"
 #include "Graphics/RHI/Vulkan/VulkanDevice.h"
 #include "Graphics/RHI/RHIDescriptorHeap.h"
-#include "Graphics/RenderModule.h"
 
 namespace luna::graphics
 {
@@ -63,7 +62,7 @@ public:
 		poolInfo.poolSizeCount = (uint32_t)pool_sizes.size();
 		poolInfo.pPoolSizes = pool_sizes.data();
 		poolInfo.maxSets = setCount;
-		VULKAN_ASSERT(sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().createDescriptorPool(&poolInfo, nullptr, &mPool));
+		VULKAN_ASSERT(sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice().createDescriptorPool(&poolInfo, nullptr, &mPool));
 	}
 
 	vk::DescriptorPool mPool = nullptr;

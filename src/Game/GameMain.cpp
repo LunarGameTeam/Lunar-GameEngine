@@ -2,10 +2,8 @@
 #include "Core/Platform/PlatformModule.h"
 #include "Core/Event/EventModule.h"
 #include "Core/Framework/LunaCore.h"
-
 #include "windows.h"
 #include "Animation/AnimationModule.h"
-#include "Graphics/RenderModule.h"
 #include "Game/GameModule.h"
 
 using namespace luna;

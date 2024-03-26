@@ -1,7 +1,9 @@
 #include "Graphics/FrameGraph/FrameGraphPassGenerator.h"
-#include "Graphics/RenderModule.h"
 #include "Graphics/ForwardPipeline/ForwardRenderData.h"
 #include "Graphics/FrameGraph/FrameGraphResource.h"
+#include "Graphics/RHI/RhiUtils/RHIResourceGenerateHelper.h"
+#include "Graphics/RHI/RHIDevice.h"
+#include "Graphics/Renderer/RenderContext.h"
 namespace luna::graphics
 {
 	void FrameGraphPassGeneratorPerView::FilterRenderObject(RenderView* curView)
@@ -32,13 +34,13 @@ namespace luna::graphics
 			RHIBufferDesc desc;
 			desc.mBufferUsage = RHIBufferUsage::StructureBuffer;
 			desc.mSize = CommonSize128K;
-			itor->second.mRoIndexBuffer = sRenderModule->GetRenderContext()->CreateBuffer(RHIHeapType::Default, desc);
+			itor->second.mRoIndexBuffer = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateBuffer(RHIHeapType::Default, desc);
 
 			ViewDesc viewDesc;
 			viewDesc.mViewType = RHIViewType::kStructuredBuffer;
 			viewDesc.mViewDimension = RHIViewDimension::BufferView;
 			viewDesc.mStructureStride = sizeof(uint32_t);
-			itor->second.mRoIndexBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
+			itor->second.mRoIndexBufferView = sGlobelRenderDevice->CreateView(viewDesc);
 			itor->second.mRoIndexBufferView->BindResource(itor->second.mRoIndexBuffer);
 		}
 		return itor->second.mRoIndexBufferView;
@@ -149,7 +151,7 @@ namespace luna::graphics
 				eachCommand.second.mDrawParameter.mMtl->UpdateBindingSet();
 				materialUpdated.insert(eachCommand.second.mDrawParameter.mMtl);
 			}
-			sRenderModule->GetRenderCommandHelper()->DrawMeshBatch(cmdList,eachCommand.second);
+			sGlobelRenderCommondEncoder->DrawMeshBatch(cmdList,eachCommand.second);
 		}
 	}
 }

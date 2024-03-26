@@ -1,13 +1,11 @@
 #include "Graphics/Asset/MaterialTemplate.h"
 #include "Core/Asset/Asset.h"
 #include "Core/Asset/AssetModule.h"
-
 #include "Core/Memory/PtrBinding.h"
-
 #include "Graphics/Asset/MaterialTemplate.h"
 #include "Graphics/Asset/TextureAsset.h"
-#include "Graphics/RenderModule.h"
-
+#include "Graphics/RHI/RHIPipeline.h"
+#include "Graphics/RHI/RHIDevice.h"
 namespace luna
 {
 
@@ -133,7 +131,7 @@ void MaterialBaseTemplateAsset::CompileShaderAndLayoutByType(
 	{
 		shaderPack.push_back(itor.second->GetRhiShader().get());
 	}
-	mLayout = GenerateAndCompileShaderLayout(sRenderModule->GetRHIDevice(), shaderPack);
+	mLayout = GenerateAndCompileShaderLayout(sGlobelRenderDevice, shaderPack);
 }
 
 LShaderInstance* MaterialBaseTemplateAsset::GetShaderByType(RHIShaderType type)

@@ -22,13 +22,11 @@
 
 #include "Graphics/RenderConfig.h"
 #include "Graphics/RenderTypes.h"
-
-#include "Graphics/Renderer/ImGuiTexture.h"
 #include "Graphics/Renderer/RenderContext.h"
 #include "Graphics/Renderer/SceneRenderer.h"
 #include "Graphics/Renderer/ImguiRenderer.h"
 #include "Graphics/RHI/RHITypes.h"
-#include "Graphics/RenderAssetManager/RenderAssetManager.h"
+
 
 namespace luna::graphics
 {
@@ -49,35 +47,10 @@ public:
 		return mMainSwapchain;
 	}
 
-	template <typename T>
-	T* GetDevice()
-	{
-		return static_cast<T*>(mRenderContext->mDevice.get());
-	};
-
-	RHIDevice* GetRHIDevice()
-	{
-		return mRenderContext->mDevice.get();
-	}
-
-	RenderResourceGenerateHelper* GetRenderContext()
-	{
-		return mRenderContext;
-	}
-
-	RenderCommandGenerateHelper* GetRenderCommandHelper()
-	{
-		return mRenderCommandEncoder;
-	}
-
 	inline RHIRenderQueue* GetCmdQueueCore()
 	{
-		return mRenderContext->mGraphicQueue;
+		return mGraphicQueue;
 	}
-
-	RenderDeviceType GetDeviceType() { return mRenderContext->mDeviceType; }
-
-	RenderAssetDataManager* GetAssetManager() { return &mRenderAssetManager; };
 
 	ImguiRenderer* GetGuiRenderer() { return mGuiRenderer.get(); };
 public:
@@ -93,8 +66,6 @@ protected:
 
 	void OnMainWindowResize(LWindow& window, WindowEvent& event);
 public:
-	RenderResourceGenerateHelper*      mRenderContext;
-	RenderCommandGenerateHelper*       mRenderCommandEncoder;
 	LSharedPtr<Texture2D>              mDefaultWhiteTexture;
 	LSharedPtr<Texture2D>              mDefaultNormalTexture;
 private:
@@ -103,6 +74,8 @@ private:
 	LSharedPtr<SceneRenderer> mRenderer;
 
 	RHISinglePoolSingleCmdListPtr mGraphicCmd;
+
+	RHIRenderQueuePtr    mGraphicQueue;
 
 	uint64_t             mFrameFenceValue = 0;
 	RHIFencePtr          mFrameFence;
@@ -115,8 +88,6 @@ private:
 	RHISwapChainPtr                    mMainSwapchain;
 
 	bool                               mNeedResizeSwapchain = false;
-
-	RenderAssetDataManager             mRenderAssetManager;
 };
 
 }

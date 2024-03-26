@@ -3,7 +3,7 @@
 #include "Core/Asset/AssetModule.h"
 #include "Graphics/FrameGraph/FrameGraphResource.h"
 #include "Graphics/Asset/MeshAssetUtils.h"
-#include "Graphics/RenderModule.h"
+#include "Graphics/Renderer/RenderContext.h"
 namespace luna::graphics
 {
 bool PostProcessPassGenerator::CheckRenderObject(const RenderObject* curRo) const
@@ -30,7 +30,7 @@ void PostProcessPassGenerator::AddPassNode(FrameGraphBuilder* builder, RenderVie
 
 	node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RHICmdList* cmdlist)
 		{
-			sRenderModule->GetRenderCommandHelper()->DrawFullScreen(cmdlist,this->mGammaCorrectionMtlInstance);
+			sGlobelRenderCommondEncoder->DrawFullScreen(cmdlist,this->mGammaCorrectionMtlInstance);
 		});
 };
 

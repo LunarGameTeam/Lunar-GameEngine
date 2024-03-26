@@ -1,6 +1,4 @@
 ﻿#include "Graphics/Renderer/RenderScene.h"
-#include "Graphics/RenderModule.h"
-
 #include "Graphics/Asset/MeshAsset.h"
 #include "Graphics/Asset/SkeletalMeshAsset.h"
 #include "Graphics/Asset/MeshAssetUtils.h"
@@ -8,13 +6,13 @@
 #include "Graphics/Renderer/MaterialInstance.h"
 #include "Graphics/Renderer/MaterialParam.h"
 #include "Graphics/Renderer/RenderView.h"
-
 #include "Graphics/FrameGraph/FrameGraph.h"
 #include "Core/Asset/AssetModule.h"
 #include "Graphics/Asset/ShaderAsset.h"
 #include "Graphics/Renderer/RenderLight.h"
 #include "Graphics/Renderer/SkeletonSkin.h"
-
+#include "Graphics/RHI/RHIDevice.h"
+#include "Graphics/Renderer/RenderContext.h"
 namespace luna::graphics
 {
 
@@ -32,14 +30,14 @@ RHIView* RenderSceneStagingMemory::AllocStructStageBuffer(size_t curBufferSize, 
 		RHIBufferDesc newBufferDesc;
 		newBufferDesc.mBufferUsage = RHIBufferUsage::TransferSrcBit | RHIBufferUsage::StructureBuffer;
 		newBufferDesc.mSize = SizeAligned2Pow(curBufferSize, CommonSize64K);
-		RHIResourcePtr newBuffer = sRenderModule->GetRenderContext()->mDevice->CreateBufferExt(newBufferDesc);
+		RHIResourcePtr newBuffer = sGlobelRenderDevice->CreateBufferExt(newBufferDesc);
 		mStageBufferPool.push_back(newBuffer);
 
 		ViewDesc viewDesc;
 		viewDesc.mViewType = useType;
 		viewDesc.mViewDimension = RHIViewDimension::BufferView;
 		viewDesc.mStructureStride = strideSize;
-		RHIViewPtr newBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
+		RHIViewPtr newBufferView = sGlobelRenderDevice->CreateView(viewDesc);
 		mStageBufferViewPool.push_back(newBufferView);
 		newBufferView->BindResource(newBuffer);
 	}
@@ -79,7 +77,7 @@ void RenderSceneStagingMemory::AddNewMemory(size_t memorySize)
 	memoryDesc.SizeInBytes = memorySize;
 	memoryDesc.Type = RHIHeapType::Upload;
 	mMemoryOffset = 0;
-	curMemoryData = sRenderModule->GetRenderContext()->mDevice->AllocMemory(memoryDesc);
+	curMemoryData = sGlobelRenderDevice->AllocMemory(memoryDesc);
 	mMemoryData.push_back(curMemoryData);
 	mMemoryDataSize.push_back(memorySize);
 }
@@ -291,16 +289,17 @@ GpuSceneUploadCopyCommand* RenderScene::AddCopyCommand()
 	return &mAllCopyCommand.back();
 }
 
-void RenderScene::AddCbufferCopyCommand(ShaderCBuffer* cbufferData, RHIResource* bufferOutput)
+void RenderScene::AddCbufferCopyCommand(ShaderCBuffer* cbufferData, RhiUniformBufferPack* bufferOutput)
 {
 	GpuSceneUploadCopyCommand* curCommand = AddCopyCommand();
 	RHIResource* lightParamBuffer = mStageBufferPool.AllocUniformStageBuffer(cbufferData)->mBindResource;
 	//cbuffer的更新只需要制作一个copy的指令
+	assert(cbufferData->mData.size() == bufferOutput->GetSize());
 	curCommand->mSrcOffset = 0;
-	curCommand->mDstOffset = 0;
-	curCommand->mCopyLength = SizeAligned2Pow(cbufferData->mData.size(), 256);
+	curCommand->mDstOffset = bufferOutput->GetOffset();
+	curCommand->mCopyLength = cbufferData->mData.size();
 	curCommand->mUniformBufferInput = lightParamBuffer;
-	curCommand->mStorageBufferOutput = bufferOutput;
+	curCommand->mStorageBufferOutput = bufferOutput->GetRhiBuffer();
 }
 
 RenderSceneUploadBufferPool* RenderScene::GetStageBufferPool()
@@ -345,7 +344,10 @@ void RenderScene::ExcuteCopy(RHICmdList* cmdList)
 		newOutputBarrierDesc.mStateAfter = ResourceState::kCopyDest;
 		curResourceBarrier.push_back(newInputBarrierDesc);
 	}
-	cmdList->ResourceBarrierExt(curResourceBarrier);
+	if(curResourceBarrier.size() != 0)
+	{
+		cmdList->ResourceBarrierExt(curResourceBarrier);
+	}
 	//执行GPUscene的更新指令
 	for (auto& eachCommand : mAllComputeCommand)
 	{
@@ -358,7 +360,7 @@ void RenderScene::ExcuteCopy(RHICmdList* cmdList)
 			eachCommand.mComputeMaterial->SetShaderInput(eachStorageBuffer.first, eachStorageBuffer.second);
 		}
 		eachCommand.mComputeMaterial->UpdateBindingSet();
-		sRenderModule->mRenderCommandEncoder->Dispatch(cmdList,eachCommand.mComputeMaterial, eachCommand.mDispatchSize);
+		sGlobelRenderCommondEncoder->Dispatch(cmdList,eachCommand.mComputeMaterial, eachCommand.mDispatchSize);
 	}
 	for (auto& eachCommand : mAllCopyCommand)
 	{
@@ -399,7 +401,10 @@ void RenderScene::ExcuteCopy(RHICmdList* cmdList)
 		newOutputBarrierDesc.mStateAfter = ResourceState::kVertexAndConstantBuffer;
 		curResourceBarrier.push_back(newInputBarrierDesc);
 	}
-	cmdList->ResourceBarrierExt(curResourceBarrier);
+	if (curResourceBarrier.size() != 0)
+	{
+		cmdList->ResourceBarrierExt(curResourceBarrier);
+	}
 	//清空所有GpuScene的更新指令
 	mAllComputeCommand.clear();
 	mAllCopyCommand.clear();

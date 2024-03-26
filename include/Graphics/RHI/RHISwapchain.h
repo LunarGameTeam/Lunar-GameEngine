@@ -12,6 +12,7 @@
 namespace luna::graphics
 {
 
+class RHIRenderQueue;
 
 class RENDER_API RHISwapChain : public RHIObject
 {
@@ -20,11 +21,13 @@ public:
 	LArray<RHIResourcePtr>    mBackBuffers;
 	LArray<RHIViewPtr>        mViews;
 	LWindow*                   mWindow = nullptr;
-
+protected:
+	RHIRenderQueue*            mQueue = nullptr;
 public:
-	RHISwapChain(LWindow* window, const RHISwapchainDesc& windowDesc) :
+	RHISwapChain(LWindow* window, const RHISwapchainDesc& windowDesc, RHIRenderQueue* queue) :
 		mWindowDesc(windowDesc),
-		mWindow(window)
+		mWindow(window),
+		mQueue(queue)
 	{
 	}
 

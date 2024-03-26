@@ -3,8 +3,6 @@
 #include "Graphics/RHI/Vulkan/VulkanSwapchain.h"
 #include "Graphics/RHI/Vulkan/VulkanDevice.h"
 #include "Graphics/RHI/Vulkan/VulkanRenderQueue.h"
-#include "Graphics/RenderModule.h"
-
 
 
 #include <Vulkan/vulkan_win32.h>
@@ -24,15 +22,15 @@ bool VulkanSwapChain::Init()
 		surfaceCreateInfo.hwnd = mWindow->GetWin32HWND();
 		surfaceCreateInfo.hinstance = GetModuleHandle(nullptr);
 
-		if (vkCreateWin32SurfaceKHR(sRenderModule->GetDevice<VulkanDevice>()->GetVkInstance(), &surfaceCreateInfo, nullptr, &mSurface) != VK_SUCCESS) {
+		if (vkCreateWin32SurfaceKHR(sGlobelRenderDevice->As<VulkanDevice>()->GetVkInstance(), &surfaceCreateInfo, nullptr, &mSurface) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create window surface!");
 		}
 
 	}
 	
-	vk::PhysicalDevice mPhysicalDevice = sRenderModule->GetDevice<VulkanDevice>()->GetPhysicalDevice();
+	vk::PhysicalDevice mPhysicalDevice = sGlobelRenderDevice->As<VulkanDevice>()->GetPhysicalDevice();
 	
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	auto surface_formats = mPhysicalDevice.getSurfaceFormatsKHR(mSurface);	
 	vk::SurfaceFormatKHR surfaceFormat;
 	for (const auto& surface : surface_formats)
@@ -110,7 +108,7 @@ bool VulkanSwapChain::Init()
 		backbufferViewDesc.mBaseMipLevel = 0;
 		backbufferViewDesc.mViewType = graphics::RHIViewType::kRenderTarget;
 		backbufferViewDesc.mViewDimension = graphics::RHIViewDimension::TextureView2D;
-		mViews[i] = sRenderModule->GetRHIDevice()->CreateView(backbufferViewDesc);
+		mViews[i] = sGlobelRenderDevice->As<VulkanDevice>()->CreateView(backbufferViewDesc);
 		mViews[i]->BindResource(mBackBuffers[i]);
 	}
 	mFrameIndex = 0;
@@ -190,7 +188,7 @@ vk::Extent2D VulkanSwapChain::chooseSwapExtent(const vk::SurfaceCapabilitiesKHR&
 void VulkanSwapChain::PresentFrame(RHIFence* fence, uint64_t waitValue)
 {
 	//vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
-	auto renderQueue = sRenderModule->GetCmdQueueCore()->As<VulkanRenderQueue>();
+	auto renderQueue = mQueue->As<VulkanRenderQueue>();
 
 	uint64_t tmp = std::numeric_limits<uint64_t>::max();
 	
@@ -231,8 +229,8 @@ bool VulkanSwapChain::Reset(const RHISwapchainDesc& windowDesc)
 
 uint32_t VulkanSwapChain::NextImage()
 {
-	auto renderQueue = sRenderModule->GetCmdQueueCore()->As<VulkanRenderQueue>();
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	auto renderQueue = mQueue->As<VulkanRenderQueue>();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 
 	mPrevFrameIdx = mFrameIndex;
 	VULKAN_ASSERT(device.acquireNextImageKHR(mSwapChain, UINT64_MAX, mImageAvailable[mPrevFrameIdx], nullptr, &mFrameIndex));	

@@ -1,6 +1,5 @@
 #include "Graphics/RHI/DirectX12/DX12Pipeline.h"
 #include "Core/Asset/AssetModule.h"
-#include "Graphics/RenderModule.h"
 #include "Graphics/RHI/DirectX12/DX12Device.h"
 #include "Graphics/RHI/DirectX12/DX12RenderPass.h"
 
@@ -183,7 +182,7 @@ void DX12PipelineStateGraphic::CreateGraphDrawPipelineImpl(
 	RenderPassDesc& renderPassDesc
 )
 {
-	ID3D12Device* dx12Device = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
+	ID3D12Device* dx12Device = sGlobelRenderDevice->As<DX12Device>()->GetDx12Device();
 	assert(dx12Device != nullptr);
 	//读取pipeline的信息
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC dx12Desc = GetPipelineDesc(*graphPipelineDesc, renderPassDesc);
@@ -243,7 +242,7 @@ DX12PipelineStateCompute::DX12PipelineStateCompute(LSharedPtr<RHIPipelineStateDe
 
 void DX12PipelineStateCompute::CreateComputePipelineImpl(RHIPipelineStateComputeDesc* computePipelineDesc)
 {
-	ID3D12Device* dx12Device = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
+	ID3D12Device* dx12Device = sGlobelRenderDevice->As<DX12Device>()->GetDx12Device();
 	assert(dx12Device != nullptr);
 	D3D12_COMPUTE_PIPELINE_STATE_DESC dx12Desc = {};
 	dx12Desc.CS = CD3DX12_SHADER_BYTECODE(computePipelineDesc->mShaders[RHIShaderType::Compute]->As<DX12ShaderBlob>()->GetDX12Blob());

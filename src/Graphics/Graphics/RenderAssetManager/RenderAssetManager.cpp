@@ -6,8 +6,8 @@
 #include "Graphics/RenderAssetManager/RenderAssetManager.h"
 #include "Graphics/Asset/MeshAsset.h"
 #include "Graphics/Asset/SkeletalMeshAsset.h"
-#include "Graphics/RenderModule.h"
 #include "Graphics/Asset/MeshAssetUtils.h"
+#include "Graphics/RHI/RhiUtils/RHIResourceGenerateHelper.h"
 namespace luna::graphics
 {
 	void RenderAssetDataMesh::Init(SubMesh* meshData)
@@ -29,17 +29,17 @@ namespace luna::graphics
 				combineData.back().mSkinValue = meshSkeletalData->mSkinData[vertId];
 			}
 			desc.mSize = sizeof(SkinRenderVertex) * mVertexSize;
-			mVB = sRenderModule->mRenderContext->CreateBuffer(RHIHeapType::Default, desc, combineData.data(), desc.mSize);
+			mVB = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateBuffer(RHIHeapType::Default, desc, combineData.data(), desc.mSize);
 		}
 		else
 		{
 			desc.mSize = sizeof(BaseVertex) * mVertexSize;
-			mVB = sRenderModule->mRenderContext->CreateBuffer(RHIHeapType::Default, desc, meshData->mVertexData.data(), desc.mSize);
+			mVB = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateBuffer(RHIHeapType::Default, desc, meshData->mVertexData.data(), desc.mSize);
 		}
 		mIndexSize = meshData->mIndexData.size();
 		desc.mSize = sizeof(uint32_t) * mIndexSize;
 		desc.mBufferUsage = RHIBufferUsage::IndexBufferBit;
-		mIB = sRenderModule->mRenderContext->CreateBuffer(RHIHeapType::Default, desc, meshData->mIndexData.data(), desc.mSize);
+		mIB = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateBuffer(RHIHeapType::Default, desc, meshData->mIndexData.data(), desc.mSize);
 	}
 
 	RenderAssetDataMesh* RenderAssetDataManager::GenerateRenderMesh(SubMesh* meshData)

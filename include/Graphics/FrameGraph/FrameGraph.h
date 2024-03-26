@@ -18,6 +18,8 @@ public:
 
 	void Clear();
 
+	void CleanUpVirtualMemory();
+
 	FGGraphDrawNode* AddGraphDrawPass(const LString& name);
 
 	LSharedPtr<FGTexture> CreateCommon2DTexture(
@@ -50,6 +52,14 @@ private:
 	size_t mMaxVirtualResourceId = 0;
 
 	LUnorderedMap<size_t, RHIResourcePtr> mPhysicResourceMap;
+
+	RHIMemoryPtr				mFGMemory;
+
+	size_t						mFGOffset = 0;
+
+	RHIResourcePtr FGCreateTexture(const RHIResDesc& resDesc);
+
+	RHIResourcePtr FGCreateBuffer(const RHIBufferDesc& resDesc);
 };
 
 }

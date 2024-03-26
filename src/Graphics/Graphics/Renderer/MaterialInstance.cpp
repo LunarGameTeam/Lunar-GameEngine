@@ -1,15 +1,11 @@
 ﻿#include "Graphics/Renderer/MaterialInstance.h"
-
-
-#include "Graphics/RenderModule.h"
+#include "Graphics/Asset/MaterialTemplate.h"
 #include "Graphics/Asset/ShaderAsset.h"
 #include "Graphics/Asset/TextureAsset.h"
-
-
 #include "Graphics/RHI/RHIResource.h"
-
 #include "Core/Memory/PtrBinding.h"
 #include "Graphics/RHI/RHIPipeline.h"
+#include "Graphics/RHI/RhiUtils/RHIResourceGenerateHelper.h"
 
 
 namespace luna::graphics
@@ -193,7 +189,7 @@ void MaterialInstanceBase::SetAsset(MaterialBaseTemplateAsset* asset)
 	mBindingDirty.clear();
 	for (int32_t frameId = 0; frameId < 2; ++frameId)
 	{
-		RHIBindingSetPtr newBindingSet = sRenderModule->GetRenderContext()->CreateBindingset(mAsset->GetBindingSetLayout());
+		RHIBindingSetPtr newBindingSet = sGlobelRhiResourceGenerator->CreateBindingsetByDefaultPool(mAsset->GetBindingSetLayout());
 		mBindingSets.push_back(newBindingSet);
 		mBindingDirty.push_back(true);
 	}
@@ -258,12 +254,12 @@ void MaterialInstanceComputeBase::SetAsset(MaterialBaseTemplateAsset* asset)
 	{
 		desc.mShaders.insert({ itor.first,itor.second->GetRhiShader().get() });
 	}
-	mPipeline = sRenderModule->mRenderContext->CreatePipelineCompute(desc);
+	mPipeline = sGlobelRhiResourceGenerator->GetDevicePipelineGenerator()->CreatePipelineCompute(desc);
 	mBindingSets.clear();
 	mBindingDirty.clear();
 	for (int32_t frameId = 0; frameId < 2; ++frameId)
 	{
-		RHIBindingSetPtr newBindingSet = sRenderModule->GetRenderContext()->CreateBindingset(mPipeline->GetLayout());
+		RHIBindingSetPtr newBindingSet = sGlobelRhiResourceGenerator->CreateBindingsetByDefaultPool(mPipeline->GetLayout());
 		mBindingSets.push_back(newBindingSet);
 		mBindingDirty.push_back(true);
 	}
@@ -317,7 +313,7 @@ RHIPipelineState* MaterialInstanceGraphBase::GetPipeline(RHIVertexLayout* layout
 	RHIBlendStateTargetDesc blend = {};
 	desc.BlendState.RenderTarget.push_back(blend);
 
-	return sRenderModule->mRenderContext->CreatePipelineGraphic(desc, *layout, passDesc);
+	return sGlobelRhiResourceGenerator->GetDevicePipelineGenerator()->CreatePipelineGraphic(desc, *layout, passDesc);
 }
 
 
@@ -328,10 +324,17 @@ MaterialInstance::MaterialInstance() :
 {
 
 }
-
+MaterialInstance::~MaterialInstance()
+{
+	if (mCBuffer != nullptr)
+	{
+		delete mCBuffer;
+	}
+}
 void MaterialInstance::Init()
 {
 	MaterialTemplateAsset* materialTemplate = dynamic_cast<MaterialTemplateAsset*>(mAsset);
+	mCBuffer = new RhiUniformBufferPack();
 	if (materialTemplate)
 	{
 		mTemplateParams = materialTemplate->GetTemplateParams();
@@ -339,24 +342,14 @@ void MaterialInstance::Init()
 		if (HasBindPoint(ParamID_MaterialBuffer))
 		{
 			RHICBufferDesc materialBufferDesc = GetConstantBufferDesc(ParamID_MaterialBuffer);
-
-			RHIBufferDesc desc;
-			desc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
-			desc.mSize = materialBufferDesc.mSize;
-			mCBuffer = sRenderModule->GetRenderContext()->CreateBuffer(RHIHeapType::Upload,desc);
-
-			ViewDesc viewDesc;
-			viewDesc.mViewType = RHIViewType::kConstantBuffer;
-			viewDesc.mViewDimension = RHIViewDimension::BufferView;
-			mCBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
-			mCBufferView->BindResource(mCBuffer);
+			sGlobelRhiResourceGenerator->GetDeviceUniformObjectGenerator()->CreateUniformBufferAndView(materialBufferDesc, *mCBuffer, mCBufferView);
 		}
 		UpdateParamsToBuffer();
 		PARAM_ID(_ClampSampler);
 		PARAM_ID(_RepeatSampler);
 	
-		SetShaderInput(ParamID__ClampSampler, sRenderModule->GetRenderContext()->mClamp.mView);
-		SetShaderInput(ParamID__RepeatSampler, sRenderModule->GetRenderContext()->mRepeat.mView);		
+		SetShaderInput(ParamID__ClampSampler, sGlobelRhiResourceGenerator->GetClampSamper().mView);
+		SetShaderInput(ParamID__RepeatSampler, sGlobelRhiResourceGenerator->GetRepeatSamper().mView);
 	}
 }
 
@@ -447,9 +440,10 @@ void MaterialInstance::UpdateParamsToBuffer()
 	}	
 	if (HasBindPoint(ParamID_MaterialBuffer))
 	{
-		void* dst = mCBuffer->Map();
-		memcpy(dst, data.data(), data.size());
-		mCBuffer->Unmap();
+		//todo：切换成GPU buffer
+		//void* dst = mCBuffer.Map();
+		//memcpy(dst, data.data(), data.size());
+		//mCBuffer->Unmap();
 	}
 }
 

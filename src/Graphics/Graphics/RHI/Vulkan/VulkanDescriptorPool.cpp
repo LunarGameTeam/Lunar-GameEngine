@@ -5,7 +5,7 @@ namespace luna::graphics
 
 RENDER_API VKDescriptorSetSegment* AllocateDescriptorSet(RHIDescriptorPool* pool, vk::DescriptorSetLayout& set_layout, const std::map<vk::DescriptorType, size_t>& count)
 {
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	VulkanDescriptorPool* vkPool = pool->As<VulkanDescriptorPool>();
 
 	VKDescriptorSetSegment* res = new VKDescriptorSetSegment();
@@ -23,7 +23,7 @@ RENDER_API VKDescriptorSetSegment* AllocateDescriptorSet(RHIDescriptorPool* pool
 
 VKDescriptorSetSegment::~VKDescriptorSetSegment()
 {
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	device.freeDescriptorSets(pool, set);
 }
 

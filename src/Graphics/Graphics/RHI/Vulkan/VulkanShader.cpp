@@ -1,7 +1,5 @@
 #include "Graphics/RHI/Vulkan/VulkanShader.h"
 #include "Graphics/RHI/Vulkan/VulkanDevice.h"
-
-#include "Graphics/RenderModule.h"
 #include "spirv_reflect.h"
 #include "Core/Asset/AssetModule.h"
 #include "Graphics/RHI/ShaderCompile.h"
@@ -145,7 +143,7 @@ void ReflectionVar(CBufferVar& cbVar ,const SpvReflectBlockVariable& var)
 
 bool VulkanShaderBlob::InitShader(const RHIShaderDesc& desc)
 {
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	std::vector<uint32_t> shaderBytes;
 	Microsoft::WRL::ComPtr<IDxcBlob> code;
 	DxcCompile(desc.mType, desc.mName, desc.mContent, shaderBytes, code, desc.mShaderMacros);

@@ -1,11 +1,7 @@
 #pragma once
 #include "Graphics/RHI/Vulkan/VulkanView.h"
-
-
 #include "Graphics/RHI/Vulkan/VulkanSwapchain.h"
 #include "Graphics/RHI/Vulkan/VulkanDevice.h"
-#include "Graphics/RenderModule.h"
-
 namespace luna::graphics
 {
 
@@ -14,7 +10,8 @@ void VulkanView::BindResource(RHIResource* res)
 {
 	mBindResource = res;
 	mRes = res->As<VulkanResource>();
-	VkDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	
+	VkDevice device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	auto dimension = mRes->GetDesc().Dimension;
 
 	switch (mViewDesc.mViewType)
@@ -77,7 +74,7 @@ bool VulkanView::Init(RHIDescriptorPool* descriptor_heap)
 
 void VulkanView::CreateImgeView()
 {
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	vk::ImageViewCreateInfo createInfo{};
 	createInfo.image = mRes->mImage;	
 	switch (mViewDesc.mViewDimension)
@@ -134,7 +131,7 @@ void VulkanView::CreateImgeView()
 
 VulkanView::~VulkanView()
 {
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	if (mImageView)
 	{
 		device.destroyImageView(mImageView);

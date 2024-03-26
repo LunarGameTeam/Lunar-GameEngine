@@ -1,6 +1,5 @@
 #include "Game/Light.h"
 #include "Core/Object/Transform.h"
-#include "Graphics/RenderModule.h"
 #include "Graphics/Renderer/RenderLight.h"
 #include "Game/GameModule.h"
 namespace luna

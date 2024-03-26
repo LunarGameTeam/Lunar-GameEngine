@@ -7,9 +7,6 @@
 #include "DX12BindingSet.h"
 #include "DX12View.h"
 
-#include "Graphics/RenderModule.h"
-
-
 namespace luna::graphics
 {
 
@@ -94,7 +91,7 @@ DX12CmdSignature::DX12CmdSignature(
 	newSignatureDesc.pArgumentDescs = allIndirectDesc.data();
 	DX12BindingSetLayout* dx12BindingSetLayout = pipeline->GetLayout()->As<DX12BindingSetLayout>();
 	HRESULT hr;
-	ID3D12Device* dxDevice = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
+	ID3D12Device* dxDevice = sGlobelRenderDevice->As<DX12Device>()->GetDx12Device();
 	hr = dxDevice->CreateCommandSignature(&newSignatureDesc, dx12BindingSetLayout->GetRootSignature(), IID_PPV_ARGS(&mDxCmdSignature));
 	assert(SUCCEEDED(hr));
 }
@@ -130,7 +127,7 @@ DX12GraphicCmdList::DX12GraphicCmdList(ID3D12CommandAllocator* dxCmdAllocator, R
 {
 
 	//获取directx设备
-	ID3D12Device* dxDevice = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
+	ID3D12Device* dxDevice = sGlobelRenderDevice->As<DX12Device>()->GetDx12Device();
 	//创建并解锁alloctor
 	D3D12_COMMAND_LIST_TYPE dxCmdListType;
 	GetDirectXCommondlistType(cmdListType, dxCmdListType);
@@ -240,9 +237,37 @@ void DX12GraphicCmdList::CopyBufferToTexture(
 {
 	DX12Resource* dx12DstRes = target_resource->As<DX12Resource>();
 	DX12Resource* dx12SrcRes = source_resource->As<DX12Resource>();
-
 	LUNA_ASSERT(dx12DstRes->mLayout.pTotalBytes <= source_resource->GetMemoryRequirements().size);
-	LUNA_ASSERT(dx12DstRes->GetMemoryRequirements().size == source_resource->GetMemoryRequirements().size);
+	size_t srcLayoutCount = 0;
+	for (size_t depthOrArrayIndex = 0; depthOrArrayIndex < sourceCopyOffset.mEachArrayMember.size(); ++depthOrArrayIndex)
+	{
+		srcLayoutCount += sourceCopyOffset.mEachArrayMember[depthOrArrayIndex].mEachMipmapLevelSize.size();
+	}
+	LUNA_ASSERT(dx12DstRes->mLayout.pLayouts.size() == srcLayoutCount);
+
+	size_t curCopyLayerIndex = 0;
+	size_t curCopyLayerOffset = 0;
+	for (size_t depthOrArrayIndex = 0; depthOrArrayIndex < sourceCopyOffset.mEachArrayMember.size(); ++depthOrArrayIndex)
+	{
+		const RHISubResourceCopyLayerDesc& curArrayLayer = sourceCopyOffset.mEachArrayMember[depthOrArrayIndex];
+		for (size_t mipIndex = 0; mipIndex < curArrayLayer.mEachMipmapLevelSize.size(); ++mipIndex)
+		{
+			size_t curMipSize = curArrayLayer.mEachMipmapLevelSize[mipIndex];
+			D3D12_TEXTURE_COPY_LOCATION dstCopy = {};
+			dstCopy.Type = D3D12_TEXTURE_COPY_TYPE::D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+			dstCopy.pResource = dx12DstRes->mDxRes.Get();
+			dstCopy.SubresourceIndex = curCopyLayerIndex;
+			D3D12_TEXTURE_COPY_LOCATION dxSrcCopy;
+			dxSrcCopy.Type = D3D12_TEXTURE_COPY_TYPE::D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+			dxSrcCopy.pResource = dx12SrcRes->mDxRes.Get();
+			dxSrcCopy.PlacedFootprint = dx12DstRes->mLayout.pLayouts[curCopyLayerIndex];
+			size_t element_size = dxSrcCopy.PlacedFootprint.Footprint.RowPitch / dxSrcCopy.PlacedFootprint.Footprint.Height;
+			dxSrcCopy.PlacedFootprint.Offset = curCopyLayerOffset;
+			mDxCmdList->CopyTextureRegion(&dstCopy, 0, 0, 0, &dxSrcCopy, nullptr);
+			curCopyLayerIndex += 1;
+			curCopyLayerOffset += curMipSize;
+		}
+	}
 	for (UINT i = 0; i < dx12DstRes->mLayout.pLayouts.size(); ++i)
 	{
 		D3D12_TEXTURE_COPY_LOCATION dstCopy = {};
@@ -311,7 +336,7 @@ void DX12GraphicCmdList::SetBiningSetLayoutExt(
 void DX12GraphicCmdList::BindDescriptorHeap()
 {
 	//获取directx设备
-	DX12Device* dxDevice = sRenderModule->GetDevice<DX12Device>();
+	DX12Device* dxDevice = sGlobelRenderDevice->As<DX12Device>();
 	Dx12GpuDescriptorHeap* gpu_heap_srv = dxDevice->GetGpuDescriptorHeapByType(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	Dx12GpuDescriptorHeap* gpu_heap_sampler = dxDevice->GetGpuDescriptorHeapByType(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 	ID3D12DescriptorHeap * const heap_value[2] = { gpu_heap_srv->GetDeviceHeap(),gpu_heap_sampler->GetDeviceHeap()};
@@ -713,6 +738,7 @@ void DX12GraphicCmdList::ResourceBarrierExt(const ResourceBarrierDesc& barrier)
 
 void DX12GraphicCmdList::ResourceBarrierExt(const LArray<ResourceBarrierDesc>& desc)
 {
+	assert(desc.size() != 0);
 	std::vector<D3D12_RESOURCE_BARRIER> dxBarriers;
 	for (auto &barrier : desc)
 	{
@@ -761,7 +787,7 @@ void DX12GraphicCmdList::ResourceBarrierExt(const LArray<ResourceBarrierDesc>& d
 void GenerateDX12CommandPool(RHICmdListType listType, Microsoft::WRL::ComPtr<ID3D12CommandAllocator>& ppCommandAllocator)
 {
 	//获取directx设备
-	ID3D12Device* dxDevice = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
+	ID3D12Device* dxDevice = sGlobelRenderDevice->As<DX12Device>()->GetDx12Device();
 
 	//创建并解锁alloctor
 	D3D12_COMMAND_LIST_TYPE dxCmdListType;

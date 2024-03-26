@@ -3,14 +3,13 @@
 #include "Core/CoreMin.h"
 
 #include "Graphics/RHI/DirectX12/DX12Device.h"
-#include "Graphics/RenderModule.h"
 
 namespace luna::graphics
 {
 DX12Memory::DX12Memory(const RHIMemoryDesc& memoryDesc) : RHIMemory(memoryDesc)
 {
 	//获取directx设备
-	ID3D12Device* dxDevice = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
+	ID3D12Device* dxDevice = sGlobelRenderDevice->As<DX12Device>()->GetDx12Device();
 	D3D12_HEAP_DESC desc{};
 	desc.Alignment = memoryDesc.Alignment;
 	desc.SizeInBytes = memoryDesc.SizeInBytes;

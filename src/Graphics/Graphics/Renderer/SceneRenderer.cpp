@@ -63,6 +63,11 @@ namespace luna::graphics
 		mRenderPipeline.GeneratePerViwewPass(&mFrameGraphBuilder, curView);
 	}
 
+	void SceneRenderer::OnFrameBegin()
+	{
+		mFrameGraphBuilder.CleanUpVirtualMemory();
+	}
+
 	void SceneRenderer::Render(RenderScene* renderScene, RHICmdList* cmdList)
 	{
 		renderScene->GetAllView(mAllViews);

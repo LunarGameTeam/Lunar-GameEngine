@@ -1,7 +1,6 @@
 #include "DX12RenderQueue.h"
 #include "DX12Swapchain.h"
 #include "DX12Fence.h"
-#include "Graphics/RenderModule.h"
 #include "Graphics/RHI/DirectX12/DX12Device.h"
 
 using Microsoft::WRL::ComPtr;
@@ -30,7 +29,7 @@ DX12RenderQueue::DX12RenderQueue(RHIQueueType type)
 		queueDesc.Type = D3D12_COMMAND_LIST_TYPE_DIRECT;
 		break;
 	}
-	ID3D12Device* directx_device = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
+	ID3D12Device* directx_device = sGlobelRenderDevice->As<DX12Device>()->GetDx12Device();
 	hr = directx_device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&mDirectQueue));
 	assert(SUCCEEDED(hr));
 	mDirectQueue->SetName(StringToWstring("direct queue").c_str());
@@ -64,7 +63,7 @@ ID3D12CommandQueue* DX12RenderQueue::GetCommandQueueByPipelineType(const RHICmdL
 
 RHISwapChainPtr DX12RenderQueue::CreateSwapChain(LWindow* window,const RHISwapchainDesc& windowDesc)
 {	
-	RHISwapChainPtr swapchain = CreateRHIObject<DX12SwapChain>(window, windowDesc);
+	RHISwapChainPtr swapchain = CreateRHIObject<DX12SwapChain>(window, windowDesc,this);
 	swapchain->As<DX12SwapChain>()->InitSwapchain(mDirectQueue.Get());
 	return swapchain;
 }

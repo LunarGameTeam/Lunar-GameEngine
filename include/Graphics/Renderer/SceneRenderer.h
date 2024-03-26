@@ -35,6 +35,8 @@ namespace luna::graphics
 		SceneRenderPipeline* GetSceneRenderPipeline() { return &mRenderPipeline; };
 
 		void PrepareSceneRender(RenderScene* renderScene);
+
+		void OnFrameBegin();
 	private:
 
 		void GeneratePassByView(RenderScene* renderScene,RenderView* curView);

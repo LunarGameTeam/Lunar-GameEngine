@@ -31,5 +31,7 @@ public:
 	const D3D12_DESCRIPTOR_HEAP_TYPE& GetDescriptorHeapType() { return mHeapType; }
 private:
 	bool GetDescriptorType(D3D12_DESCRIPTOR_HEAP_TYPE& descriptor_type);
+	void GetDimensionSrv(const RHIResDimension resDimension,D3D12_SHADER_RESOURCE_VIEW_DESC& srvDesc);
+	void GetDimensionUav(const RHIResDimension resDimension, D3D12_UNORDERED_ACCESS_VIEW_DESC& uavDesc);
 };
 }

@@ -17,7 +17,7 @@ VulkanRenderPass::VulkanRenderPass(const RenderPassDesc& desc)
 	std::vector<vk::SubpassDescription> subpasses;
 	std::vector<vk::AttachmentDescription> descriptions;
 	
-	vk::Device mDevice = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device mDevice = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	auto convertLoad = [](LoadOp loadOp)->auto
 	{
 		switch (loadOp)

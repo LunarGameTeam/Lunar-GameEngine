@@ -1,9 +1,6 @@
 #include "Graphics/RHI/DirectX12/DX12Swapchain.h"
 #include "Graphics/RHI/DirectX12/DX12RenderQueue.h"
 #include "Graphics/RHI/DirectX12/DX12Device.h"
-
-#include "Graphics/RenderModule.h"
-
 using namespace Microsoft::WRL;
 
 
@@ -30,7 +27,7 @@ bool DX12SwapChain::InitSwapchain(ID3D12CommandQueue* cmdQueue)
 
 bool DX12SwapChain::Reset(const RHISwapchainDesc& window_width_in)
 {
-	LDirectXGIFactory* dxGIFactor = sRenderModule->GetDevice<DX12Device>()->GetDxGIFactory();
+	LDirectXGIFactory* dxGIFactor = sGlobelRenderDevice->As<DX12Device>()->GetDxGIFactory();
 	assert(dxGIFactor != nullptr);
 	//重新创建交换链
 	if (mSwapChain != NULL)
@@ -67,7 +64,7 @@ bool DX12SwapChain::Reset(const RHISwapchainDesc& window_width_in)
 		backbufferViewDesc.mBaseMipLevel = 0;
 		backbufferViewDesc.mViewType = graphics::RHIViewType::kRenderTarget;
 		backbufferViewDesc.mViewDimension = graphics::RHIViewDimension::TextureView2D;
-		RHIViewPtr back_rt_view = sRenderModule->GetRHIDevice()->CreateView(backbufferViewDesc);
+		RHIViewPtr back_rt_view = sGlobelRenderDevice->As<DX12Device>()->CreateView(backbufferViewDesc);
 		back_rt_view->BindResource(back_rt_tex);
 		mViews.push_back(back_rt_view);
 	}

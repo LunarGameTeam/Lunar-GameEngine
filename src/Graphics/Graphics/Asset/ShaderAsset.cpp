@@ -4,8 +4,8 @@
 #include "Core/Math/Math.h"
 #include "Core/Foundation/String.h"
 #include "Core/Asset/AssetModule.h"
-#include "Graphics/RenderModule.h"
-
+#include "Graphics/RHI/RhiUtils/RHIResourceGenerateHelper.h"
+#include "Graphics/RHI/RHIDevice.h"
 
 namespace luna::graphics
 {
@@ -74,8 +74,8 @@ void LShaderInstance::Init(
 			default:
 			break;
 		}
-		mRhiShader = sRenderModule->GetRenderContext()->CreateShader(shaderDesc);
-		mShaderCacheId = sRenderModule->GetRenderContext()->GetShaderId(mRhiShader);
+		mRhiShader = sGlobelRhiResourceGenerator->GetDeviceShaderGenerator()->CreateShader(shaderDesc);
+		mShaderCacheId = sGlobelRhiResourceGenerator->GetDeviceShaderGenerator()->GetDataGlobelId(mRhiShader);
 
 		std::vector<RHIBindPoint> bindingKeys;
 		std::map<std::tuple<uint32_t, uint32_t>, RHIBindPoint> result;
@@ -93,7 +93,7 @@ void LShaderInstance::Init(
 		{
 		}
 
-		mLayout = sRenderModule->GetRHIDevice()->CreateBindingSetLayout(bindingKeys, mRhiShader->mBindConstants);
+		mLayout = sGlobelRenderDevice->CreateBindingSetLayout(bindingKeys, mRhiShader->mBindConstants);
 		mInit = true;
 	}
 }

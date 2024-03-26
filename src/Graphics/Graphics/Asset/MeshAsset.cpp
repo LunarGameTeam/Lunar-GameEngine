@@ -1,10 +1,8 @@
 ﻿#include "Graphics/Asset/MeshAsset.h"
-
-#include "Graphics/RenderModule.h"
-
 #include "Core/CoreMin.h"
 #include "Core/Memory/PtrBinding.h"
 #include "Graphics/Renderer/RenderMesh.h"
+#include "Graphics/Renderer/RenderContext.h"
 
 #include <algorithm>
 
@@ -40,7 +38,7 @@ namespace luna::graphics
 	{
 		if(!mMeshData)
 		{
-			mMeshData = luna::sRenderModule->GetAssetManager()->GenerateRenderMesh(this);	
+			mMeshData = sGlobelRenderResourceContext->GetAssetManager()->GenerateRenderMesh(this);
 		}
 		return mMeshData;
 	}
@@ -49,7 +47,7 @@ namespace luna::graphics
 	{
 		if (mMeshData)
 		{
-			luna::sRenderModule->GetAssetManager()->DestroyRenderMesh(mMeshData);
+			sGlobelRenderResourceContext->GetAssetManager()->DestroyRenderMesh(mMeshData);
 		}
 	}
 

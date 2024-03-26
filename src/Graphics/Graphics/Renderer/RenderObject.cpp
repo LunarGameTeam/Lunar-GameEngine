@@ -1,8 +1,10 @@
 ﻿#include "Graphics/Renderer/RenderObject.h"
 #include "Graphics/RHI/RHIPipeline.h"
 #include "Graphics/Asset/MaterialTemplate.h"
-#include "Graphics/RenderModule.h"
 #include "Core/Asset/AssetModule.h"
+#include "Graphics/RHI/RhiUtils/RHIResourceGenerateHelper.h"
+#include "Graphics/RHI/RHIDevice.h"
+#include "Graphics/Renderer/RenderScene.h"
 namespace luna::graphics
 {
 	RenderObject::RenderObject()
@@ -20,13 +22,13 @@ namespace luna::graphics
 		RHIBufferDesc desc;
 		desc.mBufferUsage = RHIBufferUsage::StructureBuffer;
 		desc.mSize = elementSize * 4096;
-		mRoMessagePtr = sRenderModule->GetRenderContext()->CreateBuffer(RHIHeapType::Default, desc);
+		mRoMessagePtr = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateBuffer(RHIHeapType::Default, desc);
 
 		ViewDesc viewDesc;
 		viewDesc.mViewType = RHIViewType::kRWStructuredBuffer;
 		viewDesc.mViewDimension = RHIViewDimension::BufferView;
 		viewDesc.mStructureStride = sizeof(LMatrix4f);
-		mRoMessageView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
+		mRoMessageView = sGlobelRenderDevice->CreateView(viewDesc);
 		mRoMessageView->BindResource(mRoMessagePtr);
 
 		mMaterial = sAssetModule->LoadAsset<MaterialComputeAsset>("/assets/built-in/RoDataCopy.mat");

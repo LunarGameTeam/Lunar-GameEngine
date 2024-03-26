@@ -31,7 +31,7 @@ void VulkanPipelineStateGraphic::CreateGraphDrawPipelineImpl(
 	RenderPassDesc& renderPassDesc
 )
 {
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 
 	vk::PipelineRenderingCreateInfo renderingInfos;
 	std::vector<vk::Format> colors;
@@ -281,7 +281,7 @@ VulkanPipelineStateCompute::VulkanPipelineStateCompute(LSharedPtr<RHIPipelineSta
 void VulkanPipelineStateCompute::CreateComputePipelineImpl(RHIPipelineStateComputeDesc* computePipelineDesc)
 {
 	vk::ComputePipelineCreateInfo pipelineInfo{};
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	pipelineInfo.stage.stage = vk::ShaderStageFlagBits::eCompute;
 	pipelineInfo.stage.module = computePipelineDesc->mShaders[RHIShaderType::Compute]->As<VulkanShaderBlob>()->mShaderModule;
 	pipelineInfo.stage.pName = "CSMain";

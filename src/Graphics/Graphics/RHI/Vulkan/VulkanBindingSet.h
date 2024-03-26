@@ -1,8 +1,6 @@
 #pragma once
 #include "Graphics/RenderConfig.h"
 #include "Graphics/RHI/RHIBindingSetLayout.h"
-#include "Graphics/RenderModule.h"
-
 #include "Graphics/RHI/Vulkan/VulkanPch.h"
 #include "VulkanDescriptorPool.h"
 

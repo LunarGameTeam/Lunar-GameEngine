@@ -931,6 +931,36 @@ D3D12_SRV_DIMENSION RENDER_API GetSrvDimentionByView(RHIViewDimension view_dimen
 	}
 	return D3D12_SRV_DIMENSION::D3D12_SRV_DIMENSION_UNKNOWN;
 }
+D3D12_UAV_DIMENSION RENDER_API GetUavDimentionByView(RHIViewDimension view_dimension)
+{
+	switch (view_dimension)
+	{
+	case luna::graphics::RHIViewDimension::Unknown:
+		return D3D12_UAV_DIMENSION::D3D12_UAV_DIMENSION_UNKNOWN;
+		break;
+	case luna::graphics::RHIViewDimension::BufferView:
+		return D3D12_UAV_DIMENSION::D3D12_UAV_DIMENSION_BUFFER;
+		break;
+	case luna::graphics::RHIViewDimension::TextureView1D:
+		return D3D12_UAV_DIMENSION::D3D12_UAV_DIMENSION_TEXTURE1D;
+		break;
+	case luna::graphics::RHIViewDimension::TextureView1DArray:
+		return D3D12_UAV_DIMENSION::D3D12_UAV_DIMENSION_TEXTURE1DARRAY;
+		break;
+	case luna::graphics::RHIViewDimension::TextureView2D:
+		return D3D12_UAV_DIMENSION::D3D12_UAV_DIMENSION_TEXTURE2D;
+		break;
+	case luna::graphics::RHIViewDimension::TextureView2DArray:
+		return D3D12_UAV_DIMENSION::D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
+		break;
+	case luna::graphics::RHIViewDimension::TextureView3D:
+		return D3D12_UAV_DIMENSION::D3D12_UAV_DIMENSION_TEXTURE3D;
+		break;
+	default:
+		break;
+	}
+	return D3D12_UAV_DIMENSION::D3D12_UAV_DIMENSION_UNKNOWN;
+}
 
 D3D12_SHADER_RESOURCE_VIEW_DESC RENDER_API GetShaderResourceViewDesc(const LShaderResourceViewDesc& srv_desc)
 {
@@ -1021,80 +1051,6 @@ D3D12_BUFFER_UAV_FLAGS RENDER_API GetBufferUavFlags(LBufferUavFlag uav_flag)
 		break;
 	}
 	return D3D12_BUFFER_UAV_FLAGS::D3D12_BUFFER_UAV_FLAG_NONE;
-}
-
-D3D12_UAV_DIMENSION RENDER_API GetUavDimention(LUAVDimention uav_dimention)
-{
-	switch (uav_dimention)
-	{
-	case LUAVDimention::LUNA_UAV_DIMENSION_UNKNOWN:
-		return D3D12_UAV_DIMENSION::D3D12_UAV_DIMENSION_UNKNOWN;
-		break;
-	case LUAVDimention::LUNA_UAV_DIMENSION_BUFFER:
-		return D3D12_UAV_DIMENSION::D3D12_UAV_DIMENSION_BUFFER;
-		break;
-	case LUAVDimention::LUNA_UAV_DIMENSION_TEXTURE1D:
-		return D3D12_UAV_DIMENSION::D3D12_UAV_DIMENSION_TEXTURE1D;
-		break;
-	case LUAVDimention::LUNA_UAV_DIMENSION_TEXTURE1DARRAY:
-		return D3D12_UAV_DIMENSION::D3D12_UAV_DIMENSION_TEXTURE1DARRAY;
-		break;
-	case LUAVDimention::LUNA_UAV_DIMENSION_TEXTURE2D:
-		return D3D12_UAV_DIMENSION::D3D12_UAV_DIMENSION_TEXTURE2D;
-		break;
-	case LUAVDimention::LUNA_UAV_DIMENSION_TEXTURE2DARRAY:
-		return D3D12_UAV_DIMENSION::D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
-		break;
-	case LUAVDimention::LUNA_UAV_DIMENSION_TEXTURE3D:
-		return D3D12_UAV_DIMENSION::D3D12_UAV_DIMENSION_TEXTURE3D;
-		break;
-	default:
-		break;
-	}
-	return D3D12_UAV_DIMENSION::D3D12_UAV_DIMENSION_UNKNOWN;
-}
-
-D3D12_UNORDERED_ACCESS_VIEW_DESC RENDER_API GetUnorderedAccessViewDesc(const LUnorderedAccessViewDesc& uav_desc)
-{
-	D3D12_UNORDERED_ACCESS_VIEW_DESC desc_out = {};
-	desc_out.Format = GetGraphicFormat(uav_desc.Format);
-	desc_out.ViewDimension = GetUavDimention(uav_desc.ViewDimension);
-	switch (uav_desc.ViewDimension)
-	{
-	case LUAVDimention::LUNA_UAV_DIMENSION_UNKNOWN:
-		break;
-	case LUAVDimention::LUNA_UAV_DIMENSION_BUFFER:
-		desc_out.Buffer.CounterOffsetInBytes = uav_desc.CounterOffsetInBytes;
-		desc_out.Buffer.FirstElement = uav_desc.FirstElement;
-		desc_out.Buffer.Flags = GetBufferUavFlags(uav_desc.Flags);
-		desc_out.Buffer.NumElements = uav_desc.NumElements;
-		desc_out.Buffer.StructureByteStride = uav_desc.StructureByteStride;
-		break;
-	case LUAVDimention::LUNA_UAV_DIMENSION_TEXTURE1D:
-		desc_out.Texture1D.MipSlice = uav_desc.MipSlice;
-		break;
-	case LUAVDimention::LUNA_UAV_DIMENSION_TEXTURE1DARRAY:
-		desc_out.Texture1DArray.ArraySize = uav_desc.ArraySize;
-		desc_out.Texture1DArray.FirstArraySlice = uav_desc.FirstArraySlice;
-		desc_out.Texture1DArray.MipSlice = uav_desc.MipSlice;
-		break;
-	case LUAVDimention::LUNA_UAV_DIMENSION_TEXTURE2D:
-		desc_out.Texture2D.MipSlice = uav_desc.MipSlice;
-		desc_out.Texture2D.PlaneSlice = uav_desc.PlaneSlice;
-		break;
-	case LUAVDimention::LUNA_UAV_DIMENSION_TEXTURE2DARRAY:
-		desc_out.Texture2DArray.ArraySize = uav_desc.ArraySize;
-		desc_out.Texture2DArray.FirstArraySlice = uav_desc.FirstArraySlice;
-		desc_out.Texture2DArray.MipSlice = uav_desc.MipSlice;
-		desc_out.Texture2DArray.PlaneSlice = uav_desc.PlaneSlice;
-		break;
-	case LUAVDimention::LUNA_UAV_DIMENSION_TEXTURE3D:
-		desc_out.Texture3D.FirstWSlice = uav_desc.FirstWSlice;
-		desc_out.Texture3D.MipSlice = uav_desc.MipSlice;
-		desc_out.Texture3D.WSize = uav_desc.WSize;
-		break;
-	}
-	return desc_out;
 }
 
 

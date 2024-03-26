@@ -1,8 +1,6 @@
 #include "DX12DescriptorImpl.h"
 #include "DX12DescriptorPool.h"
 #include "DX12Resource.h"
-
-#include "Graphics/RenderModule.h"
 #include "Graphics/RHI//DirectX12/DX12Device.h"
 
 using namespace luna;
@@ -48,7 +46,7 @@ DX12TypedDescriptorHeap::DX12TypedDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type
 
 void DX12TypedDescriptorHeap::Init()
 {
-	ID3D12Device* device = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
+	ID3D12Device* device = sGlobelRenderDevice->As<DX12Device>()->GetDx12Device();
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> heap;
 	D3D12_DESCRIPTOR_HEAP_DESC heap_desc = {};
@@ -103,7 +101,7 @@ TRHIPtr<DX12GpuDescriptorSegment> Dx12GpuDescriptorHeap::AllocPool(size_t count)
 {
 	if (m_offset + count > m_size)
 	{
-		//Ŀǰ�в�֧���Զ��Ĵ�С��������������setpool̫����Ҫ��device��ʼ����ʱ�򣬵���һ�����GPU�������ѵ�size
+		//目前尚不支持自动改大小，如果这里申请的setpool太大，需要在device初始化的时候，调整一下最大GPU描述符堆的size
 		Resize();
 	}
 	TRHIPtr<DX12GpuDescriptorSegment> m_value =  CreateRHIObject<DX12GpuDescriptorSegment>(m_type,this, m_offset,per_descriptor_size,count);

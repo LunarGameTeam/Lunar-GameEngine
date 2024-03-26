@@ -27,7 +27,7 @@ void DX12BindingSet::WriteBindings( const std::vector<BindingDesc>& bindings)
 
 
 		Dx12DescriptorSet& now_descriptor_set = mDescriptorSets[bindPoint.mSpace];
-		ID3D12Device* device = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
+		ID3D12Device* device = sGlobelRenderDevice->As<DX12Device>()->GetDx12Device();
 		const D3D12_DESCRIPTOR_HEAP_TYPE& heap_type_value = dx12Res->GetDescriptorHeapType();
 
 		int32_t index_range = -1;

@@ -14,8 +14,6 @@
 #include "Graphics/RHI/Vulkan/VulkanBindingSet.h"
 #include "Graphics/RHI/Vulkan/VulkanView.h"
 
-#include "Graphics/RenderModule.h"
-
 namespace luna::graphics
 {
 
@@ -35,19 +33,19 @@ VulkanGraphicCmdList::VulkanGraphicCmdList(const vk::CommandPool& commandPool, v
 
 void VulkanGraphicCmdList::BeginEvent(const LString& event_str)
 {
-	if (sRenderModule->GetDevice<VulkanDevice>()->mEnableValidation)
+	if (sGlobelRenderDevice->As<VulkanDevice>()->mEnableValidation)
 	{
 		vk::DebugUtilsLabelEXT label = {};
 		label.pLabelName = event_str.c_str();
-		mCommandBuffer.beginDebugUtilsLabelEXT(&label, sRenderModule->GetDevice<VulkanDevice>()->GetLoader());
+		mCommandBuffer.beginDebugUtilsLabelEXT(&label, sGlobelRenderDevice->As<VulkanDevice>()->GetLoader());
 	}
 }
 
 void VulkanGraphicCmdList::EndEvent()
 {
-	if (sRenderModule->GetDevice<VulkanDevice>()->mEnableValidation)
+	if (sGlobelRenderDevice->As<VulkanDevice>()->mEnableValidation)
 	{
-		mCommandBuffer.endDebugUtilsLabelEXT(sRenderModule->GetDevice<VulkanDevice>()->GetLoader());
+		mCommandBuffer.endDebugUtilsLabelEXT(sGlobelRenderDevice->As<VulkanDevice>()->GetLoader());
 	}
 }
 
@@ -625,7 +623,7 @@ void GenerateVulkanCommandPool(RHICmdListType listType, vk::CommandPool *mComman
 	{
 		poolInfo.queueFamilyIndex = queueFamilyIndices.transferFamily.value();
 	}
-	VULKAN_ASSERT(sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().createCommandPool(&
+	VULKAN_ASSERT(sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice().createCommandPool(&
 		poolInfo, nullptr, mCommandPool));
 }
 
@@ -638,7 +636,7 @@ VulkanSinglePoolSingleCmdList::VulkanSinglePoolSingleCmdList(RHICmdListType list
 	allocInfo.level = vk::CommandBufferLevel::ePrimary;
 	allocInfo.commandBufferCount = 1;
 	vk::CommandBuffer commandBuffer;
-	VULKAN_ASSERT(sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().allocateCommandBuffers(&allocInfo, &commandBuffer));
+	VULKAN_ASSERT(sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice().allocateCommandBuffers(&allocInfo, &commandBuffer));
 	mCmdListInstance = CreateRHIObject<VulkanGraphicCmdList>(mCommandPool, commandBuffer, listType);
 }
 
@@ -672,7 +670,7 @@ RHICmdList* VulkanSinglePoolMultiCmdList::GetNewCmdList()
 	allocInfo.level = vk::CommandBufferLevel::ePrimary;
 	allocInfo.commandBufferCount = 1;
 	vk::CommandBuffer commandBuffer;
-	VULKAN_ASSERT(sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().allocateCommandBuffers(&allocInfo, &commandBuffer));
+	VULKAN_ASSERT(sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice().allocateCommandBuffers(&allocInfo, &commandBuffer));
 	RHICmdListPtr newCmdList = CreateRHIObject<VulkanGraphicCmdList>(mCommandPool, commandBuffer, mCmdListType);
 	mCommandListUsing.push(newCmdList);
 	newCmdList->ResetAndPrepare();
@@ -698,7 +696,7 @@ VulkanMultiFrameCmdList::VulkanMultiFrameCmdList(size_t frameCount, RHICmdListTy
 	allocInfo.level = vk::CommandBufferLevel::ePrimary;
 	allocInfo.commandBufferCount = frameCount;
 	vk::CommandBuffer *commandBuffer = new vk::CommandBuffer[frameCount];
-	VULKAN_ASSERT(sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().allocateCommandBuffers(&allocInfo, commandBuffer));
+	VULKAN_ASSERT(sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice().allocateCommandBuffers(&allocInfo, commandBuffer));
 	mCommandLists.resize(frameCount);
 	for (int32_t i = 0; i < frameCount; ++i)
 	{

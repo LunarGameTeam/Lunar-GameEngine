@@ -60,14 +60,12 @@ D3D12_SRV_DIMENSION RENDER_API GetSrvDimention(RHIResDimension srv_dimention);
 
 D3D12_SRV_DIMENSION RENDER_API GetSrvDimentionByView(RHIViewDimension view_dimension);
 
+D3D12_UAV_DIMENSION RENDER_API GetUavDimentionByView(RHIViewDimension view_dimension);
+
 D3D12_SHADER_RESOURCE_VIEW_DESC RENDER_API GetShaderResourceViewDesc(const LShaderResourceViewDesc& srv_desc);
 
 
 D3D12_BUFFER_UAV_FLAGS RENDER_API GetBufferUavFlags(LBufferUavFlag uav_flag);
-
-D3D12_UAV_DIMENSION RENDER_API GetUavDimention(LUAVDimention srv_dimention);
-
-D3D12_UNORDERED_ACCESS_VIEW_DESC RENDER_API GetUnorderedAccessViewDesc(const LUnorderedAccessViewDesc& uav_desc);
 
 
 D3D12_RTV_DIMENSION RENDER_API GetRtvDimention(RHIViewDimension rtv_dimention);

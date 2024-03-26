@@ -44,7 +44,7 @@ void VulkanBindingSet::WriteBindings(const std::vector<BindingDesc>& bindings)
 		}
 	}
 
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();		
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
  	device.updateDescriptorSets((uint32_t)descriptors.size(), descriptors.data(), 0, nullptr);
 
 }

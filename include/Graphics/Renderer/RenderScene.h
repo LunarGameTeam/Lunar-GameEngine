@@ -157,7 +157,7 @@ public:
 
 	RenderDataUpdateCommandAllocator* GetRenderDataUpdater() { return &mAllRenderDataUpdateCommand; };
 
-	void AddCbufferCopyCommand(ShaderCBuffer* cbufferDataIn, RHIResource* bufferOutput);
+	void AddCbufferCopyCommand(ShaderCBuffer* cbufferDataIn, RhiUniformBufferPack* bufferOutput);
 
 	RenderSceneUploadBufferPool* GetStageBufferPool();
 

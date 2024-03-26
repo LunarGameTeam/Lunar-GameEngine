@@ -1,8 +1,6 @@
 #include "Graphics/RHI/DirectX12/DX12BindingSetLayout.h"
 #include "Graphics/RHI/DirectX12/DX12Device.h"
 
-#include "Graphics/RenderModule.h"
-
 using Microsoft::WRL::ComPtr;
 
 
@@ -146,7 +144,7 @@ DX12BindingSetLayout::DX12BindingSetLayout(const std::vector<RHIBindPoint>& desc
 	assert(SUCCEEDED(D3D12SerializeRootSignature(&rootsignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, &errorBlob),
 		"%s", static_cast<char*>(errorBlob->GetBufferPointer())
 	));
-	HRESULT hr = sRenderModule->GetDevice<DX12Device>()->GetDx12Device()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&mRootsignature));	
+	HRESULT hr = sGlobelRenderDevice->As<DX12Device>()->GetDx12Device()->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&mRootsignature));
 	assert(SUCCEEDED(hr));
 }
 

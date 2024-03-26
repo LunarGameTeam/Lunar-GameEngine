@@ -1,8 +1,5 @@
 #include "Graphics/RHI/ShaderCompile.h"
-
-
-#include "Graphics/Renderer/RenderContext.h"
-#include "Graphics/RenderModule.h"
+#include "Graphics/RHI/RHIDevice.h"
 
 using namespace Microsoft::WRL;
 
@@ -54,11 +51,14 @@ bool DxcCompile(
 	LPCWSTR shaderStageName;
 	LPCWSTR shaderEntry;
 	LPCWSTR shaderTarget;
-	if (sRenderModule->mRenderContext->mDeviceType == RenderDeviceType::Vulkan)
-		shaderTarget = L"-spirv";
-	else
+	if (Config_RenderDeviceType.GetValue() == "DirectX12")
+	{
 		shaderTarget = L"";
-
+	}
+	else
+	{
+		shaderTarget = L"-spirv";
+	}
 	if (stage == RHIShaderType::Compute)
 	{
 		shaderStageName = L"cs_6_0";

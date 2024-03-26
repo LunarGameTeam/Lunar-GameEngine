@@ -1,14 +1,9 @@
 #pragma once
 
 #include "DX12Pch.h"
-
 #include "Graphics/RHI/RHIDescriptorHeap.h"
-
 #include "Graphics/RHI/DirectX12/DX12Device.h"
 #include "Graphics/RHI/DirectX12/DX12DescriptorImpl.h"
-
-#include "Graphics/RenderModule.h"
-
 
 namespace luna::graphics
 {

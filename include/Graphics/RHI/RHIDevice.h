@@ -7,54 +7,16 @@
 #include "Core/Platform/Window.h"
 #include "Graphics/RHI/RHICmdList.h"
 #include "Graphics/RHI/RHIFence.h"
-
+#include "Core/Foundation/Config.h"
 namespace luna::graphics
 {
+RENDER_API CONFIG_DECLARE(LString, Render, RenderDeviceType, 2);
 
-struct RHIStagingBuffer 
+enum class RenderDeviceType : uint8_t
 {
-	size_t mResourceId;
-	RHIResourcePtr mBufferData;
-	size_t mBufferSize;
-};
-
-class RENDER_API RHIStagingBufferPool
-{
-	RHIDevice* mDevice;
-
-	LMap<size_t, RHIStagingBuffer> mResourceWaitingCopy;
-
-	LMap<size_t, LArray<RHIStagingBuffer>> mResourceCopying;
-
-	RHIFencePtr mCopyFence;
-
-	RHIRenderQueuePtr mRenderQueue;
-
-	RHISinglePoolMultiCmdListPtr mCopyCommandList;
-
-	size_t mResourcePoolCount;
-
-	LQueue<size_t> mUnusedResourceId;
-
-	bool isPoolWorking;
-public:
-	RHIStagingBufferPool(RHIDevice* device);
-
-	void UploadToDstBuffer(size_t dataLength, void* initData, RHIResource* dstBuffer,size_t offset_dst);
-
-	void UploadToDstTexture(
-		size_t dataLength,
-		void* initData,
-		const RHISubResourceCopyDesc& sourceCopyOffset,
-		RHIResource* dstTexture,
-		size_t offset_dst
-	);
-
-	void TickPoolRefresh();
-private:
-	RHIStagingBuffer* CreateUploadBuffer(size_t dataLength, void* initData);
-
-	void UploadToDstResource(size_t dataLength, void* initData, RHIResource* dstTexture, size_t offset_dst, std::function<void(RHICmdList* curCmdList, RHIStagingBuffer* srcBuffer)> copyCommand);
+	Unkown = 0,
+	DirectX12 = 1,
+	Vulkan = 2,
 };
 //图形设备单例，用于处理图形资源的分配和管理
 class RENDER_API RHIDevice : public RHIObject
@@ -148,6 +110,8 @@ private:
 
 RHIRenderQueuePtr RENDER_API GenerateRenderQueue(RHIQueueType queueType = RHIQueueType::eGraphic);
 
-RHIDevicePtr RENDER_API GenerateRenderDevice();
+void RENDER_API GenerateRenderDevice();
+
+luna::graphics::RHIDevice* sGlobelRenderDevice = nullptr;
 
 }

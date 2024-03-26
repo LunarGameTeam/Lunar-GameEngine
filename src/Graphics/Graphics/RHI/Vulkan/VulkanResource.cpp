@@ -17,7 +17,7 @@ VulkanResource::VulkanResource(uint32_t backBufferId, VulkanSwapChain* swapchain
 	mResDesc.Width = swapchain->GetWidth();
 	mResDesc.Height = swapchain->GetHeight();
 
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	uint32_t imageCount;
 
 	vkGetSwapchainImagesKHR(device, swapchain->mSwapChain, &imageCount, nullptr);	
@@ -83,7 +83,7 @@ VulkanResource::VulkanResource(const RHIResDesc& resDesc) :
 	imageInfo.samples = vk::SampleCountFlagBits::e1;
 	imageInfo.sharingMode = vk::SharingMode::eExclusive;
 
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	
 	if (device.createImage(&imageInfo, nullptr, &mImage)!= vk::Result::eSuccess) {
 		throw std::runtime_error("failed to create image!");
@@ -95,7 +95,7 @@ VulkanResource::VulkanResource(const RHIResDesc& resDesc) :
 
 VulkanResource::VulkanResource(const RHIBufferDesc& desc) : RHIResource(desc)
 {
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	mBufferInfo.size = mResDesc.Width;
 	
 	
@@ -127,7 +127,7 @@ VulkanResource::VulkanResource(const SamplerDesc& desc)
 	mResDesc.mType = ResourceType::kSampler;
 	mResDesc.Dimension = RHIResDimension::Unknown;
 
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	vk::SamplerCreateInfo samplerInfo = {};
 
 	samplerInfo.magFilter = vk::Filter::eNearest;
@@ -182,7 +182,7 @@ void VulkanResource::ResetResourceBufferSizeDeviceData(size_t newSize)
 		assert(false);
 		return;
 	}
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	device.destroyBuffer(mBuffer);
 	mBufferInfo.size = newSize;
 	if (device.createBuffer(&mBufferInfo, nullptr, &mBuffer) != vk::Result::eSuccess)
@@ -195,7 +195,7 @@ VulkanResource::~VulkanResource()
 {
 	if (AllocByVma)
 	{
-		VulkanMemoryManagerPool& vmaPool = sRenderModule->GetDevice<VulkanDevice>()->GetVulkanVmaPool();
+		VulkanMemoryManagerPool& vmaPool = sGlobelRenderDevice->As<VulkanDevice>()->GetVulkanVmaPool();
 		if (mResDesc.mType == ResourceType::kBuffer)
 		{
 			vmaPool.FreeBufferMemory(mBuffer, mAllocation);
@@ -207,7 +207,7 @@ VulkanResource::~VulkanResource()
 		return;
 	}
 
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	if (mImage)
 		device.destroyImage(mImage);
 	if (mBuffer)
@@ -221,7 +221,7 @@ void VulkanResource::BindMemory(RHIMemory* memory, uint64_t offset)
 {
 	mOffset = offset;
 	mBindMemory = memory;
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	if (mResDesc.mType == ResourceType::kBuffer)
 	{
 		device.bindBufferMemory(mBuffer, memory->As<VulkanMemory>()->mMemory, offset);
@@ -238,7 +238,7 @@ void VulkanResource::BindMemory(RHIHeapType type)
 	memRequirements.memoryTypeBits = mMemoryLayout.memory_type_bits;
 	memRequirements.size = mMemoryLayout.size;
 	memRequirements.alignment = mMemoryLayout.alignment;
-	VulkanMemoryManagerPool& vmaPool = sRenderModule->GetDevice<VulkanDevice>()->GetVulkanVmaPool();
+	VulkanMemoryManagerPool& vmaPool = sGlobelRenderDevice->As<VulkanDevice>()->GetVulkanVmaPool();
 	if (mResDesc.mType == ResourceType::kBuffer)
 	{
 		vmaPool.BindBufferMemory(type,memRequirements, mBuffer, mAllocation);
@@ -252,7 +252,7 @@ void VulkanResource::BindMemory(RHIHeapType type)
 
 void VulkanResource::RefreshMemoryRequirements()const
 {
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	if (mResDesc.mType == ResourceType::kBuffer)
 	{
 		vk::MemoryRequirements memRequirements = {};
@@ -276,11 +276,11 @@ void* VulkanResource::Map()
 	void* dst_data;
 	if (AllocByVma)
 	{
-		VulkanMemoryManagerPool& vmaPool = sRenderModule->GetDevice<VulkanDevice>()->GetVulkanVmaPool();
+		VulkanMemoryManagerPool& vmaPool = sGlobelRenderDevice->As<VulkanDevice>()->GetVulkanVmaPool();
 		vmaPool.MapMemory(mAllocation, &dst_data);
 		return dst_data;
 	}
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	VULKAN_ASSERT(device.mapMemory(mBindMemory->As<VulkanMemory>()->mMemory, mOffset, mMemoryLayout.size, {}, &dst_data));
 	return dst_data;
 }
@@ -289,11 +289,11 @@ void VulkanResource::Unmap()
 {
 	if (AllocByVma)
 	{
-		VulkanMemoryManagerPool& vmaPool = sRenderModule->GetDevice<VulkanDevice>()->GetVulkanVmaPool();
+		VulkanMemoryManagerPool& vmaPool = sGlobelRenderDevice->As<VulkanDevice>()->GetVulkanVmaPool();
 		vmaPool.UnmapMemory(mAllocation);
 		return;
 	}
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	device.unmapMemory(mBindMemory->As<VulkanMemory>()->mMemory);
 }
 

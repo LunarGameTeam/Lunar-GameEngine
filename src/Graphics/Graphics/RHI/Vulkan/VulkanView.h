@@ -3,8 +3,6 @@
 
 #include "Graphics/RHI/Vulkan/VulkanPch.h"
 #include "Graphics/RHI/RHIFrameBuffer.h"
-
-#include "Graphics/RenderModule.h"
 #include "Graphics/RHI/Vulkan/VulkanResource.h"
 
 namespace luna::graphics

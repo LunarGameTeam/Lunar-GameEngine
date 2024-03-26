@@ -1,26 +1,30 @@
 #include "Graphics/FrameGraph/FrameGraph.h"
-
 #include "Graphics/Renderer/RenderContext.h"
-
-#include "Graphics/RenderModule.h"
 #include "Graphics/RHI/RHIFrameBuffer.h"
 #include "Graphics/RHI/RHIFence.h"
 #include "Graphics/RHI/RHICmdList.h"
 #include "Graphics/RHI/RHIDevice.h"
-
 #include "Graphics/FrameGraph/FrameGraphNode.h"
 #include "Graphics/FrameGraph/FrameGraphResource.h"
-
 #include "Graphics/Asset/TextureAsset.h"
 #include "Graphics/Asset/ShaderAsset.h"
-
+#include "Graphics/RHI/RhiUtils/RHIResourceGenerateHelper.h"
+#include "Graphics/Renderer/RenderContext.h"
 
 namespace luna::graphics
 {
 
+const size_t sFrameGraphBufferMaxSize = 1024 * 1024 * 32 * 8;
 FrameGraphBuilder::FrameGraphBuilder(const LString& graph_name)
 {
 	mGraphName = graph_name;
+	//Frame Graph
+	{
+		RHIMemoryDesc FGMemoryDesc;
+		FGMemoryDesc.Type = RHIHeapType::Default;
+		FGMemoryDesc.SizeInBytes = sFrameGraphBufferMaxSize;
+		mFGMemory = sGlobelRenderDevice->AllocMemory(FGMemoryDesc, 3);
+	}
 }
 
 FrameGraphBuilder::~FrameGraphBuilder()
@@ -38,14 +42,16 @@ FGGraphDrawNode* FrameGraphBuilder::AddGraphDrawPass(const LString& name)
 
 void FrameGraphBuilder::Clear()
 {
-
 	for (auto it : mNodes)
 	{
 		delete it;
 	}
 	mNodes.clear();
+}
 
-
+void FrameGraphBuilder::CleanUpVirtualMemory()
+{
+	mFGOffset = 0;
 }
 
 LSharedPtr<FGTexture> FrameGraphBuilder::CreateCommon2DTexture(
@@ -72,7 +78,7 @@ void FrameGraphBuilder::_Prepare()
 	{
 		for (auto& view : it->mVirtureResView)
 		{
-			RHIViewPtr rhiView = sRenderModule->GetRHIDevice()->CreateView(view->mRHIViewDesc);
+			RHIViewPtr rhiView = sGlobelRenderDevice->CreateView(view->mRHIViewDesc);
 			view->mRHIView = rhiView;
 			rhiView->BindResource(view->mVirtualRes->mExternalRes);
 		}
@@ -81,10 +87,7 @@ void FrameGraphBuilder::_Prepare()
 
 void FrameGraphBuilder::Flush(RHICmdList* cmdList)
 {
-
 	ZoneScoped;
-	RenderResourceGenerateHelper* renderDevice = sRenderModule->GetRenderContext();
-	RenderCommandGenerateHelper* commandHelper = sRenderModule->GetRenderCommandHelper();
 	for (FGNode* it : mNodes)
 	{
 		for (auto& view : it->mVirtureResView)
@@ -94,7 +97,7 @@ void FrameGraphBuilder::Flush(RHICmdList* cmdList)
 				if (view->mVirtualRes->GetDesc().mType == ResourceType::kTexture)
 				{
 					FGTexture* virtualRes = static_cast<FGTexture*>(view->mVirtualRes);
-					RHIResourcePtr rhiRes = renderDevice->FGCreateTexture(virtualRes->GetDesc());
+					RHIResourcePtr rhiRes = FGCreateTexture(virtualRes->GetDesc());
 					mPhysicResourceMap.insert({ virtualRes->mUniqueId,rhiRes });
 					virtualRes->BindExternalResource(rhiRes);
 				}
@@ -105,9 +108,7 @@ void FrameGraphBuilder::Flush(RHICmdList* cmdList)
 			}
 		}
 	}
-
 	_Prepare();
-
 	{
 		ZoneScopedN("Node Execute");
 		for (FGNode* baseNode : mNodes)
@@ -178,19 +179,32 @@ void FrameGraphBuilder::Flush(RHICmdList* cmdList)
 				node->mPassDesc.mDepths[0].mDepthStencilFormat = dsView.mRHIView->mBindResource->GetDesc().Format;
 			}
 			
-			commandHelper->BindDrawCommandPassDesc(cmdList,node->mPassDesc);
+			sGlobelRenderCommondEncoder->BindDrawCommandPassDesc(cmdList,node->mPassDesc);
 			cmdList->SetViewPort(0, 0, width, height);
 			cmdList->SetScissorRects(0, 0, width, width);
 			node->Execute(this, cmdList);
-			commandHelper->EndRenderPass(cmdList);
-
+			sGlobelRenderCommondEncoder->EndRenderPass(cmdList);
 			cmdList->EndEvent();
 		}
 	}
 	
 }
 
+RHIResourcePtr FrameGraphBuilder::FGCreateTexture(const RHIResDesc& resDesc)
+{
+	RHIResourcePtr res = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateTextureByRhiMemory(resDesc, mFGMemory, mFGOffset);
+	const MemoryRequirements& memoryReq = res->GetMemoryRequirements();
+	mFGOffset += memoryReq.size;
+	return res;
+}
 
+RHIResourcePtr FrameGraphBuilder::FGCreateBuffer(const RHIBufferDesc& resDesc)
+{
+	RHIResourcePtr res = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateBufferByRhiMemory(resDesc, mFGMemory, mFGOffset);
+	const MemoryRequirements& memoryReq = res->GetMemoryRequirements();
+	mFGOffset += memoryReq.size;
+	return res;
+}
 //FGTexture* FrameGraphBuilder::GetTexture(const LString& name)
 //{
 //	auto it = mVirtualRes.find(name);

@@ -1,25 +1,10 @@
 ﻿#include"Graphics/Renderer/ImguiRenderer.h"
 #include"Graphics/RHI/RHISwapchain.h"
-#include "Graphics/RenderModule.h"
 #include "imgui.h"
-#include "imgui_impl_dx12.h"
-#include "imgui_impl_vulkan.h"
 #include "imgui_impl_sdl2.h"
-
 #include "Core/Asset/AssetModule.h"
 #include "Core/Foundation/AwesomeFont.h"
-#include "Graphics/RHI/DirectX12/DX12Device.h"
-#include "Graphics/RHI/DirectX12/DX12RenderQueue.h"
-#include "Graphics/RHI/DirectX12/DX12Memory.h"
-#include "Graphics/RHI/DirectX12/DX12View.h"
-#include "Graphics/RHI/DirectX12/DX12DescriptorPool.h"
-
-#include "Graphics/RHI/Vulkan/VulkanCmdList.h"
-#include "Graphics/RHI/Vulkan/VulkanDescriptorPool.h"
-#include "Graphics/RHI/Vulkan/VulkanRenderPass.h"
-#include "Graphics/RHI/Vulkan/VulkanDevice.h"
-#include "Graphics/RHI/Vulkan/VulkanRenderQueue.h"
-#include "Graphics/RHI/Vulkan/VulkanView.h"
+#include "Graphics/RHI/RhiImgui/RHIImguiHelper.h"
 namespace luna::graphics
 {
 	void ImguiRenderer::GenerateFountForImgui()
@@ -128,84 +113,33 @@ namespace luna::graphics
 		{
 			graphics::FrameBufferDesc desc;
 			desc.mPass = mIMGUIRenderPass;
-			desc.mColor.push_back(sRenderModule->GetSwapChain()->mViews[i]);
+			desc.mColor.push_back(mMainSwapchain->mViews[i]);
 			desc.mDepthStencil = nullptr;
-			desc.mWidth = sRenderModule->GetSwapChain()->mBackBuffers[i]->GetDesc().Width;
-			desc.mHeight = sRenderModule->GetSwapChain()->mBackBuffers[i]->GetDesc().Height;
-			mFrameBuffer[i] = sRenderModule->GetRHIDevice()->CreateFrameBuffer(desc);
+			desc.mWidth = mMainSwapchain->mBackBuffers[i]->GetDesc().Width;
+			desc.mHeight = mMainSwapchain->mBackBuffers[i]->GetDesc().Height;
+			mFrameBuffer[i] = sGlobelRenderDevice->CreateFrameBuffer(desc);
 		}
 	}
 
-	void ImguiRenderer::Init(RHISwapChain* mainSwapchain, RenderResourceGenerateHelper* renderContext)
+	void ImguiRenderer::Init(RHISwapChain* mainSwapchain, RHIRenderQueue* renderQueue)
 	{
 		mMainSwapchain = mainSwapchain;
-		mRenderContext = renderContext;
+		mGraphQueue = renderQueue;
 		
-		mGuiCmd = renderContext->mDevice->CreateSinglePoolSingleCommondList(RHICmdListType::Graphic3D);
+		mGuiCmd = sGlobelRenderDevice->CreateSinglePoolSingleCommondList(RHICmdListType::Graphic3D);
 		GenerateFountForImgui();
 		GenerateWindowLayout();
 		GenerateStyle();
 		graphics::RenderPassDesc renderPassDesc;
-		renderPassDesc.mColorView.push_back(sRenderModule->GetSwapChain()->mViews[0]);
+		renderPassDesc.mColorView.push_back(mMainSwapchain->mViews[0]);
 		renderPassDesc.mColors.emplace_back(
 			graphics::LoadOp::kClear,
 			graphics::StoreOp::kStore,
 			LVector4f(0, 0, 0, 1));
-		mIMGUIRenderPass = mRenderContext->mDevice->CreateRenderPass(renderPassDesc);
+		mIMGUIRenderPass = sGlobelRenderDevice->CreateRenderPass(renderPassDesc);
 		OnSwapchainChange(mainSwapchain);
-		switch (sRenderModule->GetDeviceType())
-		{
-		case graphics::RenderDeviceType::DirectX12:
-		{
-			static graphics::Dx12DescriptorSet sDx12FontDescriptor;
-
-
-			graphics::DX12Device* dx12_device = sRenderModule->GetDevice<graphics::DX12Device>();
-			graphics::DX12DescriptorPool* dx12Pool = mRenderContext->GetDefaultDescriptorPool()->As<graphics::DX12DescriptorPool>();
-
-
-			dx12Pool->SelectSegment(graphics::DescriptorHeapType::CBV_SRV_UAV)->AllocDescriptorSet(1, sDx12FontDescriptor);
-			ImGui_ImplSDL2_InitForD3D(sPlatformModule->GetMainWindow()->GetWindow());
-			ImGui_ImplDX12_Init(dx12_device->GetDx12Device(), 2,
-				DXGI_FORMAT_R8G8B8A8_UNORM,
-				sRenderModule->GetDevice<graphics::DX12Device>()->GetGpuDescriptorHeapByType(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)->GetDeviceHeap(),
-				sDx12FontDescriptor.mDescriptorLists[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV].mCPUHandle,
-				sDx12FontDescriptor.mDescriptorLists[D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV].mGPUHandle
-			);
-		}
-		break;
-		case graphics::RenderDeviceType::Vulkan:
-		{
-			graphics::VulkanDevice* curDevice = static_cast<graphics::VulkanDevice*>(mRenderContext->mDevice.get());
-			ImGui_ImplSDL2_InitForVulkan(sPlatformModule->GetMainWindow()->GetWindow());
-			ImGui_ImplVulkan_InitInfo vulkanInit = {};
-			vulkanInit.Instance = curDevice->GetVkInstance();
-			vulkanInit.PhysicalDevice = curDevice->GetPhysicalDevice();
-			vulkanInit.Device = curDevice->GetVKDevice();
-			vulkanInit.Queue = mRenderContext->mGraphicQueue->As<graphics::VulkanRenderQueue>()->mQueue;
-			vulkanInit.DescriptorPool = mRenderContext->GetDefaultDescriptorPool()->As<graphics::VulkanDescriptorPool>()->mPool;
-			vulkanInit.MinImageCount = 3;
-			vulkanInit.ImageCount = 3;
-			vulkanInit.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-			ImGui_ImplVulkan_Init(&vulkanInit, mIMGUIRenderPass->As<graphics::VulkanRenderPass>()->mRenderPass);
-
-
-			mGuiCmd->GetCmdList()->BeginEvent("ImguiFont");
-			mGuiCmd->Reset();
-			ImGui_ImplVulkan_CreateFontsTexture(mGuiCmd->GetCmdList()->As<graphics::VulkanGraphicCmdList>()->mCommandBuffer);
-			mGuiCmd->GetCmdList()->CloseCommondList();
-			mGuiCmd->GetCmdList()->EndEvent();
-
-			sRenderModule->mRenderContext->mGraphicQueue->ExecuteCommandLists(mGuiCmd->GetCmdList());
-			vkDeviceWaitIdle(curDevice->GetVKDevice());
-
-		}
-		break;
-		default:
-			break;
-
-		}
-
+	
+		RenderImguiInit(sPlatformModule->GetMainWindow()->GetWindow(), mGraphQueue, mIMGUIRenderPass, mGuiCmd);
 	}
 	
 	void ImguiRenderer::RenderImpl()
@@ -218,8 +152,6 @@ namespace luna::graphics
 		//mMainSwapchain->NextImage();
 		uint32_t index = mMainSwapchain->GetNowFrameID();
 
-		RHIRenderQueue* graphQueue = mRenderContext->mGraphicQueue;
-
 		//mRenderContext->mFence->Wait(fenceValue);
 		//mGuiCmd->GetCmdList()->BindDescriptorHeap();
 		mGuiCmd->GetCmdList()->BeginEvent("IMGUI");
@@ -228,17 +160,14 @@ namespace luna::graphics
 			mGuiCmd->GetCmdList()->ResourceBarrierExt({ it.second.mView->mBindResource, it.second.mView->mBindResource->mState, graphics::ResourceState::kShaderReadOnly });
 		}
 		mGuiCmd->GetCmdList()->BindDescriptorHeap();
-		mGuiCmd->GetCmdList()->ResourceBarrierExt({ sRenderModule->GetSwapChain()->GetBackBuffer(index), graphics::ResourceState::kUndefined, graphics::ResourceState::kRenderTarget });
+		mGuiCmd->GetCmdList()->ResourceBarrierExt({ mMainSwapchain->GetBackBuffer(index), graphics::ResourceState::kUndefined, graphics::ResourceState::kRenderTarget });
 		mGuiCmd->GetCmdList()->BeginRenderPass(mIMGUIRenderPass, mFrameBuffer[index]);
-		if (mRenderContext->mDeviceType == graphics::RenderDeviceType::DirectX12)
-			ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), mGuiCmd->GetCmdList()->As<graphics::DX12GraphicCmdList>()->mDxCmdList.Get());
-		else if (mRenderContext->mDeviceType == graphics::RenderDeviceType::Vulkan)
-			ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), mGuiCmd->GetCmdList()->As<graphics::VulkanGraphicCmdList>()->mCommandBuffer);
+		ImGuiRhiRenderDrawData(ImGui::GetDrawData(), mGuiCmd);
 		mGuiCmd->GetCmdList()->EndRenderPass();
-		mGuiCmd->GetCmdList()->ResourceBarrierExt({ sRenderModule->GetSwapChain()->GetBackBuffer(index), graphics::ResourceState::kRenderTarget , graphics::ResourceState::kPresent });
+		mGuiCmd->GetCmdList()->ResourceBarrierExt({ mMainSwapchain->GetBackBuffer(index), graphics::ResourceState::kRenderTarget , graphics::ResourceState::kPresent });
 		mGuiCmd->GetCmdList()->EndEvent();
 		mGuiCmd->GetCmdList()->CloseCommondList();
-		graphQueue->ExecuteCommandLists(mGuiCmd->GetCmdList());
+		mGraphQueue->ExecuteCommandLists(mGuiCmd->GetCmdList());
 	}
 	
 	void ImguiRenderer::RenderTick()
@@ -282,26 +211,9 @@ namespace luna::graphics
 		ViewDesc desc;
 		desc.mViewType = RHIViewType::kTexture;
 		desc.mViewDimension = RHIViewDimension::TextureView2D;
-		imguiTexture->mView = mRenderContext->mDevice->CreateView(desc);
+		imguiTexture->mView = sGlobelRenderDevice->CreateView(desc);
 		imguiTexture->mView->BindResource(res);
-		if (sRenderModule->GetDeviceType() == graphics::RenderDeviceType::Vulkan)
-		{
-			VkDescriptorSet  newSet = ImGui_ImplVulkan_AddTexture(mRenderContext->mClamp.mSampler->As<graphics::VulkanResource>()->mSampler, imguiTexture->mView->As<VulkanView>()->mImageView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-			imguiTexture->mImg = newSet;
-		}
-		else
-		{
-			Dx12GpuDescriptorHeap* global = mRenderContext->mDevice->As<DX12Device>()->GetGpuDescriptorHeapByType(D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-			imguiTexture->mDX12Pool = global->AllocPool(2);
-			Dx12DescriptorSet empty;
-			imguiTexture->mDX12Pool->As<DX12GpuDescriptorSegment>()->AllocDescriptorSet(1, empty);
-			mRenderContext->mDevice->As<DX12Device>()->GetDx12Device()->CopyDescriptorsSimple(
-				1,
-				empty.mDescriptorLists[D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV].mCPUHandle,
-				imguiTexture->mView->As<DX12View>()->GetCpuHandle(),
-				D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-			imguiTexture->mImg = (void*)(empty.mDescriptorLists[D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV].mGPUHandle.ptr);
-		}
+		AddImguiRhiTexture(imguiTexture, res);
 		return imguiTexture;
 	}
 }

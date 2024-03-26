@@ -4,9 +4,6 @@
 #include "Graphics/RHI/RHIPch.h"
 #include "Graphics/RHI/RHISwapchain.h"
 #include "Graphics/RHI/Vulkan/VulkanDevice.h"
-
-#include "Graphics/RenderModule.h"
-
 #include <Vulkan/vulkan.h>
 #include <Vulkan/vulkan_win32.h>
 
@@ -24,8 +21,8 @@ struct SwapChainSupportDetails
 class RENDER_API VulkanSwapChain : public RHISwapChain
 {
 public:
-	VulkanSwapChain(LWindow* window, const RHISwapchainDesc& windowDesc) :
-		RHISwapChain(window, windowDesc) {}
+	VulkanSwapChain(LWindow* window, const RHISwapchainDesc& windowDesc, RHIRenderQueue* queue) :
+		RHISwapChain(window, windowDesc, queue) {}
 	
 	void PresentFrame(RHIFence* fence, uint64_t waitValue) override;
 	uint32_t GetNowFrameID() override;

@@ -33,12 +33,12 @@ VulkanFrameBuffer::VulkanFrameBuffer(const FrameBufferDesc& desc) :
 	framebufferInfo.height = mHeight;
 	framebufferInfo.layers = 1;
 
-	sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().createFramebuffer(&framebufferInfo, nullptr, &mBuffer);
+	sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice().createFramebuffer(&framebufferInfo, nullptr, &mBuffer);
 }
 
 VulkanFrameBuffer::~VulkanFrameBuffer()
 {
-	vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+	vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 	if (mBuffer)
 		vkDestroyFramebuffer(device, mBuffer, nullptr);
 }

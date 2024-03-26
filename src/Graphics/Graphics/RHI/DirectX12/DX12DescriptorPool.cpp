@@ -1,6 +1,4 @@
 #include "DX12DescriptorPool.h"
-
-#include "Graphics/RenderModule.h"
 #include "Graphics/RHI/DirectX12/DX12Device.h"
 #include "Graphics/RHI/DirectX12/DX12DescriptorImpl.h"
 
@@ -9,7 +7,7 @@ namespace luna::graphics
 
 DX12DescriptorPool::DX12DescriptorPool(const DescriptorPoolDesc& poolDesc)
 {
-	DX12Device* m_device = sRenderModule->GetDevice<DX12Device>();
+	DX12Device* m_device = sGlobelRenderDevice->As<DX12Device>();
 
 	auto srv_pool_size = poolDesc.mPoolAllocateSizes.find(DescriptorHeapType::CBV_SRV_UAV);
 	if (srv_pool_size->second != 0)

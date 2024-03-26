@@ -3,7 +3,7 @@
 #include "Core/Asset/AssetModule.h"
 #include "Graphics/FrameGraph/FrameGraphResource.h"
 #include "Graphics/Asset/MeshAssetUtils.h"
-#include "Graphics/RenderModule.h"
+#include "Graphics/Renderer/RenderContext.h"
 
 namespace luna::graphics
 {
@@ -15,8 +15,8 @@ namespace luna::graphics
 
 	SceneOverLayPassGenerator::SceneOverLayPassGenerator()
 	{
-		mDebugMeshLineData = luna::sRenderModule->GetAssetManager()->GetDebugMeshLineMesh();
-		mDebugMeshData = luna::sRenderModule->GetAssetManager()->GetDebugMesh();
+		mDebugMeshLineData = sGlobelRenderResourceContext->GetAssetManager()->GetDebugMeshLineMesh();
+		mDebugMeshData = sGlobelRenderResourceContext->GetAssetManager()->GetDebugMesh();
 		mOverlayMtlAsset = sAssetModule->LoadAsset<MaterialGraphAsset>("/assets/built-in/Line.mat");
 		mOverlayMtlInstance = dynamic_cast<MaterialInstanceGraphBase*>(mOverlayMtlAsset->GetDefaultInstance());
 	};
@@ -35,8 +35,8 @@ namespace luna::graphics
 
 		node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RHICmdList* cmdlist)
 			{
-				sRenderModule->GetRenderCommandHelper()->DrawMesh(cmdlist,this->mDebugMeshLineData,this->mOverlayMtlInstance);
-				sRenderModule->GetRenderCommandHelper()->DrawMesh(cmdlist, this->mDebugMeshData, this->mOverlayMtlInstance);
+				sGlobelRenderCommondEncoder->DrawMesh(cmdlist,this->mDebugMeshLineData,this->mOverlayMtlInstance);
+				sGlobelRenderCommondEncoder->DrawMesh(cmdlist, this->mDebugMeshData, this->mOverlayMtlInstance);
 			});
 	};
 

@@ -1,8 +1,6 @@
 #include "Graphics/RHI/DirectX12/DX12Resource.h"
 #include "Graphics/RHI/DirectX12/DX12Memory.h"
 #include "Graphics/RHI/DirectX12/DX12Swapchain.h"
-#include "Graphics/RenderModule.h"
-
 using Microsoft::WRL::ComPtr;
 
 
@@ -24,6 +22,8 @@ namespace luna::graphics
 
 		SetInitialState(ResourceState::kUndefined);
 		mLastState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
+		if (Has(buffer_desc.mBufferUsage, RHIBufferUsage::StructureBuffer))
+			mDxDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 	}
 
 	DX12Resource::DX12Resource(const SamplerDesc& desc)
@@ -161,7 +161,11 @@ namespace luna::graphics
 
 	void DX12Resource::BindMemory(RHIHeapType type)
 	{
-		DX12MemoryManagerPool& dmaPool = sRenderModule->GetDevice<DX12Device>()->GetDirectXDmaPool();
+		DX12MemoryManagerPool& dmaPool = sGlobelRenderDevice->As<DX12Device>()->GetDirectXDmaPool();
+		if(type == RHIHeapType::Upload)
+		{
+			mDxDesc.Flags = D3D12_RESOURCE_FLAG_NONE;
+		}
 		dmaPool.BindResourceMemory(type, mDxDesc, mDxRes, mAllocation);
 		if (type == RHIHeapType::Upload)
 		{
@@ -181,7 +185,7 @@ namespace luna::graphics
 
 	void DX12Resource::BindMemory(RHIMemory* memory, uint64_t offset)
 	{
-		ID3D12Device* device = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
+		ID3D12Device* device = sGlobelRenderDevice->As<DX12Device>()->GetDx12Device();
 		mBindMemory = memory;
 
 		// TODO
@@ -253,18 +257,18 @@ namespace luna::graphics
 
 	void DX12Resource::RefreshMemoryRequirements() const
 	{
-		ID3D12Device* device = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
+		ID3D12Device* device = sGlobelRenderDevice->As<DX12Device>()->GetDx12Device();
 		D3D12_RESOURCE_ALLOCATION_INFO allocation_info = device->GetResourceAllocationInfo(0, 1, &mDxDesc);
 		mMemoryLayout.size = allocation_info.SizeInBytes;
 		mMemoryLayout.alignment = allocation_info.Alignment;
-
-		mLayout.pLayouts.resize(mDxDesc.DepthOrArraySize);
-		mLayout.pNumRows.resize(mDxDesc.DepthOrArraySize);
-		mLayout.pRowSizeInBytes.resize(mDxDesc.DepthOrArraySize);
+		size_t subResourceSize = mDxDesc.DepthOrArraySize * mDxDesc.MipLevels;
+		mLayout.pLayouts.resize(subResourceSize);
+		mLayout.pNumRows.resize(subResourceSize);
+		mLayout.pRowSizeInBytes.resize(subResourceSize);
 		device->GetCopyableFootprints(
 			&mDxDesc,
 			0,
-			mDxDesc.DepthOrArraySize,
+			subResourceSize,
 			0,
 			mLayout.pLayouts.data(),
 			mLayout.pNumRows.data(),

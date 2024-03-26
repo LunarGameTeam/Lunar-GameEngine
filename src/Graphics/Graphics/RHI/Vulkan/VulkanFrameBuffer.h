@@ -1,8 +1,6 @@
 #pragma once
 #include "Graphics/RenderConfig.h"
 #include "Graphics/RHI/RHIFrameBuffer.h"
-
-#include "Graphics/RenderModule.h"
 #include <vulkan/vulkan.hpp>
 
 namespace luna::graphics

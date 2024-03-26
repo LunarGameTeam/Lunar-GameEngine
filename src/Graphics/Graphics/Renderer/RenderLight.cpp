@@ -1,12 +1,12 @@
 #include "Graphics/Renderer/RenderLight.h"
 #include "Graphics/Renderer/MaterialInstance.h"
-#include "Graphics/RenderModule.h"
 #include "Graphics/Asset/ShaderAsset.h"
 #include "Graphics/Renderer/RenderView.h"
+#include "Graphics/RHI/RHIDevice.h"
 #include "Graphics/Renderer/RenderScene.h"
 #include "Graphics/Asset/MeshAsset.h"
 #include "Core/Asset/AssetModule.h"
-
+#include "Graphics/Renderer/RenderContext.h"
 namespace luna::graphics
 {
 	PARAM_ID(PointBasedLightParameter);
@@ -25,34 +25,30 @@ namespace luna::graphics
 
 		mSpotLightIndex.resize(256);
 		//光源参数的cbuffer
-		auto device = sRenderModule->GetRenderContext();
-		RHICBufferDesc mCbufferDesc = device->GetDefaultShaderConstantBufferDesc(LString("PointBasedLightParameter").Hash());
+		RHICBufferDesc mCbufferDesc = sGlobelRenderResourceContext->GetDefaultShaderConstantBufferDesc(LString("PointBasedLightParameter").Hash());
+		if (mCbufferDesc.mSize == 0)
+		{
+			return;
+		}
 		mLightBufferGlobelMessage = MakeShared<ShaderCBuffer>(mCbufferDesc);
-		RHIBufferDesc paramBufferDesc;
-		paramBufferDesc.mBufferUsage = RHIBufferUsage::UniformBufferBit;
-		paramBufferDesc.mSize = SizeAligned2Pow(mCbufferDesc.mSize,CommonSize64K);
-		ViewDesc paramBufferviewDesc;
-		paramBufferviewDesc.mViewType = RHIViewType::kConstantBuffer;
-		paramBufferviewDesc.mViewDimension = RHIViewDimension::BufferView;
-		mLightParameterBuffer = sRenderModule->GetRenderContext()->CreateBuffer(RHIHeapType::Default, paramBufferDesc);
-		mLightParameterBufferView = sRenderModule->GetRHIDevice()->CreateView(paramBufferviewDesc);
-		mLightParameterBufferView->BindResource(mLightParameterBuffer);
+		sGlobelRhiResourceGenerator->GetDeviceUniformObjectGenerator()->CreateUniformBufferAndView(mCbufferDesc, mLightParameterBuffer, mLightParameterBufferView);
 		//光源数据的buffer
 		size_t elementSize = 4 * sizeof(LVector4f);
 		RHIBufferDesc dataBufferDesc;
 		dataBufferDesc.mBufferUsage = RHIBufferUsage::StructureBuffer;
 		dataBufferDesc.mSize = elementSize * 128;
-		mExistLightDataBuffer = sRenderModule->GetRenderContext()->CreateBuffer(RHIHeapType::Default, dataBufferDesc);
+		mExistLightDataBuffer = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateBuffer(RHIHeapType::Default, dataBufferDesc);
 
 		ViewDesc dataBufferviewDesc;
 		dataBufferviewDesc.mViewType = RHIViewType::kStructuredBuffer;
 		dataBufferviewDesc.mViewDimension = RHIViewDimension::BufferView;
 		dataBufferviewDesc.mStructureStride = sizeof(LVector4f);
-		mExistLightDataBufferView = sRenderModule->GetRHIDevice()->CreateView(dataBufferviewDesc);
+		mExistLightDataBufferView = sGlobelRenderDevice->CreateView(dataBufferviewDesc);
 		mExistLightDataBufferView->BindResource(mExistLightDataBuffer);
 
 		mMaterial = sAssetModule->LoadAsset<MaterialComputeAsset>("/assets/built-in/LightDataCopy.mat");
 		mMaterialInstance = LSharedPtr<MaterialInstanceComputeBase>(dynamic_cast<MaterialInstanceComputeBase*>(mMaterial->CreateInstance()));
+		LightDataInitSucceed = true;
 	}
 
 	PointBasedLight* PointBasedRenderLightData::CreatePointBasedLight()
@@ -71,7 +67,7 @@ namespace luna::graphics
 	
 	void PointBasedRenderLightData::UpdateLightNumParameter(RenderScene* renderScene)
 	{
-		if (!LightNumDirty)
+		if (!LightDataInitSucceed || !LightNumDirty)
 		{
 			return;
 		}
@@ -117,13 +113,13 @@ namespace luna::graphics
 		mLightBufferGlobelMessage->SetData("cDirectionLightIndex", mDirectionLightIndex.data(), 16 * sizeof(int32_t));
 		mLightBufferGlobelMessage->SetData("cSpotLightIndex", mSpotLightIndex.data(), 256 * sizeof(int32_t));
 		//cbuffer的更新只需要制作一个copy的指令
-		renderScene->AddCbufferCopyCommand(mLightBufferGlobelMessage.get(), mLightParameterBuffer.get());
+		renderScene->AddCbufferCopyCommand(mLightBufferGlobelMessage.get(), &mLightParameterBuffer);
 		LightNumDirty = false;
 	}
 
 	void PointBasedRenderLightData::UpdateDirtyLightData(RenderScene* renderScene)
 	{
-		if (mDirtyList.size() == 0)
+		if (!LightDataInitSucceed || mDirtyList.size() == 0)
 		{
 			return;
 		}

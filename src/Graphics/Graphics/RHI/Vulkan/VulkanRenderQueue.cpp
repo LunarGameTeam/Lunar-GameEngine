@@ -1,6 +1,5 @@
 #pragma once
 #include "Graphics/RenderConfig.h"
-#include "Graphics/RenderModule.h"
 #include "Graphics/RHI/Vulkan/VulkanRenderQueue.h"
 #include "Graphics/RHI/Vulkan/VulkanDevice.h"
 #include "Graphics/RHI/Vulkan/VulkanFence.h"
@@ -17,11 +16,11 @@ VulkanRenderQueue::VulkanRenderQueue(RHIQueueType type /*= RenderQueueType::eGra
 	QueueFamilyIndices indices = findQueueFamilies();
 	if (type == RHIQueueType::eGraphic)
 	{
-		sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().getQueue(indices.graphicsFamily.value(), 0, &mQueue);
+		sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice().getQueue(indices.graphicsFamily.value(), 0, &mQueue);
 	}
 	else if (type == RHIQueueType::eTransfer)
 	{
-		sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().getQueue(indices.transferFamily.value(), 0, &mQueue);
+		sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice().getQueue(indices.transferFamily.value(), 0, &mQueue);
 	}
 }
 
@@ -60,7 +59,7 @@ void VulkanRenderQueue::ExecuteMultiCommandLists(const LArray<RHICmdList*>& comm
 
 RHISwapChainPtr VulkanRenderQueue::CreateSwapChain(LWindow* window, const RHISwapchainDesc& desc)
 {
-	RHISwapChainPtr swapchin = CreateRHIObject<VulkanSwapChain>(window, desc);
+	RHISwapChainPtr swapchin = CreateRHIObject<VulkanSwapChain>(window, desc,this);
 	swapchin->As<VulkanSwapChain>()->Init();
 	return swapchin;
 }

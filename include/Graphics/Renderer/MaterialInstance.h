@@ -1,21 +1,17 @@
 #pragma once
 #include "Graphics/RenderConfig.h"
 #include "Core/CoreMin.h"
-
 #include "Graphics/RHI/RHITypes.h"
 #include "Graphics/RHI/RHIShader.h"
-
 #include "Graphics/Renderer/MaterialParam.h"
-
 #include "Graphics/RenderTypes.h"
 #include "Core/Object/SharedObject.h"
-
 
 namespace luna::graphics
 {
 
 class MaterialBaseTemplateAsset;
-
+class RhiUniformBufferPack;
 enum class MaterialParamType : uint8_t
 {
 	Int,
@@ -210,7 +206,7 @@ class RENDER_API MaterialInstance : public MaterialInstanceGraphBase
 	RegisterTypeEmbedd(MaterialInstance, MaterialInstanceGraphBase)
 public:
 	MaterialInstance();
-
+	~MaterialInstance();
 public:
 	bool Ready()
 	{
@@ -231,7 +227,7 @@ public:
 public:
 	size_t mMaterialBufferSize = 0;
 
-	RHIResourcePtr mCBuffer;
+	RhiUniformBufferPack* mCBuffer;
 
 	RHIViewPtr mCBufferView;
 

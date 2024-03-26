@@ -6,7 +6,6 @@
 #include "Graphics/RHI/RHIDevice.h"
 #include "Graphics/RHI/RHIFence.h"
 #include "Graphics/RHI/Vulkan/VulkanDevice.h"
-#include "Graphics/RenderModule.h"
 #include "Graphics/RHI/Vulkan/VulkanRenderQueue.h"
 
 namespace luna::graphics
@@ -25,7 +24,7 @@ public:
 
 		vk::SemaphoreCreateInfo createInfo;		
 		createInfo.pNext = &timelineCreateInfo;		
-		VULKAN_ASSERT(sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().createSemaphore(&createInfo, nullptr, &mSempahore));		
+		VULKAN_ASSERT(sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice().createSemaphore(&createInfo, nullptr, &mSempahore));
 	}
 
 	vk::Semaphore mSempahore;
@@ -60,7 +59,7 @@ public:
 	{
 		
 		uint64_t count;
-		VULKAN_ASSERT(sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().getSemaphoreCounterValue(mSempahore, &count));		
+		VULKAN_ASSERT(sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice().getSemaphoreCounterValue(mSempahore, &count));
 		return count;
 	}
 
@@ -72,7 +71,7 @@ public:
 		waitInfo.pSemaphores = &mSempahore;
 		waitInfo.pValues = &value;
 
-		VULKAN_ASSERT(sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().waitSemaphores(&waitInfo, UINT64_MAX));		
+		VULKAN_ASSERT(sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice().waitSemaphores(&waitInfo, UINT64_MAX));
 	}
 
 };

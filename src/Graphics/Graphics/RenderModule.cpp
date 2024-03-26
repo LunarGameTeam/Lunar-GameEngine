@@ -9,10 +9,9 @@
 #include "imgui.h"
 #include "Graphics/Renderer/RenderContext.h"
 #include "Graphics/Renderer/RenderScene.h"
-#include "Graphics/Renderer/ImGuiTexture.h"
-
 #include "Graphics/RHI/RHISwapchain.h"
 #include "Graphics/RHI/RHIDevice.h"
+#include "Graphics/RHI/RhiUtils/RHIResourceGenerateHelper.h"
 #include "Graphics/RHI/RHIMemory.h"
 #include "Graphics/RHI/RHIRenderPass.h"
 #include "Graphics/RHI/VertexLayout.h"
@@ -25,8 +24,7 @@
 #include "Graphics/Asset/MeshAsset.h"
 #include "Graphics/Asset/MeshAssetUtils.h"
 #include "imgui_impl_sdl2.h"
-#include "imgui_impl_dx12.h"
-#include "imgui_impl_vulkan.h"
+#include "Graphics/RHI/RhiImgui/RHIImguiHelper.h"
 
 
 luna::graphics::RenderModule* luna::sRenderModule = nullptr;
@@ -62,13 +60,13 @@ bool RenderModule::OnLoad()
 
 bool RenderModule::OnInit()
 {
-	mRenderContext = new RenderResourceGenerateHelper();
-	mRenderContext->Init();
-	mRenderCommandEncoder = new RenderCommandGenerateHelper();
-	mRenderCommandEncoder->Init(mRenderContext->mDevice);
+	GenerateRenderDevice();
+	GenerateRhiResourceGenerator();
+	mGraphicQueue = GenerateRenderQueue();
+	GenerateGlobelRenderResourceContext();
+	GenerateGlobelEncoderHelper();
 
-	graphics::RHIDevice* rhiDevice = GetRHIDevice();
-	mGraphicCmd = rhiDevice->CreateSinglePoolSingleCommondList(RHICmdListType::Graphic3D);
+	mGraphicCmd = sGlobelRenderDevice->CreateSinglePoolSingleCommondList(RHICmdListType::Graphic3D);
 		
 	//此处做Render系统的Init
 
@@ -77,10 +75,10 @@ bool RenderModule::OnInit()
 	mSwapchainDesc.mWidth = mainWindow->GetWindowWidth();
 	mSwapchainDesc.mHeight = mainWindow->GetWindowHeight();
 	mSwapchainDesc.mFrameNumber = 2;
-	mMainSwapchain = mRenderContext->mGraphicQueue->CreateSwapChain(
+	mMainSwapchain = mGraphicQueue->CreateSwapChain(
 		mainWindow, mSwapchainDesc);
 
-	mFrameFence = rhiDevice->CreateFence();
+	mFrameFence = sGlobelRenderDevice->CreateFence();
 
 	mDefaultWhiteTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/White.png"));
 	mDefaultNormalTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/Normal.png"));
@@ -88,21 +86,14 @@ bool RenderModule::OnInit()
 	mRenderer = MakeShared<SceneRenderer>();
 	InitBasePipeline(mRenderer->GetSceneRenderPipeline());
 	mGuiRenderer = MakeShared<ImguiRenderer>();
-	mGuiRenderer->Init(mMainSwapchain, mRenderContext);
+	mGuiRenderer->Init(mMainSwapchain, mGraphicQueue);
 	return true;
 }
 
 
 void RenderModule::Tick(float deltaTime)
 {
-	if (sRenderModule->GetDeviceType() == graphics::RenderDeviceType::DirectX12)
-	{
-		ImGui_ImplDX12_NewFrame();
-	}
-	else if (sRenderModule->GetDeviceType() == graphics::RenderDeviceType::Vulkan)
-	{
-		ImGui_ImplVulkan_NewFrame();
-	}
+	ImGuiRhiGenNewFrame();
 	ImGui_ImplSDL2_NewFrame();
 	ImGui::NewFrame();
 	gEngine->OnImGUI();
@@ -113,7 +104,9 @@ void RenderModule::Tick(float deltaTime)
 void RenderModule::RenderTick(float delta_time)
 {
 	ZoneScoped;
-	mRenderContext->OnFrameBegin();
+	//检查是数据拷贝池是否需要刷新
+	sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CheckStageRefresh();
+	mRenderer->OnFrameBegin();
 	//RenderScene发起渲染
 	//mFrameFence->Wait(mFrameFenceValue);
 	//sRenderModule->GetRenderContext()->mFence->Wait(sRenderModule->GetRenderContext()->mFenceValue);
@@ -138,11 +131,10 @@ void RenderModule::RenderTick(float delta_time)
 		allCommand.push_back(prepareCommand);
 	}
 	allCommand.push_back(mGraphicCmd->GetCmdList());
-	mRenderContext->mGraphicQueue->ExecuteMultiCommandLists(allCommand);
+	mGraphicQueue->ExecuteMultiCommandLists(allCommand);
 	mGuiRenderer->RenderTick();	
 	
-	mFrameFenceValue = mFrameFence->IncSignal(mRenderContext->mGraphicQueue.get());
-	mRenderContext->OnFrameEnd();
+	mFrameFenceValue = mFrameFence->IncSignal(mGraphicQueue.get());
 	{
 		ZoneScopedN("Present");
 		mMainSwapchain->PresentFrame(mFrameFence, mFrameFenceValue);
@@ -173,7 +165,7 @@ void RenderModule::RemoveScene(RenderScene* val)
 RHICmdList* RenderModule::PrepareRender()
 {
 	ZoneScoped;
-	return mRenderContext->FlushStaging();
+	return sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->FlushStaging();
 }
 
 void RenderModule::OnMainWindowResize(LWindow& window, WindowEvent&evt)

@@ -2,9 +2,6 @@
 #include "Graphics/RHI/DirectX12/DX12RenderQueue.h"
 #include "Graphics/RHI/DirectX12/DX12Device.h"
 
-#include "Graphics/RenderModule.h"
-
-
 namespace luna::graphics
 {
 DX12Fence::DX12Fence() : mEvent(nullptr)
@@ -39,7 +36,7 @@ void DX12Fence::Wait(size_t fence_value_check)
 
 bool DX12Fence::InitFence()
 {	
-	ID3D12Device* d3d12Device = sRenderModule->GetDevice<DX12Device>()->GetDx12Device();
+	ID3D12Device* d3d12Device = sGlobelRenderDevice->As<DX12Device>()->GetDx12Device();
 	assert(d3d12Device != nullptr);
 	HRESULT hr = d3d12Device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&mFence));
 	assert(SUCCEEDED(hr));

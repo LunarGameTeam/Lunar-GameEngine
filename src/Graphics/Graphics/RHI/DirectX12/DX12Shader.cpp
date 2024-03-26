@@ -143,6 +143,9 @@ bool DX12ShaderBlob::InitShader(const RHIShaderDesc& resource_desc)
 		case D3D_SHADER_INPUT_TYPE::D3D_SIT_STRUCTURED:
 			bindKey.mViewType = RHIViewType::kStructuredBuffer;
 			break;
+		case D3D_SHADER_INPUT_TYPE::D3D_SIT_UAV_RWSTRUCTURED:
+			bindKey.mViewType = RHIViewType::kRWStructuredBuffer;
+			break;
 		default:
 			assert(false);
 			break;

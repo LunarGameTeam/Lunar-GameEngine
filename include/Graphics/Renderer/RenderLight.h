@@ -5,6 +5,7 @@
 #include "Graphics/RenderTypes.h"
 #include "Core/Math/Math.h"
 #include "Graphics/RHI/RHIPipeline.h"
+#include "Graphics/RHI/RhiUtils/RHIResourceGenerateHelper.h"
 #include "Graphics/Asset/MaterialTemplate.h"
 #include <memory>
 
@@ -48,7 +49,7 @@ class RENDER_API PointBasedRenderLightData : public RenderData
 
 	LHoldIdArray<PointBasedLight> mAllLights;
 
-	RHIResourcePtr mLightParameterBuffer;
+	RhiUniformBufferPack mLightParameterBuffer;
 
 	RHIViewPtr     mLightParameterBufferView;
 
@@ -71,6 +72,8 @@ class RENDER_API PointBasedRenderLightData : public RenderData
 	LSharedPtr<MaterialComputeAsset> mMaterial;
 
 	LSharedPtr<MaterialInstanceComputeBase> mMaterialInstance;
+
+	bool LightDataInitSucceed = false;
 public:
 	PointBasedRenderLightData();
 

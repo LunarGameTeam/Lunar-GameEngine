@@ -1,8 +1,11 @@
-﻿#include "Graphics/RenderModule.h"
-#include "Graphics/Asset/MeshAsset.h"
+﻿#include "Graphics/Asset/MeshAsset.h"
 #include "Graphics/Asset/SkeletalMeshAsset.h"
 #include "Graphics/Renderer/SkeletonSkin.h"
-
+#include "Graphics/RHI/RhiUtils/RHIResourceGenerateHelper.h"
+#include "Graphics/RHI/RHIDevice.h"
+#include "Graphics/Renderer/RenderMesh.h"
+#include "Graphics/Renderer/RenderObject.h"
+#include "Graphics/Renderer/RenderScene.h"
 namespace  luna::graphics
 {
 
@@ -11,12 +14,12 @@ SkeletonSkinData::SkeletonSkinData()
 	RHIBufferDesc desc;
 	desc.mBufferUsage = RHIBufferUsage::StructureBuffer;
 	desc.mSize = sizeof(LMatrix4f) * 128;
-	mSkeletonResultBuffer = sRenderModule->mRenderContext->CreateBuffer(RHIHeapType::Upload, desc);
+	mSkeletonResultBuffer = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateBuffer(RHIHeapType::Upload, desc);
 	ViewDesc viewDesc;
 	viewDesc.mViewType = RHIViewType::kStructuredBuffer;
 	viewDesc.mViewDimension = RHIViewDimension::BufferView;
 	viewDesc.mStructureStride = sizeof(LMatrix4f);
-	mSkeletonResultBufferView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
+	mSkeletonResultBufferView = sGlobelRenderDevice->CreateView(viewDesc);
 	mSkeletonResultBufferView->BindResource(mSkeletonResultBuffer);
 }
 

@@ -5,17 +5,15 @@
 #include "Core/Memory/PtrBinding.h"
 #include "Core/Foundation/String.h"
 #include "Core/Framework/LunaCore.h"
-
-#include "Graphics/RenderModule.h"
 #include "Graphics/Asset/MeshAsset.h"
 #include "Graphics/Renderer/MaterialInstance.h"
-
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 #include"Graphics/Asset/tinyddsloader.h"
-
+#include "Graphics/RHI/RhiUtils/RHIResourceGenerateHelper.h"
+#include "Graphics/RHI/RHIDevice.h"
 namespace luna::graphics
 {
 
@@ -38,7 +36,6 @@ RegisterTypeEmbedd_Imp(TextureCube)
 void Texture2D::OnAssetFileRead(LSharedPtr<JsonDict> meta, LSharedPtr<LFile> file)
 {
 	Super::OnAssetFileRead(meta, file);
-	static RenderModule* render = gEngine->GetTModule<RenderModule>();
 	mDesc.Dimension = RHIResDimension::Texture2D;
 	mDesc.mType = ResourceType::kTexture;
 	auto dds_type_test = file->GetPath().Find(".dds");
@@ -125,7 +122,7 @@ void Texture2D::Init()
 		RHISubResourceCopyLayerDesc newLayer;
 		newLayer.mEachMipmapLevelSize.push_back(curData->m_memSlicePitch);
 		sourceCopyOffset.mEachArrayMember.push_back(newLayer);
-		mRHIRes = sRenderModule->mRenderContext->CreateTexture(mDesc, (byte*)curData->m_mem, curData->m_memSlicePitch, sourceCopyOffset);
+		mRHIRes = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateTexture(mDesc, (byte*)curData->m_mem, curData->m_memSlicePitch, sourceCopyOffset);
 	}
 	break;
 	case TextureMemoryType::WIC:
@@ -133,7 +130,7 @@ void Texture2D::Init()
 		RHISubResourceCopyLayerDesc newLayer;
 		newLayer.mEachMipmapLevelSize.push_back(mDataSize);
 		sourceCopyOffset.mEachArrayMember.push_back(newLayer);
-		mRHIRes = sRenderModule->mRenderContext->CreateTexture(mDesc, (byte*)mData, mDataSize, sourceCopyOffset);
+		mRHIRes = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateTexture(mDesc, (byte*)mData, mDataSize, sourceCopyOffset);
 	}
 	}
 	mDesc.mImageUsage = RHIImageUsage::SampledBit;
@@ -142,7 +139,7 @@ void Texture2D::Init()
 	ViewDesc viewDesc;
 	viewDesc.mViewType = RHIViewType::kTexture;
 	viewDesc.mViewDimension = RHIViewDimension::TextureView2D;
-	mView = sRenderModule->GetRHIDevice()->CreateView(viewDesc);
+	mView = sGlobelRenderDevice->CreateView(viewDesc);
 	mView->BindResource(mRHIRes);
 	
 	Release();
@@ -228,7 +225,7 @@ void TextureCube::Init()
 		assert(false);
 	}
 	}
-	mRHIRes = sRenderModule->GetRenderContext()->CreateTexture(mDesc, image_data.data(), image_data.size(), sourceCopyOffset);
+	mRHIRes = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateTexture(mDesc, image_data.data(), image_data.size(), sourceCopyOffset);
 
 	ViewDesc desc;
 	desc.mViewType = RHIViewType::kTexture;
@@ -236,7 +233,7 @@ void TextureCube::Init()
 	desc.mBaseMipLevel = 0;
 	desc.mLevelCount = mDesc.MipLevels;
 	desc.mLayerCount = 6;
-	mResView = sRenderModule->GetRHIDevice()->CreateView(desc);
+	mResView = sGlobelRenderDevice->CreateView(desc);
 	mResView->BindResource(mRHIRes.get());
 
 }

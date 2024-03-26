@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Graphics/RHI/RHIMemory.h"
-#include "Graphics/RenderModule.h"
 #include "Graphics/RHI/Vulkan/VulkanDevice.h"
 #include <Vulkan/vulkan.h>
 
@@ -34,7 +33,7 @@ public:
 		default:
 			break;
 		}
-		vk::Device device = sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice();
+		vk::Device device = sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice();
 		vk::MemoryAllocateInfo alloc_info = {};		
 		alloc_info.pNext = NULL;
 		alloc_info.allocationSize = desc.SizeInBytes;
@@ -51,7 +50,7 @@ public:
 
 	~VulkanMemory() override
 	{
-		sRenderModule->GetDevice<VulkanDevice>()->GetVKDevice().freeMemory(mMemory, nullptr);
+		sGlobelRenderDevice->As<VulkanDevice>()->GetVKDevice().freeMemory(mMemory, nullptr);
 	};
 
 	vk::DeviceMemory mMemory;

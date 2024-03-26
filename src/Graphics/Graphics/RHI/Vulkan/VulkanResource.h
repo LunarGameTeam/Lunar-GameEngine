@@ -3,7 +3,6 @@
 #include "Graphics/RHI/Vulkan/VulkanPch.h"
 
 #include "Graphics/RHI/RHIDevice.h"
-#include "Graphics/RenderModule.h"
 #include "Graphics/RHI/Vulkan/VulkanDevice.h"
 #include "Graphics/RHI/Vulkan/VulkanSwapchain.h"
 

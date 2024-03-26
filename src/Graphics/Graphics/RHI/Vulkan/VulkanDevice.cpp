@@ -1,7 +1,5 @@
 #define VMA_IMPLEMENTATION 
 #include "Graphics/RHI/Vulkan/VulkanDevice.h"
-#include "Graphics/RenderModule.h"
-
 #include <stdexcept>
 // --- other includes ---
 #define VK_USE_PLATFORM_WIN32_KHR
@@ -121,7 +119,7 @@ VkResult VulkanMemoryManagerPool::UnmapMemory(VmaAllocation& alloc)
 uint32_t findMemoryType(uint32_t typeBits, vk::MemoryPropertyFlags properties)
 {
 	vk::PhysicalDeviceMemoryProperties memProperties;
-	vk::PhysicalDevice physicalDevice = sRenderModule->GetDevice<VulkanDevice>()->GetPhysicalDevice();
+	vk::PhysicalDevice physicalDevice = sGlobelRenderDevice->As<VulkanDevice>()->GetPhysicalDevice();
 	physicalDevice.getMemoryProperties(&memProperties);
 	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
 	{
@@ -139,7 +137,7 @@ uint32_t findMemoryType(uint32_t typeBits, vk::MemoryPropertyFlags properties)
 
 QueueFamilyIndices findQueueFamilies()
 {
-	vk::PhysicalDevice device = sRenderModule->GetDevice<VulkanDevice>()->GetPhysicalDevice();
+	vk::PhysicalDevice device = sGlobelRenderDevice->As<VulkanDevice>()->GetPhysicalDevice();
 	QueueFamilyIndices indices;
 	uint32_t queueFamilyCount = 0;
 	device.getQueueFamilyProperties(&queueFamilyCount, nullptr);
@@ -174,7 +172,7 @@ VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMes
 
 void CmdBeginDebugUtilsLabelEXT(VkCommandBuffer commandBuffer, const VkDebugUtilsLabelEXT* pLabelInfo)
 {
-	static auto func = (PFN_vkCmdBeginDebugUtilsLabelEXT)vkGetInstanceProcAddr(sRenderModule->GetDevice<VulkanDevice>()->GetVkInstance(), "vkCmdBeginDebugUtilsLabelEXT");
+	static auto func = (PFN_vkCmdBeginDebugUtilsLabelEXT)vkGetInstanceProcAddr(sGlobelRenderDevice->As<VulkanDevice>()->GetVkInstance(), "vkCmdBeginDebugUtilsLabelEXT");
 	if (func != nullptr) {
 		return func(commandBuffer , pLabelInfo);
 	}
@@ -185,7 +183,7 @@ void CmdBeginDebugUtilsLabelEXT(VkCommandBuffer commandBuffer, const VkDebugUtil
 
 void CmdEndDebugUtilsLabelEXT(VkCommandBuffer commandBuffer)
 {
-	static auto func = (PFN_vkCmdEndDebugUtilsLabelEXT)vkGetInstanceProcAddr(sRenderModule->GetDevice<VulkanDevice>()->GetVkInstance(), "vkCmdEndDebugUtilsLabelEXT");
+	static auto func = (PFN_vkCmdEndDebugUtilsLabelEXT)vkGetInstanceProcAddr(sGlobelRenderDevice->As<VulkanDevice>()->GetVkInstance(), "vkCmdEndDebugUtilsLabelEXT");
 	if (func != nullptr) {
 		return func(commandBuffer);
 	}

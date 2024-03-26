@@ -11,7 +11,7 @@
 #include "Graphics/Renderer/RenderTarget.h"
 #include "Graphics/Renderer/RenderObject.h"
 #include "Graphics/FrameGraph/FrameGraph.h"
-
+#include "Graphics/RHI/RhiUtils/RHIResourceGenerateHelper.h"
 #include <functional>
 
 
@@ -51,7 +51,7 @@ class RENDER_API RenderViewParameterData : public RenderData
 
 	LSharedPtr<graphics::ShaderCBuffer> mViewCbuffer = nullptr;
 
-	RHIResourcePtr  mViewParamRes;
+	RhiUniformBufferPack  mViewParamRes;
 
 	RHIViewPtr      mViewParamCbufferView;
 
@@ -66,8 +66,6 @@ public:
 	const RHICBufferDesc& GetParamDesc() { return mCbufferDesc; };
 
 	void SetMaterialParameter(MaterialInstanceBase* matInstance);
-
-	RHIResource* GetResource() { return mViewParamRes; };
 
 	void MarkIntrinsicsDirty() { mIntrinsicsDirty = true; }
 

@@ -2,7 +2,8 @@
 #include "Graphics/ForwardPipeline/ForwardRenderData.h"
 #include "Core/Asset/AssetModule.h"
 #include "Graphics/FrameGraph/FrameGraphResource.h"
-#include "Graphics/RenderModule.h"
+#include "Graphics/RHI/RhiUtils/RHIResourceGenerateHelper.h"
+#include "Graphics/Renderer/RenderContext.h"
 namespace luna::graphics
 {
 	PARAM_ID(_SkyTex);
@@ -40,7 +41,7 @@ namespace luna::graphics
 		//sceneRenderData->SetMaterialParameter(mSkyBoxDefaultMtlInstance);
 		mSkyBoxDefaultMtlInstance->SetShaderInput(ParamID__SkyTex, sceneRenderData->mEnvTex->GetView());
 		PARAM_ID(_ClampSampler);
-		mSkyBoxDefaultMtlInstance->SetShaderInput(ParamID__ClampSampler, sRenderModule->GetRenderContext()->mClamp.mView);
+		mSkyBoxDefaultMtlInstance->SetShaderInput(ParamID__ClampSampler, sGlobelRhiResourceGenerator->GetClampSamper().mView);
 		viewParamData->SetMaterialParameter(mSkyBoxDefaultMtlInstance);
 		ViewTargetData* viewRtData = view->RequireData<ViewTargetData>();
 		viewRtData->GenerateOpaqueResultRenderTarget(builder, node,true,true);
@@ -48,7 +49,7 @@ namespace luna::graphics
 		node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RHICmdList* cmdlist)
 			{
 				mSkyBoxDefaultMtlInstance->UpdateBindingSet();
-				sRenderModule->GetRenderCommandHelper()->DrawMesh(cmdlist,this->mSkyboxRenderMesh, this->mSkyBoxDefaultMtlInstance);
+				sGlobelRenderCommondEncoder->DrawMesh(cmdlist,this->mSkyboxRenderMesh, this->mSkyBoxDefaultMtlInstance);
 			});
 	};
 }

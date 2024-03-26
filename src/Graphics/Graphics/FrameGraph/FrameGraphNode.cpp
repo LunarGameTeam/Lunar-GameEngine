@@ -1,7 +1,5 @@
 #include "Graphics/FrameGraph/FrameGraphNode.h"
 #include "Graphics/FrameGraph/FrameGraphResource.h"
-#include "Graphics/RenderModule.h"
-
 namespace luna::graphics
 {
 
