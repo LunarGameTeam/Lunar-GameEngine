@@ -60,7 +60,7 @@ bool RenderModule::OnLoad()
 
 bool RenderModule::OnInit()
 {
-	GenerateRenderDevice();
+	mRhiDevice = GenerateRenderDevice();
 	GenerateRhiResourceGenerator();
 	mGraphicQueue = GenerateRenderQueue();
 	GenerateGlobelRenderResourceContext();

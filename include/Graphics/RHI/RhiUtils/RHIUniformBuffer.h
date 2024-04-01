@@ -64,15 +64,15 @@ namespace luna::graphics
 
 		size_t mMaxUid = 0;
 
-		LUnorderedMap<size_t, LUnorderedMap<size_t, RhiUniformBufferPack>> mEmptyPool;
+		LUnorderedMap<size_t, LUnorderedMap<size_t, LSharedPtr<RhiUniformBufferPack>>> mEmptyPool;
 
 		DeviceResourceGenerateHelper* mResCreateHelper;
 	public:
 		RhiUniformBufferPool(DeviceResourceGenerateHelper* resCreateHelper);
 
-		RhiUniformBufferPack AllocUniform(size_t uniformSize);
+		LSharedPtr<RhiUniformBufferPack> AllocUniform(size_t uniformSize);
 
-		void CreateUniformBufferAndView(const RHICBufferDesc& uniform, RhiUniformBufferPack& bufferOut, RHIViewPtr& viewOut);
+		void CreateUniformBufferAndView(const RHICBufferDesc& uniform, LSharedPtr<RhiUniformBufferPack>& bufferOut, RHIViewPtr& viewOut);
 
 		void FreeUniform(RhiUniformBufferPack* uniformData);
 	private:

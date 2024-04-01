@@ -227,7 +227,7 @@ public:
 public:
 	size_t mMaterialBufferSize = 0;
 
-	RhiUniformBufferPack* mCBuffer;
+	LSharedPtr<RhiUniformBufferPack> mCBuffer;
 
 	RHIViewPtr mCBufferView;
 

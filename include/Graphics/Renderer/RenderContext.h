@@ -83,11 +83,13 @@ public:
 	void Dispatch(RHICmdList* cmdList, MaterialInstanceComputeBase* mat, LVector4i dispatchSize);
 };
 
+RENDER_API extern graphics::RenderResourceContext* sGlobelRenderResourceContext;
+
+RENDER_API extern graphics::RenderCommandGenerateHelper* sGlobelRenderCommondEncoder;
+
 void  RENDER_API GenerateGlobelRenderResourceContext();
 
 void  RENDER_API GenerateGlobelEncoderHelper();
 
-luna::graphics::RenderResourceContext* sGlobelRenderResourceContext = nullptr;
 
-luna::graphics::RenderCommandGenerateHelper* sGlobelRenderCommondEncoder = nullptr;
 }

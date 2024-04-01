@@ -4,8 +4,8 @@
 #include "Graphics/RHI/RHIPch.h"
 #include "Graphics/RHI/RHIPtr.h"
 #include "Graphics/RHI/RHIMemory.h"
-
-
+#include "Core/Reflection/Reflection.h"
+#include "Core/Scripting/BindingTraits.h"
 namespace luna::graphics
 {
 
@@ -119,8 +119,14 @@ protected:
 	virtual void RefreshMemoryRequirements() const = 0;
 };
 
-class RHIResource;
+}
+namespace luna
+{
+	RegisterType(RENDER_API, graphics::RHIResource, RHIResource);
 
-
-
+}
+namespace luna::binding
+{
+	template<> struct binding_converter<graphics::RHIResource*> : native_converter<graphics::RHIResource> { };
+	template<> struct binding_proxy<graphics::RHIResource> : native_binding_proxy<graphics::RHIResource> { };
 }

@@ -4,6 +4,8 @@
 #include "Graphics/RHI/RHIDevice.h"
 namespace luna::graphics
 {
+	luna::graphics::RhiResourceGenerateHelper* sGlobelRhiResourceGenerator = nullptr;
+
 	void StaticSampler::Init(SamplerDesc& desc, ViewDesc& view)
 	{
 		mSampler = sGlobelRenderDevice->CreateSamplerExt(desc);
@@ -41,6 +43,13 @@ namespace luna::graphics
 		poolDesc.mPoolAllocateSizes[DescriptorHeapType::DSV] = 100;
 		poolDesc.mPoolAllocateSizes[DescriptorHeapType::RTV] = 100;
 		mDefaultPool = sGlobelRenderDevice->CreateDescriptorPool(poolDesc);
+
+		mDeviceResourceGen = MakeShared<DeviceResourceGenerateHelper>();
+		mUniformGenPool = MakeShared<RhiUniformBufferPool>(mDeviceResourceGen.get());
+		mShaderBlobCache = MakeShared<ShaderBlobCache>();
+		mPipelineCache = MakeShared<PipelineStateCache>(mShaderBlobCache.get());
+		mCmdSignatureCache = MakeShared<CmdSignatureCache>(mPipelineCache.get());
+
 	}
 
 	void ReleaseRhiResourceGenerator()
@@ -54,6 +63,7 @@ namespace luna::graphics
 	void GenerateRhiResourceGenerator()
 	{
 		sGlobelRhiResourceGenerator = new RhiResourceGenerateHelper();
+		sGlobelRhiResourceGenerator->Init();
 	}
 
 	RHIBindingSetPtr RhiResourceGenerateHelper::CreateBindingsetByDefaultPool(RHIBindingSetLayoutPtr layout)

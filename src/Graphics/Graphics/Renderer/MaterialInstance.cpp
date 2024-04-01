@@ -326,15 +326,11 @@ MaterialInstance::MaterialInstance() :
 }
 MaterialInstance::~MaterialInstance()
 {
-	if (mCBuffer != nullptr)
-	{
-		delete mCBuffer;
-	}
 }
+
 void MaterialInstance::Init()
 {
 	MaterialTemplateAsset* materialTemplate = dynamic_cast<MaterialTemplateAsset*>(mAsset);
-	mCBuffer = new RhiUniformBufferPack();
 	if (materialTemplate)
 	{
 		mTemplateParams = materialTemplate->GetTemplateParams();
@@ -342,7 +338,7 @@ void MaterialInstance::Init()
 		if (HasBindPoint(ParamID_MaterialBuffer))
 		{
 			RHICBufferDesc materialBufferDesc = GetConstantBufferDesc(ParamID_MaterialBuffer);
-			sGlobelRhiResourceGenerator->GetDeviceUniformObjectGenerator()->CreateUniformBufferAndView(materialBufferDesc, *mCBuffer, mCBufferView);
+			sGlobelRhiResourceGenerator->GetDeviceUniformObjectGenerator()->CreateUniformBufferAndView(materialBufferDesc, mCBuffer, mCBufferView);
 		}
 		UpdateParamsToBuffer();
 		PARAM_ID(_ClampSampler);

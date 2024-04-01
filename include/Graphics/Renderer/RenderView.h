@@ -51,7 +51,7 @@ class RENDER_API RenderViewParameterData : public RenderData
 
 	LSharedPtr<graphics::ShaderCBuffer> mViewCbuffer = nullptr;
 
-	RhiUniformBufferPack  mViewParamRes;
+	LSharedPtr<RhiUniformBufferPack>  mViewParamRes;
 
 	RHIViewPtr      mViewParamCbufferView;
 

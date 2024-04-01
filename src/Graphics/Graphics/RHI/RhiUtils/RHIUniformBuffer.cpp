@@ -29,7 +29,7 @@ namespace luna::graphics
 	) :mPool(pool)
 	{
 		mPhysicBuffer = physicBuffer;
-		mOffset = mOffset;
+		mOffset = offset;
 		mSize = size;
 		mUid = uid;
 	}
@@ -39,16 +39,17 @@ namespace luna::graphics
 		mResCreateHelper = resCreateHelper;
 		mSizePerBuffer = luna::CommonSize256K;
 		mAllocOffset = 0;
+		GenerateNewBuffer();
 	}
 
-	RhiUniformBufferPack RhiUniformBufferPool::AllocUniform(size_t uniformSize)
+	LSharedPtr<RhiUniformBufferPack> RhiUniformBufferPool::AllocUniform(size_t uniformSize)
 	{
 		size_t alignedAllocSize = luna::SizeAligned2Pow(uniformSize, 256);
 		auto poolArrayItor = mEmptyPool.find(alignedAllocSize);
 		if (poolArrayItor != mEmptyPool.end() && !poolArrayItor->second.empty())
 		{
 			auto Itor = poolArrayItor->second.begin();
-			RhiUniformBufferPack curPack = Itor->second;
+			LSharedPtr<RhiUniformBufferPack> curPack = Itor->second;
 			poolArrayItor->second.erase(Itor);
 			return curPack;
 		}
@@ -56,21 +57,22 @@ namespace luna::graphics
 		{
 			GenerateNewBuffer();
 		}
-		RhiUniformBufferPack curPack(this, resourcePack.back().get(), mAllocOffset, alignedAllocSize, mMaxUid);
+		LSharedPtr<RhiUniformBufferPack> newPack = MakeShared<RhiUniformBufferPack>(this, resourcePack.back().get(), mAllocOffset, alignedAllocSize, mMaxUid);
 		mMaxUid += 1;
 		mAllocOffset += alignedAllocSize;
-		return curPack;
+		return newPack;
 	}
 
-	void RhiUniformBufferPool::CreateUniformBufferAndView(const RHICBufferDesc& uniform, RhiUniformBufferPack& bufferOut, RHIViewPtr& viewOut)
+	void RhiUniformBufferPool::CreateUniformBufferAndView(const RHICBufferDesc& uniform, LSharedPtr<RhiUniformBufferPack>& bufferOut, RHIViewPtr& viewOut)
 	{
 		bufferOut = AllocUniform(uniform.mSize);
 		ViewDesc paramBufferviewDesc;
 		paramBufferviewDesc.mViewType = RHIViewType::kConstantBuffer;
 		paramBufferviewDesc.mViewDimension = RHIViewDimension::BufferView;
-		paramBufferviewDesc.mOffset = bufferOut.GetOffset();
+		paramBufferviewDesc.mOffset = bufferOut->GetOffset();
+		paramBufferviewDesc.mBufferSize = bufferOut->GetSize();
 		viewOut = sGlobelRenderDevice->CreateView(paramBufferviewDesc);
-		viewOut->BindResource(bufferOut.GetRhiBuffer());
+		viewOut->BindResource(bufferOut->GetRhiBuffer());
 	}
 
 	bool RhiUniformBufferPool::CheckHasEnoughSize(size_t sizeAlloc)
@@ -90,13 +92,14 @@ namespace luna::graphics
 
 	void RhiUniformBufferPool::FreeUniform(RhiUniformBufferPack* uniformData)
 	{
-		LUnorderedMap<size_t, RhiUniformBufferPack>& curPool = mEmptyPool[uniformData->GetSize()];
+		LUnorderedMap<size_t, LSharedPtr<RhiUniformBufferPack>>& curPool = mEmptyPool[uniformData->GetSize()];
 		auto itor = curPool.find(uniformData->GetUid());
 		if (itor != curPool.end())
 		{
 			return;
 		}
-		RhiUniformBufferPack newPack = *uniformData;
+		LSharedPtr<RhiUniformBufferPack> newPack = MakeShared<RhiUniformBufferPack>();
+		*newPack = *uniformData;
 		curPool.insert({ uniformData->GetUid(),newPack });
 	}
 }

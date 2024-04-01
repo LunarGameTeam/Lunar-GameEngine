@@ -1,6 +1,5 @@
 ﻿#include "Graphics/FrameGraph/FrameGraphPassGenerator.h"
 #include "Graphics/Asset/MeshAsset.h"
-
 namespace luna::graphics
 {
 class SceneOverLayPassGenerator : public FrameGraphPassGeneratorPerView

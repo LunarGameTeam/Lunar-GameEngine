@@ -110,8 +110,7 @@ private:
 
 RHIRenderQueuePtr RENDER_API GenerateRenderQueue(RHIQueueType queueType = RHIQueueType::eGraphic);
 
-void RENDER_API GenerateRenderDevice();
+graphics::RHIDevicePtr RENDER_API GenerateRenderDevice();
 
-luna::graphics::RHIDevice* sGlobelRenderDevice = nullptr;
-
+RENDER_API extern graphics::RHIDevice* sGlobelRenderDevice;
 }

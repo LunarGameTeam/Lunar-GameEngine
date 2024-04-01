@@ -74,5 +74,5 @@ namespace luna::graphics
 
 	void RENDER_API ReleaseRhiResourceGenerator();
 
-	luna::graphics::RhiResourceGenerateHelper* sGlobelRhiResourceGenerator = nullptr;
+	RENDER_API extern graphics::RhiResourceGenerateHelper* sGlobelRhiResourceGenerator;
 }

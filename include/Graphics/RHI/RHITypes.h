@@ -2,7 +2,6 @@
 
 #include "Graphics/RHI/RHIPtr.h"
 
-
 namespace luna::graphics
 {
 

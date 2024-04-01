@@ -113,7 +113,7 @@ namespace luna::graphics
 		mLightBufferGlobelMessage->SetData("cDirectionLightIndex", mDirectionLightIndex.data(), 16 * sizeof(int32_t));
 		mLightBufferGlobelMessage->SetData("cSpotLightIndex", mSpotLightIndex.data(), 256 * sizeof(int32_t));
 		//cbuffer的更新只需要制作一个copy的指令
-		renderScene->AddCbufferCopyCommand(mLightBufferGlobelMessage.get(), &mLightParameterBuffer);
+		renderScene->AddCbufferCopyCommand(mLightBufferGlobelMessage.get(), mLightParameterBuffer.get());
 		LightNumDirty = false;
 	}
 

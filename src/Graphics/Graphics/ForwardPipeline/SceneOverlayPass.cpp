@@ -4,7 +4,6 @@
 #include "Graphics/FrameGraph/FrameGraphResource.h"
 #include "Graphics/Asset/MeshAssetUtils.h"
 #include "Graphics/Renderer/RenderContext.h"
-
 namespace luna::graphics
 {
 

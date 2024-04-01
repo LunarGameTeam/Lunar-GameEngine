@@ -61,3 +61,11 @@ namespace luna::graphics
 		return mMemoryLayout;
 	}
 }
+namespace luna
+{
+	RegisterType_Imp(graphics::RHIResource, RHIResource)
+	{
+		cls->Binding<graphics::RHIResource>();
+		BindingModule::Luna()->AddType(cls);
+	}
+}

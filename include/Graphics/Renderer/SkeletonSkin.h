@@ -5,6 +5,7 @@
 
 #include "Core/Foundation/Container.h"
 #include "Graphics/Renderer/MaterialInstance.h"
+#include "Graphics/Renderer/RenderMesh.h"
 
 
 namespace luna::graphics

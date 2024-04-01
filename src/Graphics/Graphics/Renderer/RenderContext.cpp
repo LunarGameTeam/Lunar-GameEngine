@@ -11,6 +11,10 @@
 namespace luna::graphics 
 {
 
+luna::graphics::RenderResourceContext* sGlobelRenderResourceContext = nullptr;
+
+luna::graphics::RenderCommandGenerateHelper* sGlobelRenderCommondEncoder = nullptr;
+
 RenderResourceContext::RenderResourceContext()
 {
 };
@@ -142,6 +146,8 @@ void RenderCommandGenerateHelper::DrawMeshInstanced(
 	cmdList->DrawIndexedInstanced((uint32_t)indexCount, instancingSize, 0, 0, 0);
 }
 
+
+
 void GenerateGlobelRenderResourceContext()
 {
 	sGlobelRenderResourceContext = new RenderResourceContext();
@@ -153,6 +159,7 @@ void GenerateGlobelEncoderHelper()
 	sGlobelRenderCommondEncoder = new RenderCommandGenerateHelper();
 	sGlobelRenderCommondEncoder->Init();
 }
+
 }
 
 

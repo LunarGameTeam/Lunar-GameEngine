@@ -2,8 +2,9 @@
 #include "Graphics/RHI/RHIPch.h"
 #include "Graphics/RHI/RHITypes.h"
 #include "Graphics/RHI/RhiImgui/ImGuiTexture.h"
-class SDL_Window;
-class ImDrawData;
+#include "imgui_impl_dx12.h"
+#include "imgui_impl_vulkan.h"
+#include "imgui_impl_sdl2.h"
 namespace luna::graphics
 {
 	void RENDER_API RenderImguiInit(

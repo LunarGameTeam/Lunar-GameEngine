@@ -8,8 +8,8 @@
 #include "Graphics/RHI/Vulkan/VulkanRenderQueue.h"
 namespace luna::graphics
 {
-	
-
+	RENDER_API CONFIG_IMPLEMENT(LString, Render, RenderDeviceType, "Vulkan");
+	luna::graphics::RHIDevice* sGlobelRenderDevice = nullptr;
 	RHIRenderQueuePtr GenerateRenderQueue(RHIQueueType queueType)
 	{
 		RHIRenderQueuePtr curRenderQueue;
@@ -20,12 +20,15 @@ namespace luna::graphics
 		return curRenderQueue;
 	}
 
-	void GenerateRenderDevice()
+	graphics::RHIDevicePtr GenerateRenderDevice()
 	{
+		graphics::RHIDevicePtr curDeviceValue;
 		if (Config_RenderDeviceType.GetValue() == "DirectX12")
-			sGlobelRenderDevice = CreateRHIObject<DX12Device>();
+			curDeviceValue = CreateRHIObject<DX12Device>();
 		else
-			sGlobelRenderDevice = CreateRHIObject<VulkanDevice>();
+			curDeviceValue = CreateRHIObject<VulkanDevice>();
+		sGlobelRenderDevice = curDeviceValue.get();
 		sGlobelRenderDevice->InitDeviceData();
+		return curDeviceValue;
 	}
 }

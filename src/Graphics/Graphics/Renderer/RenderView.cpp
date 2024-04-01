@@ -30,7 +30,7 @@ void RenderViewParameterData::PerViewUpdate(RenderView* renderView)
 	mViewCbuffer->Set("cProjectionMatrix", mProjMatrix);
 	mViewCbuffer->Set("cViewMatrix", mExtrinsicsParameter.mViewMatrix);
 	mViewCbuffer->Set("cCamPos", mExtrinsicsParameter.mPosition);
-	renderView->mOwnerScene->AddCbufferCopyCommand(mViewCbuffer.get(), &mViewParamRes);
+	renderView->mOwnerScene->AddCbufferCopyCommand(mViewCbuffer.get(), mViewParamRes.get());
 	mIntrinsicsDirty = false;
 	mExtrinsicsDirty = false;
 }

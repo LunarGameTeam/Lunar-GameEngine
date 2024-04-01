@@ -87,6 +87,7 @@ private:
 
 	RHISwapChainPtr                    mMainSwapchain;
 
+	graphics::RHIDevicePtr             mRhiDevice;
 	bool                               mNeedResizeSwapchain = false;
 };
 

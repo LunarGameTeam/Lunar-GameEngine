@@ -49,7 +49,7 @@ class RENDER_API PointBasedRenderLightData : public RenderData
 
 	LHoldIdArray<PointBasedLight> mAllLights;
 
-	RhiUniformBufferPack mLightParameterBuffer;
+	LSharedPtr<RhiUniformBufferPack> mLightParameterBuffer;
 
 	RHIViewPtr     mLightParameterBufferView;
 
