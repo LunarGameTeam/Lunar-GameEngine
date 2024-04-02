@@ -88,11 +88,6 @@ void LShaderInstance::Init(
 		{
 			bindingKeys.push_back(it.second);
 		}
-
-		for (auto itor : mRhiShader->mBindConstants)
-		{
-		}
-
 		mLayout = sGlobelRenderDevice->CreateBindingSetLayout(bindingKeys, mRhiShader->mBindConstants);
 		mInit = true;
 	}

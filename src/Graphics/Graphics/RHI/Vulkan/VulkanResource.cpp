@@ -111,6 +111,8 @@ VulkanResource::VulkanResource(const RHIBufferDesc& desc) : RHIResource(desc)
 		mBufferInfo.usage |= vk::BufferUsageFlagBits::eVertexBuffer;
 	if (Has(desc.mBufferUsage, RHIBufferUsage::StructureBuffer))
 		mBufferInfo.usage |= vk::BufferUsageFlagBits::eStorageBuffer;
+	if (Has(desc.mBufferUsage, RHIBufferUsage::RWStructureBufferBit))
+		mBufferInfo.usage |= vk::BufferUsageFlagBits::eStorageBuffer;
 	
 	mBufferInfo.sharingMode = vk::SharingMode::eExclusive;
 	

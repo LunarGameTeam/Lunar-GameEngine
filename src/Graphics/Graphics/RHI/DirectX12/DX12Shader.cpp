@@ -63,18 +63,17 @@ bool DX12ShaderBlob::InitShader(const RHIShaderDesc& resource_desc)
 	hr = sReflection->GetPartReflection(partIndex, IID_PPV_ARGS(&mShaderReflection));
 	assert(SUCCEEDED(hr));
 
-	auto shadeReflection = GetDX12ShaderReflection();
 	D3D12_SHADER_DESC shaderDesc;
-	shadeReflection->GetDesc(&shaderDesc);
+	mShaderReflection->GetDesc(&shaderDesc);
 	for (UINT i = 0; i < shaderDesc.ConstantBuffers; ++i)
 	{
 		RHICBufferDesc cb;
-		const auto& it = shadeReflection->GetConstantBufferByIndex(i);
+		const auto& it = mShaderReflection->GetConstantBufferByIndex(i);
 		D3D12_SHADER_BUFFER_DESC dxShaderDesc;
 		it->GetDesc(&dxShaderDesc);
 		cb.mName = dxShaderDesc.Name;
 		size_t hash = cb.mName.Hash();
-		if (HasBindPoint(LString(dxShaderDesc.Name).Hash()))
+		if (dxShaderDesc.Type != D3D_CT_CBUFFER || HasBindPoint(LString(dxShaderDesc.Name).Hash()))
 			continue;
 		cb.mSize = SizeAligned2Pow(dxShaderDesc.Size, 256);
 
@@ -124,7 +123,7 @@ bool DX12ShaderBlob::InitShader(const RHIShaderDesc& resource_desc)
 	for (UINT i = 0; i < shaderDesc.BoundResources; ++i)
 	{
 		D3D12_SHADER_INPUT_BIND_DESC shaderInputDesc;
-		shadeReflection->GetResourceBindingDesc(i, &shaderInputDesc);
+		mShaderReflection->GetResourceBindingDesc(i, &shaderInputDesc);
 		RHIBindPoint bindKey;
 		bindKey.mName = shaderInputDesc.Name;
 		bindKey.mSlot = shaderInputDesc.BindPoint;
@@ -150,9 +149,32 @@ bool DX12ShaderBlob::InitShader(const RHIShaderDesc& resource_desc)
 			assert(false);
 			break;
 		}
-		mBindPoints[bindKey.mName.Hash()] = bindKey;
+		if (bindKey.mViewType == RHIViewType::kConstantBuffer && bindKey.mSpace == 4)
+		{
+			LString curName = shaderInputDesc.Name;
+			auto bufferDesc = mUniformBuffers[curName.Hash()];
+			RHIPushConstantValue bindValue;
+			bindValue.mName = shaderInputDesc.Name;
+			bindValue.mOffset = 0;
+			bindValue.mSize = bufferDesc.mSize;
+			bindValue.mRegisterID = shaderInputDesc.BindPoint;
+			bindValue.mRegisterSpace = shaderInputDesc.Space;
+			for (auto eachValue : bufferDesc.mVars)
+			{
+				RHIPushConstantMember mMember;
+				mMember.mName = eachValue.second.mName;
+				mMember.mOffset = eachValue.second.mOffset;
+				mMember.mSize = eachValue.second.mSize;
+				bindValue.mValueMember.insert({ eachValue.second.mName,mMember });
+			}
+			mBindConstants[bindKey.mName.Hash()] = bindValue;
+			mUniformBuffers.erase(curName.Hash());
+		}
+		else
+		{
+			mBindPoints[bindKey.mName.Hash()] = bindKey;
+		}
 	}
-
 	return true;
 }
 }

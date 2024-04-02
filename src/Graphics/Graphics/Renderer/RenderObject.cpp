@@ -20,7 +20,7 @@ namespace luna::graphics
 		//Ro数据的buffer
 		size_t elementSize = sizeof(LMatrix4f);
 		RHIBufferDesc desc;
-		desc.mBufferUsage = RHIBufferUsage::StructureBuffer;
+		desc.mBufferUsage = RHIBufferUsage::RWStructureBufferBit | RHIBufferUsage::StructureBuffer;
 		desc.mSize = elementSize * 4096;
 		mRoMessagePtr = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateBuffer(RHIHeapType::Default, desc);
 

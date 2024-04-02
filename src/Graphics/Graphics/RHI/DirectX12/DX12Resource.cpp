@@ -22,7 +22,7 @@ namespace luna::graphics
 
 		SetInitialState(ResourceState::kUndefined);
 		mLastState = D3D12_RESOURCE_STATES::D3D12_RESOURCE_STATE_COMMON;
-		if (Has(buffer_desc.mBufferUsage, RHIBufferUsage::StructureBuffer))
+		if (Has(buffer_desc.mBufferUsage, RHIBufferUsage::RWStructureBufferBit))
 			mDxDesc.Flags |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 	}
 

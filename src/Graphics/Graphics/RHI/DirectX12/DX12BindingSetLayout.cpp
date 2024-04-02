@@ -66,6 +66,10 @@ D3D12_DESCRIPTOR_HEAP_TYPE GetHeapType(RHIViewType view_type)
 
 DX12BindingSetLayout::DX12BindingSetLayout(const std::vector<RHIBindPoint>& descs, const std::unordered_map<ShaderParamID, RHIPushConstantValue>& mBindConstKeys)
 {
+	if (mBindConstKeys.size() > 0)
+	{
+		int a = 0;
+	}
 	for (const RHIBindPoint& bind_key : descs)
 	{
 		DX12DescriptorSetLayoutMember& now_descriptor_set = mDescriptorSetLayout[bind_key.mSpace];
@@ -96,6 +100,20 @@ DX12BindingSetLayout::DX12BindingSetLayout(const std::vector<RHIBindPoint>& desc
 		now_range->RegisterSpace = bind_key.mSpace;
 	}
 	std::vector<D3D12_ROOT_PARAMETER> rootParams;
+	for (auto eachConstant : mBindConstKeys)
+	{
+		D3D12_ROOT_PARAMETER& rootParam = rootParams.emplace_back();
+		rootParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+		size_t totalSize = 0;
+		for (auto eachValue : eachConstant.second.mValueMember)
+		{
+			totalSize += eachValue.second.mSize / 4;
+		}
+		rootParam.Constants.Num32BitValues = totalSize;
+		rootParam.Constants.RegisterSpace = eachConstant.second.mRegisterSpace;
+		rootParam.Constants.ShaderRegister = eachConstant.second.mRegisterID;
+		rootParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	}
 	for (int32_t descriptor_set_id = 0; descriptor_set_id < mDescriptorSetLayout.size(); ++descriptor_set_id)
 	{
 		DX12DescriptorSetLayoutMember& now_descriptor_set = mDescriptorSetLayout[descriptor_set_id];

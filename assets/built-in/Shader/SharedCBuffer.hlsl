@@ -7,23 +7,26 @@
 #define VIEW_SPACE0 space2
 #define VIEW_SPACE1 space3
 
-#define MATERIAL_SPACE0 space4
-#define MATERIAL_SPACE1 space5
+#define CONSTANT_SPACE0 space4
 
-#define SKIN_SPACE0 space6
+#define MATERIAL_SPACE0 space5
+#define MATERIAL_SPACE1 space6
+
+#define SKIN_SPACE0 space7
 
 #ifndef USE_SKIN_VERTEX
 #define USE_SKIN_VERTEX 0
 #endif
 // Static Samplers
 
-struct InstanceBufferOffset
+
+struct InstanceBufferOffsetDesc
 {
-	uint mOffset;
+	uint4 mOffset;
 };
 
 [[vk::push_constant]]
-InstanceBufferOffset mInstanceOffset;
+ConstantBuffer<InstanceBufferOffsetDesc> mInstanceOffset : register(b0, CONSTANT_SPACE0);
 
 struct BaseVertex
 {

@@ -37,6 +37,7 @@ RHIView* RenderSceneStagingMemory::AllocStructStageBuffer(size_t curBufferSize, 
 		viewDesc.mViewType = useType;
 		viewDesc.mViewDimension = RHIViewDimension::BufferView;
 		viewDesc.mStructureStride = strideSize;
+		viewDesc.mBufferSize = newBufferDesc.mSize;
 		RHIViewPtr newBufferView = sGlobelRenderDevice->CreateView(viewDesc);
 		mStageBufferViewPool.push_back(newBufferView);
 		newBufferView->BindResource(newBuffer);

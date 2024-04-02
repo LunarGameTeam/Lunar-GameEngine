@@ -296,6 +296,8 @@ void DX12GraphicCmdList::SetPipelineState(
 			DX12PipelineStateCompute* pipeline_data = dynamic_cast<DX12PipelineStateCompute*>(pipeline);
 			dx_pipeline = pipeline_data->GetPipeLine();
 			mDxCmdList->SetPipelineState(dx_pipeline);
+			ID3D12RootSignature* rootsignature = pipeline_data->GetLayout()->As<DX12BindingSetLayout>()->GetRootSignature();
+			mDxCmdList->SetComputeRootSignature(rootsignature);
 			break;
 		}
 		case RHICmdListType::Graphic3D:

@@ -750,6 +750,7 @@ enum class RHIBufferUsage
 	StructureBuffer = 0x00000020,
 	IndexBufferBit = 0x00000040,
 	VertexBufferBit = 0x00000080,
+	RWStructureBufferBit = 0x00000100,
 };
 ENABLE_BITMASK_OPERATORS(RHIBufferUsage);
 

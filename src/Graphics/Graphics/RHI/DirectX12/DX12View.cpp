@@ -90,13 +90,17 @@ void DX12View::BindResource(RHIResource* buffer_data)
 	mBindResource = buffer_data;
 	ID3D12Device* device = sGlobelRenderDevice->As<DX12Device>()->GetDx12Device();
 	DX12Resource* dx12Res = mBindResource->As<DX12Resource>();
+	if (dx12Res->mDxRes == nullptr)
+	{
+		return;
+	}
 	switch (mViewType)
 	{
 	case RHIViewType::kConstantBuffer:
 	{
 		D3D12_CONSTANT_BUFFER_VIEW_DESC constantBufferDesc = {};
 		constantBufferDesc.BufferLocation = dx12Res->mDxRes->GetGPUVirtualAddress() + mViewDesc.mOffset;
-		constantBufferDesc.SizeInBytes = Alignment(dx12Res->GetMemoryRequirements().size, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+		constantBufferDesc.SizeInBytes = mViewDesc.mBufferSize;
 		device->CreateConstantBufferView(&constantBufferDesc, mCPUHandle);
 		break;
 	}

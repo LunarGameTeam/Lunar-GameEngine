@@ -35,12 +35,12 @@ namespace luna::graphics
 		//光源数据的buffer
 		size_t elementSize = 4 * sizeof(LVector4f);
 		RHIBufferDesc dataBufferDesc;
-		dataBufferDesc.mBufferUsage = RHIBufferUsage::StructureBuffer;
+		dataBufferDesc.mBufferUsage = RHIBufferUsage::RWStructureBufferBit | RHIBufferUsage::StructureBuffer;
 		dataBufferDesc.mSize = elementSize * 128;
 		mExistLightDataBuffer = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateBuffer(RHIHeapType::Default, dataBufferDesc);
 
 		ViewDesc dataBufferviewDesc;
-		dataBufferviewDesc.mViewType = RHIViewType::kStructuredBuffer;
+		dataBufferviewDesc.mViewType = RHIViewType::kRWStructuredBuffer;
 		dataBufferviewDesc.mViewDimension = RHIViewDimension::BufferView;
 		dataBufferviewDesc.mStructureStride = sizeof(LVector4f);
 		mExistLightDataBufferView = sGlobelRenderDevice->CreateView(dataBufferviewDesc);

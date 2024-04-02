@@ -85,6 +85,8 @@ struct RHIPushConstantValue
 	LString mName = "";
 	size_t	mSize = 0;
 	size_t  mOffset = 0;
+	size_t  mRegisterID = 0;
+	size_t  mRegisterSpace = 0;
 	LUnorderedMap<LString, RHIPushConstantMember> mValueMember;
 };
 
