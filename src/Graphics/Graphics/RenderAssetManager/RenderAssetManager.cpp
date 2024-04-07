@@ -28,18 +28,21 @@ namespace luna::graphics
 				combineData.back().mBaseValue = meshSkeletalData->mVertexData[vertId];
 				combineData.back().mSkinValue = meshSkeletalData->mSkinData[vertId];
 			}
-			desc.mSize = luna::SizeAligned2Pow(sizeof(SkinRenderVertex) * mVertexSize,65535);
-			mVB = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateBuffer(RHIHeapType::Default, desc, combineData.data(), desc.mSize);
+			size_t curVDataSize = sizeof(SkinRenderVertex) * mVertexSize;
+			desc.mSize = luna::SizeAligned2Pow(curVDataSize,65535);
+			mVB = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateBuffer(RHIHeapType::Default, desc, combineData.data(), curVDataSize);
 		}
 		else
 		{
-			desc.mSize = luna::SizeAligned2Pow(sizeof(BaseVertex) * mVertexSize, 65535);
-			mVB = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateBuffer(RHIHeapType::Default, desc, meshData->mVertexData.data(), desc.mSize);
+			size_t curVDataSize = sizeof(BaseVertex) * mVertexSize;
+			desc.mSize = luna::SizeAligned2Pow(curVDataSize, 65535);
+			mVB = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateBuffer(RHIHeapType::Default, desc, meshData->mVertexData.data(), curVDataSize);
 		}
 		mIndexSize = meshData->mIndexData.size();
-		desc.mSize = luna::SizeAligned2Pow(sizeof(uint32_t) * mIndexSize, 65535);
+		size_t curIDataSize = sizeof(uint32_t) * mIndexSize;
+		desc.mSize = luna::SizeAligned2Pow(curIDataSize, 65535);
 		desc.mBufferUsage = RHIBufferUsage::IndexBufferBit;
-		mIB = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateBuffer(RHIHeapType::Default, desc, meshData->mIndexData.data(), desc.mSize);
+		mIB = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateBuffer(RHIHeapType::Default, desc, meshData->mIndexData.data(), curIDataSize);
 	}
 
 	RenderAssetDataMesh* RenderAssetDataManager::GenerateRenderMesh(SubMesh* meshData)

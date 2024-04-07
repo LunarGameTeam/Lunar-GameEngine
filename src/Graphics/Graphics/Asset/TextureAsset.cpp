@@ -120,7 +120,13 @@ void Texture2D::Init()
 		mDesc.MipLevels = newfile.GetMipCount();
 		const tinyddsloader::DDSFile::ImageData* curData = newfile.GetImageData(0, 0);
 		RHISubResourceCopyLayerDesc newLayer;
-		newLayer.mEachMipmapLevelSize.push_back(curData->m_memSlicePitch);
+		RHISubResourceSizeDesc newDesc;
+		newDesc.mWidth = mDesc.Width;
+		newDesc.mHeight = mDesc.Height;
+		newDesc.mOffset = 0;
+		newDesc.mSize = curData->m_memSlicePitch;
+		newDesc.mRowPitch = curData->m_memSlicePitch / mDesc.Height;
+		newLayer.mEachMipmapLevelSize.push_back(newDesc);
 		sourceCopyOffset.mEachArrayMember.push_back(newLayer);
 		mRHIRes = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateTexture(mDesc, (byte*)curData->m_mem, curData->m_memSlicePitch, sourceCopyOffset);
 	}
@@ -128,7 +134,13 @@ void Texture2D::Init()
 	case TextureMemoryType::WIC:
 	{
 		RHISubResourceCopyLayerDesc newLayer;
-		newLayer.mEachMipmapLevelSize.push_back(mDataSize);
+		RHISubResourceSizeDesc newDesc;
+		newDesc.mWidth = mDesc.Width;
+		newDesc.mHeight = mDesc.Height;
+		newDesc.mOffset = 0;
+		newDesc.mSize = mDataSize;
+		newDesc.mRowPitch = mDataSize / mDesc.Height;
+		newLayer.mEachMipmapLevelSize.push_back(newDesc);
 		sourceCopyOffset.mEachArrayMember.push_back(newLayer);
 		mRHIRes = sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CreateTexture(mDesc, (byte*)mData, mDataSize, sourceCopyOffset);
 	}
@@ -213,8 +225,17 @@ void TextureCube::Init()
 			{
 				const tinyddsloader::DDSFile::ImageData* curData = newfile.GetImageData(eachMipIndex,eachArrayIndex);
 				memcpy(image_data.data() + copyOffset, curData->m_mem, curData->m_memSlicePitch);
+
+
+				RHISubResourceSizeDesc newDesc;
+				newDesc.mWidth = curData->m_width;
+				newDesc.mHeight = curData->m_height;
+				newDesc.mOffset = copyOffset;
+				newDesc.mSize = curData->m_memSlicePitch;
+				newDesc.mRowPitch = newDesc.mSize / curData->m_width;
+
 				copyOffset += curData->m_memSlicePitch;
-				newLayer.mEachMipmapLevelSize.push_back(curData->m_memSlicePitch);
+				newLayer.mEachMipmapLevelSize.push_back(newDesc);
 			}
 			sourceCopyOffset.mEachArrayMember.push_back(newLayer);
 		}

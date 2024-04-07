@@ -64,15 +64,25 @@ struct RHIResDesc
 	RHIImageUsage         mImageUsage;
 };
 
+struct RHISubResourceSizeDesc
+{
+	size_t mOffset = 0;
+	size_t mSize = 0;
+	size_t mWidth = 0;
+	size_t mHeight = 0;
+	size_t mRowPitch = 0;
+};
+
 struct RHISubResourceCopyLayerDesc
 {
-	LArray<size_t> mEachMipmapLevelSize;
+	LArray<RHISubResourceSizeDesc> mEachMipmapLevelSize;
 };
 
 struct RHISubResourceCopyDesc
 {
 	LArray<RHISubResourceCopyLayerDesc> mEachArrayMember;
 };
+
 class RENDER_API RHIResource : public RHIObject
 {	
 public:
@@ -103,6 +113,8 @@ public:
 	const RHIResDesc& GetDesc() const;
 
 	const MemoryRequirements& GetMemoryRequirements() const;
+
+	const RHISubResourceCopyDesc& GetCopyDesc() const;
 	
 	ResourceState    mState = ResourceState::kUndefined;
 protected:
@@ -113,6 +125,8 @@ protected:
 	mutable bool mSizeDirty = true;
 
 	mutable MemoryRequirements mMemoryLayout;
+
+	mutable RHISubResourceCopyDesc mMemoryCopyDesc;
 
 	virtual void ResetResourceBufferSizeDeviceData(size_t newSize) = 0;
 

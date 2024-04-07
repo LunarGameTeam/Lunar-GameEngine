@@ -24,12 +24,12 @@ namespace luna::graphics
 		if (memoryType == RHIHeapType::Upload)
 		{
 			void* dataPointer = dstBuffer->Map();
-			memcpy(dataPointer, initData, resDesc.mSize);
+			memcpy(dataPointer, initData, initDataSize);
 			dstBuffer->Unmap();
 		}
 		else
 		{
-			mStagingBufferPool->UploadToDstBuffer(resDesc.mSize, initData, dstBuffer, 0);
+			mStagingBufferPool->UploadToDstBuffer(initDataSize, initData, dstBuffer, 0);
 		}
 		return dstBuffer;
 	}

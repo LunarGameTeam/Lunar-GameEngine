@@ -1510,10 +1510,19 @@ D3D12_GRAPHICS_PIPELINE_STATE_DESC GetPipelineDesc(const RHIPipelineStateGraphDr
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC desc_out = {};
 	desc_out.RasterizerState.CullMode = GetCullMode(pipeline_desc.RasterizerState.CullMode);
 	desc_out.RasterizerState.FillMode = GetFillMode(pipeline_desc.RasterizerState.FillMode);
+
 	desc_out.BlendState.AlphaToCoverageEnable = pipeline_desc.BlendState.AlphaToCoverageEnable;
 	desc_out.BlendState.IndependentBlendEnable = pipeline_desc.BlendState.IndependentBlendEnable;
-	for (int32_t render_target_index = 0; render_target_index < pipeline_desc.BlendState.RenderTarget.size(); ++
-		render_target_index)
+	if (pipeline_desc.BlendState.RenderTarget.size() == 0)
+	{
+		D3D12_RENDER_TARGET_BLEND_DESC out_desc = {};
+		out_desc.BlendEnable = false;
+		out_desc.LogicOpEnable = false;
+		out_desc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+		desc_out.BlendState.RenderTarget[0] = out_desc;
+		desc_out.RTVFormats[0] = GetGraphicFormat(pass_desc.mColorView[0]->mBindResource->GetDesc().Format);
+	}
+	for (int32_t render_target_index = 0; render_target_index < pipeline_desc.BlendState.RenderTarget.size(); ++render_target_index)
 	{
 		desc_out.BlendState.RenderTarget[render_target_index] = GetRenderTargetBlendDesc(
 			pipeline_desc.BlendState.RenderTarget[render_target_index]);

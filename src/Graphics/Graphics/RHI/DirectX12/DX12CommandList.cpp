@@ -238,21 +238,14 @@ void DX12GraphicCmdList::CopyBufferToTexture(
 	DX12Resource* dx12DstRes = target_resource->As<DX12Resource>();
 	DX12Resource* dx12SrcRes = source_resource->As<DX12Resource>();
 	LUNA_ASSERT(dx12DstRes->mLayout.pTotalBytes <= source_resource->GetMemoryRequirements().size);
-	size_t srcLayoutCount = 0;
-	for (size_t depthOrArrayIndex = 0; depthOrArrayIndex < sourceCopyOffset.mEachArrayMember.size(); ++depthOrArrayIndex)
-	{
-		srcLayoutCount += sourceCopyOffset.mEachArrayMember[depthOrArrayIndex].mEachMipmapLevelSize.size();
-	}
-	LUNA_ASSERT(dx12DstRes->mLayout.pLayouts.size() == srcLayoutCount);
-
+	const RHISubResourceCopyDesc& dstCopyDst = target_resource->GetCopyDesc();
 	size_t curCopyLayerIndex = 0;
-	size_t curCopyLayerOffset = 0;
-	for (size_t depthOrArrayIndex = 0; depthOrArrayIndex < sourceCopyOffset.mEachArrayMember.size(); ++depthOrArrayIndex)
+	for (size_t depthOrArrayIndex = 0; depthOrArrayIndex < dstCopyDst.mEachArrayMember.size(); ++depthOrArrayIndex)
 	{
-		const RHISubResourceCopyLayerDesc& curArrayLayer = sourceCopyOffset.mEachArrayMember[depthOrArrayIndex];
+		const RHISubResourceCopyLayerDesc& curArrayLayer = dstCopyDst.mEachArrayMember[depthOrArrayIndex];
 		for (size_t mipIndex = 0; mipIndex < curArrayLayer.mEachMipmapLevelSize.size(); ++mipIndex)
 		{
-			size_t curMipSize = curArrayLayer.mEachMipmapLevelSize[mipIndex];
+			size_t curMipSize = curArrayLayer.mEachMipmapLevelSize[mipIndex].mSize;
 			D3D12_TEXTURE_COPY_LOCATION dstCopy = {};
 			dstCopy.Type = D3D12_TEXTURE_COPY_TYPE::D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
 			dstCopy.pResource = dx12DstRes->mDxRes.Get();
@@ -261,24 +254,9 @@ void DX12GraphicCmdList::CopyBufferToTexture(
 			dxSrcCopy.Type = D3D12_TEXTURE_COPY_TYPE::D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
 			dxSrcCopy.pResource = dx12SrcRes->mDxRes.Get();
 			dxSrcCopy.PlacedFootprint = dx12DstRes->mLayout.pLayouts[curCopyLayerIndex];
-			size_t element_size = dxSrcCopy.PlacedFootprint.Footprint.RowPitch / dxSrcCopy.PlacedFootprint.Footprint.Height;
-			dxSrcCopy.PlacedFootprint.Offset = curCopyLayerOffset;
 			mDxCmdList->CopyTextureRegion(&dstCopy, 0, 0, 0, &dxSrcCopy, nullptr);
 			curCopyLayerIndex += 1;
-			curCopyLayerOffset += curMipSize;
 		}
-	}
-	for (UINT i = 0; i < dx12DstRes->mLayout.pLayouts.size(); ++i)
-	{
-		D3D12_TEXTURE_COPY_LOCATION dstCopy = {};
-		dstCopy.Type = D3D12_TEXTURE_COPY_TYPE::D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-		dstCopy.pResource = dx12DstRes->mDxRes.Get();
-		dstCopy.SubresourceIndex = i;
-		D3D12_TEXTURE_COPY_LOCATION dxSrcCopy;
-		dxSrcCopy.Type = D3D12_TEXTURE_COPY_TYPE::D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-		dxSrcCopy.pResource = dx12SrcRes->mDxRes.Get();
-		dxSrcCopy.PlacedFootprint = dx12DstRes->mLayout.pLayouts[i];
-		mDxCmdList->CopyTextureRegion(&dstCopy, 0, 0, 0, &dxSrcCopy, nullptr);
 	}
 }
 

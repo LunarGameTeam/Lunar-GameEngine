@@ -279,6 +279,30 @@ namespace luna::graphics
 		{
 			mDxDesc.Width = mMemoryLayout.size;
 		}
+		for (int32_t arrayIndex = 0; arrayIndex < mDxDesc.DepthOrArraySize; ++arrayIndex)
+		{
+			RHISubResourceCopyLayerDesc newLayer;
+			for (int32_t mipIndex = 0; mipIndex < mDxDesc.MipLevels; ++mipIndex)
+			{
+				RHISubResourceSizeDesc newSize;
+				auto curLayerIndex = arrayIndex * mDxDesc.MipLevels + mipIndex;
+				newSize.mWidth = mLayout.pLayouts[curLayerIndex].Footprint.Width;
+				newSize.mHeight = mLayout.pLayouts[curLayerIndex].Footprint.Height;
+				newSize.mOffset = mLayout.pLayouts[curLayerIndex].Offset;
+				if (mLayout.pLayouts.size() > curLayerIndex + 1)
+				{
+					newSize.mSize = mLayout.pLayouts[curLayerIndex + 1].Offset - mLayout.pLayouts[curLayerIndex].Offset;
+				}
+				else
+				{
+					newSize.mSize = mLayout.pTotalBytes - mLayout.pLayouts[curLayerIndex].Offset;
+				}
+				newSize.mRowPitch = mLayout.pLayouts[curLayerIndex].Footprint.RowPitch;
+				newLayer.mEachMipmapLevelSize.push_back(newSize);
+			}
+			mMemoryCopyDesc.mEachArrayMember.push_back(newLayer);
+		}
+		mSizeDirty = false;
 	};
 
 }

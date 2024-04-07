@@ -11,7 +11,13 @@ namespace luna::graphics
 		mRenderQueue = GenerateRenderQueue(RHIQueueType::eTransfer);
 	}
 
-	RHIStagingBuffer* RHIStagingBufferPool::CreateUploadBuffer(size_t allocLength, size_t dataLength, void* initData)
+	RHIStagingBuffer* RHIStagingBufferPool::CreateUploadBuffer(
+		size_t allocLength,
+		size_t dataLength,
+		void* initData,
+		const RHISubResourceCopyDesc& sourceCopyOffset,
+		const RHISubResourceCopyDesc& dstCopyOffset
+	)
 	{
 		//申请一个上传buffer
 		RHIBufferDesc resDesc;
@@ -24,7 +30,41 @@ namespace luna::graphics
 		dstBuffer.mBufferData->BindMemory(RHIHeapType::Upload);
 		//拷贝数据
 		void* mapPointer = dstBuffer.mBufferData->Map();
-		memcpy(mapPointer, initData, dataLength);
+		if (sourceCopyOffset.mEachArrayMember.size() == 0 || dstCopyOffset.mEachArrayMember.size() == 0)
+		{
+			//不需要对齐内存，直接拷贝即可
+			memcpy(mapPointer, initData, dataLength);
+		}
+		else
+		{
+			assert(sourceCopyOffset.mEachArrayMember.size() == dstCopyOffset.mEachArrayMember.size());
+			//需要对齐内存
+			for (int32_t layerIndex = 0; layerIndex < dstCopyOffset.mEachArrayMember.size(); ++layerIndex)
+			{
+				const RHISubResourceCopyLayerDesc& srcLayerValue = sourceCopyOffset.mEachArrayMember[layerIndex];
+				const RHISubResourceCopyLayerDesc& dstLayerValue = dstCopyOffset.mEachArrayMember[layerIndex];
+				assert(srcLayerValue.mEachMipmapLevelSize.size() == dstLayerValue.mEachMipmapLevelSize.size());
+				for (int32_t mipIndex = 0; mipIndex < dstLayerValue.mEachMipmapLevelSize.size(); ++mipIndex)
+				{
+					const RHISubResourceSizeDesc& srcMipLayer = srcLayerValue.mEachMipmapLevelSize[mipIndex];
+					const RHISubResourceSizeDesc& dstMipLayer = dstLayerValue.mEachMipmapLevelSize[mipIndex];
+					assert(srcMipLayer.mWidth == dstMipLayer.mWidth);
+					assert(srcMipLayer.mHeight == dstMipLayer.mHeight);
+					if (srcMipLayer.mRowPitch == dstMipLayer.mRowPitch)
+					{
+						memcpy((char*)mapPointer + dstMipLayer.mOffset, (char*)initData + srcMipLayer.mOffset, srcMipLayer.mSize);
+						continue;
+					}
+					else
+					{
+						for (int32_t rowIndex = 0; rowIndex < dstMipLayer.mHeight; ++rowIndex)
+						{
+							memcpy((char*)mapPointer + dstMipLayer.mOffset + (rowIndex * dstMipLayer.mRowPitch), (char*)initData + srcMipLayer.mOffset + (rowIndex * srcMipLayer.mRowPitch), srcMipLayer.mRowPitch);
+						}
+					}
+				}
+			}
+		}
 		dstBuffer.mBufferData->Unmap();
 		//储存这个数据
 		dstBuffer.mResourceId = -1;
@@ -42,10 +82,16 @@ namespace luna::graphics
 		return &mResourceWaitingCopy[dstBuffer.mResourceId];
 	}
 
-	void RHIStagingBufferPool::UploadToDstResource(size_t dataLength, void* initData, RHIResource* dstResource, size_t offset_dst, std::function<void(RHICmdList* curCmdList, RHIStagingBuffer* srcBuffer)> copyCommand)
+	void RHIStagingBufferPool::UploadToDstResource(
+		size_t dataLength,
+		void* initData,
+		const RHISubResourceCopyDesc& sourceCopyOffset,
+		RHIResource* dstResource,
+		size_t offset_dst, std::function<void(RHICmdList* curCmdList, RHIStagingBuffer* srcBuffer)> copyCommand)
 	{
 		RHIStagingBuffer* srcBuffer;
-		srcBuffer = CreateUploadBuffer(dstResource->GetMemoryRequirements().size, dataLength, initData);
+		const RHISubResourceCopyDesc& dstCopyOffset = dstResource->GetCopyDesc();
+		srcBuffer = CreateUploadBuffer(dstResource->GetMemoryRequirements().size, dataLength, initData, sourceCopyOffset, dstCopyOffset);
 		RHICmdList* curCmdList = mCopyCommandList->GetNewCmdList();
 		if (dstResource->GetInitialState() != kCopyDest)
 		{
@@ -83,7 +129,8 @@ namespace luna::graphics
 		{
 			curCmdList->CopyBufferToBuffer(dstBuffer, 0, srcBuffer->mBufferData.get(), offset_dst, dataLength);
 		};
-		UploadToDstResource(dataLength, initData, dstBuffer, offset_dst, bufferUploadCommand);
+		RHISubResourceCopyDesc emptyDesc;
+		UploadToDstResource(dataLength, initData, emptyDesc,dstBuffer, offset_dst, bufferUploadCommand);
 	}
 
 	void RHIStagingBufferPool::UploadToDstTexture(
@@ -97,7 +144,7 @@ namespace luna::graphics
 		{
 			curCmdList->CopyBufferToTexture(dstTexture, 0, srcBuffer->mBufferData.get(), sourceCopyOffset);
 		};
-		UploadToDstResource(dataLength, initData, dstTexture, offset_dst, textureUploadCommand);
+		UploadToDstResource(dataLength, initData, sourceCopyOffset,dstTexture, offset_dst, textureUploadCommand);
 	}
 
 	void RHIStagingBufferPool::TickPoolRefresh()

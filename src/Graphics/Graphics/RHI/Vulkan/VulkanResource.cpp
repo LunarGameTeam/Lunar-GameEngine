@@ -271,6 +271,7 @@ void VulkanResource::RefreshMemoryRequirements()const
 		mMemoryLayout.size = memRequirements.size;
 		mMemoryLayout.alignment = memRequirements.alignment;
 	}
+	mSizeDirty = false;
 }
 
 void* VulkanResource::Map()

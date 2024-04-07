@@ -90,7 +90,7 @@ void DX12View::BindResource(RHIResource* buffer_data)
 	mBindResource = buffer_data;
 	ID3D12Device* device = sGlobelRenderDevice->As<DX12Device>()->GetDx12Device();
 	DX12Resource* dx12Res = mBindResource->As<DX12Resource>();
-	if (dx12Res->mDxRes == nullptr)
+	if (dx12Res->mDxRes == nullptr && mViewType != RHIViewType::kSampler)
 	{
 		return;
 	}

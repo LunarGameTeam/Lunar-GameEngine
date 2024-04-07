@@ -56,9 +56,17 @@ namespace luna::graphics
 		if (mSizeDirty)
 		{
 			RefreshMemoryRequirements();
-			mSizeDirty = false;
 		}
 		return mMemoryLayout;
+	}
+
+	const RHISubResourceCopyDesc& RHIResource::GetCopyDesc() const
+	{
+		if (mSizeDirty)
+		{
+			RefreshMemoryRequirements();
+		}
+		return mMemoryCopyDesc;
 	}
 }
 namespace luna

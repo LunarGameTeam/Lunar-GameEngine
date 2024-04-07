@@ -46,9 +46,21 @@ public:
 
 	void TickPoolRefresh();
 private:
-	RHIStagingBuffer* CreateUploadBuffer(size_t allocLength, size_t dataLength, void* initData);
+	RHIStagingBuffer* CreateUploadBuffer(
+		size_t allocLength,
+		size_t dataLength,
+		void* initData,
+		const RHISubResourceCopyDesc& sourceCopyOffset,
+		const RHISubResourceCopyDesc& dstCopyOffset
+	);
 
-	void UploadToDstResource(size_t dataLength, void* initData, RHIResource* dstTexture, size_t offset_dst, std::function<void(RHICmdList* curCmdList, RHIStagingBuffer* srcBuffer)> copyCommand);
+	void UploadToDstResource(
+		size_t dataLength,
+		void* initData,
+		const RHISubResourceCopyDesc& sourceCopyOffset,
+		RHIResource* dstTexture,
+		size_t offset_dst,
+		std::function<void(RHICmdList* curCmdList, RHIStagingBuffer* srcBuffer)> copyCommand);
 };
 
 }

@@ -220,7 +220,7 @@ RHIPipelineStatePtr DX12Device::CreatePipelineGraphic(
 	const RenderPassDesc& renderPassDesc
 )
 {
-	LSharedPtr<RHIPipelineStateDescBase> curDesc = MakeShared<RHIPipelineStateGraphDrawDesc>();
+	LSharedPtr<RHIPipelineStateGraphDrawDesc> curDesc = MakeShared<RHIPipelineStateGraphDrawDesc>();
 	*curDesc = desc;
 	luna::graphics::RHIPipelineStatePtr dx12Pipeline = CreateRHIObject<DX12PipelineStateGraphic>(curDesc, inputLayout, renderPassDesc);
 	dx12Pipeline->Create(this);
@@ -229,7 +229,7 @@ RHIPipelineStatePtr DX12Device::CreatePipelineGraphic(
 
 RHIPipelineStatePtr DX12Device::CreatePipelineCompute(const RHIPipelineStateComputeDesc& desc)
 {
-	LSharedPtr<RHIPipelineStateDescBase> curDesc = MakeShared<RHIPipelineStateComputeDesc>();
+	LSharedPtr<RHIPipelineStateComputeDesc> curDesc = MakeShared<RHIPipelineStateComputeDesc>();
 	*curDesc = desc;
 	luna::graphics::RHIPipelineStatePtr dx12Pipeline = CreateRHIObject<DX12PipelineStateCompute>(curDesc);
 	dx12Pipeline->Create(this);

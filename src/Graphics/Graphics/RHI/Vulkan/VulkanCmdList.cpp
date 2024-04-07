@@ -378,7 +378,6 @@ void VulkanGraphicCmdList::CopyBufferToTexture(
 	VulkanResource* vkSrcRes = src->As<VulkanResource>();
 
 	std::vector<VkBufferImageCopy> bufferCopyRegions;
-	size_t memoryOffset = 0;
 	for (uint32_t face = 0; face < vkRes->GetDesc().DepthOrArraySize; face++)
 	{
 		for (uint32_t level = 0; level < vkRes->GetDesc().MipLevels; level++)
@@ -391,8 +390,7 @@ void VulkanGraphicCmdList::CopyBufferToTexture(
 			bufferCopyRegion.imageExtent.width = vkRes->GetDesc().Width >> level;
 			bufferCopyRegion.imageExtent.height = vkRes->GetDesc().Height >> level;
 			bufferCopyRegion.imageExtent.depth = 1;
-			bufferCopyRegion.bufferOffset = memoryOffset;
-			memoryOffset += sourceCopyOffset.mEachArrayMember[face].mEachMipmapLevelSize[level];
+			bufferCopyRegion.bufferOffset = sourceCopyOffset.mEachArrayMember[face].mEachMipmapLevelSize[level].mOffset;
 		}
 	}
 
