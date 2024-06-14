@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  * \file lunar_window.h
  * \date 2020/08/09 11:16
  *
@@ -21,8 +21,8 @@
 #include "Core/Scripting/Binding.h"
 
 
-#include <SDL.h>
-#include <SDL_syswm.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_syswm.h>
 
 
 namespace luna

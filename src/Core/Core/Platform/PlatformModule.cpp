@@ -1,6 +1,5 @@
 ﻿#include "Core/Platform/PlatformModule.h"
 
-#include "imgui_impl_sdl2.h"
 
 #include "Core/CoreMin.h"
 #include "Core/Platform/Window.h"
@@ -8,6 +7,8 @@
 #include "Core/Event/EventModule.h"
 #include "Core/Asset/AssetModule.h"
 #include "Core/Asset/Asset.h"
+
+#include "imgui_impl_sdl2.h"
 
 
 LUnorderedMap<Sint32, luna::KeyCode> s_key_map;

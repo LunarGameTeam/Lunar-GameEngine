@@ -1,4 +1,4 @@
-#define VMA_IMPLEMENTATION 
+﻿#define VMA_IMPLEMENTATION 
 #include "Graphics/RHI/Vulkan/VulkanDevice.h"
 #include <stdexcept>
 // --- other includes ---
@@ -7,7 +7,7 @@
 #include <Vulkan/vulkan.h>
 #include <Vulkan/vulkan_win32.h>
 
-#include <SDL_vulkan.h>
+#include <SDL2/SDL_vulkan.h>
 
 #include "glslang/Public/ShaderLang.h"
 
@@ -51,7 +51,7 @@ bool VulkanMemoryManagerPool::Create(const VmaAllocatorCreateInfo& allocatorInfo
 
 VkResult VulkanMemoryManagerPool::BindMemoryByRequirement(RHIHeapType type, const vk::MemoryRequirements& memoryRequire, VmaAllocation &alloc)
 {
-	VkMemoryRequirements memoryRequireResult = memoryRequire;
+	VkMemoryRequirements memoryRequireResult(memoryRequire.size, memoryRequire.alignment, memoryRequire.memoryTypeBits);
 	VmaAllocationCreateInfo allocInfo = {};
 	if (type == RHIHeapType::Default)
 	{

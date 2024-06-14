@@ -1,4 +1,4 @@
-#include "Graphics/RHI/RhiImgui/RHIImguiHelper.h"
+﻿#include "Graphics/RHI/RhiImgui/RHIImguiHelper.h"
 #include "Graphics/RHI/RHIDevice.h"
 #include "Graphics/RHI/RHIFence.h"
 #include "Graphics/RHI/DirectX12/DX12Device.h"
@@ -14,6 +14,9 @@
 #include "Graphics/RHI/Vulkan/VulkanView.h"
 #include "Graphics/RHI/RhiUtils/RHIResourceGenerateHelper.h"
 #include "Core/Foundation/Config.h"
+
+#include "imgui_impl_vulkan.h"
+
 namespace luna::graphics
 {
 	void RenderImguiInit(

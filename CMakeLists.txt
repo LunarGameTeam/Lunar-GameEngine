@@ -1,4 +1,4 @@
-# CMake 最低版本号要求
+﻿# CMake 最低版本号要求
 cmake_minimum_required (VERSION 3.24)
 # 项目信息
 cmake_policy(VERSION "3.24")
@@ -55,7 +55,6 @@ find_package(GTest REQUIRED)
 find_package(Vulkan REQUIRED glslang glslangValidator glslc SPIRV-Tools shaderc_combined)
 find_package(murmurhash REQUIRED)
 find_package(d3d12-memory-allocator REQUIRED)
-find_package(imgui REQUIRED)
 find_package(tracy REQUIRED)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -160,6 +159,7 @@ add_subdirectory(src/Graphics)
 add_subdirectory(src/Animation)
 add_subdirectory(src/Game)
 add_subdirectory(src/Luna)
+add_subdirectory(src/imgui)
 
 add_subdirectory(src/ImGuiScript)
 SET_PROPERTY(TARGET Core PROPERTY FOLDER "Runtime")
@@ -168,6 +168,7 @@ SET_PROPERTY(TARGET Animation PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET Game PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET Luna PROPERTY FOLDER "Runtime")
 SET_PROPERTY(TARGET ImGuiScript PROPERTY FOLDER "Runtime")
+SET_PROPERTY(TARGET ImGui PROPERTY FOLDER "Runtime")
 
 add_subdirectory(src/AppGame)
 add_subdirectory(src/AppEditor)
@@ -178,6 +179,7 @@ SET_PROPERTY(TARGET AppGame PROPERTY FOLDER "App")
 
 add_subdirectory(test/core_test)
 SET_PROPERTY(TARGET CoreTest PROPERTY FOLDER "Test")
+
 
 add_subdirectory(src/AssetImport)
 SET_PROPERTY(TARGET AssetImport PROPERTY FOLDER "Lib")
