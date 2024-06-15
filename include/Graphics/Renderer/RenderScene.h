@@ -16,19 +16,6 @@
 namespace luna::graphics
 {
 
-class AmbientAtmosphereData : public RenderData
-{
-	//环境光
-	LVector4f           mAmbientColor = LVector4f(0.05, 0.05, 0.05, 1.0);
-	//Skybox
-	MaterialInstance*   mSkyboxMaterial = nullptr;
-};
-
-class RenderSceneDebugData : public RenderData
-{
-	RenderMeshBase  mDebugMeshLineData;
-	RenderMeshBase  mDebugMeshData;
-};
 
 struct GpuSceneUploadComputeCommand
 {

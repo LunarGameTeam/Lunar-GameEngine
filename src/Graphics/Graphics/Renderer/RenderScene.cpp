@@ -361,7 +361,7 @@ void RenderScene::ExcuteCopy(RHICmdList* cmdList)
 			eachCommand.mComputeMaterial->SetShaderInput(eachStorageBuffer.first, eachStorageBuffer.second);
 		}
 		eachCommand.mComputeMaterial->UpdateBindingSet();
-		sGlobelRenderCommondEncoder->Dispatch(cmdList,eachCommand.mComputeMaterial, eachCommand.mDispatchSize);
+		sRenderDrawContext->Dispatch(cmdList,eachCommand.mComputeMaterial, eachCommand.mDispatchSize);
 	}
 	for (auto& eachCommand : mAllCopyCommand)
 	{

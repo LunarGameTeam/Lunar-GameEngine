@@ -1,4 +1,4 @@
-#include "Graphics/FrameGraph/FrameGraph.h"
+﻿#include "Graphics/FrameGraph/FrameGraph.h"
 #include "Graphics/Renderer/RenderContext.h"
 #include "Graphics/RHI/RHIFrameBuffer.h"
 #include "Graphics/RHI/RHIFence.h"
@@ -179,11 +179,11 @@ void FrameGraphBuilder::Flush(RHICmdList* cmdList)
 				node->mPassDesc.mDepths[0].mDepthStencilFormat = dsView.mRHIView->mBindResource->GetDesc().Format;
 			}
 			
-			sGlobelRenderCommondEncoder->BindDrawCommandPassDesc(cmdList,node->mPassDesc);
+			sRenderDrawContext->BindDrawCommandPassDesc(cmdList,node->mPassDesc);
 			cmdList->SetViewPort(0, 0, width, height);
 			cmdList->SetScissorRects(0, 0, width, width);
 			node->Execute(this, cmdList);
-			sGlobelRenderCommondEncoder->EndRenderPass(cmdList);
+			sRenderDrawContext->EndRenderPass(cmdList);
 			cmdList->EndEvent();
 		}
 	}

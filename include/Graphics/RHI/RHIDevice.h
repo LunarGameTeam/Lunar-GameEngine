@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Graphics/RHI/RHIPch.h"
 #include "Graphics/RHI/RHITypes.h"
@@ -77,7 +77,7 @@ protected:
 	LUnorderedMap<LString, RHIStaticSamplerDesc> common_static_sampler;
 	friend class RenderModule;
 	friend class RenderResourceGenerateHelper;
-	friend class RenderCommandGenerateHelper;
+	friend class RenderDrawContext;
 };
 
 enum class RHIQueueType
@@ -105,7 +105,7 @@ public:
 private:
 	friend class RenderModule;
 	friend class RenderResourceGenerateHelper;
-	friend class RenderCommandGenerateHelper;
+	friend class RenderDrawContext;
 };
 
 RHIRenderQueuePtr RENDER_API GenerateRenderQueue(RHIQueueType queueType = RHIQueueType::eGraphic);

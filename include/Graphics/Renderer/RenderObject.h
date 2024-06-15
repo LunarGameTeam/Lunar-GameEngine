@@ -4,10 +4,14 @@
 #include "Core/Math/Math.h"
 #include "Graphics/RHI/RHITypes.h"
 #include "Graphics/Asset/MaterialTemplate.h"
+
 namespace luna::graphics
 {
 
-	class RENDER_API RenderObject : public RenderDataContainer, public HoldIdItem
+struct RenderObjectDrawBatch;
+
+
+class RENDER_API RenderObject : public RenderDataContainer, public HoldIdItem
 	{
 		LMatrix4f    mWorldMat;
 		RenderScene* mOwnerScene = nullptr;
@@ -24,15 +28,14 @@ namespace luna::graphics
 	class RENDER_API RenderObjectDrawData : public RenderData
 	{
 		RHIResourcePtr mRoMessagePtr;
-
 		RHIViewPtr mRoMessageView;
-
 		LArray<RenderObject*> dirtyRo;
-
 		LSharedPtr<MaterialComputeAsset> mMaterial;
-
 		LSharedPtr<MaterialInstanceComputeBase> mMaterialInstance;
+
 	public:
+		std::vector<LSharedPtr<RenderObjectDrawBatch>> mDrawBatch;
+
 		RenderObjectDrawData();
 
 		void AddDirtyRo(RenderObject* roData);

@@ -38,7 +38,7 @@ namespace luna::graphics
 	{
 		if(!mMeshData)
 		{
-			mMeshData = sGlobelRenderResourceContext->GetAssetManager()->GenerateRenderMesh(this);
+			mMeshData = sRenderResourceContext->GetAssetManager()->GenerateRenderMesh(this);
 		}
 		return mMeshData;
 	}
@@ -47,7 +47,7 @@ namespace luna::graphics
 	{
 		if (mMeshData)
 		{
-			sGlobelRenderResourceContext->GetAssetManager()->DestroyRenderMesh(mMeshData);
+			sRenderResourceContext->GetAssetManager()->DestroyRenderMesh(mMeshData);
 		}
 	}
 

@@ -11,13 +11,9 @@
 namespace luna::graphics 
 {
 
-luna::graphics::RenderResourceContext* sGlobelRenderResourceContext = nullptr;
+luna::graphics::RenderResourceContext* sRenderResourceContext = nullptr;
 
-luna::graphics::RenderCommandGenerateHelper* sGlobelRenderCommondEncoder = nullptr;
-
-RenderResourceContext::RenderResourceContext()
-{
-};
+luna::graphics::RenderDrawContext* sRenderDrawContext = nullptr;
 
 void RenderResourceContext::Init()
 {
@@ -43,33 +39,33 @@ RHICBufferDesc RenderResourceContext::GetDefaultShaderConstantBufferDesc(ShaderP
 	return empty;
 }
 
-void RenderCommandGenerateHelper::Init()
+void RenderDrawContext::Init()
 {
 	
 }
 
-void RenderCommandGenerateHelper::BindDrawCommandPassDesc(RHICmdList* cmdList, const RenderPassDesc& desc)
+void RenderDrawContext::BindDrawCommandPassDesc(RHICmdList* cmdList, const RenderPassDesc& desc)
 {
 	cmdList->BindDrawCommandPassDesc(desc);
 }
 
-void RenderCommandGenerateHelper::EndRenderPass(RHICmdList* cmdList)
+void RenderDrawContext::EndRenderPass(RHICmdList* cmdList)
 {
 	cmdList->EndRender();
 }
 
-void RenderCommandGenerateHelper::DrawFullScreen(RHICmdList* cmdList, graphics::MaterialInstanceGraphBase* mat)
+void RenderDrawContext::DrawFullScreen(RHICmdList* cmdList, graphics::MaterialInstanceGraphBase* mat)
 {
 	DrawMesh(cmdList,mFullScreenRenderMesh, mat);
 }
 
-void RenderCommandGenerateHelper::DrawMesh(RHICmdList* cmdList, graphics::RenderAssetDataMesh* mesh, graphics::MaterialInstanceGraphBase* mat)
+void RenderDrawContext::DrawMesh(RHICmdList* cmdList, graphics::RenderAssetDataMesh* mesh, graphics::MaterialInstanceGraphBase* mat)
 {
 	ZoneScoped;
 	DrawMeshInstanced(cmdList,mesh, mat, 1);
 }
 
-void RenderCommandGenerateHelper::Dispatch(RHICmdList* cmdList, MaterialInstanceComputeBase* mat, LVector4i dispatchSize)
+void RenderDrawContext::Dispatch(RHICmdList* cmdList, MaterialInstanceComputeBase* mat, LVector4i dispatchSize)
 {
 	auto pipeline = mat->GetPipeline();
 	cmdList->SetPipelineState(pipeline);
@@ -77,7 +73,7 @@ void RenderCommandGenerateHelper::Dispatch(RHICmdList* cmdList, MaterialInstance
 	cmdList->Dispatch(dispatchSize.x(), dispatchSize.y(), dispatchSize.z());
 }
 
-void RenderCommandGenerateHelper::DrawMeshBatch(RHICmdList* cmdList, const MeshDrawCommandBatch& meshDrawCommand)
+void RenderDrawContext::DrawMeshBatch(RHICmdList* cmdList, const MeshDrawCommandBatch& meshDrawCommand)
 {
 	RHIVertexLayout layout = meshDrawCommand.mDrawParameter.mRenderMeshs->GetVertexLayout();
 	auto pipeline = meshDrawCommand.mDrawParameter.mMtl->GetPipeline(&layout, cmdList->GetCurPassDesc());
@@ -102,7 +98,7 @@ void RenderCommandGenerateHelper::DrawMeshBatch(RHICmdList* cmdList, const MeshD
 	cmdList->DrawIndexedInstanced((uint32_t)indexCount, meshDrawCommand.mDrawCount, 0, 0, 0);
 }
 
-void RenderCommandGenerateHelper::DrawMeshInstanced(
+void RenderDrawContext::DrawMeshInstanced(
 	RHICmdList* cmdList,
 	RenderAssetDataMesh* mesh,
 	MaterialInstanceGraphBase* mat,
@@ -150,14 +146,14 @@ void RenderCommandGenerateHelper::DrawMeshInstanced(
 
 void GenerateGlobelRenderResourceContext()
 {
-	sGlobelRenderResourceContext = new RenderResourceContext();
-	sGlobelRenderResourceContext->Init();
+	sRenderResourceContext = new RenderResourceContext();
+	sRenderResourceContext->Init();
 }
 
 void GenerateGlobelEncoderHelper()
 {
-	sGlobelRenderCommondEncoder = new RenderCommandGenerateHelper();
-	sGlobelRenderCommondEncoder->Init();
+	sRenderDrawContext = new RenderDrawContext();
+	sRenderDrawContext->Init();
 }
 
 }

@@ -14,14 +14,7 @@ namespace luna::graphics
 	class RenderAssetDataMesh;
 	class RenderObjectDrawData;
 	class SkeletonSkinData;
-	//这里标记了场景渲染器用到的所有的mesh相关的renderpass
-	//enum MeshRenderPass
-	//{
-	//	DirectLightShadowDepthPass = 0,
-	//	PointLightShadowDepthPass,
-	//	LightingPass,
-	//	AllNum,
-	//};
+
 	class RenderMeshBase : public RenderData
 	{
 	public:

@@ -21,7 +21,7 @@ class RENDER_API RenderResourceContext final : NoCopy
 {
 	RenderAssetDataManager mRenderAssetManager;
 public:
-	RenderResourceContext();
+	RenderResourceContext() = default;
 	virtual ~RenderResourceContext() = default;
 	void Init();
 	RenderAssetDataManager* GetAssetManager() { return &mRenderAssetManager; };
@@ -58,7 +58,7 @@ struct MeshDrawCommandBatch
 	size_t mDrawCount = 0;
 };
 
-class RENDER_API RenderCommandGenerateHelper
+class RENDER_API RenderDrawContext
 {
 	RenderAssetDataMesh* mFullScreenRenderMesh = nullptr;
 public:
@@ -68,6 +68,7 @@ public:
 
 	void EndRenderPass(RHICmdList* cmdList);
 
+	
 	void DrawMesh(RHICmdList* cmdList, graphics::RenderAssetDataMesh* mesh, graphics::MaterialInstanceGraphBase* mat);
 
 	void DrawFullScreen(RHICmdList* cmdList, graphics::MaterialInstanceGraphBase* mat);
@@ -83,9 +84,9 @@ public:
 	void Dispatch(RHICmdList* cmdList, MaterialInstanceComputeBase* mat, LVector4i dispatchSize);
 };
 
-RENDER_API extern graphics::RenderResourceContext* sGlobelRenderResourceContext;
+RENDER_API extern graphics::RenderResourceContext* sRenderResourceContext;
 
-RENDER_API extern graphics::RenderCommandGenerateHelper* sGlobelRenderCommondEncoder;
+RENDER_API extern graphics::RenderDrawContext* sRenderDrawContext;
 
 void  RENDER_API GenerateGlobelRenderResourceContext();
 

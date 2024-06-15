@@ -1,10 +1,10 @@
-#pragma once
+﻿#pragma once
 #include "Graphics/ForwardPipeline/ForwardRenderData.h"
 #include "Graphics/RHI/RHIShader.h"
 #include "Core/Asset/AssetModule.h"
 namespace  luna::graphics
 {
-void ViewTargetData::GenerateViewTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node,LSharedPtr<FGTexture>& colorRt, LSharedPtr<FGTexture>& depthRt, bool clearColor,bool clearDepth)
+void SceneViewTargetData::GenerateViewTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node,LSharedPtr<FGTexture>& colorRt, LSharedPtr<FGTexture>& depthRt, bool clearColor,bool clearDepth)
 {
 	RenderView* curView = static_cast<RenderView*>(mContainter);
 	if (colorRt == nullptr)
@@ -44,7 +44,7 @@ void ViewTargetData::GenerateViewTarget(FrameGraphBuilder* builder, FGGraphDrawN
 	}
 }
 
-void ViewTargetData::GenerateOpaqueResultRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node, bool clearColor, bool clearDepth)
+void SceneViewTargetData::GenerateOpaqueResultRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node, bool clearColor, bool clearDepth)
 {
 	GenerateViewTarget(builder,node,mOpaqueResultRenderTarget, mOpaqueResultDepthStencil, clearColor, clearDepth);
 	RenderView* curView = static_cast<RenderView*>(mContainter);
@@ -57,12 +57,12 @@ void ViewTargetData::GenerateOpaqueResultRenderTarget(FrameGraphBuilder* builder
 	}
 }
 
-void ViewTargetData::GeneratePostProcessResultRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node)
+void SceneViewTargetData::GeneratePostProcessResultRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node)
 {
 	GenerateViewTarget(builder, node, mPostProcessResultRenderTarget, mPostProcessResultDepthStencil);
 }
 
-void ViewTargetData::GenerateScreenRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node)
+void SceneViewTargetData::GenerateScreenRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node)
 {
 	GenerateViewTarget(builder, node, mScreenRenderTarget, mScreenDepthStencil);
 }

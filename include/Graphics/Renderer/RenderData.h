@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Graphics/RenderConfig.h"
 #include "Graphics/RenderTypes.h"
@@ -7,9 +7,10 @@ namespace luna::graphics
 {
 
 class RenderDataContainer;
+
 struct RENDER_API RenderData
 {
-	RenderDataContainer* mContainter = nullptr;
+	RenderDataContainer* mContainter;
 
 	virtual void PerSceneUpdate(RenderScene* renderScene){};
 	
@@ -19,6 +20,7 @@ struct RENDER_API RenderData
 
 	virtual ~RenderData() {};
 };
+
 
 class RenderDataContainer
 {
@@ -31,8 +33,8 @@ public:
 		{
 			const type_info& nInfo = typeid(T);
 			LSharedPtr<T> newData = MakeShared<T>();
-			newData->mContainter = this;
 			mDatas.insert({ nInfo.hash_code(),newData});
+			newData.mContainter = this;
 			t = newData.get();
 		}
 		return t;
@@ -44,6 +46,7 @@ public:
 		const type_info& nInfo = typeid(T);
 		size_t hashCode = nInfo.hash_code();
 		auto itor = mDatas.find(hashCode);
+
 		if (itor == mDatas.end())
 		{
 			return nullptr;

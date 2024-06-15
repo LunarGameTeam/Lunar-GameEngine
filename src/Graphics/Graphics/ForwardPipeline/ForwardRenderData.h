@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Graphics/RenderConfig.h"
 #include "Graphics/Renderer/RenderData.h"
@@ -12,7 +12,7 @@
 namespace  luna::graphics
 {
 
-struct ViewTargetData : public RenderData
+struct SceneViewTargetData : public RenderData
 {
 	LSharedPtr<FGTexture> mOpaqueResultRenderTarget = nullptr;
 
@@ -26,6 +26,7 @@ struct ViewTargetData : public RenderData
 
 	LSharedPtr<FGTexture> mScreenDepthStencil = nullptr;
 public:
+
 	void GenerateOpaqueResultRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node, bool clearColor = false, bool clearDepth = false);
 
 	void GeneratePostProcessResultRenderTarget(FrameGraphBuilder* builder, FGGraphDrawNode* node);
@@ -51,6 +52,10 @@ struct SceneRenderData : public RenderData
 	LSharedPtr<TextureCube> mIrradianceTex;
 
 	LSharedPtr<Texture2D>   mLUTTex;
+
+	RenderMeshBase          mDebugMeshLineData;
+	RenderMeshBase          mDebugMeshData;
+
 public:
 	SceneRenderData();
 	void SetMaterialParameter(MaterialInstanceBase* matInstance);

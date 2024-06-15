@@ -5,6 +5,8 @@
 #include "Graphics/Renderer/RenderLight.h"
 #include "Graphics/Renderer/RenderScene.h"
 #include "Graphics/Renderer/RenderContext.h"
+#include "Graphics/Renderer/SceneViewPipeline.h"
+
 
 namespace luna::graphics
 {
@@ -37,7 +39,7 @@ void RenderViewParameterData::PerViewUpdate(RenderView* renderView)
 
 void RenderViewParameterData::Init()
 {
-	mCbufferDesc = sGlobelRenderResourceContext->GetDefaultShaderConstantBufferDesc(LString("ViewBuffer").Hash());
+	mCbufferDesc = sRenderResourceContext->GetDefaultShaderConstantBufferDesc(LString("ViewBuffer").Hash());
 	sGlobelRhiResourceGenerator->GetDeviceUniformObjectGenerator()->CreateUniformBufferAndView(mCbufferDesc, mViewParamRes, mViewParamCbufferView);
 	mViewCbuffer = MakeShared<graphics::ShaderCBuffer>(GetParamDesc());
 }
@@ -51,6 +53,18 @@ RenderView::RenderView() :
 void RenderView::Culling(RenderScene* scene)
 {
 	scene->GetRenderObjects(mViewVisibleROs);
+}
+
+void RenderView::Render(FrameGraphBuilder* builder)
+{
+	if(mViewType == RenderViewType::SceneView)
+	{
+		SceneViewPipeline(builder, mOwnerScene, this);
+	}
+	if(mViewType == RenderViewType::ShadowMapView)
+	{
+		ShadowCastViewPipeline(builder, mOwnerScene, this);
+	}
 }
 
 void RenderViewDataGenerateCommand(graphics::RenderScene* curScene, ViewRenderBridgeData& renderData)

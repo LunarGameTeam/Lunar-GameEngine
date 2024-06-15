@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  * \file render_subsystem.h
  * \date 2020/08/09 10:39
  *
@@ -70,8 +70,7 @@ public:
 	LSharedPtr<Texture2D>              mDefaultNormalTexture;
 private:
 	LSharedPtr<ImguiRenderer> mGuiRenderer;
-
-	LSharedPtr<SceneRenderer> mRenderer;
+	FrameGraphBuilder mFrameGraphBuilder;
 
 	RHISinglePoolSingleCmdListPtr mGraphicCmd;
 

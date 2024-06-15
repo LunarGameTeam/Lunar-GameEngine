@@ -1,4 +1,4 @@
-#include "Graphics/RenderModule.h"
+﻿#include "Graphics/RenderModule.h"
 
 #include "Core/Asset/AssetModule.h"
 #include "Core/Object/Transform.h"
@@ -24,6 +24,7 @@
 #include "Graphics/Asset/MeshAsset.h"
 #include "Graphics/Asset/MeshAssetUtils.h"
 #include "imgui_impl_sdl2.h"
+#include "Graphics/Renderer/RenderView.h"
 #include "Graphics/RHI/RhiImgui/RHIImguiHelper.h"
 
 
@@ -83,8 +84,6 @@ bool RenderModule::OnInit()
 	mDefaultWhiteTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/White.png"));
 	mDefaultNormalTexture = LSharedPtr<Texture2D>(sAssetModule->LoadAsset<Texture2D>("/assets/built-in/Textures/Normal.png"));
 	
-	mRenderer = MakeShared<SceneRenderer>();
-	InitBasePipeline(mRenderer->GetSceneRenderPipeline());
 	mGuiRenderer = MakeShared<ImguiRenderer>();
 	mGuiRenderer->Init(mMainSwapchain, mGraphicQueue);
 	return true;
@@ -106,7 +105,8 @@ void RenderModule::RenderTick(float delta_time)
 	ZoneScoped;
 	//检查是数据拷贝池是否需要刷新
 	sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CheckStageRefresh();
-	mRenderer->OnFrameBegin();
+
+	mFrameGraphBuilder.CleanUpVirtualMemory();
 	//RenderScene发起渲染
 	//mFrameFence->Wait(mFrameFenceValue);
 	//sRenderModule->GetRenderContext()->mFence->Wait(sRenderModule->GetRenderContext()->mFenceValue);
@@ -114,13 +114,40 @@ void RenderModule::RenderTick(float delta_time)
 	mGraphicCmd->Reset();
 	for (RenderScene* it : mRenderScenes)
 	{
-		mRenderer->PrepareSceneRender(it);
+		it->GetRenderDataUpdater()->ExcuteCommand();
+		for (auto data : it->mDatas)
+		{
+			data.second->PerSceneUpdate(it);
+		}
+		LArray<RenderView*> allView;
+		it->GetAllView(allView);
+		for (RenderView* curView : allView)
+		{
+			for (auto data : curView->mDatas)
+			{
+				data.second->PerViewUpdate(curView);
+			}
+		}
+
 		mGraphicCmd->GetCmdList()->BeginEvent("RenderSceneDataUpdateCommand");
 		mGraphicCmd->GetCmdList()->BindDescriptorHeap();
 		it->ExcuteCopy(mGraphicCmd->GetCmdList());
 		mGraphicCmd->GetCmdList()->EndEvent();
-		mRenderer->Render(it,mGraphicCmd->GetCmdList());
+
+		it->GetAllView(allView);
+		mFrameGraphBuilder.Clear();
+		for (RenderView* curView : allView)
+		{
+			if (curView->GetRenderTarget() == nullptr)
+			{
+				continue;
+			}
+			curView->Culling(it);
+			curView->Render(&mFrameGraphBuilder);
+		}
+		mFrameGraphBuilder.Flush(mGraphicCmd->GetCmdList());
 	}
+
 	//先把barrier相关的资源指令提交
 	RHICmdList* prepareCommand = PrepareRender();
 	//提交渲染指令
@@ -130,6 +157,7 @@ void RenderModule::RenderTick(float delta_time)
 	{
 		allCommand.push_back(prepareCommand);
 	}
+
 	allCommand.push_back(mGraphicCmd->GetCmdList());
 	mGraphicQueue->ExecuteMultiCommandLists(allCommand);
 	mGuiRenderer->RenderTick();	

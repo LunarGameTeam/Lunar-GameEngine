@@ -1,4 +1,4 @@
-#include "Graphics/Renderer/RenderLight.h"
+ï»¿#include "Graphics/Renderer/RenderLight.h"
 #include "Graphics/Renderer/MaterialInstance.h"
 #include "Graphics/Asset/ShaderAsset.h"
 #include "Graphics/Renderer/RenderView.h"
@@ -24,15 +24,15 @@ namespace luna::graphics
 		mDirectionLightIndex.resize(16);
 
 		mSpotLightIndex.resize(256);
-		//¹âÔ´²ÎÊıµÄcbuffer
-		RHICBufferDesc mCbufferDesc = sGlobelRenderResourceContext->GetDefaultShaderConstantBufferDesc(LString("PointBasedLightParameter").Hash());
+		//å…‰æºå‚æ•°çš„cbuffer
+		RHICBufferDesc mCbufferDesc = sRenderResourceContext->GetDefaultShaderConstantBufferDesc(LString("PointBasedLightParameter").Hash());
 		if (mCbufferDesc.mSize == 0)
 		{
 			return;
 		}
 		mLightBufferGlobelMessage = MakeShared<ShaderCBuffer>(mCbufferDesc);
 		sGlobelRhiResourceGenerator->GetDeviceUniformObjectGenerator()->CreateUniformBufferAndView(mCbufferDesc, mLightParameterBuffer, mLightParameterBufferView);
-		//¹âÔ´Êı¾İµÄbuffer
+		//å…‰æºæ•°æ®çš„buffer
 		size_t elementSize = 4 * sizeof(LVector4f);
 		RHIBufferDesc dataBufferDesc;
 		dataBufferDesc.mBufferUsage = RHIBufferUsage::RWStructureBufferBit | RHIBufferUsage::StructureBuffer;
@@ -71,7 +71,7 @@ namespace luna::graphics
 		{
 			return;
 		}
-		//Èç¹û¹âÔ´ÊıÁ¿·¢Éú±ä»¯£¬ĞèÒª¸üĞÂÒ»ÏÂcbufferÀïµÄ²ÎÊı
+		//å¦‚æœå…‰æºæ•°é‡å‘ç”Ÿå˜åŒ–ï¼Œéœ€è¦æ›´æ–°ä¸€ä¸‹cbufferé‡Œçš„å‚æ•°
 		LArray<PointBasedLight*> allLightData;
 		mAllLights.GetAllValueList(allLightData);
 		int32_t pointLightSize = 0;
@@ -112,7 +112,7 @@ namespace luna::graphics
 		mLightBufferGlobelMessage->SetData("cPointLightIndex", mPointLightIndex.data(), 256 * sizeof(int32_t));
 		mLightBufferGlobelMessage->SetData("cDirectionLightIndex", mDirectionLightIndex.data(), 16 * sizeof(int32_t));
 		mLightBufferGlobelMessage->SetData("cSpotLightIndex", mSpotLightIndex.data(), 256 * sizeof(int32_t));
-		//cbufferµÄ¸üĞÂÖ»ĞèÒªÖÆ×÷Ò»¸öcopyµÄÖ¸Áî
+		//cbufferçš„æ›´æ–°åªéœ€è¦åˆ¶ä½œä¸€ä¸ªcopyçš„æŒ‡ä»¤
 		renderScene->AddCbufferCopyCommand(mLightBufferGlobelMessage.get(), mLightParameterBuffer.get());
 		LightNumDirty = false;
 	}
@@ -123,7 +123,7 @@ namespace luna::graphics
 		{
 			return;
 		}
-		//Èç¹ûÓĞ²¿·Ö¹âÔ´µÄÊı¾İ·¢ÉúÁË±ä»¯£¬½«dirtyµÄ¹âÔ´Êı¾İ£¬Í¨¹ıÖÆ×÷cs¿½±´Ö¸Áî£¬¸üĞÂ³¡¾°ÀïµÄ¹âÔ´buffer
+		//å¦‚æœæœ‰éƒ¨åˆ†å…‰æºçš„æ•°æ®å‘ç”Ÿäº†å˜åŒ–ï¼Œå°†dirtyçš„å…‰æºæ•°æ®ï¼Œé€šè¿‡åˆ¶ä½œcsæ‹·è´æŒ‡ä»¤ï¼Œæ›´æ–°åœºæ™¯é‡Œçš„å…‰æºbuffer
 		RHIView* lightDataBuffer = renderScene->GetStageBufferPool()->AllocStructStageBuffer(
 			mDirtyList.size() * sizeof(LVector4f) * 4,
 			RHIViewType::kStructuredBuffer,
@@ -163,19 +163,19 @@ namespace luna::graphics
 		LVector4f* currentLightDataPointer = (LVector4f*)pointer;
 		for (auto eachDirtyLight : mDirtyList)
 		{
-			//¹âÔ´ÑÕÉ«
+			//å…‰æºé¢œè‰²
 			LVector4f& lightColor = currentLightDataPointer[0];
 			lightColor = eachDirtyLight->mColor;
-			//·¶Î§¼°Ë¥¼õ²ÎÊı
+			//èŒƒå›´åŠè¡°å‡å‚æ•°
 			LVector4f& rangeParam = currentLightDataPointer[1];
 			rangeParam = eachDirtyLight->mRangeParam;
-			//Î»ÖÃºÍÑÕÉ«Ç¿¶È
+			//ä½ç½®å’Œé¢œè‰²å¼ºåº¦
 			LVector4f& positionIntensity = currentLightDataPointer[2];
 			positionIntensity.x() = eachDirtyLight->mPosition.x();
 			positionIntensity.y() = eachDirtyLight->mPosition.y();
 			positionIntensity.z() = eachDirtyLight->mPosition.z();
 			positionIntensity.w() = eachDirtyLight->mIntensity;
-			//·½ÏòºÍ¾Û¹â²ÎÊı
+			//æ–¹å‘å’Œèšå…‰å‚æ•°
 			LVector4f& directionParam = currentLightDataPointer[3];
 			directionParam.x() = eachDirtyLight->mDirection.x();
 			directionParam.y() = eachDirtyLight->mDirection.y();
@@ -188,12 +188,12 @@ namespace luna::graphics
 	void PointBasedRenderLightData::GenerateDirtyLightIndexBuffer(void* pointer)
 	{
 		uint32_t* currentLightIndexPointer = (uint32_t*)pointer;
-		//indexµÄ×îÇ°Ãæ´æ´¢³ß´ç
+		//indexçš„æœ€å‰é¢å­˜å‚¨å°ºå¯¸
 		*currentLightIndexPointer = (uint32_t)mDirtyList.size();
 		currentLightIndexPointer += 1;
 		for (auto eachDirtyLight : mDirtyList)
 		{
-			//¹âÔ´ID
+			//å…‰æºID
 			*currentLightIndexPointer = (uint32_t)eachDirtyLight->mIndex;
 			currentLightIndexPointer += 1;
 		}

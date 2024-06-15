@@ -83,7 +83,7 @@ public:
 	
 public:
 	void Culling(RenderScene* scene);
-
+	void Render(FrameGraphBuilder* builder);
 public:
 	RenderTarget* GetRenderTarget() const { return mRT.Get(); }
 

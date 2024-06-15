@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Core/CoreConfig.h"
 
 
@@ -209,6 +209,14 @@ public:
 		return true;
 	}
 
+	bool Clear()
+	{
+		for(auto it : mItems)
+		{
+			mEmptyIndex.push(it.first);
+		}
+		mItems.clear();		
+	}
 	void GetAllValueList(LArray<Value*> &valueOut) const
 	{
 		valueOut.clear();
