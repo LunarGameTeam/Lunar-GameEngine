@@ -21,7 +21,7 @@
 
 #else
 #define IMGUI_API __declspec( dllimport )
-#define IMGUI_IMPL_API __declspec( dllimport )
+#define IMGUI_IMPL_API
 #endif
 
 

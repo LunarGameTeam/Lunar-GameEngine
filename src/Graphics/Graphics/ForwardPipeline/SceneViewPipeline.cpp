@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "Graphics/Renderer/SceneRenderer.h"
 
 #include "Core/Asset/AssetModule.h"
 #include "Graphics/Asset/MeshAsset.h"
@@ -56,40 +55,6 @@ void OpaquePass(FrameGraphBuilder* builder, RenderScene* renderScene, RenderView
 		});
 
 }
-void ShadowCastPass(FrameGraphBuilder* builder, RenderScene* scene, RenderView* view)
-{
-	static SharedPtr<MaterialGraphAsset> mShadowMtlAsset = sAssetModule->LoadAsset<MaterialGraphAsset>("/assets/built-in/Depth.mat");
-	static MaterialInstanceGraphBase* mShadowDefaultMtlInstance = dynamic_cast<MaterialInstanceGraphBase*>(mShadowMtlAsset->GetDefaultInstance());
-	
-	if (view->mViewType != RenderViewType::ShadowMapView)
-	{
-		return;
-	}
-
-	RunFilterROJob();
-
-	RenderScene* renderScene = view->mOwnerScene;
-
-	FGGraphDrawNode* node = builder->AddGraphDrawPass("Directional LightShadowmap");
-
-	graphics::RenderViewParameterData* viewParamData = view->GetData<graphics::RenderViewParameterData>();
-
-	graphics::RenderObjectDrawData*  roParamData = renderScene->GetData<graphics::RenderObjectDrawData>();
-
-	viewParamData->SetMaterialParameter(mShadowDefaultMtlInstance);
-
-	roParamData->SetMaterialParameter(mShadowDefaultMtlInstance);
-
-	ShadowViewTargetData* viewRtData = view->RequireData<ShadowViewTargetData>();
-
-	viewRtData->GenerateShadowRenderTarget(builder, node);
-
-	node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RHICmdList* cmdlist)
-		{
-			DrawCommandBatch(cmdlist);
-		});
-}
-
 PARAM_ID(_SkyTex);
 void SkyboxPass(FrameGraphBuilder* builder, RenderScene* scene, RenderView* view)
 {
@@ -125,7 +90,7 @@ void SkyboxPass(FrameGraphBuilder* builder, RenderScene* scene, RenderView* view
 	SceneViewTargetData* viewRtData = view->RequireData<SceneViewTargetData>();
 	viewRtData->GenerateOpaqueResultRenderTarget(builder, node, true, true);
 
-	node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RHICmdList* cmdlist)
+	node->ExcuteFunc([=](FrameGraphBuilder* builder, FGNode& node, RHICmdList* cmdlist)
 		{
 			mSkyBoxDefaultMtlInstance->UpdateBindingSet();
 			sRenderDrawContext->DrawMesh(cmdlist, mSkyboxRenderMesh, mSkyBoxDefaultMtlInstance);
@@ -144,7 +109,7 @@ void PostProcess(FrameGraphBuilder* builder, RenderScene* scene, RenderView* vie
 	SceneViewTargetData* viewRtData = view->RequireData<SceneViewTargetData>();
 	//暂时应该没有pass依赖后处理，先把后处理的结果直接写入屏幕
 	viewRtData->GenerateScreenRenderTarget(builder, node);
-	node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RHICmdList* cmdlist)
+	node->ExcuteFunc([=](FrameGraphBuilder* builder, FGNode& node, RHICmdList* cmdlist)
 		{
 			sRenderDrawContext->DrawFullScreen(cmdlist, mGammaCorrectionMtlInstance);
 		});
@@ -168,7 +133,7 @@ void OverlayPass(FrameGraphBuilder* builder, RenderScene* scene, RenderView* vie
 	viewParamData->SetMaterialParameter(mOverlayMtlInstance);
 	SceneViewTargetData* viewRtData = view->RequireData<SceneViewTargetData>();
 	viewRtData->GenerateScreenRenderTarget(builder, node);
-	node->ExcuteFunc([this](FrameGraphBuilder* builder, FGNode& node, RHICmdList* cmdlist)
+	node->ExcuteFunc([=](FrameGraphBuilder* builder, FGNode& node, RHICmdList* cmdlist)
 		{
 			sRenderDrawContext->DrawMesh(cmdlist, mDebugMeshLineData, mOverlayMtlInstance);
 			sRenderDrawContext->DrawMesh(cmdlist, mDebugMeshData, mOverlayMtlInstance);

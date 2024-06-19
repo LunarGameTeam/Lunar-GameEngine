@@ -19,9 +19,9 @@ add_compile_definitions(CORE_EXPORT)
 add_dependencies(Core ImGui Eigen3::Eigen Tracy::TracyClient JsonCpp::JsonCpp SDL2::SDL2 murmurhash::murmurhash)
 
 if(LUNA_USING_DEBUG_PYTHON)
-    target_link_libraries(Core PUBLIC python311_d)
+    target_link_libraries(Core PUBLIC python312_d)
 else()
-    target_link_libraries(Core PUBLIC python311)
+    target_link_libraries(Core PUBLIC python312)
 endif()
 
 target_link_libraries(Core PUBLIC ImGui Boost::boost bcrypt SDL2::SDL2 ImGui JsonCpp::JsonCpp Eigen3::Eigen Tracy::TracyClient murmurhash::murmurhash)

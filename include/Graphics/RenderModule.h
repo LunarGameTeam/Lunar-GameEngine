@@ -23,7 +23,6 @@
 #include "Graphics/RenderConfig.h"
 #include "Graphics/RenderTypes.h"
 #include "Graphics/Renderer/RenderContext.h"
-#include "Graphics/Renderer/SceneRenderer.h"
 #include "Graphics/Renderer/ImguiRenderer.h"
 #include "Graphics/RHI/RHITypes.h"
 
@@ -70,7 +69,7 @@ public:
 	LSharedPtr<Texture2D>              mDefaultNormalTexture;
 private:
 	LSharedPtr<ImguiRenderer> mGuiRenderer;
-	FrameGraphBuilder mFrameGraphBuilder;
+	FrameGraphBuilder* mFrameGraphBuilder;
 
 	RHISinglePoolSingleCmdListPtr mGraphicCmd;
 

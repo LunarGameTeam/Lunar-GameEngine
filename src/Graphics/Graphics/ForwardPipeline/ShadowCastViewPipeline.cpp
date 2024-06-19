@@ -12,19 +12,25 @@ namespace luna::graphics
 
 
 
-void ShadowCastPass(FrameGraphBuilder* builder, RenderScene* renderScene, RenderView* view)
+void ShadowCastPass(FrameGraphBuilder* builder, RenderScene* scene, RenderView* view)
 {
-	assert (view->mViewType == RenderViewType::ShadowMapView);
-
-	auto batch = RunFilterROJob(view);
 	static SharedPtr<MaterialGraphAsset> mShadowMtlAsset = sAssetModule->LoadAsset<MaterialGraphAsset>("/assets/built-in/Depth.mat");
 	static MaterialInstanceGraphBase* mShadowDefaultMtlInstance = dynamic_cast<MaterialInstanceGraphBase*>(mShadowMtlAsset->GetDefaultInstance());
-	
+
+	if (view->mViewType != RenderViewType::ShadowMapView)
+	{
+		return;
+	}
+
+	auto batch = RunFilterROJob(view);
+
+	RenderScene* renderScene = view->mOwnerScene;
+
 	FGGraphDrawNode* node = builder->AddGraphDrawPass("Directional LightShadowmap");
 
 	graphics::RenderViewParameterData* viewParamData = view->GetData<graphics::RenderViewParameterData>();
 
-	graphics::RenderObjectDrawData*  roParamData = renderScene->GetData<graphics::RenderObjectDrawData>();
+	graphics::RenderObjectDrawData* roParamData = renderScene->GetData<graphics::RenderObjectDrawData>();
 
 	viewParamData->SetMaterialParameter(mShadowDefaultMtlInstance);
 
@@ -39,6 +45,7 @@ void ShadowCastPass(FrameGraphBuilder* builder, RenderScene* renderScene, Render
 			batch->DrawCommandBatch(cmdlist);
 		});
 }
+
 
 void ShadowCastViewPipeline(FrameGraphBuilder* frameGraph, RenderScene* scene, RenderView* curView)
 {

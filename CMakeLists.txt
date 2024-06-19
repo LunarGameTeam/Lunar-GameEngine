@@ -27,7 +27,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 
 option(LUNA_USING_DEBUG_PYTHON "使用Debug版本的Python" OFF)
 
-find_package (Python3 3.11 EXACT COMPONENTS Interpreter Development)
+find_package (Python3 3.12 EXACT COMPONENTS Interpreter Development)
 
 set(TRACY_ENABLE OFF CACHE BOOL "" FORCE)
 set(TRACY_STATIC OFF CACHE BOOL "" FORCE)

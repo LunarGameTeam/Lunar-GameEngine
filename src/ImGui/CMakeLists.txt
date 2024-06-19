@@ -1,8 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.8)
 
-include_directories(
-    ${CMAKE_CURRENT_SOURCE_DIR}
-)
+
 
 add_compile_definitions(IMGUI_EXPORT)
 
@@ -23,6 +21,11 @@ file(GLOB_RECURSE PROJECT_HEADERS
 )
 
 add_library(ImGui SHARED ${IMGUI_SOURCES} ${PROJECT_HEADERS})
+
+target_include_directories(
+    ImGui PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 target_link_libraries(ImGui SDL2::SDL2)
 

@@ -15,7 +15,7 @@
 #include "Graphics/RHI/RhiUtils/RHIResourceGenerateHelper.h"
 #include "Core/Foundation/Config.h"
 
-#include "imgui_impl_vulkan.h"
+#include "backends/imgui_impl_vulkan.h"
 
 namespace luna::graphics
 {

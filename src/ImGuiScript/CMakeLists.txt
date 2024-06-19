@@ -2,6 +2,8 @@
 cmake_minimum_required (VERSION 3.24)
 # 项目信息
 
+include_directories(${SOLUTION_CMAKE_SOURCE_PATH}src/ImGui)
+
 file(GLOB_RECURSE PROJECT_CPPS *.cpp *.h)
 
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" PREFIX Private FILES ${PROJECT_CPPS})

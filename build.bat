@@ -18,6 +18,8 @@ call sdk\vcpkg\bootstrap-vcpkg.bat
 .\sdk\vcpkg\vcpkg.exe install vulkan-memory-allocator:x64-windows
 .\sdk\vcpkg\vcpkg.exe install d3d12-memory-allocator:x64-windows
 
+.\sdk\vcpkg\vcpkg.exe install glslang:x64-windows
+
 pause
 call CMakeGenerate.bat
 pause

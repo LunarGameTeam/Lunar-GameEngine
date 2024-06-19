@@ -34,7 +34,7 @@ public:
 			const type_info& nInfo = typeid(T);
 			LSharedPtr<T> newData = MakeShared<T>();
 			mDatas.insert({ nInfo.hash_code(),newData});
-			newData.mContainter = this;
+			newData->mContainter = this;
 			t = newData.get();
 		}
 		return t;

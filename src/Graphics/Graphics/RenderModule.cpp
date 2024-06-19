@@ -23,7 +23,7 @@
 #include "Core/Foundation/AwesomeFont.h"
 #include "Graphics/Asset/MeshAsset.h"
 #include "Graphics/Asset/MeshAssetUtils.h"
-#include "imgui_impl_sdl2.h"
+#include "backends/imgui_impl_sdl2.h"
 #include "Graphics/Renderer/RenderView.h"
 #include "Graphics/RHI/RhiImgui/RHIImguiHelper.h"
 
@@ -68,7 +68,7 @@ bool RenderModule::OnInit()
 	GenerateGlobelEncoderHelper();
 
 	mGraphicCmd = sGlobelRenderDevice->CreateSinglePoolSingleCommondList(RHICmdListType::Graphic3D);
-		
+	mFrameGraphBuilder = new FrameGraphBuilder("Default");
 	//此处做Render系统的Init
 
 	gEngine->GetTModule<PlatformModule>()->OnWindowResize.Bind(AutoBind(&RenderModule::OnMainWindowResize, this));
@@ -106,7 +106,7 @@ void RenderModule::RenderTick(float delta_time)
 	//检查是数据拷贝池是否需要刷新
 	sGlobelRhiResourceGenerator->GetDeviceResourceGenerator()->CheckStageRefresh();
 
-	mFrameGraphBuilder.CleanUpVirtualMemory();
+	mFrameGraphBuilder->CleanUpVirtualMemory();
 	//RenderScene发起渲染
 	//mFrameFence->Wait(mFrameFenceValue);
 	//sRenderModule->GetRenderContext()->mFence->Wait(sRenderModule->GetRenderContext()->mFenceValue);
@@ -135,7 +135,7 @@ void RenderModule::RenderTick(float delta_time)
 		mGraphicCmd->GetCmdList()->EndEvent();
 
 		it->GetAllView(allView);
-		mFrameGraphBuilder.Clear();
+		mFrameGraphBuilder->Clear();
 		for (RenderView* curView : allView)
 		{
 			if (curView->GetRenderTarget() == nullptr)
@@ -143,9 +143,9 @@ void RenderModule::RenderTick(float delta_time)
 				continue;
 			}
 			curView->Culling(it);
-			curView->Render(&mFrameGraphBuilder);
+			curView->Render(mFrameGraphBuilder);
 		}
-		mFrameGraphBuilder.Flush(mGraphicCmd->GetCmdList());
+		mFrameGraphBuilder->Flush(mGraphicCmd->GetCmdList());
 	}
 
 	//先把barrier相关的资源指令提交
